@@ -42,23 +42,22 @@ function Navbar() {
   const isMobile = useMediaQuery("(max-width:900px)");
   const [activeLink, setActiveLink] = React.useState("Home");
 
-
   const handleOpen = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
   const toggleDrawer = () => setDrawerOpen(!drawerOpen);
   const toggleSubmenu = () => setSubmenuOpen(!submenuOpen);
- 
+
   return (
     <>
       <Box className="bg-[#edf1f4] px-4 py-3 shadow-md ">
-        <Box className="flex items-center max-w-[1440px] mx-auto justify-center">
+        <Box className="flex items-center max-w-[1440px] mx-auto justify-between">
           {/* Logo */}
           <Box className="flex justify-between">
             <Image
               src="/images/logo.png"
               alt="Master Group Logo"
-              width={90}
+              width={40}
               height={30}
               className="object-contain"
             />
@@ -76,10 +75,17 @@ function Navbar() {
                       onMouseEnter={handleOpen}
                       onMouseLeave={handleClose}
                     >
-                      <Typography className="font-semibold text-black cursor-pointer relative hover:after:content-[''] hover:after:absolute hover:after:w-full hover:after:h-[2px] hover:after:bottom-[-4px] hover:after:left-0 hover:after:bg-[#03bafc]">
+                      <Typography
+                        onClick={() => setActiveLink(item)}
+                        className={`font-semibold cursor-pointer relative ${
+                          activeLink === item
+                            ? "text-[#03bafc] after:content-[''] after:absolute after:w-full after:h-[2px] after:bottom-[-4px] after:left-0 after:bg-[#03bafc]"
+                            : "text-black hover:after:content-[''] hover:after:absolute hover:after:w-full hover:after:h-[2px] hover:after:bottom-[-4px] hover:after:left-0 hover:after:bg-[#03bafc]"
+                        }`}
+                      >
                         {item}
                       </Typography>
-                      
+
                       <Menu
                         anchorEl={anchorEl}
                         open={Boolean(anchorEl)}
@@ -154,7 +160,13 @@ function Navbar() {
                   </Collapse>
                 </React.Fragment>
               ) : (
-                <ListItem key={item} button>
+                <ListItem
+                  key={item}
+                  onClick={() => {
+                    setDrawerOpen(false);
+                    setActiveLink(item); 
+                  }}
+                >
                   <ListItemText primary={item} />
                 </ListItem>
               )
