@@ -3,67 +3,55 @@ import React from "react";
 import MuiButton from "@mui/material/Button";
 import clsx from "clsx";
 import Link from "next/link";
+import PropTypes from "prop-types";
 
-
-
-export const Button = ({
+export const CoustomButton = ({
     text,
     onClick,
     href,
-    bg = "custom",
+    bg = "blue",
     className = "",
     startIcon,
     endIcon,
     size = "small",
-    color = "red",
-    hoverColor = "orange",
+    target,
+    buttonStyles,
     ...props
 }) => {
-    // const bgClasses = {
-    //     blue: "bg-blue-500 hover:bg-blue-600",
-    //     red: "bg-red-500 hover:bg-red-600",
-    //     green: "bg-green-500 hover:bg-green-600",
-    //     yellow: "bg-yellow-500 hover:bg-yellow-600",
-    //     gray: "bg-gray-500 hover:bg-gray-600",
-    // };
+    const colorMap = {
+        buttonStyles: buttonStyles ? buttonStyles : "!bg-blue-500 hover:bg-blue-600",
+    };
 
-    // const finalClass = clsx("text-white", bgClasses[bg] || bgClasses.blue, className);
-    const bgColor = clsx(`!bg-[${color}] !hover:bg-[black]`);
-    console.log("bgColor", bgColor);
+    const buttonClass = clsx(
+        "!text-white",
+        colorMap[bg] || colorMap["buttonStyles"],
+        className
+    );
+
     const button = (
         <MuiButton
             variant="contained"
             size={size}
             onClick={onClick}
-            className={bgColor}
-            disableElevation
-            startIcon={startIcon}
-            endIcon={endIcon}
+            className={buttonClass}
+            startIcon={startIcon || null}
+            endIcon={endIcon || null}
             {...props}
         >
             {text}
         </MuiButton>
     );
 
-    const isExternal = href?.startsWith("http");
-
     if (href) {
-
-        if (isExternal) {
-            return (
-                <a href={href} target="_blank" rel="noopener noreferrer">
-                    {button}
-                </a>
-            );
-        }
-
         return (
-            <Link href={href} target="" passHref legacyBehavior>
-                <a>{button}</a>
+            <Link href={href} target={target} className="inline-block">
+                {button}
             </Link>
         );
     }
+
     return button;
 };
 
-export default Button;
+
+export default CoustomButton;

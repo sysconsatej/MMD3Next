@@ -18,6 +18,8 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import Image from "next/image";
+import CoustomButton from "@/components/button/button";
+
 const navItems = [
   "Home",
   "About",
@@ -77,11 +79,10 @@ function Navbar() {
                     >
                       <Typography
                         onClick={() => setActiveLink(item)}
-                        className={`font-semibold cursor-pointer relative ${
-                          activeLink === item
-                            ? "text-[#03bafc] after:content-[''] after:absolute after:w-full after:h-[2px] after:bottom-[-4px] after:left-0 after:bg-[#03bafc]"
-                            : "text-black hover:after:content-[''] hover:after:absolute hover:after:w-full hover:after:h-[2px] hover:after:bottom-[-4px] hover:after:left-0 hover:after:bg-[#03bafc]"
-                        }`}
+                        className={`font-semibold cursor-pointer relative ${activeLink === item
+                          ? "text-[#03bafc] after:content-[''] after:absolute after:w-full after:h-[2px] after:bottom-[-4px] after:left-0 after:bg-[#03bafc]"
+                          : "text-black hover:after:content-[''] hover:after:absolute hover:after:w-full hover:after:h-[2px] hover:after:bottom-[-4px] hover:after:left-0 hover:after:bg-[#03bafc]"
+                          }`}
                       >
                         {item}
                       </Typography>
@@ -120,12 +121,7 @@ function Navbar() {
                   )
                 )}
               </Box>
-              <Button
-                variant="contained"
-                className="bg-[#FFD700] text-black font-bold rounded-md px-6 py-2 ml-2 shadow-md hover:bg-[#ffc400]"
-              >
-                ENQUIRE NOW
-              </Button>
+              <CoustomButton text="Enquire Now" />
             </Box>
           )}
 
@@ -164,7 +160,7 @@ function Navbar() {
                   key={item}
                   onClick={() => {
                     setDrawerOpen(false);
-                    setActiveLink(item); 
+                    setActiveLink(item);
                   }}
                 >
                   <ListItemText primary={item} />
