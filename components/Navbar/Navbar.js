@@ -18,6 +18,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import Image from "next/image";
+import CoustomButton from "@/components/button/button";
 
 const navItems = [
   "Home",
@@ -88,9 +89,8 @@ function Navbar() {
                         onClick={() => setActiveLink(item)}
                       >
                         <Typography
-                          className={`${baseClass} ${
-                            isActive ? activeClass : hoverClass
-                          }`}
+                          className={`${baseClass} ${isActive ? activeClass : hoverClass
+                            }`}
                         >
                           {item}
                         </Typography>
@@ -144,9 +144,8 @@ function Navbar() {
                     <Box key={item} className="relative">
                       <Typography
                         onClick={() => setActiveLink(item)}
-                        className={`${baseClass} ${
-                          isActive ? activeClass : hoverClass
-                        }`}
+                        className={`${baseClass} ${isActive ? activeClass : hoverClass
+                          }`}
                       >
                         {item}
                       </Typography>
@@ -154,12 +153,7 @@ function Navbar() {
                   );
                 })}
               </Box>
-              <Button
-                variant="contained"
-                className="!bg-[#FFD700] text-black font-bold rounded-md px-6 py-2 ml-2 shadow-md hover:bg-[#ffc400]"
-              >
-                ENQUIRE NOW
-              </Button>
+              <CoustomButton text="Enquire Now" />
             </Box>
           )}
 
