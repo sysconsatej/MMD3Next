@@ -5,38 +5,27 @@ import clsx from "clsx";
 import Link from "next/link";
 import PropTypes from "prop-types";
 
-export const CoustomButton = ({
+export const CustomButton = ({
     text,
     onClick,
     href,
-    bg = "blue",
-    className = "",
     startIcon,
     endIcon,
     size = "small",
     target,
-    buttonStyles,
-    ...props
+    buttonStyles = "!text-[black] !bg-[#fadb0f]",
 }) => {
-    const colorMap = {
-        buttonStyles: buttonStyles ? buttonStyles : "!bg-blue-500 hover:bg-blue-600",
-    };
-
-    const buttonClass = clsx(
-        "!text-white",
-        colorMap[bg] || colorMap["buttonStyles"],
-        className
-    );
 
     const button = (
         <MuiButton
             variant="contained"
+            disableElevation
+            disableRipple
             size={size}
             onClick={onClick}
-            className={buttonClass}
+            className={buttonStyles}
             startIcon={startIcon || null}
             endIcon={endIcon || null}
-            {...props}
         >
             {text}
         </MuiButton>
@@ -54,4 +43,4 @@ export const CoustomButton = ({
 };
 
 
-export default CoustomButton;
+export default CustomButton;

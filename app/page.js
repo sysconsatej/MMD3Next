@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { countStore } from "@/store";
-import Button from "@/components/button/button";
+import Button, { CustomButton } from "@/components/button/button";
 import Navbar from "@/components/Navbar/Navbar";
 import SendIcon from '@mui/icons-material/Send';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -28,9 +28,9 @@ export default function Home() {
             priority
           />
           <p>{count}</p>
-          <Button text="Increase" size="large" bg="purple" buttonStyles='!bg-purple-500 hover:bg-purple-600' onClick={increase} />
-          <Button text="Reset" size="medium" onClick={reset} />
-          <Button text="Go to about page" size="small" href="https://www.google.com/" startIcon={<SendIcon />} endIcon={<DeleteIcon />} />
+          <CustomButton text="Increase" size="large" buttonStyles="text-white !bg-[#000000] hover:!bg-blue-600" onClick={increase} />
+          <CustomButton text="Reset" size="medium" onClick={reset} />
+          <CustomButton text="Go to about page" target="_blank" size="small" cl href="https://www.google.com/" startIcon={<SendIcon />} endIcon={<DeleteIcon />} />
         </main>
       </div>
     </>
