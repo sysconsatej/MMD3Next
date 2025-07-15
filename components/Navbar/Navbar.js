@@ -43,6 +43,7 @@ function Navbar() {
   const [submenuOpen, setSubmenuOpen] = React.useState(false);
   const isMobile = useMediaQuery("(max-width:900px)");
   const [activeLink, setActiveLink] = React.useState("Home");
+  const [activeSubLink, setActiveSubLink] = React.useState("Survey");
 
   const handleOpen = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
@@ -80,12 +81,14 @@ function Navbar() {
                     <Box
                       key={item}
                       className="relative"
-                      onMouseEnter={handleOpen}
                       onMouseLeave={handleClose}
                     >
                       <Box
                         className="flex items-center gap-1 cursor-pointer"
-                        onClick={() => setActiveLink(item)}
+                        onClick={(e) => {
+                          setActiveLink(item);
+                          setAnchorEl(anchorEl ? null : e.currentTarget); 
+                        }}
                       >
                         <Typography
                           className={`${baseClass} ${
@@ -127,10 +130,21 @@ function Navbar() {
                         {offeringsSubmenu.map((sub) => (
                           <MenuItem
                             key={sub}
-                            onClick={handleClose}
+                            onClick={() => {
+                              setActiveSubLink(sub);
+                              handleClose();
+                            }}
                             sx={{
+                              backgroundColor:
+                                activeSubLink === sub
+                                  ? "#03bafc"
+                                  : "transparent",
+                              color:
+                                activeSubLink === sub ? "white" : "inherit",
+                              fontWeight:
+                                activeSubLink === sub ? "bold" : "normal",
                               "&:hover": {
-                                backgroundColor: "#03bafc",
+                                borderBottom: "2px solid #03bafc",
                                 color: "white",
                               },
                             }}
@@ -188,10 +202,14 @@ function Navbar() {
                       {offeringsSubmenu.map((sub) => (
                         <ListItem
                           key={sub}
-                          className="pl-8 hover:bg-[#03bafc] hover:text-white rounded-md transition-all"
+                          className={`pl-8 rounded-none transition-all border-b-2 ${
+                            activeSubLink === sub
+                              ? "border-[#03bafc] text-[#03bafc] font-semibold"
+                              : "border-transparent hover:border-[#03bafc]"
+                          }`}
                           onClick={() => {
                             setDrawerOpen(false);
-                            setActiveLink(sub);
+                            setActiveSubLink(sub);
                           }}
                         >
                           <ListItemText primary={sub} />
