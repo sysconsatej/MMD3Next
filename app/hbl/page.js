@@ -5,8 +5,10 @@ import data from "./HBLData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export default function HBL() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     containerDetails: [],
   });
@@ -29,6 +31,14 @@ export default function HBL() {
             <h1 className="text-left text-xl font-semibold uppercase flex items-end m-0 ">
               Bill Of Lading For Ocean Transport
             </h1>
+            <Button
+              variant="contained"
+              className="mx-4 my-2 capitalize hover:bg-[#ffc400] !bg-[#ffc400] "
+              size="small"
+              onClick={() => router.push("/hbl/list")}
+            >
+              Back
+            </Button>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
