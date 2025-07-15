@@ -3,7 +3,6 @@ import React from "react";
 import {
   Box,
   Typography,
-  Button,
   Menu,
   MenuItem,
   Drawer,
@@ -18,6 +17,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import Image from "next/image";
+import CustomButton from "@/components/button/button";
 
 const navItems = [
   "Home",
@@ -168,12 +168,7 @@ function Navbar() {
                   );
                 })}
               </Box>
-              <Button
-                variant="contained"
-                className="!bg-[#FFD700] text-black font-bold rounded-md px-6 py-2 ml-2 shadow-md hover:bg-[#ffc400]"
-              >
-                ENQUIRE NOW
-              </Button>
+              <CustomButton text="Enquire Now" />
             </Box>
           )}
 
@@ -238,12 +233,7 @@ function Navbar() {
             )}
           </List>
           <Box className="mt-4">
-            <Button
-              fullWidth
-              className="!bg-[#FFD700] text-black font-bold rounded-md py-2 hover:bg-[#ffc400]"
-            >
-              ENQUIRE NOW
-            </Button>
+            <CustomButton text="Enquire Now" />
           </Box>
         </Box>
       </Drawer>

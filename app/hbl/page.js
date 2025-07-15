@@ -1,12 +1,15 @@
 "use client";
 import { useState } from "react";
-import { ThemeProvider, Box, Button, CssBaseline } from "@mui/material";
+import { ThemeProvider, Box, CssBaseline } from "@mui/material";
 import data from "./HBLData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
+import { useRouter } from "next/navigation";
+import CustomButton from "@/components/button/button";
 
 export default function HBL() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     containerDetails: [],
   });
@@ -29,6 +32,10 @@ export default function HBL() {
             <h1 className="text-left text-xl font-semibold uppercase flex items-end m-0 ">
               Bill Of Lading For Ocean Transport
             </h1>
+            <CustomButton
+              text={"Back"}
+              onClick={() => router.push("/hbl/list")}
+            />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
@@ -41,17 +48,7 @@ export default function HBL() {
             </Box>
           </Box>
           <Box className="w-full flex mt-2 ">
-            <Button
-              className=" hover:bg-[#ffc400]"
-              sx={{
-                textTransform: "capitalize",
-                backgroundColor: "#ffc400",
-              }}
-              variant="contained"
-              type="submit"
-            >
-              {`Submit`}
-            </Button>
+            <CustomButton text={"Submit"} type="submit" />
           </Box>
         </section>
       </form>
