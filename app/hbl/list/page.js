@@ -7,10 +7,11 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { Box, Button, TablePagination, Typography } from "@mui/material";
+import { Box, TablePagination, Typography } from "@mui/material";
 import styled from "@emotion/styled";
 import { listData } from "./listData";
 import { useRouter } from "next/navigation";
+import CustomButton from "@/components/button/button";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -69,15 +70,7 @@ export default function BlList() {
           HBL List
         </Typography>
         <Box className="flex flex-col sm:flex-row">
-          <Button
-            variant="contained"
-            className="mx-4 my-2 capitalize hover:bg-[#ffc400] "
-            sx={{ backgroundColor: "#ffc400" }}
-            size="small"
-            onClick={() => router.push("/hbl")}
-          >
-            Add
-          </Button>
+          <CustomButton text="Add" onClick={() => router.push("/hbl")} />
         </Box>
       </Box>
       <TableContainer component={Paper}>

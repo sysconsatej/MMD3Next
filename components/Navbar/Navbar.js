@@ -3,7 +3,6 @@ import React from "react";
 import {
   Box,
   Typography,
-  Button,
   Menu,
   MenuItem,
   Drawer,
@@ -89,8 +88,9 @@ function Navbar() {
                         onClick={() => setActiveLink(item)}
                       >
                         <Typography
-                          className={`${baseClass} ${isActive ? activeClass : hoverClass
-                            }`}
+                          className={`${baseClass} ${
+                            isActive ? activeClass : hoverClass
+                          }`}
                         >
                           {item}
                         </Typography>
@@ -144,8 +144,9 @@ function Navbar() {
                     <Box key={item} className="relative">
                       <Typography
                         onClick={() => setActiveLink(item)}
-                        className={`${baseClass} ${isActive ? activeClass : hoverClass
-                          }`}
+                        className={`${baseClass} ${
+                          isActive ? activeClass : hoverClass
+                        }`}
                       >
                         {item}
                       </Typography>
@@ -153,7 +154,7 @@ function Navbar() {
                   );
                 })}
               </Box>
-              <CustomButton text="Enquire Now" style={{ backgroundColor: '#fadb0f', color: '#000000', }} />
+              <CustomButton text="Enquire Now" />
             </Box>
           )}
 
@@ -214,8 +215,7 @@ function Navbar() {
             )}
           </List>
           <Box className="mt-4">
-
-            <CustomButton text="Enquire Now" style={{ backgroundColor: '#fadb0f', color: '#000000', }} />
+            <CustomButton text="Enquire Now" />
           </Box>
         </Box>
       </Drawer>
