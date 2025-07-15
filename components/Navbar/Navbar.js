@@ -18,7 +18,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import Image from "next/image";
-import CoustomButton from "@/components/button/button";
+import CustomButton from "@/components/button/button";
 
 const navItems = [
   "Home",
@@ -153,7 +153,7 @@ function Navbar() {
                   );
                 })}
               </Box>
-              <CoustomButton text="Enquire Now" />
+              <CustomButton text="Enquire Now" style={{ backgroundColor: '#fadb0f', color: '#000000', }} />
             </Box>
           )}
 
@@ -214,12 +214,8 @@ function Navbar() {
             )}
           </List>
           <Box className="mt-4">
-            <Button
-              fullWidth
-              className="!bg-[#FFD700] text-black font-bold rounded-md py-2 hover:bg-[#ffc400]"
-            >
-              ENQUIRE NOW
-            </Button>
+
+            <CustomButton text="Enquire Now" style={{ backgroundColor: '#fadb0f', color: '#000000', }} />
           </Box>
         </Box>
       </Drawer>
