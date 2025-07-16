@@ -17,85 +17,86 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import Image from "next/image";
+import Link from "next/link";
 import CustomButton from "@/components/button/button";
 
 const navItems = [
-  "Home",
-  "About",
-  "Offerings",
-  "CSR",
-  "Career",
-  "News and Events",
-  "Contact",
+  { name: "Home", href: "/" },
+  { name: "About", href: "/about" },
+  { name: "Offerings", href: "/offerings" },
+  { name: "CSR", href: "/csr" },
+  { name: "Career", href: "/career" },
+  { name: "News and Events", href: "/news-and-events" },
+  { name: "Contact", href: "/contact" },
+  { name: "HBL", href: "/hbl/list" },
 ];
 
 const offeringsSubmenu = [
-  "Survey",
-  "Logistics",
-  "Digital Solutions",
-  "Yard & CFS",
-  "Hydro Power",
+  { name: "Survey", href: "/offerings/survey" },
+  { name: "Logistics", href: "/offerings/logistics" },
+  { name: "Digital Solutions", href: "/offerings/digital-solutions" },
+  { name: "Yard & CFS", href: "/offerings/yard-cfs" },
+  { name: "Hydro Power", href: "/offerings/hydro-power" },
 ];
 
 function Navbar() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [submenuOpen, setSubmenuOpen] = React.useState(false);
-  const isMobile = useMediaQuery("(max-width:900px)");
   const [activeLink, setActiveLink] = React.useState("Home");
   const [activeSubLink, setActiveSubLink] = React.useState("Survey");
+  const isMobile = useMediaQuery("(max-width:900px)");
 
   const handleOpen = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
   const toggleDrawer = () => setDrawerOpen(!drawerOpen);
   const toggleSubmenu = () => setSubmenuOpen(!submenuOpen);
 
+  const baseClass = "font-semibold cursor-pointer relative";
+  const afterUnderline =
+    "after:content-[''] after:absolute after:w-full after:h-[2px] after:bottom-[-4px] after:left-0";
+  const activeClass = `text-[#03bafc] ${afterUnderline} after:bg-[#03bafc]`;
+  const hoverClass = `text-black hover:${afterUnderline} hover:after:bg-[#03bafc]`;
+
   return (
     <>
       <Box className="bg-[#edf1f4] px-4 py-3 shadow-md">
         <Box className="flex items-center max-w-[1440px] mx-auto justify-between">
           {/* Logo */}
-          <Box className="flex justify-between">
-            <Image
-              src="/images/logo.png"
-              alt="Master Group Logo"
-              width={40}
-              height={30}
-              className="object-contain"
-            />
-          </Box>
+          <Image
+            src="/images/logo.png"
+            alt="Master Group Logo"
+            width={40}
+            height={30}
+            className="object-contain"
+          />
 
-          {/* Desktop Navigation */}
+          {/* Desktop Nav */}
           {!isMobile && (
             <Box className="col-span-2 grid grid-cols-[1fr_auto] gap-8 items-center">
               <Box className="flex gap-8">
-                {navItems.map((item) => {
-                  const isActive = activeLink === item;
-                  const baseClass = "font-semibold cursor-pointer relative";
-                  const afterUnderline =
-                    "after:content-[''] after:absolute after:w-full after:h-[2px] after:bottom-[-4px] after:left-0";
-                  const activeClass = `text-[#03bafc] ${afterUnderline} after:bg-[#03bafc]`;
-                  const hoverClass = `text-black hover:${afterUnderline} hover:after:bg-[#03bafc]`;
-
-                  return item === "Offerings" ? (
+                {navItems.map((item) =>
+                  item.name === "Offerings" ? (
                     <Box
-                      key={item}
+                      key={item.name}
                       className="relative"
                       onMouseLeave={handleClose}
                     >
                       <Box
                         className="flex items-center gap-1 cursor-pointer"
                         onClick={(e) => {
-                          setActiveLink(item);
-                          setAnchorEl(anchorEl ? null : e.currentTarget); 
+                          setActiveLink(item.name);
+                          setAnchorEl(anchorEl ? null : e.currentTarget);
                         }}
                       >
                         <Typography
                           className={`${baseClass} ${
-                            isActive ? activeClass : hoverClass
+                            activeLink === item.name
+                              ? activeClass
+                              : hoverClass
                           }`}
                         >
-                          {item}
+                          {item.name}
                         </Typography>
                         <ExpandMore
                           fontSize="small"
@@ -129,50 +130,57 @@ function Navbar() {
                       >
                         {offeringsSubmenu.map((sub) => (
                           <MenuItem
-                            key={sub}
-                            onClick={() => {
-                              setActiveSubLink(sub);
-                              handleClose();
-                            }}
+                            key={sub.name}
+                            onClick={handleClose}
                             sx={{
                               backgroundColor:
-                                activeSubLink === sub
+                                activeSubLink === sub.name
                                   ? "#03bafc"
                                   : "transparent",
                               color:
-                                activeSubLink === sub ? "white" : "inherit",
+                                activeSubLink === sub.name ? "white" : "inherit",
                               fontWeight:
-                                activeSubLink === sub ? "bold" : "normal",
+                                activeSubLink === sub.name ? "bold" : "normal",
                               "&:hover": {
                                 borderBottom: "2px solid #03bafc",
                                 color: "white",
                               },
                             }}
                           >
-                            {sub}
+                            <Link
+                              href={sub.href}
+                              onClick={() => setActiveSubLink(sub.name)}
+                              className="w-full block"
+                            >
+                              {sub.name}
+                            </Link>
                           </MenuItem>
                         ))}
                       </Menu>
                     </Box>
                   ) : (
-                    <Box key={item} className="relative">
-                      <Typography
-                        onClick={() => setActiveLink(item)}
-                        className={`${baseClass} ${
-                          isActive ? activeClass : hoverClass
-                        }`}
-                      >
-                        {item}
-                      </Typography>
+                    <Box key={item.name} className="relative">
+                      <Link href={item.href}>
+                        <Typography
+                          onClick={() => setActiveLink(item.name)}
+                          className={`${baseClass} ${
+                            activeLink === item.name
+                              ? activeClass
+                              : hoverClass
+                          }`}
+                        >
+                          {item.name}
+                        </Typography>
+                      </Link>
                     </Box>
-                  );
-                })}
+                  )
+                )}
               </Box>
               <CustomButton text="Enquire Now" />
             </Box>
           )}
 
-          {/* Mobile Hamburger Icon */}
+          {/* Mobile Hamburger */}
           {isMobile && (
             <IconButton className="justify-self-end" onClick={toggleDrawer}>
               <MenuIcon sx={{ color: "#000" }} />
@@ -186,49 +194,53 @@ function Navbar() {
         <Box className="w-[250px] p-2" role="presentation">
           <List>
             {navItems.map((item) =>
-              item === "Offerings" ? (
-                <React.Fragment key={item}>
+              item.name === "Offerings" ? (
+                <React.Fragment key={item.name}>
                   <ListItem button onClick={toggleSubmenu}>
-                    <ListItemText primary={item} />
+                    <ListItemText primary={item.name} />
                     {submenuOpen ? <ExpandLess /> : <ExpandMore />}
                   </ListItem>
                   <Collapse in={submenuOpen} timeout="auto" unmountOnExit>
                     <List component="Box" disablePadding>
                       {offeringsSubmenu.map((sub) => (
-                        <ListItem
-                          key={sub}
-                          className={`pl-8 rounded-none transition-all border-b-2 ${
-                            activeSubLink === sub
-                              ? "border-[#03bafc] text-[#03bafc] font-semibold"
-                              : "border-transparent hover:border-[#03bafc]"
-                          }`}
-                          onClick={() => {
-                            setDrawerOpen(false);
-                            setActiveSubLink(sub);
-                          }}
-                        >
-                          <ListItemText primary={sub} />
-                        </ListItem>
+                        <Link href={sub.href} key={sub.name}>
+                          <ListItem
+                            className={`pl-8 rounded-none transition-all border-b-2 ${
+                              activeSubLink === sub.name
+                                ? "border-[#03bafc] text-[#03bafc] font-semibold"
+                                : "border-transparent hover:border-[#03bafc]"
+                            }`}
+                            onClick={() => {
+                              setDrawerOpen(false);
+                              setActiveSubLink(sub.name);
+                            }}
+                          >
+                            <ListItemText primary={sub.name} />
+                          </ListItem>
+                        </Link>
                       ))}
                     </List>
                   </Collapse>
                 </React.Fragment>
               ) : (
-                <ListItem
-                  key={item}
-                  button
-                  onClick={() => {
-                    setDrawerOpen(false);
-                    setActiveLink(item);
-                  }}
-                >
-                  <ListItemText
-                    primary={item}
-                    className={
-                      activeLink === item ? "text-[#03bafc] font-semibold" : ""
-                    }
-                  />
-                </ListItem>
+                <Link href={item.href} key={item.name}>
+                  <ListItem
+                    button
+                    onClick={() => {
+                      setDrawerOpen(false);
+                      setActiveLink(item.name);
+                    }}
+                  >
+                    <ListItemText
+                      primary={item.name}
+                      className={
+                        activeLink === item.name
+                          ? "text-[#03bafc] font-semibold"
+                          : ""
+                      }
+                    />
+                  </ListItem>
+                </Link>
               )
             )}
           </List>
