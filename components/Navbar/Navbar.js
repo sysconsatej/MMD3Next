@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   Typography,
@@ -19,6 +19,7 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import Image from "next/image";
 import Link from "next/link";
 import CustomButton from "@/components/button/button";
+import { usePathname } from "next/navigation";
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -44,8 +45,20 @@ function Navbar() {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [submenuOpen, setSubmenuOpen] = React.useState(false);
   const [activeLink, setActiveLink] = React.useState("Home");
-  const [activeSubLink, setActiveSubLink] = React.useState("Survey");
+  const [activeSubLink, setActiveSubLink] = React.useState("");
   const isMobile = useMediaQuery("(max-width:900px)");
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const foundSub = offeringsSubmenu.find((sub) => pathname.startsWith(sub.href));
+    if (foundSub) {
+      setActiveLink("Offerings");
+      setActiveSubLink(foundSub.name);
+    } else {
+      const foundMain = navItems.find((item) => item.href === pathname);
+      if (foundMain) setActiveLink(foundMain.name);
+    }
+  }, [pathname]);
 
   const handleOpen = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
@@ -62,7 +75,6 @@ function Navbar() {
     <>
       <Box className="bg-[#edf1f4] px-4 py-3 shadow-md">
         <Box className="flex items-center max-w-[1440px] mx-auto justify-between">
-          {/* Logo */}
           <Image
             src="/images/logo.png"
             alt="Master Group Logo"
@@ -71,7 +83,6 @@ function Navbar() {
             className="object-contain"
           />
 
-          {/* Desktop Nav */}
           {!isMobile && (
             <Box className="col-span-2 grid grid-cols-[1fr_auto] gap-8 items-center">
               <Box className="flex gap-8">
@@ -80,6 +91,7 @@ function Navbar() {
                     <Box
                       key={item.name}
                       className="relative"
+                      onMouseEnter={handleOpen}
                       onMouseLeave={handleClose}
                     >
                       <Box
@@ -91,9 +103,7 @@ function Navbar() {
                       >
                         <Typography
                           className={`${baseClass} ${
-                            activeLink === item.name
-                              ? activeClass
-                              : hoverClass
+                            activeLink === item.name ? activeClass : hoverClass
                           }`}
                         >
                           {item.name}
@@ -115,10 +125,7 @@ function Navbar() {
                         open={Boolean(anchorEl)}
                         onClose={handleClose}
                         MenuListProps={{ onMouseLeave: handleClose }}
-                        anchorOrigin={{
-                          vertical: "bottom",
-                          horizontal: "left",
-                        }}
+                        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
                         sx={{
                           mt: 1,
                           "& .MuiPaper-root": {
@@ -164,9 +171,7 @@ function Navbar() {
                         <Typography
                           onClick={() => setActiveLink(item.name)}
                           className={`${baseClass} ${
-                            activeLink === item.name
-                              ? activeClass
-                              : hoverClass
+                            activeLink === item.name ? activeClass : hoverClass
                           }`}
                         >
                           {item.name}
@@ -180,7 +185,6 @@ function Navbar() {
             </Box>
           )}
 
-          {/* Mobile Hamburger */}
           {isMobile && (
             <IconButton className="justify-self-end" onClick={toggleDrawer}>
               <MenuIcon sx={{ color: "#000" }} />
@@ -189,7 +193,6 @@ function Navbar() {
         </Box>
       </Box>
 
-      {/* Mobile Drawer */}
       <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
         <Box className="w-[250px] p-2" role="presentation">
           <List>
@@ -213,6 +216,7 @@ function Navbar() {
                             onClick={() => {
                               setDrawerOpen(false);
                               setActiveSubLink(sub.name);
+                              setActiveLink("Offerings");
                             }}
                           >
                             <ListItemText primary={sub.name} />
