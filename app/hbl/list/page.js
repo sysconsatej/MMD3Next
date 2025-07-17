@@ -43,15 +43,15 @@ export default function BlList() {
 
   const rows = listData
     ? listData.map((item) =>
-        createData(
-          item["jobNo"],
-          item["jobDate"],
-          item["plr"],
-          item["pol"],
-          item["pod"],
-          item["fpd"]
-        )
+      createData(
+        item["jobNo"],
+        item["jobDate"],
+        item["plr"],
+        item["pol"],
+        item["pod"],
+        item["fpd"]
       )
+    )
     : [];
 
   const handleChangePage = (event, newPage) => {
@@ -64,9 +64,9 @@ export default function BlList() {
   };
 
   return (
-    <Box className="sm:p-3 p-3 ">
-      <Box className="flex flex-col sm:flex-row justify-between pb-2">
-        <Typography variant="h5" className="text-left flex items-center ">
+    <Box className="sm:px-4 py-1 ">
+      <Box className="flex flex-col sm:flex-row justify-between pb-1">
+        <Typography variant="body1" className="text-left flex items-center ">
           HBL List
         </Typography>
         <Box className="flex flex-col sm:flex-row">
@@ -74,7 +74,7 @@ export default function BlList() {
         </Box>
       </Box>
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
           <TableHead>
             <TableRow>
               <StyledTableCell>Booking No.</StyledTableCell>
