@@ -5,11 +5,9 @@ import data from "./HBLData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
-import { useRouter } from "next/navigation";
 import CustomButton from "@/components/button/button";
 
 export default function HBL() {
-  const router = useRouter();
   const [formData, setFormData] = useState({
     containerDetails: [],
   });
@@ -29,13 +27,8 @@ export default function HBL() {
       <form onSubmit={submitHandler}>
         <section className="py-2 px-4">
           <Box className="flex justify-between items-end py-2">
-            <h1 className="text-left text-2xl flex items-end m-0 ">
-              HBL Form
-            </h1>
-            <CustomButton
-              text={"Back"}
-              onClick={() => router.push("/hbl/list")}
-            />
+            <h1 className="text-left text-2xl flex items-end m-0 ">HBL Form</h1>
+            <CustomButton text={"Back"} href="/hbl/list" />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
