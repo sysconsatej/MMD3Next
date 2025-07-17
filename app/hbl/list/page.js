@@ -15,7 +15,7 @@ import CustomButton from "@/components/button/button";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "#ffc400",
+    backgroundColor: "#0b2545",
     color: "white",
   },
   [`&.${tableCellClasses.body}`]: {

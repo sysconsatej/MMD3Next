@@ -28,9 +28,9 @@ export default function HBL() {
       <CssBaseline />
       <form onSubmit={submitHandler}>
         <section className="py-2 px-4">
-          <Box className="flex justify-between items-end mb-2">
-            <h1 className="text-left text-xl font-semibold uppercase flex items-end m-0 ">
-              Bill Of Lading For Ocean Transport
+          <Box className="flex justify-between items-end py-2">
+            <h1 className="text-left text-2xl flex items-end m-0 ">
+              HBL Form
             </h1>
             <CustomButton
               text={"Back"}
