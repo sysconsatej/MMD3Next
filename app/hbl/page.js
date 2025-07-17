@@ -25,9 +25,9 @@ export default function HBL() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <form onSubmit={submitHandler}>
-        <section className="py-2 px-4">
-          <Box className="flex justify-between items-end py-2">
-            <h1 className="text-left text-2xl flex items-end m-0 ">HBL Form</h1>
+        <section className="py-1 px-4">
+          <Box className="flex justify-between items-end py-1">
+            <h1 className="text-left text-base flex items-end m-0 ">HBL Form</h1>
             <CustomButton text={"Back"} href="/hbl/list" />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
