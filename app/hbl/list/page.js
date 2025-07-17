@@ -10,7 +10,6 @@ import Paper from "@mui/material/Paper";
 import { Box, TablePagination, Typography } from "@mui/material";
 import styled from "@emotion/styled";
 import { listData } from "./listData";
-import { useRouter } from "next/navigation";
 import CustomButton from "@/components/button/button";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -36,7 +35,6 @@ function createData(jobNo, blDate, plr, pol, pod, fpd) {
 }
 
 export default function BlList() {
-  const router = useRouter();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loadingState, setLoadingState] = useState("Loading...");
@@ -70,7 +68,7 @@ export default function BlList() {
           HBL List
         </Typography>
         <Box className="flex flex-col sm:flex-row">
-          <CustomButton text="Add" onClick={() => router.push("/hbl")} />
+          <CustomButton text="Add" href="/hbl" />
         </Box>
       </Box>
       <TableContainer component={Paper}>
