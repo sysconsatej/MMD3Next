@@ -65,16 +65,16 @@ function Navbar() {
   const toggleDrawer = () => setDrawerOpen(!drawerOpen);
   const toggleSubmenu = () => setSubmenuOpen(!submenuOpen);
 
-  const baseClass = "font-semibold cursor-pointer relative";
+  const baseClass = "font-semibold cursor-pointer relative transition-transform duration-200";
   const afterUnderline =
     "after:content-[''] after:absolute after:w-full after:h-[2px] after:bottom-[-4px] after:left-0";
   const activeClass = `text-[#03bafc] ${afterUnderline} after:bg-[#03bafc]`;
-  const hoverClass = `text-black hover:${afterUnderline} hover:after:bg-[#03bafc]`;
+  const hoverClass = `text-black hover:${afterUnderline} hover:after:bg-[#03bafc] hover:scale-105`;
 
   return (
     <>
-      <Box className="bg-[#edf1f4] px-4 py-3 shadow-md">
-        <Box className="flex items-center max-w-[1440px] mx-auto justify-between">
+      <Box className="bg-[#edf1f4] px-4 py-1 shadow-md">
+        <Box className="flex items-center  mx-auto justify-between">
           <Image
             src="/images/logo.png"
             alt="Master Group Logo"
@@ -102,9 +102,8 @@ function Navbar() {
                         }}
                       >
                         <Typography
-                          className={`${baseClass} ${
-                            activeLink === item.name ? activeClass : hoverClass
-                          }`}
+                          className={`${baseClass} ${activeLink === item.name ? activeClass : hoverClass}`}
+
                         >
                           {item.name}
                         </Typography>
