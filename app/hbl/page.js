@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { ThemeProvider, Box, CssBaseline } from "@mui/material";
 import data from "./HBLData";
@@ -33,7 +34,57 @@ export default function HBL() {
           <Box className="border border-solid border-black rounded-[4px] ">
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
               <CustomInput
+                fields={jsonData.countryFields}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
+              />
+            </Box>
+            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
+              <Box className="flex flex-col gap-2">
+                <CustomInput
+                  fields={jsonData.consignorFields}
+                  formData={formData}
+                  setFormData={setFormData}
+                  fieldsMode={fieldsMode}
+                />
+              </Box>
+              <Box className="flex flex-col gap-2">
+                <CustomInput
+                  fields={jsonData.consigneeFields}
+                  formData={formData}
+                  setFormData={setFormData}
+                  fieldsMode={fieldsMode}
+                />
+              </Box>
+              <Box className="flex flex-col gap-2">
+                <CustomInput
+                  fields={jsonData.notifyFields}
+                  formData={formData}
+                  setFormData={setFormData}
+                  fieldsMode={fieldsMode}
+                />
+              </Box>
+              <Box className="flex flex-col gap-2">
+                <CustomInput
+                  fields={jsonData.deliveryAgentFields}
+                  formData={formData}
+                  setFormData={setFormData}
+                  fieldsMode={fieldsMode}
+                />
+              </Box>
+            </Box>
+            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
+              <CustomInput
                 fields={jsonData.receiptFields}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
+              />
+            </Box>
+            <Box className="sm:grid sm:grid-cols-6 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
+              <CustomInput
+                fields={jsonData.cargoFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}

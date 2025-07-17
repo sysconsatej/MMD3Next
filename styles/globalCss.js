@@ -87,9 +87,15 @@ export const textFieldStyles = () => {
       width: "16px",
       height: "16px",
     },
+    "&.MuiFormControl-root.datepicker .MuiPickersSectionList-root": {
+      padding: "0px",
+    },
+    "&.MuiFormControl-root.datepicker .MuiButtonBase-root": {
+      padding: "7px",
+    },
     "& .MuiFormLabel-root.Mui-disabled, & .MuiInputBase-input.Mui-disabled": {
-      color:'rgba(0, 0, 0, 0.87)',
-      '-webkit-text-fill-color': 'unset',
+      color: "rgba(0, 0, 0, 0.87)",
+      "-webkit-text-fill-color": "unset",
     },
   };
 };
