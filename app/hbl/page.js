@@ -29,7 +29,12 @@ export default function HBL() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">HBL Form</h1>
-            <CustomButton text={"Back"} href="/hbl/list" />
+            <CustomButton
+              text="Back"
+              href="/hbl/list"
+              buttonStyles="!text-[12px] !text-black !py-0.5 !px-2 !min-h-0 !h-auto !min-w-0 !w-[50px] !bg-[#fadb0f]"
+            />
+
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
@@ -92,7 +97,8 @@ export default function HBL() {
             </Box>
           </Box>
           <Box className="w-full flex mt-2 ">
-            <CustomButton text={"Submit"} type="submit" />
+            <CustomButton text={"Submit"} type="submit" buttonStyles="!text-[12px] !text-black !py-0.5 !px-2 !min-h-0 !h-auto !min-w-0 !w-[50px] !bg-[#fadb0f]"
+            />
           </Box>
         </section>
       </form>

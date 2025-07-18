@@ -169,9 +169,8 @@ function Navbar() {
                       <Link href={item.href}>
                         <Typography
                           onClick={() => setActiveLink(item.name)}
-                          className={`${baseClass} ${
-                            activeLink === item.name ? activeClass : hoverClass
-                          }`}
+                          className={`${baseClass} ${activeLink === item.name ? activeClass : hoverClass
+                            }`}
                         >
                           {item.name}
                         </Typography>
@@ -180,7 +179,7 @@ function Navbar() {
                   )
                 )}
               </Box>
-              <CustomButton text="Enquire Now" />
+              <CustomButton text="Enquire Now" size="small" />
             </Box>
           )}
 
@@ -207,11 +206,10 @@ function Navbar() {
                       {offeringsSubmenu.map((sub) => (
                         <Link href={sub.href} key={sub.name}>
                           <ListItem
-                            className={`pl-8 rounded-none transition-all border-b-2 ${
-                              activeSubLink === sub.name
-                                ? "border-[#03bafc] text-[#03bafc] font-semibold"
-                                : "border-transparent hover:border-[#03bafc]"
-                            }`}
+                            className={`pl-8 rounded-none transition-all border-b-2 ${activeSubLink === sub.name
+                              ? "border-[#03bafc] text-[#03bafc] font-semibold"
+                              : "border-transparent hover:border-[#03bafc]"
+                              }`}
                             onClick={() => {
                               setDrawerOpen(false);
                               setActiveSubLink(sub.name);
