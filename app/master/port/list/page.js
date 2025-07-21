@@ -34,7 +34,7 @@ function createData(jobNo, blDate, plr, pol, pod, fpd) {
     return { jobNo, blDate, plr, pol, pod, fpd };
 }
 
-export default function CountryList() {
+export default function PortList() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loadingState, setLoadingState] = useState("Loading...");
@@ -65,10 +65,10 @@ export default function CountryList() {
         <Box className="sm:px-4 py-1 ">
             <Box className="flex flex-col sm:flex-row justify-between pb-1">
                 <Typography variant="body1" className="text-left flex items-center ">
-                    Country List
+                    Port List
                 </Typography>
                 <Box className="flex flex-col sm:flex-row">
-                    <CustomButton text="Add" href="/master/country" />
+                    <CustomButton text="Add" href="/master/port" />
                 </Box>
             </Box>
             <TableContainer component={Paper}>

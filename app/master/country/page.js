@@ -8,7 +8,7 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 
-export default function HBL() {
+export default function Country() {
   const [formData, setFormData] = useState({
     containerDetails: [],
   });
@@ -31,7 +31,7 @@ export default function HBL() {
             <h1 className="text-left text-base flex items-end m-0 ">
               Country Form
             </h1>
-            <CustomButton text="Back" href="/hbl/list" />
+            <CustomButton text="Back" href="/master/country/list" />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
