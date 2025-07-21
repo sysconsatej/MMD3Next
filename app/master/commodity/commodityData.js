@@ -1,5 +1,5 @@
 const fieldData = {
-  countryFields: [
+  commodityFields: [
     {
       label: "Commodity Type",
       name: "commodityType",

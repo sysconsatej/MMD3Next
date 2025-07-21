@@ -1,5 +1,5 @@
 const fieldData = {
-  countryFields: [
+  vesselFields: [
     {
       label: "Vessel Code",
       name: "vesselCode",

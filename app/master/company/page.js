@@ -31,12 +31,12 @@ export default function HBL() {
             <h1 className="text-left text-base flex items-end m-0 ">
               Company Form
             </h1>
-            <CustomButton text="Back" href="/hbl/list" />
+            <CustomButton text="Back" href="/master/company/list" />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
-                fields={jsonData.countryFields}
+                fields={jsonData.companyFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}

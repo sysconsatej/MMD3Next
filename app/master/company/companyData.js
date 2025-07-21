@@ -1,5 +1,5 @@
 const fieldData = {
-  countryFields: [
+  companyFields: [
     {
       label: "Company Code",
       name: "companyCode",
