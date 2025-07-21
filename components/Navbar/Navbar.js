@@ -29,11 +29,14 @@ const navItems = [
 ];
 
 const offeringsSubmenu = [
-  { name: "Commodity", href: "/master/commodity" },
-  { name: "Company", href: "/master/company" },
-  { name: "Country", href: "/master/country" },
-  { name: "Vessel", href: "/master/vessel" },
-  { name: "Voyage Route", href: "/master/voyageRoute" },
+  { name: "Commodity", href: "/master/commodity/list" },
+  { name: "Company", href: "/master/company/list" },
+  { name: "Country", href: "/master/country/list" },
+  { name: "Vessel", href: "/master/vessel/list" },
+  { name: "Voyage Route", href: "/master/voyageRoute/list" },
+  { name: "City", href: "/master/city/list" },
+  { name: "State", href: "/master/state/list" },
+  { name: "Port", href: "/master/port/list" },
 ];
 
 function Navbar() {
