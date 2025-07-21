@@ -41,15 +41,15 @@ export default function BlList() {
 
   const rows = listData
     ? listData.map((item) =>
-      createData(
-        item["jobNo"],
-        item["jobDate"],
-        item["plr"],
-        item["pol"],
-        item["pod"],
-        item["fpd"]
+        createData(
+          item["jobNo"],
+          item["jobDate"],
+          item["plr"],
+          item["pol"],
+          item["pod"],
+          item["fpd"]
+        )
       )
-    )
     : [];
 
   const handleChangePage = (event, newPage) => {
@@ -68,7 +68,7 @@ export default function BlList() {
           HBL List
         </Typography>
         <Box className="flex flex-col sm:flex-row">
-          <CustomButton text="Add" href="/hbl" buttonStyles="!text-[12px] !text-black !py-0.5 !px-2 !min-h-0 !h-auto !min-w-0 !w-[50px] !bg-[#fadb0f]" />
+          <CustomButton text="Add" href="/hbl" />
         </Box>
       </Box>
       <TableContainer component={Paper}>

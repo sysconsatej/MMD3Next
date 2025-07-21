@@ -32,7 +32,6 @@ export default function HBL() {
             <CustomButton
               text="Back"
               href="/hbl/list"
-              buttonStyles="!text-[12px] !text-black !py-0.5 !px-2 !min-h-0 !h-auto !min-w-0 !w-[50px] !bg-[#fadb0f]"
             />
 
           </Box>
@@ -97,7 +96,7 @@ export default function HBL() {
             </Box>
           </Box>
           <Box className="w-full flex mt-2 ">
-            <CustomButton text={"Submit"} type="submit" buttonStyles="!text-[12px] !text-black !py-0.5 !px-2 !min-h-0 !h-auto !min-w-0 !w-[50px] !bg-[#fadb0f]"
+            <CustomButton text={"Submit"} type="submit" 
             />
           </Box>
         </section>
