@@ -23,21 +23,17 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
   { name: "Home", href: "/" },
-  { name: "About", href: "/about" },
-  { name: "Offerings", href: "/offerings" },
-  { name: "CSR", href: "/csr" },
-  { name: "Career", href: "/career" },
-  { name: "News and Events", href: "/news-and-events" },
-  { name: "Contact", href: "/contact" },
+  { name: "Master", href: "/master" },
+  { name: "BL", href: "/bl/list" },
   { name: "HBL", href: "/hbl/list" },
 ];
 
 const offeringsSubmenu = [
-  { name: "Survey", href: "/offerings/survey" },
-  { name: "Logistics", href: "/offerings/logistics" },
-  { name: "Digital Solutions", href: "/offerings/digital-solutions" },
-  { name: "Yard & CFS", href: "/offerings/yard-cfs" },
-  { name: "Hydro Power", href: "/offerings/hydro-power" },
+  { name: "Commodity", href: "/master/commodity" },
+  { name: "Company", href: "/master/company" },
+  { name: "Country", href: "/master/country" },
+  { name: "Vessel", href: "/master/vessel" },
+  { name: "Voyage Route", href: "/master/voyageRoute" },
 ];
 
 function Navbar() {
@@ -50,9 +46,11 @@ function Navbar() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const foundSub = offeringsSubmenu.find((sub) => pathname.startsWith(sub.href));
+    const foundSub = offeringsSubmenu.find((sub) =>
+      pathname.startsWith(sub.href)
+    );
     if (foundSub) {
-      setActiveLink("Offerings");
+      setActiveLink("Master");
       setActiveSubLink(foundSub.name);
     } else {
       const foundMain = navItems.find((item) => item.href === pathname);
@@ -65,7 +63,8 @@ function Navbar() {
   const toggleDrawer = () => setDrawerOpen(!drawerOpen);
   const toggleSubmenu = () => setSubmenuOpen(!submenuOpen);
 
-  const baseClass = "font-semibold cursor-pointer relative transition-transform duration-200";
+  const baseClass =
+    "font-semibold cursor-pointer relative transition-transform duration-200";
   const afterUnderline =
     "after:content-[''] after:absolute after:w-full after:h-[2px] after:bottom-[-4px] after:left-0";
   const activeClass = `text-[#03bafc] ${afterUnderline} after:bg-[#03bafc]`;
@@ -87,7 +86,7 @@ function Navbar() {
             <Box className="col-span-2 grid grid-cols-[1fr_auto] gap-8 items-center">
               <Box className="flex gap-8">
                 {navItems.map((item) =>
-                  item.name === "Offerings" ? (
+                  item.name === "Master" ? (
                     <Box
                       key={item.name}
                       className="relative"
@@ -102,8 +101,9 @@ function Navbar() {
                         }}
                       >
                         <Typography
-                          className={` !text-sm ${baseClass} ${activeLink === item.name ? activeClass : hoverClass}`}
-
+                          className={` !text-sm ${baseClass} ${
+                            activeLink === item.name ? activeClass : hoverClass
+                          }`}
                         >
                           {item.name}
                         </Typography>
@@ -124,7 +124,10 @@ function Navbar() {
                         open={Boolean(anchorEl)}
                         onClose={handleClose}
                         MenuListProps={{ onMouseLeave: handleClose }}
-                        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                        anchorOrigin={{
+                          vertical: "bottom",
+                          horizontal: "left",
+                        }}
                         sx={{
                           mt: 1,
                           "& .MuiPaper-root": {
@@ -144,7 +147,9 @@ function Navbar() {
                                   ? "#03bafc"
                                   : "transparent",
                               color:
-                                activeSubLink === sub.name ? "white" : "inherit",
+                                activeSubLink === sub.name
+                                  ? "white"
+                                  : "inherit",
                               fontWeight:
                                 activeSubLink === sub.name ? "bold" : "normal",
                               "&:hover": {
@@ -169,8 +174,9 @@ function Navbar() {
                       <Link href={item.href}>
                         <Typography
                           onClick={() => setActiveLink(item.name)}
-                          className={` !text-sm ${baseClass} ${activeLink === item.name ? activeClass : hoverClass
-                            }`}
+                          className={` !text-sm ${baseClass} ${
+                            activeLink === item.name ? activeClass : hoverClass
+                          }`}
                         >
                           {item.name}
                         </Typography>
@@ -206,18 +212,20 @@ function Navbar() {
                       {offeringsSubmenu.map((sub) => (
                         <Link href={sub.href} key={sub.name}>
                           <ListItem
-                            className={`pl-8 rounded-none transition-all border-b-2 ${activeSubLink === sub.name
-                              ? "border-[#03bafc] text-[#03bafc] font-semibold"
-                              : "border-transparent hover:border-[#03bafc]"
-                              }`}
+                            className={`pl-8 rounded-none transition-all border-b-2 ${
+                              activeSubLink === sub.name
+                                ? "border-[#03bafc] text-[#03bafc] font-semibold"
+                                : "border-transparent hover:border-[#03bafc]"
+                            }`}
                             onClick={() => {
                               setDrawerOpen(false);
                               setActiveSubLink(sub.name);
                               setActiveLink("Offerings");
                             }}
                           >
-                            <ListItemText primary={sub.name} 
-                            className="text-sm"
+                            <ListItemText
+                              primary={sub.name}
+                              className="text-sm"
                             />
                           </ListItem>
                         </Link>
