@@ -102,7 +102,7 @@ function Navbar() {
                         }}
                       >
                         <Typography
-                          className={`${baseClass} ${activeLink === item.name ? activeClass : hoverClass}`}
+                          className={` !text-sm ${baseClass} ${activeLink === item.name ? activeClass : hoverClass}`}
 
                         >
                           {item.name}
@@ -156,7 +156,7 @@ function Navbar() {
                             <Link
                               href={sub.href}
                               onClick={() => setActiveSubLink(sub.name)}
-                              className="w-full block"
+                              className="w-full block text-sm"
                             >
                               {sub.name}
                             </Link>
@@ -169,7 +169,7 @@ function Navbar() {
                       <Link href={item.href}>
                         <Typography
                           onClick={() => setActiveLink(item.name)}
-                          className={`${baseClass} ${activeLink === item.name ? activeClass : hoverClass
+                          className={` !text-sm ${baseClass} ${activeLink === item.name ? activeClass : hoverClass
                             }`}
                         >
                           {item.name}
@@ -216,7 +216,9 @@ function Navbar() {
                               setActiveLink("Offerings");
                             }}
                           >
-                            <ListItemText primary={sub.name} />
+                            <ListItemText primary={sub.name} 
+                            className="text-sm"
+                            />
                           </ListItem>
                         </Link>
                       ))}
@@ -236,8 +238,8 @@ function Navbar() {
                       primary={item.name}
                       className={
                         activeLink === item.name
-                          ? "text-[#03bafc] font-semibold"
-                          : ""
+                          ? "text-[#03bafc] font-semibold text-sm"
+                          : "text-sm"
                       }
                     />
                   </ListItem>
