@@ -1,5 +1,5 @@
 const fieldData = {
-  countryFields: [
+  voyageFields: [
     {
       label: "Port Of Call",
       name: "portOfCall",
