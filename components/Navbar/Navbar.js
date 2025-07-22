@@ -37,6 +37,7 @@ const offeringsSubmenu = [
   { name: "City", href: "/master/city/list" },
   { name: "State", href: "/master/state/list" },
   { name: "Port", href: "/master/port/list" },
+  {name: "Nominated Area", href: "/master/nominatedArea/list" },
 ];
 
 function Navbar() {
