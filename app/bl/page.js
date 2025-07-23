@@ -1,13 +1,6 @@
 "use client";
 import { useState } from "react";
-import {
-  ThemeProvider,
-  Box,
-  Button,
-  IconButton,
-  CssBaseline,
-  Tooltip,
-} from "@mui/material";
+import { ThemeProvider, Box, Button, IconButton, Tooltip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import data from "./blData";
 import { CustomInput } from "@/components/customInput";
@@ -56,7 +49,6 @@ export default function Home() {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
       <form onSubmit={submitHandler}>
         <section className="py-2 px-4">
           <Box className="flex justify-between items-end mb-2">

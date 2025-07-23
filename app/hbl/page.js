@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ThemeProvider, Box, CssBaseline } from "@mui/material";
+import { ThemeProvider, Box } from "@mui/material";
 import data from "./HBLData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
@@ -24,16 +24,13 @@ export default function HBL() {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
       <form onSubmit={submitHandler}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base flex items-end m-0 ">HBL Form</h1>
-            <CustomButton
-              text="Back"
-              href="/hbl/list"
-            />
-
+            <h1 className="text-left text-base flex items-end m-0 ">
+              HBL Form
+            </h1>
+            <CustomButton text="Back" href="/hbl/list" />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
@@ -96,8 +93,7 @@ export default function HBL() {
             </Box>
           </Box>
           <Box className="w-full flex mt-2 ">
-            <CustomButton text={"Submit"} type="submit" 
-            />
+            <CustomButton text={"Submit"} type="submit" />
           </Box>
         </section>
       </form>

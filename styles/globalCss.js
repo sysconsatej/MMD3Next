@@ -99,6 +99,26 @@ export const theme = createTheme({
         },
       },
     },
+    MuiTableHead: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#0b2545",
+          "& .MuiTableCell-root": {
+            color: "white",
+            fontSize: "14px",
+          },
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          padding: "6px 16px",
+          fontSize: 10,
+          minWidth: "150px",
+        },
+      },
+    },
   },
 });
 

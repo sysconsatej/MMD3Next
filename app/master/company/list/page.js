@@ -14,30 +14,10 @@ import {
   CssBaseline,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
-import { tableCellClasses } from "@mui/material/TableCell";
-import styled from "@emotion/styled";
 import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
 import { listData } from "./listData";
 import { theme } from "@/styles/globalCss";
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "#0b2545",
-    color: "white",
-  },
-  [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
-  },
-}));
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  [`& td, & th`]: {
-    padding: "6px 16px",
-    fontSize: 10,
-    minWidth: "150px",
-  },
-}));
 
 function createData(jobNo, blDate, plr, pol, pod, fpd) {
   return { jobNo, blDate, plr, pol, pod, fpd };
@@ -50,15 +30,15 @@ export default function BlList() {
 
   const rows = listData
     ? listData.map((item) =>
-      createData(
-        item["jobNo"],
-        item["jobDate"],
-        item["plr"],
-        item["pol"],
-        item["pod"],
-        item["fpd"]
+        createData(
+          item["jobNo"],
+          item["jobDate"],
+          item["plr"],
+          item["pol"],
+          item["pod"],
+          item["fpd"]
+        )
       )
-    )
     : [];
 
   const handleChangePage = (event, newPage) => {
@@ -86,31 +66,31 @@ export default function BlList() {
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
-                <StyledTableCell>Booking No.</StyledTableCell>
-                <StyledTableCell>B/L Date</StyledTableCell>
-                <StyledTableCell>PLR</StyledTableCell>
-                <StyledTableCell>POL</StyledTableCell>
-                <StyledTableCell>POD</StyledTableCell>
-                <StyledTableCell>FPD</StyledTableCell>
+                <TableCell>Booking No.</TableCell>
+                <TableCell>B/L Date</TableCell>
+                <TableCell>PLR</TableCell>
+                <TableCell>POL</TableCell>
+                <TableCell>POD</TableCell>
+                <TableCell>FPD</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {!rows.length ? (
-                <StyledTableRow>
+                <TableRow>
                   <TableCell>{loadingState}</TableCell>
-                </StyledTableRow>
+                </TableRow>
               ) : (
                 rows
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, index) => (
-                    <StyledTableRow key={index} hover className="relative group ">
+                    <TableRow key={index} hover className="relative group ">
                       <TableCell>{row.jobNo}</TableCell>
                       <TableCell>{row.blDate}</TableCell>
                       <TableCell>{row.plr}</TableCell>
                       <TableCell>{row.pol}</TableCell>
                       <TableCell>{row.pod}</TableCell>
                       <TableCell>{row.fpd}</TableCell>
-                    </StyledTableRow>
+                    </TableRow>
                   ))
               )}
             </TableBody>
@@ -137,4 +117,4 @@ export default function BlList() {
       </Box>
     </ThemeProvider>
   );
-} 
+}

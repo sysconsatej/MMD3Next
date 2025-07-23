@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ThemeProvider, Box, CssBaseline } from "@mui/material";
+import { ThemeProvider, Box } from "@mui/material";
 import data from "./commodityData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
@@ -24,7 +24,6 @@ export default function Commodity() {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
       <form onSubmit={submitHandler}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">

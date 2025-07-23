@@ -2,33 +2,15 @@
 import React, { useState } from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
-import TableCell, { tableCellClasses } from "@mui/material/TableCell";
+import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { Box, TablePagination, Typography } from "@mui/material";
-import styled from "@emotion/styled";
+import { Box, TablePagination, ThemeProvider, Typography } from "@mui/material";
 import { listData } from "./listData";
 import CustomButton from "@/components/button/button";
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "#0b2545",
-    color: "white",
-  },
-  [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
-  },
-}));
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  [`& td, & th`]: {
-    padding: "6px 16px",
-    fontSize: 10,
-    minWidth: "150px",
-  },
-}));
+import { theme } from "@/styles";
 
 function createData(jobNo, blDate, plr, pol, pod, fpd) {
   return { jobNo, blDate, plr, pol, pod, fpd };
@@ -62,58 +44,60 @@ export default function BlList() {
   };
 
   return (
-    <Box className="sm:px-4 py-1 ">
-      <Box className="flex flex-col sm:flex-row justify-between pb-1">
-        <Typography variant="body1" className="text-left flex items-center ">
-          HBL List
-        </Typography>
-        <Box className="flex flex-col sm:flex-row">
-          <CustomButton text="Add" href="/hbl" />
+    <ThemeProvider theme={theme}>
+      <Box className="sm:px-4 py-1 ">
+        <Box className="flex flex-col sm:flex-row justify-between pb-1">
+          <Typography variant="body1" className="text-left flex items-center ">
+            HBL List
+          </Typography>
+          <Box className="flex flex-col sm:flex-row">
+            <CustomButton text="Add" href="/hbl" />
+          </Box>
         </Box>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Booking No.</TableCell>
+                <TableCell>B/L Date</TableCell>
+                <TableCell>PLR</TableCell>
+                <TableCell>POL</TableCell>
+                <TableCell>POD</TableCell>
+                <TableCell>FPD</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {!rows.length ? (
+                <TableRow>
+                  <TableCell>{loadingState}</TableCell>
+                </TableRow>
+              ) : (
+                rows
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, index) => (
+                    <TableRow key={index} hover className="relative group ">
+                      <TableCell>{row.jobNo}</TableCell>
+                      <TableCell>{row.blDate}</TableCell>
+                      <TableCell>{row.plr}</TableCell>
+                      <TableCell>{row.pol}</TableCell>
+                      <TableCell>{row.pod}</TableCell>
+                      <TableCell>{row.fpd}</TableCell>
+                    </TableRow>
+                  ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[10, 25, 100]}
+          component="div"
+          count={rows.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Box>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <StyledTableCell>Booking No.</StyledTableCell>
-              <StyledTableCell>B/L Date</StyledTableCell>
-              <StyledTableCell>PLR</StyledTableCell>
-              <StyledTableCell>POL</StyledTableCell>
-              <StyledTableCell>POD</StyledTableCell>
-              <StyledTableCell>FPD</StyledTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {!rows.length ? (
-              <StyledTableRow>
-                <TableCell>{loadingState}</TableCell>
-              </StyledTableRow>
-            ) : (
-              rows
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => (
-                  <StyledTableRow key={index} hover className="relative group ">
-                    <TableCell>{row.jobNo}</TableCell>
-                    <TableCell>{row.blDate}</TableCell>
-                    <TableCell>{row.plr}</TableCell>
-                    <TableCell>{row.pol}</TableCell>
-                    <TableCell>{row.pod}</TableCell>
-                    <TableCell>{row.fpd}</TableCell>
-                  </StyledTableRow>
-                ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
-        component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-    </Box>
+    </ThemeProvider>
   );
 }
