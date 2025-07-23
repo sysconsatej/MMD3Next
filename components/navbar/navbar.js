@@ -37,14 +37,7 @@ const navItems = [
       { name: "Nominated Area", href: "/master/nominatedArea/list" },
     ],
   },
-  {
-    name: "BL",
-    submenu: [
-      { name: "BL List", href: "/bl/list" },
-      { name: "BL Create", href: "/bl/create" },
-      { name: "BL Search", href: "/bl/search" },
-    ],
-  },
+  { name: "BL",href: "/bl/list",},
   { name: "HBL", href: "/hbl/list" },
 ];
 
