@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -23,49 +23,61 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
   { name: "Home", href: "/" },
-  { name: "Master", href: "/master" },
-  { name: "BL", href: "/bl/list" },
+  {
+    name: "Master",
+    submenu: [
+      { name: "Commodity", href: "/master/commodity/list" },
+      { name: "Company", href: "/master/company/list" },
+      { name: "Country", href: "/master/country/list" },
+      { name: "Vessel", href: "/master/vessel/list" },
+      { name: "Voyage Route", href: "/master/voyageRoute/list" },
+      { name: "City", href: "/master/city/list" },
+      { name: "State", href: "/master/state/list" },
+      { name: "Port", href: "/master/port/list" },
+      { name: "Nominated Area", href: "/master/nominatedArea/list" },
+    ],
+  },
+  { name: "BL",href: "/bl/list",},
   { name: "HBL", href: "/hbl/list" },
 ];
 
-const offeringsSubmenu = [
-  { name: "Commodity", href: "/master/commodity/list" },
-  { name: "Company", href: "/master/company/list" },
-  { name: "Country", href: "/master/country/list" },
-  { name: "Vessel", href: "/master/vessel/list" },
-  { name: "Voyage Route", href: "/master/voyageRoute/list" },
-  { name: "City", href: "/master/city/list" },
-  { name: "State", href: "/master/state/list" },
-  { name: "Port", href: "/master/port/list" },
-  {name: "Nominated Area", href: "/master/nominatedArea/list" },
-];
-
 function Navbar() {
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
-  const [submenuOpen, setSubmenuOpen] = React.useState(false);
-  const [activeLink, setActiveLink] = React.useState("Home");
-  const [activeSubLink, setActiveSubLink] = React.useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [activeLink, setActiveLink] = useState("Home");
+  const [activeSubLink, setActiveSubLink] = useState("");
+  const [openSubmenus, setOpenSubmenus] = useState({});
   const isMobile = useMediaQuery("(max-width:900px)");
   const pathname = usePathname();
 
   useEffect(() => {
-    const foundSub = offeringsSubmenu.find((sub) =>
-      pathname.startsWith(sub.href)
-    );
-    if (foundSub) {
-      setActiveLink("Master");
-      setActiveSubLink(foundSub.name);
-    } else {
-      const foundMain = navItems.find((item) => item.href === pathname);
-      if (foundMain) setActiveLink(foundMain.name);
+    let found = false;
+    for (const item of navItems) {
+      if (item.submenu) {
+        const sub = item.submenu.find((s) => pathname.startsWith(s.href));
+        if (sub) {
+          setActiveLink(item.name);
+          setActiveSubLink(sub.name);
+          found = true;
+          break;
+        }
+      } else if (item.href === pathname) {
+        setActiveLink(item.name);
+        setActiveSubLink("");
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      setActiveLink("");
+      setActiveSubLink("");
     }
   }, [pathname]);
 
-  const handleOpen = (event) => setAnchorEl(event.currentTarget);
-  const handleClose = () => setAnchorEl(null);
   const toggleDrawer = () => setDrawerOpen(!drawerOpen);
-  const toggleSubmenu = () => setSubmenuOpen(!submenuOpen);
+  const toggleSubmenu = (name) => {
+    setOpenSubmenus((prev) => ({ ...prev, [name]: !prev[name] }));
+  };
 
   const baseClass =
     "font-semibold cursor-pointer relative transition-transform duration-200";
@@ -77,7 +89,7 @@ function Navbar() {
   return (
     <>
       <Box className="bg-[#edf1f4] px-4 py-1 shadow-md">
-        <Box className="flex items-center  mx-auto justify-between">
+        <Box className="flex items-center mx-auto justify-between">
           <Image
             src="/images/logo.png"
             alt="Master Group Logo"
@@ -90,19 +102,16 @@ function Navbar() {
             <Box className="col-span-2 grid grid-cols-[1fr_auto] gap-8 items-center">
               <Box className="flex gap-8">
                 {navItems.map((item) =>
-                  item.name === "Master" ? (
+                  item.submenu ? (
                     <Box
                       key={item.name}
                       className="relative"
-                      onMouseEnter={handleOpen}
-                      onMouseLeave={handleClose}
+                      onMouseEnter={(e) => setAnchorEl(e.currentTarget)}
+                      onMouseLeave={() => setAnchorEl(null)}
                     >
                       <Box
                         className="flex items-center gap-1 cursor-pointer"
-                        onClick={(e) => {
-                          setActiveLink(item.name);
-                          setAnchorEl(anchorEl ? null : e.currentTarget);
-                        }}
+                        onClick={() => setActiveLink(item.name)}
                       >
                         <Typography
                           className={` !text-sm ${baseClass} ${
@@ -115,19 +124,21 @@ function Navbar() {
                           fontSize="small"
                           sx={{
                             color: "#000",
-                            transform: Boolean(anchorEl)
-                              ? "rotate(180deg)"
-                              : "rotate(0deg)",
+                            transform:
+                              anchorEl?.textContent === item.name
+                                ? "rotate(180deg)"
+                                : "rotate(0deg)",
                             transition: "transform 0.3s ease",
                           }}
                         />
                       </Box>
-
                       <Menu
                         anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={handleClose}
-                        MenuListProps={{ onMouseLeave: handleClose }}
+                        open={anchorEl?.textContent === item.name}
+                        onClose={() => setAnchorEl(null)}
+                        MenuListProps={{
+                          onMouseLeave: () => setAnchorEl(null),
+                        }}
                         anchorOrigin={{
                           vertical: "bottom",
                           horizontal: "left",
@@ -141,10 +152,10 @@ function Navbar() {
                           },
                         }}
                       >
-                        {offeringsSubmenu.map((sub) => (
+                        {item.submenu.map((sub) => (
                           <MenuItem
                             key={sub.name}
-                            onClick={handleClose}
+                            onClick={() => setAnchorEl(null)}
                             sx={{
                               backgroundColor:
                                 activeSubLink === sub.name
@@ -205,15 +216,19 @@ function Navbar() {
         <Box className="w-[250px] p-2" role="presentation">
           <List>
             {navItems.map((item) =>
-              item.name === "Offerings" ? (
+              item.submenu ? (
                 <React.Fragment key={item.name}>
-                  <ListItem button onClick={toggleSubmenu}>
+                  <ListItem button onClick={() => toggleSubmenu(item.name)}>
                     <ListItemText primary={item.name} />
-                    {submenuOpen ? <ExpandLess /> : <ExpandMore />}
+                    {openSubmenus[item.name] ? <ExpandLess /> : <ExpandMore />}
                   </ListItem>
-                  <Collapse in={submenuOpen} timeout="auto" unmountOnExit>
+                  <Collapse
+                    in={openSubmenus[item.name]}
+                    timeout="auto"
+                    unmountOnExit
+                  >
                     <List component="Box" disablePadding>
-                      {offeringsSubmenu.map((sub) => (
+                      {item.submenu.map((sub) => (
                         <Link href={sub.href} key={sub.name}>
                           <ListItem
                             className={`pl-8 rounded-none transition-all border-b-2 ${
@@ -224,7 +239,7 @@ function Navbar() {
                             onClick={() => {
                               setDrawerOpen(false);
                               setActiveSubLink(sub.name);
-                              setActiveLink("Offerings");
+                              setActiveLink(item.name);
                             }}
                           >
                             <ListItemText
@@ -244,6 +259,7 @@ function Navbar() {
                     onClick={() => {
                       setDrawerOpen(false);
                       setActiveLink(item.name);
+                      setActiveSubLink("");
                     }}
                   >
                     <ListItemText

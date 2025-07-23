@@ -43,6 +43,8 @@ const fieldData = {
       name: "portCutOff",
       type: "date",
     },
+  ],
+  portFields: [
     {
       label: "Arrival Date",
       name: "arrivalDate",
@@ -86,6 +88,8 @@ const fieldData = {
       label: "SCR No",
       name: "scrNo",
     },
+  ],
+  dateFields: [
     { label: "IGM No", name: "igmNo", type: "text" },
     {
       label: "IGM Date",
@@ -118,6 +122,8 @@ const fieldData = {
       name: "viaDate",
       type: "date",
     },
+  ],
+  consignorFields: [
     {
       label: "NO of Crew",
       name: "noOfCrew",
@@ -126,6 +132,7 @@ const fieldData = {
       label: "Light House Due",
       name: "lightHouseDue",
     },
+
     { label: "Passenger List", name: "passengerList" },
     {
       label: "Same Bottom Cargo",
@@ -144,16 +151,20 @@ const fieldData = {
       name: "maritimeDeclaration",
     },
     {
+      label: "Export Locking",
+      name: "exportLocking",
+    },
+  ],
+  additionalFields: [
+    {
       label: "Cargo Description",
       name: "cargoDescription",
       style: "sm:w-[min(100%,300px)]",
       multiline: true,
-      //
+      rows: 4,
+      gridColumn: "col-span-1 row-span-3 ",
       type: "textarea",
-    },
-    {
-      label: "Export Locking",
-      name: "exportLocking",
+      isEdit: true,
     },
     {
       label: "Import Locking",
