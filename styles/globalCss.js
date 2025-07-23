@@ -52,6 +52,17 @@ export const theme = createTheme({
         },
       },
     },
+    MuiCheckbox: {
+      styleOverrides: {
+        root: {
+          padding: "0px",
+          "& .MuiSvgIcon-root": {
+            width: "18px",
+            height: "18px",
+          },
+        },
+      },
+    },
   },
 });
 

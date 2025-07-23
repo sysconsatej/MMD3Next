@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Autocomplete, Box, TextField } from "@mui/material";
+import { Autocomplete, Box, Checkbox, TextField } from "@mui/material";
 import { inputLabelProps, textFieldStyles } from "@/styles";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -128,6 +128,31 @@ const CustomInput = ({
               className={`absolute top-0 transition-all duration-150 ease-in-out text-[#00000099] font-medium text-xs my-1 mx-3 peer-focus:text-[#1976d2] peer-focus:top-[-12px] peer-focus:px-1 peer-focus:bg-white peer-focus:text-[9px] ${
                 fieldValue ? " px-1 top-[-12px] bg-white text-[9px]" : ""
               } `}
+            >
+              {commonProps.label}
+            </p>
+          </Box>
+        );
+
+      case "checkbox":
+        return (
+          <Box
+            className={`relative py-[5px] px-[10px] border border-solid border-[#0000003b] rounded-[4px] placeholder-[#000000a6] w-full hover:border-black ${commonProps.className}`}
+            key={commonProps.key}
+          >
+            <Checkbox
+              checked={fieldValue}
+              onChange={(e) =>
+                changeHandler(
+                  {
+                    target: { name: commonProps.name, value: e.target.checked },
+                  },
+                  containerIndex
+                )
+              }
+            />
+            <p
+              className={`absolute text-[#00000099] font-medium text-xs my-1 mx-3 px-1 top-[-11px] bg-white text-[9px]`}
             >
               {commonProps.label}
             </p>
