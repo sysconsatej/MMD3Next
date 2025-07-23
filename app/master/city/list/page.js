@@ -9,7 +9,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  TablePagination,
   Typography,
   CssBaseline,
 } from "@mui/material";
@@ -78,21 +77,12 @@ export default function CityList() {
           </Table>
         </TableContainer>
         <Box className="flex justify-end items-center mt-2">
-          <TablePagination
-            component="div"
-            count={rows.length}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            rowsPerPageOptions={[5, 10, 25]}
-            ActionsComponent={() => null}
-          />
           <CustomPagination
             count={rows.length}
             page={page}
             rowsPerPage={rowsPerPage}
             onPageChange={handleChangePage}
+            handleChangeRowsPerPage={handleChangeRowsPerPage}
           />
         </Box>
       </Box>

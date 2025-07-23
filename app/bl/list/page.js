@@ -7,10 +7,11 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { Box, TablePagination, ThemeProvider, Typography } from "@mui/material";
+import { Box, ThemeProvider, Typography } from "@mui/material";
 import { listData } from "./listData";
 import CustomButton from "@/components/button/button";
 import { theme } from "@/styles";
+import CustomPagination from "@/components/pagination/pagination";
 
 function createData(jobNo, blDate, plr, pol, pod, fpd) {
   return { jobNo, blDate, plr, pol, pod, fpd };
@@ -88,15 +89,15 @@ export default function BlList() {
             </TableBody>
           </Table>
         </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 100]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        <Box className="flex justify-end items-center mt-2">
+          <CustomPagination
+            count={rows.length}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            handleChangeRowsPerPage={handleChangeRowsPerPage}
+          />
+        </Box>
       </Box>
     </ThemeProvider>
   );
