@@ -63,6 +63,42 @@ export const theme = createTheme({
         },
       },
     },
+    MuiPagination: {
+      styleOverrides: {
+        root: {
+          display: "inline-flex",
+          alignItems: "center",
+        },
+      },
+    },
+    MuiPaginationItem: {
+      styleOverrides: {
+        root: {
+          color: "#000",
+          border: "1px solid #FADB0F",
+          backgroundColor: "#fff",
+          fontSize: "10px",
+          minWidth: "24px",
+          height: "24px",
+          borderRadius: "4px",
+          padding: "0 4px",
+          "&:hover": {
+            backgroundColor: "#fff8cc",
+          },
+          "&.Mui-selected": {
+            backgroundColor: "#FADB0F",
+            color: "#000",
+            border: "1px solid #FADB0F",
+          },
+          "&.Mui-selected:hover": {
+            backgroundColor: "#e6c800",
+          },
+          "& .MuiPaginationItem-icon": {
+            color: "#000",
+          },
+        },
+      },
+    },
   },
 });
 

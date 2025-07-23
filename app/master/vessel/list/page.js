@@ -1,16 +1,25 @@
 "use client";
 import React, { useState } from "react";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell, { tableCellClasses } from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import { Box, TablePagination, Typography } from "@mui/material";
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TablePagination,
+  Typography,
+  CssBaseline,
+} from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
+import { tableCellClasses } from "@mui/material/TableCell";
 import styled from "@emotion/styled";
-import { listData } from "./listData";
 import CustomButton from "@/components/button/button";
+import CustomPagination from "@/components/pagination/pagination";
+import { listData } from "./listData";
+import { theme } from "@/styles/globalCss";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -41,15 +50,15 @@ export default function BlList() {
 
   const rows = listData
     ? listData.map((item) =>
-        createData(
-          item["jobNo"],
-          item["jobDate"],
-          item["plr"],
-          item["pol"],
-          item["pod"],
-          item["fpd"]
-        )
+      createData(
+        item["jobNo"],
+        item["jobDate"],
+        item["plr"],
+        item["pol"],
+        item["pod"],
+        item["fpd"]
       )
+    )
     : [];
 
   const handleChangePage = (event, newPage) => {
@@ -62,58 +71,70 @@ export default function BlList() {
   };
 
   return (
-    <Box className="sm:px-4 py-1 ">
-      <Box className="flex flex-col sm:flex-row justify-between pb-1">
-        <Typography variant="body1" className="text-left flex items-center ">
-           Vessel List
-        </Typography>
-        <Box className="flex flex-col sm:flex-row">
-          <CustomButton text="Add" href="/master/vessel" />
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box className="sm:px-4 py-1 ">
+        <Box className="flex flex-col sm:flex-row justify-between pb-1">
+          <Typography variant="body1" className="text-left flex items-center ">
+            Vessel List
+          </Typography>
+          <Box className="flex flex-col sm:flex-row">
+            <CustomButton text="Add" href="/master/vessel" />
+          </Box>
+        </Box>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <StyledTableCell>Booking No.</StyledTableCell>
+                <StyledTableCell>B/L Date</StyledTableCell>
+                <StyledTableCell>PLR</StyledTableCell>
+                <StyledTableCell>POL</StyledTableCell>
+                <StyledTableCell>POD</StyledTableCell>
+                <StyledTableCell>FPD</StyledTableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {!rows.length ? (
+                <StyledTableRow>
+                  <TableCell>{loadingState}</TableCell>
+                </StyledTableRow>
+              ) : (
+                rows
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, index) => (
+                    <StyledTableRow key={index} hover className="relative group ">
+                      <TableCell>{row.jobNo}</TableCell>
+                      <TableCell>{row.blDate}</TableCell>
+                      <TableCell>{row.plr}</TableCell>
+                      <TableCell>{row.pol}</TableCell>
+                      <TableCell>{row.pod}</TableCell>
+                      <TableCell>{row.fpd}</TableCell>
+                    </StyledTableRow>
+                  ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <Box className="flex justify-end items-center mt-2">
+          <TablePagination
+            component="div"
+            count={rows.length}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={[5, 10, 25]}
+            ActionsComponent={() => null}
+          />
+          <CustomPagination
+            count={rows.length}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+          />
         </Box>
       </Box>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <StyledTableCell>Booking No.</StyledTableCell>
-              <StyledTableCell>B/L Date</StyledTableCell>
-              <StyledTableCell>PLR</StyledTableCell>
-              <StyledTableCell>POL</StyledTableCell>
-              <StyledTableCell>POD</StyledTableCell>
-              <StyledTableCell>FPD</StyledTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {!rows.length ? (
-              <StyledTableRow>
-                <TableCell>{loadingState}</TableCell>
-              </StyledTableRow>
-            ) : (
-              rows
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => (
-                  <StyledTableRow key={index} hover className="relative group ">
-                    <TableCell>{row.jobNo}</TableCell>
-                    <TableCell>{row.blDate}</TableCell>
-                    <TableCell>{row.plr}</TableCell>
-                    <TableCell>{row.pol}</TableCell>
-                    <TableCell>{row.pod}</TableCell>
-                    <TableCell>{row.fpd}</TableCell>
-                  </StyledTableRow>
-                ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
-        component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-    </Box>
+    </ThemeProvider>
   );
-}
+} 
