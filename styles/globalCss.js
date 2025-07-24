@@ -128,6 +128,24 @@ export const theme = createTheme({
         },
       },
     },
+    MuiFormGroup: {
+      styleOverrides: {
+        root: {
+          "& .MuiFormControlLabel-root": {
+            "& .MuiSvgIcon-root": {
+              height: "18px",
+              width: "18px",
+            },
+            "& .MuiTypography-root": {
+              fontSize: "12px",
+            },
+            "& .MuiButtonBase-root": {
+              padding: "5px 8px",
+            },
+          },
+        },
+      },
+    },
   },
 });
 
