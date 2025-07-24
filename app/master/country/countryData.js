@@ -15,7 +15,7 @@ const fieldData = {
     {
       label: "Label",
       name: "checkbox",
-      type: "checkbox",
+      type: "date",
     },
   ],
 };

@@ -39,6 +39,15 @@ export const theme = createTheme({
         },
       },
     },
+    MuiFormControl: {
+      styleOverrides: {
+        root: {
+          "& .MuiPickersSectionList-root": {
+            fontSize: "12px",
+          },
+        },
+      },
+    },
     MuiAutocomplete: {
       styleOverrides: {
         popper: {
