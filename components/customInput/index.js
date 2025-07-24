@@ -6,3 +6,4 @@ export { default as DropdownInput } from "./dropdownInput";
 export { default as DateInput } from "./dateInput";
 export { default as TextInput } from "./textInput";
 export { default as RadioInput } from "./radioInput";
+export { default as MultiSelectInput } from "./multiSelectInput";

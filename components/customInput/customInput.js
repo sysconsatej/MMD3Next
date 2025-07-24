@@ -11,6 +11,7 @@ import {
   DateInput,
   TextInput,
   RadioInput,
+  MultiSelectInput,
 } from "./index";
 
 const CustomInput = ({
@@ -141,8 +142,18 @@ const CustomInput = ({
         return (
           <DropdownInput
             {...inputProps}
+            dropdowns={dropdowns}
             getData={getData}
             keyTabHandler={keyTabHandler}
+          />
+        );
+
+      case "multiselect":
+        return (
+          <MultiSelectInput
+            {...inputProps}
+            dropdowns={dropdowns}
+            getData={getData}
           />
         );
 
