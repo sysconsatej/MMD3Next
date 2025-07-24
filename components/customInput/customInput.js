@@ -1,12 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { Autocomplete, Box, Checkbox, TextField } from "@mui/material";
 import { inputLabelProps, textFieldStyles } from "@/styles";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from "dayjs";
 import { fetchDropDownValues } from "@/apis";
+import {
+  TextAreaInput,
+  CheckBoxInput,
+  NumberInput,
+  DropdownInput,
+  DateInput,
+  TextInput,
+} from "./index";
 
 const CustomInput = ({
   fields,
@@ -113,155 +117,60 @@ const CustomInput = ({
     switch (field.type) {
       case "textarea":
         return (
-          <Box
-            className={`relative ${field.gridColumn} `}
-            key={commonProps.key}
-          >
-            <textarea
-              {...commonProps}
-              value={fieldValue ? fieldValue : ""}
-              className={`peer py-2 px-3 border border-solid border-[#0000003b] rounded-[4px] placeholder-[#000000a6] w-full hover:border-black focus:outline-[#1976d2] ${commonProps.className}`}
-              rows={field.rows}
-              key={commonProps.key}
-            />
-            <p
-              className={`absolute top-0 transition-all duration-150 ease-in-out text-[#00000099] font-medium text-xs my-1 mx-3 peer-focus:text-[#1976d2] peer-focus:top-[-12px] peer-focus:px-1 peer-focus:bg-white peer-focus:text-[9px] ${
-                fieldValue ? " px-1 top-[-12px] bg-white text-[9px]" : ""
-              } `}
-            >
-              {commonProps.label}
-            </p>
-          </Box>
+          <TextAreaInput
+            commonProps={commonProps}
+            fieldValue={fieldValue}
+            field={field}
+          />
         );
 
       case "checkbox":
         return (
-          <Box
-            className={`relative py-[5px] px-[10px] border border-solid border-[#0000003b] rounded-[4px] placeholder-[#000000a6] w-full hover:border-black ${commonProps.className}`}
-            key={commonProps.key}
-          >
-            <Checkbox
-              checked={fieldValue}
-              onChange={(e) =>
-                changeHandler(
-                  {
-                    target: { name: commonProps.name, value: e.target.checked },
-                  },
-                  containerIndex
-                )
-              }
-            />
-            <p
-              className={`absolute text-[#00000099] font-medium text-xs my-1 mx-3 px-1 top-[-11px] bg-white text-[9px]`}
-            >
-              {commonProps.label}
-            </p>
-          </Box>
+          <CheckBoxInput
+            commonProps={commonProps}
+            fieldValue={fieldValue}
+            changeHandler={changeHandler}
+            containerIndex={containerIndex}
+          />
         );
 
       case "number":
         return (
-          <TextField
-            {...commonProps}
-            value={fieldValue ? fieldValue : ""}
-            type="number"
-            variant="outlined"
-            key={commonProps.key}
-          />
+          <NumberInput commonProps={commonProps} fieldValue={fieldValue} />
         );
 
       case "dropdown":
         return (
-          <Autocomplete
-            key={commonProps.key}
-            className={commonProps.className}
-            value={fieldValue ? fieldValue : null}
-            sx={commonProps.sx}
-            disabled={commonProps.disabled}
-            options={
-              dropdowns[field?.name]
-                ? dropdowns[field?.name]
-                : [{ Name: "Loading..." }]
-            }
-            getOptionLabel={(option) => option?.Name || ""}
-            renderOption={(props, option) => (
-              <Box component="li" {...props} key={option.Id}>
-                {option.Name}
-              </Box>
-            )}
-            renderInput={(params) => (
-              <TextField {...params} label={field.label} />
-            )}
-            onFocus={() => getData(field?.labelType, commonProps.name)}
-            onChange={(event, value) => {
-              changeHandler(
-                { target: { name: commonProps.name, value } },
-                containerIndex
-              );
-              field.changeFun
-                ? handleChangeEventFunctions[field.changeFun](
-                    commonProps.name,
-                    value,
-                    containerIndex
-                  )
-                : null;
-            }}
-            onKeyDown={(event) => {
-              if (event.key === "Tab") {
-                keyTabHandler(
-                  {
-                    target: {
-                      name: commonProps.name,
-                      value: event.target.value,
-                    },
-                  },
-                  containerIndex
-                );
-              }
-            }}
+          <DropdownInput
+            commonProps={commonProps}
+            fieldValue={fieldValue}
+            dropdowns={dropdowns}
+            field={field}
+            getData={getData}
+            changeHandler={changeHandler}
+            keyTabHandler={keyTabHandler}
+            containerIndex={containerIndex}
+            handleChangeEventFunctions={handleChangeEventFunctions}
           />
         );
 
       case "date":
         return (
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              {...commonProps}
-              className="datepicker"
-              value={fieldValue ? dayjs(fieldValue, "DD/MM/YYYY") : null}
-              onChange={(date) => {
-                const formattedDate = date
-                  ? dayjs(date).format("DD/MM/YYYY")
-                  : null;
-                changeHandler(
-                  { target: { name: commonProps.name, value: formattedDate } },
-                  containerIndex
-                );
-              }}
-              slotProps={{
-                textField: {
-                  placeholder: "DD/MM/YYYY",
-                  inputProps: { readOnly: false },
-                },
-              }}
-              format="DD/MM/YYYY"
-              key={commonProps.key}
-            />
-          </LocalizationProvider>
+          <DateInput
+            commonProps={commonProps}
+            fieldValue={fieldValue}
+            changeHandler={changeHandler}
+            containerIndex={containerIndex}
+          />
         );
 
       default:
         return (
-          <TextField
-            {...commonProps}
-            value={fieldValue ? fieldValue : ""}
-            variant="outlined"
-            key={commonProps.key}
-            onBlur={(event) =>
-              field.blurFun
-                ? handleBlurEventFunctions[field.blurFun](event)
-                : null
-            }
+          <TextInput
+            commonProps={commonProps}
+            fieldValue={fieldValue}
+            handleBlurEventFunctions={handleBlurEventFunctions}
+            field={field}
           />
         );
     }
