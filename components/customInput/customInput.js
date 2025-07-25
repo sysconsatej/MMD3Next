@@ -12,6 +12,7 @@ import {
   TextInput,
   RadioInput,
   MultiSelectInput,
+  DateTimeInput,
 } from "./index";
 
 const CustomInput = ({
@@ -159,6 +160,9 @@ const CustomInput = ({
 
       case "date":
         return <DateInput {...inputProps} />;
+
+      case "datetime":
+        return <DateTimeInput {...inputProps} />;
 
       default:
         return <TextInput {...inputProps} />;
