@@ -58,6 +58,30 @@ export const theme = createTheme({
         },
         input: {
           textOverflow: "clip",
+          padding: "5px 9px",
+        },
+        root: {
+          "& .MuiButtonBase-root.MuiChip-root": {
+            height: "auto",
+            "& .MuiSvgIcon-root": {
+              fontSize: "11px",
+            },
+            "& .MuiChip-label": {
+              fontSize: "10px",
+            },
+          },
+          "&.multiSelect .MuiInputBase-root": {
+            padding: "5px 9px",
+            height: "auto",
+            minHeight: "30px",
+            "& .MuiInputBase-input": {
+              padding: "0px",
+            },
+            "& .MuiAutocomplete-tag": {
+              cursor: "pointer",
+              margin: "1px",
+            },
+          },
         },
       },
     },
@@ -125,6 +149,24 @@ export const theme = createTheme({
           padding: "6px 16px",
           fontSize: 10,
           minWidth: "150px",
+        },
+      },
+    },
+    MuiFormGroup: {
+      styleOverrides: {
+        root: {
+          "& .MuiFormControlLabel-root": {
+            "& .MuiSvgIcon-root": {
+              height: "18px",
+              width: "18px",
+            },
+            "& .MuiTypography-root": {
+              fontSize: "12px",
+            },
+            "& .MuiButtonBase-root": {
+              padding: "5px 8px",
+            },
+          },
         },
       },
     },

@@ -10,6 +10,8 @@ import {
   DropdownInput,
   DateInput,
   TextInput,
+  RadioInput,
+  MultiSelectInput,
 } from "./index";
 
 const CustomInput = ({
@@ -114,65 +116,52 @@ const CustomInput = ({
       disabled: isDisabled,
     };
 
+    const inputProps = {
+      commonProps,
+      fieldValue,
+      field,
+      containerIndex,
+      handleBlurEventFunctions,
+      changeHandler,
+    };
+
     switch (field.type) {
       case "textarea":
-        return (
-          <TextAreaInput
-            commonProps={commonProps}
-            fieldValue={fieldValue}
-            field={field}
-          />
-        );
+        return <TextAreaInput {...inputProps} />;
 
       case "checkbox":
-        return (
-          <CheckBoxInput
-            commonProps={commonProps}
-            fieldValue={fieldValue}
-            changeHandler={changeHandler}
-            containerIndex={containerIndex}
-          />
-        );
+        return <CheckBoxInput {...inputProps} />;
+
+      case "radio":
+        return <RadioInput {...inputProps} />;
 
       case "number":
-        return (
-          <NumberInput commonProps={commonProps} fieldValue={fieldValue} />
-        );
+        return <NumberInput {...inputProps} />;
 
       case "dropdown":
         return (
           <DropdownInput
-            commonProps={commonProps}
-            fieldValue={fieldValue}
+            {...inputProps}
             dropdowns={dropdowns}
-            field={field}
             getData={getData}
-            changeHandler={changeHandler}
             keyTabHandler={keyTabHandler}
-            containerIndex={containerIndex}
-            handleChangeEventFunctions={handleChangeEventFunctions}
+          />
+        );
+
+      case "multiselect":
+        return (
+          <MultiSelectInput
+            {...inputProps}
+            dropdowns={dropdowns}
+            getData={getData}
           />
         );
 
       case "date":
-        return (
-          <DateInput
-            commonProps={commonProps}
-            fieldValue={fieldValue}
-            changeHandler={changeHandler}
-            containerIndex={containerIndex}
-          />
-        );
+        return <DateInput {...inputProps} />;
 
       default:
-        return (
-          <TextInput
-            commonProps={commonProps}
-            fieldValue={fieldValue}
-            handleBlurEventFunctions={handleBlurEventFunctions}
-            field={field}
-          />
-        );
+        return <TextInput {...inputProps} />;
     }
   });
 };

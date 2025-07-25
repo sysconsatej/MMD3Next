@@ -12,11 +12,6 @@ const fieldData = {
       label: "Country Phone Code",
       name: "countryPhoneCode",
     },
-    {
-      label: "Label",
-      name: "checkbox",
-      type: "date",
-    },
   ],
 };
 
