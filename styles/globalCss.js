@@ -170,6 +170,24 @@ export const theme = createTheme({
         },
       },
     },
+    MuiStack: {
+      styleOverrides: {
+        root: {
+          paddingTop: "0px !important",
+          overflow: "unset !important",
+          "& .MuiPickersInputBase-root .MuiPickersSectionList-root": {
+            padding: "0px",
+          },
+          "& .MuiPickersTextField-root .MuiFormLabel-root": {
+            fontSize: "12px",
+          },
+          "& .MuiPickersTextField-root .MuiFormLabel-root:not(& .MuiInputLabel-shrink)":
+            {
+              transform: "translate(14px, 6px) scale(1)",
+            },
+        },
+      },
+    },
   },
 });
 
