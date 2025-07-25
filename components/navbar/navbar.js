@@ -40,6 +40,31 @@ const navItems = [
   {name: "BL",href: "/bl/list",},
   { name: "HBL", href: "/hbl/list" },
 ];
+function getActiveNavItem(navItems, pathname) {
+  let matched = { activeLink: "", activeSubLink: "" };
+
+  for (const item of navItems) {
+    if (item.submenu) {
+      for (const sub of item.submenu) {
+        const subBase = sub.href.split("/")[2]; 
+        const pathSection = pathname.split("/")[2]; 
+        if (subBase === pathSection) {
+          matched = { activeLink: item.name, activeSubLink: sub.name };
+          break;
+        }
+      }
+    } else {
+      const itemBase = item.href.split("/")[1]; 
+      const pathBase = pathname.split("/")[1];
+      if (itemBase === pathBase) {
+        matched = { activeLink: item.name, activeSubLink: "" };
+        break;
+      }
+    }
+  }
+
+  return matched;
+}
 
 function Navbar() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -50,29 +75,14 @@ function Navbar() {
   const isMobile = useMediaQuery("(max-width:900px)");
   const pathname = usePathname();
 
-  useEffect(() => {
-    let found = false;
-    for (const item of navItems) {
-      if (item.submenu) {
-        const sub = item.submenu.find((s) => pathname.startsWith(s.href));
-        if (sub) {
-          setActiveLink(item.name);
-          setActiveSubLink(sub.name);
-          found = true;
-          break;
-        }
-      } else if (item.href === pathname) {
-        setActiveLink(item.name);
-        setActiveSubLink("");
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      setActiveLink("");
-      setActiveSubLink("");
-    }
-  }, [pathname]);
+useEffect(() => {
+  const { activeLink, activeSubLink } = getActiveNavItem(navItems, pathname);
+  if (activeLink) {
+    setActiveLink(activeLink);
+    setActiveSubLink(activeSubLink);
+  }
+}, [pathname]);
+
 
   const toggleDrawer = () => setDrawerOpen(!drawerOpen);
   const toggleSubmenu = (name) => {
