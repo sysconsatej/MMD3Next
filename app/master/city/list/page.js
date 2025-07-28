@@ -15,6 +15,7 @@ import {
 import { ThemeProvider } from "@mui/material/styles";
 import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
+import CustomBreadcrumb from "@/components/breadcrumb/breadcrumb";
 import { listData } from "./listData";
 import { theme } from "@/styles/globalCss";
 
@@ -22,6 +23,8 @@ export default function CityList() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const rows = listData || [];
+
+
 
   const handleChangePage = (_, newPage) => setPage(newPage);
   const handleChangeRowsPerPage = (e) => {
@@ -33,6 +36,7 @@ export default function CityList() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box className="sm:px-4 py-1">
+        <CustomBreadcrumb />
         <Box className="flex flex-col sm:flex-row justify-between pb-2">
           <Typography variant="body1" className="text-left flex items-center">
             City List

@@ -6,6 +6,7 @@ import data from "./cityData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
+import CustomBreadcrumb from "@/components/breadcrumb/breadcrumb";
 import CustomButton from "@/components/button/button";
 
 export default function City() {
@@ -26,6 +27,7 @@ export default function City() {
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
         <section className="py-1 px-4">
+          <CustomBreadcrumb />
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
               City Form
