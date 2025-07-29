@@ -21,55 +21,53 @@ import Image from "next/image";
 import Link from "next/link";
 import CustomButton from "@/components/button/button";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const navItems = [
   { name: "Home", href: "/" },
   {
     name: "Master",
     submenu: [
-   {
-    name:"City",
-    href: "/master/city/list",
-    children: [
-      { name: "List", href: "/master/city/list" },
-      { name: "Add", href: "/master/city/add" },
-    ],
-   },
-   {
-    name:"Country",
-    href: "/master/country/list",
-   },
-   { 
-    name:"Commodity",
-    href: "/master/commodity/list",
-
-   },
-   {
-    name:"Company",
-    href: "/master/company/list",
-   },
-   {
-     name:"Nominated Area",
-     href: "/master/nominatedArea/list",
-   },
-   {
-    name:"Port",
-    href: "/master/port/list",
-   },
-   {
-    name:"State",
-    href: "/master/state/list",
-   },
-   {
-    name:"Vessel",
-    href: "/master/vessel/list",
-   },
-   {
-    name:"Voyage Route",
-    href: "/master/voyageRoute/list",
-   },
-      
-
+      {
+        name: "City",
+        href: "/master/city/list",
+        children: [
+          { name: "List", href: "/master/city/list" },
+          { name: "Add", href: "/master/city/add" },
+        ],
+      },
+      {
+        name: "Country",
+        href: "/master/country/list",
+      },
+      {
+        name: "Commodity",
+        href: "/master/commodity/list",
+      },
+      {
+        name: "Company",
+        href: "/master/company/list",
+      },
+      {
+        name: "Nominated Area",
+        href: "/master/nominatedArea/list",
+      },
+      {
+        name: "Port",
+        href: "/master/port/list",
+      },
+      {
+        name: "State",
+        href: "/master/state/list",
+      },
+      {
+        name: "Vessel",
+        href: "/master/vessel/list",
+      },
+      {
+        name: "Voyage Route",
+        href: "/master/voyageRoute/list",
+      },
     ],
   },
   { name: "BL", href: "/bl/list" },
@@ -129,14 +127,17 @@ function Navbar() {
   const [openSubmenus, setOpenSubmenus] = useState({});
   const isMobile = useMediaQuery("(max-width:900px)");
   const pathname = usePathname();
+  const router = useRouter();
 
- useEffect(() => {
-  const { activeLink, activeSubLink, activeParentSubLink } = getActiveNavItem(navItems, pathname);
-  setActiveLink(activeLink);
-  setActiveSubLink(activeSubLink);
-  setActiveParentSubLink(activeParentSubLink);
-}, [pathname]);
-
+  useEffect(() => {
+    const { activeLink, activeSubLink, activeParentSubLink } = getActiveNavItem(
+      navItems,
+      pathname
+    );
+    setActiveLink(activeLink);
+    setActiveSubLink(activeSubLink);
+    setActiveParentSubLink(activeParentSubLink);
+  }, [pathname]);
 
   const toggleDrawer = () => setDrawerOpen(!drawerOpen);
   const toggleSubmenu = (name) =>
@@ -210,7 +211,7 @@ function Navbar() {
                           "& .MuiPaper-root": {
                             backgroundColor: "#0b2545",
                             color: "white",
-                            px: 2,
+                            px: 0,
                           },
                         }}
                       >
@@ -227,6 +228,7 @@ function Navbar() {
                                 }
                               }}
                               sx={{
+                                py:0.5,
                                 display: "flex",
                                 justifyContent: "space-between",
                                 backgroundColor:
@@ -293,7 +295,8 @@ function Navbar() {
                                   "& .MuiPaper-root": {
                                     backgroundColor: "#0b2545",
                                     color: "white",
-                                    px: 2,
+                                    px: 0,
+                                    py:0,
                                   },
                                 }}
                               >
@@ -301,11 +304,17 @@ function Navbar() {
                                   <MenuItem
                                     key={child.name}
                                     onClick={() => {
+                                      setActiveSubLink(child.name);
                                       setAnchorEl(null);
                                       setThirdMenuAnchor(null);
-                                      setActiveSubLink(child.name);
+                                      setOpenThirdMenu(null);
+
+                                      setTimeout(() => {
+                                        router.push(child.href);
+                                      }, 50);
                                     }}
                                     sx={{
+                                      py:0,
                                       backgroundColor:
                                         activeSubLink === child.name
                                           ? "#03bafc"
@@ -324,12 +333,9 @@ function Navbar() {
                                       },
                                     }}
                                   >
-                                    <Link
-                                      href={child.href}
-                                      className="w-full block text-sm"
-                                    >
+                                    <Typography className="w-full block text-sm cursor-pointer">
                                       {child.name}
-                                    </Link>
+                                    </Typography>
                                   </MenuItem>
                                 ))}
                               </Menu>
