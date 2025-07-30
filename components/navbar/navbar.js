@@ -28,52 +28,28 @@ const navItems = [
   {
     name: "Master",
     submenu: [
-      {
-        name: "City",
-        href: "/master/city/list",
-        children: [
-          { name: "List", href: "/master/city/list" },
-          { name: "Add", href: "/master/city/add" },
-        ],
-      },
-      {
-        name: "Country",
-        href: "/master/country/list",
-      },
-      {
-        name: "Commodity",
-        href: "/master/commodity/list",
-      },
-      {
-        name: "Company",
-        href: "/master/company/list",
-      },
-      {
-        name: "Nominated Area",
-        href: "/master/nominatedArea/list",
-      },
-      {
-        name: "Port",
-        href: "/master/port/list",
-      },
-      {
-        name: "State",
-        href: "/master/state/list",
-      },
-      {
-        name: "Vessel",
-        href: "/master/vessel/list",
-      },
-      {
-        name: "Voyage Route",
-        href: "/master/voyageRoute/list",
-      },
+      { name: "Commodity", href: "/master/commodity/list" },
+      { name: "Company", href: "/master/company/list" },
+      { name: "Country", href: "/master/country/list" },
+      { name: "Vessel", href: "/master/vessel/list" },
+      { name: "Voyage Route", href: "/master/voyageRoute/list" },
+      { name: "City", href: "/master/city/list" },
+      { name: "State", href: "/master/state/list" },
+      { name: "Port", href: "/master/port/list" },
+      { name: "Nominated Area", href: "/master/nominatedArea/list" },
     ],
   },
-  { name: "BL", href: "/bl/list" },
+  {
+    name: "BL",
+    submenu: [
+      { name: "BL List", href: "/bl/list" },
+      { name: "BL Create", href: "/bl/create" },
+      { name: "BL Search", href: "/bl/search" },
+    ],
+ 
+  },
   { name: "HBL", href: "/hbl/list" },
 ];
-
 function getActiveNavItem(navItems, pathname) {
   let matched = { activeLink: "", activeSubLink: "", activeParentSubLink: "" };
 
@@ -228,7 +204,7 @@ function Navbar() {
                                 }
                               }}
                               sx={{
-                                py:0.5,
+                                py: 0.5,
                                 display: "flex",
                                 justifyContent: "space-between",
                                 backgroundColor:
@@ -296,7 +272,7 @@ function Navbar() {
                                     backgroundColor: "#0b2545",
                                     color: "white",
                                     px: 0,
-                                    py:0,
+                                    py: 0,
                                   },
                                 }}
                               >
@@ -314,7 +290,7 @@ function Navbar() {
                                       }, 50);
                                     }}
                                     sx={{
-                                      py:0,
+                                      py: 0,
                                       backgroundColor:
                                         activeSubLink === child.name
                                           ? "#03bafc"
