@@ -29,15 +29,15 @@ export default function BlList() {
 
   const rows = listData
     ? listData.map((item) =>
-        createData(
-          item["jobNo"],
-          item["jobDate"],
-          item["plr"],
-          item["pol"],
-          item["pod"],
-          item["fpd"]
-        )
+      createData(
+        item["jobNo"],
+        item["jobDate"],
+        item["plr"],
+        item["pol"],
+        item["pod"],
+        item["fpd"]
       )
+    )
     : [];
 
   const handleChangePage = (event, newPage) => {

@@ -22,7 +22,8 @@ const fieldData = {
         {
             label: "Active/Inactive",
             name: "activeStatus",
-
+            type: "radio",
+            radioData: [{ label: 'Yes', value: 'Y' }, { label: 'No', value: 'N' }]
         },
     ],
 };

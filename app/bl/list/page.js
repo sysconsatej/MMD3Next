@@ -24,15 +24,15 @@ export default function BlList() {
 
   const rows = listData
     ? listData.map((item) =>
-        createData(
-          item["jobNo"],
-          item["jobDate"],
-          item["plr"],
-          item["pol"],
-          item["pod"],
-          item["fpd"]
-        )
+      createData(
+        item["jobNo"],
+        item["jobDate"],
+        item["plr"],
+        item["pol"],
+        item["pod"],
+        item["fpd"]
       )
+    )
     : [];
 
   const handleChangePage = (event, newPage) => {
@@ -47,6 +47,7 @@ export default function BlList() {
   return (
     <ThemeProvider theme={theme}>
       <Box className="sm:px-4 py-1 ">
+
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
             BL List
