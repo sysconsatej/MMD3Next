@@ -1,18 +1,24 @@
 const fieldData = {
     stateFields: [
         {
-            label: "Country Name",
-            name: "countryCode",
-            type: "dropdown",
+            label: "State Code",
+            name: "stateCode",
         },
         {
-            label: "StateCode",
-            name: "stateCode",
+            label: "Tax State Code",
+            name: "TaxStateCode",
         },
         {
             label: "State Name",
             name: "stateName",
         },
+        {
+            label: "Country",
+            name: "countryCode",
+            type: "dropdown",
+        },
+
+
     ],
 };
 
