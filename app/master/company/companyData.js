@@ -34,6 +34,7 @@ const fieldData = {
     {
       label: "Phone",
       name: "phone",
+      type:"number",
     },
   ],
   numberFields: [

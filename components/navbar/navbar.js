@@ -37,16 +37,13 @@ const navItems = [
       { name: "State", href: "/master/state/list" },
       { name: "Port", href: "/master/port/list" },
       { name: "Nominated Area", href: "/master/nominatedArea/list" },
+      { name:"Terminal",href:"/master/terminal/list"},
+      {name:"Dpd",href:"/master/dpd/list"},
+      {name:"Voyage",href:"/master/voyage/list"},
     ],
   },
   {
-    name: "BL",
-    submenu: [
-      { name: "BL List", href: "/bl/list" },
-      { name: "BL Create", href: "/bl/create" },
-      { name: "BL Search", href: "/bl/search" },
-    ],
- 
+    name: "BL", href:"/bl/list"
   },
   { name: "HBL", href: "/hbl/list" },
 ];
