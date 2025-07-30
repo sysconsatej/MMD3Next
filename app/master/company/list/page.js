@@ -17,7 +17,6 @@ import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
 import { listData } from "./listData";
 import { theme } from "@/styles/globalCss";
-import CustomBreadcrumb from "@/components/breadcrumb/breadcrumb";
 
 function createData(jobNo, blDate, plr, pol, pod, fpd) {
   return { jobNo, blDate, plr, pol, pod, fpd };
@@ -54,7 +53,6 @@ export default function BlList() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box className="sm:px-4 py-1 ">
-        <CustomBreadcrumb />
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
             Company List

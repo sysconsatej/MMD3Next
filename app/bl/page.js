@@ -7,7 +7,6 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import CustomBreadcrumb from "@/components/breadcrumb/breadcrumb";
 
 export default function Home() {
   const [addContainer, setAddContainer] = useState([1]);
@@ -52,7 +51,6 @@ export default function Home() {
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
         <section className="py-2 px-4">
-          <CustomBreadcrumb />
           <Box className="flex justify-between items-end mb-2">
             <h1 className="text-left text-base flex items-end m-0 ">BL Form</h1>
             <Box>
