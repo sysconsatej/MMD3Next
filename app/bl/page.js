@@ -102,13 +102,13 @@ export default function Home() {
             </Box>
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
               <CustomInput
-                fields={jsonData.receiptFields}
+                fields={jsonData.shipmentFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
+            <Box className="md:grid sm:grid-cols-8 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.transportFields}
                 formData={formData}
@@ -116,17 +116,9 @@ export default function Home() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <Box className="md:grid md:grid-cols-8 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
+            <Box className="md:grid md:grid-cols-7 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
               <CustomInput
-                fields={jsonData.goodsFields}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
-              />
-            </Box>
-            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
-              <CustomInput
-                fields={jsonData.issueFields}
+                fields={jsonData.commodityFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
