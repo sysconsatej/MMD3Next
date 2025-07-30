@@ -12,11 +12,13 @@ const fieldData = {
       label: "Country Name",
       name: "countryName",
       type: "dropdown",
+      labelType: "country",
     },
     {
       label: "State/Region Name",
       name: "stateRegionName",
       type: "dropdown",
+      labelType: "state",
     },
     {
       label: "City Name",
