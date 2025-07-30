@@ -8,7 +8,7 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 
-export default function HBL() {
+export default function Company() {
   const [formData, setFormData] = useState({
     containerDetails: [],
   });
@@ -36,6 +36,14 @@ export default function HBL() {
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.companyFields}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
+              />
+            </Box>
+            <Box className="md:grid md:grid-cols-6 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black  ">
+              <CustomInput
+                fields={jsonData.numberFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
