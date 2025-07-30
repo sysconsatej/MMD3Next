@@ -16,7 +16,7 @@ const RadioInput = ({
 }) => {
   return (
     <FormControl
-      className={`relative py-[5px] !px-[10px] !border !border-solid !border-[#0000003b] rounded-[4px] placeholder-[#000000a6] w-full hover:!border-black ${commonProps.className}`}
+      className={`relative py-[5px] !px-[10px] !border !border-solid !border-[#0000003b] rounded-[4px] placeholder-[#000000a6] hover:!border-black ${commonProps.className}`}
     >
       <FormLabel
         className={`!absolute font-medium !text-xs my-1 mx-3 w-fit !px-1 top-[-10px] bg-white !text-[9px]`}

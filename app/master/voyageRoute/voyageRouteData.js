@@ -133,36 +133,35 @@ const fieldData = {
       name: "lightHouseDue",
     },
 
-    { label: "Passenger List", 
-      name: "passengerList",
-      type:"checkbox",
-
-    },
+    { label: "Passenger List", name: "passengerList", type: "checkbox" },
     {
       label: "Same Bottom Cargo",
       name: "sameBottomCargo",
-      type:"checkbox",
+      type: "checkbox",
     },
     {
       label: "Ship Store Declaration",
       name: "shipStoreDeclaration",
-      type:"checkbox",
+      type: "checkbox",
     },
     {
       label: "Crew List Declaration",
       name: "crewListDeclaration",
-      type:"checkbox",
+      type: "checkbox",
     },
     {
       label: "Maritime Declaration",
       name: "maritimeDeclaration",
-      type:"checkbox",
+      type: "checkbox",
     },
     {
       label: "Export Locking",
       name: "exportLocking",
-      type:"radio",
-      radioData:[{label:"Yes",value:"Y"},{label:"No",value:"N"}]
+      type: "radio",
+      radioData: [
+        { label: "Yes", value: "Y" },
+        { label: "No", value: "N" },
+      ],
     },
   ],
   additionalFields: [
@@ -179,8 +178,11 @@ const fieldData = {
     {
       label: "Import Locking",
       name: "importLocking",
-      type:"radio",
-      radioData:[{label:"Yes",value:"Y"},{label:"No",value:"N"}]
+      type: "radio",
+      radioData: [
+        { label: "Yes", value: "Y" },
+        { label: "No", value: "N" },
+      ],
     },
     {
       label: "Auth. Person Pan No",

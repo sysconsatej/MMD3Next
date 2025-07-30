@@ -9,7 +9,7 @@ const CheckBoxInput = ({
 }) => {
   return (
     <Box
-      className={`relative py-[5px] px-[10px] border border-solid border-[#0000003b] rounded-[4px] placeholder-[#000000a6] w-full hover:border-black ${commonProps.className}`}
+      className={`relative py-[5px] px-[10px] border border-solid border-[#0000003b] rounded-[4px] placeholder-[#000000a6] hover:border-black ${commonProps.className} `}
       key={commonProps.key}
     >
       <Checkbox
