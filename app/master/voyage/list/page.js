@@ -1,17 +1,22 @@
 "use client";
 import React, { useState } from "react";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import { Box, ThemeProvider, Typography } from "@mui/material";
-import { listData } from "./listData";
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  CssBaseline,
+} from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
 import CustomButton from "@/components/button/button";
-import { theme } from "@/styles";
 import CustomPagination from "@/components/pagination/pagination";
+import { listData } from "./listData";
+import { theme } from "@/styles/globalCss";
 
 function createData(jobNo, blDate, plr, pol, pod, fpd) {
   return { jobNo, blDate, plr, pol, pod, fpd };
@@ -24,15 +29,15 @@ export default function BlList() {
 
   const rows = listData
     ? listData.map((item) =>
-      createData(
-        item["jobNo"],
-        item["jobDate"],
-        item["plr"],
-        item["pol"],
-        item["pod"],
-        item["fpd"]
+        createData(
+          item["jobNo"],
+          item["jobDate"],
+          item["plr"],
+          item["pol"],
+          item["pod"],
+          item["fpd"]
+        )
       )
-    )
     : [];
 
   const handleChangePage = (event, newPage) => {
@@ -46,13 +51,14 @@ export default function BlList() {
 
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <Box className="sm:px-4 py-1 ">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
-            HBL List
+            Voyage List
           </Typography>
           <Box className="flex flex-col sm:flex-row">
-            <CustomButton text="Add" href="/hbl" />
+            <CustomButton text="Add" href="/master/voyage" />
           </Box>
         </Box>
         <TableContainer component={Paper}>

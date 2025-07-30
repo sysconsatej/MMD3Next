@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data from "./portData";
+import data from "./terminalData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 
-export default function Port() {
+export default function State() {
   const [formData, setFormData] = useState({
     containerDetails: [],
   });
@@ -27,13 +27,15 @@ export default function Port() {
       <form onSubmit={submitHandler}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base flex items-end m-0 ">Port</h1>
-            <CustomButton text="Back" href="/master/port/list" />
+            <h1 className="text-left text-base flex items-end m-0 ">
+              Terminal Form
+            </h1>
+            <CustomButton text="Back" href="/master/terminal/list" />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
-                fields={jsonData.portFields}
+                fields={jsonData.terminalFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
