@@ -2,30 +2,35 @@
 import React, { useEffect, useState } from "react";
 import { Breadcrumbs, Typography, Stack } from "@mui/material";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import { useSearchParams } from "next/navigation";
 
 export default function CustomBreadcrumb() {
     const [crumbs, setCrumbs] = useState([]);
+    const searchParams = useSearchParams();
+    const page = searchParams.get("page");
 
     useEffect(() => {
         if (typeof window !== "undefined") {
             const path = window.location.pathname;
 
-            const rawSegments = path
-                .split("/")
-                .filter((segment) => segment && !segment.startsWith("{"));
+            const rawSegments = path.split("/").filter((segment) => segment);
 
             let segments = rawSegments;
             if (segments[segments.length - 1]?.toLowerCase() === "list") {
-                segments = segments.slice(0, -1); // remove "list"
+                segments = segments.slice(0, -1);
             }
 
             const capitalized = segments.map(
                 (seg) => seg.charAt(0).toUpperCase() + seg.slice(1)
             );
 
+            if (page) {
+                capitalized.push(`Page ${page}`);
+            }
+
             setCrumbs(capitalized);
         }
-    }, []);
+    }, [page]); // important to re-run when query changes
 
     if (crumbs.length === 0) return null;
 
