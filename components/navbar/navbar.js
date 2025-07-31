@@ -179,17 +179,35 @@ function Navbar() {
                       <Menu
                         anchorEl={anchorEl}
                         open={anchorEl?.textContent === item.name}
-                        onClose={() => setAnchorEl(null)}
+                        onClose={closeMenus}
                         anchorOrigin={{
                           vertical: "bottom",
                           horizontal: "left",
+                        }}
+                        slotProps={{
+                          paper: {
+                            onMouseLeave: closeMenus,
+                          },
+                          list: {
+                            sx: {
+                              transition: "all 200ms ease-in-out",
+                              px: 0,
+                              py: 0,
+                              "& .MuiMenuItem-root": {
+                                transition: "all 150ms ease-in-out",
+                                "&:hover": {
+                                  backgroundColor: "#03bafc",
+                                  color: "white",
+                                },
+                              },
+                            },
+                          },
                         }}
                         sx={{
                           mt: 1,
                           "& .MuiPaper-root": {
                             backgroundColor: "#0b2545",
                             color: "white",
-                            px: 0,
                           },
                         }}
                       >
@@ -267,10 +285,23 @@ function Navbar() {
                                   vertical: "top",
                                   horizontal: "left",
                                 }}
-                                MenuListProps={{
-                                  onMouseLeave: () => {
-                                    setThirdMenuAnchor(null);
-                                    setOpenThirdMenu(null);
+                                slotProps={{
+                                  paper: {
+                                    onMouseLeave: closeMenus,
+                                  },
+                                  list: {
+                                    sx: {
+                                      transition: "all 200ms ease-in-out",
+                                      px: 0,
+                                      py: 0,
+                                      "& .MuiMenuItem-root": {
+                                        transition: "all 150ms ease-in-out",
+                                        "&:hover": {
+                                          backgroundColor: "#03bafc",
+                                          color: "white",
+                                        },
+                                      },
+                                    },
                                   },
                                 }}
                                 sx={{
