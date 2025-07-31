@@ -26,6 +26,7 @@ const CustomInput = ({
   fieldsMode,
 }) => {
   const [dropdowns, setDropdowns] = useState([]);
+  const [dropdownTotalPage, setDropdownTotalPage] = useState([]);
   const [isChange, setIsChange] = useState(false);
 
   const changeHandler = (e, containerIndex) => {
@@ -73,22 +74,31 @@ const CustomInput = ({
     }
   };
 
-  const getData = async (type, name) => {
-    const data = {
+  const getData = async (type, name, pageNum = 1) => {
+    const objData = {
       masterName: type,
+      pageNo: pageNum,
     };
 
-    if (!dropdowns.hasOwnProperty(name)) {
-      try {
-        const res = await fetchDropDownValues(data);
-        const isData = Array.isArray(res) ? res : [];
-        setDropdowns((prev) => ({ ...prev, [name]: isData }));
-      } catch (error) {
-        console.log(
-          `Failed to fetch dropdown value of this name ${name}`,
-          error
-        );
-      }
+    const shouldFetch =
+      !dropdowns.hasOwnProperty(name) ||
+      !dropdownTotalPage.hasOwnProperty(name) ||
+      dropdownTotalPage[name] >= pageNum;
+
+    if (!shouldFetch) return;
+
+    try {
+      const { data = [], totalPage = 1 } = await fetchDropDownValues(objData);
+      setDropdowns((prev) => ({
+        ...prev,
+        [name]: [...(prev[name] || []), ...data],
+      }));
+      setDropdownTotalPage((prev) => ({
+        ...prev,
+        [name]: totalPage,
+      }));
+    } catch (error) {
+      console.log(`Failed to fetch dropdown value of this name ${name}`, error);
     }
   };
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { Autocomplete, Box, TextField } from "@mui/material";
 
 const DropdownInput = ({
@@ -12,6 +12,22 @@ const DropdownInput = ({
   containerIndex,
   handleChangeEventFunctions,
 }) => {
+  const [page, setPage] = useState(1);
+  const listboxRef = useRef();
+
+  const handleScroll = (event) => {
+    const listboxNode = event.target;
+    const bottom =
+      listboxNode.scrollHeight - listboxNode.scrollTop ===
+      listboxNode.clientHeight;
+
+    if (bottom) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      getData(field?.labelType, commonProps.name, nextPage);
+    }
+  };
+
   return (
     <Autocomplete
       key={commonProps.key}
@@ -21,7 +37,11 @@ const DropdownInput = ({
       disabled={commonProps.disabled}
       options={
         dropdowns[field?.name]
-          ? dropdowns[field?.name]
+          ? Array.from(
+              new Map(
+                dropdowns[field?.name].map((item) => [item.Id, item])
+              ).values()
+            )
           : [{ Name: "Loading..." }]
       }
       getOptionLabel={(option) => option?.Name || ""}
@@ -57,6 +77,11 @@ const DropdownInput = ({
             containerIndex
           );
         }
+      }}
+      ListboxProps={{
+        onScroll: handleScroll,
+        ref: listboxRef,
+        style: { maxHeight: 200, overflow: "auto" },
       }}
     />
   );
