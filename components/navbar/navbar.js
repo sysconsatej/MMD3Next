@@ -101,6 +101,11 @@ function Navbar() {
   const isMobile = useMediaQuery("(max-width:900px)");
   const pathname = usePathname();
   const router = useRouter();
+  const closeMenus = () => {
+    setAnchorEl(null);
+    setThirdMenuAnchor(null);
+    setOpenThirdMenu(null);
+  };
 
   useEffect(() => {
     const { activeLink, activeSubLink, activeParentSubLink } = getActiveNavItem(
@@ -232,11 +237,15 @@ function Navbar() {
                             >
                               <Link
                                 href={sub.href}
-                                onClick={() => setActiveSubLink(sub.name)}
+                                onClick={() => {
+                                  setActiveSubLink(sub.name);
+                                  closeMenus();
+                                }}
                                 className="w-full block text-sm"
                               >
                                 {sub.name}
                               </Link>
+
                               {sub.children && (
                                 <ChevronRightIcon fontSize="small" />
                               )}
@@ -278,10 +287,7 @@ function Navbar() {
                                     key={child.name}
                                     onClick={() => {
                                       setActiveSubLink(child.name);
-                                      setAnchorEl(null);
-                                      setThirdMenuAnchor(null);
-                                      setOpenThirdMenu(null);
-
+                                      closeMenus();
                                       setTimeout(() => {
                                         router.push(child.href);
                                       }, 50);
