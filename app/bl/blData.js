@@ -307,8 +307,8 @@ commodityFields:[
       isEdit: true,
     },
      {
-      label: "Marks And Numbers",
-      name: "marksAndNumbers",
+      label: "Remarks",
+      name: "remarks",
       multiline: true,
       rows: 6,
       gridColumn: "col-span-1 row-span-3 ",
@@ -316,8 +316,8 @@ commodityFields:[
       isEdit: true,
     },
       {
-      label: "Marks And Numbers",
-      name: "marksAndNumbers",
+      label: "Description of Goods",
+      name: "descriptionOfGoods",
       multiline: true,
       rows: 6,
       gridColumn: "col-span-1 row-span-3 ",

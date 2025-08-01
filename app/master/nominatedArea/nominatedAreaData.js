@@ -3,48 +3,54 @@ import { Label } from "@mui/icons-material";
 const fieldData = {
   nominatedAreaFields: [
     {
-      label: "Vessel Name",
-      name: "vesselName",
-      type:"dropdown",
+      label: "Nominated Area Address",
+      name: "descriptionOfGoods",
+      multiline: true,
+      rows: 3,
+      gridColumn: "col-span-1 row-span-3 ",
+      type: "textarea",
+      isEdit: true,
     },
-     {
-      label: "Voyage Name",
-      name: "voyageName",
+    {
+      label: "Port Type",
+      name: "portType",
       type:"dropdown",
+      labelType:"PORT",
     },
-     {
-      label: "PDO",
-      name: "pdo",
-      type:"dropdown",
-    },
-     {
-      label: "FDP",
-      name: "fdp",
-      type:"dropdown",
-    },
-     {
-      label: "BL Type",
-      name: "blType",
-      type:"dropdown",
-    },
-     {
-      label: "Nominated AreaCode",
+      {
+      label: "Nominated Area Code",
       name: "nominatedAreaCode",
+      },
+     {
+      label: "Nominated Area Description",
+      name: "nominatedAreaCode",
+      },
+     {
+      label: "PORT",
+      name: "port",
       type:"dropdown",
+      labelType:"PORT",
     },
      {
-      label: "Dpd Code",
-      name: "dpdCode",
-      type:"dropdown",
+      label: "Direct Delivery",
+      name: "directDelivery",
+      type:"checkbox",
+    },
+    
+     {
+      label: "EDI Port Code",
+      name: "ediPortCode",
+      type:"number",
     },
     {
-        label:"ThirdCfs",
-        name:"thirdCfs",
-        type:"dropdown"
+        label:"EDI Common Terminal Code",
+        name:"ediCommonTerminalCode",
+        type:"number",
     },
     {
-        label:"Radio Demo",
-        name:"radioDemo",
+        label:"Bond No",
+        name:"bondNo",
+        type:"number",
         
     }
   ],
