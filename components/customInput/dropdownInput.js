@@ -1,5 +1,6 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Autocomplete, Box, TextField } from "@mui/material";
+import { useDebounce } from "@/utils";
 
 const DropdownInput = ({
   commonProps,
@@ -13,20 +14,31 @@ const DropdownInput = ({
   handleChangeEventFunctions,
 }) => {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const listboxRef = useRef();
+  const debouncedSearch = useDebounce(search, 500);
 
   const handleScroll = (event) => {
-    const listboxNode = event.target;
-    const bottom =
-      listboxNode.scrollHeight - listboxNode.scrollTop ===
-      listboxNode.clientHeight;
+    const { scrollHeight, scrollTop, clientHeight } = event.target;
+    const bottom = scrollHeight - scrollTop === clientHeight;
 
     if (bottom) {
       const nextPage = page + 1;
       setPage(nextPage);
-      getData(field?.labelType, commonProps.name, nextPage);
+      getData(field?.labelType, commonProps.name, nextPage, search);
     }
   };
+
+  const handleInputChange = (event, value) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  useEffect(() => {
+    if (debouncedSearch !== "") {
+      getData(field?.labelType, commonProps.name, 1, debouncedSearch);
+    }
+  }, [debouncedSearch]);
 
   return (
     <Autocomplete
@@ -46,11 +58,12 @@ const DropdownInput = ({
       }
       getOptionLabel={(option) => option?.Name || ""}
       renderOption={(props, option) => (
-        <Box component="li" {...props} key={option.Id}>
+        <Box component="li" {...props} key={`${option.Id}-${option.Name}`}>
           {option.Name}
         </Box>
       )}
       renderInput={(params) => <TextField {...params} label={field.label} />}
+      onInputChange={handleInputChange}
       onFocus={() => getData(field?.labelType, commonProps.name)}
       onChange={(event, value) => {
         changeHandler(
@@ -81,7 +94,6 @@ const DropdownInput = ({
       ListboxProps={{
         onScroll: handleScroll,
         ref: listboxRef,
-        style: { maxHeight: 200, overflow: "auto" },
       }}
     />
   );

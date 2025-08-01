@@ -24,6 +24,7 @@ const fieldData = {
       label: "City Name",
       name: "cityName",
       type: "dropdown",
+      labelType: "city",
     },
     {
       label: "Company Address",
@@ -36,7 +37,7 @@ const fieldData = {
     {
       label: "Phone",
       name: "phone",
-      type:"number",
+      type: "number",
     },
   ],
   numberFields: [

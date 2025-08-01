@@ -74,10 +74,11 @@ const CustomInput = ({
     }
   };
 
-  const getData = async (type, name, pageNum = 1) => {
+  const getData = async (type, name, pageNum = 1, search = "") => {
     const objData = {
       masterName: type,
       pageNo: pageNum,
+      search: search,
     };
 
     const shouldFetch =
@@ -89,10 +90,12 @@ const CustomInput = ({
 
     try {
       const { data = [], totalPage = 1 } = await fetchDropDownValues(objData);
+
       setDropdowns((prev) => ({
         ...prev,
         [name]: [...(prev[name] || []), ...data],
       }));
+
       setDropdownTotalPage((prev) => ({
         ...prev,
         [name]: totalPage,
