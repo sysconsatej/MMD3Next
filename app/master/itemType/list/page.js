@@ -18,7 +18,7 @@ import CustomPagination from "@/components/pagination/pagination";
 import { listData } from "./listData";
 import { theme } from "@/styles/globalCss";
 
-export default function itemTypeList() {
+export default function ItemTypeList() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const rows = listData || [];
