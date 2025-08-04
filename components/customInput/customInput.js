@@ -93,7 +93,7 @@ const CustomInput = ({
 
       setDropdowns((prev) => ({
         ...prev,
-        [name]: [...(prev[name] || []), ...data],
+        [name]: pageNum == 1 ? data : [...(prev[name] || []), ...data],
       }));
 
       setDropdownTotalPage((prev) => ({

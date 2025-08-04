@@ -1,6 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import { Autocomplete, Box, TextField } from "@mui/material";
 import { useDebounce } from "@/utils";
+
+const ListboxComponent = forwardRef(function ListboxComponent(props, ref) {
+  return <ul {...props} onScroll={props.onScroll} />;
+});
 
 const DropdownInput = ({
   commonProps,
@@ -15,7 +19,6 @@ const DropdownInput = ({
 }) => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const listboxRef = useRef();
   const debouncedSearch = useDebounce(search, 500);
 
   const handleScroll = (event) => {
@@ -91,10 +94,9 @@ const DropdownInput = ({
           );
         }
       }}
-      ListboxProps={{
-        onScroll: handleScroll,
-        ref: listboxRef,
-      }}
+      ListboxComponent={ListboxComponent}
+      disableListWrap
+      ListboxProps={{ onScroll: handleScroll }}
     />
   );
 };
