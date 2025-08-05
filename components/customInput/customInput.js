@@ -74,16 +74,23 @@ const CustomInput = ({
     }
   };
 
-  const getData = async (type, name, pageNum = 1, search = "") => {
+  const getData = async (
+    type,
+    name,
+    pageNum = 1,
+    search = "",
+    selectedCondition = null
+  ) => {
     const objData = {
       masterName: type,
       pageNo: pageNum,
-      search: search,
+      search,
+      selectedCondition: formData[selectedCondition]?.Id || null,
     };
 
     const shouldFetch =
-      !dropdowns.hasOwnProperty(name) ||
       !dropdownTotalPage.hasOwnProperty(name) ||
+      dropdownTotalPage[name] == 0 ||
       dropdownTotalPage[name] >= pageNum;
 
     if (!shouldFetch) return;
