@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 import { Autocomplete, Box, TextField } from "@mui/material";
 import { useDebounce } from "@/utils";
 
@@ -19,6 +19,7 @@ const DropdownInput = ({
 }) => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const skipNextFocus = useRef(null);
   const debouncedSearch = useDebounce(search, 500);
 
   const handleScroll = (event) => {
@@ -28,7 +29,13 @@ const DropdownInput = ({
     if (bottom) {
       const nextPage = page + 1;
       setPage(nextPage);
-      getData(field?.labelType, commonProps.name, nextPage, search);
+      getData(
+        field?.labelType,
+        commonProps.name,
+        nextPage,
+        search,
+        field?.selectedCondition
+      );
     }
   };
 
@@ -37,9 +44,30 @@ const DropdownInput = ({
     setPage(1);
   };
 
+  const handleInputFocus = (event) => {
+    if (skipNextFocus.current) {
+      skipNextFocus.current = false;
+      return;
+    }
+    setPage(1);
+    getData(
+      field?.labelType,
+      commonProps.name,
+      1,
+      "",
+      field?.selectedCondition
+    );
+  };
+
   useEffect(() => {
     if (debouncedSearch !== "") {
-      getData(field?.labelType, commonProps.name, 1, debouncedSearch);
+      getData(
+        field?.labelType,
+        commonProps.name,
+        1,
+        debouncedSearch,
+        field?.selectedCondition
+      );
     }
   }, [debouncedSearch]);
 
@@ -66,8 +94,16 @@ const DropdownInput = ({
         </Box>
       )}
       renderInput={(params) => <TextField {...params} label={field.label} />}
-      onInputChange={handleInputChange}
-      onFocus={() => getData(field?.labelType, commonProps.name)}
+      onInputChange={(event, newInputValue, reason) => {
+        if (reason === "clear") {
+          skipNextFocus.current = true;
+          return;
+        }
+        if (reason === "input") {
+          handleInputChange(event, newInputValue);
+        }
+      }}
+      onFocus={(event) => handleInputFocus(event)}
       onChange={(event, value) => {
         changeHandler(
           { target: { name: commonProps.name, value } },

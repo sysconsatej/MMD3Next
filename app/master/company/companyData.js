@@ -25,6 +25,7 @@ const fieldData = {
       name: "cityName",
       type: "dropdown",
       labelType: "city",
+      selectedCondition: "countryName",
     },
     {
       label: "Company Address",
@@ -76,6 +77,7 @@ const fieldData = {
       label: "Currency",
       name: "currency",
       type: "dropdown",
+      labelType: "currency",
     },
     {
       label: "IEC No",
