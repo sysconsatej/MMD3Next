@@ -8,7 +8,7 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 
-export default function containerStatus() {
+export default function ContainerStatus() {
   const [formData, setFormData] = useState({
     containerDetails: [],
   });
