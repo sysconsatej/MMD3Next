@@ -9,32 +9,31 @@ import {
 
 const CustomPagination = ({
   count,
+  totalRows,
   page,
   rowsPerPage,
   onPageChange,
   handleChangeRowsPerPage,
 }) => {
-  const totalPages = Math.ceil(count / rowsPerPage);
-
   const handleChange = (event, value) => {
-    onPageChange(event, value - 1);
+    onPageChange(event, value);
   };
 
   return (
     <Box className="flex gap-2">
       <TablePagination
         component="div"
-        count={count}
-        page={page}
+        count={totalRows}
+        page={page - 1}
         onPageChange={onPageChange}
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
-        rowsPerPageOptions={[10, 25, 100]}
+        rowsPerPageOptions={[15, 30, 50]}
         ActionsComponent={() => null}
       />
       <Pagination
-        count={totalPages}
-        page={page + 1}
+        count={count}
+        page={page}
         onChange={handleChange}
         variant="outlined"
         shape="rounded"
