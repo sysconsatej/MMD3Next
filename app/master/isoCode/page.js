@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data from "./containerStatusData";
+import data from "./isoCodeData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 
-export default function containerStatus() {
+export default function IscCode() {
   const [formData, setFormData] = useState({
     containerDetails: [],
   });
@@ -28,14 +28,14 @@ export default function containerStatus() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              Container Status
+              ISO Code
             </h1>
-            <CustomButton text="Back" href="/master/containerStatus/list" />
+            <CustomButton text="Back" href="/master/isoCode/list" />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
-                fields={jsonData.containerStatusFields}
+                fields={jsonData.isoCodeFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}

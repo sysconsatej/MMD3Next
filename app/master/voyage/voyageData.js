@@ -2,7 +2,7 @@ const fieldData = {
   voyageFields: [
     {
       label: "Voyage NO",
-      name: "voyegeNo",
+      name: "voyageNo",
     },
     {
       label: "Master",
@@ -16,7 +16,7 @@ const fieldData = {
     },
     {
       label: "Dc no",
-      name: "dcno",
+      name: "dcNo",
     },
     {
       label: "Convey Reference no",

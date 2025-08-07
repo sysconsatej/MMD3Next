@@ -9,7 +9,7 @@ import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { createMaster } from "@/apis";
 
-export default function Country() {
+export default function companyBranch() {
   const [formData, setFormData] = useState({
     containerDetails: [],
   });
