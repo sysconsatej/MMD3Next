@@ -3,7 +3,9 @@ import { Autocomplete, Box, TextField } from "@mui/material";
 import { useDebounce } from "@/utils";
 
 const ListboxComponent = forwardRef(function ListboxComponent(props, ref) {
-  return <ul {...props} onScroll={props.onScroll} />;
+  const { onScroll, ...other } = props;
+
+  return <ul ref={ref} {...other} onScroll={onScroll} />;
 });
 
 const DropdownInput = ({
