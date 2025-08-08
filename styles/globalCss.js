@@ -44,13 +44,7 @@ export const theme = createTheme({
         root: {
           "& .MuiPickersSectionList-root": {
             fontSize: "12px",
-          },
-          "& .MuiInputLabel-root": {
-            fontSize: "12px",
-          },
-          "& .MuiFormLabel-root:not(& .MuiInputLabel-shrink)": {
-            transform: "translate(14px, 6px) scale(1)",
-          },
+          }
         },
       },
     },

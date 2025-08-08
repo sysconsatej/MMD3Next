@@ -33,7 +33,15 @@ const SearchBar = ({
         }
       />
       <TextField
-        sx={{ ...textFieldStyles() }}
+        sx={{
+          ...textFieldStyles(),
+          "& .MuiInputLabel-root": {
+            fontSize: "12px",
+          },
+          "& .MuiFormLabel-root:not(& .MuiInputLabel-shrink)": {
+            transform: "translate(14px, 6px) scale(1)",
+          },
+        }}
         label="Search Value"
         variant="outlined"
         onChange={(event) =>
