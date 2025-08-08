@@ -21,8 +21,8 @@ import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
 
-function createData(code, name, countryPhoneCode, activeInactive) {
-  return { code, name, countryPhoneCode, activeInactive };
+function createData(code, name) {
+  return { code, name };
 }
 
 export default function CountryList() {
@@ -38,7 +38,7 @@ export default function CountryList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "code, name, countryPhoneCode, activeInactive",
+          columns: "code, name",
           tableName: "tblCountry",
           pageNo,
           pageSize,
@@ -63,14 +63,7 @@ export default function CountryList() {
   }, []);
 
   const rows = countryData
-    ? countryData.map((item) =>
-        createData(
-          item["code"],
-          item["name"],
-          item["countryPhoneCode"],
-          item["activeInactive"]
-        )
-      )
+    ? countryData.map((item) => createData(item["code"], item["name"]))
     : [];
 
   const handleChangePage = (event, newPage) => {
@@ -106,8 +99,6 @@ export default function CountryList() {
               <TableRow>
                 <TableCell>Country Code</TableCell>
                 <TableCell>Country Name</TableCell>
-                <TableCell>Country Phone Code</TableCell>
-                <TableCell>Active Inactive</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -120,8 +111,6 @@ export default function CountryList() {
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.name}</TableCell>
-                    <TableCell>{row.countryPhoneCode}</TableCell>
-                    <TableCell>{`${row.activeInactive}`}</TableCell>
                   </TableRow>
                 ))
               )}
