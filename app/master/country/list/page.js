@@ -25,7 +25,7 @@ function createData(code, name, countryPhoneCode, activeInactive) {
   return { code, name, countryPhoneCode, activeInactive };
 }
 
-export default function BlList() {
+export default function CountryList() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(15);
   const [totalPage, setTotalPage] = useState(1);
