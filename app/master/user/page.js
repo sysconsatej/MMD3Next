@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data from "./voyageData";
+import data from "./userData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 
-export default function Voyage() {
+export default function User() {
   const [formData, setFormData] = useState({
     containerDetails: [],
   });
@@ -28,14 +28,14 @@ export default function Voyage() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              Voyage Form
+              User Form
             </h1>
-            <CustomButton text="Back" href="/master/voyage/list" />
+            <CustomButton text="Back" href="/master/user/list" />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
-                fields={jsonData.voyageFields}
+                fields={jsonData.userFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}

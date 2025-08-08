@@ -30,6 +30,16 @@ const navItems = [
     submenu: [
       { name: "Commodity", href: "/master/commodity/list" },
       { name: "Company", href: "/master/company/list" },
+      { name: "Company Branch", href: "/master/companyBranch/list" },
+      { name: "Container Size", href: "/master/containerSize/list" },
+      { name: "Container Status", href: "/master/containerStatus/list" },
+      { name: "Container Type", href: "/master/containerType/list" },
+      { name: "CFS", href: "/master/cfs/list" },
+      { name: "Depot", href: "/master/depot/list" },
+      { name: "ISO Code", href: "/master/isoCode/list" },
+      { name: "IMO ", href: "/master/imo/list" },
+      { name: "ITEM Type", href: "/master/itemType/list" },
+      { name: "Cargo Type", href: "/master/cargoType/list" },
       { name: "Country", href: "/master/country/list" },
       { name: "Vessel", href: "/master/vessel/list" },
       { name: "Voyage Route", href: "/master/voyageRoute/list" },
@@ -37,13 +47,21 @@ const navItems = [
       { name: "State", href: "/master/state/list" },
       { name: "Port", href: "/master/port/list" },
       { name: "Nominated Area", href: "/master/nominatedArea/list" },
-      { name:"Terminal",href:"/master/terminal/list"},
-      {name:"Dpd",href:"/master/dpd/list"},
-      {name:"Voyage",href:"/master/voyage/list"},
+      { name: "Terminal", href: "/master/terminal/list" },
+      { name: "Dpd", href: "/master/dpd/list" },
+      { name: "Type Of Company", href: "/master/typeOfCompany/list" },
+      { name: "Package Type", href: "/master/packageType/list" },
+      { name: "Voyage", href: "/master/voyage/list" },
+      { name: "User", href: "/master/user/list" },
+      { name: "Unit", href: "/master/unit/list" },
+      { name: "SMTP", href: "/master/smtpCarrier/list" },
+      { name: "Mode Of Transport", href: "/master/modeOfTransport/list" },
+      { name: "Movement Type", href: "/master/movementType/list" },
     ],
   },
   {
-    name: "BL", href:"/bl/list"
+    name: "BL",
+    href: "/bl/list",
   },
   { name: "HBL", href: "/hbl/list" },
 ];
@@ -190,9 +208,22 @@ function Navbar() {
                           },
                           list: {
                             sx: {
+                              maxHeight: "350px",
+                              overflow: "auto",
+                              "&::-webkit-scrollbar": {
+                                width: "4px",
+                              },
+                              "&::-webkit-scrollbar-track": {
+                                backgroundColor: "#f1f1f1",
+                              },
+                              "&::-webkit-scrollbar-thumb": {
+                                backgroundColor: "#fbdc0f",
+                                borderRadius: "2px",
+                              },
+                              "&::-webkit-scrollbar-thumb:hover": {
+                                backgroundColor: "#555",
+                              },
                               transition: "all 200ms ease-in-out",
-                              px: 0,
-                              py: 0,
                               "& .MuiMenuItem-root": {
                                 transition: "all 150ms ease-in-out",
                                 "&:hover": {
