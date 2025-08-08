@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Table,
@@ -15,9 +15,11 @@ import {
 import { ThemeProvider } from "@mui/material/styles";
 import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
-import { listData } from "./listData";
 import { theme } from "@/styles/globalCss";
 import { fetchTableValues } from "@/apis";
+import SearchBar from "@/components/searchBar/searchBar";
+import { ToastContainer } from "react-toastify";
+import { dropdowns } from "@/utils";
 
 function createData(code, name, countryPhoneCode, activeInactive) {
   return { code, name, countryPhoneCode, activeInactive };
@@ -29,20 +31,35 @@ export default function BlList() {
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
   const [countryData, setCountryData] = useState([]);
+  const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
 
+  const getData = useCallback(
+    async (pageNo = page, pageSize = rowsPerPage) => {
+      try {
+        const tableObj = {
+          columns: "code, name, countryPhoneCode, activeInactive",
+          tableName: "tblCountry",
+          pageNo,
+          pageSize,
+          searchColumn: search.searchColumn,
+          searchValue: search.searchValue,
+        };
+        const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
+        setCountryData(data);
+        setTotalPage(totalPage);
+        setPage(pageNo);
+        setRowsPerPage(pageSize);
+        setTotalRows(totalRows);
+      } catch {
+        setLoadingState("Failed to load data");
+      }
+    },
+    [page, rowsPerPage, search]
+  );
+
   useEffect(() => {
-    async function fetchData() {
-      const tableObj = {
-        columns: "code, name, countryPhoneCode, activeInactive",
-        tableName: "tblCountry",
-      };
-      const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-      setCountryData(data);
-      setTotalPage(totalPage);
-      setTotalRows(totalRows);
-    }
-    fetchData();
+    getData(1, rowsPerPage);
   }, []);
 
   const rows = countryData
@@ -57,38 +74,11 @@ export default function BlList() {
     : [];
 
   const handleChangePage = (event, newPage) => {
-    async function fetchData() {
-      const tableObj = {
-        columns: "code, name, countryPhoneCode, activeInactive",
-        tableName: "tblCountry",
-        pageNo: newPage,
-        pageSize: rowsPerPage,
-      };
-      const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-      setCountryData(data);
-      setTotalPage(totalPage);
-      setTotalRows(totalRows);
-      setPage(newPage);
-    }
-    fetchData();
+    getData(newPage, rowsPerPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
-    async function fetchData() {
-      const tableObj = {
-        columns: "code, name, countryPhoneCode, activeInactive",
-        tableName: "tblCountry",
-        pageNo: 1,
-        pageSize: +event.target.value,
-      };
-      const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-      setCountryData(data);
-      setTotalPage(totalPage);
-      setPage(1);
-      setRowsPerPage(+event.target.value);
-      setTotalRows(totalRows);
-    }
-    fetchData();
+    getData(1, +event.target.value);
   };
 
   return (
@@ -99,7 +89,14 @@ export default function BlList() {
           <Typography variant="body1" className="text-left flex items-center ">
             Country List
           </Typography>
-          <Box className="flex flex-col sm:flex-row">
+          <Box className="flex flex-col sm:flex-row gap-6">
+            <SearchBar
+              getData={getData}
+              rowsPerPage={rowsPerPage}
+              search={search}
+              setSearch={setSearch}
+              options={dropdowns.country}
+            />
             <CustomButton text="Add" href="/master/country" />
           </Box>
         </Box>
@@ -142,6 +139,7 @@ export default function BlList() {
           />
         </Box>
       </Box>
+      <ToastContainer />
     </ThemeProvider>
   );
 }
