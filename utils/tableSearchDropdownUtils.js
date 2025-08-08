@@ -28,6 +28,12 @@ export const dropdowns = {
     { label: "Country Code", value: "code" },
     { label: "Country Name", value: "name" },
     ],
+  depot:[
+    {label:"Location", value:"m.name"},
+    {label:"Depot Code",value:"p.code"},
+    {label:"Depot name",value:"p.name"},
+    {label:"Address",value:"p.address"},
+  ]
 
 
 };

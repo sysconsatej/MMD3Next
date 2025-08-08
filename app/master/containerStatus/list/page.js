@@ -25,7 +25,7 @@ function createData(code, name) {
   return { code, name };
 }
 
-export default function CountryList() {
+export default function ContainerStatusList() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(15);
   const [totalPage, setTotalPage] = useState(1);
