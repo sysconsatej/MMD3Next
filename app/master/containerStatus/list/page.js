@@ -30,7 +30,7 @@ export default function ContainerStatusList() {
   const [rowsPerPage, setRowsPerPage] = useState(15);
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
-  const [countryData, setCountryData] = useState([]);
+  const [containerStatusData, setContainerStatusData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
 
@@ -38,15 +38,16 @@ export default function ContainerStatusList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "code, name",
-          tableName: "tblContainerActivity",
+          columns: " m.code code,m.name name",
+          tableName: "tblMasterData m",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
+          joins:` join tblMasterData m1 on m1.id = m.id and m.masterListName = 'tblContainerStatus'`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-        setCountryData(data);
+        setContainerStatusData(data);
         setTotalPage(totalPage);
         setPage(pageNo);
         setRowsPerPage(pageSize);
@@ -62,8 +63,8 @@ export default function ContainerStatusList() {
     getData(1, rowsPerPage);
   }, []);
 
-  const rows = countryData
-    ? countryData.map((item) => createData(item["code"], item["name"]))
+  const rows = containerStatusData
+    ? containerStatusData.map((item) => createData(item["code"], item["name"]))
     : [];
 
   const handleChangePage = (event, newPage) => {
