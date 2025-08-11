@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Table,
@@ -15,72 +15,167 @@ import {
 import { ThemeProvider } from "@mui/material/styles";
 import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
-import { listData } from "./listData";
 import { theme } from "@/styles/globalCss";
+import { fetchTableValues } from "@/apis";
+import SearchBar from "@/components/searchBar/searchBar";
+import { ToastContainer } from "react-toastify";
+import { dropdowns } from "@/utils";
 
-export default function CityList() {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const rows = listData || [];
+function createData(
+  code,
+  name,
+  companyName,
+  countryName,
+  stateName,
+  cityName,
+  phoneNo,
+  gstinNo,
+  zipCode,
+) {
+  return {
+    code,
+    name,
+    companyName,
+    countryName,
+    stateName,
+    cityName,
+    phoneNo,
+    gstinNo,
+    zipCode,
+  };
+}
 
+export default function CompanyBranchList() {
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(15);
+  const [totalPage, setTotalPage] = useState(1);
+  const [totalRows, setTotalRows] = useState(1);
+  const [companyBranchDataData, setCompanyBranchDataData] = useState([]);
+  const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
+  const [loadingState, setLoadingState] = useState("Loading...");
 
+  const getData = useCallback(
+    async (pageNo = page, pageSize = rowsPerPage) => {
+      try {
+        const tableObj = {
+          columns:
+            "co.code code ,co.name name,com.name companyName, c.name countryName,s.name stateName,ci.name cityName, co.telephoneNo phoneNo,co.taxRegistrationNo gstinNo,co.pincode zipCode ",
+          tableName: "tblCompanyBranch co  ",
+          pageNo,
+          pageSize,
+          searchColumn: search.searchColumn,
+          searchValue: search.searchValue,
+          joins:
+            " left join tblCountry c on co.countryId = c.id  left join tblState s on co.stateId = s.id left join tblCity ci on co.cityId = ci.id left join tblCompany com on co.companyId = com.id",
+        };
+        const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
-  const handleChangePage = (_, newPage) => setPage(newPage);
-  const handleChangeRowsPerPage = (e) => {
-    setRowsPerPage(parseInt(e.target.value, 10));
-    setPage(0);
+        setCompanyBranchDataData(data);
+        setTotalPage(totalPage);
+        setPage(pageNo);
+        setRowsPerPage(pageSize);
+        setTotalRows(totalRows);
+      } catch (err) {
+        console.error("Error fetching city data:", err);
+        setLoadingState("Failed to load data");
+      }
+    },
+    [page, rowsPerPage, search]
+  );
+
+  useEffect(() => {
+    getData(1, rowsPerPage);
+  }, []);
+
+  const rows = companyBranchDataData
+    ? companyBranchDataData.map((item) =>
+        createData(
+          item["code"],
+          item["name"],
+          item["companyName"],
+          item["countryName"],
+          item["stateName"],
+          item["cityName"],
+          item["phoneNo"],
+          item["gstinNo"],
+          item["zipCode"],
+        )
+      )
+    : [];
+
+  const handleChangePage = (event, newPage) => {
+    getData(newPage, rowsPerPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    getData(1, +event.target.value);
   };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box className="sm:px-4 py-1">
-        <Box className="flex flex-col sm:flex-row justify-between pb-2">
+        <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center">
             Company Branch List
           </Typography>
-          <CustomButton text="Add" href="/master/companyBranch" />
+          <Box className="flex flex-col sm:flex-row gap-6">
+            <SearchBar
+              getData={getData}
+              rowsPerPage={rowsPerPage}
+              search={search}
+              setSearch={setSearch}
+              options={dropdowns.companyBranch}
+            />
+            <CustomButton text="Add" href="/master/companyBranch" />
+          </Box>
         </Box>
 
         <TableContainer component={Paper}>
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell>Booking No.</TableCell>
-                <TableCell>B/L Date</TableCell>
-                <TableCell>PLR</TableCell>
-                <TableCell>POL</TableCell>
-                <TableCell>POD</TableCell>
-                <TableCell>FPD</TableCell>
+                <TableCell>Code</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>country Name</TableCell>
+                <TableCell>Company Branch</TableCell>
+                <TableCell>State Name</TableCell>
+                <TableCell>City Name</TableCell>
+                <TableCell>Phone NO</TableCell>
+                <TableCell>GSTIN NO</TableCell>
+                <TableCell>Zip Code</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {rows.length > 0 ? (
-                rows
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row, i) => (
-                    <TableRow key={i} hover>
-                      <TableCell>{row.jobNo}</TableCell>
-                      <TableCell>{row.jobDate}</TableCell>
-                      <TableCell>{row.plr}</TableCell>
-                      <TableCell>{row.pol}</TableCell>
-                      <TableCell>{row.pod}</TableCell>
-                      <TableCell>{row.fpd}</TableCell>
-                    </TableRow>
-                  ))
+                rows.map((row, index) => (
+                  <TableRow key={index} hover>
+                    <TableCell>{row.code}</TableCell>
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.companyName}</TableCell>
+                    <TableCell>{row.countryName}</TableCell>
+                    <TableCell>{row.stateName}</TableCell>
+                    <TableCell>{row.cityName}</TableCell>
+                    <TableCell>{row.phoneNo}</TableCell>
+                    <TableCell>{row.gstinNo}</TableCell>
+                    <TableCell>{row.zipCode}</TableCell>
+                  </TableRow>
+                ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} align="center">
-                    Loading...
+                  <TableCell colSpan={5} align="center">
+                    {loadingState}
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </TableContainer>
+
         <Box className="flex justify-end items-center mt-2">
           <CustomPagination
-            count={rows.length}
+            count={totalPage}
+            totalRows={totalRows}
             page={page}
             rowsPerPage={rowsPerPage}
             onPageChange={handleChangePage}
@@ -88,6 +183,7 @@ export default function CityList() {
           />
         </Box>
       </Box>
+      <ToastContainer />
     </ThemeProvider>
   );
 }

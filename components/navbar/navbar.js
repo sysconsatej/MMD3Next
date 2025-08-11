@@ -54,6 +54,7 @@ const navItems = [
       { name: "Voyage", href: "/master/voyage/list" },
       { name: "User", href: "/master/user/list" },
       { name: "Unit", href: "/master/unit/list" },
+      {name:"Unit Type",href:"/master/unitType/list"},
       { name: "SMTP", href: "/master/smtpCarrier/list" },
       { name: "Mode Of Transport", href: "/master/modeOfTransport/list" },
       { name: "Movement Type", href: "/master/movementType/list" },
