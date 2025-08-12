@@ -1,6 +1,3 @@
-import ContainerSize from "@/app/master/containerSize/page";
-import SmtpCarrier from "@/app/master/smtpCarrier/page";
-
 export const dropdowns = {
   country: [
     { label: "Country Code", value: "code" },
@@ -129,6 +126,10 @@ export const dropdowns = {
     { label: "GSTIN No", value: "co.taxRegistrationNo" },
   ],
   movementType: [
+    { label: " Name", value: "m.name" },
+    { label: "Code", value: "m.code" },
+  ],
+  modeOfTransport: [
     { label: " Name", value: "m.name" },
     { label: "Code", value: "m.code" },
   ],
