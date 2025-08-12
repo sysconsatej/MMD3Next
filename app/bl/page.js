@@ -1,6 +1,13 @@
 "use client";
 import { useState } from "react";
-import { ThemeProvider, Box, Button, IconButton, Tooltip } from "@mui/material";
+import {
+  ThemeProvider,
+  Box,
+  Button,
+  IconButton,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import data from "./blData";
 import { CustomInput } from "@/components/customInput";
@@ -58,6 +65,7 @@ export default function Home() {
             </Box>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
+            <Typography variant="caption" className="!ml-3 border-b border-solid " >B/L Details</Typography>
             <Box className="grid grid-cols-4 gap-2  border-b border-b-solid border-b-black p-2 ">
               <CustomInput
                 fields={jsonData.fields}
@@ -66,6 +74,7 @@ export default function Home() {
                 fieldsMode={fieldsMode}
               />
             </Box>
+            <Typography variant="caption" className="!ml-3 border-b border-solid " >Export / Import Details</Typography>
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
               <Box className="flex flex-col gap-2">
                 <CustomInput
@@ -100,6 +109,7 @@ export default function Home() {
                 />
               </Box>
             </Box>
+            <Typography variant="caption" className="!ml-3 border-b border-solid " >Shipment Details</Typography>
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.shipmentFields}
@@ -108,7 +118,8 @@ export default function Home() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <Box className="md:grid sm:grid-cols-8 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
+            <Typography variant="caption" className="!ml-3 border-b border-solid " >Transport Details</Typography>
+            <Box className="md:grid sm:grid-cols-6 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.transportFields}
                 formData={formData}
@@ -116,6 +127,7 @@ export default function Home() {
                 fieldsMode={fieldsMode}
               />
             </Box>
+            <Typography variant="caption" className="!ml-3 border-b border-solid " >Commodity Details</Typography>
             <Box className="md:grid md:grid-cols-7 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.commodityFields}
@@ -124,6 +136,7 @@ export default function Home() {
                 fieldsMode={fieldsMode}
               />
             </Box>
+            <Typography variant="caption" className="!ml-3 border-b border-solid " >BL Container Agency</Typography>
             <Box className=" md:overflow-y-auto h-[200px] overflow-auto p-2 w-full ">
               {addContainer?.map((containerItem, index) => (
                 <Box

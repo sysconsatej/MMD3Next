@@ -44,7 +44,17 @@ export const theme = createTheme({
         root: {
           "& .MuiPickersSectionList-root": {
             fontSize: "12px",
-          }
+          },
+          "&  .MuiInputLabel-root": {
+            fontWeight: "bold",
+          },
+          "&  .MuiInputLabel-root.MuiInputLabel-shrink": {
+            fontSize: "15px",
+          },
+          "&  .MuiInputLabel-root.MuiInputLabel-shrink": {
+            fontSize: "15px",
+            transform: "translate(14px, -11px) scale(0.75)",
+          },
         },
       },
     },

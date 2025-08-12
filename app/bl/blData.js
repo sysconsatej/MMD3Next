@@ -10,7 +10,7 @@ const fieldData = {
       label: "MBL No.",
       name: "mblNo",
     },
-   {
+    {
       label: "MBL Date",
       name: "bookingReferenceNo",
       type: "date",
@@ -28,14 +28,13 @@ const fieldData = {
     {
       label: "SOC",
       name: "soc",
-       type: "radio",
+      type: "radio",
       radioData: [
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
     },
   ],
-
   consignorFields: [
     {
       label: "Shipper Name",
@@ -53,7 +52,6 @@ const fieldData = {
       isEdit: true,
     },
   ],
-
   consigneeFields: [
     {
       label: "Consignee Name",
@@ -71,7 +69,6 @@ const fieldData = {
       isEdit: true,
     },
   ],
-
   notifyFields: [
     {
       label: "Notify Name",
@@ -89,7 +86,6 @@ const fieldData = {
       isEdit: true,
     },
   ],
-
   deliveryAgentFields: [
     {
       label: "Notify2 Name",
@@ -108,24 +104,22 @@ const fieldData = {
       isEdit: true,
     },
   ],
-
   shipmentFields: [
     {
       label: "Type of Shipment",
       name: "typeofShipment",
       type: "dropdown",
-      labelType: "PORT",
+      labelType: "name,tblTypeOfShipment",
     },
     {
       label: "Container Status",
       name: "containerStatus",
       type: "dropdown",
-      labelType: "PORT",
+      labelType: "name,tblContainerStatus",
     },
     {
       label: "Free Days at destination",
       name: "freeDaysAtDestination",
-
     },
     {
       label: "Detention",
@@ -134,134 +128,129 @@ const fieldData = {
       labelType: "PORT",
     },
     {
-      label:"Jumping Slab",
-      name:"jumpingSlab",
+      label: "Jumping Slab",
+      name: "jumpingSlab",
       type: "radio",
       radioData: [
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
     },
-        
     {
-      label:"Slab",
-      name:"slab",
+      label: "Slab",
+      name: "slab",
     },
     {
-      label:"Route",
-      name:"route",
-      type:"dropdown",
-      labelType:"PORT",
-    }
+      label: "Route",
+      name: "route",
+      type: "dropdown",
+      labelType: "name,tblRoutingType",
+    },
   ],
-
   transportFields: [
     {
       label: "Shipping Line",
       name: "shippingLine",
       type: "dropdown",
-      labelType: "vessel",
+      labelType: "company",
     },
     {
       label: "PLR",
       name: "plr",
       type: "dropdown",
-      labelType: "voyage",
+      labelType: "port",
     },
     {
       label: "POL",
       name: "pol",
       type: "dropdown",
-      labelType: "routing",
+      labelType: "port",
     },
     {
       label: "POD",
       name: "pod",
       type: "dropdown",
-      labelType: "routing",
+      labelType: "port",
     },
-     {
+    {
       label: "POD Agent",
       name: "podAgent",
       type: "dropdown",
-      labelType: "routing",
+      labelType: "company",
     },
-     {
+    {
       label: "POD Agent Branch",
       name: "podAgentBranch",
       type: "dropdown",
-      labelType: "routing",
+      labelType: "companyBranch",
     },
-     {
+    {
       label: "FPD",
       name: "fpd",
       type: "dropdown",
-      labelType: "routing",
+      labelType: "port",
     },
-     {
+    {
       label: "FPD Agent",
       name: "fpdAgent",
       type: "dropdown",
-      labelType: "routing",
+      labelType: "company",
     },
     {
       label: "FPD Agent Branch",
       name: "fpdAgentBranch",
       type: "dropdown",
-      labelType: "routing",
+      labelType: "companyBranch",
     },
     {
       label: "Departure Vessel",
       name: "departureVessel",
       type: "dropdown",
-      labelType: "routing",
+      labelType: "vessel",
     },
     {
       label: "Departure Voyage",
       name: "departureVoyage",
       type: "dropdown",
-      labelType: "routing",
+      labelType: "voyage",
     },
     {
       label: "Arrival Vessel",
       name: "arrivalVessel",
       type: "dropdown",
-      labelType: "routing",
+      labelType: "vessel",
     },
     {
       label: "Arrival Voyage",
       name: "arrivalVoyage",
       type: "dropdown",
-      labelType: "routing",
+      labelType: "voyage",
     },
     {
       label: "Cargo Movement",
       name: "cargoMovemen",
       type: "dropdown",
-      labelType: "routing",
-    },
-
-    {
-      label:"Movement Carrier",
-      name:"movementCarrier",
-      type:"dropdowm",
-      labelType:"routing",
+      labelType: "name,tblMovementType",
     },
     {
-      label:"Pre-Carriage",
-      name:"preCarriage",
-      type:"dropdown",
-      labelType:"routing",
+      label: "Movement Carrier",
+      name: "movementCarrier",
     },
-     {
-      label:"Post-Carriage",
-      name:"postCarriage",
-      type:"dropdown",
-      labelType:"routing",
+    {
+      label: "Pre-Carriage",
+      name: "preCarriage",
+      type: "dropdown",
+      labelType: "name,tblMode",
     },
-   { 
-    label:"SEZ",
-      name:"SEZ",
+    {
+      label: "Post-Carriage",
+      name: "postCarriage",
+      type: "dropdown",
+      labelType: "name,tblMode",
+    },
+    {
+      label: "SEZ",
+      name: "SEZ",
       type: "radio",
       radioData: [
         { label: "Yes", value: "Y" },
@@ -269,35 +258,35 @@ const fieldData = {
       ],
     },
     {
-      label:"Consignee Nominated CFS",
-      name:"consigneeNominatedCfs",
-      type:"radio",
-      radioData:[
+      label: "Consignee Nominated CFS",
+      name: "consigneeNominatedCfs",
+      type: "radio",
+      radioData: [
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
     },
-      {
-      label:"CSF",
-      name:"csf",
-      type:"dropdown",
-      labelType:"routing",
-    },
-      {
-      label:"Direct Port Delivery Code",
-      name:"directPortDeliveryCode",
-      type:"dropdown",
-      labelType:"routing",
+    {
+      label: "CSF",
+      name: "csf",
+      type: "dropdown",
+      labelType: "port",
     },
     {
-      label:"DPD CFS",
-      name:"dpdCfs",
-      type:"dropdown",
-      labelType:"routing",
+      label: "Direct Port Delivery Code",
+      name: "directPortDeliveryCode",
+      type: "dropdown",
+      labelType: "port",
+    },
+    {
+      label: "DPD CFS",
+      name: "dpdCfs",
+      type: "dropdown",
+      labelType: "port",
     },
   ],
-commodityFields:[
-   {
+  commodityFields: [
+    {
       label: "Marks And Numbers",
       name: "marksAndNumbers",
       multiline: true,
@@ -306,7 +295,7 @@ commodityFields:[
       type: "textarea",
       isEdit: true,
     },
-     {
+    {
       label: "Remarks",
       name: "remarks",
       multiline: true,
@@ -315,7 +304,7 @@ commodityFields:[
       type: "textarea",
       isEdit: true,
     },
-      {
+    {
       label: "Description of Goods",
       name: "descriptionOfGoods",
       multiline: true,
@@ -324,156 +313,150 @@ commodityFields:[
       type: "textarea",
       isEdit: true,
     },
-   {
-      label:"OT",
-      name:"ot",
-      type:"dropdown",
-      labelType:"routing",
-    },
-     {
-      label:"Cargo Type",
-      name:"cargoType",
-      type:"dropdown",
-      labelType:"routing",
-    },
-     {
-      label:"Commodity Type",
-      name:"commodityType",
-      type:"dropdown",
-      labelType:"routing",
+    {
+      label: "Item Type",
+      name: "itemType",
+      type: "dropdown",
+      labelType: "name,tblItemType",
     },
     {
-      label:"Commodity",
-      name:"commodity",
+      label: "Cargo Type",
+      name: "cargoType",
+      type: "dropdown",
+      labelType: "name,tblCargoType",
     },
     {
-     label:"HS Code",
-     name:"hsCode",
+      label: "Commodity Type",
+      name: "commodityType",
+      type: "dropdown",
+      labelType: "name,tblCommodityType",
     },
     {
-      label:"Gross Weight",
-      name:"grossWeight",
-      type:"number",
-    },
-     {
-      label:"Net Weight",
-      name:"netWeight",
-      type:"number",
-    },
-     {
-      label:"Gross Weight Unit",
-      name:"grossWeightUnit",
-      type:"dropdown",
-      typeof:"routing",
-    },
-     {
-      label:"Cargo Volume",
-      name:"cargoVolume",
-      type:"number",
+      label: "Commodity",
+      name: "commodity",
     },
     {
-      label:"Cargo Volume Unit",
-      name:"cargoVolumeUnit",
-      type:"dropdown",
-      typeof:"routing",
-    },
-     {
-      label:"No of Packages",
-      name:"noOfPackages",
-      type:"number",
+      label: "HS Code",
+      name: "hsCode",
     },
     {
-      label:"Type of Packages",
-      name:"typeOfPackages",
-      type:"dropdown",
-      typeof:"routing",
+      label: "Gross Weight",
+      name: "grossWeight",
+      type: "number",
     },
-
-],
-
-
+    {
+      label: "Net Weight",
+      name: "netWeight",
+      type: "number",
+    },
+    {
+      label: "Gross Weight Unit",
+      name: "grossWeightUnit",
+      type: "dropdown",
+      labelType: "code,tblUnit",
+    },
+    {
+      label: "Cargo Volume",
+      name: "cargoVolume",
+      type: "number",
+    },
+    {
+      label: "Cargo Volume Unit",
+      name: "cargoVolumeUnit",
+      type: "dropdown",
+      labelType: "code,tblUnit",
+    },
+    {
+      label: "No of Packages",
+      name: "noOfPackages",
+      type: "number",
+    },
+    {
+      label: "Type of Packages",
+      name: "typeOfPackages",
+      type: "dropdown",
+      labelType: "name,tblPackage",
+    },
+  ],
   containerFields1: [
-   {
-    label:"Container",
-    name:"container",
-    type:"dropdown",
-    label:"SIZE",
-   },
+    {
+      label: "Container",
+      name: "container",
+      type: "dropdown",
+      labelType: "container",
+    },
     { label: "Container No.", name: "containerNo", type: "text" },
     {
       label: "Size",
       name: "size",
       type: "dropdown",
-      labelType: "SIZE",
+      labelType: "name,tblSize",
     },
     {
       label: "Type",
       name: "type",
       type: "dropdown",
-      labelType: "TYPE",
-
+      labelType: "name,tblType",
     },
     {
       label: "Status",
       name: "status",
       type: "dropdown",
-      labelType: "STATUS",
-
+      labelType: "name,tblContainerStatus",
     },
-    { label: " Agent Seal No", name: "agentsealNo", isEdit: true },
-    { label: "No Of Pkgs", name: "noOfPackages", type: "number", isEdit: true },
+    { label: " Agent Seal No", name: "agentsealNo"},
+    { label: "No Of Pkgs", name: "noOfPackages", type: "number"},
     {
       label: "Type Of Pkgs",
       name: "package",
       type: "dropdown",
-      labelType: "TypeofPkgs",
-      isEdit: true,
+      labelType: "name,tblPackage",
     },
-    { label: "Net Weight", name: "netWeight", type: "number", isEdit: true },
-    { label: "Tara Weight", name: "taraWeight", type: "number", isEdit: true },
+    { label: "Net Weight", name: "netWeight", type: "number"},
+    { label: "Tara Weight", name: "taraWeight", type: "number"},
     {
       label: "Gross Weight",
       name: "grossWeight",
       type: "number",
-      isEdit: true,
     },
     {
       label: "Gross Unit",
       name: "grossWeightUnit",
       type: "dropdown",
-      labelType: "grossWtUnit",
-      isEdit: true,
+      labelType: "name,tblUnit",
     },
-    { label: "Reefer Temperature", name: "reeferTemperture", type: "number", isEdit: true },
     {
-      label: "Ref  Temp Unit",
+      label: "Reefer Temperature",
+      name: "reeferTemperture",
+      type: "number",
+    },
+    {
+      label: "Ref Temp Unit",
       name: "refTempUnit",
       type: "dropdown",
-      labelType: "netWtUnit",
-      isEdit: true,
+      labelType: "name,tblUnit",
     },
-    { label: "OOG Front", name: "oogFront", type: "number", isEdit: true },
-    { label: "OOG Back", name: "backFront", type: "number", isEdit: true },
-    { label: "OOG Back left", name: "oogBackLeft", type: "number", isEdit: true },
-
-
+    { label: "OOG Front", name: "oogFront", type: "number"},
+    { label: "OOG Back", name: "backFront", type: "number" },
+    {
+      label: "OOG Back left",
+      name: "oogBackLeft",
+      type: "number",
+    },
     {
       label: "ODC Dimension Unit",
       name: "dimensionUnit",
       type: "dropdown",
-      labelType: "dimensionUnit",
-      style: "hidden",
-      isEdit: true,
+      labelType: "name,tblUnit",
     },
-  { label: "OOGRight", name: "oogRight", type: "number", isEdit: true },
-  { label: "OOGTop", name: "oogTop", type: "number", isEdit: true },
-    { label: "Free Days", name: "freeDays", style: "hidden", isEdit: true },
+    { label: "OOGRight", name: "oogRight", type: "number" },
+    { label: "OOGTop", name: "oogTop", type: "number"},
+    { label: "Free Days", name: "freeDays"},
     {
       label: "Slot owner",
       name: "slotOwner",
       type: "dropdown",
-      labelType: "netWtUnit",
-      isEdit: true,
+      labelType: "company",
     },
   ],
 };
