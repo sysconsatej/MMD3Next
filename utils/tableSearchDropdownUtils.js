@@ -1,3 +1,6 @@
+import ContainerSize from "@/app/master/containerSize/page";
+import SmtpCarrier from "@/app/master/smtpCarrier/page";
+
 export const dropdowns = {
   country: [
     { label: "Country Code", value: "code" },
@@ -23,8 +26,8 @@ export const dropdowns = {
   ],
 
   ContainerStatus: [
-    { label: "Country Code", value: "code" },
-    { label: "Country Name", value: "name" },
+    { label: " Name", value: "m.name" },
+    { label: "Code", value: "m.code" },
   ],
   depot: [
     { label: "Location", value: "m.name" },
@@ -61,7 +64,7 @@ export const dropdowns = {
     { label: "State Name", value: "s.name" },
     { label: "City Name", value: "ci.name" },
     { label: "Phone No", value: "co.telephoneNo" },
-    { label: "EmailId", value: "co.emailId " },
+    { label: "Email Id", value: "co.emailId " },
     { label: "Pan No", value: "co.panNo " },
     { label: "GSTIN No", value: "co.taxRegistrationNo" },
   ],
@@ -105,5 +108,28 @@ export const dropdowns = {
     { label: "UnNo", value: "i.unNo" },
     { label: "Class", value: "i.class" },
     { label: "FlashPoint", value: "m.flashPoint" },
+  ],
+  ContainerSize: [
+    { label: " Name", value: "m.name" },
+    { label: "Code", value: "m.code" },
+  ],
+  ContainerType: [
+    { label: " Name", value: "m.name" },
+    { label: "Code", value: "m.code" },
+  ],
+  SmtpCarrier: [
+    { label: "Code", value: "co.code" },
+    { label: "Name", value: "co.name" },
+    { label: "Country Name", value: "c.name" },
+    { label: "State Name", value: "s.name" },
+    { label: "City Name", value: "ci.name" },
+    { label: "Phone No", value: "co.telephoneNo" },
+    { label: "Email Id", value: "co.emailId " },
+    { label: "Pan No", value: "co.panNo " },
+    { label: "GSTIN No", value: "co.taxRegistrationNo" },
+  ],
+  movementType: [
+    { label: " Name", value: "m.name" },
+    { label: "Code", value: "m.code" },
   ],
 };
