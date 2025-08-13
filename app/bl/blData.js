@@ -225,10 +225,11 @@ const fieldData = {
       name: "arrivalVoyage",
       type: "dropdown",
       labelType: "voyage",
+      selectedCondition:'arrivalVessel',
     },
     {
       label: "Cargo Movement",
-      name: "cargoMovemen",
+      name: "cargoMovement",
       type: "dropdown",
       labelType: "name,tblMovementType",
     },
