@@ -133,4 +133,16 @@ export const dropdowns = {
     { label: " Name", value: "m.name" },
     { label: "Code", value: "m.code" },
   ],
+  bl: [
+    { label: "MBL NO", value: "b.mblNo" },
+    { label: "MBL DATE", value: "b.mblDate" },
+    { label: "Consignee Text", value: "b.consigneeText" },
+    { label: "POL", value: "p.name" },
+    { label: "POD", value: "p1.name" },
+    { label: "FPD", value: "p2.name" },
+    { label: "Cargo Movement", value: "m.name" },
+    { label: "Arrival Vessel", value: "v1.name" },
+    { label: "Arrival Voyage", value: "v.voyageNo" },
+    { label: "Line NO", value: "b.itemNo" },
+  ],
 };
