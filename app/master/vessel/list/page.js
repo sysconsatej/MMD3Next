@@ -25,12 +25,15 @@ function createData(code, name) {
   return { code, name };
 }
 
+
+
+
 export default function VesselList() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(15);
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
-  const [countryData, setCountryData] = useState([]);
+  const [vesselData, setVesselData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
 
@@ -46,7 +49,7 @@ export default function VesselList() {
           searchValue: search.searchValue,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-        setCountryData(data);
+        setVesselData(data);
         setTotalPage(totalPage);
         setPage(pageNo);
         setRowsPerPage(pageSize);
@@ -62,8 +65,8 @@ export default function VesselList() {
     getData(1, rowsPerPage);
   }, []);
 
-  const rows = countryData
-    ? countryData.map((item) => createData(item["code"], item["name"]))
+  const rows = vesselData
+    ? vesselData.map((item) => createData(item["code"], item["name"]))
     : [];
 
   const handleChangePage = (event, newPage) => {
