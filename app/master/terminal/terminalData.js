@@ -4,6 +4,7 @@ const fieldData = {
             label: "Port/Location",
             name: "portLocation",
             type: "dropdown",
+            labelType: "name,tblPortType",
         },
         {
             label: "Terminal Name",
@@ -13,6 +14,7 @@ const fieldData = {
           label: "Port",
           name: "port",
           type: "dropdown",
+          labelType:"port",
         },
     ],
 };

@@ -25,6 +25,7 @@ const fieldData = {
       name: "cityName",
       type: "dropdown",
       labelType: "city",
+      selectedCondition: "countryName",
     },
     {
       label: "Company Address",
@@ -66,6 +67,7 @@ const fieldData = {
       label: "Company Group Name",
       name: "companyGroupName",
       type: "dropdown",
+      labelType:"name,tblCompanyGroup",
     },
     {
       label: "Credit Period",
@@ -76,6 +78,7 @@ const fieldData = {
       label: "Currency",
       name: "currency",
       type: "dropdown",
+      labelType: "code,tblCurrency",
     },
     {
       label: "IEC No",

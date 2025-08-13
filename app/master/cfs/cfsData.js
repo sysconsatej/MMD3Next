@@ -14,7 +14,7 @@ const fieldData = {
       label: "Port Type",
       name: "portType",
       type: "dropdown",
-      labelTypeof: "CFS",
+      labelType: "name,tblPortType",
     },
     {
       label: "Nominated Area Code",
@@ -28,7 +28,7 @@ const fieldData = {
       label: "Port",
       name: "port",
       type: "dropdown",
-      labelTypeof: "CFS",
+      labelType: "port",
     },
     {
       label: "Direct Deilvery",

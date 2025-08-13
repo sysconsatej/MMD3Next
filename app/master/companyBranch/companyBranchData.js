@@ -36,19 +36,20 @@ const fieldData = {
       label: "Country",
       name: "country",
       type: "dropdown",
-      labelTypeOf: "BRANCH",
+      labelType: "country",
     },
     {
       label: "State",
       name: "state",
       type: "dropdown",
-      labelTypeOf: "BRANCH",
+      labelType: "state",
     },
     {
       label: "City",
       name: "city",
       type: "dropdown",
-      labelTypeOf: "BRANCH",
+      labelType: "city",
+      selectedCondition: "country",
     },
     {
       label: "GSTIN No",
@@ -71,7 +72,7 @@ const fieldData = {
       label: "Language",
       name: "language",
       type: "dropdown",
-      labelTypeOf: "BRANCH",
+      labelType: "name,tblLanguage",
     },
   ],
 };
