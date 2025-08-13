@@ -145,4 +145,13 @@ export const dropdowns = {
     { label: "Arrival Voyage", value: "v.voyageNo" },
     { label: "Line NO", value: "b.itemNo" },
   ],
+  voyage: [
+    { label: "Vessel Name", value: "v1.name" },
+    { label: "Voyage No", value: "v.voyageNo" },
+  ],
+  user: [
+    { label: "Name", value: "name" },
+    { label: "Email Id", value: "emailId" },
+    { label: "Phone No", value: "mobile" },
+  ],
 };
