@@ -50,7 +50,7 @@ const SearchBar = ({
       />
       <CustomButton
         text={"Search"}
-        buttonStyles="!text-[black] !bg-[#fadb0f] !px-[25px] "
+        buttonStyles="!text-[white] !bg-[#ffc400] !text-[11px] "
         onClick={handleSearch}
       />
     </Box>
