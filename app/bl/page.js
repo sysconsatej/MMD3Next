@@ -66,7 +66,7 @@ export default function Home() {
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
             <Typography variant="caption" className="!ml-3 border-b border-solid " >B/L Details</Typography>
-            <Box className="grid grid-cols-4 gap-2  border-b border-b-solid border-b-black p-2 ">
+            <Box className="grid grid-cols-6 gap-2  border-b border-b-solid border-b-black p-2 ">
               <CustomInput
                 fields={jsonData.fields}
                 formData={formData}
@@ -110,7 +110,7 @@ export default function Home() {
               </Box>
             </Box>
             <Typography variant="caption" className="!ml-3 border-b border-solid " >Shipment Details</Typography>
-            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-7 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.shipmentFields}
                 formData={formData}

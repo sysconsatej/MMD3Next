@@ -129,8 +129,8 @@ export const theme = createTheme({
             backgroundColor: "#fff8cc",
           },
           "&.Mui-selected": {
-            backgroundColor: "#FADB0F",
-            color: "#000",
+            backgroundColor: "#ffc400",
+            color: "white",
             border: "1px solid #FADB0F",
           },
           "&.Mui-selected:hover": {
