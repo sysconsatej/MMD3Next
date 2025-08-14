@@ -225,7 +225,7 @@ const fieldData = {
       name: "arrivalVoyage",
       type: "dropdown",
       labelType: "voyage",
-      selectedCondition:'arrivalVessel',
+      selectedCondition: "arrivalVessel",
     },
     {
       label: "Cargo Movement",
@@ -288,6 +288,28 @@ const fieldData = {
   ],
   commodityFields: [
     {
+      label: "Item Type",
+      name: "itemType",
+      type: "dropdown",
+      labelType: "name,tblItemType",
+    },
+    {
+      label: "Cargo Type",
+      name: "cargoType",
+      type: "dropdown",
+      labelType: "name,tblCargoType",
+    },
+    {
+      label: "Commodity Type",
+      name: "commodityType",
+      type: "dropdown",
+      labelType: "name,tblCommodityType",
+    },
+    {
+      label: "Commodity",
+      name: "commodity",
+    },
+    {
       label: "Marks And Numbers",
       name: "marksAndNumbers",
       multiline: true,
@@ -313,28 +335,6 @@ const fieldData = {
       gridColumn: "col-span-1 row-span-3 ",
       type: "textarea",
       isEdit: true,
-    },
-    {
-      label: "Item Type",
-      name: "itemType",
-      type: "dropdown",
-      labelType: "name,tblItemType",
-    },
-    {
-      label: "Cargo Type",
-      name: "cargoType",
-      type: "dropdown",
-      labelType: "name,tblCargoType",
-    },
-    {
-      label: "Commodity Type",
-      name: "commodityType",
-      type: "dropdown",
-      labelType: "name,tblCommodityType",
-    },
-    {
-      label: "Commodity",
-      name: "commodity",
     },
     {
       label: "HS Code",
@@ -405,16 +405,16 @@ const fieldData = {
       type: "dropdown",
       labelType: "name,tblContainerStatus",
     },
-    { label: " Agent Seal No", name: "agentsealNo"},
-    { label: "No Of Pkgs", name: "noOfPackages", type: "number"},
+    { label: " Agent Seal No", name: "agentsealNo" },
+    { label: "No Of Pkgs", name: "noOfPackages", type: "number" },
     {
       label: "Type Of Pkgs",
       name: "package",
       type: "dropdown",
       labelType: "name,tblPackage",
     },
-    { label: "Net Weight", name: "netWeight", type: "number"},
-    { label: "Tara Weight", name: "taraWeight", type: "number"},
+    { label: "Net Weight", name: "netWeight", type: "number" },
+    { label: "Tara Weight", name: "taraWeight", type: "number" },
     {
       label: "Gross Weight",
       name: "grossWeight",
@@ -437,7 +437,7 @@ const fieldData = {
       type: "dropdown",
       labelType: "name,tblUnit",
     },
-    { label: "OOG Front", name: "oogFront", type: "number"},
+    { label: "OOG Front", name: "oogFront", type: "number" },
     { label: "OOG Back", name: "backFront", type: "number" },
     {
       label: "OOG Back left",
@@ -451,8 +451,8 @@ const fieldData = {
       labelType: "name,tblUnit",
     },
     { label: "OOGRight", name: "oogRight", type: "number" },
-    { label: "OOGTop", name: "oogTop", type: "number"},
-    { label: "Free Days", name: "freeDays"},
+    { label: "OOGTop", name: "oogTop", type: "number" },
+    { label: "Free Days", name: "freeDays" },
     {
       label: "Slot owner",
       name: "slotOwner",
