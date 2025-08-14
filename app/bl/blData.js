@@ -213,6 +213,7 @@ const fieldData = {
       name: "departureVoyage",
       type: "dropdown",
       labelType: "voyage",
+      selectedCondition:'departureVessel',
     },
     {
       label: "Arrival Vessel",
