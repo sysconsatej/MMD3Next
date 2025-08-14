@@ -1,34 +1,24 @@
 const fieldData = {
-    cityFields: [
-
-        {
-            label: "City",
-            name: "city",
-
-        },
-        {
-            label: "Province",
-            name: "province",
-            type: "dropdown",
-        },
-        {
-            label: "State Name",
-            name: "state",
-            type: "dropdown",
-        },
-        {
-            label: "Country",
-            name: "country",
-            type: "dropdown",
-        },
-        {
-            label: "STD Code",
-            name: "stdcode",
-
-        },
-
-
-    ],
+  cityFields: [
+    {
+      label: "City",
+      name: "city",
+    },
+    {
+      label: "code",
+      name: "code",
+    },
+    {
+      label: "City Phone Code",
+      name: "cityPhoneCode",
+    },
+    {
+      label: "Country",
+      name: "country",
+      type: "dropdown",
+      labelType:"country",
+    },
+  ],
 };
 
 export default fieldData;

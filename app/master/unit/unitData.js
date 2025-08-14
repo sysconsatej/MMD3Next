@@ -14,8 +14,9 @@ const fieldData = {
         },
         {
             label: "Unit Type",
-            name: "unittype",
+            name: "unitType",
             type: "dropdown",
+            labelType: "name,tblUnitType",
         },
         
 

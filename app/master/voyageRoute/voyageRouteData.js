@@ -17,12 +17,13 @@ const fieldData = {
       name: "voyageNo",
       type: "dropdown",
       labelType: "voyage",
+      selectedCondition:"vesselNo",
     },
     {
       label: "Terminal",
       name: "terminal",
       type: "dropdown",
-      labelType: "terminal",
+      labelType: "port",
     },
     {
       label: "Voyage",

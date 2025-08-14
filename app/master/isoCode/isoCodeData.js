@@ -4,6 +4,7 @@ const fieldData = {
       label: "Size",
       name: "size",
       type: "dropdown",
+      labelType:"name,tblSize"
     },
     {
       label: "Type",

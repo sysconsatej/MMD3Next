@@ -67,6 +67,7 @@ const fieldData = {
       label: "Company Group Name",
       name: "companyGroupName",
       type: "dropdown",
+      labelType:"name,tblCompanyGroup",
     },
     {
       label: "Credit Period",
@@ -77,7 +78,7 @@ const fieldData = {
       label: "Currency",
       name: "currency",
       type: "dropdown",
-      labelType: "currency",
+      labelType: "code,tblCurrency",
     },
     {
       label: "IEC No",

@@ -11,8 +11,8 @@ const fieldData = {
     {
       label: " Master Nationality",
       name: "masterNationality",
-        type: "dropdown",
-
+      type: "dropdown",
+      labelType: "country",
     },
     {
       label: "Dc no",
@@ -22,7 +22,6 @@ const fieldData = {
       label: "Convey Reference no",
       name: "conveyReferenceNo",
     },
-   
   ],
 };
 
