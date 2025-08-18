@@ -218,7 +218,7 @@ function Navbar() {
                                 backgroundColor: "#f1f1f1",
                               },
                               "&::-webkit-scrollbar-thumb": {
-                                backgroundColor: "#fbdc0f",
+                                backgroundColor: "#ffc400",
                                 borderRadius: "2px",
                               },
                               "&::-webkit-scrollbar-thumb:hover": {

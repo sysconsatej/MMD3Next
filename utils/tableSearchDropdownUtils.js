@@ -154,4 +154,8 @@ export const dropdowns = {
     { label: "Email Id", value: "emailId" },
     { label: "Phone No", value: "mobile" },
   ],
+  terminal: [
+    { label: "Port/Location", value: "m.name" },
+    { label: "Terminal", value: "p.name" },
+  ],
 };
