@@ -1,2 +1,2 @@
-export { useDebounce } from "./formUtils";
+export { useDebounce, formatFormData } from "./formUtils";
 export { dropdowns } from "./tableSearchDropdownUtils";

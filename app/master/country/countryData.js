@@ -2,11 +2,11 @@ const fieldData = {
   countryFields: [
     {
       label: "Country Code",
-      name: "countryCode",
+      name: "code",
     },
     {
       label: "Country Name",
-      name: "countryName",
+      name: "name",
     },
   ],
 };

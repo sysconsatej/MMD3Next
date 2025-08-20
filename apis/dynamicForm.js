@@ -6,8 +6,6 @@ export const insertUpdateForm = async (obj) => {
     const res = await axios.post(`${url}api/v1/form/insertUpdate`, obj);
     return res.data;
   } catch (error) {
-    return {
-      message: error.message,
-    };
+    return error.response.data;
   }
 };

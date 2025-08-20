@@ -7,31 +7,23 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import { createMaster } from "@/apis";
+import { insertUpdateForm } from "@/apis";
+import { formatFormData } from "@/utils";
 
 export default function Country() {
-  const [formData, setFormData] = useState({
-    containerDetails: [],
-  });
-
+  const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
-
   const [jsonData, setJsonData] = useState(data);
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    const obj = {
-      json: '{"routeName":"mastervalue","tableName":"tblCountry","tblState":[],"code":"t4","name":"testing4","countryPhoneCode":null,"activeInactive":true,"attachment":[],"menuID":930,"isNoGenerate":null,"clientId":1,"loginCompany":"6403","loginBranch":"5299","loginfinYear":"7","companyId":"6403","companyBranchId":"5299","financialYearId":"7"}',
-      formId: 930,
-      clientId: 1,
-      createdBy: 98,
-      loginCompanyId: "6403",
-      loginCompanyBranchId: "5299",
-      finYearId: "7",
-    };
-    const res = await createMaster(obj);
-    console.log("res", res);
-    toast.success("working!");
+    const format = formatFormData("tblCountry", formData);
+    const { success, error, message } = await insertUpdateForm(format);
+    if (success) {
+      toast.success(message);
+    } else {
+      toast.error(error);
+    }
   };
 
   return (

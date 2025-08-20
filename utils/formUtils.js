@@ -14,3 +14,28 @@ export function useDebounce(search = "", delay) {
 
   return debounceValue;
 }
+
+export function formatFormData(tableName, data, recordId) {
+  const insertObj = {
+    createdBy: 4,
+    clientId: 1,
+    createdDate: new Date(),
+  };
+  const updateObj = {
+    updatedBy: 4,
+    clientId: 1,
+    updatedDate: new Date(),
+  };
+
+  for (let key in data) {
+    if (typeof data[key] === "object") {
+      data[key] = data[key].Id;
+    }
+  }
+
+  if (recordId) {
+    return { tableName, recordId, data: [{ ...data, ...updateObj }] };
+  }
+
+  return { tableName, data: [{ ...data, ...insertObj }] };
+}
