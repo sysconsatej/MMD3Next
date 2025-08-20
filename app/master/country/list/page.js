@@ -20,6 +20,7 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 
 function createData(code, name) {
   return { code, name };
@@ -99,6 +100,7 @@ export default function CountryList() {
               <TableRow>
                 <TableCell>Country Code</TableCell>
                 <TableCell>Country Name</TableCell>
+                
               </TableRow>
             </TableHead>
             <TableBody>
@@ -111,6 +113,13 @@ export default function CountryList() {
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.name}</TableCell>
+                    <TableCell align="right" className="absolute right-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100 !border-0 !p-0 " >
+                      <HoverActionIcons
+                        onView={() => console.log("View", row)}
+                        onEdit={() => console.log("Edit", row)}
+                        onDelete={() => console.log("Delete", row)}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               )}
