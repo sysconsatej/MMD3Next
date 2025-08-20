@@ -100,7 +100,6 @@ export default function CountryList() {
               <TableRow>
                 <TableCell>Country Code</TableCell>
                 <TableCell>Country Name</TableCell>
-                
               </TableRow>
             </TableHead>
             <TableBody>
@@ -110,10 +109,10 @@ export default function CountryList() {
                 </TableRow>
               ) : (
                 rows.map((row, index) => (
-                  <TableRow key={index} hover className="relative group ">
+                  <TableRow key={index} hover className="relative group">
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.name}</TableCell>
-                    <TableCell align="right" className="absolute right-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100 !border-0 !p-0 " >
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => console.log("View", row)}
                         onEdit={() => console.log("Edit", row)}

@@ -159,6 +159,16 @@ export const theme = createTheme({
           padding: "6px 16px",
           fontSize: 10,
           minWidth: "150px",
+          "&.table-icons": {
+            position: "absolute",
+            right: 0,
+            transition: "opacity",
+            border: "none",
+            padding: 0,
+            "& .MuiButtonBase-root": {
+              padding: 0,
+            },
+          },
         },
       },
     },
