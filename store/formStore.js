@@ -8,7 +8,7 @@ const formStore = create(
     persist(
       (set) => ({
         mode: { formId: null, mode: null },
-        setMode: () => set((val) => ({ formId: val.formId, mode: val.mode })),
+        setMode: (newMode) => set(() => ({ mode: newMode })),
       }),
       {
         name: "form-storage",

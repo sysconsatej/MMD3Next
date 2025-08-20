@@ -3,10 +3,12 @@ const fieldData = {
     {
       label: "Country Code",
       name: "code",
+      isEdit: true,
     },
     {
       label: "Country Name",
       name: "name",
+      isEdit: true,
     },
   ],
 };

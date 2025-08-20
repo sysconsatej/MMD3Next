@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data from "./countryData";
 import { CustomInput } from "@/components/customInput";
@@ -9,11 +9,13 @@ import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { insertUpdateForm } from "@/apis";
 import { formatFormData } from "@/utils";
+import { formStore } from "@/store";
 
 export default function Country() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
+  const { mode } = formStore();
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -25,6 +27,10 @@ export default function Country() {
       toast.error(error);
     }
   };
+
+  useEffect(() => {
+    setFieldsMode(mode.mode);
+  }, [mode]);
 
   return (
     <ThemeProvider theme={theme}>
