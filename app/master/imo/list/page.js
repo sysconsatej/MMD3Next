@@ -27,7 +27,7 @@ function createData(unNo,Class,flashPoint) {
 
 export default function ImoList() {
   const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(15);
+  const [rowsPerPage, setRowsPerPage] = useState(30);
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
   const [imoData, setImoData] = useState([]);

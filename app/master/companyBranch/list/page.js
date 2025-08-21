@@ -47,7 +47,7 @@ function createData(
 
 export default function CompanyBranchList() {
   const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(15);
+  const [rowsPerPage, setRowsPerPage] = useState(30);
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
   const [companyBranchDataData, setCompanyBranchDataData] = useState([]);
