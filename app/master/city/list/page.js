@@ -28,7 +28,7 @@ function createData(cityName, stateName,countryName) {
 
 export default function CityList() {
   const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(15);
+  const [rowsPerPage, setRowsPerPage] = useState(30);
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
   const [cityData, setCityData] = useState([]);

@@ -156,7 +156,7 @@ export const theme = createTheme({
     MuiTableCell: {
       styleOverrides: {
         root: {
-          padding: "6px 16px",
+          padding: "0px 16px",
           fontSize: 10,
           minWidth: "150px",
           "&.table-icons": {
@@ -167,6 +167,10 @@ export const theme = createTheme({
             padding: 0,
             "& .MuiButtonBase-root": {
               padding: 0,
+              "& .MuiSvgIcon-root": {
+                width: "15px",
+                height: "15px",
+              },
             },
           },
         },
