@@ -82,6 +82,7 @@ export default function CountryList() {
   };
 
   const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") return;
     setMode({ mode, formId });
     router.push("/master/country");
   };

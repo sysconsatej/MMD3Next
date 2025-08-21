@@ -7,30 +7,45 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import { insertUpdateForm } from "@/apis";
-import { formatFormData } from "@/utils";
+import { fetchForm, insertUpdateForm } from "@/apis";
+import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { formStore } from "@/store";
 
 export default function Country() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
-  const { mode } = formStore();
+  const { mode, setMode } = formStore();
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData("tblCountry", formData);
+    const format = formatFormData("tblCountry", formData, mode.formId);
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
     } else {
-      toast.error(error);
+      toast.error(error || message);
     }
   };
 
   useEffect(() => {
-    setFieldsMode(mode.mode);
-  }, [mode]);
+    async function fetchFormHandler() {
+      if (mode.formId) {
+        setFieldsMode(mode.mode);
+        const format = formatFetchForm(data, "tblCountry", mode.formId);
+        const { success, result, message, error } = await fetchForm(format);
+        if (success) {
+          const getData = formatDataWithForm(result, data);
+          setFormData(getData);
+          toast.success(message);
+        } else {
+          toast.error(error || message);
+        }
+      }
+    }
+
+    fetchFormHandler();
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -40,7 +55,11 @@ export default function Country() {
             <h1 className="text-left text-base flex items-end m-0 ">
               Country Form
             </h1>
-            <CustomButton text="Back" href="/master/country/list" />
+            <CustomButton
+              text="Back"
+              href="/master/country/list"
+              onClick={() => setMode({ mode: null, formId: null })}
+            />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
             <Box className="sm:grid sm:grid-cols-6 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
