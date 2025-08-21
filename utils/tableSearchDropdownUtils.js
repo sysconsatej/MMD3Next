@@ -42,7 +42,7 @@ export const dropdowns = {
   ],
   VoyageRoute: [
     { label: "Port of Call", value: "p.name" },
-    { label: "VoyageId", value: "v.voyageId" },
+    { label: "Voyage No", value: "v.voyageId" },
     { label: "Vessel No", value: "ve.name" },
     { label: "IGM NO", value: "v.igmNo" },
     { label: "Export Locking", value: "v.exportLocking" },
@@ -51,8 +51,8 @@ export const dropdowns = {
     { label: "Voyage", value: "v.voyageNo" },
   ],
   typeOfCompany: [
-    { label: " Code", value: "code" },
-    { label: "Name", value: "name" },
+    { label: "Company SubType Code", value: "code" },
+    { label: "Company SubType", value: "name" },
   ],
   company: [
     { label: "Code", value: "co.code" },
@@ -107,7 +107,7 @@ export const dropdowns = {
     { label: "FlashPoint", value: "m.flashPoint" },
   ],
   ContainerSize: [
-    { label: " Name", value: "m.name" },
+    { label: "Size", value: "m.name" },
     { label: "Code", value: "m.code" },
   ],
   ContainerType: [
