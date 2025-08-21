@@ -3,9 +3,6 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --color-foreground: #FFC400; /* dark gray */
-  --color-delete: #e53935; /* red shade */
-  --color-delete-hover: #b71c1c;  
 }
 
 @theme inline {
@@ -20,6 +17,3 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
-
-.MuiTableCell-root:hover .hover-icon-wrapper {
-   visibility: visible !important;}

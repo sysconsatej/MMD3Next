@@ -11,7 +11,6 @@ import {
   Paper,
   Typography,
   CssBaseline,
-  IconButton,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import CustomButton from "@/components/button/button";
@@ -21,13 +20,6 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
-import { HoverIcon } from "@/components/tableHover/tableHover";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import VisibilityIcon from "@mui/icons-material/Visibility"; // ✅ import hover icon
-import DeleteIcon from "@mui/icons-material/Delete";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import EditIcon from "@mui/icons-material/Edit";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 
 function createData(code, name) {
   return { code, name };
@@ -87,7 +79,6 @@ export default function CargoTypeList() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box className="sm:px-4 py-1 ">
-        {/* Header Section */}
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
             Cargo Type List
@@ -103,56 +94,30 @@ export default function CargoTypeList() {
             <CustomButton text="Add" href="/master/cargoType" />
           </Box>
         </Box>
-
-        {/* Table Section */}
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
                 <TableCell> Name</TableCell>
                 <TableCell> Code</TableCell>
-                <TableCell align="right"> Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {!rows.length ? (
                 <TableRow>
-                  <TableCell colSpan={3}>{loadingState}</TableCell>
+                  <TableCell>{loadingState}</TableCell>
                 </TableRow>
               ) : (
                 rows.map((row, index) => (
-                  <TableRow key={index} hover>
+                  <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.code}</TableCell>
-                    <TableCell align="right">
-                      {/* ✅ Hover Icons here */}
-                      <HoverIcon
-                        defaultIcon={<EditOutlinedIcon />}
-                        hoverIcon={<EditIcon />}
-                        title="Edit"
-                        onClick={() => console.log("Edit", row)}
-                      />
-                      <HoverIcon
-                        defaultIcon={<VisibilityOutlinedIcon />}
-                        hoverIcon={<VisibilityIcon />}
-                        title="View"
-                        onClick={() => console.log("View", row)}
-                      />
-                      <HoverIcon
-                        defaultIcon={<DeleteOutlineIcon />}
-                        hoverIcon={<DeleteIcon />}
-                        title="Delete"
-                        onClick={() => console.log("Delete", row)}
-                      />
-                    </TableCell>
                   </TableRow>
                 ))
               )}
             </TableBody>
           </Table>
         </TableContainer>
-
-        {/* Pagination */}
         <Box className="flex justify-end items-center mt-2">
           <CustomPagination
             count={totalPage}
