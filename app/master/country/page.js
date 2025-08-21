@@ -23,6 +23,7 @@ export default function Country() {
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
+      setFormData({});
     } else {
       toast.error(error || message);
     }
