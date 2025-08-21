@@ -12,6 +12,7 @@ import {
   ListItemText,
   Collapse,
   useMediaQuery,
+  Avatar,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import ExpandLess from "@mui/icons-material/ExpandLess";
@@ -109,17 +110,19 @@ function Navbar() {
     <>
       <Box className="bg-[#edf1f4] px-4 py-1 shadow-md">
         <Box className="flex items-center mx-auto justify-between">
-          <Image
-            src="/images/logo.png"
-            alt="Master Group Logo"
-            width={40}
-            height={30}
-            className="object-contain"
-          />
+          <Box className="mr-6">
+            <Image
+              src="/images/logo.png"
+              alt="Master Group Logo"
+              width={40}
+              height={30}
+              className="object-contain"
+            />
+          </Box>
 
           {!isMobile && (
-            <Box className="grid grid-cols-[1fr_auto] gap-8 items-center">
-              <Box className="flex gap-8">
+            <Box className="grid w-full grid-cols-[auto_1fr] gap-8 items-center">
+              <Box className="flex gap-8 justify-self-center">
                 {navItems.map((item) =>
                   item.submenu ? (
                     <Box
@@ -360,7 +363,17 @@ function Navbar() {
                   )
                 )}
               </Box>
-              <CustomButton text="Enquire Now" size="small" />
+              <Box className="flex items-center gap-1 p-1 justify-self-end">
+                <Avatar className="!w-[28px] !h-[28px] !text-[14px]">A</Avatar>
+                <Box className="leading-tight">
+                  <Typography className="!text-[10px] font-semibold">
+                    Syscon Infotech Pvt Ltd
+                  </Typography>
+                  <Typography className="!text-[10px] text-gray-500">
+                    Admin
+                  </Typography>
+                </Box>
+              </Box>
             </Box>
           )}
 
@@ -506,8 +519,16 @@ function Navbar() {
               )
             )}
           </List>
-          <Box className="mt-4">
-            <CustomButton text="Enquire Now" />
+          <Box className="mt-4 flex items-center gap-2 p-2 bg-[#edf1f4] rounded-md">
+            <Avatar className="!w-[28px] !h-[28px] !text-[14px]">A</Avatar>
+            <Box>
+              <Typography className="!text-[12px] font-semibold">
+                Syscon Infotech Pvt Ltd
+              </Typography>
+              <Typography className="!text-[12px] text-gray-500">
+                Admin
+              </Typography>
+            </Box>
           </Box>
         </Box>
       </Drawer>
