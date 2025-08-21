@@ -73,7 +73,9 @@ export default function Country() {
             </Box>
           </Box>
           <Box className="w-full flex mt-2 ">
-            <CustomButton text={"Submit"} type="submit" />
+            {fieldsMode !== "view" && (
+              <CustomButton text={"Submit"} type="submit" />
+            )}
           </Box>
         </section>
       </form>
