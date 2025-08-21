@@ -171,7 +171,7 @@ const fieldData = {
       name: "cargoDescription",
       style: "sm:w-[min(100%,300px)]",
       multiline: true,
-      rows: 4,
+      rows: 1,
       gridColumn: "col-span-1 row-span-3 ",
       type: "textarea",
       isEdit: true,

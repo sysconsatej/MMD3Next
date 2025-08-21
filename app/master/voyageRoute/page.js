@@ -33,7 +33,7 @@ export default function VoyageRoute() {
             <CustomButton text="Back" href="/master/voyageRoute/list" />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-8 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.voyageFields}
                 formData={formData}
@@ -41,7 +41,7 @@ export default function VoyageRoute() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-8 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.portFields}
                 formData={formData}
@@ -49,7 +49,7 @@ export default function VoyageRoute() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-8 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.dateFields}
                 formData={formData}
@@ -57,7 +57,7 @@ export default function VoyageRoute() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-8 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.consignorFields}
                 formData={formData}
@@ -65,7 +65,7 @@ export default function VoyageRoute() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-6 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.additionalFields}
                 formData={formData}

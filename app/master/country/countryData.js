@@ -2,11 +2,13 @@ const fieldData = {
   countryFields: [
     {
       label: "Country Code",
-      name: "countryCode",
+      name: "code",
+      isEdit: true,
     },
     {
       label: "Country Name",
-      name: "countryName",
+      name: "name",
+      isEdit: true,
     },
   ],
 };

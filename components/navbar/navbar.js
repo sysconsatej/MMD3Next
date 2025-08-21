@@ -12,6 +12,7 @@ import {
   ListItemText,
   Collapse,
   useMediaQuery,
+  Avatar,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import ExpandLess from "@mui/icons-material/ExpandLess";
@@ -22,50 +23,8 @@ import Link from "next/link";
 import CustomButton from "@/components/button/button";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { navItems } from "./index";
 
-const navItems = [
-  { name: "Home", href: "/" },
-  {
-    name: "Master",
-    submenu: [
-      { name: "Commodity", href: "/master/commodity/list" },
-      { name: "Company", href: "/master/company/list" },
-      { name: "Company Branch", href: "/master/companyBranch/list" },
-      { name: "Container Size", href: "/master/containerSize/list" },
-      { name: "Container Status", href: "/master/containerStatus/list" },
-      { name: "Container Type", href: "/master/containerType/list" },
-      { name: "CFS", href: "/master/cfs/list" },
-      { name: "Depot", href: "/master/depot/list" },
-      { name: "ISO Code", href: "/master/isoCode/list" },
-      { name: "IMO ", href: "/master/imo/list" },
-      { name: "ITEM Type", href: "/master/itemType/list" },
-      { name: "Cargo Type", href: "/master/cargoType/list" },
-      { name: "Country", href: "/master/country/list" },
-      { name: "Vessel", href: "/master/vessel/list" },
-      { name: "Voyage Route", href: "/master/voyageRoute/list" },
-      { name: "City", href: "/master/city/list" },
-      { name: "State", href: "/master/state/list" },
-      { name: "Port", href: "/master/port/list" },
-      { name: "Nominated Area", href: "/master/nominatedArea/list" },
-      { name: "Terminal", href: "/master/terminal/list" },
-      { name: "Dpd", href: "/master/dpd/list" },
-      { name: "Type Of Company", href: "/master/typeOfCompany/list" },
-      { name: "Package Type", href: "/master/packageType/list" },
-      { name: "Voyage", href: "/master/voyage/list" },
-      { name: "User", href: "/master/user/list" },
-      { name: "Unit", href: "/master/unit/list" },
-      {name:"Unit Type",href:"/master/unitType/list"},
-      { name: "SMTP", href: "/master/smtpCarrier/list" },
-      { name: "Mode Of Transport", href: "/master/modeOfTransport/list" },
-      { name: "Movement Type", href: "/master/movementType/list" },
-    ],
-  },
-  {
-    name: "BL",
-    href: "/bl/list",
-  },
-  { name: "HBL", href: "/hbl/list" },
-];
 function getActiveNavItem(navItems, pathname) {
   let matched = { activeLink: "", activeSubLink: "", activeParentSubLink: "" };
 
@@ -151,17 +110,19 @@ function Navbar() {
     <>
       <Box className="bg-[#edf1f4] px-4 py-1 shadow-md">
         <Box className="flex items-center mx-auto justify-between">
-          <Image
-            src="/images/logo.png"
-            alt="Master Group Logo"
-            width={40}
-            height={30}
-            className="object-contain"
-          />
+          <Box className="mr-6">
+            <Image
+              src="/images/logo.png"
+              alt="Master Group Logo"
+              width={40}
+              height={30}
+              className="object-contain"
+            />
+          </Box>
 
           {!isMobile && (
-            <Box className="grid grid-cols-[1fr_auto] gap-8 items-center">
-              <Box className="flex gap-8">
+            <Box className="grid w-full grid-cols-[auto_1fr] gap-8 items-center">
+              <Box className="flex gap-8 justify-self-center">
                 {navItems.map((item) =>
                   item.submenu ? (
                     <Box
@@ -402,7 +363,17 @@ function Navbar() {
                   )
                 )}
               </Box>
-              <CustomButton text="Enquire Now" size="small" />
+              <Box className="flex items-center gap-1 p-1 justify-self-end">
+                <Avatar className="!w-[28px] !h-[28px] !text-[14px]">A</Avatar>
+                <Box className="leading-tight">
+                  <Typography className="!text-[10px] font-semibold">
+                    Syscon Infotech Pvt Ltd
+                  </Typography>
+                  <Typography className="!text-[10px] text-gray-500">
+                    Admin
+                  </Typography>
+                </Box>
+              </Box>
             </Box>
           )}
 
@@ -548,8 +519,16 @@ function Navbar() {
               )
             )}
           </List>
-          <Box className="mt-4">
-            <CustomButton text="Enquire Now" />
+          <Box className="mt-4 flex items-center gap-2 p-2 bg-[#edf1f4] rounded-md">
+            <Avatar className="!w-[28px] !h-[28px] !text-[14px]">A</Avatar>
+            <Box>
+              <Typography className="!text-[12px] font-semibold">
+                Syscon Infotech Pvt Ltd
+              </Typography>
+              <Typography className="!text-[12px] text-gray-500">
+                Admin
+              </Typography>
+            </Box>
           </Box>
         </Box>
       </Drawer>

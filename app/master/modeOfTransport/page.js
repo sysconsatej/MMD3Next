@@ -33,7 +33,7 @@ export default function ModeOfTransport() {
             <CustomButton text="Back" href="/master/modeOfTransport/list" />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-6 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.modeoftransportFields}
                 formData={formData}
