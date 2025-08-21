@@ -2,21 +2,25 @@ const fieldData = {
   cityFields: [
     {
       label: "City",
-      name: "city",
+      name: "name",
+      isEdit: "true",
     },
     {
-      label: "code",
-      name: "code",
+      label: "State",
+      name: "stateId",
+      type: "dropdown",
+      labelType: "state",
+      foreignTable: "name,tblState",
+      isEdit: "true",
     },
-    {
-      label: "City Phone Code",
-      name: "cityPhoneCode",
-    },
+    
     {
       label: "Country",
-      name: "country",
+      name: "countryId",
       type: "dropdown",
-      labelType:"country",
+      labelType: "country",
+      foreignTable: "name,tblCountry",
+      isEdit: "true",
     },
   ],
 };

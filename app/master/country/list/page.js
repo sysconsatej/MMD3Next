@@ -65,6 +65,7 @@ export default function CountryList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
   }, []);
 
   const rows = countryData

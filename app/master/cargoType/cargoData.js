@@ -1,20 +1,24 @@
 const fieldData = {
-    cargoFields: [
+  cargoFields: [
+    {
+      label: "Name",
+      name: "name",
+      isEdit: "true",
+    },
 
-        {
-            label: "Name",
-            name: "name",
-
-        },
-        
-        {
-            label: "Code",
-            name: "code",
-
-        },
-
-
-    ],
+    {
+      label: "Code",
+      name: "code",
+      isEdit: "true",
+    },
+    {
+        label:"MasterListId",
+        name:"masterListId",
+        type:"dropdown",
+        labelType:"masterList",
+        foreignTable: "name,tblMasterList",
+    }
+  ],
 };
 
 export default fieldData;

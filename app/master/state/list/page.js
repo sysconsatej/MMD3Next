@@ -20,9 +20,12 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { formStore } from "@/store";
+import { useRouter } from "next/navigation";
 
-function createData(code, taxStateCode, name, countryName) {
-  return { code, taxStateCode, name, countryName };
+function createData(code, taxStateCode, name, countryName, id) {
+  return { code, taxStateCode, name, countryName, id };
 }
 
 export default function StateList() {
@@ -33,18 +36,21 @@ export default function StateList() {
   const [stateData, setStateData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
+  const { setMode } = formStore();
+  const router = useRouter();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "s.code code, s.taxStateCode taxStateCode, s.name name, c.name countryName",
+          columns:
+            "s.code code, s.taxStateCode taxStateCode, s.name name, c.name countryName, s.id",
           tableName: "tblState s",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins:'left join tblCountry c on c.id = s.countryID'
+          joins: "left join tblCountry c on c.id = s.countryID",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setStateData(data);
@@ -61,6 +67,7 @@ export default function StateList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null })
   }, []);
 
   const rows = stateData
@@ -69,7 +76,8 @@ export default function StateList() {
           item["code"],
           item["taxStateCode"],
           item["name"],
-          item["countryName"]
+          item["countryName"],
+          item["id"],
         )
       )
     : [];
@@ -80,6 +88,11 @@ export default function StateList() {
 
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
+  };
+  const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") return;
+    setMode({ mode, formId });
+    router.push("/master/state");
   };
 
   return (
@@ -123,6 +136,13 @@ export default function StateList() {
                     <TableCell>{row.taxStateCode}</TableCell>
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.countryName}</TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               )}
@@ -131,7 +151,7 @@ export default function StateList() {
         </TableContainer>
         <Box className="flex justify-end items-center mt-2">
           <CustomPagination
-             count={totalPage}
+            count={totalPage}
             totalRows={totalRows}
             page={page}
             rowsPerPage={rowsPerPage}
@@ -140,7 +160,7 @@ export default function StateList() {
           />
         </Box>
       </Box>
-       <ToastContainer />
+      <ToastContainer />
     </ThemeProvider>
   );
 }
