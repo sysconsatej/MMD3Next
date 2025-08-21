@@ -39,5 +39,5 @@ export const navItems = [
     name: "BL",
     href: "/bl/list",
   },
-  { name: "HBL", href: "/hbl/list" },
+  
 ];
