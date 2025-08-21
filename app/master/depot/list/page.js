@@ -27,7 +27,7 @@ function createData(depotName, location, code, address) {
 
 export default function DepotList() {
   const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(15);
+  const [rowsPerPage, setRowsPerPage] = useState(30);
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
   const [depotData, setDepotData] = useState([]);
