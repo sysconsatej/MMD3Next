@@ -2,13 +2,14 @@ const fieldData = {
   commodityFields: [
     {
       label: "Commodity Type",
-      name: "commodityType",
+      name: "name",
+      isEdit: "true",
     },
     {
       label: "Commodity Code",
-      name: "commodityCode",
+      name: "code",
+      isEdit: "true",
     },
-    
   ],
 };
 

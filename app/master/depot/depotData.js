@@ -1,34 +1,32 @@
 const fieldData = {
-    depotFields: [
+  depotFields: [
+    {
+      label: "Location",
+      name: "portTypeId",
+      type: "dropdown",
+      labelType: "name,tblPortType",
+      foreignTable: "name,tblMasterData",
+      isEdit: "true",
+    },
 
-         {
-            label: "Location",
-            name: "location",
-            type: "dropdown",
-            labelType:"name,tblPortType",
-        },
+    {
+      label: "Deport Code",
+      name: "code",
+      isEdit: "true",
+    },
 
-        {
-            label: "Deport Code",
-            name: "deportCode",
+    {
+      label: "Deport Name",
+      name: "name",
+      isEdit: "true",
+    },
 
-        },
-        
-        {
-            label: "Deport Name",
-            name: "deportName",
-
-        },
-
-         {
-            label: "Deport Address",
-            name: "deportAddress",
-
-        },
-       
-        
-
-    ],
+    {
+      label: "Deport Address",
+      name: "address",
+      isEdit: "true",
+    },
+  ],
 };
 
 export default fieldData;
