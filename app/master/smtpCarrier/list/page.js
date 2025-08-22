@@ -20,6 +20,9 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { formStore } from "@/store";
+import { useRouter } from "next/navigation";
 
 function createData(
   code,
@@ -30,7 +33,8 @@ function createData(
   phoneNo,
   emailId,
   panNO,
-  gstInNo
+  gstInNo,
+  id
 ) {
   return {
     code,
@@ -42,6 +46,7 @@ function createData(
     emailId,
     panNO,
     gstInNo,
+    id,
   };
 }
 
@@ -53,13 +58,15 @@ export default function SmtpCarrierList() {
   const [smtpCarrierData, setSmtpCarrierData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
+  const { setMode } = formStore();
+  const router = useRouter();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
           columns:
-            "co.code code ,co.name name, c.name countryName,s.name stateName,ci.name cityName, co.telephoneNo phoneNo,co.emailId emailId,co.panNo panNO,co.taxRegistrationNo gstInNo ",
+            "co.code code ,co.name name, c.name countryName,s.name stateName,ci.name cityName, co.telephoneNo phoneNo,co.emailId emailId,co.panNo panNO,co.taxRegistrationNo gstInNo,co.id ",
           tableName: "tblCompany co ",
           pageNo,
           pageSize,
@@ -85,6 +92,7 @@ export default function SmtpCarrierList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
   }, []);
 
   const rows = smtpCarrierData
@@ -98,7 +106,8 @@ export default function SmtpCarrierList() {
           item["phoneNo"],
           item["emailId"],
           item["panNO"],
-          item["gstInNo"]
+          item["gstInNo"],
+          item["id"]
         )
       )
     : [];
@@ -109,6 +118,11 @@ export default function SmtpCarrierList() {
 
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
+  };
+  const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") return;
+    setMode({ mode, formId });
+    router.push("/master/smtpCarrier");
   };
 
   return (
@@ -125,7 +139,7 @@ export default function SmtpCarrierList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.SmtpCarrier}
+              options={dropdowns.company}
             />
             <CustomButton text="Add" href="/master/smtpCarrier" />
           </Box>
@@ -149,7 +163,7 @@ export default function SmtpCarrierList() {
             <TableBody>
               {rows.length > 0 ? (
                 rows.map((row, index) => (
-                  <TableRow key={index} hover>
+                  <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.countryName}</TableCell>
@@ -159,6 +173,13 @@ export default function SmtpCarrierList() {
                     <TableCell>{row.emailId}</TableCell>
                     <TableCell>{row.panNO}</TableCell>
                     <TableCell>{row.gstInNo}</TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (

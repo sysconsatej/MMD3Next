@@ -1,58 +1,55 @@
-import { Label } from "@mui/icons-material";
-
 const fieldData = {
   nominatedAreaFields: [
     {
       label: "Nominated Area Address",
-      name: "descriptionOfGoods",
+      name: "address",
+      style: "sm:w-[min(100%,300px)]",
       multiline: true,
-      rows: 3,
       gridColumn: "col-span-1 row-span-3 ",
+      rows: 3,
       type: "textarea",
       isEdit: true,
     },
     {
       label: "Port Type",
-      name: "portType",
-      type:"dropdown",
-      labelType:"PORT",
+      name: "portTypeId",
+      type: "dropdown",
+      labelType: "name,tblPortType",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
     },
-      {
+    {
       label: "Nominated Area Code",
-      name: "nominatedAreaCode",
-      },
-     {
-      label: "Nominated Area Description",
-      name: "nominatedAreaCode",
-      },
-     {
-      label: "PORT",
-      name: "port",
-      type:"dropdown",
-      labelType:"PORT",
+      name: "code",
+      isEdit: true,
     },
-     {
+    {
+      label: "Nominated Area Description",
+      name: "name",
+      isEdit: true,
+    },
+
+    {
       label: "Direct Delivery",
       name: "directDelivery",
-      type:"checkbox",
+      type: "checkbox",
+      isEdit: true,
     },
-    
-     {
+    {
       label: "EDI Port Code",
       name: "ediPortCode",
-      type:"number",
+      isEdit: true,
     },
     {
-        label:"EDI Common Terminal Code",
-        name:"ediCommonTerminalCode",
-        type:"number",
+      label: "EDI Common Terminal Code",
+      name: "ediCommonTerminalCode",
+      isEdit: true,
     },
     {
-        label:"Bond No",
-        name:"bondNo",
-        type:"number",
-        
-    }
+      label: "Bond No",
+      name: "bondNo",
+      isEdit: true,
+    },
   ],
 };
 
