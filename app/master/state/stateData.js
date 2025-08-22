@@ -2,21 +2,26 @@ const fieldData = {
   stateFields: [
     {
       label: "State Code",
-      name: "stateCode",
+      name: "code",
+      isEdit:"true",
     },
     {
       label: "Tax State Code",
-      name: "TaxStateCode",
+      name: "taxStateCode",
+      isEdit:"true",
     },
     {
       label: "State Name",
-      name: "stateName",
+      name: "name",
+      isEdit:"true",
     },
     {
       label: "Country",
-      name: "countryCode",
+      name: "countryID",
       type: "dropdown",
       labelType: "country",
+      foreignTable:'name,tblCountry',
+      isEdit:"true",
     },
   ],
 };

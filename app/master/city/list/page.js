@@ -20,10 +20,12 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
+import { useRouter } from "next/navigation";
+import { formStore } from "@/store";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 
-
-function createData(cityName, stateName,countryName) {
-  return { cityName,stateName,countryName};
+function createData(cityName, stateName, countryName, id) {
+  return { cityName, stateName, countryName, id };
 }
 
 export default function CityList() {
@@ -34,18 +36,22 @@ export default function CityList() {
   const [cityData, setCityData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
+  const router = useRouter();
+  const { setMode } = formStore();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "c.name cityName, s.name stateName, co.name countryName",
+          columns:
+            "c.name cityName, s.name stateName, co.name countryName,c.id",
           tableName: "tblCity c",
-          pageNo, 
+          pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins:"left join tblState s on s.id = c.stateId left join tblCountry co on co.id = c.countryId",
+          joins:
+            "left join tblState s on s.id = c.stateId left join tblCountry co on co.id = c.countryId",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setCityData(data);
@@ -63,6 +69,7 @@ export default function CityList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
   }, []);
 
   const rows = cityData
@@ -71,7 +78,7 @@ export default function CityList() {
           item["cityName"],
           item["stateName"],
           item["countryName"],
-        
+          item["id"]
         )
       )
     : [];
@@ -82,6 +89,11 @@ export default function CityList() {
 
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
+  };
+  const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") return;
+    setMode({ mode, formId });
+    router.push("/master/city");
   };
 
   return (
@@ -111,17 +123,22 @@ export default function CityList() {
                 <TableCell>City Name</TableCell>
                 <TableCell>State Name</TableCell>
                 <TableCell>Country Name</TableCell>
-                
               </TableRow>
             </TableHead>
             <TableBody>
               {rows.length > 0 ? (
                 rows.map((row, index) => (
-                  <TableRow key={index} hover>
+                  <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.cityName}</TableCell>
                     <TableCell>{row.stateName}</TableCell>
                     <TableCell>{row.countryName}</TableCell>
-                  
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
