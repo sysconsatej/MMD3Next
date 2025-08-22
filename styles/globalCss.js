@@ -148,7 +148,7 @@ export const theme = createTheme({
           backgroundColor: "#0b2545",
           "& .MuiTableCell-root": {
             color: "white",
-            fontSize: "14px",
+            fontSize: "11px",
           },
         },
       },
