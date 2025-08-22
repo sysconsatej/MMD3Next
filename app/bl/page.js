@@ -75,39 +75,13 @@ export default function Home() {
               />
             </Box>
             <Typography variant="caption" className="!ml-3 border-b border-solid " >Export / Import Details</Typography>
-            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
-              <Box className="flex flex-col gap-2">
+            <Box className="sm:grid sm:grid-cols-8 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
                 <CustomInput
-                  fields={jsonData.consignorFields}
+                  fields={jsonData.exportFields}
                   formData={formData}
                   setFormData={setFormData}
                   fieldsMode={fieldsMode}
                 />
-              </Box>
-              <Box className="flex flex-col gap-2">
-                <CustomInput
-                  fields={jsonData.consigneeFields}
-                  formData={formData}
-                  setFormData={setFormData}
-                  fieldsMode={fieldsMode}
-                />
-              </Box>
-              <Box className="flex flex-col gap-2">
-                <CustomInput
-                  fields={jsonData.notifyFields}
-                  formData={formData}
-                  setFormData={setFormData}
-                  fieldsMode={fieldsMode}
-                />
-              </Box>
-              <Box className="flex flex-col gap-2">
-                <CustomInput
-                  fields={jsonData.deliveryAgentFields}
-                  formData={formData}
-                  setFormData={setFormData}
-                  fieldsMode={fieldsMode}
-                />
-              </Box>
             </Box>
             <Typography variant="caption" className="!ml-3 border-b border-solid " >Shipment Details</Typography>
             <Box className="sm:grid sm:grid-cols-7 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
@@ -128,7 +102,7 @@ export default function Home() {
               />
             </Box>
             <Typography variant="caption" className="!ml-3 border-b border-solid " >Commodity Details</Typography>
-            <Box className="md:grid md:grid-cols-7 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
+            <Box className="md:grid md:grid-cols-6 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.commodityFields}
                 formData={formData}
@@ -141,7 +115,7 @@ export default function Home() {
               {addContainer?.map((containerItem, index) => (
                 <Box
                   key={containerItem}
-                  className="grid !grid-cols-8 gap-1 mb-2 pr-[20px]  md:w-full w-[1500px] relative group border-b border-b-solid border-b-black pb-2 "
+                  className="grid !grid-cols-8 gap-2 mb-2 pr-[20px]  md:w-full w-[1500px] relative group border-b border-b-solid border-b-black pb-2 "
                   sx={{ gridTemplateColumns: "repeat(14, minmax(0, 1fr))" }}
                 >
                   <IconButton

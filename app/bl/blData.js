@@ -35,7 +35,7 @@ const fieldData = {
       ],
     },
   ],
-  consignorFields: [
+  exportFields: [
     {
       label: "Shipper Name",
       name: "shipperName",
@@ -47,12 +47,10 @@ const fieldData = {
       name: "shipperAddress",
       style: "sm:w-[min(100%,300px)]",
       multiline: true,
-      rows: 6,
+      rows: 1,
       type: "textarea",
       isEdit: true,
     },
-  ],
-  consigneeFields: [
     {
       label: "Consignee Name",
       name: "consigneeName",
@@ -64,12 +62,10 @@ const fieldData = {
       name: "consigneeAddress",
       style: "sm:w-[min(100%,300px)]",
       multiline: true,
-      rows: 6,
+      rows: 1,
       type: "textarea",
       isEdit: true,
     },
-  ],
-  notifyFields: [
     {
       label: "Notify Name",
       name: "notifyName",
@@ -81,12 +77,10 @@ const fieldData = {
       name: "notifyAddress",
       style: "sm:w-[min(100%,300px)]",
       multiline: true,
-      rows: 6,
+      rows: 1,
       type: "textarea",
       isEdit: true,
     },
-  ],
-  deliveryAgentFields: [
     {
       label: "Notify2 Name",
       name: "notify2Name",
@@ -98,12 +92,15 @@ const fieldData = {
       name: "notify2Address",
       style: "sm:w-[min(100%,300px)]",
       multiline: true,
-      rows: 6,
+      rows: 1,
       height: "auto",
       type: "textarea",
       isEdit: true,
     },
   ],
+  consigneeFields: [],
+  notifyFields: [],
+  deliveryAgentFields: [],
   shipmentFields: [
     {
       label: "Type of Shipment",
@@ -213,7 +210,7 @@ const fieldData = {
       name: "departureVoyage",
       type: "dropdown",
       labelType: "voyage",
-      selectedCondition:'departureVessel',
+      selectedCondition: "departureVessel",
     },
     {
       label: "Arrival Vessel",
@@ -311,33 +308,6 @@ const fieldData = {
       name: "commodity",
     },
     {
-      label: "Marks And Numbers",
-      name: "marksAndNumbers",
-      multiline: true,
-      rows: 6,
-      gridColumn: "col-span-1 row-span-3 ",
-      type: "textarea",
-      isEdit: true,
-    },
-    {
-      label: "Remarks",
-      name: "remarks",
-      multiline: true,
-      rows: 6,
-      gridColumn: "col-span-1 row-span-3 ",
-      type: "textarea",
-      isEdit: true,
-    },
-    {
-      label: "Description of Goods",
-      name: "descriptionOfGoods",
-      multiline: true,
-      rows: 6,
-      gridColumn: "col-span-1 row-span-3 ",
-      type: "textarea",
-      isEdit: true,
-    },
-    {
       label: "HS Code",
       name: "hsCode",
     },
@@ -378,6 +348,30 @@ const fieldData = {
       name: "typeOfPackages",
       type: "dropdown",
       labelType: "name,tblPackage",
+    },
+    {
+      label: "Marks And Numbers",
+      name: "marksAndNumbers",
+      multiline: true,
+      rows: 1,
+      type: "textarea",
+      isEdit: true,
+    },
+    {
+      label: "Remarks",
+      name: "remarks",
+      multiline: true,
+      rows: 1,
+      type: "textarea",
+      isEdit: true,
+    },
+    {
+      label: "Description of Goods",
+      name: "descriptionOfGoods",
+      multiline: true,
+      rows: 1,
+      type: "textarea",
+      isEdit: true,
     },
   ],
   containerFields1: [

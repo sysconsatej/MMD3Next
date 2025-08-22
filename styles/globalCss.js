@@ -47,12 +47,13 @@ export const theme = createTheme({
           },
           "&  .MuiInputLabel-root": {
             fontWeight: "bold",
+            transform: "translate(14px, 10px) scale(1)",
+          },
+          "& .MuiInputBase-root .MuiOutlinedInput-input": {
+            padding: 0,
           },
           "&  .MuiInputLabel-root.MuiInputLabel-shrink": {
-            fontSize: "15px",
-          },
-          "&  .MuiInputLabel-root.MuiInputLabel-shrink": {
-            fontSize: "15px",
+            fontSize: "13px",
             transform: "translate(14px, -11px) scale(0.75)",
           },
         },
@@ -69,8 +70,14 @@ export const theme = createTheme({
         input: {
           textOverflow: "clip",
           padding: "5px 9px",
+          fontSize: "10px",
         },
         root: {
+          "& .MuiInputBase-root .MuiAutocomplete-endAdornment": {
+            "& .MuiIconButton-root .MuiSvgIcon-root": {
+              fontSize: "18px",
+            },
+          },
           "& .MuiButtonBase-root.MuiChip-root": {
             height: "auto",
             "& .MuiSvgIcon-root": {
@@ -81,9 +88,12 @@ export const theme = createTheme({
             },
           },
           "&.multiSelect .MuiInputBase-root": {
-            padding: "5px 9px",
+            padding: "0px 9px",
             height: "auto",
-            minHeight: "30px",
+            minHeight: "20px",
+            "&:not(.Mui-focused)": {
+              flexWrap: "noWrap",
+            },
             "& .MuiInputBase-input": {
               padding: "0px",
             },
@@ -100,8 +110,8 @@ export const theme = createTheme({
         root: {
           padding: "0px",
           "& .MuiSvgIcon-root": {
-            width: "18px",
-            height: "18px",
+            width: "15px",
+            height: "15px",
           },
         },
       },
@@ -181,14 +191,14 @@ export const theme = createTheme({
         root: {
           "& .MuiFormControlLabel-root": {
             "& .MuiSvgIcon-root": {
-              height: "18px",
-              width: "18px",
+              height: "12px",
+              width: "12px",
             },
             "& .MuiTypography-root": {
               fontSize: "12px",
             },
             "& .MuiButtonBase-root": {
-              padding: "5px 8px",
+              padding: "0px 8px",
             },
           },
         },
@@ -222,8 +232,9 @@ export const textFieldStyles = () => {
       width: "100%",
     },
     "& .MuiInputBase-root": {
-      height: "30px",
+      height: "20px",
       fontSize: "12px",
+      padding: "3px 10px",
     },
     "& .MuiFormLabel-root.Mui-focused": {
       top: "3px",
@@ -232,7 +243,7 @@ export const textFieldStyles = () => {
       top: "3px",
     },
     "& .MuiFormControl-root .MuiFormLabel-root:not(& .MuiInputLabel-shrink)": {
-      transform: "translate(14px, 6px) scale(1)",
+      transform: "translate(14px, 2px) scale(1)",
       fontSize: "12px",
     },
     "& .MuiFormControl-root .MuiFormLabel-root": {
@@ -240,7 +251,7 @@ export const textFieldStyles = () => {
     },
     "&.MuiFormControl-root.datepicker .MuiFormLabel-root:not(& .MuiInputLabel-shrink)":
       {
-        transform: "translate(14px, 6px) scale(1)",
+        transform: "translate(14px, 2px) scale(1)",
         fontSize: "12px",
       },
     "&.MuiFormControl-root.datepicker .MuiSvgIcon-root": {
@@ -251,7 +262,7 @@ export const textFieldStyles = () => {
       padding: "0px",
     },
     "&.MuiFormControl-root.datepicker .MuiButtonBase-root": {
-      padding: "7px",
+      padding: "2px",
     },
     "& .MuiFormLabel-root.Mui-disabled, & .MuiInputBase-input.Mui-disabled": {
       color: "rgba(0, 0, 0, 0.87)",
