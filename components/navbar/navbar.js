@@ -128,9 +128,12 @@ function Navbar() {
                     <Box
                       key={item.name}
                       className="relative"
-                      onMouseEnter={(e) => setAnchorEl(e.currentTarget)}
-                      onMouseLeave={() => {
-                        setAnchorEl(null);
+                      onClick={(e) => {
+                        if (anchorEl?.textContent === item.name) {
+                          setAnchorEl(null);
+                        } else {
+                          setAnchorEl(e.currentTarget);
+                        }
                         setThirdMenuAnchor(null);
                         setOpenThirdMenu(null);
                       }}
@@ -165,9 +168,6 @@ function Navbar() {
                           horizontal: "left",
                         }}
                         slotProps={{
-                          paper: {
-                            onMouseLeave: closeMenus,
-                          },
                           list: {
                             sx: {
                               maxHeight: "350px",
@@ -207,10 +207,15 @@ function Navbar() {
                         {item.submenu.map((sub) => (
                           <Box key={sub.name}>
                             <MenuItem
-                              onMouseEnter={(e) => {
+                              onClick={(e) => {
                                 if (sub.children) {
-                                  setThirdMenuAnchor(e.currentTarget);
-                                  setOpenThirdMenu(sub.name);
+                                  if (openThirdMenu === sub.name) {
+                                    setThirdMenuAnchor(null);
+                                    setOpenThirdMenu(null);
+                                  } else {
+                                    setThirdMenuAnchor(e.currentTarget);
+                                    setOpenThirdMenu(sub.name);
+                                  }
                                 } else {
                                   setThirdMenuAnchor(null);
                                   setOpenThirdMenu(null);
@@ -279,9 +284,6 @@ function Navbar() {
                                   horizontal: "left",
                                 }}
                                 slotProps={{
-                                  paper: {
-                                    onMouseLeave: closeMenus,
-                                  },
                                   list: {
                                     sx: {
                                       transition: "all 200ms ease-in-out",

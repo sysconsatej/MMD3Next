@@ -20,6 +20,9 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { formStore } from "@/store";
+import { useRouter } from "next/navigation";
 
 function createData(
   code,
@@ -31,6 +34,7 @@ function createData(
   phoneNo,
   gstinNo,
   zipCode,
+  id
 ) {
   return {
     code,
@@ -42,6 +46,7 @@ function createData(
     phoneNo,
     gstinNo,
     zipCode,
+    id,
   };
 }
 
@@ -53,13 +58,14 @@ export default function CompanyBranchList() {
   const [companyBranchDataData, setCompanyBranchDataData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
-
+  const { setMode } = formStore();
+  const router = useRouter();
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
           columns:
-            "co.code code ,co.name name,com.name companyName, c.name countryName,s.name stateName,ci.name cityName, co.telephoneNo phoneNo,co.taxRegistrationNo gstinNo,co.pincode zipCode ",
+            "co.code code ,co.name name,com.name companyName, c.name countryName,s.name stateName,ci.name cityName, co.telephoneNo phoneNo,co.taxRegistrationNo gstinNo,co.pincode zipCode,co.id",
           tableName: "tblCompanyBranch co  ",
           pageNo,
           pageSize,
@@ -85,6 +91,7 @@ export default function CompanyBranchList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
   }, []);
 
   const rows = companyBranchDataData
@@ -99,6 +106,7 @@ export default function CompanyBranchList() {
           item["phoneNo"],
           item["gstinNo"],
           item["zipCode"],
+          item["id"]
         )
       )
     : [];
@@ -110,7 +118,11 @@ export default function CompanyBranchList() {
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
   };
-
+  const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") return;
+    setMode({ mode, formId });
+    router.push("/master/companyBranch");
+  };
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -149,7 +161,7 @@ export default function CompanyBranchList() {
             <TableBody>
               {rows.length > 0 ? (
                 rows.map((row, index) => (
-                  <TableRow key={index} hover>
+                  <TableRow key={index} hover className="relative group">
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.companyName}</TableCell>
@@ -159,6 +171,13 @@ export default function CompanyBranchList() {
                     <TableCell>{row.phoneNo}</TableCell>
                     <TableCell>{row.gstinNo}</TableCell>
                     <TableCell>{row.zipCode}</TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
