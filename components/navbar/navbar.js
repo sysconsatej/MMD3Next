@@ -173,7 +173,7 @@ function Navbar() {
                               maxHeight: "350px",
                               overflow: "auto",
                               "&::-webkit-scrollbar": {
-                                width: "4px",
+                                width: "10px",
                               },
                               "&::-webkit-scrollbar-track": {
                                 backgroundColor: "#f1f1f1",
