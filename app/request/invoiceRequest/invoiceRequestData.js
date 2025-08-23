@@ -15,7 +15,7 @@ const fieldData = {
     { label: "IGM No.", name: "igmNo" },
     { label: "Item No.", name: "itemNo" },
     { label: "IGM Date", name: "bookingReferenceNo", type: "date" },
-    { label: "Valid Till", name: "bookingReferenceNo", type: "date" },
+    { label: "Valid Till", name: "validTill", type: "date" },
     { label: "Sub Item No.", name: "subItemNo" },
     {
       type: "radio",

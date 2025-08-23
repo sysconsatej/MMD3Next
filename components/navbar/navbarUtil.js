@@ -41,6 +41,6 @@ export const navItems = [
   },
   {
     name: "Requests",
-    submenu: [{ name: "CFS Request", href: "/request/invoiceRequest" }],
+    submenu: [{ name: "CFS Request", href: "/request/invoiceRequest/list" }],
   },
 ];
