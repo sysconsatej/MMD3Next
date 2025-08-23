@@ -151,13 +151,13 @@ export default function CompanyList() {
               <TableRow>
                 <TableCell>Code</TableCell>
                 <TableCell>Name</TableCell>
-                <TableCell>country Name</TableCell>
+                <TableCell>Country Name</TableCell>
                 <TableCell>State Name</TableCell>
                 <TableCell>City Name</TableCell>
-                <TableCell>Phone NO</TableCell>
+                <TableCell>Phone No</TableCell>
                 <TableCell>Email Id</TableCell>
                 <TableCell>Pan No</TableCell>
-                <TableCell>GSTIN NO</TableCell>
+                <TableCell>GSTIN No</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
