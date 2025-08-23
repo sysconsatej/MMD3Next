@@ -2,20 +2,24 @@ const fieldData = {
   userFields: [
     {
       label: "User Name",
-      name: "userName",
+      name: "name",
+      isEdit: "true",
     },
     {
       label: "Password",
       name: "password",
+      isEdit: "true",
     },
     {
       label: "Email Address",
-      name: "emailAddress",
+      name: "emailId",
+      isEdit: "true",
     },
     {
       label: "Mobile",
       name: "mobile",
       type: "number",
+      isEdit: "true",
     },
   ],
 };

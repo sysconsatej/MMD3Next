@@ -20,9 +20,12 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { formStore } from "@/store";
+import { useRouter } from "next/navigation";
 
-function createData(code, portName, activeInactive, portTypeName, country) {
-  return { code, portName, activeInactive, portTypeName, country };
+function createData(code, portName, activeInactive, portTypeName, country, id) {
+  return { code, portName, activeInactive, portTypeName, country, id };
 }
 
 export default function PortList() {
@@ -33,13 +36,14 @@ export default function PortList() {
   const [portData, setPortData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
-
+  const { setMode } = formStore();
+  const router = useRouter();
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
           columns:
-            "p.name portName, p.code code, p.activeInactive activeInactive, m.name portTypeName, c.name country",
+            "p.name portName, p.code code, p.activeInactive activeInactive, m.name portTypeName, c.name country,p.id",
           tableName: "tblPort p",
           pageNo,
           pageSize,
@@ -63,6 +67,7 @@ export default function PortList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
   }, []);
 
   const rows = portData
@@ -72,7 +77,8 @@ export default function PortList() {
           item["portName"],
           item["activeInactive"],
           item["portTypeName"],
-          item["country"]
+          item["country"],
+          item["id"]
         )
       )
     : [];
@@ -83,6 +89,11 @@ export default function PortList() {
 
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
+  };
+  const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") return;
+    setMode({ mode, formId });
+    router.push("/master/port");
   };
 
   return (
@@ -128,6 +139,13 @@ export default function PortList() {
                     <TableCell>{row.activeInactive}</TableCell>
                     <TableCell>{row.portTypeName}</TableCell>
                     <TableCell>{row.country}</TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               )}

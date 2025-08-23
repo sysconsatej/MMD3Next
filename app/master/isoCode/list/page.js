@@ -20,9 +20,12 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { formStore } from "@/store";
+import { useRouter } from "next/navigation";
 
-function createData(code, size,type) {
-  return { code, size,type };
+function createData(code, size, type, id) {
+  return { code, size, type, id };
 }
 
 export default function IsoCodeList() {
@@ -33,18 +36,21 @@ export default function IsoCodeList() {
   const [isoCodeData, setIsoCodeData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
+  const { setMode } = formStore();
+  const router = useRouter();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "i.isoCode code,sizeData.name size,typeData.name type",
+          columns: "i.isoCode code,sizeData.name size,typeData.name type,i.id",
           tableName: "tblIsocode i",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: 'LEFT JOIN tblMasterData  sizeData ON sizeData.id = i.sizeId LEFT JOIN tblMasterData  typeData ON typeData.id = i.typeId',
+          joins:
+            "LEFT JOIN tblMasterData  sizeData ON sizeData.id = i.sizeId LEFT JOIN tblMasterData  typeData ON typeData.id = i.typeId",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setIsoCodeData(data);
@@ -61,10 +67,13 @@ export default function IsoCodeList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
   }, []);
 
   const rows = isoCodeData
-    ? isoCodeData.map((item) => createData(item["code"], item["size"],item["type"]))
+    ? isoCodeData.map((item) =>
+        createData(item["code"], item["size"], item["type"], item["id"])
+      )
     : [];
 
   const handleChangePage = (event, newPage) => {
@@ -73,6 +82,11 @@ export default function IsoCodeList() {
 
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
+  };
+  const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") return;
+    setMode({ mode, formId });
+    router.push("/master/isoCode");
   };
 
   return (
@@ -114,6 +128,13 @@ export default function IsoCodeList() {
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.size}</TableCell>
                     <TableCell>{row.type}</TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               )}

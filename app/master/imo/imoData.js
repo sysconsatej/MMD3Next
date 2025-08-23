@@ -1,90 +1,100 @@
 const fieldData = {
-    imoFields: [
-
-        {
-            label: "UN Number",
-            name: "unNumber",
-            type:"number",
-
-        },
-        {
-            label: "Class",
-            name: "class",
-        },
-         {
-            label: "Proper Shipping Name",
-            name: "properShippingName",
-
-        },
-        {
-            label: "Page No",
-            name: "pageNo",
-            type: "number",
-        },
-        {
-            label: "Flash Point",
-            name: "flashPoint",
-        
-        },
-        {
-            label:"EMS NO",
-            name:"emsNo",
-            type:"number",
-        },
-        {
-            label:"Package Group",
-            name:"packageGroup",
-            type:"number",
-        },
-        {
-            label:"Subsidiary Risk",
-            name:"subsidiaryRisk",
-            
-        },
-        {
-            label:"Flash Point Unit",
-            name:"flashPointUnit",
-
-        },
-        {
-            label:"Limited Qty",
-            name:"limitedQty",
-        },
-        {
-            label:"Expected Qty",
-            name:"expectedQty",
-        },
-        {
-            label:"Packing Ins",
-            name:"packingIns",
-        },
-        { 
-            label:"IBCLNS",
-            name:"ibclns",
-        },
-        {
-            label:"Tank INS",
-            name:"tankIns",
-        },
-         {
-            label:"Tank Provisions",
-            name:"tankProvisions",
-        },
-        {
-            label:"Storage Seg",
-            name:"storageSeg",
-        },
-        {
-            label:"Properties Obs",
-            name:"propertiesObs",
-        },
-         {
-            label:"IBC Provisions",
-            name:"ibcProvisions",
-        },
-
-
-    ],
+  imoFields: [
+    {
+      label: "UN Number",
+      name: "unNo",
+      type: "number",
+      isEdit: "true",
+    },
+    {
+      label: "Class",
+      name: "class",
+      isEdit: "true",
+    },
+    {
+      label: "Proper Shipping Name",
+      name: "properShippingName",
+      isEdit: "true",
+    },
+    {
+      label: "Page No",
+      name: "pgNo",
+      type: "number",
+      isEdit: "true",
+    },
+    {
+      label: "Flash Point",
+      name: "flashPoint",
+      isEdit: "true",
+    },
+    {
+      label: "EMS NO",
+      name: "emsNo",
+      type: "number",
+      isEdit: "true",
+    },
+    {
+      label: "Package Group",
+      name: "packageGroup",
+      type: "number",
+      isEdit: "true",
+    },
+    {
+      label: "Subsidiary Risk",
+      name: "subsidiaryRisk",
+      isEdit: "true",
+    },
+    {
+      label: "Flash Point Unit",
+      name: "flashPointUnit",
+      isEdit: "true",
+    },
+    {
+      label: "Limited Qty",
+      name: "limitedQty",
+      isEdit: "true",
+    },
+    {
+      label: "Expected Qty",
+      name: "expectedQty",
+      isEdit: "true",
+    },
+    {
+      label: "Packing Ins",
+      name: "packingIns",
+      isEdit: "true",
+    },
+    {
+      label: "IBCLNS",
+      name: "ibclns",
+      isEdit: "true",
+    },
+    {
+      label: "Tank INS",
+      name: "tankIns",
+      isEdit: "true",
+    },
+    {
+      label: "Tank Provisions",
+      name: "tankProvisions",
+      isEdit: "true",
+    },
+    {
+      label: "Storage Seg",
+      name: "storageSeg",
+      isEdit: "true",
+    },
+    {
+      label: "Properties Obs",
+      name: "propertiesObs",
+      isEdit: "true",
+    },
+    {
+      label: "IBC Provisions",
+      name: "ibcProvisions",
+      isEdit: "true",
+    },
+  ],
 };
 
 export default fieldData;

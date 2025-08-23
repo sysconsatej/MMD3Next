@@ -20,6 +20,9 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { formStore } from "@/store";
+import { useRouter } from "next/navigation";
 
 function createData(
   portOfCall,
@@ -29,7 +32,8 @@ function createData(
   importLocking,
   igmNo,
   terminal,
-  voyageNo
+  voyageNo,
+  id
 ) {
   return {
     portOfCall,
@@ -40,6 +44,7 @@ function createData(
     igmNo,
     terminal,
     voyageNo,
+    id,
   };
 }
 
@@ -51,13 +56,15 @@ export default function VoyageRouteList() {
   const [voyageRouteData, setVoyageRouteData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
+  const { setMode } = formStore();
+  const router = useRouter();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
           columns:
-            "p.name portOfCall, v.voyageId voyageId, ve.name vesselNo, v.exportLocking exportLocking, v.importLocking importLocking,v.igmNo igmNo, p1.name terminal, v.voyageNo voyageNo ",
+            "p.name portOfCall, v.voyageId voyageId, ve.name vesselNo, v.exportLocking exportLocking, v.importLocking importLocking,v.igmNo igmNo, p1.name terminal, v.voyageNo voyageNo ,v.id",
           tableName: "tblVoyageRoute v",
           pageNo,
           pageSize,
@@ -83,6 +90,7 @@ export default function VoyageRouteList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
   }, []);
 
   const rows = voyageRouteData
@@ -95,7 +103,8 @@ export default function VoyageRouteList() {
           item["importLocking"],
           item["igmNo"],
           item["terminal"],
-          item["voyageNo"]
+          item["voyageNo"],
+          item["id"]
         )
       )
     : [];
@@ -106,6 +115,11 @@ export default function VoyageRouteList() {
 
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
+  };
+  const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") return;
+    setMode({ mode, formId });
+    router.push("/master/voyageRoute");
   };
 
   return (
@@ -145,7 +159,7 @@ export default function VoyageRouteList() {
             <TableBody>
               {rows.length > 0 ? (
                 rows.map((row, index) => (
-                  <TableRow key={index} hover>
+                  <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.portOfCall}</TableCell>
                     <TableCell>{row.voyageId}</TableCell>
                     <TableCell>{row.vesselNo}</TableCell>
@@ -154,6 +168,13 @@ export default function VoyageRouteList() {
                     <TableCell>{row.importLocking}</TableCell>
                     <TableCell>{row.terminal}</TableCell>
                     <TableCell>{row.voyageNo}</TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (

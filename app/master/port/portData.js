@@ -2,32 +2,39 @@ const fieldData = {
   portFields: [
     {
       label: "Port/Location",
-      name: "portLocation",
+      name: "portTypeId",
       type: "dropdown",
       labelType: "name,tblPortType",
+      foreignTable: "name,tblMasterData",
+      isEdit: "true",
     },
     {
       label: "Port Code",
-      name: "portCode",
+      name: "code",
+      isEdit: "true",
     },
     {
       label: "Port Name",
-      name: "portName",
+      name: "name",
+      isEdit: "true",
     },
     {
-      label: "Country Name",
-      name: "countryName",
+      label: "Country",
+      name: "countryId",
       type: "dropdown",
       labelType: "country",
+      foreignTable: "name,tblCountry",
+      isEdit: "true",
     },
     {
       label: "Active/Inactive",
-      name: "activeStatus",
+      name: "activeInactive",
       type: "radio",
       radioData: [
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
+      isEdit: "true",
     },
   ],
 };

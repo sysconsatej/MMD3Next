@@ -2,32 +2,40 @@ const fieldData = {
   voyageFields: [
     {
       label: "Port Of Call",
-      name: "portOfCall",
+      name: "portOfCallId",
       type: "dropdown",
       labelType: "port",
+      foreignTable: "name,tblPort",
     },
     {
-      label: "Vessel No",
-      name: "vesselNo",
+      label: "Vessel Name",
+      name: "vesselId",
       type: "dropdown",
       labelType: "vessel",
+      foreignTable: "name,tblVessel",
     },
     {
       label: "Voyage No",
-      name: "voyageNo",
+      name: "voyageId",
       type: "dropdown",
       labelType: "voyage",
-      selectedCondition:"vesselNo",
+      selectedCondition: "vesselId",
+      foreignTable: "voyageNo,tblVoyage",
     },
     {
       label: "Terminal",
-      name: "terminal",
+      name: "berthId",
       type: "dropdown",
       labelType: "port",
+      foreignTable: "name,tblPort",
     },
     {
-      label: "Voyage",
-      name: "voyage",
+      label: "Export Voyage No",
+      name: "exportVoyageNo",
+    },
+    {
+      label: "Import Voyage No",
+      name: "importVoyageNo",
     },
     {
       label: "ETA",
@@ -40,8 +48,12 @@ const fieldData = {
       type: "date",
     },
     {
+      label: "ETB",
+      name: "etb",
+    },
+    {
       label: "Port Cut Off",
-      name: "portCutOff",
+      name: "portCutoff",
       type: "date",
     },
   ],
@@ -50,6 +62,10 @@ const fieldData = {
       label: "Arrival Date",
       name: "arrivalDate",
       type: "date",
+    },
+    {
+      label: "ATB",
+      name: "berthDate",
     },
     {
       label: "Sail Date",
@@ -63,31 +79,35 @@ const fieldData = {
     },
     {
       label: "Next Port",
-      name: "nextPort",
+      name: "nextPortId",
       type: "dropdown",
       labelType: "port",
     },
     {
       label: "Last Port",
-      name: "lastPort",
+      name: "lastPortId",
       type: "dropdown",
       labelType: "port",
     },
     {
       label: "Prior To Last Port",
-      name: "priorToLastPort",
+      name: "priorToLastPortId",
       type: "dropdown",
       labelType: "port",
     },
     {
       label: "Prior To Prior Port",
-      name: "priorToPriorPort",
+      name: "priorToPriorPortId",
       type: "dropdown",
       labelType: "port",
     },
     {
       label: "SCR No",
       name: "scrNo",
+    },
+    {
+      label: "Empty Depot",
+      name: "depotId",
     },
   ],
   dateFields: [
@@ -127,33 +147,57 @@ const fieldData = {
   consignorFields: [
     {
       label: "NO of Crew",
-      name: "noOfCrew",
+      name: "noOFCrew",
     },
     {
       label: "Light House Due",
-      name: "lightHouseDue",
+      name: "lightHouseDues",
     },
 
-    { label: "Passenger List", name: "passengerList", type: "checkbox" },
+    {
+      label: "Passenger List",
+      name: "passengerList",
+      type: "radio",
+      radioData: [
+        { label: "Yes", value: "Y" },
+        { label: "No", value: "N" },
+      ],
+    },
     {
       label: "Same Bottom Cargo",
       name: "sameBottomCargo",
-      type: "checkbox",
+      type: "radio",
+      radioData: [
+        { label: "Yes", value: "Y" },
+        { label: "No", value: "N" },
+      ],
     },
     {
       label: "Ship Store Declaration",
-      name: "shipStoreDeclaration",
-      type: "checkbox",
+      name: "shipStoresDeclaration",
+      type: "radio",
+      radioData: [
+        { label: "Yes", value: "Y" },
+        { label: "No", value: "N" },
+      ],
     },
     {
       label: "Crew List Declaration",
       name: "crewListDeclaration",
-      type: "checkbox",
+      type: "radio",
+      radioData: [
+        { label: "Yes", value: "Y" },
+        { label: "No", value: "N" },
+      ],
     },
     {
       label: "Maritime Declaration",
       name: "maritimeDeclaration",
-      type: "checkbox",
+      type: "radio",
+      radioData: [
+        { label: "Yes", value: "Y" },
+        { label: "No", value: "N" },
+      ],
     },
     {
       label: "Export Locking",
