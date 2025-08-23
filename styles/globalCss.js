@@ -158,7 +158,8 @@ export const theme = createTheme({
           backgroundColor: "#0b2545",
           "& .MuiTableCell-root": {
             color: "white",
-            fontSize: "11px",
+            fontSize: "12px",
+            lineHeight:"17px",
           },
         },
       },
@@ -166,8 +167,8 @@ export const theme = createTheme({
     MuiTableCell: {
       styleOverrides: {
         root: {
-          padding: "0px 16px",
-          fontSize: 10,
+          padding: "0.5px 16px",
+          fontSize: 12,
           minWidth: "150px",
           "&.table-icons": {
             position: "absolute",
@@ -178,8 +179,8 @@ export const theme = createTheme({
             "& .MuiButtonBase-root": {
               padding: 0,
               "& .MuiSvgIcon-root": {
-                width: "15px",
-                height: "15px",
+                width: "17px",
+                height: "17px",
               },
             },
           },

@@ -52,7 +52,7 @@ function createData(
 
 export default function CompanyList() {
   const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(30);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
   const [companyData, setCompanyData] = useState([]);
