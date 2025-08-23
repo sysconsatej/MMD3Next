@@ -12,12 +12,18 @@ const fieldData = {
       isEdit: "true",
     },
     {
-        label:"MasterListId",
-        name:"masterListId",
-        type:"dropdown",
-        labelType:"masterList",
-        foreignTable: "name,tblMasterList",
-    }
+      label: "MasterListId",
+      name: "masterListId",
+      type: "dropdown",
+      labelType: "masterList",
+      foreignTable: "name,tblMasterList",
+      changeFun: "masterList",
+    },
+    {
+      label: "MasterList Name",
+      name: "masterListName",
+      disabled: true,
+    },
   ],
 };
 

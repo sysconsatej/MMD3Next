@@ -12,12 +12,8 @@ import { fetchForm, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 
 export default function Cargo() {
-  const [formData, setFormData] = useState({
-    containerDetails: [],
-  });
-
+  const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
-
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
 
@@ -31,6 +27,12 @@ export default function Cargo() {
     } else {
       toast.error(error || message);
     }
+  };
+
+  const handleChangeEventFunctions = {
+    masterList: (name, value, index) => {
+      setFormData((prev) => ({ ...prev, masterListName: value.Name }));
+    },
   };
 
   useEffect(() => {
@@ -73,6 +75,7 @@ export default function Cargo() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>
