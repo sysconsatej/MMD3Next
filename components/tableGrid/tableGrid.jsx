@@ -20,6 +20,7 @@ import {
   randomId,
   randomArrayItem,
 } from "@mui/x-data-grid-generator";
+import { CustomInput } from "../customInput";
 
 const roles = ["Market", "Finance", "Development"];
 const randomRole = () => {
@@ -70,8 +71,8 @@ function EditToolbar(props) {
   const handleClick = () => {
     const id = randomId();
     setRows((oldRows) => [
-      ...oldRows,
       { id, name: "", age: "", role: "", isNew: true },
+      ...oldRows,
     ]);
     setRowModesModel((oldModel) => ({
       ...oldModel,
@@ -135,7 +136,35 @@ function TableGrid() {
   };
 
   const columns = [
-    { field: "name", headerName: "Name", width: 180, editable: true },
+    {
+      field: "name",
+      headerName: "Name",
+      width: 200,
+      editable: true,
+      renderEditCell: (params) => {
+        const fields = [
+          { type: "text", name: "name", label: "Name", style: "w-full" },
+        ];
+
+        return (
+          <CustomInput
+            commonProps={{
+              name: params.field,
+              label: params.colDef.headerName,
+              onChange: (e) =>
+                params.api.setEditCellValue({
+                  id: params.id,
+                  field: params.field,
+                  value: e.target.value,
+                }),
+            }}
+            fieldValue={params.value}
+            field={{}}
+            handleBlurEventFunctions={{}}
+          />
+        );
+      },
+    },
     {
       field: "age",
       headerName: "Age",
@@ -235,7 +264,6 @@ function TableGrid() {
         slotProps={{
           toolbar: { setRows, setRowModesModel },
         }}
-        labelRowsPerPage={"10"}
         showToolbar
       />
     </Box>
