@@ -113,7 +113,7 @@ export default function UserList() {
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.name}</TableCell>
-                    <TableCell>{row.emailId}</TableCell>
+                    <TableCell></TableCell>
                     <TableCell>{row.mobile}</TableCell>
                   </TableRow>
                 ))
