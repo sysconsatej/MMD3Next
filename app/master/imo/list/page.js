@@ -20,9 +20,12 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { formStore } from "@/store";
+import { useRouter } from "next/navigation";
 
-function createData(unNo,Class,flashPoint) {
-  return { unNo,Class,flashPoint };
+function createData(unNo, Class, properShippingName, id) {
+  return { unNo, Class, properShippingName, id };
 }
 
 export default function ImoList() {
@@ -33,18 +36,19 @@ export default function ImoList() {
   const [imoData, setImoData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
+  const { setMode } = formStore();
+  const router = useRouter();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "i.unNo unNo,i.class Class,m.name flashpoint",
+          columns: "i.unNo unNo,i.class Class,i.properShippingName,i.id",
           tableName: "tblImo i",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: 'left join tblMasterData m on m.id = i.flashPoint',
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setImoData(data);
@@ -61,10 +65,13 @@ export default function ImoList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
   }, []);
 
   const rows = imoData
-    ? imoData.map((item) => createData(item["unNo"], item["Class"],item["flashPoint"]))
+    ? imoData.map((item) =>
+        createData(item["unNo"], item["Class"], item["properShippingName"], item["id"])
+      )
     : [];
 
   const handleChangePage = (event, newPage) => {
@@ -73,6 +80,11 @@ export default function ImoList() {
 
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
+  };
+  const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") return;
+    setMode({ mode, formId });
+    router.push("/master/imo");
   };
 
   return (
@@ -100,7 +112,7 @@ export default function ImoList() {
               <TableRow>
                 <TableCell> UnNo</TableCell>
                 <TableCell> Class</TableCell>
-                <TableCell>FlashPoint</TableCell>
+                <TableCell>Proper Shipping Name</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -113,7 +125,14 @@ export default function ImoList() {
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.unNo}</TableCell>
                     <TableCell>{row.Class}</TableCell>
-                    <TableCell>{row.flashPoint}</TableCell>
+                    <TableCell>{row.properShippingName}</TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               )}

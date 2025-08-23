@@ -20,9 +20,12 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { formStore } from "@/store";
+import { useRouter } from "next/navigation";
 
-function createData(name, emailId, mobile) {
-  return { name, emailId, mobile };
+function createData(name, emailId, mobile, id) {
+  return { name, emailId, mobile, id };
 }
 
 export default function UserList() {
@@ -33,12 +36,14 @@ export default function UserList() {
   const [userData, setUserData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
+  const { setMode } = formStore();
+  const router = useRouter();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "name,emailId,mobile",
+          columns: "name,emailId,mobile,id",
           tableName: "tblUser",
           pageNo,
           pageSize,
@@ -60,11 +65,12 @@ export default function UserList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
   }, []);
 
   const rows = userData
     ? userData.map((item) =>
-        createData(item["name"], item["emailId"], item["mobile"])
+        createData(item["name"], item["emailId"], item["mobile"], item["id"])
       )
     : [];
 
@@ -75,7 +81,11 @@ export default function UserList() {
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
   };
-
+  const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") return;
+    setMode({ mode, formId });
+    router.push("/master/user");
+  };
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -115,6 +125,13 @@ export default function UserList() {
                     <TableCell>admin</TableCell>
                     <TableCell>admin@gmail.com</TableCell>
                     <TableCell>1234567890</TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               )}

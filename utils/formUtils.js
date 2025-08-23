@@ -28,7 +28,7 @@ export function formatFormData(tableName, data, recordId) {
   };
 
   for (let key in data) {
-    if (typeof data[key] === "object") {
+    if (typeof data[key] === "object" && data[key] !== null) {
       data[key] = data[key].Id;
     }
   }
