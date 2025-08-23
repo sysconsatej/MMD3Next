@@ -14,6 +14,7 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
+import TableGrid from "@/components/tableGrid/tableGrid";
 
 export default function Home() {
   const [addContainer, setAddContainer] = useState([1]);
@@ -143,7 +144,8 @@ export default function Home() {
           <Box className="border border-solid border-black rounded-[4px] ">
             <Typography
               variant="caption"
-              className="!ml-3 border-b border-solid ">
+              className="!ml-3 border-b border-solid "
+            >
               B/L Details
             </Typography>
             <Box className="grid grid-cols-6 gap-2  border-b border-b-solid border-b-black p-2 ">
@@ -157,7 +159,8 @@ export default function Home() {
 
             <Typography
               variant="caption"
-              className="!ml-3 border-b border-solid ">
+              className="!ml-3 border-b border-solid "
+            >
               HBL Details
             </Typography>
             <Box className="grid grid-cols-6 gap-2  border-b border-b-solid border-b-black p-2 ">
@@ -170,7 +173,8 @@ export default function Home() {
             </Box>
             <Typography
               variant="caption"
-              className="!ml-3 border-b border-solid ">
+              className="!ml-3 border-b border-solid "
+            >
               Consignor Details
             </Typography>
             <Box className="grid grid-cols-6 gap-2 border-b border-b-solid border-b-black p-2">
@@ -183,7 +187,8 @@ export default function Home() {
             </Box>
             <Typography
               variant="caption"
-              className="!ml-3 border-b border-solid ">
+              className="!ml-3 border-b border-solid "
+            >
               Consignee Details
             </Typography>
             <Box className="grid grid-cols-6 gap-2 border-b border-b-solid border-b-black p-2">
@@ -196,7 +201,8 @@ export default function Home() {
             </Box>
             <Typography
               variant="caption"
-              className="!ml-3 border-b border-solid ">
+              className="!ml-3 border-b border-solid "
+            >
               Notify Party
             </Typography>
             <Box className="grid grid-cols-7 gap-2 border-b border-b-solid border-b-black p-2">
@@ -209,7 +215,8 @@ export default function Home() {
             </Box>
             <Typography
               variant="caption"
-              className="!ml-3 border-b border-solid ">
+              className="!ml-3 border-b border-solid "
+            >
               Invoicing Instructions
             </Typography>
             <Box className="grid grid-cols-7 gap-2 border-b border-b-solid border-b-black p-2">
@@ -222,175 +229,12 @@ export default function Home() {
             </Box>
             <Typography
               variant="caption"
-              className="!ml-3 border-b border-solid ">
+              className="!ml-3 border-b border-solid "
+            >
               Container Details
             </Typography>
-            <Box className=" md:overflow-y-auto h-auto overflow-auto p-2 w-full border-b border-solid ">
-              {addContainer?.map((containerItem, index) => (
-                <Box
-                  key={containerItem}
-                  className="grid !grid-cols-8 gap-1 mb-2 pr-[20px]  md:w-full w-[1500px] relative group pb-2 "
-                  sx={{ gridTemplateColumns: "repeat(14, minmax(0, 1fr))" }}>
-                  <IconButton
-                    aria-label="delete"
-                    onClick={() => deleteContainerHandler(index)}
-                    className="!absolute right-[0px] top-[-4px] cursor-pointer z-10 w-[20px] invisible group-hover:visible "
-                    sx={{ color: "red" }}>
-                    <Tooltip title="Delete Row">
-                      <DeleteIcon sx={{ width: "20px" }} />
-                    </Tooltip>
-                  </IconButton>
-                  <CustomInput
-                    fields={jsonData[`containerFields${containerItem}`]}
-                    formData={formData}
-                    setFormData={setFormData}
-                    containerIndex={index}
-                    fieldsMode={fieldsMode}
-                  />
-                </Box>
-              ))}
-              <Button
-                sx={{
-                  padding: "2px 6px",
-                  fontSize: "0.75rem",
-                  textTransform: "capitalize ",
-                  backgroundColor: "#ffc400",
-                }}
-                variant="contained"
-                onClick={addContainerHandler}
-                className=" hover:bg-[#ffc400]">
-                Add
-              </Button>
-            </Box>
 
-            <Typography
-              variant="caption"
-              className="!ml-3 border-b border-solid ">
-              Export Shipping Bill Details
-            </Typography>
-            <Box className=" md:overflow-y-auto h-auto overflow-auto p-2 w-full border-b border-solid  ">
-              {addExportShipping?.map((exportShippingItem, index) => (
-                <Box
-                  key={exportShippingItem}
-                  className="grid !grid-cols-8 gap-1 mb-2 pr-[20px]  md:w-full w-[1500px] relative group pb-2 "
-                  sx={{ gridTemplateColumns: "repeat(14, minmax(0, 1fr))" }}>
-                  <IconButton
-                    aria-label="delete"
-                    onClick={() => deleteExportShippingHandler(index)}
-                    className="!absolute right-[0px] top-[-4px] cursor-pointer z-10 w-[20px] invisible group-hover:visible "
-                    sx={{ color: "red" }}>
-                    <Tooltip title="Delete Row">
-                      <DeleteIcon sx={{ width: "20px" }} />
-                    </Tooltip>
-                  </IconButton>
-                  <CustomInput
-                    fields={
-                      jsonData[`exportShippingFields${exportShippingItem}`]
-                    }
-                    formData={formData}
-                    setFormData={setFormData}
-                    containerIndex={index}
-                    fieldsMode={fieldsMode}
-                  />
-                </Box>
-              ))}
-              <Button
-                sx={{
-                  padding: "2px 6px",
-                  fontSize: "0.75rem",
-                  textTransform: "capitalize ",
-                  backgroundColor: "#ffc400",
-                }}
-                variant="contained"
-                onClick={addExportShippingHandler}
-                className=" hover:bg-[#ffc400]">
-                Add
-              </Button>
-            </Box>
-            <Typography
-              variant="caption"
-              className="!ml-3 border-b border-solid ">
-              Itinerary Details
-            </Typography>
-            <Box className=" md:overflow-y-auto h-auto overflow-auto p-2 w-full border-b border-solid ">
-              {addItinerary?.map((itineraryItem, index) => (
-                <Box
-                  key={itineraryItem}
-                  className="grid !grid-cols-8 gap-1 mb-2 pr-[20px]  md:w-full w-[1500px] relative group pb-2 "
-                  sx={{ gridTemplateColumns: "repeat(14, minmax(0, 1fr))" }}>
-                  <IconButton
-                    aria-label="delete"
-                    onClick={() => deleteItineraryHandler(index)}
-                    className="!absolute right-[0px] top-[-4px] cursor-pointer z-10 w-[20px] invisible group-hover:visible "
-                    sx={{ color: "red" }}>
-                    <Tooltip title="Delete Row">
-                      <DeleteIcon sx={{ width: "20px" }} />
-                    </Tooltip>
-                  </IconButton>
-                  <CustomInput
-                    fields={jsonData[`itineraryFields${itineraryItem}`]} // ✅ dynamic fields
-                    formData={formData}
-                    setFormData={setFormData}
-                    containerIndex={index}
-                    fieldsMode={fieldsMode}
-                  />
-                </Box>
-              ))}
-              <Button
-                sx={{
-                  padding: "2px 6px",
-                  fontSize: "0.75rem",
-                  textTransform: "capitalize ",
-                  backgroundColor: "#ffc400",
-                }}
-                variant="contained"
-                onClick={addItineraryHandler}
-                className=" hover:bg-[#ffc400]">
-                Add
-              </Button>
-            </Box>
-            <Typography
-              variant="caption"
-              className="!ml-3 border-b border-solid ">
-              Attachment Details
-            </Typography>
-            <Box className=" md:overflow-y-auto h-auto overflow-auto p-2 w-full ">
-              {addAttachment?.map((attachmentItem, index) => (
-                <Box
-                  key={attachmentItem}
-                  className="grid !grid-cols-8 gap-1 mb-2 pr-[20px]  md:w-full w-[1500px] relative group pb-2 "
-                  sx={{ gridTemplateColumns: "repeat(14, minmax(0, 1fr))" }}>
-                  <IconButton
-                    aria-label="delete"
-                    onClick={() => deleteAttachmentHandler(index)}
-                    className="!absolute right-[0px] top-[-4px] cursor-pointer z-10 w-[20px] invisible group-hover:visible "
-                    sx={{ color: "red" }}>
-                    <Tooltip title="Delete Row">
-                      <DeleteIcon sx={{ width: "20px" }} />
-                    </Tooltip>
-                  </IconButton>
-                  <CustomInput
-                    fields={jsonData[`attachmentFields${attachmentItem}`]}
-                    formData={formData}
-                    setFormData={setFormData}
-                    containerIndex={index}
-                    fieldsMode={fieldsMode}
-                  />
-                </Box>
-              ))}
-              <Button
-                sx={{
-                  padding: "2px 6px",
-                  fontSize: "0.75rem",
-                  textTransform: "capitalize ",
-                  backgroundColor: "#ffc400",
-                }}
-                variant="contained"
-                onClick={addAttachmentHandler}
-                className=" hover:bg-[#ffc400]">
-                Add
-              </Button>
-            </Box>
+            <TableGrid />
           </Box>
 
           <Box className="w-full flex mt-2">
