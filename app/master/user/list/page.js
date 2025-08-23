@@ -27,7 +27,7 @@ function createData(name, emailId, mobile) {
 
 export default function UserList() {
   const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(30);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
   const [userData, setUserData] = useState([]);
@@ -112,9 +112,9 @@ export default function UserList() {
               ) : (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
-                    <TableCell>{row.name}</TableCell>
-                    <TableCell>{row.emailId}</TableCell>
-                    <TableCell>{row.mobile}</TableCell>
+                    <TableCell>admin</TableCell>
+                    <TableCell>admin@gmail.com</TableCell>
+                    <TableCell>1234567890</TableCell>
                   </TableRow>
                 ))
               )}

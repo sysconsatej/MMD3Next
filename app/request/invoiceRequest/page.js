@@ -19,7 +19,7 @@ export default function CFS() {
   const [addAttachment, setAddAttachment] = useState([1]);
 
   const [formData, setFormData] = useState({
-    attachmentDetails: [{}], // first attachment row
+    attachmentDetails: [{}],
   });
 
   const [fieldsMode, setFieldsMode] = useState("");
@@ -62,7 +62,7 @@ export default function CFS() {
               CFS Invoice Request
             </h1>
             <Box>
-              <CustomButton text="Back" href="/bl/list" />
+              <CustomButton text="Back" href="/request/invoiceRequest/list" />
             </Box>
           </Box>
 
@@ -104,13 +104,12 @@ export default function CFS() {
                     </Tooltip>
                   </IconButton>
 
-                  {/* Pass only this row of attachmentDetails */}
                   <CustomInput
                     fields={jsonData.attachmentFields1}
                     formData={formData.attachmentDetails[index]}
                     setFormData={(updatedRow) => {
                       const newDetails = [...formData.attachmentDetails];
-                      newDetails[index] = updatedRow; // update only this row
+                      newDetails[index] = updatedRow;
                       setFormData((prev) => ({
                         ...prev,
                         attachmentDetails: newDetails,

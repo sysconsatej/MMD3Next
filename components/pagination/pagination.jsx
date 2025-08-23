@@ -28,7 +28,7 @@ const CustomPagination = ({
         onPageChange={onPageChange}
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
-        rowsPerPageOptions={[30, 50, 100]}
+        rowsPerPageOptions={[25, 50, 100]}
         ActionsComponent={() => null}
       />
       <Pagination
