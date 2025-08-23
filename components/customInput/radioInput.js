@@ -19,7 +19,7 @@ const RadioInput = ({
       className={`relative py-[5px] !px-[10px] !border !border-solid !border-[#0000003b] rounded-[4px] placeholder-[#000000a6] hover:!border-black ${commonProps.className}`}
     >
       <FormLabel
-        className={`!absolute !font-bold my-1 mx-3 w-fit !px-1 top-[-12px] bg-white !text-[11px]`}
+        className={`!absolute !font-bold mx-3 !leading-[9px] w-fit !px-1 top-[-6px] bg-white !text-[11px]`}
       >
         {commonProps.label}
       </FormLabel>

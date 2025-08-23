@@ -20,64 +20,59 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
-import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
-import { formStore } from "@/store";
-import { useRouter } from "next/navigation";
 
 function createData(
-  code,
-  name,
-  countryName,
-  stateName,
-  cityName,
-  phoneNo,
-  emailId,
-  panNO,
-  gstInNo,
-  id
+  mblNo,
+  mblDate,
+  consigneeText,
+  pol,
+  pod,
+  fpd,
+  cargoMovement,
+  arrivalVessel,
+  arrivalVoyage,
+  line
 ) {
   return {
-    code,
-    name,
-    countryName,
-    stateName,
-    cityName,
-    phoneNo,
-    emailId,
-    panNO,
-    gstInNo,
-    id,
+    mblNo,
+    mblDate,
+    consigneeText,
+    pol,
+    pod,
+    fpd,
+    cargoMovement,
+    arrivalVessel,
+    arrivalVoyage,
+    line,
   };
 }
 
-export default function SmtpCarrierList() {
+export default function CFSList() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
-  const [smtpCarrierData, setSmtpCarrierData] = useState([]);
+  const [blData, setBlData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
-  const { setMode } = formStore();
-  const router = useRouter();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
           columns:
-            "co.code code ,co.name name, c.name countryName,s.name stateName,ci.name cityName, co.telephoneNo phoneNo,co.emailId emailId,co.panNo panNO,co.taxRegistrationNo gstInNo,co.id ",
-          tableName: "tblCompany co ",
+            "b.mblNo mblNo,b.mblDate mblDate,b.consigneeText consigneeText,p.name pol ,p1.name pod,p2.name fpd,m.name cargoMovement,v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line ",
+          tableName: "tblBl b",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
           joins:
-            " left join tblCountry c on co.countryId = c.id  left join tblState s on co.stateId = s.id left join tblCity ci on co.cityId = ci.id",
+            " left join tblPort p on p.id = b.polId  left join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
-        setSmtpCarrierData(data);
+        setBlData(data);
         setTotalPage(totalPage);
         setPage(pageNo);
         setRowsPerPage(pageSize);
@@ -92,22 +87,21 @@ export default function SmtpCarrierList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
   }, []);
 
-  const rows = smtpCarrierData
-    ? smtpCarrierData.map((item) =>
+  const rows = blData
+    ? blData.map((item) =>
         createData(
-          item["code"],
-          item["name"],
-          item["countryName"],
-          item["stateName"],
-          item["cityName"],
-          item["phoneNo"],
-          item["emailId"],
-          item["panNO"],
-          item["gstInNo"],
-          item["id"]
+          item["mblNo"],
+          item["mblDate"],
+          item["consigneeText"],
+          item["pol"],
+          item["pod"],
+          item["fpd"],
+          item["cargoMovement"],
+          item["arrivalVessel"],
+          item["arrivalVoyage"],
+          item["line"]
         )
       )
     : [];
@@ -119,11 +113,6 @@ export default function SmtpCarrierList() {
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
   };
-  const modeHandler = (mode, formId = null) => {
-    if (mode === "delete") return;
-    setMode({ mode, formId });
-    router.push("/master/smtpCarrier");
-  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -131,7 +120,7 @@ export default function SmtpCarrierList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center">
-            SMTP Carrier List
+            CFS List
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
@@ -139,9 +128,9 @@ export default function SmtpCarrierList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.company}
+              options={dropdowns.bl}
             />
-            <CustomButton text="Add" href="/master/smtpCarrier" />
+            <CustomButton text="Add" href="/request/invoiceRequest" />
           </Box>
         </Box>
 
@@ -149,37 +138,32 @@ export default function SmtpCarrierList() {
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell>Code</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>country Name</TableCell>
-                <TableCell>State Name</TableCell>
-                <TableCell>City Name</TableCell>
-                <TableCell>Phone NO</TableCell>
-                <TableCell>Email Id</TableCell>
-                <TableCell>Pan No</TableCell>
-                <TableCell>GSTIN NO</TableCell>
+                <TableCell>MBL NO</TableCell>
+                <TableCell>MBL date</TableCell>
+                <TableCell>Consignee Text</TableCell>
+                <TableCell>POL</TableCell>
+                <TableCell>POD</TableCell>
+                <TableCell>FPD</TableCell>
+                <TableCell>Cargo Movement</TableCell>
+                <TableCell>Arrival Vessel</TableCell>
+                <TableCell>Arrival Voyage</TableCell>
+                <TableCell>Line No</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {rows.length > 0 ? (
                 rows.map((row, index) => (
-                  <TableRow key={index} hover className="relative group ">
-                    <TableCell>{row.code}</TableCell>
-                    <TableCell>{row.name}</TableCell>
-                    <TableCell>{row.countryName}</TableCell>
-                    <TableCell>{row.stateName}</TableCell>
-                    <TableCell>{row.cityName}</TableCell>
-                    <TableCell>{row.phoneNo}</TableCell>
-                    <TableCell>{row.emailId}</TableCell>
-                    <TableCell>{row.panNO}</TableCell>
-                    <TableCell>{row.gstInNo}</TableCell>
-                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
-                      <HoverActionIcons
-                        onView={() => modeHandler("view", row.id)}
-                        onEdit={() => modeHandler("edit", row.id)}
-                        onDelete={() => modeHandler("delete", row.id)}
-                      />
-                    </TableCell>
+                  <TableRow key={index} hover>
+                    <TableCell>{row.mblNo}</TableCell>
+                    <TableCell>{row.mblDate}</TableCell>
+                    <TableCell>{row.consigneeText}</TableCell>
+                    <TableCell>{row.pol}</TableCell>
+                    <TableCell>{row.pod}</TableCell>
+                    <TableCell>{row.fpd}</TableCell>
+                    <TableCell>{row.cargoMovement}</TableCell>
+                    <TableCell>{row.arrivalVessel}</TableCell>
+                    <TableCell>{row.arrivalVoyage}</TableCell>
+                    <TableCell>{row.line}</TableCell>
                   </TableRow>
                 ))
               ) : (

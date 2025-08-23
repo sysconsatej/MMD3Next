@@ -23,7 +23,7 @@ const SearchBar = ({
       <Autocomplete
         disablePortal
         options={options}
-        sx={{ ...textFieldStyles() }}
+        sx={{ ...textFieldStyles(), lineHeight: "normal" }}
         renderInput={(params) => <TextField {...params} label="Search" />}
         onChange={(event, value) =>
           setSearch((prev) => ({
@@ -39,7 +39,7 @@ const SearchBar = ({
             fontSize: "12px",
           },
           "& .MuiFormLabel-root:not(& .MuiInputLabel-shrink)": {
-            transform: "translate(14px, 6px) scale(1)",
+            transform: "translate(14px, 1px) scale(1)",
           },
         }}
         label="Search Value"
