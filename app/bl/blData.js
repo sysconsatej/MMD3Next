@@ -244,9 +244,98 @@ const fieldData = {
       isEdit: true,
     },
   ],
-  consigneeFields: [],
-  notifyFields: [],
-  deliveryAgentFields: [],
+  consigneeFields: [
+    { label: "Name", name: "name" },
+    {
+      label: "Type",
+      name: "type",
+      type: "dropdown",
+    },
+    {
+      label: "CODE",
+      name: "code",
+    },
+    {
+      label: "Country",
+      name: "countryName",
+      type: "dropdown",
+      labelType: "country",
+    },
+    {
+      label: "City",
+      name: "cityName",
+      type: "dropdown",
+      labelType: "city",
+      selectedCondition: "countryName",
+    },
+    {
+      label: "State/Region",
+      name: "stateRegionName",
+      type: "dropdown",
+      labelType: "state",
+    },
+    {
+      label: "GSTIN",
+      name: "gstin",
+    },
+    {
+      label: "IEC",
+      name: "iec",
+    },
+    {
+      label: "Email ID",
+      name: "emailId",
+    },
+    {
+      label: "Post Code",
+      name: "postCode",
+    },
+    {
+      label: "Address",
+      name: "address",
+    },
+  ],
+  notifyFields: [
+    {
+      label: "Notify Name",
+      name: "notifyName",
+      style: "mb-2",
+      isEdit: true,
+    },
+    {
+      label: "PAN Number",
+      name: "panNumber",
+      style: "mb-2",
+      isEdit: true,
+    },
+    {
+      label: "Country",
+      name: "countryName",
+      type: "dropdown",
+      labelType: "country",
+    },
+    {
+      label: "City",
+      name: "cityName",
+      type: "dropdown",
+      labelType: "city",
+      selectedCondition: "countryName",
+    },
+    {
+      label: "State/Region",
+      name: "stateRegionName",
+      type: "dropdown",
+      labelType: "state",
+    },
+    {
+      label: "Post Code",
+      name: "postCode",
+    },
+    {
+      label: "Address",
+      name: "address",
+    },
+  ],
   shipmentFields: [
     {
       label: "Type of Shipment",
