@@ -35,36 +35,156 @@ const fieldData = {
       ],
     },
   ],
-  exportFields: [
+
+  hblfields: [
     {
-      label: "Shipper Name",
-      name: "shipperName",
-      style: "mb-2",
-      isEdit: true,
+      label: " HBL No.",
+      name: "hblNo",
     },
     {
-      label: "Shipper Address",
-      name: "shipperAddress",
-      style: "sm:w-[min(100%,300px)]",
-      multiline: true,
-      rows: 1,
-      type: "textarea",
-      isEdit: true,
+      label: "HBL Date",
+      name: "hblDate",
+      type: "date",
     },
     {
-      label: "Consignee Name",
-      name: "consigneeName",
-      style: "mb-2",
-      isEdit: true,
+      label: "CIN Type",
+      name: "cinType",
+      type: "dropdown",
+      labelType: "cinType",
     },
     {
-      label: "Consignee Address",
-      name: "consigneeAddress",
-      style: "sm:w-[min(100%,300px)]",
-      multiline: true,
-      rows: 1,
-      type: "textarea",
-      isEdit: true,
+      label: "CIN No.",
+      name: "cinNo",
+    },
+    {
+      label: "CIN Date",
+      name: "cinDate",
+      type: "date",
+    },
+    {
+      label: "CSN No.",
+      name: "csnNo",
+    },
+    {
+      label: "CSN Date",
+      name: "csnDate",
+      type: "date",
+    },
+    {
+      label: "ITEM Type",
+      name: "itemType",
+      type: "dropdown",
+      labelType: "itemType",
+    },
+    {
+      label: "Nature of Cargo",
+      name: "natureOfCargo",
+      type: "dropdown",
+      labelType: "natureOfCargo",
+    },
+    {
+      label: "Short shipment",
+      name: "shortShipment",
+      type: "checkbox",
+    },
+    {
+      label: "FF PAN",
+      name: "ffPan",
+    },
+  ],
+
+  consignorFields: [
+    {
+      label: "Name",
+      name: "name",
+    },
+    {
+      label: "Type",
+      name: "type",
+      type: "dropdown",
+    },
+    {
+      label: "CODE",
+      name: "code",
+    },
+    {
+      label: "Country",
+      name: "countryName",
+      type: "dropdown",
+      labelType: "country",
+    },
+    {
+      label: "City",
+      name: "cityName",
+      type: "dropdown",
+      labelType: "city",
+      selectedCondition: "countryName",
+    },
+    {
+      label: "State/Region",
+      name: "stateRegionName",
+      type: "dropdown",
+      labelType: "state",
+    },
+
+    {
+      label: "Post Code",
+      name: "postCode",
+    },
+    {
+      label: "Address",
+      name: "address",
+    },
+  ],
+  consigneeFields: [
+    { label: "Name", name: "name" },
+    {
+      label: "Type",
+      name: "type",
+      type: "dropdown",
+    },
+    {
+      label: "CODE",
+      name: "code",
+    },
+    {
+      label: "Country",
+      name: "countryName",
+      type: "dropdown",
+      labelType: "country",
+    },
+    {
+      label: "City",
+      name: "cityName",
+      type: "dropdown",
+      labelType: "city",
+      selectedCondition: "countryName",
+    },
+    {
+      label: "State/Region",
+      name: "stateRegionName",
+      type: "dropdown",
+      labelType: "state",
+    },
+    {
+      label: "GSTIN",
+      name: "gstin",
+    },
+    {
+      label: "IEC",
+      name: "iec",
+    },
+    {
+      label: "Email ID",
+      name: "emailId",
+    },
+    {
+      label: "Post Code",
+      name: "postCode",
+    },
+    {
+      label: "Address",
+      name: "address",
     },
     {
       label: "Notify Name",
@@ -73,14 +193,40 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Notify Address",
-      name: "notifyAddress",
-      style: "sm:w-[min(100%,300px)]",
-      multiline: true,
-      rows: 1,
-      type: "textarea",
+      label: "PAN Number",
+      name: "panNumber",
+      style: "mb-2",
       isEdit: true,
     },
+    {
+      label: "Country",
+      name: "countryName",
+      type: "dropdown",
+      labelType: "country",
+    },
+    {
+      label: "City",
+      name: "cityName",
+      type: "dropdown",
+      labelType: "city",
+      selectedCondition: "countryName",
+    },
+    {
+      label: "State/Region",
+      name: "stateRegionName",
+      type: "dropdown",
+      labelType: "state",
+    },
+    {
+      label: "Post Code",
+      name: "postCode",
+    },
+    {
+      label: "Address",
+      name: "address",
+    },
+  ],
+  deliveryAgentFields: [
     {
       label: "Notify2 Name",
       name: "notify2Name",
@@ -284,70 +430,42 @@ const fieldData = {
       labelType: "port",
     },
   ],
-  commodityFields: [
+  invoicingFields: [
     {
-      label: "Item Type",
-      name: "itemType",
+      label: "Name",
+      name: "name",
+    },
+    {
+      label: "Address",
+      name: "address",
+    },
+    {
+      label: "GSTIN",
+      name: "gstin",
+    },
+    {
+      label: "Marks And Numbers",
+      name: "marksAndNumbers",
+      multiline: true,
+      rows: 6,
+      isEdit: true,
+    },
+    {
+      label: "Goods and Description",
+      name: "remarks",
+      multiline: true,
+      rows: 6,
+      isEdit: true,
+    },
+    {
+      label: "Invoice Value",
+      name: "invoiceValue",
+    },
+    {
+      label: "Currency",
+      name: "currency",
       type: "dropdown",
-      labelType: "name,tblItemType",
-    },
-    {
-      label: "Cargo Type",
-      name: "cargoType",
-      type: "dropdown",
-      labelType: "name,tblCargoType",
-    },
-    {
-      label: "Commodity Type",
-      name: "commodityType",
-      type: "dropdown",
-      labelType: "name,tblCommodityType",
-    },
-    {
-      label: "Commodity",
-      name: "commodity",
-    },
-    {
-      label: "HS Code",
-      name: "hsCode",
-    },
-    {
-      label: "Gross Weight",
-      name: "grossWeight",
-      type: "number",
-    },
-    {
-      label: "Net Weight",
-      name: "netWeight",
-      type: "number",
-    },
-    {
-      label: "Gross Weight Unit",
-      name: "grossWeightUnit",
-      type: "dropdown",
-      labelType: "code,tblUnit",
-    },
-    {
-      label: "Cargo Volume",
-      name: "cargoVolume",
-      type: "number",
-    },
-    {
-      label: "Cargo Volume Unit",
-      name: "cargoVolumeUnit",
-      type: "dropdown",
-      labelType: "code,tblUnit",
-    },
-    {
-      label: "No of Packages",
-      name: "noOfPackages",
-      type: "number",
-    },
-    {
-      label: "Type of Packages",
-      name: "typeOfPackages",
-      type: "dropdown",
-      labelType: "name,tblPackage",
+      labelType: "currency",
     },
     {
       label: "Marks And Numbers",
@@ -376,10 +494,8 @@ const fieldData = {
   ],
   containerFields1: [
     {
-      label: "Container",
-      name: "container",
-      type: "dropdown",
-      labelType: "container",
+      label: "S No.",
+      name: "sNo",
     },
     { label: "Container No.", name: "containerNo", type: "text" },
     {
@@ -453,6 +569,57 @@ const fieldData = {
       name: "slotOwner",
       type: "dropdown",
       labelType: "company",
+    },
+  ],
+
+  exportShippingFields1: [
+    {
+      label: "SB No.",
+      name: "sbno",
+    },
+    {
+      label: "SB Date",
+      type: "date",
+    },
+    {
+      label: "CIN Type",
+      name: "cinType",
+      type: "dropdown",
+      labelType: "cinType",
+    },
+    {
+      label: "CIN No.",
+      name: "cinNo",
+    },
+  ],
+  itineraryFields1: [
+    {
+      label: "SNo.",
+      name: "sno",
+    },
+    {
+      label: "From Port/ICD/sez/CFS",
+      name: "fromPort",
+    },
+    {
+      label: "To Port/ICD/sez/CFS",
+      name: "toPort",
+    },
+    {
+      label: "Mode of Transport",
+      name: "modeOfTransport",
+      type: "dropdown",
+      labelType: "modeOfTransport",
+    },
+  ],
+  attachmentFields1: [
+    {
+      label: "Others.",
+      name: "others",
+    },
+    {
+      label: "Mater Bl Copy",
+      name: "materBlCopy",
     },
   ],
 };
