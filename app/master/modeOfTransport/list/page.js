@@ -20,9 +20,12 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { formStore } from "@/store";
+import { useRouter } from "next/navigation";
 
-function createData(code, name) {
-  return { code, name };
+function createData(code, name, id) {
+  return { code, name, id };
 }
 
 export default function ModeOfTransportList() {
@@ -33,18 +36,20 @@ export default function ModeOfTransportList() {
   const [modeOfTransportData, setModeOfTransportData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
+  const { setMode } = formStore();
+  const router = useRouter();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: " m.code code,m.name name",
+          columns: " m.code code,m.name name,m.id",
           tableName: "tblMasterData m",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins:` join tblMasterData m1 on m1.id = m.id and m.masterListName = 'tblTransportType'`,
+          joins: ` join tblMasterData m1 on m1.id = m.id and m.masterListName = 'tblTransportType'`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setModeOfTransportData(data);
@@ -61,10 +66,13 @@ export default function ModeOfTransportList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
   }, []);
 
   const rows = modeOfTransportData
-    ? modeOfTransportData.map((item) => createData(item["code"], item["name"]))
+    ? modeOfTransportData.map((item) =>
+        createData(item["code"], item["name"], item["id"])
+      )
     : [];
 
   const handleChangePage = (event, newPage) => {
@@ -73,6 +81,11 @@ export default function ModeOfTransportList() {
 
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
+  };
+  const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") return;
+    setMode({ mode, formId });
+    router.push("/master/modeOfTransport");
   };
 
   return (
@@ -112,6 +125,13 @@ export default function ModeOfTransportList() {
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.name}</TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               )}
