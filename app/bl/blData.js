@@ -581,84 +581,9 @@ const fieldData = {
       isEdit: true,
     },
   ],
-  containerFields1: [
-    {
-      label: "S No.",
-      name: "sNo",
-    },
-    { label: "Container No.", name: "containerNo", type: "text" },
-    {
-      label: "Size",
-      name: "size",
-      type: "dropdown",
-      labelType: "name,tblSize",
-    },
-    {
-      label: "Type",
-      name: "type",
-      type: "dropdown",
-      labelType: "name,tblType",
-    },
-    {
-      label: "Status",
-      name: "status",
-      type: "dropdown",
-      labelType: "name,tblContainerStatus",
-    },
-    { label: " Agent Seal No", name: "agentsealNo" },
-    { label: "No Of Pkgs", name: "noOfPackages", type: "number" },
-    {
-      label: "Type Of Pkgs",
-      name: "package",
-      type: "dropdown",
-      labelType: "name,tblPackage",
-    },
-    { label: "Net Weight", name: "netWeight", type: "number" },
-    { label: "Tara Weight", name: "taraWeight", type: "number" },
-    {
-      label: "Gross Weight",
-      name: "grossWeight",
-      type: "number",
-    },
-    {
-      label: "Gross Unit",
-      name: "grossWeightUnit",
-      type: "dropdown",
-      labelType: "name,tblUnit",
-    },
-    {
-      label: "Reefer Temperature",
-      name: "reeferTemperture",
-      type: "number",
-    },
-    {
-      label: "Ref Temp Unit",
-      name: "refTempUnit",
-      type: "dropdown",
-      labelType: "name,tblUnit",
-    },
-    { label: "OOG Front", name: "oogFront", type: "number" },
-    { label: "OOG Back", name: "backFront", type: "number" },
-    {
-      label: "OOG Back left",
-      name: "oogBackLeft",
-      type: "number",
-    },
-    {
-      label: "ODC Dimension Unit",
-      name: "dimensionUnit",
-      type: "dropdown",
-      labelType: "name,tblUnit",
-    },
-    { label: "OOGRight", name: "oogRight", type: "number" },
-    { label: "OOGTop", name: "oogTop", type: "number" },
-    { label: "Free Days", name: "freeDays" },
-    {
-      label: "Slot owner",
-      name: "slotOwner",
-      type: "dropdown",
-      labelType: "company",
-    },
+  containerFields: [
+    { label: "OOG Front", name: "oogFront", type: "number", isEdit: true },
+    { label: "OOG Back", name: "backFront", type: "number", isEdit: true },
   ],
 
   exportShippingFields1: [

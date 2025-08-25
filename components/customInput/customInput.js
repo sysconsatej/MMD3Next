@@ -19,6 +19,7 @@ const CustomInput = ({
   fields,
   formData,
   setFormData,
+  gridName = null,
   containerIndex = null,
   handleBlurEventFunctions = null,
   handleChangeEventFunctions = null,
@@ -28,21 +29,22 @@ const CustomInput = ({
   const [dropdowns, setDropdowns] = useState([]);
   const [dropdownTotalPage, setDropdownTotalPage] = useState([]);
   const [isChange, setIsChange] = useState(false);
+  
 
   const changeHandler = (e, containerIndex) => {
     const { name, value } = e.target;
-    if (containerIndex === null) {
+    if (gridName === null) {
       setFormData((prevData) => ({ ...prevData, [name]: value }));
     } else {
       setFormData((prevData) => {
-        const updatedContainers = [...prevData.containerDetails];
+        const updatedContainers = [...prevData[gridName]];
         updatedContainers[containerIndex] = {
           ...updatedContainers[containerIndex],
           [name]: value,
         };
         return {
           ...prevData,
-          containerDetails: updatedContainers,
+          [gridName]: updatedContainers,
         };
       });
     }
@@ -56,18 +58,18 @@ const CustomInput = ({
     const { name, value } = e.target;
     const isInclude = dropdowns[name].filter((items) => items.Name === value);
     if (isInclude) {
-      if (containerIndex === null) {
+      if (gridName === null) {
         setFormData((prevData) => ({ ...prevData, [name]: isInclude[0] }));
       } else {
         setFormData((prevData) => {
-          const updatedContainers = [...prevData.containerDetails];
+          const updatedContainers = [...prevData[gridName]];
           updatedContainers[containerIndex] = {
             ...updatedContainers[containerIndex],
             [name]: isInclude[0],
           };
           return {
             ...prevData,
-            containerDetails: updatedContainers,
+            [gridName]: updatedContainers,
           };
         });
       }
@@ -114,9 +116,9 @@ const CustomInput = ({
 
   return fields?.map((field, index) => {
     const fieldValue =
-      containerIndex === null
+      gridName === null
         ? formData[field.name] || ""
-        : formData?.containerDetails[containerIndex]?.[field.name] || "";
+        : formData?.[gridName]?.[containerIndex]?.[field.name] || "";
 
     let isDisabled =
       fieldsMode === "view" ||

@@ -225,6 +225,18 @@ export const theme = createTheme({
         },
       },
     },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          "&.tableGrid .MuiToolbar-root": {
+            minHeight: "30px",
+            "& .MuiTablePagination-select": {
+              padding: '0px 15px',
+            },
+          },
+        },
+      },
+    },
   },
 });
 
