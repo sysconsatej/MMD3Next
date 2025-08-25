@@ -6,6 +6,7 @@ const fieldData = {
       type: "dropdown",
       labelType: "port",
       foreignTable: "name,tblPort",
+      isEdit: true,
     },
     {
       label: "Vessel Name",
@@ -13,6 +14,7 @@ const fieldData = {
       type: "dropdown",
       labelType: "vessel",
       foreignTable: "name,tblVessel",
+      isEdit: true,
     },
     {
       label: "Voyage No",
@@ -21,6 +23,7 @@ const fieldData = {
       labelType: "voyage",
       selectedCondition: "vesselId",
       foreignTable: "voyageNo,tblVoyage",
+      isEdit: true,
     },
     {
       label: "Terminal",
@@ -28,33 +31,43 @@ const fieldData = {
       type: "dropdown",
       labelType: "port",
       foreignTable: "name,tblPort",
+      isEdit: true,
     },
     {
       label: "Export Voyage No",
-      name: "exportVoyageNo",
+      name: "exportExchangeRate",
+      type:"number",
+      isEdit: true,
     },
     {
       label: "Import Voyage No",
-      name: "importVoyageNo",
+      name: "importExchangeRate",
+      type:"number",
+      isEdit: true,
     },
     {
       label: "ETA",
       name: "eta",
       type: "date",
+      isEdit: true,
     },
     {
       label: "ETD",
       name: "etd",
       type: "date",
+      isEdit: true,
     },
     {
       label: "ETB",
       name: "etb",
+      type:"date",
+      isEdit: true,
     },
     {
       label: "Port Cut Off",
       name: "portCutoff",
       type: "date",
+      isEdit: true,
     },
   ],
   portFields: [
@@ -62,96 +75,120 @@ const fieldData = {
       label: "Arrival Date",
       name: "arrivalDate",
       type: "date",
+      isEdit: true,
     },
     {
       label: "ATB",
       name: "berthDate",
+      type: "date",
+      isEdit: true,
     },
     {
       label: "Sail Date",
       name: "sailDate",
       type: "date",
+      isEdit: true,
     },
     {
       label: "ETA Next Port",
       name: "etaNextPort",
       type: "date",
+      isEdit: true,
     },
     {
       label: "Next Port",
       name: "nextPortId",
       type: "dropdown",
       labelType: "port",
+      foreignTable: "name,tblPort",
+      isEdit: true,
     },
     {
       label: "Last Port",
       name: "lastPortId",
       type: "dropdown",
       labelType: "port",
+      foreignTable: "name,tblPort",
+      isEdit: true,
     },
     {
       label: "Prior To Last Port",
       name: "priorToLastPortId",
       type: "dropdown",
       labelType: "port",
+      foreignTable: "name,tblPort",
+      isEdit: true,
     },
     {
       label: "Prior To Prior Port",
       name: "priorToPriorPortId",
       type: "dropdown",
       labelType: "port",
+      foreignTable: "name,tblPort",
+      isEdit: true,
     },
     {
       label: "SCR No",
       name: "scrNo",
+      isEdit: true,
     },
     {
       label: "Empty Depot",
       name: "depotId",
+      isEdit: true,
     },
   ],
   dateFields: [
-    { label: "IGM No", name: "igmNo", type: "text" },
+    { label: "IGM No", name: "igmNo", type: "text", isEdit: true },
     {
       label: "IGM Date",
       name: "igmDate",
       type: "date",
+      isEdit:true,
     },
-    { label: "Rotation No", name: "rotationNo", type: "text" },
+    { label: "Rotation No", name: "rotationNo", type: "text",isEdit:true },
     {
       label: "Rotation Date",
       name: "rotationDate",
       type: "date",
+      isEdit:true,
     },
     {
       label: "PC NO",
       name: "pcNo",
       type: "text",
+      isEdit:true,
     },
     {
       label: "PC Date",
       name: "pcDate",
       type: "date",
+      isEdit:true,
     },
     {
       label: "Via No",
       name: "viaNo",
       type: "text",
+      isEdit:true,
     },
     {
       label: "Via Date",
       name: "viaDate",
       type: "date",
+      isEdit:true,
     },
   ],
   consignorFields: [
     {
       label: "NO of Crew",
       name: "noOFCrew",
+      type:"number",
+      isEdit:true,
     },
     {
       label: "Light House Due",
       name: "lightHouseDues",
+      isEdit:true,
     },
 
     {
@@ -162,6 +199,7 @@ const fieldData = {
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
+      isEdit:true,
     },
     {
       label: "Same Bottom Cargo",
@@ -171,6 +209,7 @@ const fieldData = {
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
+      isEdit:true,
     },
     {
       label: "Ship Store Declaration",
@@ -180,6 +219,7 @@ const fieldData = {
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
+      isEdit:true,
     },
     {
       label: "Crew List Declaration",
@@ -189,6 +229,7 @@ const fieldData = {
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
+      isEdit:true,
     },
     {
       label: "Maritime Declaration",
@@ -198,6 +239,7 @@ const fieldData = {
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
+      isEdit:true,
     },
     {
       label: "Export Locking",
@@ -207,6 +249,7 @@ const fieldData = {
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
+      isEdit:true,
     },
   ],
   additionalFields: [
@@ -227,22 +270,27 @@ const fieldData = {
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
+      isEdit:true,
     },
     {
       label: "Auth. Person Pan No",
       name: "authPersonPanNo",
+      isEdit:true,
     },
     {
       label: "Ships Store IRN",
       name: "shipsStoreIrn",
+      isEdit:true,
     },
     {
       label: "Crew Effect IRN",
       name: "crewEffectIrn",
+      isEdit:true,
     },
     {
       label: "Person Details IRN",
       name: "personDetailsIrn",
+      isEdit:true,
     },
   ],
 };

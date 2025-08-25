@@ -1,15 +1,16 @@
 const fieldData = {
-  modeoftransportFields: [
-    {
-      label: "Name",
-      name: "name",
-      isEdit: "true",
-    },
+  modeOfTransportFields: [
     {
       label: "Code",
       name: "code",
       isEdit: "true",
     },
+    {
+      label: "Name",
+      name: "name",
+      isEdit: "true",
+    },
+
     {
       label: "MasterListId",
       name: "masterListId",

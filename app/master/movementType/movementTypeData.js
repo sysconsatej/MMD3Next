@@ -1,14 +1,13 @@
 const fieldData = {
-  movementtypeFields: [
-    {
-      label: "Name",
-      name: "name",
-      isEdit: "true",
-    },
-
+  movementTypeFields: [
     {
       label: "Code",
       name: "code",
+      isEdit: "true",
+    },
+    {
+      label: "Name",
+      name: "name",
       isEdit: "true",
     },
     {
