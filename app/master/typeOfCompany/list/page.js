@@ -20,9 +20,12 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { formStore } from "@/store";
+import { useRouter } from "next/navigation";
 
-function createData(code, name) {
-  return { code, name };
+function createData(code, name, id) {
+  return { code, name, id };
 }
 
 export default function TypeOfCompanyList() {
@@ -33,17 +36,19 @@ export default function TypeOfCompanyList() {
   const [typeOfCompanyData, setTypeOfCompanyData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
-
+  const { setMode } = formStore();
+  const router = useRouter();
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "code, name",
-          tableName: "tblMasterData",
+          columns: "m.code,m.name,m.id",
+          tableName: "tblMasterData m",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
+          joins: `join tblMasterData m1 on m1.id = m.id and m.masterListName = 'tblSubtypeCompany'`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setTypeOfCompanyData(data);
@@ -60,10 +65,11 @@ export default function TypeOfCompanyList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
   }, []);
 
   const rows = typeOfCompanyData
-    ? typeOfCompanyData.map((item) => createData(item["code"], item["name"]))
+    ? typeOfCompanyData.map((item) => createData(item["code"], item["name"],item["id"]))
     : [];
 
   const handleChangePage = (event, newPage) => {
@@ -73,6 +79,11 @@ export default function TypeOfCompanyList() {
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
   };
+  const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") return;
+    setMode({ mode, formId });
+    router.push("/master/typeOfCompany");
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -80,7 +91,7 @@ export default function TypeOfCompanyList() {
       <Box className="sm:px-4 py-1 ">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
-            Type  of Company List
+            Type of Company List
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
@@ -111,6 +122,13 @@ export default function TypeOfCompanyList() {
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.name}</TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               )}

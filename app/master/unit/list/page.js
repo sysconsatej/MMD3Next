@@ -20,9 +20,12 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { formStore } from "@/store";
+import { useRouter } from "next/navigation";
 
-function createData(code, name) {
-  return { code, name };
+function createData(code, name, id) {
+  return { code, name, id };
 }
 
 export default function UnitList() {
@@ -33,12 +36,13 @@ export default function UnitList() {
   const [unitData, setUnitData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
-
+  const { setMode } = formStore();
+  const router = useRouter();
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "m.code,m.name",
+          columns: "m.code,m.name,m.id",
           tableName: "tblMasterData m",
           pageNo,
           pageSize,
@@ -61,10 +65,11 @@ export default function UnitList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
   }, []);
 
   const rows = unitData
-    ? unitData.map((item) => createData(item["code"], item["name"]))
+    ? unitData.map((item) => createData(item["code"], item["name"], item["id"]))
     : [];
 
   const handleChangePage = (event, newPage) => {
@@ -73,6 +78,11 @@ export default function UnitList() {
 
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
+  };
+  const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") return;
+    setMode({ mode, formId });
+    router.push("/master/unit");
   };
 
   return (
@@ -112,6 +122,13 @@ export default function UnitList() {
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.code}</TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               )}

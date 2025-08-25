@@ -1,12 +1,17 @@
 const fieldData = {
   isoCodeFields: [
     {
+      label: "ISO Code",
+      name: "isocode",
+      isEdit: "true",
+    },
+    {
       label: "Size",
       name: "sizeId",
       type: "dropdown",
       labelType: "name,tblSize",
       foreignTable: "name,tblMasterData",
-      isEdit:"true",
+      isEdit: "true",
     },
     {
       label: "Type",
@@ -14,12 +19,7 @@ const fieldData = {
       type: "dropdown",
       labelType: "name,tblType",
       foreignTable: "name,tblMasterData",
-      isEdit:"true",
-    },
-    {
-      label: "ISO Code",
-      name: "isocode",
-      isEdit:"true",
+      isEdit: "true",
     },
   ],
 };

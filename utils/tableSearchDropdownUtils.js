@@ -37,8 +37,8 @@ export const dropdowns = {
     { label: "Name", value: "name" },
   ],
   Commodity: [
-    { label: " Code", value: "code" },
-    { label: "Name", value: "name" },
+    { label: " Code", value: "m.code" },
+    { label: "Name", value: "m.name" },
   ],
   VoyageRoute: [
     { label: "Port of Call", value: "p.name" },
@@ -51,8 +51,8 @@ export const dropdowns = {
     { label: "Voyage", value: "v.voyageNo" },
   ],
   typeOfCompany: [
-    { label: "Company SubType Code", value: "code" },
-    { label: "Company SubType", value: "name" },
+    { label: "Company SubType Code", value: "m.code" },
+    { label: "Company SubType", value: "m.name" },
   ],
   company: [
     { label: "Code", value: "co.code" },

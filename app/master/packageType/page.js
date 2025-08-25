@@ -1,26 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data from "./packageData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
+import { fetchForm, insertUpdateForm } from "@/apis";
+import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
+import { formStore } from "@/store";
 
 export default function Package() {
-  const [formData, setFormData] = useState({
-    containerDetails: [],
-  });
-
+  const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
-
   const [jsonData, setJsonData] = useState(data);
-
+  const { mode, setMode } = formStore();
   const submitHandler = async (event) => {
     event.preventDefault();
-    toast.success("working!");
+    const format = formatFormData("tblMasterData", formData, mode.formId);
+    const { success, error, message } = await insertUpdateForm(format);
+    if (success) {
+      toast.success(message);
+      setFormData({});
+    } else {
+      toast.error(error || message);
+    }
   };
+  const handleChangeEventFunctions = {
+    masterList: (name, value, index) => {
+      setFormData((prev) => ({ ...prev, masterListName: value.Name }));
+    },
+  };
+  useEffect(() => {
+    async function fetchFormHandler() {
+      if (mode.formId) {
+        setFieldsMode(mode.mode);
+        const format = formatFetchForm(data, "tblMasterData", mode.formId);
+        const { success, result, message, error } = await fetchForm(format);
+        if (success) {
+          const getData = formatDataWithForm(result, data);
+          setFormData(getData);
+          toast.success(message);
+        } else {
+          toast.error(error || message);
+        }
+      }
+    }
+
+    fetchFormHandler();
+  }, [mode.formId]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -30,7 +59,11 @@ export default function Package() {
             <h1 className="text-left text-base flex items-end m-0 ">
               Package Type Form
             </h1>
-            <CustomButton text="Back" href="/master/packageType/list" />
+            <CustomButton
+              text="Back"
+              href="/master/packageType/list"
+              onClick={() => setMode({ mode: null, formId: null })}
+            />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
             <Box className="sm:grid sm:grid-cols-6 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
@@ -39,11 +72,14 @@ export default function Package() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>
           <Box className="w-full flex mt-2 ">
-            <CustomButton text={"Submit"} type="submit" />
+            {fieldsMode !== "view" && (
+              <CustomButton text={"Submit"} type="submit" />
+            )}
           </Box>
         </section>
       </form>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data from "./containerSizeData";
 import { CustomInput } from "@/components/customInput";
@@ -12,12 +12,8 @@ import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { formStore } from "@/store";
 
 export default function ContainerSize() {
-  const [formData, setFormData] = useState({
-    containerDetails: [],
-  });
-
+  const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
-
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
 
@@ -32,9 +28,11 @@ export default function ContainerSize() {
       toast.error(error || message);
     }
   };
-
-  console.log("mode.formId", mode.formId);
-
+  const handleChangeEventFunctions = {
+    masterList: (name, value, index) => {
+      setFormData((prev) => ({ ...prev, masterListName: value.Name }));
+    },
+  };
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
@@ -52,7 +50,7 @@ export default function ContainerSize() {
     }
 
     fetchFormHandler();
-  }, []);
+  }, [mode.formId]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -75,6 +73,7 @@ export default function ContainerSize() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>

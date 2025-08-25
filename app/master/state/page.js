@@ -12,9 +12,7 @@ import { fetchForm, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 
 export default function State() {
-  const [formData, setFormData] = useState({
-    containerDetails: [],
-  });
+  const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
@@ -48,7 +46,7 @@ export default function State() {
     }
 
     fetchFormHandler();
-  }, []);
+  }, [mode.formId]);
 
   return (
     <ThemeProvider theme={theme}>

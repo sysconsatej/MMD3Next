@@ -1,20 +1,30 @@
 const fieldData = {
-    modeoftransportFields: [
+  modeOfTransportFields: [
+    {
+      label: "Code",
+      name: "code",
+      isEdit: "true",
+    },
+    {
+      label: "Name",
+      name: "name",
+      isEdit: "true",
+    },
 
-        {
-            label: "Name",
-            name: "name",
-
-        },
-        
-        {
-            label: "Code",
-            name: "code",
-
-        },
-        
-
-    ],
+    {
+      label: "MasterListId",
+      name: "masterListId",
+      type: "dropdown",
+      labelType: "name,tblTransportType,tblMasterList",
+      foreignTable: "name,tblMasterList",
+      changeFun: "masterList",
+    },
+    {
+      label: "MasterList Name",
+      name: "masterListName",
+      disabled: true,
+    },
+  ],
 };
 
 export default fieldData;

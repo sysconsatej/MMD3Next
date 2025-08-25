@@ -12,14 +12,10 @@ import { fetchForm, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 
 export default function City() {
-  const [formData, setFormData] = useState({
-    containerDetails: [],
-  });
-
+  const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
-
   const submitHandler = async (event) => {
     event.preventDefault();
     const format = formatFormData("tblCity", formData, mode.formId);
@@ -49,7 +45,7 @@ export default function City() {
     }
 
     fetchFormHandler();
-  }, []);
+  }, [mode.formId]);
 
   return (
     <ThemeProvider theme={theme}>

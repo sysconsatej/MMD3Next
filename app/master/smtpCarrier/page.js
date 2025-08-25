@@ -1,6 +1,6 @@
 "use client";
 
-import { useState ,useEffect} from "react";
+import { useState, useEffect } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data from "./smtpCarrierData";
 import { CustomInput } from "@/components/customInput";
@@ -12,16 +12,10 @@ import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { formStore } from "@/store";
 
 export default function SmtpCarrier() {
-  const [formData, setFormData] = useState({
-    containerDetails: [],
-  });
-
+  const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
-
   const [jsonData, setJsonData] = useState(data);
-
   const { mode, setMode } = formStore();
-
   const submitHandler = async (event) => {
     event.preventDefault();
     const format = formatFormData("tblCompany", formData, mode.formId);
@@ -51,7 +45,7 @@ export default function SmtpCarrier() {
     }
 
     fetchFormHandler();
-  }, []);
+  }, [mode.formId]);
 
   return (
     <ThemeProvider theme={theme}>

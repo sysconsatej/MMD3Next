@@ -20,9 +20,12 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { formStore } from "@/store";
+import { useRouter } from "next/navigation";
 
-function createData(terminal, port) {
-  return { terminal, port };
+function createData(code, terminal, port, id) {
+  return { code, terminal, port, id };
 }
 
 export default function TerminalList() {
@@ -33,12 +36,13 @@ export default function TerminalList() {
   const [terminalData, setTerminalData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
-
+  const { setMode } = formStore();
+  const router = useRouter();
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "p.name terminal,m.name port",
+          columns: "p.code, p.name terminal,m.name port,p.id",
           tableName: "tblPort p ",
           pageNo,
           pageSize,
@@ -61,10 +65,13 @@ export default function TerminalList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
   }, []);
 
   const rows = terminalData
-    ? terminalData.map((item) => createData(item["terminal"], item["port"]))
+    ? terminalData.map((item) =>
+        createData(item["code"], item["terminal"], item["port"], item["id"])
+      )
     : [];
 
   const handleChangePage = (event, newPage) => {
@@ -73,6 +80,11 @@ export default function TerminalList() {
 
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
+  };
+  const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") return;
+    setMode({ mode, formId });
+    router.push("/master/terminal");
   };
 
   return (
@@ -98,6 +110,7 @@ export default function TerminalList() {
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
+                <TableCell>Code</TableCell>
                 <TableCell>Port/Location</TableCell>
                 <TableCell> Terminal</TableCell>
               </TableRow>
@@ -110,8 +123,16 @@ export default function TerminalList() {
               ) : (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
+                    <TableCell>{row.code}</TableCell>
                     <TableCell>{row.port}</TableCell>
                     <TableCell>{row.terminal}</TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               )}
