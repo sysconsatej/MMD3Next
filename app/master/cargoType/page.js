@@ -52,7 +52,7 @@ export default function Cargo() {
     }
 
     fetchFormHandler();
-  }, []);
+  }, [mode.formId]);
 
   return (
     <ThemeProvider theme={theme}>

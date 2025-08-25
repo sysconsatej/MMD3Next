@@ -42,13 +42,14 @@ export default function CommodityList() {
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
-        const tableObj = {
-          columns: "code, name,id",
-          tableName: "tblMasterData",
+      const tableObj = {
+          columns: " m.code code,m.name name,m.id",
+          tableName: "tblMasterData m",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
+          joins: ` join tblMasterData m1 on m1.id = m.id and m.masterListName = 'tblCommodityType'`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setCommodityData(data);

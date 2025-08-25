@@ -16,7 +16,6 @@ export default function Country() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
-
   const submitHandler = async (event) => {
     event.preventDefault();
     const format = formatFormData("tblCountry", formData, mode.formId);
@@ -46,7 +45,7 @@ export default function Country() {
     }
 
     fetchFormHandler();
-  }, []);
+  }, [mode.formId]);
 
   return (
     <ThemeProvider theme={theme}>

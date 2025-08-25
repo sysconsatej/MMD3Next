@@ -15,7 +15,7 @@ const fieldData = {
       label: "MasterListId",
       name: "masterListId",
       type: "dropdown",
-      labelType: "masterList",
+      labelType: "name,tblCargoType,tblMasterList",
       foreignTable: "name,tblMasterList",
       changeFun: "masterList",
     },
