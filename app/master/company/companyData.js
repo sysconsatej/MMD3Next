@@ -51,18 +51,6 @@ const fieldData = {
       type: "number",
       isEdit: "true",
     },
-  ],
-  numberFields: [
-    {
-      label: "Remarks",
-      name: "remarks",
-      multiline: true,
-      rows: 3,
-      gridColumn: "col-span-2 row-span-3 ",
-      type: "textarea",
-      isEdit: true,
-      isEdit: "true",
-    },
     {
       label: "Email ID",
       name: "emailId",
@@ -71,6 +59,17 @@ const fieldData = {
     {
       label: "Pan No",
       name: "panNo",
+      isEdit: "true",
+    },
+  ],
+  numberFields: [
+    {
+      label: "Remarks",
+      name: "remarks",
+      multiline: true,
+      rows: 1,
+      type: "textarea",
+      isEdit: true,
       isEdit: "true",
     },
     {

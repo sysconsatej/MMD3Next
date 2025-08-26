@@ -36,13 +36,13 @@ const fieldData = {
     {
       label: "Export Voyage No",
       name: "exportExchangeRate",
-      type:"number",
+      type: "number",
       isEdit: true,
     },
     {
       label: "Import Voyage No",
       name: "importExchangeRate",
-      type:"number",
+      type: "number",
       isEdit: true,
     },
     {
@@ -60,7 +60,7 @@ const fieldData = {
     {
       label: "ETB",
       name: "etb",
-      type:"date",
+      type: "date",
       isEdit: true,
     },
     {
@@ -144,53 +144,52 @@ const fieldData = {
       label: "IGM Date",
       name: "igmDate",
       type: "date",
-      isEdit:true,
+      isEdit: true,
     },
-    { label: "Rotation No", name: "rotationNo", type: "text",isEdit:true },
+    { label: "Rotation No", name: "rotationNo", type: "text", isEdit: true },
     {
       label: "Rotation Date",
       name: "rotationDate",
       type: "date",
-      isEdit:true,
+      isEdit: true,
     },
     {
       label: "PC NO",
       name: "pcNo",
       type: "text",
-      isEdit:true,
+      isEdit: true,
     },
     {
       label: "PC Date",
       name: "pcDate",
       type: "date",
-      isEdit:true,
+      isEdit: true,
     },
     {
       label: "Via No",
       name: "viaNo",
       type: "text",
-      isEdit:true,
+      isEdit: true,
     },
     {
       label: "Via Date",
       name: "viaDate",
       type: "date",
-      isEdit:true,
+      isEdit: true,
     },
-  ],
-  consignorFields: [
     {
       label: "NO of Crew",
       name: "noOFCrew",
-      type:"number",
-      isEdit:true,
+      type: "number",
+      isEdit: true,
     },
     {
       label: "Light House Due",
       name: "lightHouseDues",
-      isEdit:true,
+      isEdit: true,
     },
-
+  ],
+  consignorFields: [
     {
       label: "Passenger List",
       name: "passengerList",
@@ -199,7 +198,7 @@ const fieldData = {
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
-      isEdit:true,
+      isEdit: true,
     },
     {
       label: "Same Bottom Cargo",
@@ -209,7 +208,7 @@ const fieldData = {
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
-      isEdit:true,
+      isEdit: true,
     },
     {
       label: "Ship Store Declaration",
@@ -219,7 +218,7 @@ const fieldData = {
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
-      isEdit:true,
+      isEdit: true,
     },
     {
       label: "Crew List Declaration",
@@ -229,7 +228,7 @@ const fieldData = {
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
-      isEdit:true,
+      isEdit: true,
     },
     {
       label: "Maritime Declaration",
@@ -239,7 +238,7 @@ const fieldData = {
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
-      isEdit:true,
+      isEdit: true,
     },
     {
       label: "Export Locking",
@@ -249,7 +248,17 @@ const fieldData = {
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
-      isEdit:true,
+      isEdit: true,
+    },
+    {
+      label: "Import Locking",
+      name: "importLocking",
+      type: "radio",
+      radioData: [
+        { label: "Yes", value: "Y" },
+        { label: "No", value: "N" },
+      ],
+      isEdit: true,
     },
   ],
   additionalFields: [
@@ -263,34 +272,24 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Import Locking",
-      name: "importLocking",
-      type: "radio",
-      radioData: [
-        { label: "Yes", value: "Y" },
-        { label: "No", value: "N" },
-      ],
-      isEdit:true,
-    },
-    {
       label: "Auth. Person Pan No",
       name: "authPersonPanNo",
-      isEdit:true,
+      isEdit: true,
     },
     {
       label: "Ships Store IRN",
       name: "shipsStoreIrn",
-      isEdit:true,
+      isEdit: true,
     },
     {
       label: "Crew Effect IRN",
       name: "crewEffectIrn",
-      isEdit:true,
+      isEdit: true,
     },
     {
       label: "Person Details IRN",
       name: "personDetailsIrn",
-      isEdit:true,
+      isEdit: true,
     },
   ],
 };

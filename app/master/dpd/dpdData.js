@@ -1,13 +1,8 @@
 const fieldData = {
   dpdFields: [
     {
-      label: "Nominated Area Address",
-      name: "address",
-      style: "sm:w-[min(100%,300px)]",
-      multiline: true,
-      gridColumn: "col-span-1 row-span-3 ",
-      rows: 3,
-      type: "textarea",
+      label: "Nominated Area Code",
+      name: "code",
       isEdit: true,
     },
     {
@@ -19,20 +14,17 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Nominated Area Code",
-      name: "code",
+      label: "Nominated Area Address",
+      name: "address",
+      style: "sm:w-[min(100%,300px)]",
+      multiline: true,
+      rows: 1,
+      type: "textarea",
       isEdit: true,
     },
     {
       label: "Nominated Area Description",
       name: "name",
-      isEdit: true,
-    },
-
-    {
-      label: "Direct Delivery",
-      name: "directDelivery",
-      type: "checkbox",
       isEdit: true,
     },
     {
@@ -48,6 +40,12 @@ const fieldData = {
     {
       label: "Bond No",
       name: "bondNo",
+      isEdit: true,
+    },
+    {
+      label: "Direct Delivery",
+      name: "directDelivery",
+      type: "checkbox",
       isEdit: true,
     },
   ],

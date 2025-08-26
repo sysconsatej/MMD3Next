@@ -1,16 +1,6 @@
 const fieldData = {
   cfsFields: [
     {
-      label: "Nominated Area Address",
-      name: "address",
-      style: "sm:w-[min(100%,300px)]",
-      multiline: true,
-      gridColumn: "col-span-1 row-span-3 ",
-      rows: 3,
-      type: "textarea",
-      isEdit: true,
-    },
-    {
       label: "Port Type",
       name: "portTypeId",
       type: "dropdown",
@@ -28,13 +18,6 @@ const fieldData = {
       name: "name",
       isEdit: true,
     },
-
-    {
-      label: "Direct Delivery",
-      name: "directDelivery",
-      type: "checkbox",
-      isEdit: true,
-    },
     {
       label: "EDI Port Code",
       name: "ediPortCode",
@@ -48,6 +31,21 @@ const fieldData = {
     {
       label: "Bond No",
       name: "bondNo",
+      isEdit: true,
+    },
+    {
+      label: "Nominated Area Address",
+      name: "address",
+      style: "sm:w-[min(100%,300px)]",
+      multiline: true,
+      rows: 1,
+      type: "textarea",
+      isEdit: true,
+    },
+    {
+      label: "Direct Delivery",
+      name: "directDelivery",
+      type: "checkbox",
       isEdit: true,
     },
   ],
