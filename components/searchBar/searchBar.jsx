@@ -10,7 +10,6 @@ const SearchBar = ({
   search,
   setSearch,
   options = [],
-  textSize="11px",
 }) => {
   const handleSearch = () => {
     if (!search.searchColumn || !search.searchValue) {
@@ -51,7 +50,7 @@ const SearchBar = ({
       />
       <CustomButton
         text={"Search"}
-        buttonStyles={`!text-[white] !bg-[#ffc400] !text-[${textSize}]`}
+        buttonStyles={`!text-[white] !bg-[#ffc400] !text-[9px]`}
         onClick={handleSearch}
       />
     </Box>

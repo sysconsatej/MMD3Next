@@ -139,7 +139,6 @@ function TableGrid({
             <SearchBar
               getData={getData}
               rowsPerPage={rowsPerPage}
-              textSize="9px"
               search={search}
               setSearch={setSearch}
               options={fields.map((item) => ({
