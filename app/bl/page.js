@@ -7,7 +7,6 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import TableGrid from "@/components/tableGrid/tableGrid";
-import { allGridTableHeading } from "@/utils";
 
 export default function Home() {
   const [formData, setFormData] = useState({});
@@ -128,7 +127,6 @@ export default function Home() {
               setFormData={setFormData}
               fieldsMode={fieldsMode}
               gridName="container"
-              tableMap={allGridTableHeading.blContainer}
             />
           </Box>
           <Box className="w-full flex mt-2">

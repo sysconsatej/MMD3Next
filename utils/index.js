@@ -5,4 +5,3 @@ export {
   formatDataWithForm,
 } from "./formUtils";
 export { dropdowns } from "./tableSearchDropdownUtils";
-export { allGridTableHeading } from "./tableGridUtils";

@@ -18,6 +18,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { CustomInput } from "../customInput";
 import { HoverActionIcons } from "../tableHoverIcons/tableHoverIcons";
+import SearchBar from "../searchBar/searchBar";
 
 function TableGrid({
   fields,
@@ -25,7 +26,6 @@ function TableGrid({
   setFormData,
   fieldsMode,
   gridName,
-  tableMap,
 }) {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -33,6 +33,8 @@ function TableGrid({
   const [gridId, setGridId] = useState(-1);
   const [gridData, setGridData] = useState([]);
   const [gridFieldsMode, setGridFieldsMode] = useState(fieldsMode);
+  const [viewMode, setViewMode] = useState("search");
+  const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -58,6 +60,7 @@ function TableGrid({
       setGridFieldsMode(mode);
     }
     setGridId(containerIndex);
+    setViewMode("add");
   }
 
   function gridAddHandler() {
@@ -66,59 +69,99 @@ function TableGrid({
       [gridName]: [...(prev[gridName] || []), {}],
     }));
     setGridId(gridId + 1);
+    setViewMode("add");
   }
 
   function gridSaveHandler() {
-    const filterData = formData[gridName].filter(
-      (obj) => Object.keys(obj).length > 0
+    const filterData = formData[gridName].filter((obj) =>
+      Object.values(obj).some(
+        (val) => val !== null && val !== "" && val !== undefined
+      )
     );
     setGridData(filterData);
     setFormData((prev) => ({
       ...prev,
       [gridName]: filterData,
     }));
+    setViewMode("search");
+    setGridFieldsMode("edit");
+  }
+
+  function gridRevertHandler() {
+    setViewMode("search");
+    setGridFieldsMode("edit");
+  }
+
+  function getData(pageNum, totalRowsNum) {
+    setPage(pageNum);
+    setRowsPerPage(totalRowsNum);
+    if (search.searchColumn && search.searchValue) {
+      const filterGrid = gridData.filter(
+        (item) => item[search.searchColumn] == search.searchValue
+      );
+      setGridData(filterGrid);
+    } else {
+      setGridData(formData[gridName]);
+    }
   }
 
   return (
     <Box>
-      <Box className="flex flex-row items-start justify-end border-t border-gray-300 rounded-2xl">
-        <Box className="flex items-start justify-between flex-row w-full">
-          <Box className="grid grid-cols-7 gap-2 w-full p-2">
-            <CustomInput
-              fields={fields}
-              formData={formData}
-              setFormData={setFormData}
-              fieldsMode={gridFieldsMode}
-              gridName={gridName}
-              containerIndex={gridId}
+      <Box className="flex flex-row items-start justify-end  border-t border-gray-300 rounded-2xl">
+        {viewMode === "add" && (
+          <Box className="flex items-start justify-between flex-row w-full">
+            <Box className="grid grid-cols-7 gap-2 w-full p-2">
+              <CustomInput
+                fields={fields}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={gridFieldsMode}
+                gridName={gridName}
+                containerIndex={gridId}
+              />
+            </Box>
+            <Box className="flex items-center justify-between flex-col">
+              <Tooltip title="Save" arrow>
+                <IconButton size="small" onClick={gridSaveHandler}>
+                  <SaveIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Revert" arrow>
+                <IconButton size="small" onClick={gridRevertHandler}>
+                  <RestartAltIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </Box>
+        )}
+        {viewMode === "search" && (
+          <Box className="flex items-center justify-between flex-row w-full p-1">
+            <SearchBar
+              getData={getData}
+              rowsPerPage={rowsPerPage}
+              textSize="9px"
+              search={search}
+              setSearch={setSearch}
+              options={fields.map((item) => ({
+                label: item.label,
+                value: item.name,
+              }))}
             />
-          </Box>
-          <Box className="flex items-center justify-between flex-col">
-            <Tooltip title="Save" arrow>
-              <IconButton size="small" onClick={gridSaveHandler}>
-                <SaveIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Revert" arrow>
-              <IconButton size="small">
-                <RestartAltIcon fontSize="small" />
+            <Tooltip title="Add" arrow>
+              <IconButton size="small" onClick={gridAddHandler}>
+                <AddIcon fontSize="small" />
               </IconButton>
             </Tooltip>
           </Box>
-        </Box>
-        <Tooltip title="Add" arrow>
-          <IconButton size="small" onClick={gridAddHandler}>
-            <AddIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
+        )}
       </Box>
       <Box>
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
-                {tableMap?.map((item) => {
-                  return <TableCell>{item.heading}</TableCell>;
+                {fields?.map((item) => {
+                  return <TableCell>{item.label}</TableCell>;
                 })}
               </TableRow>
             </TableHead>
@@ -135,8 +178,8 @@ function TableGrid({
                   )
                   .map((row, index) => (
                     <TableRow key={index} hover className="relative group ">
-                      {tableMap?.map((item) => {
-                        return <TableCell>{row[item.value]}</TableCell>;
+                      {fields?.map((item) => {
+                        return <TableCell>{row[item.name]}</TableCell>;
                       })}
                       <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                         <HoverActionIcons
