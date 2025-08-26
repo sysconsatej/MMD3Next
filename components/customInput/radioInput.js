@@ -16,14 +16,17 @@ const RadioInput = ({
 }) => {
   return (
     <FormControl
-      className={`relative py-[5px] !px-[10px] !border !border-solid !border-[#0000003b] rounded-[4px] placeholder-[#000000a6] hover:!border-black ${commonProps.className}`}
+      className={`flex items-end !flex-row gap-2 ${commonProps.className}`}
     >
-      <FormLabel
-        className={`!absolute !font-bold mx-3 !leading-[9px] w-fit !px-1 top-[-6px] bg-white !text-[11px]`}
-      >
+      <FormLabel className={`!font-bold w-fit bg-white !text-[11px]`}>
         {commonProps.label}
       </FormLabel>
-      <RadioGroup row name="row-radio-buttons-group" value={fieldValue}>
+      <RadioGroup
+        row
+        name="row-radio-buttons-group"
+        value={fieldValue}
+        className="flex items-end border-b  border-solid border-[rgba(0,0,0,0.42)] px-2 w-full"
+      >
         {field?.radioData?.map((item) => {
           return (
             <FormControlLabel

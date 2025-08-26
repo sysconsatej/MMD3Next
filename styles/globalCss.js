@@ -35,7 +35,8 @@ export const theme = createTheme({
     MuiInputLabel: {
       styleOverrides: {
         root: {
-          fontSize: "15px",
+          fontSize: "11px",
+          overflow: "unset",
         },
       },
     },
@@ -85,15 +86,13 @@ export const theme = createTheme({
             },
             "& .MuiChip-label": {
               fontSize: "10px",
+              whiteSpace: "wrap",
             },
           },
           "&.multiSelect .MuiInputBase-root": {
-            padding: "0px 9px",
+            padding: "0px 0px !important",
             height: "auto",
             minHeight: "20px",
-            "&:not(.Mui-focused)": {
-              flexWrap: "noWrap",
-            },
             "& .MuiInputBase-input": {
               padding: "0px",
             },
@@ -214,6 +213,11 @@ export const theme = createTheme({
           overflow: "unset !important",
           "& .MuiPickersInputBase-root .MuiPickersSectionList-root": {
             padding: "0px",
+            flexWrap: "wrap",
+            width: "auto",
+          },
+          "& .MuiPickersTextField-root": {
+            minWidth: "auto !important",
           },
           "& .MuiPickersTextField-root .MuiFormLabel-root": {
             fontSize: "12px",
@@ -231,7 +235,7 @@ export const theme = createTheme({
           "&.tableGrid .MuiToolbar-root": {
             minHeight: "30px",
             "& .MuiTablePagination-select": {
-              padding: '0px 15px',
+              padding: "0px 15px",
             },
           },
         },

@@ -1,21 +1,25 @@
 import React from "react";
-import { TextField } from "@mui/material";
+import { Box, InputLabel, TextField } from "@mui/material";
 
 const NumberInput = ({ commonProps, fieldValue }) => {
+  const { label, ...remainingProps } = commonProps;
   return (
-    <TextField
-      {...commonProps}
-      key={commonProps.key}
-      value={fieldValue ?? ""}
-      type="number"
-      variant="outlined"
-      slotProps={{
-        htmlInput: {
-          min: 0,
-          step: 1,
-        },
-      }}
-    />
+    <Box className="flex items-end gap-2">
+      <InputLabel>{label}</InputLabel>
+      <TextField
+        {...remainingProps}
+        key={commonProps.key}
+        value={fieldValue ?? ""}
+        type="number"
+        variant="standard"
+        slotProps={{
+          htmlInput: {
+            min: 0,
+            step: 1,
+          },
+        }}
+      />
+    </Box>
   );
 };
 

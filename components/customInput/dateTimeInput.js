@@ -4,6 +4,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
+import { Box, InputLabel } from "@mui/material";
 
 const DateTimeInput = ({
   commonProps,
@@ -12,32 +13,37 @@ const DateTimeInput = ({
   containerIndex,
 }) => {
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DemoContainer components={["DateTimePicker"]}>
-        <DateTimePicker
-          {...commonProps}
-          className="datepicker"
-          value={fieldValue ? dayjs(fieldValue, "DD/MM/YYYY HH:mm:ss") : null}
-          onChange={(date) => {
-            const formattedDate = date
-              ? dayjs(date).format("DD/MM/YYYY HH:mm:ss")
-              : null;
-            changeHandler(
-              { target: { name: commonProps.name, value: formattedDate } },
-              containerIndex
-            );
-          }}
-          slotProps={{
-            textField: {
-              placeholder: "DD/MM/YYYY HH:mm:ss",
-              inputProps: { readOnly: false },
-            },
-          }}
-          format="DD/MM/YYYY HH:mm:ss"
-          key={commonProps.key}
-        />
-      </DemoContainer>
-    </LocalizationProvider>
+    <Box className="flex items-end gap-2">
+      <InputLabel>{commonProps.label}</InputLabel>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <DemoContainer components={["DateTimePicker"]}>
+          <DateTimePicker
+            {...commonProps}
+            className="datepicker"
+            value={fieldValue ? dayjs(fieldValue, "DD/MM/YYYY HH:mm:ss") : null}
+            onChange={(date) => {
+              const formattedDate = date
+                ? dayjs(date).format("DD/MM/YYYY HH:mm:ss")
+                : null;
+              changeHandler(
+                { target: { name: commonProps.name, value: formattedDate } },
+                containerIndex
+              );
+            }}
+            slotProps={{
+              textField: {
+                placeholder: "DD/MM/YYYY HH:mm:ss",
+                inputProps: { readOnly: false },
+                variant: "standard",
+                label: null,
+              },
+            }}
+            format="DD/MM/YYYY HH:mm:ss"
+            key={commonProps.key}
+          />
+        </DemoContainer>
+      </LocalizationProvider>
+    </Box>
   );
 };
 

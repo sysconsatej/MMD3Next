@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
-import { Autocomplete, Box, TextField } from "@mui/material";
+import { Autocomplete, Box, InputLabel, TextField } from "@mui/material";
 import { useDebounce } from "@/utils";
 
 const ListboxComponent = forwardRef(function ListboxComponent(props, ref) {
@@ -74,68 +74,73 @@ const DropdownInput = ({
   }, [debouncedSearch]);
 
   return (
-    <Autocomplete
-      key={commonProps.key}
-      className={commonProps.className}
-      value={fieldValue ? fieldValue : null}
-      sx={commonProps.sx}
-      disabled={commonProps.disabled}
-      options={
-        dropdowns[field?.name]
-          ? Array.from(
-              new Map(
-                dropdowns[field?.name].map((item) => [item.Id, item])
-              ).values()
-            )
-          : [{ Name: "Loading..." }]
-      }
-      getOptionLabel={(option) => option?.Name || ""}
-      renderOption={(props, option) => (
-        <Box component="li" {...props} key={`${option.Id}-${option.Name}`}>
-          {option.Name}
-        </Box>
-      )}
-      renderInput={(params) => <TextField {...params} label={field.label} />}
-      onInputChange={(event, newInputValue, reason) => {
-        if (reason === "clear") {
-          skipNextFocus.current = true;
-          return;
+    <Box className="flex items-end gap-2">
+      <InputLabel>{field.label}</InputLabel>
+      <Autocomplete
+        key={commonProps.key}
+        className={commonProps.className}
+        value={fieldValue ? fieldValue : null}
+        sx={commonProps.sx}
+        disabled={commonProps.disabled}
+        options={
+          dropdowns[field?.name]
+            ? Array.from(
+                new Map(
+                  dropdowns[field?.name].map((item) => [item.Id, item])
+                ).values()
+              )
+            : [{ Name: "Loading..." }]
         }
-        if (reason === "input") {
-          handleInputChange(event, newInputValue);
-        }
-      }}
-      onFocus={(event) => handleInputFocus(event)}
-      onChange={(event, value) => {
-        changeHandler(
-          { target: { name: commonProps.name, value } },
-          containerIndex
-        );
-        field.changeFun
-          ? handleChangeEventFunctions[field.changeFun](
-              commonProps.name,
-              value,
-              containerIndex
-            )
-          : null;
-      }}
-      onKeyDown={(event) => {
-        if (event.key === "Tab") {
-          keyTabHandler(
-            {
-              target: {
-                name: commonProps.name,
-                value: event.target.value,
-              },
-            },
+        getOptionLabel={(option) => option?.Name || ""}
+        renderOption={(props, option) => (
+          <Box component="li" {...props} key={`${option.Id}-${option.Name}`}>
+            {option.Name}
+          </Box>
+        )}
+        renderInput={(params) => (
+          <TextField {...params} label={null} variant="standard" />
+        )}
+        onInputChange={(event, newInputValue, reason) => {
+          if (reason === "clear") {
+            skipNextFocus.current = true;
+            return;
+          }
+          if (reason === "input") {
+            handleInputChange(event, newInputValue);
+          }
+        }}
+        onFocus={(event) => handleInputFocus(event)}
+        onChange={(event, value) => {
+          changeHandler(
+            { target: { name: commonProps.name, value } },
             containerIndex
           );
-        }
-      }}
-      ListboxComponent={ListboxComponent}
-      disableListWrap
-      ListboxProps={{ onScroll: handleScroll }}
-    />
+          field.changeFun
+            ? handleChangeEventFunctions[field.changeFun](
+                commonProps.name,
+                value,
+                containerIndex
+              )
+            : null;
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Tab") {
+            keyTabHandler(
+              {
+                target: {
+                  name: commonProps.name,
+                  value: event.target.value,
+                },
+              },
+              containerIndex
+            );
+          }
+        }}
+        ListboxComponent={ListboxComponent}
+        disableListWrap
+        ListboxProps={{ onScroll: handleScroll }}
+      />
+    </Box>
   );
 };
 

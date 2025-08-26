@@ -93,7 +93,7 @@ export default function Home() {
             >
               Notify Party
             </Typography>
-            <Box className="grid grid-cols-7 gap-2 border-b border-b-solid border-b-black p-2">
+            <Box className="grid grid-cols-6 gap-2 border-b border-b-solid border-b-black p-2">
               <CustomInput
                 fields={jsonData.notifyFields}
                 formData={formData}
@@ -107,7 +107,7 @@ export default function Home() {
             >
               Invoicing Instructions
             </Typography>
-            <Box className="grid grid-cols-7 gap-2 border-b border-b-solid border-b-black p-2">
+            <Box className="grid grid-cols-6 gap-2 border-b border-b-solid border-b-black p-2">
               <CustomInput
                 fields={jsonData.invoicingFields}
                 formData={formData}

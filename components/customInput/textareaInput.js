@@ -1,12 +1,10 @@
-import { Box } from "@mui/material";
 import React from "react";
+import { Box, InputLabel } from "@mui/material";
 
 const TextAreaInput = ({ commonProps, fieldValue, field }) => {
   return (
-    <Box
-      className={`relative ${field.gridColumn} leading-0 `}
-      key={commonProps.key}
-    >
+    <Box className="flex items-end gap-2">
+      <InputLabel>{commonProps.label}</InputLabel>
       <textarea
         {...commonProps}
         value={fieldValue ? fieldValue : ""}
@@ -14,15 +12,6 @@ const TextAreaInput = ({ commonProps, fieldValue, field }) => {
         rows={field.rows}
         key={commonProps.key}
       />
-      <p
-        className={`absolute top-0 transition-all duration-150 ease-in-out text-[#00000099] font-bold text-xs my-0.5 mx-3 peer-focus:text-[#1976d2] peer-focus:top-[-8px] peer-focus:px-1 peer-focus:bg-white peer-focus:text-[10px]  ${
-          fieldValue
-            ? " px-1 top-[-9px] bg-white text-[10px] leading-[9px]"
-            : ""
-        } `}
-      >
-        {commonProps.label}
-      </p>
     </Box>
   );
 };
