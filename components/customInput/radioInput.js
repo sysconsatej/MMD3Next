@@ -18,7 +18,7 @@ const RadioInput = ({
     <FormControl
       className={`flex items-end !flex-row gap-2 ${commonProps.className}`}
     >
-      <FormLabel className={`!font-bold w-fit bg-white !text-[11px]`}>
+      <FormLabel className={` w-fit bg-white !text-[11px]`}>
         {commonProps.label}
       </FormLabel>
       <RadioGroup
