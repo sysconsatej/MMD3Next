@@ -120,7 +120,7 @@ export default function BLList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center">
-            BL 
+            HBL 
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
@@ -130,7 +130,7 @@ export default function BLList() {
               setSearch={setSearch}
               options={dropdowns.bl}
             />
-            <CustomButton text="Add" href="/bl" />
+            <CustomButton text="Add" href="/bl/hbl" />
           </Box>
         </Box>
 

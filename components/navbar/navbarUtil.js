@@ -37,10 +37,12 @@ export const navItems = [
   },
   {
     name: "BL",
-    href: "/bl/list",
+    submenu: [{ name: "HBL Request", href: "/bl/hbl/list" }],
   },
   {
     name: "Requests",
-    submenu: [{ name: "Invoice Request", href: "/request/invoiceRequest/list" }],
+    submenu: [
+      { name: "Invoice Request", href: "/request/invoiceRequest/list" },
+    ],
   },
 ];

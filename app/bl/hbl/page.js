@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import { ThemeProvider, Box, Typography } from "@mui/material";
-import data from "./blData";
+import { ThemeProvider, Box } from "@mui/material";
+import data from "./hblData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -27,7 +27,7 @@ export default function Home() {
           <Box className="flex justify-between items-end mb-2">
             <h1 className="text-left text-base flex items-end m-0 ">HBL</h1>
             <Box>
-              <CustomButton text="Back" href="/bl/list" />
+              <CustomButton text="Back" href="/bl/hbl/list" />
             </Box>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
@@ -36,7 +36,7 @@ export default function Home() {
               variant="body2"
               style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
             />
-            <Box className="grid grid-cols-6 gap-2 p-2 ">
+            <Box className="grid grid-cols-5 items-end gap-2 p-2 ">
               <CustomInput
                 fields={jsonData.mblFields}
                 formData={formData}
@@ -44,22 +44,39 @@ export default function Home() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <FormHeading text="HBL Details" />
+            <FormHeading text="CNS" />
             <Box className="grid grid-cols-6 gap-2 p-2 ">
               <CustomInput
-                fields={jsonData.hblfields}
+                fields={jsonData.cnsFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <Typography
-              variant="caption"
-              className="!ml-3 border-b border-solid "
-            >
-              Consignor Details
-            </Typography>
-            <Box className="grid grid-cols-6 gap-2 p-2">
+            <FormHeading
+              text="HBL Details"
+              variant="body2"
+              style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
+            />
+            <Box className="grid grid-cols-6 gap-2 p-2 ">
+              <CustomInput
+                fields={jsonData.hblFields}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
+              />
+            </Box>
+            <FormHeading text="Transit Bond Details(Required if HBLs POD is different than MBLs POD)" />
+            <Box className="grid grid-cols-6 gap-2 p-2 ">
+              <CustomInput
+                fields={jsonData.transitFields}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
+              />
+            </Box>
+            <FormHeading text="Consignor Details" />
+            <Box className="grid grid-cols-6 gap-2 p-2 ">
               <CustomInput
                 fields={jsonData.consignorFields}
                 formData={formData}
@@ -67,13 +84,8 @@ export default function Home() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <Typography
-              variant="caption"
-              className="!ml-3 border-b border-solid "
-            >
-              Consignee Details
-            </Typography>
-            <Box className="grid grid-cols-6 gap-2 p-2">
+            <FormHeading text="Consignee Details" />
+            <Box className="grid grid-cols-6 gap-2 p-2 ">
               <CustomInput
                 fields={jsonData.consigneeFields}
                 formData={formData}
@@ -81,13 +93,8 @@ export default function Home() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <Typography
-              variant="caption"
-              className="!ml-3 border-b border-solid "
-            >
-              Notify Party
-            </Typography>
-            <Box className="grid grid-cols-6 gap-2 p-2">
+            <FormHeading text="Notify Details" />
+            <Box className="grid grid-cols-6 gap-2 p-2 ">
               <CustomInput
                 fields={jsonData.notifyFields}
                 formData={formData}
@@ -95,32 +102,50 @@ export default function Home() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <Typography
-              variant="caption"
-              className="!ml-3 border-b border-solid "
-            >
-              Invoicing Instructions
-            </Typography>
-            <Box className="grid grid-cols-6 gap-2 p-2">
+            <FormHeading text="Invoicing Instructions" />
+            <Box className="grid grid-cols-6 gap-2 p-2 ">
               <CustomInput
-                fields={jsonData.invoicingFields}
+                fields={jsonData.invoiceFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <Typography
-              variant="caption"
-              className="!ml-3 border-b border-solid "
-            >
-              Container Details
-            </Typography>
+            <FormHeading
+              text="Item Details"
+              variant="body2"
+              style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
+            />
+            <TableGrid
+              fields={jsonData.itemFields}
+              formData={formData}
+              setFormData={setFormData}
+              fieldsMode={fieldsMode}
+              gridName="item"
+            />
+            <FormHeading
+              text="Container Details"
+              variant="body2"
+              style="!mx-3 !mt-2 border-b-2 border-solid border-[#03bafc] flex"
+            />
             <TableGrid
               fields={jsonData.containerFields}
               formData={formData}
               setFormData={setFormData}
               fieldsMode={fieldsMode}
               gridName="container"
+            />
+            <FormHeading
+              text="Itinerary Details"
+              variant="body2"
+              style="!mx-3 !mt-2 border-b-2 border-solid border-[#03bafc] flex"
+            />
+            <TableGrid
+              fields={jsonData.itineraryFields}
+              formData={formData}
+              setFormData={setFormData}
+              fieldsMode={fieldsMode}
+              gridName="itinerary"
             />
           </Box>
           <Box className="w-full flex mt-2">

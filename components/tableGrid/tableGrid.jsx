@@ -20,13 +20,7 @@ import { CustomInput } from "../customInput";
 import { HoverActionIcons } from "../tableHoverIcons/tableHoverIcons";
 import SearchBar from "../searchBar/searchBar";
 
-function TableGrid({
-  fields,
-  formData,
-  setFormData,
-  fieldsMode,
-  gridName,
-}) {
+function TableGrid({ fields, formData, setFormData, fieldsMode, gridName }) {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loadingState, setLoadingState] = useState("No data found!");
@@ -84,12 +78,10 @@ function TableGrid({
       [gridName]: filterData,
     }));
     setViewMode("search");
-    setGridFieldsMode("edit");
   }
 
   function gridRevertHandler() {
     setViewMode("search");
-    setGridFieldsMode("edit");
   }
 
   function getData(pageNum, totalRowsNum) {
@@ -101,7 +93,7 @@ function TableGrid({
       );
       setGridData(filterGrid);
     } else {
-      setGridData(formData[gridName]);
+      setGridData(formData[gridName] ?? []);
     }
   }
 
@@ -110,7 +102,7 @@ function TableGrid({
       <Box className="flex flex-row items-start justify-end  border-t border-gray-300 rounded-2xl">
         {viewMode === "add" && (
           <Box className="flex items-start justify-between flex-row w-full">
-            <Box className="grid grid-cols-7 gap-2 w-full p-2">
+            <Box className="grid grid-cols-5 gap-2 w-full p-2">
               <CustomInput
                 fields={fields}
                 formData={formData}
@@ -178,7 +170,11 @@ function TableGrid({
                   .map((row, index) => (
                     <TableRow key={index} hover className="relative group ">
                       {fields?.map((item) => {
-                        return <TableCell>{row[item.name]}</TableCell>;
+                        return (
+                          <TableCell>
+                            {row[item.name]?.Name ?? row[item.name]}
+                          </TableCell>
+                        );
                       })}
                       <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                         <HoverActionIcons
