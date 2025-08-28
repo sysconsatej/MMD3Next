@@ -57,7 +57,7 @@ export default function Commodity() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              Commodity Form
+              Commodity 
             </h1>
             <CustomButton
               text="Back"

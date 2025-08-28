@@ -51,7 +51,7 @@ export default function VoyageRoute() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              Voyage Route Form
+              Voyage Route
             </h1>
             <CustomButton
               text="Back"

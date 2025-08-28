@@ -24,7 +24,7 @@ export default function Home() {
       <form onSubmit={submitHandler}>
         <section className="py-2 px-4">
           <Box className="flex justify-between items-end mb-2">
-            <h1 className="text-left text-base flex items-end m-0 ">BL Form</h1>
+            <h1 className="text-left text-base flex items-end m-0 ">BL</h1>
             <Box>
               <CustomButton text="Back" href="/bl/list" />
             </Box>

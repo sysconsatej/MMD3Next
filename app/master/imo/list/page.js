@@ -93,7 +93,7 @@ export default function ImoList() {
       <Box className="sm:px-4 py-1 ">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
-            IMO List
+            IMO 
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
