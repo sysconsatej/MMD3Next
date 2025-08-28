@@ -1,5 +1,5 @@
 const fieldData = {
-  fields: [
+  igmFields: [
     {
       label: "CFS Name",
       name: "cfsName",
@@ -34,10 +34,22 @@ const fieldData = {
     { label: "GSTIN/Provisional ID", name: "gstin" },
     { label: "Remarks", name: "remarks" },
   ],
-  attachmentFields1: [
-    { label: "Document Title", name: "documentTitle" },
-    { label: "Document Description", name: "documentDescription" },
-    { label: "Select Attachment", name: "selectAttachment" },
+  attachmentFields: [
+    {
+      label: "Document Title",
+      name: "documentTitle",
+      isEdit: true,
+    },
+    {
+      label: "Document Description",
+      name: "documentDescription",
+      isEdit: true,
+    },
+    {
+      label: "Select Attachment",
+      name: "selectAttachment",
+      isEdit: true,
+    },
   ],
 };
 

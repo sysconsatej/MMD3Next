@@ -1,14 +1,14 @@
 "use client";
 import { useState } from "react";
 import { ThemeProvider, Box, Typography } from "@mui/material";
-import data from "./invoiceRequestData";
+import data from "./cfsRequestData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
-export default function InvoiceRequest() {
+export default function CfsRequest() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
@@ -24,21 +24,21 @@ export default function InvoiceRequest() {
         <section className="py-2 px-4">
           <Box className="flex justify-between items-end mb-2">
             <h1 className="text-left text-base flex items-end m-0 ">
-              Invoice Request
+              Create Request For CFS
             </h1>
             <Box>
-              <CustomButton text="Back" href="/request/invoiceRequest/list" />
+              <CustomButton text="Back" href="/request/cfsRequest/list" />
             </Box>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
             <FormHeading
-              text="IGM Information"
+              text="MBL Details"
               variant="body2"
               style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
             />
             <Box className="grid grid-cols-6 gap-2 p-2 ">
               <CustomInput
-                fields={jsonData.igmFields}
+                fields={jsonData.mblFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
