@@ -7,6 +7,7 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import TableGrid from "@/components/tableGrid/tableGrid";
+import FormHeading from "@/components/formHeading/formHeading";
 
 export default function Home() {
   const [formData, setFormData] = useState({});
@@ -30,12 +31,7 @@ export default function Home() {
             </Box>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <Typography
-              variant="caption"
-              className="!ml-3 border-b border-solid "
-            >
-              B/L Details
-            </Typography>
+            <FormHeading text="B/L Details" />
             <Box className="grid grid-cols-6 gap-2  border-b border-b-solid border-b-black p-2 ">
               <CustomInput
                 fields={jsonData.fields}
@@ -44,13 +40,7 @@ export default function Home() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-
-            <Typography
-              variant="caption"
-              className="!ml-3 border-b border-solid "
-            >
-              HBL Details
-            </Typography>
+            <FormHeading text="HBL Details" />
             <Box className="grid grid-cols-6 gap-2  border-b border-b-solid border-b-black p-2 ">
               <CustomInput
                 fields={jsonData.hblfields}
