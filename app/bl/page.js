@@ -25,23 +25,27 @@ export default function Home() {
       <form onSubmit={submitHandler}>
         <section className="py-2 px-4">
           <Box className="flex justify-between items-end mb-2">
-            <h1 className="text-left text-base flex items-end m-0 ">BL</h1>
+            <h1 className="text-left text-base flex items-end m-0 ">HBL</h1>
             <Box>
               <CustomButton text="Back" href="/bl/list" />
             </Box>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <FormHeading text="B/L Details" />
-            <Box className="grid grid-cols-6 gap-2  border-b border-b-solid border-b-black p-2 ">
+            <FormHeading
+              text="MBL Details"
+              variant="body2"
+              style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
+            />
+            <Box className="grid grid-cols-6 gap-2 p-2 ">
               <CustomInput
-                fields={jsonData.fields}
+                fields={jsonData.mblFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
               />
             </Box>
             <FormHeading text="HBL Details" />
-            <Box className="grid grid-cols-6 gap-2  border-b border-b-solid border-b-black p-2 ">
+            <Box className="grid grid-cols-6 gap-2 p-2 ">
               <CustomInput
                 fields={jsonData.hblfields}
                 formData={formData}
@@ -55,7 +59,7 @@ export default function Home() {
             >
               Consignor Details
             </Typography>
-            <Box className="grid grid-cols-6 gap-2 border-b border-b-solid border-b-black p-2">
+            <Box className="grid grid-cols-6 gap-2 p-2">
               <CustomInput
                 fields={jsonData.consignorFields}
                 formData={formData}
@@ -69,7 +73,7 @@ export default function Home() {
             >
               Consignee Details
             </Typography>
-            <Box className="grid grid-cols-6 gap-2 border-b border-b-solid border-b-black p-2">
+            <Box className="grid grid-cols-6 gap-2 p-2">
               <CustomInput
                 fields={jsonData.consigneeFields}
                 formData={formData}
@@ -83,7 +87,7 @@ export default function Home() {
             >
               Notify Party
             </Typography>
-            <Box className="grid grid-cols-6 gap-2 border-b border-b-solid border-b-black p-2">
+            <Box className="grid grid-cols-6 gap-2 p-2">
               <CustomInput
                 fields={jsonData.notifyFields}
                 formData={formData}
@@ -97,7 +101,7 @@ export default function Home() {
             >
               Invoicing Instructions
             </Typography>
-            <Box className="grid grid-cols-6 gap-2 border-b border-b-solid border-b-black p-2">
+            <Box className="grid grid-cols-6 gap-2 p-2">
               <CustomInput
                 fields={jsonData.invoicingFields}
                 formData={formData}

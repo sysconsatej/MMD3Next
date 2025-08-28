@@ -1,13 +1,19 @@
 const fieldData = {
-  fields: [
+  mblFields: [
     {
-      label: "Department",
+      label: "Location(POD)",
       name: "department",
       type: "dropdown",
-      labelType: "department",
+      labelType: "port",
     },
     {
-      label: "MBL No.",
+      label: "Liner/FF",
+      name: "liner",
+      type: "dropdown",
+      labelType: "port",
+    },
+    {
+      label: "MBL No",
       name: "mblNo",
     },
     {
