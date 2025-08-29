@@ -24,6 +24,9 @@ const fieldData = {
     {
       label: "Deport Address",
       name: "address",
+      type: "textarea",
+      rows: 2,
+      gridColumn: "col-span-2 row-span-1 ",
       isEdit: "true",
     },
   ],
