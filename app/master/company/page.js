@@ -52,9 +52,7 @@ export default function Company() {
       <form onSubmit={submitHandler}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base flex items-end m-0 ">
-              Company 
-            </h1>
+            <h1 className="text-left text-base flex items-end m-0 ">Company</h1>
             <CustomButton
               text="Back"
               href="/master/company/list"
@@ -62,17 +60,9 @@ export default function Company() {
             />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <Box className="sm:grid sm:grid-cols-6 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.companyFields}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
-              />
-            </Box>
-            <Box className="md:grid md:grid-cols-6 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black  ">
-              <CustomInput
-                fields={jsonData.numberFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
