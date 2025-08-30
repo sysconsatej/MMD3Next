@@ -15,7 +15,7 @@ export function useDebounce(search = "", delay) {
   return debounceValue;
 }
 
-export function formatFormData(tableName, data, recordId) {
+export function formatFormData(tableName, data, formId) {
   const insertObj = {
     createdBy: 4,
     clientId: 1,
@@ -33,11 +33,11 @@ export function formatFormData(tableName, data, recordId) {
     }
   }
 
-  if (recordId) {
-    return { tableName, recordId, data: [{ ...data, ...updateObj }] };
+  if (formId) {
+    return { tableName, formId, submitJson: { ...data, ...updateObj } };
   }
 
-  return { tableName, data: [{ ...data, ...insertObj }] };
+  return { tableName, submitJson: { ...data, ...insertObj } };
 }
 
 export function formatFetchForm(data, parentTableName, recordId) {
