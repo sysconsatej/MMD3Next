@@ -38,6 +38,9 @@ const fieldData = {
     {
       label: "Company Address",
       name: "address",
+      type: "textarea",
+      rows: 2,
+      gridColumn: "col-span-2 row-span-1 ",
       isEdit: "true",
     },
     {
@@ -61,17 +64,7 @@ const fieldData = {
       name: "panNo",
       isEdit: "true",
     },
-  ],
-  numberFields: [
-    {
-      label: "Remarks",
-      name: "remarks",
-      multiline: true,
-      rows: 1,
-      type: "textarea",
-      isEdit: true,
-      isEdit: "true",
-    },
+
     {
       label: "GSTIN No",
       name: "taxRegistrationNo",
@@ -108,6 +101,14 @@ const fieldData = {
       label: "Website",
       name: "website",
       isEdit: "true",
+    },
+    {
+      label: "Remarks",
+      name: "remarks",
+      type: "textarea",
+      rows: 2,
+      gridColumn: "col-span-2 row-span-1 ",
+      isEdit: true,
     },
   ],
 };

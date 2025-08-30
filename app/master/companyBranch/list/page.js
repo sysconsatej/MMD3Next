@@ -149,8 +149,8 @@ export default function CompanyBranchList() {
               <TableRow>
                 <TableCell>Code</TableCell>
                 <TableCell>Name</TableCell>
-                <TableCell>country Name</TableCell>
-                <TableCell>Company Branch</TableCell>
+                <TableCell>Company Name</TableCell>
+                <TableCell>Country Name</TableCell>
                 <TableCell>State Name</TableCell>
                 <TableCell>City Name</TableCell>
                 <TableCell>Phone NO</TableCell>

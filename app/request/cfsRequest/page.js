@@ -24,7 +24,7 @@ export default function CfsRequest() {
         <section className="py-2 px-4">
           <Box className="flex justify-between items-end mb-2">
             <h1 className="text-left text-base flex items-end m-0 ">
-              Create Request For CFS
+              CFS Request For Container
             </h1>
             <Box>
               <CustomButton text="Back" href="/request/cfsRequest/list" />

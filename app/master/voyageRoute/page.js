@@ -68,38 +68,6 @@ export default function VoyageRoute() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
-              <CustomInput
-                fields={jsonData.portFields}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
-              />
-            </Box>
-            <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
-              <CustomInput
-                fields={jsonData.dateFields}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
-              />
-            </Box>
-            <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
-              <CustomInput
-                fields={jsonData.consignorFields}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
-              />
-            </Box>
-            <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black ">
-              <CustomInput
-                fields={jsonData.additionalFields}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
-              />
-            </Box>
           </Box>
           <Box className="w-full flex mt-2 ">
             {fieldsMode !== "view" && (

@@ -69,8 +69,7 @@ const fieldData = {
       type: "date",
       isEdit: true,
     },
-  ],
-  portFields: [
+
     {
       label: "Arrival Date",
       name: "arrivalDate",
@@ -137,8 +136,7 @@ const fieldData = {
       name: "depotId",
       isEdit: true,
     },
-  ],
-  dateFields: [
+
     { label: "IGM No", name: "igmNo", type: "text", isEdit: true },
     {
       label: "IGM Date",
@@ -188,8 +186,7 @@ const fieldData = {
       name: "lightHouseDues",
       isEdit: true,
     },
-  ],
-  consignorFields: [
+
     {
       label: "Passenger List",
       name: "passengerList",
@@ -260,20 +257,17 @@ const fieldData = {
       ],
       isEdit: true,
     },
-  ],
-  additionalFields: [
-    {
-      label: "Cargo Description",
-      name: "cargoDescription",
-      style: "sm:w-[min(100%,300px)]",
-      multiline: true,
-      rows: 1,
-      type: "textarea",
-      isEdit: true,
-    },
     {
       label: "Auth. Person Pan No",
       name: "authPersonPanNo",
+      isEdit: true,
+    },
+    {
+      label: "Cargo Description",
+      name: "cargoDescription",
+      type: "textarea",
+      rows: 2,
+      gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
     },
     {

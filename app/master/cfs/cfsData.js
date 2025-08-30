@@ -1,6 +1,11 @@
 const fieldData = {
   cfsFields: [
     {
+      label: "Nominated Area Code",
+      name: "code",
+      isEdit: true,
+    },
+    {
       label: "Port Type",
       name: "portTypeId",
       type: "dropdown",
@@ -9,23 +14,8 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Nominated Area Code",
-      name: "code",
-      isEdit: true,
-    },
-    {
-      label: "Nominated Area Description",
-      name: "name",
-      isEdit: true,
-    },
-    {
       label: "EDI Port Code",
       name: "ediPortCode",
-      isEdit: true,
-    },
-    {
-      label: "EDI Common Terminal Code",
-      name: "ediCommonTerminalCode",
       isEdit: true,
     },
     {
@@ -34,18 +24,30 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Nominated Area Address",
-      name: "address",
-      style: "sm:w-[min(100%,300px)]",
-      multiline: true,
-      rows: 1,
-      type: "textarea",
-      isEdit: true,
-    },
-    {
       label: "Direct Delivery",
       name: "directDelivery",
       type: "checkbox",
+      isEdit: true,
+    },
+    {
+      label: "EDI Common Terminal Code",
+      name: "ediCommonTerminalCode",
+      isEdit: true,
+    },
+    {
+      label: "Nominated Area Description",
+      name: "name",
+      type: "textarea",
+      rows: 2,
+      gridColumn: "col-span-2 row-span-1 ",
+      isEdit: true,
+    },
+    {
+      label: "Nominated Area Address",
+      name: "address",
+      type: "textarea",
+      rows: 2,
+      gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
     },
   ],

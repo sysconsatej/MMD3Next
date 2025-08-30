@@ -62,17 +62,9 @@ export default function SmtpCarrier() {
             />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <Box className="sm:grid sm:grid-cols-6 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.smtpFields}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
-              />
-            </Box>
-            <Box className="md:grid md:grid-cols-6 gap-2 flex flex-col p-2 border-b border-b-solid border-b-black  ">
-              <CustomInput
-                fields={jsonData.numberFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
