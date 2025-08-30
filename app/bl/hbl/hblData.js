@@ -262,7 +262,7 @@ const fieldData = {
     },
     {
       label: "City",
-      name: "cityId",
+      name: "city",
       type: "dropdown",
       labelType: "city",
       selectedCondition: "consignorCountry",
@@ -343,7 +343,7 @@ const fieldData = {
     },
     {
       label: "City",
-      name: "cityId",
+      name: "cityNotify",
       type: "dropdown",
       labelType: "city",
       selectedCondition: "notifyFieldsCountry",
