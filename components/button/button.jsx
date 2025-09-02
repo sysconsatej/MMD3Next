@@ -11,7 +11,7 @@ const CustomButton = ({
   endIcon = null,
   size = "small",
   target,
-  buttonStyles = "!text-[white] !bg-[#ffc400] !text-[11px] ",
+  buttonStyles = "!text-[white] !bg-[#95a9e8] !text-[11px] ",
   ...props
 }) => {
   const button = (

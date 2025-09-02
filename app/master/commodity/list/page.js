@@ -112,7 +112,7 @@ export default function CommodityList() {
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell>Code</TableCell>
+                <TableCell> HSN Code</TableCell>
                 <TableCell>Name</TableCell>
               </TableRow>
             </TableHead>

@@ -35,11 +35,8 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Nominated Area Description",
+      label: "Name",
       name: "name",
-      type: "textarea",
-      rows: 2,
-      gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
     },
     {
@@ -48,6 +45,11 @@ const fieldData = {
       type: "textarea",
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
+      isEdit: true,
+    },
+    {
+      label: "MOT",
+      name: "mot",
       isEdit: true,
     },
   ],

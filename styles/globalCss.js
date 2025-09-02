@@ -9,7 +9,7 @@ export const theme = createTheme({
           height: "4px",
         },
         "::-webkit-scrollbar-thumb": {
-          backgroundColor: "#ffc400",
+          backgroundColor: "#95a9e8",
           borderRadius: "10px",
         },
         "::-webkit-scrollbar-track": {
@@ -127,7 +127,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           color: "#000",
-          border: "1px solid #FADB0F",
+          border: "1px solid #b1c1f2",
           backgroundColor: "#fff",
           fontSize: "10px",
           minWidth: "24px",
@@ -135,15 +135,15 @@ export const theme = createTheme({
           borderRadius: "4px",
           padding: "0 4px",
           "&:hover": {
-            backgroundColor: "#fff8cc",
+            backgroundColor: "#B5C4F0",
           },
           "&.Mui-selected": {
-            backgroundColor: "#ffc400",
+            backgroundColor: "#95a9e8",
             color: "white",
-            border: "1px solid #FADB0F",
+            border: "1px solid #b1c1f2",
           },
           "&.Mui-selected:hover": {
-            backgroundColor: "#e6c800",
+            backgroundColor: "#B5C4F0",
           },
           "& .MuiPaginationItem-icon": {
             color: "#000",
@@ -154,7 +154,7 @@ export const theme = createTheme({
     MuiTableHead: {
       styleOverrides: {
         root: {
-          backgroundColor: "#0b2545",
+          backgroundColor: "#95a9e8",
           "& .MuiTableCell-root": {
             color: "white",
             fontSize: "12.5px",

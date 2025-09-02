@@ -103,8 +103,8 @@ function Navbar() {
     "relative font-semibold cursor-pointer transition-all duration-200";
   const afterUnderline =
     "after:content-[''] after:absolute after:left-0 after:bottom-[-4px] after:h-[2px] after:w-full";
-  const activeClass = `text-[#03bafc] ${afterUnderline} after:bg-[#03bafc]`;
-  const hoverClass = `hover:scale-105 text-black hover:${afterUnderline} hover:after:bg-[#03bafc]`;
+  const activeClass = `text-[#95a9e8] ${afterUnderline} after:bg-[#95a9e8]`;
+  const hoverClass = `hover:scale-105 text-black hover:${afterUnderline} hover:after:bg-[#95a9e8]`;
 
   return (
     <>
@@ -179,7 +179,7 @@ function Navbar() {
                                 backgroundColor: "#f1f1f1",
                               },
                               "&::-webkit-scrollbar-thumb": {
-                                backgroundColor: "#ffc400",
+                                backgroundColor: "#95a9e8",
                                 borderRadius: "2px",
                               },
                               "&::-webkit-scrollbar-thumb:hover": {
@@ -189,7 +189,7 @@ function Navbar() {
                               "& .MuiMenuItem-root": {
                                 transition: "all 150ms ease-in-out",
                                 "&:hover": {
-                                  backgroundColor: "#03bafc",
+                                  backgroundColor: "#95a9e8",
                                   color: "white",
                                 },
                               },
@@ -230,7 +230,7 @@ function Navbar() {
                                   activeParentSubLink === sub.name ||
                                   activeParentSubLink === sub.name ||
                                   activeParentSubLink === sub.name
-                                    ? "#03bafc"
+                                    ? "#95a9e8"
                                     : "transparent",
                                 fontWeight:
                                   activeSubLink === sub.name ||
@@ -246,7 +246,7 @@ function Navbar() {
                                     ? "white"
                                     : "inherit",
                                 "&:hover": {
-                                  borderBottom: "2px solid #03bafc",
+                                  borderBottom: "2px solid #95a9e8",
                                   color: "white",
                                 },
                               }}
@@ -292,7 +292,7 @@ function Navbar() {
                                       "& .MuiMenuItem-root": {
                                         transition: "all 150ms ease-in-out",
                                         "&:hover": {
-                                          backgroundColor: "#03bafc",
+                                          backgroundColor: "#95a9e8",
                                           color: "white",
                                         },
                                       },
@@ -322,7 +322,7 @@ function Navbar() {
                                       py: 0,
                                       backgroundColor:
                                         activeSubLink === child.name
-                                          ? "#03bafc"
+                                          ? "#95a9e8"
                                           : "transparent",
                                       color:
                                         activeSubLink === child.name
@@ -333,7 +333,7 @@ function Navbar() {
                                           ? "bold"
                                           : "normal",
                                       "&:hover": {
-                                        borderBottom: "2px solid #03bafc",
+                                        borderBottom: "2px solid #95a9e8",
                                         color: "white",
                                       },
                                     }}
@@ -398,7 +398,7 @@ function Navbar() {
                     onClick={() => toggleSubmenu(item.name)}
                     className={`${
                       activeLink === item.name
-                        ? "text-[#03bafc] font-semibold"
+                        ? "text-[#95a9e8] font-semibold"
                         : ""
                     }`}
                   >
@@ -425,7 +425,7 @@ function Navbar() {
                                   activeSubLink === sub.name ||
                                   activeParentSubLink === sub.name ||
                                   activeParentSubLink === sub.name
-                                    ? "text-[#03bafc] font-semibold"
+                                    ? "text-[#95a9e8] font-semibold"
                                     : ""
                                 }`}
                               >
@@ -452,7 +452,7 @@ function Navbar() {
                                         button
                                         className={`pl-10 ${
                                           activeSubLink === child.name
-                                            ? "text-[#03bafc] font-semibold"
+                                            ? "text-[#95a9e8] font-semibold"
                                             : ""
                                         }`}
                                         onClick={() => {
@@ -479,7 +479,7 @@ function Navbar() {
                                   activeSubLink === sub.name ||
                                   activeParentSubLink === sub.name ||
                                   activeParentSubLink === sub.name
-                                    ? "text-[#03bafc] font-semibold"
+                                    ? "text-[#95a9e8] font-semibold"
                                     : ""
                                 }`}
                                 onClick={() => {
@@ -511,7 +511,7 @@ function Navbar() {
                     }}
                     className={`${
                       activeLink === item.name
-                        ? "text-[#03bafc] font-semibold"
+                        ? "text-[#95a9e8] font-semibold"
                         : ""
                     }`}
                   >

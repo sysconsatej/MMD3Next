@@ -1,7 +1,7 @@
 const fieldData = {
   commodityFields: [
     {
-      label: "Commodity Code",
+      label: "HSN Code",
       name: "code",
       isEdit: "true",
     },
@@ -9,6 +9,11 @@ const fieldData = {
       label: "Commodity Type",
       name: "name",
       isEdit: "true",
+    },
+    {
+      label: "HSN",
+      name: "hsn",
+      isEdit:"true"
     },
     {
       label: "MasterListId",
