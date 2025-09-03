@@ -1,5 +1,5 @@
 const fieldData = {
-  itemtypeFields: [
+  itemTypeFields: [
     {
       label: "Name",
       name: "name",
@@ -10,19 +10,6 @@ const fieldData = {
       label: "Code",
       name: "code",
       isEdit: "true",
-    },
-    {
-      label: "MasterListId",
-      name: "masterListId",
-      type: "dropdown",
-      labelType: "name,tblItemType,tblMasterList",
-      foreignTable: "name,tblMasterList",
-      changeFun: "masterList",
-    },
-    {
-      label: "MasterList Name",
-      name: "masterListName",
-      disabled: true,
     },
   ],
 };

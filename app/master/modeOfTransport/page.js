@@ -8,7 +8,7 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { formStore } from "@/store";
-import { fetchForm, insertUpdateForm } from "@/apis";
+import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 
 export default function ModeOfTransport() {
@@ -29,12 +29,6 @@ export default function ModeOfTransport() {
     }
   };
 
-  const handleChangeEventFunctions = {
-    masterList: (name, value, index) => {
-      setFormData((prev) => ({ ...prev, masterListName: value.Name }));
-    },
-  };
-
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
@@ -53,6 +47,29 @@ export default function ModeOfTransport() {
 
     fetchFormHandler();
   }, [mode.formId]);
+
+  useEffect(() => {
+    async function initialHandler() {
+      const obj = {
+        columns: "id, name",
+        tableName: "tblMasterList",
+        whereCondition: "name = 'tblTransportType'",
+      };
+
+      const { data, message, error, success } = await getDataWithCondition(obj);
+      if (success) {
+        setFormData((prev) => ({
+          ...prev,
+          masterListId: data[0].id,
+          masterListName: data[0].name,
+        }));
+      } else {
+        toast.error(error || message);
+      }
+    }
+
+    initialHandler();
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -75,7 +92,6 @@ export default function ModeOfTransport() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
-                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>

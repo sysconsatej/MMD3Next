@@ -10,19 +10,6 @@ const fieldData = {
       name: "code",
       isEdit: "true",
     },
-    {
-      label: "MasterListId",
-      name: "masterListId",
-      type: "dropdown",
-      labelType: "name,tblSize,tblMasterList",
-      foreignTable: "name,tblMasterList",
-      changeFun: "masterList",
-    },
-    {
-      label: "MasterList Name",
-      name: "masterListName",
-      disabled: true,
-    },
   ],
 };
 
