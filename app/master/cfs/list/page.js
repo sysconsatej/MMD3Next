@@ -25,25 +25,21 @@ import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 
 function createData(
-  code,
-  description,
-  address,
-  directDelivery,
   ediPortCode,
+  description,
+  code,
   ediCommonTerminalCode,
   bondNo,
-  portType,
-  id,
+  address,
+  id
 ) {
   return {
-    code,
-    description,
-    address,
-    directDelivery,
     ediPortCode,
+    description,
+    code,
     ediCommonTerminalCode,
     bondNo,
-    portType,
+    address,
     id,
   };
 }
@@ -95,15 +91,13 @@ export default function CfsList() {
   const rows = cfsData
     ? cfsData.map((item) =>
         createData(
-          item["code"],
-          item["description"],
-          item["address"],
-          item["directDelivery"],
           item["ediPortCode"],
+          item["description"],
+          item["code"],
           item["ediCommonTerminalCode"],
           item["bondNo"],
-          item["portType"],
-          item["id"],
+          item["address"],
+          item["id"]
         )
       )
     : [];
@@ -127,7 +121,7 @@ export default function CfsList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center">
-            Container Freight Station 
+            Container Freight Station
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
@@ -145,28 +139,24 @@ export default function CfsList() {
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell>Nominated Area Code</TableCell>
-                <TableCell>Nominated Area Description</TableCell>
-                <TableCell>Nominated Area Address </TableCell>
-                <TableCell>Direct Delivery</TableCell>
                 <TableCell>EDI Port Code</TableCell>
-                <TableCell>EDI Common Terminal Code</TableCell>
-                <TableCell>Bond No</TableCell>
-                <TableCell>Port Type</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Nominated Area Code</TableCell>
+                <TableCell>Terminal Code</TableCell>
+                <TableCell>Bond Number</TableCell>
+                <TableCell>Address</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {rows.length > 0 ? (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
-                    <TableCell>{row.code}</TableCell>
-                    <TableCell>{row.description}</TableCell>
-                    <TableCell>{row.address}</TableCell>
-                    <TableCell>{`${row.directDelivery}`}</TableCell>
                     <TableCell>{row.ediPortCode}</TableCell>
+                    <TableCell>{row.description}</TableCell>
+                    <TableCell>{row.code}</TableCell>
                     <TableCell>{row.ediCommonTerminalCode}</TableCell>
                     <TableCell>{row.bondNo}</TableCell>
-                    <TableCell>{row.portType}</TableCell>
+                    <TableCell>{row.address}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}
