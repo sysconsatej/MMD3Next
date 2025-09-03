@@ -172,7 +172,9 @@ function TableGrid({ fields, formData, setFormData, fieldsMode, gridName }) {
                       {fields?.map((item) => {
                         return (
                           <TableCell>
-                            {row[item.name]?.Name ?? row[item.name]}
+                            {row[item.name]?.Name ??
+                              row[item.name]?.name ??
+                              row[item.name]}
                           </TableCell>
                         );
                       })}

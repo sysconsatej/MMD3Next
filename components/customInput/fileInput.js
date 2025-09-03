@@ -1,12 +1,5 @@
-import React from "react";
-import {
-  Box,
-  Button,
-  IconButton,
-  Typography,
-  FormControl,
-  FormLabel,
-} from "@mui/material";
+import React, { useState } from "react";
+import { Box, Button, IconButton, Typography, InputLabel } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -18,63 +11,61 @@ const VisuallyHiddenInput = (props) => (
   />
 );
 
-const FileInput = ({ commonProps, setFormData, formData }) => {
-  const { label, name, accept, multiple } = commonProps;
-  const value = formData?.[name] || null;
+const FileInput = ({ commonProps, changeHandler, containerIndex }) => {
+  const { label, ...remainingProps } = commonProps;
+  const [fileName, setFileName] = useState("");
 
-  const handleFileChange = (event) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      setFormData({ ...formData, [name]: multiple ? [...files] : files[0] });
-    }
-  };
+  function fileUploadHandler(event) {
+    const { files } = event.target;
+    setFileName(files[0].name);
+    changeHandler(
+      { target: { name: commonProps.name, value: files[0] } },
+      containerIndex
+    );
+  }
 
-  const handleRemove = () => {
-    setFormData({ ...formData, [name]: multiple ? [] : null });
-  };
+  function fileCancelHandler() {
+    setFileName(null);
+    changeHandler(
+      { target: { name: commonProps.name, value: null } },
+      containerIndex
+    );
+  }
 
   return (
-    <FormControl fullWidth>
-      <Box display="flex" gap={1} alignItems="flex-end">
-        {label && (
-          <FormLabel className="!min-w-[100px] !flex-shrink-0 !text-[11px] font-normal text-black/60 flex items-end pb-[2px] m-0 leading-[1]">
-            {label}
-          </FormLabel>
-        )}
-
-        {!value ? (
-          <Button
-            component="label"
-            startIcon={<CloudUploadIcon />}
-            className="!flex-1 !border-b !border-gray-300 !rounded-none !text-[10px] !font-normal !px-2 !py-[2px] !min-h-[28px] !max-h-[28px] !text-[#95a9e8] !overflow-hidden !flex !items-center !cursor-pointer"
-          >
-            Select File
-            <VisuallyHiddenInput
-              type="file"
-              name={name}
-              accept={accept || "*/*"}
-              multiple={multiple}
-              onChange={handleFileChange}
-            />
-          </Button>
-        ) : (
-          <Box className="  flex items-center justify-between  border border-gray-300 rounded  px-2 py-1  flex-1  min-h-[28px] max-h-[28px]  overflow-hidden">
-            <Box className="flex items-center gap-1 overflow-hidden">
-              <CloudUploadIcon className="text-[14px] text-[#95a9e8]" />
-              <Typography
-                variant="body2"
-                className="!text-[11px] whitespace-nowrap overflow-hidden overflow-ellipsis"
-              >
-                {value.name}
-              </Typography>
-            </Box>
-            <IconButton size="small" onClick={handleRemove}>
-              <CloseIcon className="text-[14px] text-[#e89595]" />
-            </IconButton>
+    <Box className="flex items-end gap-2">
+      <InputLabel>{label}</InputLabel>
+      {!fileName ? (
+        <Button
+          component="label"
+          startIcon={<CloudUploadIcon />}
+          className="!flex-1 !border-b !border-gray-300 !rounded-none !text-[10px] !font-normal !px-2 !py-[2px] !min-h-[28px] !max-h-[28px] !text-[#95a9e8] !overflow-hidden !flex !items-center !cursor-pointer"
+        >
+          Select File
+          <VisuallyHiddenInput
+            {...remainingProps}
+            type="file"
+            accept={"*/*"}
+            onChange={(event) => fileUploadHandler(event)}
+          />
+        </Button>
+      ) : (
+        <Box className="  flex items-center justify-between  border border-gray-300 rounded  px-2 py-1  flex-1  min-h-[28px] max-h-[28px]  overflow-hidden">
+          <Box className="flex items-center gap-1 overflow-hidden">
+            <CloudUploadIcon className="text-[14px] text-[#95a9e8]" />
+            <Typography
+              variant="body2"
+              className="!text-[11px] whitespace-nowrap overflow-hidden overflow-ellipsis"
+            >
+              {fileName}
+            </Typography>
           </Box>
-        )}
-      </Box>
-    </FormControl>
+          <IconButton size="small" onClick={fileCancelHandler}>
+            <CloseIcon className="text-[14px] text-[#e89595]" />
+          </IconButton>
+        </Box>
+      )}
+    </Box>
   );
 };
 
