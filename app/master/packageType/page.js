@@ -7,7 +7,7 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import { fetchForm, insertUpdateForm } from "@/apis";
+import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { formStore } from "@/store";
 
@@ -27,11 +27,7 @@ export default function Package() {
       toast.error(error || message);
     }
   };
-  const handleChangeEventFunctions = {
-    masterList: (name, value, index) => {
-      setFormData((prev) => ({ ...prev, masterListName: value.Name }));
-    },
-  };
+
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
@@ -51,13 +47,35 @@ export default function Package() {
     fetchFormHandler();
   }, [mode.formId]);
 
+  useEffect(() => {
+    async function initialHandler() {
+      const obj = {
+        columns: "id, name",
+        tableName: "tblMasterList",
+        whereCondition: "name = 'tblPackage'",
+      };
+
+      const { data, message, error, success } = await getDataWithCondition(obj);
+      if (success) {
+        setFormData((prev) => ({
+          ...prev,
+          masterListId: data[0].id,
+          masterListName: data[0].name,
+        }));
+      } else {
+        toast.error(error || message);
+      }
+    }
+
+    initialHandler();
+  }, []);
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              Package Type 
+              Package Type
             </h1>
             <CustomButton
               text="Back"
@@ -72,7 +90,6 @@ export default function Package() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
-                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>
