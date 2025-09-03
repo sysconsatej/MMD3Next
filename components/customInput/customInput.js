@@ -13,6 +13,7 @@ import {
   RadioInput,
   MultiSelectInput,
   DateTimeInput,
+  FileInput,
 } from "./index";
 
 const CustomInput = ({
@@ -29,7 +30,6 @@ const CustomInput = ({
   const [dropdowns, setDropdowns] = useState([]);
   const [dropdownTotalPage, setDropdownTotalPage] = useState([]);
   const [isChange, setIsChange] = useState(false);
-  
 
   const changeHandler = (e, containerIndex) => {
     const { name, value } = e.target;
@@ -186,7 +186,18 @@ const CustomInput = ({
 
       case "datetime":
         return <DateTimeInput {...inputProps} />;
-
+      case "fileupload":
+        return (
+          <FileInput
+            key={field.name}
+            commonProps={commonProps}
+            fieldValue={formData[field.name]}
+            field={field}
+            handleBlurEventFunctions={handleBlurEventFunctions}
+            setFormData={setFormData}
+            formData={formData}
+          />
+        );
       default:
         return <TextInput {...inputProps} />;
     }
