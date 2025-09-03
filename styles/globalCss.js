@@ -35,7 +35,7 @@ export const theme = createTheme({
     MuiInputLabel: {
       styleOverrides: {
         root: {
-          fontSize: "11px",
+          fontSize: "13px",
           overflow: "unset",
         },
       },
@@ -168,7 +168,7 @@ export const theme = createTheme({
     MuiTableCell: {
       styleOverrides: {
         root: {
-          padding: "0.5px 16px",
+          padding: "2px 16px",
           fontSize: 12,
           minWidth: "150px",
           "&.table-icons": {
