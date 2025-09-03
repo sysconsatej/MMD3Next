@@ -11,3 +11,12 @@ export const fetchDropDownValues = async (obj) => {
     };
   }
 };
+
+export const getDataWithCondition = async (obj) => {
+  try {
+    const res = await axios.post(`${url}api/v1/getTableValues`, obj);
+    return res.data;
+  } catch (error) {
+    return error.response.data;
+  }
+};
