@@ -4,6 +4,7 @@ const fieldData = {
       label: "City",
       name: "name",
       isEdit: "true",
+      required: true,
     },
     {
       label: "State",
@@ -13,7 +14,7 @@ const fieldData = {
       foreignTable: "name,tblState",
       isEdit: "true",
     },
-    
+
     {
       label: "Country",
       name: "countryId",

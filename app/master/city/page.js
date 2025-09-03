@@ -43,7 +43,6 @@ export default function City() {
         }
       }
     }
-
     fetchFormHandler();
   }, [mode.formId]);
 
@@ -52,9 +51,7 @@ export default function City() {
       <form onSubmit={submitHandler}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base flex items-end m-0 ">
-              City 
-            </h1>
+            <h1 className="text-left text-base flex items-end m-0 ">City</h1>
             <CustomButton
               text="Back"
               href="/master/city/list"

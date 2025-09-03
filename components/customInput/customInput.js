@@ -25,32 +25,43 @@ const CustomInput = ({
   handleChangeEventFunctions = null,
   popUp = true,
   fieldsMode,
+  errors = {},
+  handleBlur = () => {},
+  setErrors, // add this to allow updating errors
 }) => {
   const [dropdowns, setDropdowns] = useState([]);
   const [dropdownTotalPage, setDropdownTotalPage] = useState([]);
   const [isChange, setIsChange] = useState(false);
-  
 
-  const changeHandler = (e, containerIndex) => {
-    const { name, value } = e.target;
+  // Live change handler for validation
+  const handleChange = (field, value, containerIndex = null) => {
     if (gridName === null) {
-      setFormData((prevData) => ({ ...prevData, [name]: value }));
+      setFormData((prev) => ({ ...prev, [field.name]: value }));
     } else {
-      setFormData((prevData) => {
-        const updatedContainers = [...prevData[gridName]];
+      setFormData((prev) => {
+        const updatedContainers = [...prev[gridName]];
         updatedContainers[containerIndex] = {
           ...updatedContainers[containerIndex],
-          [name]: value,
+          [field.name]: value,
         };
-        return {
-          ...prevData,
-          [gridName]: updatedContainers,
-        };
+        return { ...prev, [gridName]: updatedContainers };
       });
     }
-    if (!isChange && popUp) {
-      localStorage.setItem("isChange", true);
-      setIsChange(true);
+
+    // Live validation
+    if (field.required) {
+      if (!value) {
+        setErrors((prev) => ({
+          ...prev,
+          [field.name]: `${field.label} is required.`,
+        }));
+      } else {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[field.name];
+          return newErrors;
+        });
+      }
     }
   };
 
@@ -67,10 +78,7 @@ const CustomInput = ({
             ...updatedContainers[containerIndex],
             [name]: isInclude[0],
           };
-          return {
-            ...prevData,
-            [gridName]: updatedContainers,
-          };
+          return { ...prevData, [gridName]: updatedContainers };
         });
       }
     }
@@ -130,13 +138,17 @@ const CustomInput = ({
       label: field.label,
       name: field.name,
       className: `text-black-500 font-normal text-xs w-[min(300px,100%)] ${field.style} `,
-      onChange: (e) => changeHandler(e, containerIndex),
+      value: fieldValue,
+      onChange: (e) => handleChange(field, e.target.value, containerIndex), // ✅ updated
+      onBlur: (e) => handleBlur(field, e.target.value),
       sx: {
         ...textFieldStyles(),
         gridColumn: field.gridColumn,
       },
       InputLabelProps: inputLabelProps,
       disabled: isDisabled,
+      error: Boolean(errors?.[field.name]),
+      //helperText: errors?.[field.name] || "",
     };
 
     const inputProps = {
@@ -145,7 +157,7 @@ const CustomInput = ({
       field,
       containerIndex,
       handleBlurEventFunctions,
-      changeHandler,
+      changeHandler: handleChange,
     };
 
     switch (field.type) {
@@ -188,7 +200,16 @@ const CustomInput = ({
         return <DateTimeInput {...inputProps} />;
 
       default:
-        return <TextInput {...inputProps} />;
+        return (
+          <TextInput
+            commonProps={commonProps}
+            fieldValue={fieldValue}
+            field={field}
+            handleBlur={handleBlur}
+            handleChange={handleChange} // ✅ live validation
+            errors={errors}
+          />
+        );
     }
   });
 };
