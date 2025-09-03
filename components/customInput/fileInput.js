@@ -44,6 +44,7 @@ const FileInput = ({ commonProps, changeHandler, containerIndex }) => {
           Select File
           <VisuallyHiddenInput
             {...remainingProps}
+            key={commonProps.key}
             type="file"
             accept={"*/*"}
             onChange={(event) => fileUploadHandler(event)}
