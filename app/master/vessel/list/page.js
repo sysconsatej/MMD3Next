@@ -24,8 +24,8 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 
-function createData(code, name, id) {
-  return { code, name, id };
+function createData(code, name, id, callSign, imoCode) {
+  return { code, name, id, callSign, imoCode };
 }
 export default function VesselList() {
   const [page, setPage] = useState(1);
@@ -41,7 +41,7 @@ export default function VesselList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "code, name,id",
+          columns: "code, name, id, callSign, imoCode",
           tableName: "tblVessel",
           pageNo,
           pageSize,
@@ -68,7 +68,13 @@ export default function VesselList() {
 
   const rows = vesselData
     ? vesselData.map((item) =>
-        createData(item["code"], item["name"], item["id"])
+        createData(
+          item["code"],
+          item["name"],
+          item["id"],
+          item["callSign"],
+          item["imoCode"]
+        )
       )
     : [];
 
@@ -90,7 +96,7 @@ export default function VesselList() {
       <Box className="sm:px-4 py-1 ">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
-            Vessel 
+            Vessel
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
@@ -109,6 +115,8 @@ export default function VesselList() {
               <TableRow>
                 <TableCell> Code</TableCell>
                 <TableCell> Name</TableCell>
+                <TableCell>CallSign</TableCell>
+                <TableCell>ImoCode</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -121,6 +129,8 @@ export default function VesselList() {
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.callSign}</TableCell>
+                    <TableCell>{row.imoCode}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

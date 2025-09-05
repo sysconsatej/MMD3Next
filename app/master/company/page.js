@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data from "./companyData";
@@ -9,6 +8,8 @@ import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { fetchForm, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
+import FormHeading from "@/components/formHeading/formHeading";
+import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
 
 export default function Company() {
@@ -60,7 +61,7 @@ export default function Company() {
             />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-3 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.companyFields}
                 formData={formData}
@@ -68,6 +69,18 @@ export default function Company() {
                 fieldsMode={fieldsMode}
               />
             </Box>
+            <FormHeading
+              text="Company Documents"
+              variant="body2"
+              style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
+            />
+            <TableGrid
+              fields={jsonData.attachmentFields}
+              formData={formData}
+              setFormData={setFormData}
+              fieldsMode={fieldsMode}
+              gridName="attachments"
+            />
           </Box>
           <Box className="w-full flex mt-2 ">
             {fieldsMode !== "view" && (

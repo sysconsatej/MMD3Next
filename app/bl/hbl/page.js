@@ -46,10 +46,10 @@ export default function Home() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <FormHeading text="CNS" />
+            <FormHeading text="CSN" />
             <Box className="grid grid-cols-6 gap-2 p-2 ">
               <CustomInput
-                fields={jsonData.cnsFields}
+                fields={jsonData.csnFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}

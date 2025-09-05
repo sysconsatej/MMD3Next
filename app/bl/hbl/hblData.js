@@ -113,7 +113,7 @@ const fieldData = {
       gridColumn: "col-span-2 row-span-1 ",
     },
   ],
-  cnsFields: [
+  csnFields: [
     {
       label: "Sender Id",
       name: "senderId",
@@ -147,18 +147,19 @@ const fieldData = {
       name: "vcnNo",
     },
     {
-      label: "CNS No",
-      name: "cnsNo",
+      label: "CSN No",
+      name: "csnNo",
     },
     {
-      label: "CNS Date",
-      name: "cnsDate",
+      label: "CSN Date",
+      name: "csnDate",
     },
   ],
   hblFields: [
     {
       label: "HBL No",
       name: "hblNo",
+      required: "true",
     },
     {
       label: "HBL Date",
@@ -178,6 +179,7 @@ const fieldData = {
     {
       label: "CSN No",
       name: "csnNo",
+      required: "true",
     },
     {
       label: "CSN Date",
