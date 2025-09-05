@@ -10,6 +10,8 @@ import CustomButton from "@/components/button/button";
 import { fetchForm, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { formStore } from "@/store";
+import FormHeading from "@/components/formHeading/formHeading";
+import TableGrid from "@/components/tableGrid/tableGrid";
 
 export default function CompanyBranch() {
   const [formData, setFormData] = useState({});
@@ -62,7 +64,7 @@ export default function CompanyBranch() {
             />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.companyBranchFields}
                 formData={formData}
@@ -70,6 +72,30 @@ export default function CompanyBranch() {
                 fieldsMode={fieldsMode}
               />
             </Box>
+            <FormHeading
+              text="Contact Person Document"
+              variant="body2"
+              style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
+            />
+            <TableGrid
+              fields={jsonData.contactPersonFields}
+              formData={formData}
+              setFormData={setFormData}
+              fieldsMode={fieldsMode}
+              gridName="attachments"
+            />
+            <FormHeading
+              text="KYC Document"
+              variant="body2"
+              style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
+            />
+            <TableGrid
+              fields={jsonData.kycFields}
+              formData={formData}
+              setFormData={setFormData}
+              fieldsMode={fieldsMode}
+              gridName="attachments"
+            />
           </Box>
           <Box className="w-full flex mt-2 ">
             {fieldsMode !== "view" && (

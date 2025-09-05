@@ -6,27 +6,13 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Port Type",
-      name: "portTypeId",
-      type: "dropdown",
-      labelType: "name,tblPortType",
-      foreignTable: "name,tblMasterData",
-      isEdit: true,
-    },
-    {
-      label: "EDI Port Code",
+      label: "Customer Code",
       name: "ediPortCode",
       isEdit: true,
     },
     {
       label: "Bond No",
       name: "bondNo",
-      isEdit: true,
-    },
-    {
-      label: "Direct Delivery",
-      name: "directDelivery",
-      type: "checkbox",
       isEdit: true,
     },
     {
@@ -37,9 +23,6 @@ const fieldData = {
     {
       label: "Nominated Area Description",
       name: "name",
-      type: "textarea",
-      rows: 2,
-      gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
     },
     {
@@ -48,6 +31,12 @@ const fieldData = {
       type: "textarea",
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
+      isEdit: true,
+    },
+    {
+      label: "Direct Delivery",
+      name: "directDelivery",
+      type: "checkbox",
       isEdit: true,
     },
   ],

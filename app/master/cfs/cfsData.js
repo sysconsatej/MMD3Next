@@ -1,32 +1,18 @@
 const fieldData = {
   cfsFields: [
     {
-      label: "Nominated Area Code",
-      name: "code",
-      isEdit: true,
-    },
-    {
-      label: "Port Type",
-      name: "portTypeId",
-      type: "dropdown",
-      labelType: "name,tblPortType",
-      foreignTable: "name,tblMasterData",
-      isEdit: true,
-    },
-    {
-      label: "EDI Port Code",
+      label: "Customer code.",
       name: "ediPortCode",
       isEdit: true,
     },
     {
-      label: "Bond No",
-      name: "bondNo",
+      label: "Name",
+      name: "name",
       isEdit: true,
     },
     {
-      label: "Direct Delivery",
-      name: "directDelivery",
-      type: "checkbox",
+      label: "Nominated Area Code",
+      name: "code",
       isEdit: true,
     },
     {
@@ -35,8 +21,8 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Name",
-      name: "name",
+      label: "Bond No",
+      name: "bondNo",
       isEdit: true,
     },
     {
@@ -50,6 +36,17 @@ const fieldData = {
     {
       label: "MOT",
       name: "mot",
+      type: "dropdown",
+      labelType: "name,tblTransportType",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+      isEdit: true,
+    },
+
+    {
+      label: "Direct Delivery",
+      name: "directDelivery",
+      type: "checkbox",
       isEdit: true,
     },
   ],

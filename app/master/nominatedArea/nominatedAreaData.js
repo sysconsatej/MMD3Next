@@ -14,7 +14,7 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "EDI Port Code",
+      label: "Customer code.",
       name: "ediPortCode",
       isEdit: true,
     },

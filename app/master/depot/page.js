@@ -7,7 +7,7 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import { fetchForm, insertUpdateForm } from "@/apis";
+import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { formStore } from "@/store";
 
@@ -47,6 +47,27 @@ export default function Depot() {
     fetchFormHandler();
   }, [mode.formId]);
 
+  useEffect(() => {
+    async function initialHandler() {
+      const obj = {
+        columns: "id",
+        tableName: "tblMasterData",
+        whereCondition: "name = 'DEPOT'",
+      };
+
+      const { data, message, error, success } = await getDataWithCondition(obj);
+      if (success) {
+        setFormData((prev) => ({
+          ...prev,
+          portTypeId: data[0].id,
+        }));
+      } else {
+        toast.error(error || message);
+      }
+    }
+
+    initialHandler();
+  }, []);
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>

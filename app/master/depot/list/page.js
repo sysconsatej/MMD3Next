@@ -50,7 +50,7 @@ export default function DepotList() {
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: "left join tblMasterData m on m.id = p.portTypeId",
+          joins: `join tblMasterData m on m.id = p.portTypeId and m.name = 'DEPOT'`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setDepotData(data);
@@ -101,7 +101,7 @@ export default function DepotList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-2">
           <Typography variant="body1" className="text-left flex items-center">
-            Depot 
+            Depot
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
@@ -119,9 +119,8 @@ export default function DepotList() {
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell>Location</TableCell>
                 <TableCell>Depot Code</TableCell>
-                <TableCell>Depot Name</TableCell>
+                <TableCell>Empty Yard/Empty Depot</TableCell>
                 <TableCell>Address</TableCell>
               </TableRow>
             </TableHead>
@@ -129,7 +128,6 @@ export default function DepotList() {
               {rows.length > 0 ? (
                 rows.map((row, i) => (
                   <TableRow key={i} hover className="relative group">
-                    <TableCell>{row.location}</TableCell>
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.depotName}</TableCell>
                     <TableCell>{row.address}</TableCell>

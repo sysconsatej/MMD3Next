@@ -27,14 +27,15 @@ export const dropdowns = {
     { label: "Code", value: "m.code" },
   ],
   depot: [
-    { label: "Location", value: "m.name" },
     { label: "Depot Code", value: "p.code" },
-    { label: "Depot name", value: "p.name" },
+    { label: "Empty Yard/Empty Depot", value: "p.name" },
     { label: "Address", value: "p.address" },
   ],
   vessel: [
     { label: " Code", value: "code" },
     { label: "Name", value: "name" },
+    { label: "callSign", value: "callSign" },
+    { label: "imoCode", value: "imoCode" },
   ],
   Commodity: [
     { label: " Code", value: "m.code" },
@@ -104,7 +105,7 @@ export const dropdowns = {
   imo: [
     { label: "UnNo", value: "i.unNo" },
     { label: "Class", value: "i.class" },
-    { label: "FlashPoint", value: "m.flashPoint" },
+    { label: "Product Name", value: "i.properShippingName" },
   ],
   ContainerSize: [
     { label: "Size", value: "m.name" },
@@ -155,10 +156,18 @@ export const dropdowns = {
     { label: "Phone No", value: "mobile" },
   ],
   terminal: [
-    { label: "Port/Location", value: "m.name" },
+    { label: "Code", value: "p.code" },
     { label: "Terminal", value: "p.name" },
   ],
   cfs: [
+    { label: "Customer Code", value: "p.ediPortCode" },
+    { label: "Name", value: "p.name" },
+    { label: "Nominated Area Code", value: "p.code" },
+    { label: "Terminal Code", value: "p.ediCommonTerminalCode" },
+    { label: "Bond No", value: "p.bondNo" },
+    { label: "Address", value: "p.address" },
+  ],
+  nominatedArea: [
     { label: "Nominated Area Code", value: "p.code" },
     { label: "Nominated Area Description", value: "p.name" },
     { label: "Nominated Area Address", value: "p.address" },
@@ -168,14 +177,13 @@ export const dropdowns = {
     { label: "Bond No", value: "p.bondNo" },
     { label: "Port Type", value: "m.name" },
   ],
-    nominatedArea: [
+  dpd: [
     { label: "Nominated Area Code", value: "p.code" },
     { label: "Nominated Area Description", value: "p.name" },
     { label: "Nominated Area Address", value: "p.address" },
     { label: "Direct Delivery", value: "p.directDelivery" },
-    { label: "EDI Port Code", value: "p.ediPortCode" },
+    { label: " Customer Code ", value: "p.ediPortCode" },
     { label: "EDI Common Terminal Code", value: "p.ediCommonTerminalCode" },
     { label: "Bond No", value: "p.bondNo" },
-    { label: "Port Type", value: "m.name" },
   ],
 };

@@ -24,36 +24,16 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 
-function createData(
-  code,
-  description,
-  address,
-  directDelivery,
-  ediPortCode,
-  ediCommonTerminalCode,
-  bondNo,
-  portType,
-  id
-) {
-  return {
-    code,
-    description,
-    address,
-    directDelivery,
-    ediPortCode,
-    ediCommonTerminalCode,
-    bondNo,
-    portType,
-    id,
-  };
+function createData(code, name, id) {
+  return { code, name, id };
 }
 
-export default function DpdList() {
+export default function CountryList() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
-  const [dpdData, setDpdData] = useState([]);
+  const [countryData, setCountryData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
@@ -63,24 +43,20 @@ export default function DpdList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns:
-            "p.code code,p.name description,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,p.id",
-          tableName: "tblPort p ",
+          columns: "code, name, id",
+          tableName: "tblCountry",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: ` join tblMasterData m on m.id = p.portTypeId and m.name='DIRECT PORT DELIVERY'`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-
-        setDpdData(data);
+        setCountryData(data);
         setTotalPage(totalPage);
         setPage(pageNo);
         setRowsPerPage(pageSize);
         setTotalRows(totalRows);
-      } catch (err) {
-        console.error("Error fetching city data:", err);
+      } catch {
         setLoadingState("Failed to load data");
       }
     },
@@ -92,19 +68,9 @@ export default function DpdList() {
     setMode({ mode: null, formId: null });
   }, []);
 
-  const rows = dpdData
-    ? dpdData.map((item) =>
-        createData(
-          item["code"],
-          item["description"],
-          item["address"],
-          item["directDelivery"],
-          item["ediPortCode"],
-          item["ediCommonTerminalCode"],
-          item["bondNo"],
-          item["portType"],
-          item["id"]
-        )
+  const rows = countryData
+    ? countryData.map((item) =>
+        createData(item["code"], item["name"], item["id"])
       )
     : [];
 
@@ -115,19 +81,20 @@ export default function DpdList() {
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
   };
+
   const modeHandler = (mode, formId = null) => {
     if (mode === "delete") return;
     setMode({ mode, formId });
-    router.push("/master/dpd");
+    router.push("/master/country");
   };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box className="sm:px-4 py-1">
+      <Box className="sm:px-4 py-1 ">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
-          <Typography variant="body1" className="text-left flex items-center">
-            DPD
+          <Typography variant="body1" className="text-left flex items-center ">
+            Seal Type
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
@@ -135,36 +102,29 @@ export default function DpdList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.dpd}
+              options={dropdowns.country}
             />
-            <CustomButton text="Add" href="/master/dpd" />
+            <CustomButton text="Add" href="/master/sealType" />
           </Box>
         </Box>
-
         <TableContainer component={Paper}>
-          <Table size="small" sx={{ minWidth: 650 }}>
+          <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell>Nominated Area Code</TableCell>
-                <TableCell>Nominated Area Description</TableCell>
-                <TableCell>Nominated Area Address </TableCell>
-                <TableCell>Direct Delivery</TableCell>
-                <TableCell>Customer Code</TableCell>
-                <TableCell>EDI Common Terminal Code</TableCell>
-                <TableCell>Bond No</TableCell>
+                <TableCell>BTSL</TableCell>
+                <TableCell>ESEAL</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.length > 0 ? (
+              {!rows.length ? (
+                <TableRow>
+                  <TableCell>{loadingState}</TableCell>
+                </TableRow>
+              ) : (
                 rows.map((row, index) => (
-                  <TableRow key={index} hover className="relative group ">
+                  <TableRow key={index} hover className="relative group">
                     <TableCell>{row.code}</TableCell>
-                    <TableCell>{row.description}</TableCell>
-                    <TableCell>{row.address}</TableCell>
-                    <TableCell>{`${row.directDelivery}`}</TableCell>
-                    <TableCell>{row.ediPortCode}</TableCell>
-                    <TableCell>{row.ediCommonTerminalCode}</TableCell>
-                    <TableCell>{row.bondNo}</TableCell>
+                    <TableCell>{row.name}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}
@@ -174,17 +134,10 @@ export default function DpdList() {
                     </TableCell>
                   </TableRow>
                 ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    {loadingState}
-                  </TableCell>
-                </TableRow>
               )}
             </TableBody>
           </Table>
         </TableContainer>
-
         <Box className="flex justify-end items-center mt-2">
           <CustomPagination
             count={totalPage}

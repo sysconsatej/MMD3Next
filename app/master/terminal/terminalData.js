@@ -10,15 +10,6 @@ const fieldData = {
       name: "name",
       isEdit: "true",
     },
-    {
-      label: "Port/Location",
-      name: "portLocation",
-      name: "portTypeId",
-      type: "dropdown",
-      labelType: "name,tblPortType",
-      foreignTable: "name,tblMasterData",
-      isEdit: "true",
-    },
   ],
 };
 

@@ -7,7 +7,7 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import { fetchForm, insertUpdateForm } from "@/apis";
+import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { formStore } from "@/store";
 
@@ -46,7 +46,27 @@ export default function Cfs() {
 
     fetchFormHandler();
   }, [mode.formId]);
+  useEffect(() => {
+    async function initialHandler() {
+      const obj = {
+        columns: "id",
+        tableName: "tblMasterData",
+        whereCondition: "name = 'CONTAINER FREIGHT STATION'",
+      };
 
+      const { data, message, error, success } = await getDataWithCondition(obj);
+      if (success) {
+        setFormData((prev) => ({
+          ...prev,
+          portTypeId: data[0].id,
+        }));
+      } else {
+        toast.error(error || message);
+      }
+    }
+
+    initialHandler();
+  }, []);
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
@@ -62,7 +82,7 @@ export default function Cfs() {
             />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <Box className="sm:grid sm:grid-cols-6 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.cfsFields}
                 formData={formData}

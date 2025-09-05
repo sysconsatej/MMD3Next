@@ -48,7 +48,7 @@ export default function TerminalList() {
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `left join tblMasterData m on m.id = p.portTypeId`,
+          joins: `join tblMasterData m on m.id = p.portTypeId and m.name ='PORT TERMINAL'`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setTerminalData(data);
@@ -93,7 +93,7 @@ export default function TerminalList() {
       <Box className="sm:px-4 py-1 ">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
-            Terminal 
+            Terminal
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
@@ -111,7 +111,6 @@ export default function TerminalList() {
             <TableHead>
               <TableRow>
                 <TableCell>Code</TableCell>
-                <TableCell>Port/Location</TableCell>
                 <TableCell> Terminal</TableCell>
               </TableRow>
             </TableHead>
@@ -124,7 +123,6 @@ export default function TerminalList() {
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.code}</TableCell>
-                    <TableCell>{row.port}</TableCell>
                     <TableCell>{row.terminal}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons

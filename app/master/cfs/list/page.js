@@ -66,7 +66,7 @@ export default function CfsList() {
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: "left join tblMasterData m on m.id = p.portTypeId",
+          joins: `join tblMasterData m on m.id = p.portTypeId and m.name = 'CONTAINER FREIGHT STATION'`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -139,7 +139,7 @@ export default function CfsList() {
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell>EDI Port Code</TableCell>
+                <TableCell>Customer Code</TableCell>
                 <TableCell>Name</TableCell>
                 <TableCell>Nominated Area Code</TableCell>
                 <TableCell>Terminal Code</TableCell>

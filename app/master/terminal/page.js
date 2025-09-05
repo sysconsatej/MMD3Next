@@ -7,7 +7,7 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import { fetchForm, insertUpdateForm } from "@/apis";
+import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { formStore } from "@/store";
 
@@ -46,13 +46,35 @@ export default function Terminal() {
     fetchFormHandler();
   }, [mode.formId]);
 
+  useEffect(() => {
+    async function initialHandler() {
+      const obj = {
+        columns: "id",
+        tableName: "tblMasterData",
+        whereCondition: "name = 'PORT TERMINAL'",
+      };
+
+      const { data, message, error, success } = await getDataWithCondition(obj);
+      if (success) {
+        setFormData((prev) => ({
+          ...prev,
+          portTypeId: data[0].id,
+        }));
+      } else {
+        toast.error(error || message);
+      }
+    }
+
+    initialHandler();
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              Terminal 
+              Terminal
             </h1>
             <CustomButton
               text="Back"

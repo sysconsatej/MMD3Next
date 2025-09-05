@@ -23,8 +23,8 @@ import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
-function createData(code, name, id) {
-  return { code, name, id };
+function createData(name,code,id) {
+  return { name,code,id };
 }
 
 export default function ContainerSizeList() {
@@ -69,7 +69,7 @@ export default function ContainerSizeList() {
 
   const rows = containerSizeData
     ? containerSizeData.map((item) =>
-        createData(item["code"], item["name"], item["id"])
+        createData(item["name"], item["code"], item["id"])
       )
     : [];
 
@@ -109,8 +109,8 @@ export default function ContainerSizeList() {
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell> Code</TableCell>
                 <TableCell> Size</TableCell>
+                <TableCell> Code</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -121,8 +121,8 @@ export default function ContainerSizeList() {
               ) : (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
-                    <TableCell>{row.code}</TableCell>
                     <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.code}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}
