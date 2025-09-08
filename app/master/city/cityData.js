@@ -13,6 +13,7 @@ const fieldData = {
       labelType: "state",
       foreignTable: "name,tblState",
       isEdit: "true",
+      required: true,
     },
 
     {
@@ -22,6 +23,7 @@ const fieldData = {
       labelType: "country",
       foreignTable: "name,tblCountry",
       isEdit: "true",
+      required: true,
     },
   ],
 };

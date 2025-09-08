@@ -1,15 +1,16 @@
 const fieldData = {
   containerSizeFields: [
     {
-      label: "Name",
-      name: "name",
-      isEdit: "true",
-    },
-
-    {
       label: "Code",
       name: "code",
       isEdit: "true",
+      required: "true",
+    },
+    {
+      label: "Name",
+      name: "name",
+      isEdit: "true",
+      required: "true",
     },
   ],
 };

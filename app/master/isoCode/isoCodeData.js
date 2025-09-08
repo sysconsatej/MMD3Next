@@ -2,8 +2,9 @@ const fieldData = {
   isoCodeFields: [
     {
       label: "ISO Code",
-      name: "isocode",
+      name: "isoCode",
       isEdit: "true",
+      required: "true",
     },
     {
       label: "Size",
@@ -12,6 +13,7 @@ const fieldData = {
       labelType: "name,tblSize",
       foreignTable: "name,tblMasterData",
       isEdit: "true",
+      required: "true",
     },
     {
       label: "Type",
@@ -20,6 +22,7 @@ const fieldData = {
       labelType: "name,tblType",
       foreignTable: "name,tblMasterData",
       isEdit: "true",
+      required: "true",
     },
   ],
 };
