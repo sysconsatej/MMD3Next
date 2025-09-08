@@ -69,7 +69,7 @@ function TableGrid({
       ...prev,
       [gridName]: [...(prev[gridName] || []), {}],
     }));
-    setGridId(gridId + 1);
+    setGridId(gridData.length + 1);
     setViewMode("add");
   }
 
