@@ -6,7 +6,6 @@ const fieldData = {
       isEdit: "true",
       required: "true",
     },
-
     {
       label: "Company Short Name",
       name: "name",

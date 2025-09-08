@@ -70,7 +70,12 @@ export default function ImoList() {
 
   const rows = imoData
     ? imoData.map((item) =>
-        createData(item["unNo"], item["Class"], item["properShippingName"], item["id"])
+        createData(
+          item["unNo"],
+          item["Class"],
+          item["properShippingName"],
+          item["id"]
+        )
       )
     : [];
 
@@ -93,7 +98,7 @@ export default function ImoList() {
       <Box className="sm:px-4 py-1 ">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
-            HAZ Details 
+            HAZ Details
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
@@ -110,7 +115,7 @@ export default function ImoList() {
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell> UnNo</TableCell>
+                <TableCell> UN No</TableCell>
                 <TableCell> Class</TableCell>
                 <TableCell>Product Name</TableCell>
               </TableRow>

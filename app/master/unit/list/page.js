@@ -23,9 +23,8 @@ import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
-
-function createData(code, name, id) {
-  return { code, name, id };
+function createData(code, unitName, id, unitType) {
+  return { code, unitName, id, unitType };
 }
 
 export default function UnitList() {
@@ -42,13 +41,14 @@ export default function UnitList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "m.code,m.name,m.id",
-          tableName: "tblMasterData m",
+          columns: "u.id, u.code, u.name AS unitName, ut.name AS unitType",
+          tableName: "tblMasterData u",
+          joins:
+            "LEFT JOIN tblMasterData ut ON ut.id = u.groupId AND ut.masterListName = 'tblUnitType'",
+          searchColumn: "u.masterListName",
+          searchValue: "tblUnit",
           pageNo,
           pageSize,
-          searchColumn: search.searchColumn,
-          searchValue: search.searchValue,
-          joins: `join tblMasterData m1 on m1.id = m.id and m.masterListName = 'tblUnit'`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setUnitData(data);
@@ -68,9 +68,9 @@ export default function UnitList() {
     setMode({ mode: null, formId: null });
   }, []);
 
-  const rows = unitData
-    ? unitData.map((item) => createData(item["code"], item["name"], item["id"]))
-    : [];
+  const rows = unitData.map((item) =>
+    createData(item["code"], item["unitName"], item["id"], item["unitType"])
+  );
 
   const handleChangePage = (event, newPage) => {
     getData(newPage, rowsPerPage);
@@ -91,7 +91,7 @@ export default function UnitList() {
       <Box className="sm:px-4 py-1 ">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
-            Unit 
+            Unit
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
@@ -108,8 +108,9 @@ export default function UnitList() {
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell> Name</TableCell>
                 <TableCell> Code</TableCell>
+                <TableCell> Name</TableCell>
+                <TableCell> Unit Type</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -120,8 +121,9 @@ export default function UnitList() {
               ) : (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
-                    <TableCell>{row.name}</TableCell>
                     <TableCell>{row.code}</TableCell>
+                    <TableCell>{row.unitName}</TableCell>
+                    <TableCell>{row.unitType}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}
