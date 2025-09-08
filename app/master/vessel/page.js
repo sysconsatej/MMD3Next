@@ -18,27 +18,42 @@ export default function Vessel() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
+  const [gridStatus, setGridStatus] = useState(null);
+
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData("tblVessel", formData, mode.formId);
+    const format = formatFormData(
+      "tblVessel",
+      formData,
+      mode.formId,
+      "vesselId"
+    );
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
       setFormData({});
+      setGridStatus("submit");
     } else {
       toast.error(error || message);
     }
   };
+
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
         setFieldsMode(mode.mode);
-        const format = formatFetchForm(data, "tblVessel", mode.formId);
+        const format = formatFetchForm(
+          data,
+          "tblVessel",
+          mode.formId,
+          '["tblVoyage"]',
+          "vesselId"
+        );
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
           const getData = formatDataWithForm(result, data);
           setFormData(getData);
-          toast.success(message);
+          setGridStatus("fetchGrid");
         } else {
           toast.error(error || message);
         }
@@ -47,6 +62,7 @@ export default function Vessel() {
 
     fetchFormHandler();
   }, [mode.formId]);
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
@@ -76,11 +92,12 @@ export default function Vessel() {
               style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
             />
             <TableGrid
-              fields={jsonData.voyageFields}
+              fields={jsonData.tblVoyage}
               formData={formData}
               setFormData={setFormData}
               fieldsMode={fieldsMode}
-              gridName="attachments"
+              gridName="tblVoyage"
+              gridStatus={gridStatus}
             />
           </Box>
           <Box className="w-full flex mt-2 ">

@@ -24,8 +24,8 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 
-function createData(code, name,nationality, callSign, imoCode,id ) {
-  return { code, name, nationality,callSign,imoCode,id};
+function createData(code, name, nationality, callSign, imoCode, id) {
+  return { code, name, nationality, callSign, imoCode, id };
 }
 export default function VesselList() {
   const [page, setPage] = useState(1);
@@ -42,13 +42,13 @@ export default function VesselList() {
       try {
         const tableObj = {
           columns:
-            " v.code,v.name,c.name nationality,v.callSign,v.imoCode, v.id",
+            "v.code,v.name,c.name nationality,v.callSign,v.imoCode, v.id",
           tableName: "tblVessel v",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: "join tblCountry c on c.id = v.nationalityId",
+          joins: "left join tblCountry c on c.id = v.nationalityId",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setVesselData(data);
@@ -76,7 +76,7 @@ export default function VesselList() {
           item["nationality"],
           item["callSign"],
           item["imoCode"],
-          item["id"],
+          item["id"]
         )
       )
     : [];

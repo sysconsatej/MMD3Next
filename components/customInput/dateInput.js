@@ -17,10 +17,10 @@ const DateInput = ({
         <DatePicker
           {...commonProps}
           className="datepicker"
-          value={fieldValue ? dayjs(fieldValue, "DD/MM/YYYY") : null}
+          value={fieldValue ? dayjs(fieldValue, "YYYY/MM/DD") : null}
           onChange={(date) => {
             const formattedDate = date
-              ? dayjs(date).format("DD/MM/YYYY")
+              ? dayjs(date).format("YYYY/MM/DD")
               : null;
             changeHandler(
               { target: { name: commonProps.name, value: formattedDate } },
