@@ -26,7 +26,6 @@ export const navItems = [
       { name: "Dpd", href: "/master/dpd/list" },
       { name: "Type Of Company", href: "/master/typeOfCompany/list" },
       { name: "Package Type", href: "/master/packageType/list" },
-      { name: "Voyage", href: "/master/voyage/list" },
       { name: "User", href: "/master/user/list" },
       { name: "Unit", href: "/master/unit/list" },
       { name: "Unit Type", href: "/master/unitType/list" },

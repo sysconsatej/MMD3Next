@@ -1,6 +1,6 @@
 "use client";
 
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data from "./vesselData";
 import { CustomInput } from "@/components/customInput";
@@ -10,6 +10,8 @@ import CustomButton from "@/components/button/button";
 import { fetchForm, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { formStore } from "@/store";
+import FormHeading from "@/components/formHeading/formHeading";
+import TableGrid from "@/components/tableGrid/tableGrid";
 
 export default function Vessel() {
   const [formData, setFormData] = useState({});
@@ -51,7 +53,7 @@ export default function Vessel() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              Vessel Detail 
+              Vessel Detail
             </h1>
             <CustomButton
               text="Back"
@@ -60,7 +62,7 @@ export default function Vessel() {
             />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <Box className="sm:grid sm:grid-cols-6 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.vesselFields}
                 formData={formData}
@@ -68,6 +70,18 @@ export default function Vessel() {
                 fieldsMode={fieldsMode}
               />
             </Box>
+            <FormHeading
+              text="Voyage"
+              variant="body2"
+              style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
+            />
+            <TableGrid
+              fields={jsonData.voyageFields}
+              formData={formData}
+              setFormData={setFormData}
+              fieldsMode={fieldsMode}
+              gridName="attachments"
+            />
           </Box>
           <Box className="w-full flex mt-2 ">
             {fieldsMode !== "view" && (

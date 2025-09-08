@@ -7,6 +7,7 @@ const fieldData = {
       labelType: "port",
       foreignTable: "name,tblPort",
       isEdit: true,
+      required: true,
     },
     {
       label: "Vessel Name",
@@ -15,6 +16,7 @@ const fieldData = {
       labelType: "vessel",
       foreignTable: "name,tblVessel",
       isEdit: true,
+      required: true,
     },
     {
       label: "Voyage No",
@@ -24,6 +26,7 @@ const fieldData = {
       selectedCondition: "vesselId",
       foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
+      required: true,
     },
     {
       label: "Terminal",
@@ -32,6 +35,7 @@ const fieldData = {
       labelType: "port",
       foreignTable: "name,tblPort",
       isEdit: true,
+      required: true,
     },
     {
       label: "Export Voyage No",
@@ -152,7 +156,7 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "PC NO",
+      label: "PC No",
       name: "pcNo",
       type: "text",
       isEdit: true,
@@ -176,7 +180,7 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "NO of Crew",
+      label: "No of Crew",
       name: "noOFCrew",
       type: "number",
       isEdit: true,
@@ -258,7 +262,7 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Auth. Person Pan No",
+      label: "Auth Person Pan No",
       name: "authPersonPanNo",
       isEdit: true,
     },

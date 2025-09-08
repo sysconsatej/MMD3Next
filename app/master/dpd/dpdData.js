@@ -1,18 +1,26 @@
 const fieldData = {
   dpdFields: [
     {
-      label: "Nominated Area Code",
+      label: "Code",
       name: "code",
       isEdit: true,
     },
     {
-      label: "Customer Code",
-      name: "ediPortCode",
+      label: "Name",
+      name: "name",
       isEdit: true,
     },
     {
-      label: "Bond No",
-      name: "bondNo",
+      label: "Address",
+      name: "address",
+      type: "textarea",
+      rows: 2,
+      gridColumn: "col-span-2 row-span-1 ",
+      isEdit: true,
+    },
+    {
+      label: "EDI Port Code",
+      name: "ediPortCode",
       isEdit: true,
     },
     {
@@ -21,23 +29,12 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Nominated Area Description",
-      name: "name",
-      isEdit: true,
-    },
-    {
-      label: "Nominated Area Address",
-      name: "address",
-      type: "textarea",
-      rows: 2,
-      gridColumn: "col-span-2 row-span-1 ",
-      isEdit: true,
-    },
-    {
-      label: "Direct Delivery",
-      name: "directDelivery",
-      type: "checkbox",
-      isEdit: true,
+      label: "Reference Port",
+      name: "referencePortId",
+      type: "dropdown",
+      labelType: "name,tblPortType",
+      foreignTable: "name,tblMasterData",
+      isEdit: "true",
     },
   ],
 };

@@ -25,21 +25,19 @@ import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 
 function createData(
-  ediPortCode,
-  description,
   code,
-  ediCommonTerminalCode,
-  bondNo,
+  name,
   address,
+  ediPortCode,
+  ediCommonTerminalCode,
   id
 ) {
   return {
-    ediPortCode,
-    description,
     code,
-    ediCommonTerminalCode,
-    bondNo,
+    name,
     address,
+    ediPortCode,
+    ediCommonTerminalCode,
     id,
   };
 }
@@ -60,7 +58,7 @@ export default function CfsList() {
       try {
         const tableObj = {
           columns:
-            "p.code code,p.name description,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,p.id",
+            "p.code code,p.name name,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,p.id",
           tableName: "tblPort p ",
           pageNo,
           pageSize,
@@ -91,12 +89,11 @@ export default function CfsList() {
   const rows = cfsData
     ? cfsData.map((item) =>
         createData(
-          item["ediPortCode"],
-          item["description"],
           item["code"],
-          item["ediCommonTerminalCode"],
-          item["bondNo"],
+          item["name"],
           item["address"],
+          item["ediPortCode"],
+          item["ediCommonTerminalCode"],
           item["id"]
         )
       )
@@ -139,24 +136,22 @@ export default function CfsList() {
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell>Customer Code</TableCell>
+                <TableCell>Code</TableCell>
                 <TableCell>Name</TableCell>
-                <TableCell>Nominated Area Code</TableCell>
-                <TableCell>Terminal Code</TableCell>
-                <TableCell>Bond Number</TableCell>
                 <TableCell>Address</TableCell>
+                <TableCell>EDI Port Code</TableCell>
+                <TableCell>EDI Common Terminal Code</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {rows.length > 0 ? (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
-                    <TableCell>{row.ediPortCode}</TableCell>
-                    <TableCell>{row.description}</TableCell>
                     <TableCell>{row.code}</TableCell>
-                    <TableCell>{row.ediCommonTerminalCode}</TableCell>
-                    <TableCell>{row.bondNo}</TableCell>
+                    <TableCell>{row.name}</TableCell>
                     <TableCell>{row.address}</TableCell>
+                    <TableCell>{row.ediPortCode}</TableCell>
+                    <TableCell>{row.ediCommonTerminalCode}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

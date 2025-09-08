@@ -7,17 +7,24 @@ const fieldData = {
     },
 
     {
-      label: "Empty Yard/Empty Depot",
+      label: "Name",
       name: "name",
       isEdit: "true",
     },
-
     {
       label: "Deport Address",
       name: "address",
       type: "textarea",
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
+      isEdit: "true",
+    },
+    {
+      label: "Reference Port",
+      name: "referencePortId",
+      type: "dropdown",
+      labelType: "name,tblPortType",
+      foreignTable: "name,tblMasterData",
       isEdit: "true",
     },
   ],

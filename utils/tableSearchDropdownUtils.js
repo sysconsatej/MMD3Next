@@ -27,15 +27,16 @@ export const dropdowns = {
     { label: "Code", value: "m.code" },
   ],
   depot: [
-    { label: "Depot Code", value: "p.code" },
-    { label: "Empty Yard/Empty Depot", value: "p.name" },
+    { label: "Code", value: "p.code" },
+    { label: "Name", value: "p.name" },
     { label: "Address", value: "p.address" },
   ],
   vessel: [
-    { label: " Code", value: "code" },
-    { label: "Name", value: "name" },
-    { label: "callSign", value: "callSign" },
-    { label: "imoCode", value: "imoCode" },
+    { label: " Code", value: "v.code" },
+    { label: "Name", value: "v.name" },
+    { label: "Nationality", value: "c.name" },
+    { label: "CallSign", value: "v.callSign" },
+    { label: "ImoCode", value: "v.imoCode" },
   ],
   Commodity: [
     { label: " Code", value: "m.code" },

@@ -24,8 +24,8 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 
-function createData(code, name, id, callSign, imoCode) {
-  return { code, name, id, callSign, imoCode };
+function createData(code, name,nationality, callSign, imoCode,id ) {
+  return { code, name, nationality,callSign,imoCode,id};
 }
 export default function VesselList() {
   const [page, setPage] = useState(1);
@@ -41,12 +41,14 @@ export default function VesselList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "code, name, id, callSign, imoCode",
-          tableName: "tblVessel",
+          columns:
+            " v.code,v.name,c.name nationality,v.callSign,v.imoCode, v.id",
+          tableName: "tblVessel v",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
+          joins: "join tblCountry c on c.id = v.nationalityId",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setVesselData(data);
@@ -71,9 +73,10 @@ export default function VesselList() {
         createData(
           item["code"],
           item["name"],
-          item["id"],
+          item["nationality"],
           item["callSign"],
-          item["imoCode"]
+          item["imoCode"],
+          item["id"],
         )
       )
     : [];
@@ -115,6 +118,7 @@ export default function VesselList() {
               <TableRow>
                 <TableCell> Code</TableCell>
                 <TableCell> Name</TableCell>
+                <TableCell>Nationality</TableCell>
                 <TableCell>CallSign</TableCell>
                 <TableCell>ImoCode</TableCell>
               </TableRow>
@@ -129,6 +133,7 @@ export default function VesselList() {
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.nationality}</TableCell>
                     <TableCell>{row.callSign}</TableCell>
                     <TableCell>{row.imoCode}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">

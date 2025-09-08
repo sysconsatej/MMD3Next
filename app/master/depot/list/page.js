@@ -119,8 +119,8 @@ export default function DepotList() {
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell>Depot Code</TableCell>
-                <TableCell>Empty Yard/Empty Depot</TableCell>
+                <TableCell>Code</TableCell>
+                <TableCell>Name</TableCell>
                 <TableCell>Address</TableCell>
               </TableRow>
             </TableHead>

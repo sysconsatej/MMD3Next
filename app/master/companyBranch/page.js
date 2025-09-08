@@ -77,25 +77,27 @@ export default function CompanyBranch() {
               variant="body2"
               style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
             />
-            <TableGrid
-              fields={jsonData.contactPersonFields}
-              formData={formData}
-              setFormData={setFormData}
-              fieldsMode={fieldsMode}
-              gridName="attachments"
-            />
+            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
+              <CustomInput
+                fields={jsonData.contactPersonFields}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
+              />
+            </Box>
             <FormHeading
               text="KYC Document"
               variant="body2"
               style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
             />
-            <TableGrid
-              fields={jsonData.kycFields}
-              formData={formData}
-              setFormData={setFormData}
-              fieldsMode={fieldsMode}
-              gridName="attachments"
-            />
+            <Box className="sm:grid sm:grid-cols-6 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
+              <CustomInput
+                fields={jsonData.kycFields}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
+              />
+            </Box>
           </Box>
           <Box className="w-full flex mt-2 ">
             {fieldsMode !== "view" && (
