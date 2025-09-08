@@ -26,24 +26,18 @@ import { useRouter } from "next/navigation";
 
 function createData(
   code,
-  description,
+  name,
   address,
-  directDelivery,
   ediPortCode,
   ediCommonTerminalCode,
-  bondNo,
-  portType,
   id
 ) {
   return {
     code,
-    description,
+    name,
     address,
-    directDelivery,
     ediPortCode,
     ediCommonTerminalCode,
-    bondNo,
-    portType,
     id,
   };
 }
@@ -64,7 +58,7 @@ export default function DpdList() {
       try {
         const tableObj = {
           columns:
-            "p.code code,p.name description,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,p.id",
+            "p.code code,p.name name,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,p.id",
           tableName: "tblPort p ",
           pageNo,
           pageSize,
@@ -96,13 +90,10 @@ export default function DpdList() {
     ? dpdData.map((item) =>
         createData(
           item["code"],
-          item["description"],
+          item["name"],
           item["address"],
-          item["directDelivery"],
           item["ediPortCode"],
           item["ediCommonTerminalCode"],
-          item["bondNo"],
-          item["portType"],
           item["id"]
         )
       )
@@ -145,13 +136,11 @@ export default function DpdList() {
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell>Nominated Area Code</TableCell>
-                <TableCell>Nominated Area Description</TableCell>
-                <TableCell>Nominated Area Address </TableCell>
-                <TableCell>Direct Delivery</TableCell>
-                <TableCell>Customer Code</TableCell>
+                <TableCell>Code</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Address</TableCell>
+                <TableCell>EDI Port Code</TableCell>
                 <TableCell>EDI Common Terminal Code</TableCell>
-                <TableCell>Bond No</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -159,12 +148,10 @@ export default function DpdList() {
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.code}</TableCell>
-                    <TableCell>{row.description}</TableCell>
+                    <TableCell>{row.name}</TableCell>
                     <TableCell>{row.address}</TableCell>
-                    <TableCell>{`${row.directDelivery}`}</TableCell>
                     <TableCell>{row.ediPortCode}</TableCell>
                     <TableCell>{row.ediCommonTerminalCode}</TableCell>
-                    <TableCell>{row.bondNo}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

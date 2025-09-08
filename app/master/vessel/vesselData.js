@@ -1,14 +1,22 @@
 const fieldData = {
   vesselFields: [
     {
-      label: "Vessel Code",
+      label: "Code",
       name: "code",
       isEdit: "true",
+      required: true,
     },
     {
-      label: "Vessel Name",
+      label: "Name",
       name: "name",
       isEdit: "true",
+      required: true,
+    },
+    {
+      label: "IMO Code",
+      name: "imoCode",
+      isEdit: "true",
+      required: true,
     },
     {
       label: "Nationality",
@@ -24,26 +32,61 @@ const fieldData = {
       isEdit: "true",
     },
     {
+      label: "Build Year",
+      name: "buildYear",
+      type: "number",
+      isEdit: "true",
+    },
+    {
       label: "Gross Tonnage",
       name: "grossTonnage",
-      type:"number",
+      type: "number",
       isEdit: "true",
     },
     {
       label: "Net Tonnage",
       name: "netTonnage",
-      type:"number",
+      type: "number",
+      isEdit: "true",
+    },
+  ],
+  voyageFields: [
+    {
+      label: "Vessel Name",
+      name: "vesselId",
+      type: "dropdown",
+      labelType: "vessel",
+      foreignTable: "name,tblVessel",
+      isEdit: "true",
+      required: true,
+    },
+    {
+      label: "Voyage No",
+      name: "voyageNo",
+      isEdit: "true",
+      required: true,
+    },
+    {
+      label: "Master",
+      name: "masterName",
       isEdit: "true",
     },
     {
-      label: "Build Year",
-      name: "buildYear",
-      type:"number",
+      label: " Master Nationality",
+      name: "masterNationalityId",
+      type: "dropdown",
+      labelType: "country",
+      foreignTable: "name,tblCountry",
       isEdit: "true",
     },
     {
-      label: "IMO Code",
-      name: "imoCode",
+      label: "Dc No",
+      name: "masterIdNo",
+      isEdit: "true",
+    },
+    {
+      label: "Convey Reference No",
+      name: "conveyRefNo",
       isEdit: "true",
     },
   ],
