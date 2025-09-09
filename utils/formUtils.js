@@ -24,12 +24,12 @@ export function formatFormData(
   const insertObj = {
     createdBy: 4,
     clientId: 1,
+    status: 1,
     createdDate: new Date(),
   };
   const updateObj = {
     updatedBy: 4,
     clientId: 1,
-    status: 1,
     updatedDate: new Date(),
   };
 
@@ -42,7 +42,7 @@ export function formatFormData(
           }
         }
 
-        if (formId) {
+        if (item.id) {
           return { ...item, ...updateObj };
         }
 
@@ -103,11 +103,17 @@ export function formatDataWithForm(data, format) {
     if (Array.isArray(data[key])) {
       result[key] = data[key].map((item) => {
         let arrResult = {};
+        const arrObj = {
+          id: item.id,
+          createdBy: item.createdBy,
+          createdDate: item.createdDate,
+          status: item.status,
+        };
         for (let arrKey in format[key]) {
           arrResult[format[key][arrKey].name] = item[format[key][arrKey].name];
         }
 
-        return { ...arrResult, id: item.id };
+        return { ...arrResult, ...arrObj };
       });
     } else {
       for (let key1 in format[key]) {
