@@ -69,7 +69,9 @@ export default function TypeOfCompanyList() {
   }, []);
 
   const rows = typeOfCompanyData
-    ? typeOfCompanyData.map((item) => createData(item["code"], item["name"],item["id"]))
+    ? typeOfCompanyData.map((item) =>
+        createData(item["code"], item["name"], item["id"])
+      )
     : [];
 
   const handleChangePage = (event, newPage) => {
@@ -91,7 +93,7 @@ export default function TypeOfCompanyList() {
       <Box className="sm:px-4 py-1 ">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
-            Type of Company 
+            Type of Company
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
@@ -108,8 +110,8 @@ export default function TypeOfCompanyList() {
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell>Company SubType Code</TableCell>
-                <TableCell>Company SubType</TableCell>
+                <TableCell>Code</TableCell>
+                <TableCell>SubType</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

@@ -1,14 +1,16 @@
 const fieldData = {
   companyTypeFields: [
     {
-      label: "Company SubTypeCode",
+      label: "Code",
       name: "code",
       isEdit: true,
+      required: true,
     },
     {
-      label: "Company SubType",
+      label: "SubType",
       name: "name",
       isEdit: true,
+      required: true,
     },
   ],
 };

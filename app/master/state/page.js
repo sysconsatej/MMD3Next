@@ -53,9 +53,7 @@ export default function State() {
       <form onSubmit={submitHandler}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base flex items-end m-0 ">
-              State 
-            </h1>
+            <h1 className="text-left text-base flex items-end m-0 ">State</h1>
             <CustomButton
               text="Back"
               href="/master/state/list"
@@ -63,7 +61,7 @@ export default function State() {
             />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <Box className="sm:grid sm:grid-cols-6 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.stateFields}
                 formData={formData}

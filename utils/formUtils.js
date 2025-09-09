@@ -15,10 +15,16 @@ export function useDebounce(search = "", delay) {
   return debounceValue;
 }
 
-export function formatFormData(tableName, data, formId) {
+export function formatFormData(
+  tableName,
+  data,
+  formId,
+  parentColumnName = null
+) {
   const insertObj = {
     createdBy: 4,
     clientId: 1,
+    status: 1,
     createdDate: new Date(),
   };
   const updateObj = {
@@ -28,19 +34,44 @@ export function formatFormData(tableName, data, formId) {
   };
 
   for (let key in data) {
-    if (typeof data[key] === "object" && data[key] !== null) {
+    if (Array.isArray(data[key])) {
+      data[key] = data[key].map((item) => {
+        for (let arrKey in item) {
+          if (typeof item[arrKey] === "object" && item[arrKey] !== null) {
+            item[arrKey] = item[arrKey].Id;
+          }
+        }
+
+        if (item.id) {
+          return { ...item, ...updateObj };
+        }
+
+        return { ...item, ...insertObj };
+      });
+    } else if (typeof data[key] === "object" && data[key] !== null) {
       data[key] = data[key].Id;
     }
   }
 
   if (formId) {
-    return { tableName, formId, submitJson: { ...data, ...updateObj } };
+    return {
+      tableName,
+      formId,
+      submitJson: { ...data, ...updateObj },
+      parentColumnName,
+    };
   }
 
-  return { tableName, submitJson: { ...data, ...insertObj } };
+  return { tableName, submitJson: { ...data, ...insertObj }, parentColumnName };
 }
 
-export function formatFetchForm(data, parentTableName, recordId) {
+export function formatFetchForm(
+  data,
+  parentTableName,
+  recordId,
+  childTableNames = null,
+  parentTableColumnName = null
+) {
   const dropdownFields = [];
 
   for (let key in data) {
@@ -57,14 +88,37 @@ export function formatFetchForm(data, parentTableName, recordId) {
     }
   }
 
-  return { dropdownFields, parentTableName, recordId };
+  return {
+    dropdownFields,
+    parentTableName,
+    recordId,
+    childTableNames,
+    parentTableColumnName,
+  };
 }
 
 export function formatDataWithForm(data, format) {
   const result = {};
   for (let key in format) {
-    for (let key1 in format[key]) {
-      result[format[key][key1].name] = data[format[key][key1].name];
+    if (Array.isArray(data[key])) {
+      result[key] = data[key].map((item) => {
+        let arrResult = {};
+        const arrObj = {
+          id: item.id,
+          createdBy: item.createdBy,
+          createdDate: item.createdDate,
+          status: item.status,
+        };
+        for (let arrKey in format[key]) {
+          arrResult[format[key][arrKey].name] = item[format[key][arrKey].name];
+        }
+
+        return { ...arrResult, ...arrObj };
+      });
+    } else {
+      for (let key1 in format[key]) {
+        result[format[key][key1].name] = data[format[key][key1].name];
+      }
     }
   }
 

@@ -102,7 +102,7 @@ export default function CityList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center">
-            City 
+            City
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
@@ -120,9 +120,9 @@ export default function CityList() {
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell>City Name</TableCell>
-                <TableCell>State Name</TableCell>
-                <TableCell>Country Name</TableCell>
+                <TableCell>City</TableCell>
+                <TableCell>State</TableCell>
+                <TableCell>Country</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

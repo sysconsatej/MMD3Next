@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import {
   Card,
@@ -20,7 +20,14 @@ import { CustomInput } from "../customInput";
 import { HoverActionIcons } from "../tableHoverIcons/tableHoverIcons";
 import SearchBar from "../searchBar/searchBar";
 
-function TableGrid({ fields, formData, setFormData, fieldsMode, gridName }) {
+function TableGrid({
+  fields,
+  formData,
+  setFormData,
+  fieldsMode,
+  gridName,
+  gridStatus = null,
+}) {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loadingState, setLoadingState] = useState("No data found!");
@@ -62,7 +69,7 @@ function TableGrid({ fields, formData, setFormData, fieldsMode, gridName }) {
       ...prev,
       [gridName]: [...(prev[gridName] || []), {}],
     }));
-    setGridId(gridId + 1);
+    setGridId(gridData.length + 1);
     setViewMode("add");
   }
 
@@ -96,6 +103,14 @@ function TableGrid({ fields, formData, setFormData, fieldsMode, gridName }) {
       setGridData(formData[gridName] ?? []);
     }
   }
+
+  useEffect(() => {
+    if (gridStatus === "submit") {
+      setGridData([]);
+    } else if (gridStatus === "fetchGrid") {
+      setGridData(formData[gridName]);
+    }
+  }, [gridStatus]);
 
   return (
     <Box>
@@ -157,7 +172,7 @@ function TableGrid({ fields, formData, setFormData, fieldsMode, gridName }) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {!gridData.length ? (
+              {!gridData?.length ? (
                 <TableRow>
                   <TableCell>{loadingState}</TableCell>
                 </TableRow>
@@ -193,8 +208,8 @@ function TableGrid({ fields, formData, setFormData, fieldsMode, gridName }) {
         </TableContainer>
         <Card className="flex justify-end items-center tableGrid">
           <CustomPagination
-            count={Math.ceil(gridData.length / rowsPerPage)}
-            totalRows={gridData.length}
+            count={Math.ceil(gridData?.length / rowsPerPage)}
+            totalRows={gridData?.length}
             page={page}
             rowsPerPage={rowsPerPage}
             onPageChange={handleChangePage}

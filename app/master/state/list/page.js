@@ -67,7 +67,7 @@ export default function StateList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null })
+    setMode({ mode: null, formId: null });
   }, []);
 
   const rows = stateData
@@ -77,7 +77,7 @@ export default function StateList() {
           item["taxStateCode"],
           item["name"],
           item["countryName"],
-          item["id"],
+          item["id"]
         )
       )
     : [];
@@ -101,7 +101,7 @@ export default function StateList() {
       <Box className="sm:px-4 py-1 ">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
-            State 
+            State
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
@@ -119,9 +119,9 @@ export default function StateList() {
             <TableHead>
               <TableRow>
                 <TableCell>Code</TableCell>
-                <TableCell>Tax State Code</TableCell>
                 <TableCell>Name</TableCell>
-                <TableCell>Country Name</TableCell>
+                <TableCell>Tax State Code</TableCell>
+                <TableCell>Country</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -133,8 +133,8 @@ export default function StateList() {
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.code}</TableCell>
-                    <TableCell>{row.taxStateCode}</TableCell>
                     <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.taxStateCode}</TableCell>
                     <TableCell>{row.countryName}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons

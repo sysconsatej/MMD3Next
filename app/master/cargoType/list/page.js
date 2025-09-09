@@ -94,7 +94,7 @@ export default function CargoTypeList() {
       <Box className="sm:px-4 py-1 ">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
-            Cargo Type 
+            Cargo Type
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
@@ -111,8 +111,8 @@ export default function CargoTypeList() {
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell> Name</TableCell>
                 <TableCell> Code</TableCell>
+                <TableCell> Name</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -123,8 +123,8 @@ export default function CargoTypeList() {
               ) : (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
-                    <TableCell>{row.name}</TableCell>
                     <TableCell>{row.code}</TableCell>
+                    <TableCell>{row.name}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

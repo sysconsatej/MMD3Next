@@ -18,3 +18,12 @@ export const fetchForm = async (obj) => {
     return error.response.data;
   }
 };
+
+export const deleteRecord = async (obj) => {
+  try {
+    const res = await axios.post(`${url}api/v1/form/deleteRecord`, obj);
+    return res.data;
+  } catch (error) {
+    return error.response.data;
+  }
+};

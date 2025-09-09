@@ -1,6 +1,6 @@
 "use client";
 
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data from "./imoData";
 import { CustomInput } from "@/components/customInput";
@@ -53,7 +53,9 @@ export default function IMO() {
       <form onSubmit={submitHandler}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base flex items-end m-0 ">HAZ Details</h1>
+            <h1 className="text-left text-base flex items-end m-0 ">
+              HAZ Details
+            </h1>
             <CustomButton
               text="Back"
               href="/master/imo/list"
@@ -61,7 +63,7 @@ export default function IMO() {
             />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <Box className="sm:grid sm:grid-cols-6 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-3 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.imoFields}
                 formData={formData}
