@@ -16,9 +16,9 @@ import { ThemeProvider } from "@mui/material/styles";
 import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
-import { fetchTableValues } from "@/apis";
+import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
@@ -119,8 +119,26 @@ export default function SmtpCarrierList() {
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
   };
+
+  const handleDeleteRecord = async (formId) => {
+    const obj = {
+      recordId: formId,
+      tableName: "tblCompany",
+    };
+    const { success, message, error } = await deleteRecord(obj);
+    if (success) {
+      toast.success(message);
+      getData(page, rowsPerPage);
+    } else {
+      toast.error(error || message);
+    }
+  };
+
   const modeHandler = (mode, formId = null) => {
-    if (mode === "delete") return;
+    if (mode === "delete") {
+      handleDeleteRecord(formId);
+      return;
+    }
     setMode({ mode, formId });
     router.push("/master/smtpCarrier");
   };
@@ -131,7 +149,7 @@ export default function SmtpCarrierList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center">
-            SMTP Carrier 
+            SMTP Carrier
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar

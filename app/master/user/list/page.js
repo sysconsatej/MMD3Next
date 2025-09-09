@@ -81,8 +81,26 @@ export default function UserList() {
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
   };
+
+  const handleDeleteRecord = async (formId) => {
+    const obj = {
+      recordId: formId,
+      tableName: "tblUser",
+    };
+    const { success, message, error } = await deleteRecord(obj);
+    if (success) {
+      toast.success(message);
+      getData(page, rowsPerPage);
+    } else {
+      toast.error(error || message);
+    }
+  };
+
   const modeHandler = (mode, formId = null) => {
-    if (mode === "delete") return;
+    if (mode === "delete") {
+      handleDeleteRecord(formId);
+      return;
+    }
     setMode({ mode, formId });
     router.push("/master/user");
   };
@@ -92,7 +110,7 @@ export default function UserList() {
       <Box className="sm:px-4 py-1 ">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
-            User 
+            User
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar

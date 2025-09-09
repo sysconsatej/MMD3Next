@@ -16,9 +16,9 @@ import { ThemeProvider } from "@mui/material/styles";
 import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
-import { fetchTableValues } from "@/apis";
+import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
@@ -90,7 +90,25 @@ export default function StateList() {
     getData(1, +event.target.value);
   };
   const modeHandler = (mode, formId = null) => {
-    if (mode === "delete") return;
+    if (mode === "delete") {
+      handleDeleteRecord(formId);
+      return;
+    }
+
+    const handleDeleteRecord = async (formId) => {
+      const obj = {
+        recordId: formId,
+        tableName: "tblState",
+      };
+      const { success, message, error } = await deleteRecord(obj);
+      if (success) {
+        toast.success(message);
+        getData(page, rowsPerPage);
+      } else {
+        toast.error(error || message);
+      }
+    };
+
     setMode({ mode, formId });
     router.push("/master/state");
   };
