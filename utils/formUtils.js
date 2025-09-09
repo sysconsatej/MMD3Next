@@ -83,7 +83,10 @@ export function formatFetchForm(
           referenceTable: splitData[1],
           fieldname: data[key][key1].name,
         };
-        dropdownFields.push(obj);
+        const exists = dropdownFields.some(
+          (item) => item.fieldname === data[key][key1].name
+        );
+        if (!exists) dropdownFields.push(obj);
       }
     }
   }

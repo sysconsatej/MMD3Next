@@ -17,13 +17,21 @@ export default function Company() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
+  const [gridStatus, setGridStatus] = useState(null);
+
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData("tblCompany", formData, mode.formId);
+    const format = formatFormData(
+      "tblCompany",
+      formData,
+      mode.formId,
+      "companyId"
+    );
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
       setFormData({});
+      setGridStatus("submit");
     } else {
       toast.error(error || message);
     }
@@ -33,12 +41,19 @@ export default function Company() {
     async function fetchFormHandler() {
       if (mode.formId) {
         setFieldsMode(mode.mode);
-        const format = formatFetchForm(data, "tblCompany", mode.formId);
+        const format = formatFetchForm(
+          data,
+          "tblCompany",
+          mode.formId,
+          '["tblCompanyBranch"]',
+          "companyId"
+        );
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
           const getData = formatDataWithForm(result, data);
           setFormData(getData);
           toast.success(message);
+          setGridStatus("fetchGrid");
         } else {
           toast.error(error || message);
         }
@@ -61,7 +76,7 @@ export default function Company() {
             />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <Box className="sm:grid sm:grid-cols-3 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-1 ">
               <CustomInput
                 fields={jsonData.companyFields}
                 formData={formData}
@@ -70,16 +85,17 @@ export default function Company() {
               />
             </Box>
             <FormHeading
-              text="Company Documents"
+              text="Company Branch"
               variant="body2"
               style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
             />
             <TableGrid
-              fields={jsonData.attachmentFields}
+              fields={jsonData.tblCompanyBranch}
               formData={formData}
               setFormData={setFormData}
               fieldsMode={fieldsMode}
-              gridName="attachments"
+              gridName="tblCompanyBranch"
+              gridStatus={gridStatus}
             />
           </Box>
           <Box className="w-full flex mt-2 ">
