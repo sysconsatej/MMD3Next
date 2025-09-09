@@ -52,7 +52,6 @@ export default function Company() {
         if (success) {
           const getData = formatDataWithForm(result, data);
           setFormData(getData);
-          toast.success(message);
           setGridStatus("fetchGrid");
         } else {
           toast.error(error || message);
