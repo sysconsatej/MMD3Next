@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import {
+  ThemeProvider,
+  CssBaseline,
   Box,
   Typography,
   Menu,
@@ -8,77 +10,118 @@ import {
   Drawer,
   IconButton,
   List,
-  ListItem,
+  ListItemButton,
   ListItemText,
   Collapse,
   useMediaQuery,
   Avatar,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import ExpandLess from "@mui/icons-material/ExpandLess";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Image from "next/image";
 import Link from "next/link";
-import CustomButton from "@/components/button/button";
-import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { navItems } from "./index";
+import { navTheme } from "@/styles";
 
-function getActiveNavItem(navItems, pathname) {
+const norm = (s) => (s ? s.split("?")[0].replace(/\/$/, "") : "");
+const scope = (path, depth) => norm(path).split("/").slice(0, depth).join("/");
+
+function getActiveNavItem(items, rawPathname) {
+  const pathname = norm(rawPathname);
+  const pathScope3 = scope(pathname, 3);
+  const pathScope4 = scope(pathname, 4);
+
   let matched = { activeLink: "", activeSubLink: "", activeParentSubLink: "" };
 
-  for (const item of navItems) {
+  for (const item of items) {
     if (item.submenu) {
       for (const sub of item.submenu) {
-        const subPrefix = sub.href.split("/").slice(0, 3).join("/");
-        const pathPrefix = pathname.split("/").slice(0, 3).join("/");
-
-        if (subPrefix === pathPrefix) {
-          matched = { activeLink: item.name, activeSubLink: sub.name };
-
-          if (sub.children) {
-            for (const child of sub.children) {
-              const childPrefix = child.href.split("/").slice(0, 4).join("/");
-              const childPath = pathname.split("/").slice(0, 4).join("/");
-
-              if (childPrefix === childPath) {
-                matched = {
-                  activeLink: item.name,
-                  activeSubLink: child.name,
-                  activeParentSubLink: sub.name,
-                };
-              }
+        const subKey = scope(sub.href, 3);
+        if (pathScope3 === subKey || pathname.startsWith(subKey)) {
+          matched = {
+            activeLink: item.name,
+            activeSubLink: subKey,
+            activeParentSubLink: "",
+          };
+        }
+        if (sub.children) {
+          for (const child of sub.children) {
+            const childKey = scope(child.href, 4);
+            if (pathScope4 === childKey || pathname.startsWith(childKey)) {
+              matched = {
+                activeLink: item.name,
+                activeSubLink: childKey,
+                activeParentSubLink: subKey,
+              };
             }
           }
         }
       }
     } else {
-      const base = item.href.split("/")[1];
-      const current = pathname.split("/")[1];
-
-      if (base === current) {
-        matched = { activeLink: item.name, activeSubLink: "" };
+      const itemKey = scope(item.href, 2);
+      if (pathname.startsWith(itemKey)) {
+        matched = {
+          activeLink: item.name,
+          activeSubLink: "",
+          activeParentSubLink: "",
+        };
       }
     }
   }
-
   return matched;
 }
 
-function Navbar() {
+const sx = {
+  link: {
+    position: "relative",
+    fontWeight: 400,
+    fontSize: "0.95rem",
+    cursor: "pointer",
+    color: "#111",
+    textDecoration: "none",
+    display: "inline-block",
+    lineHeight: "26px",
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      left: 0,
+      bottom: "-6px",
+      height: "2px",
+      width: 0,
+      backgroundColor: "#a8b2ef",
+      transition: "width .18s ease",
+      borderRadius: 0,
+    },
+    "&:hover::after": { width: "100%" },
+    "&.active::after": { width: "100%" },
+  },
+  caret: {
+    ml: "6px",
+    color: "#000",
+    transition: "transform .25s ease",
+    verticalAlign: "middle",
+  },
+  caretOpen: { transform: "rotate(180deg)" },
+};
+
+export default function Navbar() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [thirdMenuAnchor, setThirdMenuAnchor] = useState(null);
   const [openThirdMenu, setOpenThirdMenu] = useState(null);
-  const [activeParentSubLink, setActiveParentSubLink] = useState("");
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeLink, setActiveLink] = useState("Home");
   const [activeSubLink, setActiveSubLink] = useState("");
+  const [activeParentSubLink, setActiveParentSubLink] = useState("");
   const [openSubmenus, setOpenSubmenus] = useState({});
+
   const isMobile = useMediaQuery("(max-width:900px)");
   const pathname = usePathname();
   const router = useRouter();
+
   const closeMenus = () => {
     setAnchorEl(null);
     setThirdMenuAnchor(null);
@@ -95,39 +138,32 @@ function Navbar() {
     setActiveParentSubLink(activeParentSubLink);
   }, [pathname]);
 
-  const toggleDrawer = () => setDrawerOpen(!drawerOpen);
+  const toggleDrawer = () => setDrawerOpen((v) => !v);
   const toggleSubmenu = (name) =>
     setOpenSubmenus((prev) => ({ ...prev, [name]: !prev[name] }));
 
-  const baseClass =
-    "relative font-semibold cursor-pointer transition-all duration-200";
-  const afterUnderline =
-    "after:content-[''] after:absolute after:left-0 after:bottom-[-4px] after:h-[2px] after:w-full";
-  const activeClass = `text-[#95a9e8] ${afterUnderline} after:bg-[#95a9e8]`;
-  const hoverClass = `hover:scale-105 text-black hover:${afterUnderline} hover:after:bg-[#95a9e8]`;
-
   return (
-    <>
-      <Box className="bg-[#edf1f4] px-4 py-1 shadow-md">
-        <Box className="flex items-center mx-auto justify-between">
+    <ThemeProvider theme={navTheme}>
+      <CssBaseline />
+
+      <Box className="nav-root">
+        <Box className="nav-container">
           <Box className="mr-6">
             <Image
               src="/images/logo.png"
               alt="Master Group Logo"
               width={40}
               height={30}
-              className="object-contain"
             />
           </Box>
 
           {!isMobile && (
-            <Box className="grid w-full grid-cols-[auto_1fr] gap-8 items-center">
-              <Box className="flex gap-8 justify-self-center">
+            <Box className="nav-grid">
+              <Box className="nav-links">
                 {navItems.map((item) =>
                   item.submenu ? (
                     <Box
                       key={item.name}
-                      className="relative"
                       onClick={(e) => {
                         if (anchorEl?.textContent === item.name) {
                           setAnchorEl(null);
@@ -138,23 +174,21 @@ function Navbar() {
                         setOpenThirdMenu(null);
                       }}
                     >
-                      <Box className="flex items-center gap-1 cursor-pointer">
+                      <Box>
                         <Typography
-                          className={`!text-sm ${baseClass} ${
-                            activeLink === item.name ? activeClass : hoverClass
-                          }`}
+                          sx={sx.link}
+                          className={activeLink === item.name ? "active" : ""}
+                          component="span"
                         >
                           {item.name}
                         </Typography>
                         <ExpandMore
                           fontSize="small"
                           sx={{
-                            color: "#000",
-                            transform:
-                              anchorEl?.textContent === item.name
-                                ? "rotate(180deg)"
-                                : "rotate(0deg)",
-                            transition: "transform 0.3s ease",
+                            ...sx.caret,
+                            ...(anchorEl?.textContent === item.name
+                              ? sx.caretOpen
+                              : {}),
                           }}
                         />
                       </Box>
@@ -167,196 +201,101 @@ function Navbar() {
                           vertical: "bottom",
                           horizontal: "left",
                         }}
-                        slotProps={{
-                          list: {
-                            sx: {
-                              maxHeight: "350px",
-                              overflow: "auto",
-                              "&::-webkit-scrollbar": {
-                                width: "10px",
-                              },
-                              "&::-webkit-scrollbar-track": {
-                                backgroundColor: "#f1f1f1",
-                              },
-                              "&::-webkit-scrollbar-thumb": {
-                                backgroundColor: "#95a9e8",
-                                borderRadius: "2px",
-                              },
-                              "&::-webkit-scrollbar-thumb:hover": {
-                                backgroundColor: "#555",
-                              },
-                              transition: "all 200ms ease-in-out",
-                              "& .MuiMenuItem-root": {
-                                transition: "all 150ms ease-in-out",
-                                "&:hover": {
-                                  backgroundColor: "#95a9e8",
-                                  color: "white",
-                                },
-                              },
-                            },
-                          },
-                        }}
-                        sx={{
-                          mt: 1,
-                          "& .MuiPaper-root": {
-                            backgroundColor: "#0b2545",
-                            color: "white",
-                          },
+                        transformOrigin={{
+                          vertical: "top",
+                          horizontal: "left",
                         }}
                       >
-                        {item.submenu.map((sub) => (
-                          <Box key={sub.name}>
-                            <MenuItem
-                              onClick={(e) => {
-                                if (sub.children) {
-                                  if (openThirdMenu === sub.name) {
-                                    setThirdMenuAnchor(null);
-                                    setOpenThirdMenu(null);
-                                  } else {
+                        {item.submenu.map((sub) => {
+                          const subKey = scope(sub.href, 3);
+                          const isSubActive =
+                            activeSubLink === subKey ||
+                            activeParentSubLink === subKey;
+
+                          return (
+                            <Box key={sub.name}>
+                              <MenuItem
+                                selected={isSubActive}
+                                onMouseEnter={(e) => {
+                                  if (sub.children) {
                                     setThirdMenuAnchor(e.currentTarget);
                                     setOpenThirdMenu(sub.name);
                                   }
-                                } else {
-                                  setThirdMenuAnchor(null);
-                                  setOpenThirdMenu(null);
-                                }
-                              }}
-                              sx={{
-                                py: 0.5,
-                                display: "flex",
-                                justifyContent: "space-between",
-                                backgroundColor:
-                                  activeSubLink === sub.name ||
-                                  activeParentSubLink === sub.name ||
-                                  activeParentSubLink === sub.name ||
-                                  activeParentSubLink === sub.name
-                                    ? "#95a9e8"
-                                    : "transparent",
-                                fontWeight:
-                                  activeSubLink === sub.name ||
-                                  activeParentSubLink === sub.name ||
-                                  activeParentSubLink === sub.name ||
-                                  activeParentSubLink === sub.name
-                                    ? "bold"
-                                    : "normal",
-                                color:
-                                  activeSubLink === sub.name ||
-                                  activeParentSubLink === sub.name ||
-                                  activeParentSubLink === sub.name
-                                    ? "white"
-                                    : "inherit",
-                                "&:hover": {
-                                  borderBottom: "2px solid #95a9e8",
-                                  color: "white",
-                                },
-                              }}
-                            >
-                              <Link
-                                href={sub.href}
-                                onClick={() => {
-                                  setActiveSubLink(sub.name);
-                                  closeMenus();
                                 }}
-                                className="w-full block text-sm"
+                                onClick={(e) => {
+                                  if (sub.children) {
+                                    e.preventDefault();
+                                    return;
+                                  }
+                                  setActiveSubLink(subKey);
+                                  closeMenus();
+                                  router.push(sub.href);
+                                }}
                               >
-                                {sub.name}
-                              </Link>
+                                <Link href={sub.href} className="nav-block">
+                                  {sub.name}
+                                </Link>
+                                {sub.children && (
+                                  <ChevronRightIcon fontSize="small" />
+                                )}
+                              </MenuItem>
 
                               {sub.children && (
-                                <ChevronRightIcon fontSize="small" />
-                              )}
-                            </MenuItem>
+                                <Menu
+                                  anchorEl={thirdMenuAnchor}
+                                  open={openThirdMenu === sub.name}
+                                  onClose={() => {
+                                    setThirdMenuAnchor(null);
+                                    setOpenThirdMenu(null);
+                                  }}
+                                  anchorOrigin={{
+                                    vertical: "top",
+                                    horizontal: "right",
+                                  }}
+                                  transformOrigin={{
+                                    vertical: "top",
+                                    horizontal: "left",
+                                  }}
+                                >
+                                  {sub.children.map((child) => {
+                                    const childKey = scope(child.href, 4);
+                                    const isChildActive =
+                                      activeSubLink === childKey;
 
-                            {sub.children && (
-                              <Menu
-                                anchorEl={thirdMenuAnchor}
-                                open={openThirdMenu === sub.name}
-                                onClose={() => {
-                                  setThirdMenuAnchor(null);
-                                  setOpenThirdMenu(null);
-                                }}
-                                anchorOrigin={{
-                                  vertical: "top",
-                                  horizontal: "right",
-                                }}
-                                transformOrigin={{
-                                  vertical: "top",
-                                  horizontal: "left",
-                                }}
-                                slotProps={{
-                                  list: {
-                                    sx: {
-                                      transition: "all 200ms ease-in-out",
-                                      px: 0,
-                                      py: 0,
-                                      "& .MuiMenuItem-root": {
-                                        transition: "all 150ms ease-in-out",
-                                        "&:hover": {
-                                          backgroundColor: "#95a9e8",
-                                          color: "white",
-                                        },
-                                      },
-                                    },
-                                  },
-                                }}
-                                sx={{
-                                  "& .MuiPaper-root": {
-                                    backgroundColor: "#0b2545",
-                                    color: "white",
-                                    px: 0,
-                                    py: 0,
-                                  },
-                                }}
-                              >
-                                {sub.children.map((child) => (
-                                  <MenuItem
-                                    key={child.name}
-                                    onClick={() => {
-                                      setActiveSubLink(child.name);
-                                      closeMenus();
-                                      setTimeout(() => {
-                                        router.push(child.href);
-                                      }, 50);
-                                    }}
-                                    sx={{
-                                      py: 0,
-                                      backgroundColor:
-                                        activeSubLink === child.name
-                                          ? "#95a9e8"
-                                          : "transparent",
-                                      color:
-                                        activeSubLink === child.name
-                                          ? "white"
-                                          : "inherit",
-                                      fontWeight:
-                                        activeSubLink === child.name
-                                          ? "bold"
-                                          : "normal",
-                                      "&:hover": {
-                                        borderBottom: "2px solid #95a9e8",
-                                        color: "white",
-                                      },
-                                    }}
-                                  >
-                                    <Typography className="w-full block text-sm cursor-pointer">
-                                      {child.name}
-                                    </Typography>
-                                  </MenuItem>
-                                ))}
-                              </Menu>
-                            )}
-                          </Box>
-                        ))}
+                                    return (
+                                      <MenuItem
+                                        key={child.name}
+                                        selected={isChildActive}
+                                        onClick={() => {
+                                          setActiveSubLink(childKey);
+                                          closeMenus();
+                                          router.push(child.href);
+                                        }}
+                                      >
+                                        <Typography
+                                          variant="inherit"
+                                          className="nav-block"
+                                        >
+                                          {child.name}
+                                        </Typography>
+                                      </MenuItem>
+                                    );
+                                  })}
+                                </Menu>
+                              )}
+                            </Box>
+                          );
+                        })}
                       </Menu>
                     </Box>
                   ) : (
-                    <Box key={item.name} className="relative">
+                    <Box key={item.name}>
                       <Link href={item.href}>
                         <Typography
+                          sx={sx.link}
+                          className={activeLink === item.name ? "active" : ""}
+                          component="span"
                           onClick={() => setActiveLink(item.name)}
-                          className={`!text-sm ${baseClass} ${
-                            activeLink === item.name ? activeClass : hoverClass
-                          }`}
                         >
                           {item.name}
                         </Typography>
@@ -365,46 +304,43 @@ function Navbar() {
                   )
                 )}
               </Box>
-              <Box className="flex items-center gap-1 p-1 justify-self-end">
-                <Avatar className="!w-[28px] !h-[28px] !text-[14px]">A</Avatar>
-                <Box className="leading-tight">
-                  <Typography className="!text-[10px] font-semibold">
-                    Syscon Infotech Pvt Ltd
-                  </Typography>
-                  <Typography className="!text-[10px] text-gray-500">
-                    Admin
-                  </Typography>
+
+              <Box className="nav-account">
+                <Avatar>A</Avatar>
+                <Box>
+                  <div className="account-name">Syscon Infotech Pvt Ltd</div>
+                  <div className="account-role">Admin</div>
                 </Box>
               </Box>
             </Box>
           )}
 
           {isMobile && (
-            <IconButton className="justify-self-end" onClick={toggleDrawer}>
-              <MenuIcon sx={{ color: "#000" }} />
+            <IconButton onClick={toggleDrawer} aria-label="open navigation">
+              <MenuIcon />
             </IconButton>
           )}
         </Box>
       </Box>
 
       <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
-        <Box className="w-[250px] p-2" role="presentation">
+        <Box role="presentation">
           <List>
             {navItems.map((item) =>
               item.submenu ? (
                 <React.Fragment key={item.name}>
-                  <ListItem
-                    button
-                    onClick={() => toggleSubmenu(item.name)}
-                    className={`${
-                      activeLink === item.name
-                        ? "text-[#95a9e8] font-semibold"
-                        : ""
-                    }`}
+                  <ListItemButton
+                    onClick={() =>
+                      setOpenSubmenus((p) => ({
+                        ...p,
+                        [item.name]: !p[item.name],
+                      }))
+                    }
+                    className={activeLink === item.name ? "is-active" : ""}
                   >
-                    <ListItemText primary={item.name} className="text-sm" />
+                    <ListItemText primary={item.name} />
                     {openSubmenus[item.name] ? <ExpandLess /> : <ExpandMore />}
-                  </ListItem>
+                  </ListItemButton>
 
                   <Collapse
                     in={openSubmenus[item.name]}
@@ -412,130 +348,118 @@ function Navbar() {
                     unmountOnExit
                   >
                     <List component="div" disablePadding>
-                      {item.submenu.map((sub) => (
-                        <React.Fragment key={sub.name}>
-                          {sub.children ? (
-                            <>
-                              <ListItem
-                                button
-                                onClick={() =>
-                                  toggleSubmenu(item.name + sub.name)
-                                }
-                                className={`pl-6 ${
-                                  activeSubLink === sub.name ||
-                                  activeParentSubLink === sub.name ||
-                                  activeParentSubLink === sub.name
-                                    ? "text-[#95a9e8] font-semibold"
-                                    : ""
-                                }`}
-                              >
-                                <ListItemText
-                                  primary={sub.name}
-                                  className="text-sm"
-                                />
-                                {openSubmenus[item.name + sub.name] ? (
-                                  <ExpandLess />
-                                ) : (
-                                  <ExpandMore />
-                                )}
-                              </ListItem>
+                      {item.submenu.map((sub) => {
+                        const subKey = scope(sub.href, 3);
+                        const isSubActive =
+                          activeSubLink === subKey ||
+                          activeParentSubLink === subKey;
 
-                              <Collapse
-                                in={openSubmenus[item.name + sub.name]}
-                                timeout="auto"
-                                unmountOnExit
-                              >
-                                <List component="div" disablePadding>
-                                  {sub.children.map((child) => (
-                                    <Link href={child.href} key={child.name}>
-                                      <ListItem
-                                        button
-                                        className={`pl-10 ${
-                                          activeSubLink === child.name
-                                            ? "text-[#95a9e8] font-semibold"
-                                            : ""
-                                        }`}
-                                        onClick={() => {
-                                          setDrawerOpen(false);
-                                          setActiveLink(item.name);
-                                          setActiveSubLink(child.name);
-                                        }}
-                                      >
-                                        <ListItemText
-                                          primary={child.name}
-                                          className="text-sm"
-                                        />
-                                      </ListItem>
-                                    </Link>
-                                  ))}
-                                </List>
-                              </Collapse>
-                            </>
-                          ) : (
-                            <Link href={sub.href}>
-                              <ListItem
-                                button
-                                className={`pl-6 ${
-                                  activeSubLink === sub.name ||
-                                  activeParentSubLink === sub.name ||
-                                  activeParentSubLink === sub.name
-                                    ? "text-[#95a9e8] font-semibold"
-                                    : ""
-                                }`}
-                                onClick={() => {
-                                  setDrawerOpen(false);
-                                  setActiveSubLink(sub.name);
-                                  setActiveLink(item.name);
-                                }}
-                              >
-                                <ListItemText
-                                  primary={sub.name}
-                                  className="text-sm"
-                                />
-                              </ListItem>
-                            </Link>
-                          )}
-                        </React.Fragment>
-                      ))}
+                        return (
+                          <React.Fragment key={sub.name}>
+                            {sub.children ? (
+                              <>
+                                <ListItemButton
+                                  onClick={() =>
+                                    setOpenSubmenus((p) => ({
+                                      ...p,
+                                      [item.name + sub.name]:
+                                        !p[item.name + sub.name],
+                                    }))
+                                  }
+                                  className={isSubActive ? "is-active" : ""}
+                                >
+                                  <ListItemText primary={sub.name} />
+                                  {openSubmenus[item.name + sub.name] ? (
+                                    <ExpandLess />
+                                  ) : (
+                                    <ExpandMore />
+                                  )}
+                                </ListItemButton>
+
+                                <Collapse
+                                  in={openSubmenus[item.name + sub.name]}
+                                  timeout="auto"
+                                  unmountOnExit
+                                >
+                                  <List component="div" disablePadding>
+                                    {sub.children.map((child) => {
+                                      const childKey = scope(child.href, 4);
+                                      const isChildActive =
+                                        activeSubLink === childKey;
+
+                                      return (
+                                        <Link
+                                          href={child.href}
+                                          key={child.name}
+                                        >
+                                          <ListItemButton
+                                            className={
+                                              isChildActive ? "is-active" : ""
+                                            }
+                                            onClick={() => {
+                                              setDrawerOpen(false);
+                                              setActiveLink(item.name);
+                                              setActiveSubLink(childKey);
+                                            }}
+                                          >
+                                            <ListItemText
+                                              primary={child.name}
+                                            />
+                                          </ListItemButton>
+                                        </Link>
+                                      );
+                                    })}
+                                  </List>
+                                </Collapse>
+                              </>
+                            ) : (
+                              <Link href={sub.href}>
+                                <ListItemButton
+                                  className={isSubActive ? "is-active" : ""}
+                                  onClick={() => {
+                                    setDrawerOpen(false);
+                                    setActiveSubLink(subKey);
+                                    setActiveLink(item.name);
+                                  }}
+                                >
+                                  <ListItemText primary={sub.name} />
+                                </ListItemButton>
+                              </Link>
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
                     </List>
                   </Collapse>
                 </React.Fragment>
               ) : (
                 <Link href={item.href} key={item.name}>
-                  <ListItem
-                    button
+                  <ListItemButton
                     onClick={() => {
                       setDrawerOpen(false);
                       setActiveLink(item.name);
                       setActiveSubLink("");
                     }}
-                    className={`${
-                      activeLink === item.name
-                        ? "text-[#95a9e8] font-semibold"
-                        : ""
-                    }`}
+                    className={activeLink === item.name ? "is-active" : ""}
                   >
-                    <ListItemText primary={item.name} className="text-sm" />
-                  </ListItem>
+                    <ListItemText primary={item.name} />
+                  </ListItemButton>
                 </Link>
               )
             )}
           </List>
-          <Box className="mt-4 flex items-center gap-2 p-2 bg-[#edf1f4] rounded-md">
-            <Avatar className="!w-[28px] !h-[28px] !text-[14px]">A</Avatar>
+
+          <Box className="nav-mobile-chip">
+            <Avatar>A</Avatar>
             <Box>
-              <Typography className="!text-[12px] font-semibold">
+              <Typography className="account-name">
                 Syscon Infotech Pvt Ltd
               </Typography>
-              <Typography className="!text-[12px] text-gray-500">
-                Admin
-              </Typography>
+              <Typography className="account-role">Admin</Typography>
             </Box>
           </Box>
         </Box>
       </Drawer>
-    </>
+    </ThemeProvider>
   );
 }
-
-export default Navbar;

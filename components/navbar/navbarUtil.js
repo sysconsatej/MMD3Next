@@ -45,4 +45,33 @@ export const navItems = [
       { name: "CFS Request For Container", href: "/request/cfsRequest/list" },
     ],
   },
+  {
+    name: "Reports",
+    href: "/reports",
+    submenu: [
+      {
+        name: "Customs And Port",
+        href: "/reports/customsAndPort",
+        children: [
+          {
+            name: "Import Advance List(Excel)",
+            href: "/reports/customAndPort/importAdvanceListExcel",
+          },
+          {
+            name: "Import Advance List(Text)",
+            href: "/reports/customAndPort/importAdvanceListText",
+          },
+
+          { name: "IGM EDI 1.5", href: "/reports/customAndPort/igmEdi" },
+          {
+            name: "IGM REPORT FORM III",
+            href: "/reports/customAndPort/igmReportForm",
+          },
+          { name: "SCMTR-SAM", href: "/reports/customAndPort/scmtrSam" },
+          { name: "SCMTR-SEI", href: "/reports/customAndPort/scmtrSei" },
+          { name: "SCMTR-CSN", href: "/reports/customAndPort/scmtrCsn" },
+        ],
+      },
+    ],
+  },
 ];
