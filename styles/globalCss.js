@@ -37,6 +37,7 @@ export const theme = createTheme({
         root: {
           fontSize: "13px",
           overflow: "unset",
+          color: "black",
         },
       },
     },

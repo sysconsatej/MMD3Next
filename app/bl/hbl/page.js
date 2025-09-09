@@ -32,7 +32,7 @@ export default function Home() {
               <CustomButton text="Back" href="/bl/hbl/list" />
             </Box>
           </Box>
-          <Box className="border border-solid border-black rounded-[4px] ">
+          <Box>
             <FormHeading
               text="MBL Details"
               variant="body2"
