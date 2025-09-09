@@ -296,3 +296,146 @@ export const inputLabelProps = {
     top: "-8px",
   },
 };
+
+export const navTheme = createTheme({
+  components: {
+    MuiMenu: {
+      defaultProps: {
+        disableScrollLock: true,
+        keepMounted: true,
+        marginThreshold: 0,
+      },
+      styleOverrides: {
+        paper: {
+          backgroundColor: "#0b2545",
+          color: "#fff",
+          borderRadius: 8,
+          boxShadow: "0 6px 18px rgba(0,0,0,.18), 0 2px 6px rgba(0,0,0,.08)",
+          overflow: "hidden",
+        },
+        list: {
+          paddingTop: 4,
+          paddingBottom: 4,
+          maxHeight: 360,
+          overflow: "auto",
+          "&::-webkit-scrollbar": { width: 10 },
+          "&::-webkit-scrollbar-track": { backgroundColor: "#f1f1f1" },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#95a9e8",
+            borderRadius: 3,
+          },
+        },
+      },
+    },
+
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          minHeight: 32,
+          paddingTop: 6,
+          paddingBottom: 6,
+          paddingLeft: 14,
+          paddingRight: 12,
+          fontSize: "0.875rem",
+          lineHeight: 1.3,
+          transition: "background-color .15s ease, color .15s ease",
+          "&:hover": { backgroundColor: "#95a9e8", color: "#fff" },
+          "&.Mui-selected, &.Mui-selected:hover": {
+            backgroundColor: "#95a9e8",
+            color: "#fff",
+            fontWeight: 400,
+          },
+        },
+      },
+    },
+
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          width: 280,
+          padding: 8,
+          borderRadius: "0 10px 10px 0",
+        },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          minHeight: 38,
+          "& .MuiListItemText-primary": {
+            fontSize: "0.875rem",
+            lineHeight: 1.25,
+          },
+          "&.is-active, &.is-active .MuiListItemText-primary": {
+            color: "#95a9e8",
+            fontWeight: 400,
+          },
+        },
+      },
+    },
+
+    MuiAvatar: {
+      styleOverrides: { root: { width: 28, height: 28, fontSize: "14px" } },
+    },
+
+    MuiCssBaseline: {
+      styleOverrides: {
+        ".nav-root": {
+          backgroundColor: "#edf1f4",
+          padding: "0.25rem 1rem",
+          borderBottom: "1px solid #e6ebf2",
+          boxShadow: "none",
+          position: "sticky",
+          top: 0,
+          zIndex: 1100,
+        },
+        ".nav-container": {
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginInline: "auto",
+        },
+        ".nav-grid": {
+          display: "grid",
+          gridTemplateColumns: "auto 1fr",
+          columnGap: "1rem",
+          alignItems: "center",
+          width: "100%",
+        },
+        ".nav-links": {
+          display: "flex",
+          alignItems: "center",
+          gap: "2rem",
+          justifySelf: "center",
+        },
+
+        ".nav-account": {
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          padding: 4,
+          justifySelf: "end",
+        },
+        ".account-name": {
+          fontSize: 10,
+          fontWeight: 400,
+          lineHeight: 1.1,
+          color: "#222",
+        },
+        ".account-role": { fontSize: 10, color: "#7b8596", lineHeight: 1.1 },
+
+        ".nav-mobile-chip": {
+          marginTop: 14,
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          backgroundColor: "#edf1f4",
+          borderRadius: 8,
+          padding: 8,
+        },
+
+        ".nav-block": { display: "block", width: "100%" },
+      },
+    },
+  },
+});

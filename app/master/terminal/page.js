@@ -36,7 +36,6 @@ export default function Terminal() {
         if (success) {
           const getData = formatDataWithForm(result, data);
           setFormData(getData);
-          toast.success(message);
         } else {
           toast.error(error || message);
         }
