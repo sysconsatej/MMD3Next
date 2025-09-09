@@ -79,6 +79,10 @@ export default function ItemTypeList() {
     getData(newPage, rowsPerPage);
   };
 
+  const handleChangeRowsPerPage = (event) => {
+    getData(1, +event.target.value);
+  };
+
   const handleDeleteRecord = async (formId) => {
     const obj = {
       recordId: formId,
@@ -92,6 +96,7 @@ export default function ItemTypeList() {
       toast.error(error || message);
     }
   };
+
   const modeHandler = (mode, formId = null) => {
     if (mode === "delete") {
       handleDeleteRecord(formId);
