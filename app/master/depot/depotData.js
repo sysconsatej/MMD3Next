@@ -7,7 +7,7 @@ const fieldData = {
     },
 
     {
-      label: "Name",
+      label: "Empty Yard/Empty Depot",
       name: "name",
       isEdit: "true",
     },

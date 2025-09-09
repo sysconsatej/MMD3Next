@@ -138,7 +138,7 @@ export default function DepotList() {
             <TableHead>
               <TableRow>
                 <TableCell>Code</TableCell>
-                <TableCell>Name</TableCell>
+                <TableCell>Empty Yard/Empty Depot</TableCell>
                 <TableCell>Address</TableCell>
               </TableRow>
             </TableHead>
