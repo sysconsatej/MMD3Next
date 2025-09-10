@@ -58,6 +58,11 @@ export const theme = createTheme({
             fontSize: "13px",
             transform: "translate(14px, -11px) scale(0.75)",
           },
+          "& .MuiFormLabel-root.radioLabel": {
+            fontSize: "13px",
+            color: "black",
+            display: "flex",
+          },
         },
       },
     },
