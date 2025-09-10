@@ -26,6 +26,7 @@ const CustomInput = ({
   handleChangeEventFunctions = null,
   popUp = true,
   fieldsMode,
+  errorState = {},
 }) => {
   const [dropdowns, setDropdowns] = useState([]);
   const [dropdownTotalPage, setDropdownTotalPage] = useState([]);
@@ -138,6 +139,7 @@ const CustomInput = ({
       InputLabelProps: inputLabelProps,
       disabled: isDisabled,
       required: field.required,
+      error: errorState[field.name],
     };
 
     const inputProps = {

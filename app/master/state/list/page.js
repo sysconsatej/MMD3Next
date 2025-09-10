@@ -89,25 +89,26 @@ export default function StateList() {
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
   };
+
+  const handleDeleteRecord = async (formId) => {
+    const obj = {
+      recordId: formId,
+      tableName: "tblState",
+    };
+    const { success, message, error } = await deleteRecord(obj);
+    if (success) {
+      toast.success(message);
+      getData(page, rowsPerPage);
+    } else {
+      toast.error(error || message);
+    }
+  };
+
   const modeHandler = (mode, formId = null) => {
     if (mode === "delete") {
       handleDeleteRecord(formId);
       return;
     }
-
-    const handleDeleteRecord = async (formId) => {
-      const obj = {
-        recordId: formId,
-        tableName: "tblState",
-      };
-      const { success, message, error } = await deleteRecord(obj);
-      if (success) {
-        toast.success(message);
-        getData(page, rowsPerPage);
-      } else {
-        toast.error(error || message);
-      }
-    };
 
     setMode({ mode, formId });
     router.push("/master/state");
