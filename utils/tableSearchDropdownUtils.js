@@ -28,7 +28,7 @@ export const dropdowns = {
   ],
   depot: [
     { label: "Code", value: "p.code" },
-    { label: "Name", value: "p.name" },
+    { label: "Empty Yard/Empty Depot", value: "p.name" },
     { label: "Address", value: "p.address" },
   ],
   vessel: [
