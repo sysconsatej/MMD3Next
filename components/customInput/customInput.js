@@ -137,6 +137,7 @@ const CustomInput = ({
       },
       InputLabelProps: inputLabelProps,
       disabled: isDisabled,
+      required: field.required,
     };
 
     const inputProps = {

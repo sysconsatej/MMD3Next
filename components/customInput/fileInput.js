@@ -34,7 +34,12 @@ const FileInput = ({ commonProps, changeHandler, containerIndex }) => {
 
   return (
     <Box className="flex items-end gap-2">
-      <InputLabel>{label}</InputLabel>
+      <InputLabel>
+        {remainingProps.required && (
+          <span className="text-red-600 font-bold ">┃</span>
+        )}
+        {label}
+      </InputLabel>
       {!fileName ? (
         <Button
           component="label"
@@ -46,6 +51,7 @@ const FileInput = ({ commonProps, changeHandler, containerIndex }) => {
             key={commonProps.key}
             type="file"
             accept={"*/*"}
+            required={commonProps.required}
             onChange={(event) => fileUploadHandler(event)}
           />
         </Button>

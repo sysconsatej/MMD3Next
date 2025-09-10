@@ -49,8 +49,7 @@ const fieldData = {
       label: "Select Attachment",
       name: "selectAttachment",
       type: "fileupload",
-      accept: "*/*",
-      multiple: false,
+      isEdit: true,
     },
   ],
 };

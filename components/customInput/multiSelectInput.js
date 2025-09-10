@@ -12,7 +12,12 @@ const MultiSelectInput = ({
 }) => {
   return (
     <Box className="flex items-end gap-2">
-      <InputLabel>{field.label}</InputLabel>
+      <InputLabel>
+        {commonProps.required && (
+          <span className="text-red-600 font-bold ">┃</span>
+        )}
+        {field.label}
+      </InputLabel>
       <Autocomplete
         key={commonProps.key}
         multiple
@@ -34,7 +39,12 @@ const MultiSelectInput = ({
           </Box>
         )}
         renderInput={(params) => (
-          <TextField {...params} label={null} variant="standard" />
+          <TextField
+            {...params}
+            label={null}
+            variant="standard"
+            required={commonProps.required && fieldValue.length === 0}
+          />
         )}
         onFocus={() => getData(field?.labelType, commonProps.name)}
         onChange={(event, value) => {

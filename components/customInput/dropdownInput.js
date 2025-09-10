@@ -75,7 +75,12 @@ const DropdownInput = ({
 
   return (
     <Box className={`flex items-end gap-2 ${field.style} `}>
-      <InputLabel>{field.label}</InputLabel>
+      <InputLabel>
+        {commonProps.required && (
+          <span className="text-red-600 font-bold ">┃</span>
+        )}
+        {field.label}
+      </InputLabel>
       <Autocomplete
         key={commonProps.key}
         className={commonProps.className}
@@ -98,7 +103,12 @@ const DropdownInput = ({
           </Box>
         )}
         renderInput={(params) => (
-          <TextField {...params} label={null} variant="standard" />
+          <TextField
+            {...params}
+            label={null}
+            variant="standard"
+            required={commonProps.required}
+          />
         )}
         onInputChange={(event, newInputValue, reason) => {
           if (reason === "clear") {

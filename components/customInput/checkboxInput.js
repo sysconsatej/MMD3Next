@@ -9,10 +9,16 @@ const CheckBoxInput = ({
 }) => {
   return (
     <Box className="flex items-end gap-2">
-      <InputLabel>{commonProps.label}</InputLabel>
+      <InputLabel>
+        {commonProps.required && (
+          <span className="text-red-600 font-bold ">┃</span>
+        )}
+        {commonProps.label}
+      </InputLabel>
       <Checkbox
         checked={fieldValue}
         disabled={commonProps.disabled}
+        required={commonProps.required}
         onChange={(e) =>
           changeHandler(
             {

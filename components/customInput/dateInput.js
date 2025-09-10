@@ -12,7 +12,12 @@ const DateInput = ({
 }) => {
   return (
     <Box className="flex items-end gap-2">
-      <InputLabel>{commonProps.label}</InputLabel>
+      <InputLabel>
+        {commonProps.required && (
+          <span className="text-red-600 font-bold ">┃</span>
+        )}
+        {commonProps.label}
+      </InputLabel>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DatePicker
           {...commonProps}
@@ -33,6 +38,7 @@ const DateInput = ({
               inputProps: { readOnly: false },
               variant: "standard",
               label: null,
+              required: commonProps.required,
             },
           }}
           format="DD/MM/YYYY"

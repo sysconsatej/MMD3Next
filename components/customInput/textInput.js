@@ -10,7 +10,12 @@ const TextInput = ({
   const { label, ...remainingProps } = commonProps;
   return (
     <Box className={`flex items-end gap-2 ${field.style} `}>
-      <InputLabel>{label}</InputLabel>
+      <InputLabel>
+        {remainingProps.required && (
+          <span className="text-red-600 font-bold ">┃</span>
+        )}
+        {label}
+      </InputLabel>
       <TextField
         {...remainingProps}
         value={fieldValue ? fieldValue : ""}

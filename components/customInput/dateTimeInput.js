@@ -14,7 +14,12 @@ const DateTimeInput = ({
 }) => {
   return (
     <Box className="flex items-end gap-2">
-      <InputLabel>{commonProps.label}</InputLabel>
+      <InputLabel>
+        {commonProps.required && (
+          <span className="text-red-600 font-bold ">┃</span>
+        )}
+        {commonProps.label}
+      </InputLabel>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DemoContainer components={["DateTimePicker"]}>
           <DateTimePicker
@@ -36,6 +41,7 @@ const DateTimeInput = ({
                 inputProps: { readOnly: false },
                 variant: "standard",
                 label: null,
+                required: commonProps.required,
               },
             }}
             format="DD/MM/YYYY HH:mm:ss"

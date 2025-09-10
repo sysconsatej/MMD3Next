@@ -18,7 +18,10 @@ const RadioInput = ({
     <FormControl
       className={`flex items-end !flex-row gap-2 ${commonProps.className}`}
     >
-      <FormLabel className={` w-fit bg-white !text-[11px]`}>
+      <FormLabel className={` w-fit bg-white !text-[11px] flex`}>
+        {commonProps.required && (
+          <span className="text-red-600 font-bold ">┃</span>
+        )}
         {commonProps.label}
       </FormLabel>
       <RadioGroup
@@ -35,6 +38,7 @@ const RadioInput = ({
               control={<Radio />}
               label={item.label}
               disabled={commonProps.disabled}
+              required={commonProps.required}
               onClick={() =>
                 changeHandler(
                   {
