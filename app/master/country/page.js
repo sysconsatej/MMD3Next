@@ -7,7 +7,7 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import { fetchForm, insertUpdateForm } from "@/apis";
+import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { formStore } from "@/store";
 
@@ -16,6 +16,8 @@ export default function Country() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
+  const [errorState, setErrorState] = useState({});
+
   const submitHandler = async (event) => {
     event.preventDefault();
     const format = formatFormData("tblCountry", formData, mode.formId);
@@ -26,6 +28,24 @@ export default function Country() {
     } else {
       toast.error(error || message);
     }
+  };
+
+  const handleBlurEventFunctions = {
+    duplicateHandler: async (event) => {
+      const { value, name } = event.target;
+      const obj = {
+        columns: name,
+        tableName: "tblCountry",
+        whereCondition: ` ${name} = '${value}' and status = 1`,
+      };
+      const { success } = await getDataWithCondition(obj);
+      if (success) {
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        toast.error(`Duplicate ${name}!`);
+      } else {
+        setErrorState((prev) => ({ ...prev, [name]: false }));
+      }
+    },
   };
 
   useEffect(() => {
@@ -64,6 +84,8 @@ export default function Country() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleBlurEventFunctions={handleBlurEventFunctions}
+                errorState={errorState}
               />
             </Box>
           </Box>
