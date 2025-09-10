@@ -6,7 +6,6 @@ const fieldData = {
       type: "dropdown",
       labelType: "vessel",
       isEdit: "true",
-      required: true,
     },
     {
       label: "Voyage",

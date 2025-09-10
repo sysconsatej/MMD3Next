@@ -1,14 +1,16 @@
 const fieldData = {
   smtpFields: [
     {
-      label: "Company Code",
+      label: "Code",
       name: "code",
       isEdit: "true",
+      required: true,
     },
     {
-      label: "Company Name",
+      label: "Name",
       name: "name",
       isEdit: "true",
+      required: true,
     },
     {
       label: "Country Name",
@@ -17,6 +19,7 @@ const fieldData = {
       labelType: "country",
       foreignTable: "name,tblCountry",
       isEdit: "true",
+      required: true,
     },
     {
       label: "State/Region Name",
@@ -42,6 +45,7 @@ const fieldData = {
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
       isEdit: "true",
+      required: true,
     },
     {
       label: "Zip Code",

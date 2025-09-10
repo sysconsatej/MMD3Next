@@ -25,6 +25,7 @@ const fieldData = {
       labelType: "country",
       foreignTable: "name,tblCountry",
       isEdit: "true",
+      required: true,
     },
     {
       label: "Active/Inactive",
@@ -35,6 +36,7 @@ const fieldData = {
         { label: "No", value: "N" },
       ],
       isEdit: "true",
+      required: true,
     },
   ],
 };

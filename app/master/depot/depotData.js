@@ -4,12 +4,14 @@ const fieldData = {
       label: "Code",
       name: "code",
       isEdit: "true",
+      required: true,
     },
 
     {
       label: "Empty Yard/Empty Depot",
       name: "name",
       isEdit: "true",
+      required: true,
     },
     {
       label: "Address",

@@ -5,27 +5,32 @@ const fieldData = {
       name: "department",
       type: "dropdown",
       labelType: "port",
+      required: true,
     },
     {
       label: "Liner/FF",
       name: "liner",
       type: "dropdown",
       labelType: "port",
+      required: true,
     },
     {
       label: "MBL No",
       name: "mblNo",
+      required: true,
     },
     {
       label: "MBL Date",
       name: "bookingReferenceNo",
       type: "date",
+      required: true,
     },
     {
       label: "Vessel-Voyage No.",
       name: "vesselVoyageNo",
       type: "dropdown",
       labelType: "vessel",
+      required: true,
     },
     {
       label: "Manifest Vessel-Voyage",
@@ -49,12 +54,14 @@ const fieldData = {
       name: "portOfLoading",
       type: "dropdown",
       labelType: "port",
+      required: true,
     },
     {
       label: "Port of Unloading",
       name: "portOfUnloading",
       type: "dropdown",
       labelType: "port",
+      required: true,
     },
     {
       label: "Port of Destination",
@@ -78,6 +85,13 @@ const fieldData = {
       type: "dropdown",
       labelType: "name,tblContainerStatus",
       foreignTable: "name,tblMasterData",
+      required: true,
+    },
+    {
+      label: "Mobile(Requester)",
+      name: "mobileNo",
+      type: "number",
+      required: true,
     },
     {
       label: "Voyage Number",
@@ -93,17 +107,20 @@ const fieldData = {
     {
       label: "IGM No",
       name: "igmNo",
+      required: true,
     },
     {
       label: "IGM Date",
       name: "igmDate",
       type: "date",
+      required: true,
     },
     {
       label: "Status",
       name: "status",
       type: "dropdown",
       labelType: "container",
+      required: true,
     },
     {
       label: "Rejection Remarks",
@@ -111,6 +128,7 @@ const fieldData = {
       type: "textarea",
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
+      required: true,
     },
   ],
   csnFields: [
@@ -127,6 +145,7 @@ const fieldData = {
       name: "vesselIdType",
       type: "dropdown",
       labelType: "vessel",
+      required: true,
     },
     {
       label: "Vessel No",
@@ -159,12 +178,13 @@ const fieldData = {
     {
       label: "HBL No",
       name: "hblNo",
-      required: "true",
+      required: true,
     },
     {
       label: "HBL Date",
       name: "hblDate",
       type: "date",
+      required: true,
     },
     {
       label: "CIN Type",
@@ -179,7 +199,6 @@ const fieldData = {
     {
       label: "CSN No",
       name: "csnNo",
-      required: "true",
     },
     {
       label: "CSN Date",
@@ -192,6 +211,7 @@ const fieldData = {
       type: "dropdown",
       labelType: "name,tblItemType",
       foreignTable: "name,tblMasterData",
+      required: true,
     },
     {
       label: "Nature of Cargo",
@@ -199,6 +219,7 @@ const fieldData = {
       type: "dropdown",
       labelType: "port",
       style: "col-span-2 row-span-1",
+      required: true,
     },
     {
       label: "Short Shipment",
@@ -210,6 +231,7 @@ const fieldData = {
       name: "ffPan",
       type: "dropdown",
       labelType: "port",
+      required: true,
     },
   ],
   hblBottomFields: [
@@ -219,6 +241,7 @@ const fieldData = {
       type: "textarea",
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
+      required: true,
     },
     {
       label: "Good & Description",
@@ -226,6 +249,7 @@ const fieldData = {
       type: "textarea",
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
+      required: true,
     },
     {
       label: "Invoice Value",
@@ -244,7 +268,7 @@ const fieldData = {
     { label: "Carrier Code", name: "carrierCode" },
   ],
   consignorFields: [
-    { label: "Name", name: "consignorName" },
+    { label: "Name", name: "consignorName", required: true },
     { label: "Code", name: "consignorCode" },
     {
       label: "Type",
@@ -258,12 +282,14 @@ const fieldData = {
       name: "consignorCountry",
       type: "dropdown",
       labelType: "country",
+      required: true,
     },
     {
       label: "State",
       name: "consignorState",
       type: "dropdown",
       labelType: "state",
+      required: true,
     },
     {
       label: "City",
@@ -272,6 +298,7 @@ const fieldData = {
       labelType: "city",
       selectedCondition: "consignorCountry",
       foreignTable: "name,tblCity",
+      required: true,
     },
     { label: "Post Code", name: "consignorPostCode" },
     {
@@ -280,10 +307,11 @@ const fieldData = {
       type: "textarea",
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
+      required: true,
     },
   ],
   consigneeFields: [
-    { label: "Name", name: "consigneeName" },
+    { label: "Name", name: "consigneeName", required: true },
     { label: "Code", name: "consigneeCode" },
     {
       label: "Type",
@@ -297,12 +325,14 @@ const fieldData = {
       name: "consigneeCountry",
       type: "dropdown",
       labelType: "country",
+      required: true,
     },
     {
       label: "State",
       name: "consigneeState",
       type: "dropdown",
       labelType: "state",
+      required: true,
     },
     {
       label: "City",
@@ -311,10 +341,11 @@ const fieldData = {
       labelType: "city",
       selectedCondition: "consigneeCountry",
       foreignTable: "name,tblCity",
+      required: true,
     },
     { label: "GSTIN", name: "consigneeGSTIN" },
-    { label: "IEC", name: "consigneeIEC" },
-    { label: "Email Id", name: "consigneeEmailId" },
+    { label: "IEC", name: "consigneeIEC", required: true },
+    { label: "Email Id", name: "consigneeEmailId", required: true },
     { label: "Post Code", name: "consigneePostCode" },
     {
       label: "Address",
@@ -322,10 +353,11 @@ const fieldData = {
       type: "textarea",
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
+      required: true,
     },
   ],
   notifyFields: [
-    { label: "Name", name: "notifyFieldsName" },
+    { label: "Name", name: "notifyFieldsName", required: true },
     { label: "Code", name: "notifyFieldsCode" },
     {
       label: "Type",
@@ -339,12 +371,14 @@ const fieldData = {
       name: "notifyFieldsCountry",
       type: "dropdown",
       labelType: "country",
+      required: true,
     },
     {
       label: "State",
       name: "notifyFieldsState",
       type: "dropdown",
       labelType: "state",
+      required: true,
     },
     {
       label: "City",
@@ -353,6 +387,7 @@ const fieldData = {
       labelType: "city",
       selectedCondition: "notifyFieldsCountry",
       foreignTable: "name,tblCity",
+      required: true,
     },
     { label: "Post Code", name: "notifyFieldsPostCode" },
     {
@@ -361,6 +396,7 @@ const fieldData = {
       type: "textarea",
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
+      required: true,
     },
   ],
   invoiceFields: [

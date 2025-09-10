@@ -4,11 +4,13 @@ const fieldData = {
       label: "Code",
       name: "code",
       isEdit: true,
+      required: true,
     },
     {
       label: "Name",
       name: "name",
       isEdit: true,
+      required: true,
     },
     {
       label: "Address",
@@ -27,6 +29,7 @@ const fieldData = {
       label: "EDI Common Terminal Code",
       name: "ediCommonTerminalCode",
       isEdit: true,
+      required: true,
     },
     {
       label: "Reference Port",
