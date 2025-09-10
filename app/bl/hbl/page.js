@@ -33,11 +33,7 @@ export default function Home() {
             </Box>
           </Box>
           <Box>
-            <FormHeading
-              text="MBL Details"
-              variant="body2"
-              style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
-            />
+            <FormHeading text="MBL Details" />
             <Box className="grid grid-cols-5 items-end gap-2 p-2 ">
               <CustomInput
                 fields={jsonData.mblFields}
@@ -46,109 +42,109 @@ export default function Home() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <FormHeading text="CSN" />
-            <Box className="grid grid-cols-6 gap-2 p-2 ">
-              <CustomInput
-                fields={jsonData.csnFields}
+            <FormHeading text="CSN">
+              <Box className="grid grid-cols-6 gap-2 p-2 ">
+                <CustomInput
+                  fields={jsonData.csnFields}
+                  formData={formData}
+                  setFormData={setFormData}
+                  fieldsMode={fieldsMode}
+                />
+              </Box>
+            </FormHeading>
+            <FormHeading text="HBL Details" />
+            <Box className="border-2 border-solid border-gray-300 p-3 mt-2 ">
+              <Box className="grid grid-cols-6 gap-2 p-2 ">
+                <CustomInput
+                  fields={jsonData.hblFields}
+                  formData={formData}
+                  setFormData={setFormData}
+                  fieldsMode={fieldsMode}
+                />
+              </Box>
+              <FormHeading text="Transit Bond Details(Required if HBLs POD is different than MBLs POD)">
+                <Box className="grid grid-cols-6 gap-2 p-2 ">
+                  <CustomInput
+                    fields={jsonData.transitFields}
+                    formData={formData}
+                    setFormData={setFormData}
+                    fieldsMode={fieldsMode}
+                  />
+                </Box>
+              </FormHeading>
+              <FormHeading text="Consignor Details">
+                <Box className="grid grid-cols-6 gap-2 p-2 ">
+                  <CustomInput
+                    fields={jsonData.consignorFields}
+                    formData={formData}
+                    setFormData={setFormData}
+                    fieldsMode={fieldsMode}
+                  />
+                </Box>
+              </FormHeading>
+              <FormHeading text="Consignee Details">
+                <Box className="grid grid-cols-6 gap-2 p-2 ">
+                  <CustomInput
+                    fields={jsonData.consigneeFields}
+                    formData={formData}
+                    setFormData={setFormData}
+                    fieldsMode={fieldsMode}
+                  />
+                </Box>
+              </FormHeading>
+              <FormHeading text="Notify Details">
+                <Box className="grid grid-cols-6 gap-2 p-2 ">
+                  <CustomInput
+                    fields={jsonData.notifyFields}
+                    formData={formData}
+                    setFormData={setFormData}
+                    fieldsMode={fieldsMode}
+                  />
+                </Box>
+              </FormHeading>
+              <FormHeading text="Invoicing Instructions">
+                <Box className="grid grid-cols-6 gap-2 p-2 ">
+                  <CustomInput
+                    fields={jsonData.invoiceFields}
+                    formData={formData}
+                    setFormData={setFormData}
+                    fieldsMode={fieldsMode}
+                  />
+                </Box>
+              </FormHeading>
+              <Box className="grid grid-cols-6 gap-2 p-2 ">
+                <CustomInput
+                  fields={jsonData.hblBottomFields}
+                  formData={formData}
+                  setFormData={setFormData}
+                  fieldsMode={fieldsMode}
+                />
+              </Box>
+              <FormHeading text="Item Details" />
+              <TableGrid
+                fields={jsonData.itemFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                gridName="item"
               />
-            </Box>
-            <FormHeading
-              text="HBL Details"
-              variant="body2"
-              style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
-            />
-            <Box className="grid grid-cols-6 gap-2 p-2 ">
-              <CustomInput
-                fields={jsonData.hblFields}
+              <FormHeading text="Container Details" />
+              <TableGrid
+                fields={jsonData.containerFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                gridName="container"
               />
-            </Box>
-            <FormHeading text="Transit Bond Details(Required if HBLs POD is different than MBLs POD)" />
-            <Box className="grid grid-cols-6 gap-2 p-2 ">
-              <CustomInput
-                fields={jsonData.transitFields}
+              <FormHeading text="Itinerary Details" />
+              <TableGrid
+                fields={jsonData.itineraryFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                gridName="itinerary"
               />
             </Box>
-            <FormHeading text="Consignor Details" />
-            <Box className="grid grid-cols-6 gap-2 p-2 ">
-              <CustomInput
-                fields={jsonData.consignorFields}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
-              />
-            </Box>
-            <FormHeading text="Consignee Details" />
-            <Box className="grid grid-cols-6 gap-2 p-2 ">
-              <CustomInput
-                fields={jsonData.consigneeFields}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
-              />
-            </Box>
-            <FormHeading text="Notify Details" />
-            <Box className="grid grid-cols-6 gap-2 p-2 ">
-              <CustomInput
-                fields={jsonData.notifyFields}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
-              />
-            </Box>
-            <FormHeading text="Invoicing Instructions" />
-            <Box className="grid grid-cols-6 gap-2 p-2 ">
-              <CustomInput
-                fields={jsonData.invoiceFields}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
-              />
-            </Box>
-            <FormHeading
-              text="Item Details"
-              variant="body2"
-              style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
-            />
-            <TableGrid
-              fields={jsonData.itemFields}
-              formData={formData}
-              setFormData={setFormData}
-              fieldsMode={fieldsMode}
-              gridName="item"
-            />
-            <FormHeading
-              text="Container Details"
-              variant="body2"
-              style="!mx-3 !mt-2 border-b-2 border-solid border-[#03bafc] flex"
-            />
-            <TableGrid
-              fields={jsonData.containerFields}
-              formData={formData}
-              setFormData={setFormData}
-              fieldsMode={fieldsMode}
-              gridName="container"
-            />
-            <FormHeading
-              text="Itinerary Details"
-              variant="body2"
-              style="!mx-3 !mt-2 border-b-2 border-solid border-[#03bafc] flex"
-            />
-            <TableGrid
-              fields={jsonData.itineraryFields}
-              formData={formData}
-              setFormData={setFormData}
-              fieldsMode={fieldsMode}
-              gridName="itinerary"
-            />
           </Box>
           <Box className="w-full flex mt-2">
             <CustomButton text={"Submit"} type="submit" />

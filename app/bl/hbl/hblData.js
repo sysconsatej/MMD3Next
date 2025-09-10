@@ -198,6 +198,7 @@ const fieldData = {
       name: "natureOfCargo",
       type: "dropdown",
       labelType: "port",
+      style: "col-span-2 row-span-1",
     },
     {
       label: "Short Shipment",
@@ -210,17 +211,8 @@ const fieldData = {
       type: "dropdown",
       labelType: "port",
     },
-    {
-      label: "Invoice Value",
-      name: "invoiceValue",
-    },
-    {
-      label: "Currency",
-      name: "currencyId",
-      type: "dropdown",
-      labelType: "code,tblCurrency",
-      foreignTable: "name,tblMasterData",
-    },
+  ],
+  hblBottomFields: [
     {
       label: "Marks & Numbers",
       name: "marksAndNumbers",
@@ -234,6 +226,17 @@ const fieldData = {
       type: "textarea",
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
+    },
+    {
+      label: "Invoice Value",
+      name: "invoiceValue",
+    },
+    {
+      label: "Currency",
+      name: "currencyId",
+      type: "dropdown",
+      labelType: "code,tblCurrency",
+      foreignTable: "name,tblMasterData",
     },
   ],
   transitFields: [
@@ -364,10 +367,12 @@ const fieldData = {
     {
       label: "Invoicing Consignee Name",
       name: "invoiceName",
+      style: "col-span-2 row-span-1",
     },
     {
       label: "GSTIN No",
       name: "invoiceGSTINNO",
+      style: "col-span-2 row-span-1",
     },
     {
       label: "Address",

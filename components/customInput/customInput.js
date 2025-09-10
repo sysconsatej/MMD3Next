@@ -129,7 +129,7 @@ const CustomInput = ({
       key: index,
       label: field.label,
       name: field.name,
-      className: `text-black-500 font-normal text-xs w-[min(300px,100%)] ${field.style} `,
+      className: `text-black-500 font-normal text-xs w-[min(300px,100%)]`,
       onChange: (e) => changeHandler(e, containerIndex),
       sx: {
         ...textFieldStyles(),

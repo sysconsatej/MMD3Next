@@ -74,7 +74,7 @@ const DropdownInput = ({
   }, [debouncedSearch]);
 
   return (
-    <Box className="flex items-end gap-2">
+    <Box className={`flex items-end gap-2 ${field.style} `}>
       <InputLabel>{field.label}</InputLabel>
       <Autocomplete
         key={commonProps.key}

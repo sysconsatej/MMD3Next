@@ -72,7 +72,7 @@ export const theme = createTheme({
         input: {
           textOverflow: "clip",
           padding: "5px 9px",
-          fontSize: "10px",
+          fontSize: "12px",
         },
         root: {
           "& .MuiInputBase-root .MuiAutocomplete-endAdornment": {
