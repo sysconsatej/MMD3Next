@@ -3,14 +3,16 @@ const fieldData = {
     {
       label: "Code",
       name: "code",
-      isEdit: "true",
-      required: "true",
+      isEdit: true,
+      required: true,
+      blurFun: "duplicateHandler",
     },
     {
       label: "Name",
       name: "name",
-      isEdit: "true",
-      required: "true",
+      isEdit: true,
+      required: true,
+      blurFun: "duplicateHandler",
     },
     {
       label: "Unit Type",
@@ -18,7 +20,8 @@ const fieldData = {
       type: "dropdown",
       labelType: "name,tblUnitType",
       foreignTable: "name,tblMasterData",
-      isEdit: "true",
+      isEdit: true,
+      blurFun: "duplicateHandler",
     },
   ],
 };

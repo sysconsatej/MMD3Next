@@ -16,6 +16,7 @@ export default function ContainerSize() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
+  const [errorState, setErrorState] = useState({});
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -29,6 +30,23 @@ export default function ContainerSize() {
     }
   };
 
+  const handleBlurEventFunctions = {
+    duplicateHandler: async (event) => {
+      const { value, name } = event.target;
+      const obj = {
+        columns: name,
+        tableName: "tblMasterData",
+        whereCondition: ` ${name} = '${value}' and masterListName = 'tblSize'  and status = 1`,
+      };
+      const { success } = await getDataWithCondition(obj);
+      if (success) {
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        toast.error(`Duplicate ${name}!`);
+      } else {
+        setErrorState((prev) => ({ ...prev, [name]: false }));
+      }
+    },
+  };
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
@@ -90,6 +108,8 @@ export default function ContainerSize() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleBlurEventFunctions={handleBlurEventFunctions}
+                errorState={errorState}
               />
             </Box>
           </Box>
