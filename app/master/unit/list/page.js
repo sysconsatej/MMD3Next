@@ -40,7 +40,7 @@ export default function UnitList() {
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
-       const tableObj = {
+        const tableObj = {
           columns: "m.code,m.name,m.id",
           tableName: "tblMasterData m",
           pageNo,
@@ -67,10 +67,11 @@ export default function UnitList() {
     setMode({ mode: null, formId: null });
   }, []);
 
-  const rows = unitData.map((item) =>
-    createData(item["code"], item["name"], item["id"])
-  );
-
+  const rows = unitData
+    ? unitData.map((item) =>
+        createData(item["code"], item["name"], item["id"])
+      )
+    : [];
   const handleChangePage = (event, newPage) => {
     getData(newPage, rowsPerPage);
   };

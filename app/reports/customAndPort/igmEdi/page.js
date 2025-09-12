@@ -18,33 +18,8 @@ export default function IGMEDI() {
   const { mode, setMode } = formStore();
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData("tblCity", formData, mode.formId);
-    const { success, error, message } = await insertUpdateForm(format);
-    if (success) {
-      toast.success(message);
-      setFormData({});
-    } else {
-      toast.error(error || message);
-    }
+    toast.success("working!");
   };
-
-  useEffect(() => {
-    async function fetchFormHandler() {
-      if (mode.formId) {
-        setFieldsMode(mode.mode);
-        const format = formatFetchForm(data, "tblCity", mode.formId);
-        const { success, result, message, error } = await fetchForm(format);
-        if (success) {
-          const getData = formatDataWithForm(result, data);
-          setFormData(getData);
-          toast.success(message);
-        } else {
-          toast.error(error || message);
-        }
-      }
-    }
-    fetchFormHandler();
-  }, [mode.formId]);
 
   return (
     <ThemeProvider theme={theme}>
