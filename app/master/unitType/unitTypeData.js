@@ -5,12 +5,14 @@ const fieldData = {
       name: "name",
       isEdit: "true",
       required: "true",
+      blurFun: "duplicateHandler",
     },
     {
       label: "Code",
       name: "code",
       isEdit: "true",
       required: "true",
+      blurFun: "duplicateHandler",
     },
   ],
 };

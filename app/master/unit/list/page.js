@@ -23,8 +23,8 @@ import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
-function createData(code, unitName, id, unitType) {
-  return { code, unitName, id, unitType };
+function createData(code, name, id) {
+  return { code, name, id };
 }
 
 export default function UnitList() {
@@ -41,14 +41,13 @@ export default function UnitList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "u.id, u.code, u.name AS unitName, ut.name AS unitType",
-          tableName: "tblMasterData u",
-          joins:
-            "LEFT JOIN tblMasterData ut ON ut.id = u.groupId AND ut.masterListName = 'tblUnitType'",
-          searchColumn: "u.masterListName",
-          searchValue: "tblUnit",
+          columns: "m.code,m.name,m.id",
+          tableName: "tblMasterData m",
           pageNo,
           pageSize,
+          searchColumn: search.searchColumn,
+          searchValue: search.searchValue,
+          joins: `join tblMasterData m1 on m1.id = m.id and m.masterListName = 'tblUnit'`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setUnitData(data);
@@ -68,10 +67,11 @@ export default function UnitList() {
     setMode({ mode: null, formId: null });
   }, []);
 
-  const rows = unitData.map((item) =>
-    createData(item["code"], item["unitName"], item["id"], item["unitType"])
-  );
-
+  const rows = unitData
+    ? unitData.map((item) =>
+        createData(item["code"], item["name"], item["id"])
+      )
+    : [];
   const handleChangePage = (event, newPage) => {
     getData(newPage, rowsPerPage);
   };
@@ -128,7 +128,6 @@ export default function UnitList() {
               <TableRow>
                 <TableCell> Code</TableCell>
                 <TableCell> Name</TableCell>
-                <TableCell> Unit Type</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -140,8 +139,7 @@ export default function UnitList() {
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.code}</TableCell>
-                    <TableCell>{row.unitName}</TableCell>
-                    <TableCell>{row.unitType}</TableCell>
+                    <TableCell>{row.name}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

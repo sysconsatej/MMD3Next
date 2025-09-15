@@ -35,9 +35,9 @@ const fieldData = {
       label: "Reference Port",
       name: "referencePortId",
       type: "dropdown",
-      labelType: "name,tblPortType",
-      foreignTable: "name,tblMasterData",
-      isEdit: true,
+      labelType: "referencePort",
+      foreignTable: "name,tblPort",
+      isEdit: "true",
     },
   ],
 };
