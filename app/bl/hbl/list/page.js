@@ -20,6 +20,9 @@ import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { useRouter } from "next/navigation";
+import { formStore } from "@/store";
 
 function createData(
   mblNo,
@@ -55,6 +58,8 @@ export default function BLList() {
   const [blData, setBlData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
+  const { setMode } = formStore();
+  const router = useRouter();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
@@ -87,6 +92,7 @@ export default function BLList() {
 
   useEffect(() => {
     getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
   }, []);
 
   const rows = blData
@@ -112,6 +118,29 @@ export default function BLList() {
 
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
+  };
+
+  const handleDeleteRecord = async (formId) => {
+    const obj = {
+      recordId: formId,
+      tableName: "tblBl",
+    };
+    const { success, message, error } = await deleteRecord(obj);
+    if (success) {
+      toast.success(message);
+      getData(page, rowsPerPage);
+    } else {
+      toast.error(error || message);
+    }
+  };
+
+  const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") {
+      handleDeleteRecord(formId);
+      return;
+    }
+    setMode({ mode, formId });
+    router.push("/bl/hbl");
   };
 
   return (
@@ -153,7 +182,7 @@ export default function BLList() {
             <TableBody>
               {rows.length > 0 ? (
                 rows.map((row, index) => (
-                  <TableRow key={index} hover>
+                  <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.mblNo}</TableCell>
                     <TableCell>{row.mblDate}</TableCell>
                     <TableCell>{row.consigneeText}</TableCell>
@@ -164,6 +193,13 @@ export default function BLList() {
                     <TableCell>{row.arrivalVessel}</TableCell>
                     <TableCell>{row.arrivalVoyage}</TableCell>
                     <TableCell>{row.line}</TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data from "./hblData";
 import { CustomInput } from "@/components/customInput";
@@ -8,17 +8,44 @@ import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import FormHeading from "@/components/formHeading/formHeading";
+import { formStore } from "@/store";
 
 export default function Home() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
-  const [loading, setLoading] = useState(false);
+  const { mode, setMode } = formStore();
+  const [gridStatus, setGridStatus] = useState(null);
 
   const submitHandler = async (event) => {
     event.preventDefault();
     toast.success("working!");
   };
+
+  useEffect(() => {
+    async function fetchFormHandler() {
+      if (mode.formId) {
+        setFieldsMode(mode.mode);
+        const format = formatFetchForm(
+          data,
+          "tblBl",
+          mode.formId,
+          '["tblBlContainer"]',
+          "blId"
+        );
+        const { success, result, message, error } = await fetchForm(format);
+        if (success) {
+          const getData = formatDataWithForm(result, data);
+          setFormData(getData);
+          setGridStatus("fetchGrid");
+        } else {
+          toast.error(error || message);
+        }
+      }
+    }
+
+    fetchFormHandler();
+  }, [mode.formId]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -29,7 +56,11 @@ export default function Home() {
               HBL Request
             </h1>
             <Box>
-              <CustomButton text="Back" href="/bl/hbl/list" />
+              <CustomButton
+                text="Back"
+                href="/bl/hbl/list"
+                onClick={() => setMode({ mode: null, formId: null })}
+              />
             </Box>
           </Box>
           <Box>
@@ -134,7 +165,8 @@ export default function Home() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
-                gridName="container"
+                gridName="tblBlContainer"
+                gridStatus={gridStatus}
               />
               <FormHeading text="Itinerary Details" />
               <TableGrid
