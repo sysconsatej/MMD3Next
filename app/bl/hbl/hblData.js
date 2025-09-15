@@ -445,7 +445,7 @@ const fieldData = {
       isEdit: true,
     },
   ],
-  containerFields: [
+  tblBlContainer: [
     { label: "Container No", name: "containerNo", isEdit: true },
     { label: "Seal Type", name: "sealType", isEdit: true },
     { label: "Seal No", name: "sealNo", isEdit: true },

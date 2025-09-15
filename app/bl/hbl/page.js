@@ -9,6 +9,8 @@ import CustomButton from "@/components/button/button";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import FormHeading from "@/components/formHeading/formHeading";
 import { formStore } from "@/store";
+import { formatDataWithForm, formatFetchForm } from "@/utils";
+import { fetchForm } from "@/apis";
 
 export default function Home() {
   const [formData, setFormData] = useState({});
@@ -161,7 +163,7 @@ export default function Home() {
               />
               <FormHeading text="Container Details" />
               <TableGrid
-                fields={jsonData.containerFields}
+                fields={jsonData.tblBlContainer}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
@@ -179,7 +181,9 @@ export default function Home() {
             </Box>
           </Box>
           <Box className="w-full flex mt-2">
-            <CustomButton text={"Submit"} type="submit" />
+            {fieldsMode !== "view" && (
+              <CustomButton text={"Submit"} type="submit" />
+            )}
           </Box>
         </section>
       </form>

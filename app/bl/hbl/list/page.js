@@ -34,7 +34,8 @@ function createData(
   cargoMovement,
   arrivalVessel,
   arrivalVoyage,
-  line
+  line,
+  id
 ) {
   return {
     mblNo,
@@ -47,6 +48,7 @@ function createData(
     arrivalVessel,
     arrivalVoyage,
     line,
+    id,
   };
 }
 
@@ -66,7 +68,7 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "b.mblNo mblNo,b.mblDate mblDate,b.consigneeText consigneeText,p.name pol ,p1.name pod,p2.name fpd,m.name cargoMovement,v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line ",
+            "b.mblNo mblNo,b.mblDate mblDate,b.consigneeText consigneeText,p.name pol ,p1.name pod,p2.name fpd,m.name cargoMovement,v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id",
           tableName: "tblBl b",
           pageNo,
           pageSize,
@@ -107,7 +109,8 @@ export default function BLList() {
           item["cargoMovement"],
           item["arrivalVessel"],
           item["arrivalVoyage"],
-          item["line"]
+          item["line"],
+          item["id"]
         )
       )
     : [];
