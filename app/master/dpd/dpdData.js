@@ -1,7 +1,7 @@
 const fieldData = {
   dpdFields: [
     {
-      label: "Code",
+      label: " DPD Code",
       name: "code",
       isEdit: true,
       required: true,
@@ -21,7 +21,7 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "EDI Port Code",
+      label: "Customer code",
       name: "ediPortCode",
       isEdit: true,
     },

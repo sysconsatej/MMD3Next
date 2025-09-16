@@ -189,7 +189,7 @@ function TableGrid({
                           <TableCell>
                             {row[item.name]?.Name ??
                               row[item.name]?.name ??
-                              row[item.name]}
+                              `${row[item.name]}`}
                           </TableCell>
                         );
                       })}

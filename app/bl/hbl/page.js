@@ -21,12 +21,7 @@ export default function Home() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData(
-      "tblBl",
-      formData,
-      mode.formId,
-      "blId"
-    );
+    const format = formatFormData("tblBl", formData, mode.formId, "blId");
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
@@ -36,7 +31,6 @@ export default function Home() {
       toast.error(error || message);
     }
   };
-
 
   useEffect(() => {
     async function fetchFormHandler() {
@@ -62,8 +56,6 @@ export default function Home() {
 
     fetchFormHandler();
   }, [mode.formId]);
-
-  console.log("formData", formData);
 
   return (
     <ThemeProvider theme={theme}>
@@ -91,7 +83,7 @@ export default function Home() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            {/* <FormHeading text="CSN">
+            <FormHeading text="CSN">
               <Box className="grid grid-cols-6 gap-2 p-2 ">
                 <CustomInput
                   fields={jsonData.csnFields}
@@ -100,18 +92,18 @@ export default function Home() {
                   fieldsMode={fieldsMode}
                 />
               </Box>
-            </FormHeading> */}
-            {/* <FormHeading text="HBL Details" /> */}
+            </FormHeading>
+            <FormHeading text="HBL Details" />
             <Box className="border-2 border-solid border-gray-300 p-3 mt-2 ">
-              {/* <Box className="grid grid-cols-6 gap-2 p-2 ">
+              <Box className="grid grid-cols-6 gap-2 p-2 ">
                 <CustomInput
                   fields={jsonData.hblFields}
                   formData={formData}
                   setFormData={setFormData}
                   fieldsMode={fieldsMode}
                 />
-              </Box> */}
-              {/* <FormHeading text="Transit Bond Details(Required if HBLs POD is different than MBLs POD)">
+              </Box>
+              <FormHeading text="Transit Bond Details(Required if HBLs POD is different than MBLs POD)">
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.transitFields}
@@ -120,8 +112,8 @@ export default function Home() {
                     fieldsMode={fieldsMode}
                   />
                 </Box>
-              </FormHeading> */}
-              {/* <FormHeading text="Consignor Details">
+              </FormHeading>
+              <FormHeading text="Consignor Details">
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.consignorFields}
@@ -130,8 +122,8 @@ export default function Home() {
                     fieldsMode={fieldsMode}
                   />
                 </Box>
-              </FormHeading> */}
-              {/* <FormHeading text="Consignee Details">
+              </FormHeading>
+              <FormHeading text="Consignee Details">
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.consigneeFields}
@@ -140,8 +132,8 @@ export default function Home() {
                     fieldsMode={fieldsMode}
                   />
                 </Box>
-              </FormHeading> */}
-              {/* <FormHeading text="Notify Details">
+              </FormHeading>
+              <FormHeading text="Notify Details">
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.notifyFields}
@@ -150,8 +142,8 @@ export default function Home() {
                     fieldsMode={fieldsMode}
                   />
                 </Box>
-              </FormHeading> */}
-              {/* <FormHeading text="Invoicing Instructions">
+              </FormHeading>
+              <FormHeading text="Invoicing Instructions">
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.invoiceFields}
@@ -160,24 +152,24 @@ export default function Home() {
                     fieldsMode={fieldsMode}
                   />
                 </Box>
-              </FormHeading> */}
-              {/* <Box className="grid grid-cols-6 gap-2 p-2 ">
+              </FormHeading>
+              <Box className="grid grid-cols-6 gap-2 p-2 ">
                 <CustomInput
                   fields={jsonData.hblBottomFields}
                   formData={formData}
                   setFormData={setFormData}
                   fieldsMode={fieldsMode}
                 />
-              </Box> */}
-              {/* <FormHeading text="Item Details" />
+              </Box>
+              <FormHeading text="Item Details" />
               <TableGrid
                 fields={jsonData.itemFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
                 gridName="item"
-              /> */}
-              {/* <FormHeading text="Container Details" />
+              />
+              <FormHeading text="Container Details" />
               <TableGrid
                 fields={jsonData.tblBlContainer}
                 formData={formData}
@@ -185,15 +177,15 @@ export default function Home() {
                 fieldsMode={fieldsMode}
                 gridName="tblBlContainer"
                 gridStatus={gridStatus}
-              /> */}
-              {/* <FormHeading text="Itinerary Details" />
+              />
+              <FormHeading text="Itinerary Details" />
               <TableGrid
                 fields={jsonData.itineraryFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
                 gridName="itinerary"
-              /> */}
+              />
             </Box>
           </Box>
           <Box className="w-full flex mt-2">
