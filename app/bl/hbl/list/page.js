@@ -68,7 +68,7 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "b.mblNo mblNo, b.mblDate mblDate, b.consigneeText consigneeText, p.name pol, p.code polCode, p1.name pod, p1.code podCode, p2.name fpd, p2.code fpdCode, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id",
+            "b.mblNo mblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id",
           tableName: "tblBl b",
           pageNo,
           pageSize,
@@ -103,9 +103,9 @@ export default function BLList() {
           item["mblNo"],
           item["mblDate"],
           item["consigneeText"],
-          { name: item["pol"], code: item["polCode"] },
-          { name: item["pod"], code: item["podCode"] },
-          { name: item["fpd"], code: item["fpdCode"] },
+          item["pol"],
+          item["pod"],
+          item["fpd"],
           item["cargoMovement"],
           item["arrivalVessel"],
           item["arrivalVoyage"],
@@ -190,15 +190,9 @@ export default function BLList() {
                     <TableCell>{row.mblNo}</TableCell>
                     <TableCell>{row.mblDate}</TableCell>
                     <TableCell>{row.consigneeText}</TableCell>
-                    <TableCell>
-                      {row.pol?.code + " - " + row.pol?.name}
-                    </TableCell>
-                    <TableCell>
-                      {row.pod?.code + " - " + row.pod?.name}
-                    </TableCell>
-                    <TableCell>
-                      {row.pod?.code + " - " + (row.fpd?.name || "")}
-                    </TableCell>
+                    <TableCell>{row.pol}</TableCell>
+                    <TableCell>{row.pod}</TableCell>
+                    <TableCell>{row.fpd}</TableCell>
                     <TableCell>{row.cargoMovement}</TableCell>
                     <TableCell>{row.arrivalVessel}</TableCell>
                     <TableCell>{row.arrivalVoyage}</TableCell>
