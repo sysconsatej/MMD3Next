@@ -20,6 +20,7 @@ export default function Home() {
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
   const [gridStatus, setGridStatus] = useState(null);
+  const [totals, setTotals] = useState({ grossWt: 0, packages: 0 });
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -59,15 +60,53 @@ export default function Home() {
     fetchFormHandler();
   }, [mode.formId]);
 
+  useEffect(() => {
+    let grossWt = 0;
+    let packages = 0;
+
+    // From containers
+    if (formData?.tblBlContainer && Array.isArray(formData.tblBlContainer)) {
+      grossWt += formData.tblBlContainer.reduce(
+        (sum, c) => sum + (Number(c.grossWt) || 0),
+        0
+      );
+      packages += formData.tblBlContainer.reduce(
+        (sum, c) => sum + (Number(c.noOfPackages) || 0),
+        0
+      );
+    }
+
+    // From item details
+    if (formData?.item && Array.isArray(formData.item)) {
+      packages += formData.item.reduce(
+        (sum, i) => sum + (Number(i.itemNoOfPackages) || 0),
+        0
+      );
+    }
+
+    setTotals({ grossWt, packages });
+  }, [formData.tblBlContainer, formData.item]);
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
         <section className="py-2 px-4">
-          <Box className="flex justify-between items-end mb-2">
-            <h1 className="text-left text-base flex items-end m-0 ">
-              HBL Request
-            </h1>
-            <Box>
+          <Box className="flex justify-between items-center mb-2">
+            {/* Left side - Title */}
+            <h1 className="text-left text-base m-0">HBL Request</h1>
+
+            {/* Right side - Totals + Back button */}
+            <Box className="flex items-center gap-4">
+              <CustomInput
+                fields={jsonData.totalFields}
+                formData={{
+                  ...formData,
+                  totalGrossWt: totals.grossWt,
+                  totalPackages: totals.packages,
+                }}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
+              />
               <CustomButton
                 text="Back"
                 href="/bl/hbl/list"
@@ -75,6 +114,7 @@ export default function Home() {
               />
             </Box>
           </Box>
+
           <Box>
             <FormHeading text="MBL Details" />
             <Box className="grid grid-cols-5 items-end gap-2 p-2 ">
