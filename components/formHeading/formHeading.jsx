@@ -18,10 +18,7 @@ const FormHeading = ({ text, buttons = [], children }) => {
             text={btn.text}
             onClick={btn.onClick}
             startIcon={btn.icon || null}
-            buttonStyles={
-              btn.buttonStyles ||
-              "!bg-[#95a9e8] !text-white !text-[12px] !px-2 !py-1 !rounded"
-            }
+            buttonStyles={btn.buttonStyles}
           />
         ))}
       </Box>
