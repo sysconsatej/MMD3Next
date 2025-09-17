@@ -1,4 +1,8 @@
 const fieldData = {
+  totalFields: [
+    { label: "Total Gross Wt(Kgs)", name: "totalGrossWt" },
+    { label: "Total No of Packages", name: "totalPackages" },
+  ],
   mblFields: [
     {
       label: "Location(POD)",
