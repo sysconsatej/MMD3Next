@@ -128,8 +128,8 @@ export default function BLList() {
       recordId: formId,
       tableName: "tblBl",
     };
+
     const { success, message, error } = await deleteRecord(obj);
-    console.log("Delete response:", { success, message, error });
 
     if (success) {
       toast.success(message);
@@ -191,26 +191,13 @@ export default function BLList() {
                     <TableCell>{row.mblDate}</TableCell>
                     <TableCell>{row.consigneeText}</TableCell>
                     <TableCell>
-                      {row.pol?.name
-                        ? `${row.pol.name}${
-                            row.pol.code ? ` - ${row.pol.code}` : ""
-                          }`
-                        : ""}
+                      {row.pol?.code + " - " + row.pol?.name}
                     </TableCell>
                     <TableCell>
-                      {row.pod?.name
-                        ? `${row.pod.name}${
-                            row.pod.code ? ` - ${row.pod.code}` : ""
-                          }`
-                        : ""}
+                      {row.pod?.code + " - " + row.pod?.name}
                     </TableCell>
                     <TableCell>
-                      {" "}
-                      {row.fpd?.name
-                        ? `${row.fpd.name}${
-                            row.fpd.code ? ` - ${row.fpd.code}` : ""
-                          }`
-                        : ""}{" "}
+                      {row.pod?.code + " - " + row.fpd?.name}
                     </TableCell>
                     <TableCell>{row.cargoMovement}</TableCell>
                     <TableCell>{row.arrivalVessel}</TableCell>
