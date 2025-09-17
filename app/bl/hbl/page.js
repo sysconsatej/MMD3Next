@@ -12,7 +12,7 @@ import { formStore } from "@/store";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { fetchForm, insertUpdateForm } from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { totalGrossAndPack } from "./utils";
+import { useTotalGrossAndPack } from "./utils";
 import { copyHandler } from "@/utils/formUtils";
 
 export default function Home() {
@@ -22,7 +22,7 @@ export default function Home() {
   const { mode, setMode } = formStore();
   const [gridStatus, setGridStatus] = useState(null);
   const [totals, setTotals] = useState({});
-  totalGrossAndPack(formData, setTotals);
+  useTotalGrossAndPack(formData, setTotals);
 
   const submitHandler = async (event) => {
     event.preventDefault();

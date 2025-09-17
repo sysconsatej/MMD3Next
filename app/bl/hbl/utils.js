@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-export function totalGrossAndPack(formData, setTotals) {
+export function useTotalGrossAndPack(formData, setTotals) {
   useEffect(() => {
     let grossWt = 0;
     let packages = 0;
