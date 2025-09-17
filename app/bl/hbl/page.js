@@ -11,6 +11,8 @@ import FormHeading from "@/components/formHeading/formHeading";
 import { formStore } from "@/store";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { fetchForm, insertUpdateForm } from "@/apis";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { copyBetweenNotifyConsignee } from "./utils";
 
 export default function Home() {
   const [formData, setFormData] = useState({});
@@ -123,7 +125,17 @@ export default function Home() {
                   />
                 </Box>
               </FormHeading>
-              <FormHeading text="Consignee Details">
+
+              <FormHeading
+                text="Consignee Details"
+                buttons={[
+                  {
+                    text: "Copy Notify Details",
+                    onClick: () => copyBetweenNotifyConsignee(formData, setFormData, "notifyToConsignee"),
+                    icon: <ContentCopyIcon fontSize="small" />,
+                  },
+                ]}
+              >
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.consigneeFields}
@@ -133,7 +145,16 @@ export default function Home() {
                   />
                 </Box>
               </FormHeading>
-              <FormHeading text="Notify Details">
+              <FormHeading
+                text="Notify Details"
+                buttons={[
+                  {
+                    text: "Copy Consignee Details",
+                    onClick: () => copyBetweenNotifyConsignee(formData, setFormData, "consigneeToNotify"),
+                    icon: <ContentCopyIcon fontSize="small" />,
+                  },
+                ]}
+              >
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.notifyFields}
