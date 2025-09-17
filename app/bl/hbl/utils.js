@@ -1,38 +1,28 @@
-import { toast } from "react-toastify";
+import { useEffect } from "react";
 
-export const copyBetweenNotifyConsignee = (
-  formData,
-  setFormData,
-  direction
-) => {
-  const updatedFormData = { ...formData };
+export function totalGrossAndPack(formData, setTotals) {
+  useEffect(() => {
+    let grossWt = 0;
+    let packages = 0;
 
-  const mapping = {
-    notifyPartyText: "consigneeText",
-    notifyFieldsCode: "consigneeCode",
-    notifyParty1TypeId: "consigneeTypeId",
-    notifyingParty1Country: "consigneeCountry",
-    notifyParty1State: "consigneeState",
-    notifyParty1City: "consigneeCity",
-    notifyParty1PinCode: "consigneePinCode",
-    notifyPartyAddress: "consigneeAddress",
-  };
-
-  const fieldMapping =
-    direction === "notifyToConsignee"
-      ? mapping
-      : Object.fromEntries(Object.entries(mapping).map(([k, v]) => [v, k]));
-
-  Object.entries(fieldMapping).forEach(([sourceKey, targetKey]) => {
-    if (formData[sourceKey]) {
-      updatedFormData[targetKey] = formData[sourceKey];
+    if (formData?.tblBlContainer && Array.isArray(formData.tblBlContainer)) {
+      grossWt += formData.tblBlContainer.reduce(
+        (sum, c) => sum + (Number(c.grossWt) || 0),
+        0
+      );
+      packages += formData.tblBlContainer.reduce(
+        (sum, c) => sum + (Number(c.noOfPackages) || 0),
+        0
+      );
     }
-  });
 
-  setFormData(updatedFormData);
-  toast.success(
-    direction === "notifyToConsignee"
-      ? "Notify details copied to Consignee!"
-      : "Consignee details copied to Notify!"
-  );
-};
+    if (formData?.item && Array.isArray(formData.item)) {
+      packages += formData.item.reduce(
+        (sum, i) => sum + (Number(i.itemNoOfPackages) || 0),
+        0
+      );
+    }
+
+    setTotals({ grossWt, packages });
+  }, [formData.tblBlContainer, formData.item]);
+}

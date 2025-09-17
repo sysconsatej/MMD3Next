@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data, { totalFieldData } from "./hblData";
+import data, { mapping, totalFieldData } from "./hblData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -12,34 +12,8 @@ import { formStore } from "@/store";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { fetchForm, insertUpdateForm } from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { copyBetweenNotifyConsignee } from "./utils";
-
-function totalGrossAndPack(formData, setTotals) {
-  useEffect(() => {
-    let grossWt = 0;
-    let packages = 0;
-
-    if (formData?.tblBlContainer && Array.isArray(formData.tblBlContainer)) {
-      grossWt += formData.tblBlContainer.reduce(
-        (sum, c) => sum + (Number(c.grossWt) || 0),
-        0
-      );
-      packages += formData.tblBlContainer.reduce(
-        (sum, c) => sum + (Number(c.noOfPackages) || 0),
-        0
-      );
-    }
-
-    if (formData?.item && Array.isArray(formData.item)) {
-      packages += formData.item.reduce(
-        (sum, i) => sum + (Number(i.itemNoOfPackages) || 0),
-        0
-      );
-    }
-
-    setTotals({ grossWt, packages });
-  }, [formData.tblBlContainer, formData.item]);
-}
+import { totalGrossAndPack } from "./utils";
+import { copyHandler } from "@/utils/formUtils";
 
 export default function Home() {
   const [formData, setFormData] = useState({});
@@ -165,7 +139,14 @@ export default function Home() {
                 buttons={[
                   {
                     text: "Copy Notify Details",
-                    onClick: () => copyBetweenNotifyConsignee(formData, setFormData, "notifyToConsignee"),
+                    onClick: () =>
+                      copyHandler(
+                        formData,
+                        setFormData,
+                        "left",
+                        mapping,
+                        "Notify details copied to Consignee!"
+                      ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
                 ]}
@@ -184,7 +165,14 @@ export default function Home() {
                 buttons={[
                   {
                     text: "Copy Consignee Details",
-                    onClick: () => copyBetweenNotifyConsignee(formData, setFormData, "consigneeToNotify"),
+                    onClick: () =>
+                      copyHandler(
+                        formData,
+                        setFormData,
+                        "right",
+                        mapping,
+                        "Consignee details copied to Notify!"
+                      ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
                 ]}

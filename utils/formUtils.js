@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 export function useDebounce(search = "", delay) {
   const [debounceValue, setDebounceValue] = useState(search);
@@ -127,3 +128,27 @@ export function formatDataWithForm(data, format) {
 
   return result;
 }
+
+export const copyHandler = (
+  formData,
+  setFormData,
+  direction,
+  mapping,
+  toastMessage
+) => {
+  const updatedFormData = { ...formData };
+
+  const fieldMapping =
+    direction === "left"
+      ? mapping
+      : Object.fromEntries(Object.entries(mapping).map(([k, v]) => [v, k]));
+
+  Object.entries(fieldMapping).forEach(([sourceKey, targetKey]) => {
+    if (formData[sourceKey]) {
+      updatedFormData[targetKey] = formData[sourceKey];
+    }
+  });
+
+  setFormData(updatedFormData);
+  toast.success(toastMessage);
+};

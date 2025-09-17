@@ -649,4 +649,15 @@ export const totalFieldData = {
   ],
 };
 
+export const mapping = {
+  notifyPartyText: "consigneeText",
+  notifyFieldsCode: "consigneeCode",
+  notifyParty1TypeId: "consigneeTypeId",
+  notifyingParty1Country: "consigneeCountry",
+  notifyParty1State: "consigneeState",
+  notifyParty1City: "consigneeCity",
+  notifyParty1PinCode: "consigneePinCode",
+  notifyPartyAddress: "consigneeAddress",
+};
+
 export default fieldData;
