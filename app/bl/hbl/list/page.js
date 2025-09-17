@@ -197,7 +197,7 @@ export default function BLList() {
                       {row.pod?.code + " - " + row.pod?.name}
                     </TableCell>
                     <TableCell>
-                      {row.pod?.code + " - " + row.fpd?.name}
+                      {row.pod?.code + " - " + (row.fpd?.name || "")}
                     </TableCell>
                     <TableCell>{row.cargoMovement}</TableCell>
                     <TableCell>{row.arrivalVessel}</TableCell>
