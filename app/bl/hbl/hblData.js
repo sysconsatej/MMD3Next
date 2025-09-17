@@ -587,7 +587,14 @@ const fieldData = {
   ],
   tblBlContainer: [
     { label: "Container No", name: "containerNo", isEdit: true },
-    { label: "Seal Type", name: "sealType", isEdit: true },
+    {
+      label: "Seal Type",
+      name: "sealType",
+      type: "dropdown",
+      labelType: "name,tblSealType",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+    },
     { label: "Seal No", name: "sealNo", isEdit: true },
     { label: "SOC Flag", name: "soc", isEdit: true, type: "checkbox" },
     { label: "Container Agent Code", name: "Agent", isEdit: true },
