@@ -16,7 +16,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
-import { fetchTableValues } from "@/apis";
+import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
@@ -68,7 +68,7 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "b.mblNo mblNo,b.mblDate mblDate,b.consigneeText consigneeText,p.name pol ,p1.name pod,p2.name fpd,m.name cargoMovement,v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id",
+            "b.mblNo mblNo, b.mblDate mblDate, b.consigneeText consigneeText, p.name pol, p.code polCode, p1.name pod, p1.code podCode, p2.name fpd, p2.code fpdCode, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id",
           tableName: "tblBl b",
           pageNo,
           pageSize,
@@ -103,9 +103,9 @@ export default function BLList() {
           item["mblNo"],
           item["mblDate"],
           item["consigneeText"],
-          item["pol"],
-          item["pod"],
-          item["fpd"],
+          { name: item["pol"], code: item["polCode"] },
+          { name: item["pod"], code: item["podCode"] },
+          { name: item["fpd"], code: item["fpdCode"] },
           item["cargoMovement"],
           item["arrivalVessel"],
           item["arrivalVoyage"],
@@ -129,6 +129,8 @@ export default function BLList() {
       tableName: "tblBl",
     };
     const { success, message, error } = await deleteRecord(obj);
+    console.log("Delete response:", { success, message, error });
+
     if (success) {
       toast.success(message);
       getData(page, rowsPerPage);
@@ -172,14 +174,13 @@ export default function BLList() {
               <TableRow>
                 <TableCell>MBL NO</TableCell>
                 <TableCell>MBL date</TableCell>
-                <TableCell>Consignee Text</TableCell>
+                <TableCell>Consignee Name</TableCell>
                 <TableCell>POL</TableCell>
                 <TableCell>POD</TableCell>
                 <TableCell>FPD</TableCell>
                 <TableCell>Cargo Movement</TableCell>
                 <TableCell>Arrival Vessel</TableCell>
                 <TableCell>Arrival Voyage</TableCell>
-                <TableCell>Line No</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -189,13 +190,31 @@ export default function BLList() {
                     <TableCell>{row.mblNo}</TableCell>
                     <TableCell>{row.mblDate}</TableCell>
                     <TableCell>{row.consigneeText}</TableCell>
-                    <TableCell>{row.pol}</TableCell>
-                    <TableCell>{row.pod}</TableCell>
-                    <TableCell>{row.fpd}</TableCell>
+                    <TableCell>
+                      {row.pol?.name
+                        ? `${row.pol.name}${
+                            row.pol.code ? ` - ${row.pol.code}` : ""
+                          }`
+                        : ""}
+                    </TableCell>
+                    <TableCell>
+                      {row.pod?.name
+                        ? `${row.pod.name}${
+                            row.pod.code ? ` - ${row.pod.code}` : ""
+                          }`
+                        : ""}
+                    </TableCell>
+                    <TableCell>
+                      {" "}
+                      {row.fpd?.name
+                        ? `${row.fpd.name}${
+                            row.fpd.code ? ` - ${row.fpd.code}` : ""
+                          }`
+                        : ""}{" "}
+                    </TableCell>
                     <TableCell>{row.cargoMovement}</TableCell>
                     <TableCell>{row.arrivalVessel}</TableCell>
                     <TableCell>{row.arrivalVoyage}</TableCell>
-                    <TableCell>{row.line}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}
