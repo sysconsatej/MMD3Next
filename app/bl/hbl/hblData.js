@@ -1,8 +1,4 @@
 const fieldData = {
-  totalFields: [
-    { label: "Total Gross Wt(Kgs)", name: "totalGrossWt" },
-    { label: "Total No of Packages", name: "totalPackages" },
-  ],
   mblFields: [
     {
       label: "Location(POD)",
@@ -636,6 +632,13 @@ const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
+  ],
+};
+
+export const totalFieldData = {
+  totalFields: [
+    { label: "Total Gross Wt(Kgs)", name: "grossWt" },
+    { label: "Total No of Packages", name: "packages" },
   ],
 };
 

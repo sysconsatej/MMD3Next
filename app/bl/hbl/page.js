@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data from "./hblData";
+import data, { totalFieldData } from "./hblData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -12,13 +12,41 @@ import { formStore } from "@/store";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { fetchForm, insertUpdateForm } from "@/apis";
 
+function totalGrossAndPack(formData, setTotals) {
+  useEffect(() => {
+    let grossWt = 0;
+    let packages = 0;
+
+    if (formData?.tblBlContainer && Array.isArray(formData.tblBlContainer)) {
+      grossWt += formData.tblBlContainer.reduce(
+        (sum, c) => sum + (Number(c.grossWt) || 0),
+        0
+      );
+      packages += formData.tblBlContainer.reduce(
+        (sum, c) => sum + (Number(c.noOfPackages) || 0),
+        0
+      );
+    }
+
+    if (formData?.item && Array.isArray(formData.item)) {
+      packages += formData.item.reduce(
+        (sum, i) => sum + (Number(i.itemNoOfPackages) || 0),
+        0
+      );
+    }
+
+    setTotals({ grossWt, packages });
+  }, [formData.tblBlContainer, formData.item]);
+}
+
 export default function Home() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
   const [gridStatus, setGridStatus] = useState(null);
-  const [totals, setTotals] = useState({ grossWt: 0, packages: 0 });
+  const [totals, setTotals] = useState({});
+  totalGrossAndPack(formData, setTotals);
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -58,52 +86,18 @@ export default function Home() {
     fetchFormHandler();
   }, [mode.formId]);
 
-  useEffect(() => {
-    let grossWt = 0;
-    let packages = 0;
-
-    // From containers
-    if (formData?.tblBlContainer && Array.isArray(formData.tblBlContainer)) {
-      grossWt += formData.tblBlContainer.reduce(
-        (sum, c) => sum + (Number(c.grossWt) || 0),
-        0
-      );
-      packages += formData.tblBlContainer.reduce(
-        (sum, c) => sum + (Number(c.noOfPackages) || 0),
-        0
-      );
-    }
-
-    // From item details
-    if (formData?.item && Array.isArray(formData.item)) {
-      packages += formData.item.reduce(
-        (sum, i) => sum + (Number(i.itemNoOfPackages) || 0),
-        0
-      );
-    }
-
-    setTotals({ grossWt, packages });
-  }, [formData.tblBlContainer, formData.item]);
-
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
         <section className="py-2 px-4">
           <Box className="flex justify-between items-center mb-2">
-            {/* Left side - Title */}
             <h1 className="text-left text-base m-0">HBL Request</h1>
-
-            {/* Right side - Totals + Back button */}
             <Box className="flex items-center gap-4">
               <CustomInput
-                fields={jsonData.totalFields}
-                formData={{
-                  ...formData,
-                  totalGrossWt: totals.grossWt,
-                  totalPackages: totals.packages,
-                }}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
+                fields={totalFieldData.totalFields}
+                formData={totals}
+                setFormData={setTotals}
+                fieldsMode={"view"}
               />
               <CustomButton
                 text="Back"
