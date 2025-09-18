@@ -32,7 +32,6 @@ const FileInput = ({
   }
 
   function fileCancelHandler() {
-    setFileName(null);
     changeHandler(
       { target: { name: commonProps.name, value: null } },
       containerIndex
@@ -70,7 +69,7 @@ const FileInput = ({
               variant="body2"
               className="!text-[11px] whitespace-nowrap overflow-hidden overflow-ellipsis"
             >
-              {fieldValue?.name?.split("-")[1]}
+              {fieldValue?.name?.split("-")[1] || fieldValue?.split("-")[1]}
             </Typography>
           </Box>
           <IconButton size="small" onClick={fileCancelHandler}>
