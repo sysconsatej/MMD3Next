@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box, Button, IconButton, Typography, InputLabel } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloseIcon from "@mui/icons-material/Close";
@@ -11,17 +11,24 @@ const VisuallyHiddenInput = (props) => (
   />
 );
 
-const FileInput = ({ commonProps, changeHandler, containerIndex }) => {
+const FileInput = ({
+  commonProps,
+  changeHandler,
+  containerIndex,
+  fieldValue,
+}) => {
   const { label, ...remainingProps } = commonProps;
-  const [fileName, setFileName] = useState("");
 
   function fileUploadHandler(event) {
-    const { files } = event.target;
-    setFileName(files[0].name);
-    changeHandler(
-      { target: { name: commonProps.name, value: files[0] } },
-      containerIndex
-    );
+    const file = event.target.files[0];
+    if (file) {
+      const newFileName = Date.now() + "-" + file.name;
+      const modifiedFile = new File([file], newFileName, { type: file.type });
+      changeHandler(
+        { target: { name: commonProps.name, value: modifiedFile } },
+        containerIndex
+      );
+    }
   }
 
   function fileCancelHandler() {
@@ -40,7 +47,7 @@ const FileInput = ({ commonProps, changeHandler, containerIndex }) => {
         )}
         {label}
       </InputLabel>
-      {!fileName ? (
+      {!fieldValue ? (
         <Button
           component="label"
           startIcon={<CloudUploadIcon />}
@@ -63,7 +70,7 @@ const FileInput = ({ commonProps, changeHandler, containerIndex }) => {
               variant="body2"
               className="!text-[11px] whitespace-nowrap overflow-hidden overflow-ellipsis"
             >
-              {fileName}
+              {fieldValue?.name?.split("-")[1]}
             </Typography>
           </Box>
           <IconButton size="small" onClick={fileCancelHandler}>
