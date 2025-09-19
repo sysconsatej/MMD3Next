@@ -640,6 +640,14 @@ const fieldData = {
       isEdit: true,
     },
   ],
+  attachmentFields: [
+    {
+      name: "attachment",
+      type: "fileupload",
+      isEdit: true,
+      dragDrop: true,
+    },
+  ],
 };
 
 export const totalFieldData = {
