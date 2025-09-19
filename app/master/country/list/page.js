@@ -140,8 +140,8 @@ export default function CountryList() {
               ) : (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group">
-                    <TableCell>{row.name}</TableCell>
                     <TableCell>{row.code}</TableCell>
+                    <TableCell>{row.name}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

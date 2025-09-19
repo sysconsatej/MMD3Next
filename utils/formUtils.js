@@ -18,10 +18,13 @@ export function useDebounce(search = "", delay) {
 
 export function formatFormData(
   tableName,
-  data,
+  stateData,
   formId,
   parentColumnName = null
 ) {
+  const formData = new FormData();
+  const data = {};
+
   const insertObj = {
     createdBy: 4,
     clientId: 1,
@@ -34,36 +37,52 @@ export function formatFormData(
     updatedDate: new Date(),
   };
 
-  for (let key in data) {
-    if (Array.isArray(data[key])) {
-      data[key] = data[key].map((item) => {
+  for (let key in stateData) {
+    if (Array.isArray(stateData[key])) {
+      data[key] = stateData[key].map((item) => {
+        const arrItems = {};
         for (let arrKey in item) {
-          if (typeof item[arrKey] === "object" && item[arrKey] !== null) {
-            item[arrKey] = item[arrKey].Id;
+          if (item[arrKey] instanceof File) {
+            formData.append("attachments", item[arrKey]);
+            arrItems[arrKey] = item[arrKey].name;
+          } else if (
+            typeof item[arrKey] === "object" &&
+            arrItems[arrKey] !== null
+          ) {
+            arrItems[arrKey] = item[arrKey].Id;
+          } else {
+            arrItems[arrKey] = item[arrKey];
           }
         }
 
         if (item.id) {
-          return { ...item, ...updateObj };
+          return { ...arrItems, ...updateObj };
         }
 
-        return { ...item, ...insertObj };
+        return { ...arrItems, ...insertObj };
       });
-    } else if (typeof data[key] === "object" && data[key] !== null) {
-      data[key] = data[key].Id;
+    } else if (stateData[key] instanceof File) {
+      formData.append("attachments", stateData[key]);
+      data[key] = stateData[key].name;
+    } else if (typeof stateData[key] === "object" && stateData[key] !== null) {
+      data[key] = stateData[key].Id;
+    } else {
+      data[key] = stateData[key];
     }
   }
 
   if (formId) {
-    return {
-      tableName,
-      formId,
-      submitJson: { ...data, ...updateObj },
-      parentColumnName,
-    };
+    formData.append("tableName", tableName);
+    formData.append("formId", formId);
+    formData.append("submitJson", JSON.stringify({ ...data, ...updateObj }));
+    formData.append("parentColumnName", parentColumnName);
+    return formData;
   }
 
-  return { tableName, submitJson: { ...data, ...insertObj }, parentColumnName };
+  formData.append("tableName", tableName);
+  formData.append("submitJson", JSON.stringify({ ...data, ...insertObj }));
+  formData.append("parentColumnName", parentColumnName);
+  return formData;
 }
 
 export function formatFetchForm(

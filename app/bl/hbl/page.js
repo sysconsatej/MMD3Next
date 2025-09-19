@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ThemeProvider, Box } from "@mui/material";
+import { ThemeProvider, Box, Typography } from "@mui/material";
 import data, { mapping, totalFieldData } from "./hblData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
@@ -181,8 +181,7 @@ export default function Home() {
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
-                ]}
-              >
+                ]}>
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.consigneeFields}
@@ -207,8 +206,7 @@ export default function Home() {
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
-                ]}
-              >
+                ]}>
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.notifyFields}
@@ -260,6 +258,17 @@ export default function Home() {
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
                 gridName="itinerary"
+              />
+            </Box>
+            <Box className="border border-gray-300 p-3 mt-2 flex flex-col gap-1">
+              <Typography variant="caption" className="text-red-500">
+                Total Attachment size should not exceed 3MB for the Request
+              </Typography>
+              <CustomInput
+                fields={jsonData.attachmentFields}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
               />
             </Box>
           </Box>
