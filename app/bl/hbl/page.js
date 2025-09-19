@@ -12,8 +12,10 @@ import { formStore } from "@/store";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { fetchForm, insertUpdateForm } from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { useTotalGrossAndPack } from "./utils";
+import { useRecordNavigator, useTotalGrossAndPack } from "./utils";
 import { copyHandler } from "@/utils/formUtils";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
 export default function Home() {
   const [formData, setFormData] = useState({});
@@ -22,7 +24,18 @@ export default function Home() {
   const { mode, setMode } = formStore();
   const [gridStatus, setGridStatus] = useState(null);
   const [totals, setTotals] = useState({});
+
   useTotalGrossAndPack(formData, setTotals);
+  const {
+    prevId,
+    nextId,
+    prevLabel,
+    nextLabel,
+    canPrev,
+    canNext,
+    loading,
+    refresh,
+  } = useRecordNavigator({ currentId: mode.formId });
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -39,26 +52,25 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchFormHandler() {
-      if (mode.formId) {
-        setFieldsMode(mode.mode);
-        const format = formatFetchForm(
-          data,
-          "tblBl",
-          mode.formId,
-          '["tblBlContainer"]',
-          "blId"
-        );
-        const { success, result, message, error } = await fetchForm(format);
-        if (success) {
-          const getData = formatDataWithForm(result, data);
-          setFormData(getData);
-          setGridStatus("fetchGrid");
-        } else {
-          toast.error(error || message);
-        }
+      if (!mode.formId) return;
+      setFieldsMode(mode.mode);
+
+      const format = formatFetchForm(
+        data,
+        "tblBl",
+        mode.formId,
+        '["tblBlContainer"]',
+        "blId"
+      );
+      const { success, result, message, error } = await fetchForm(format);
+      if (success) {
+        const getData = formatDataWithForm(result, data);
+        setFormData(getData);
+        setGridStatus("fetchGrid");
+      } else {
+        toast.error(error || message);
       }
     }
-
     fetchFormHandler();
   }, [mode.formId]);
 
@@ -82,6 +94,26 @@ export default function Home() {
               />
             </Box>
           </Box>
+          {(fieldsMode === "view" || fieldsMode === "edit") && (
+            <Box className="flex justify-between items-center w-full">
+              <CustomButton
+                text={prevLabel ? `Prev (${prevLabel})` : "Prev"}
+                startIcon={<ArrowBackIosIcon />}
+                onClick={() =>
+                  prevId && setMode({ mode: fieldsMode, formId: prevId })
+                }
+                disabled={!canPrev}
+              />
+              <CustomButton
+                text={nextLabel ? `Next (${nextLabel})` : "Next"}
+                endIcon={<ArrowForwardIosIcon />}
+                onClick={() =>
+                  prevId && setMode({ mode: fieldsMode, formId: nextId })
+                }
+                disabled={!canNext}
+              />
+            </Box>
+          )}
 
           <Box>
             <FormHeading text="MBL Details" />
