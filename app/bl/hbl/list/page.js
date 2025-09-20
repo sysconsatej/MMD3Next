@@ -18,11 +18,13 @@ import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
+import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import { ToastContainer } from "react-toastify";
 import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
+import { advanceSearch } from "../hblData";
 
 function createData(
   mblNo,
@@ -147,8 +149,12 @@ export default function BLList() {
     setMode({ mode, formId });
     router.push("/bl/hbl");
   };
+  const handleAdvancedSearch = (searchData) => {
+    setSearch({ searchColumn: "", searchValue: "" });
 
-  
+    getData(1, rowsPerPage, searchData);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -158,12 +164,16 @@ export default function BLList() {
             HBL Request
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
-            <SearchBar
+            {/* <SearchBar
               getData={getData}
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
               options={dropdowns.bl}
+            /> */}
+            <AdvancedSearchBar
+              fields={advanceSearch.bl}
+              onSearch={handleAdvancedSearch}
             />
             <CustomButton text="Add" href="/bl/hbl" />
           </Box>
