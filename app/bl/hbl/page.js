@@ -26,16 +26,9 @@ export default function Home() {
   const [totals, setTotals] = useState({});
 
   useTotalGrossAndPack(formData, setTotals);
-  const {
-    prevId,
-    nextId,
-    prevLabel,
-    nextLabel,
-    canPrev,
-    canNext,
-    loading,
-    refresh,
-  } = useRecordNavigator({ currentId: mode.formId });
+
+  const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
+    useRecordNavigator({ currentId: mode.formId });
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -181,7 +174,8 @@ export default function Home() {
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
-                ]}>
+                ]}
+              >
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.consigneeFields}
@@ -206,7 +200,8 @@ export default function Home() {
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
-                ]}>
+                ]}
+              >
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.notifyFields}

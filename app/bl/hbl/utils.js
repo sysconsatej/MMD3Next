@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { getDataWithCondition } from "@/apis";
+
 export function useTotalGrossAndPack(formData, setTotals) {
   useEffect(() => {
     let grossWt = 0;
@@ -34,12 +35,10 @@ export function useRecordNavigator({
   labelField = "mblNo",
 }) {
   const [neighbors, setNeighbors] = useState({ prev: null, next: null });
-  const [loading, setLoading] = useState(false);
 
   const refresh = useCallback(async () => {
     if (currentId == null) return;
 
-    setLoading(true);
     try {
       const whereCondition = `
         ${idField} in (
@@ -52,23 +51,25 @@ export function useRecordNavigator({
         tableName,
         columns: `${idField}, ${labelField}`,
         whereCondition,
+        orderBy: "createdDate desc",
       });
 
       const list = Array.isArray(data) ? data : [];
       let prev = null,
         next = null;
 
-      for (const row of list) {
-        if (row[idField] < currentId) prev = row;
-        else if (row[idField] > currentId) next = row;
+      if (list[1].id == currentId) {
+        next = list[2];
+        prev = list[0];
+      } else if (list[0].id == currentId) {
+        next = list[1];
+        prev = null;
       }
 
       setNeighbors({ prev, next });
     } catch (err) {
       console.error("useRecordNavigator error:", err);
       setNeighbors({ prev: null, next: null });
-    } finally {
-      setLoading(false);
     }
   }, [currentId, tableName, idField, labelField]);
 
@@ -77,13 +78,11 @@ export function useRecordNavigator({
   }, [refresh]);
 
   return {
-    loading,
     prevId: neighbors.prev?.[idField] || null,
     nextId: neighbors.next?.[idField] || null,
     prevLabel: neighbors.prev?.[labelField] || null,
     nextLabel: neighbors.next?.[labelField] || null,
     canPrev: !!neighbors.prev,
     canNext: !!neighbors.next,
-    refresh,
   };
 }
