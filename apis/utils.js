@@ -20,3 +20,12 @@ export const getDataWithCondition = async (obj) => {
     return error.response.data;
   }
 };
+
+export const getNextPrevData = async (obj) => {
+  try {
+    const res = await axios.post(`${url}api/v1/nextPrevData`, obj);
+    return res.data;
+  } catch (error) {
+    return error.response.data;
+  }
+};

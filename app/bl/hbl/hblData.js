@@ -669,3 +669,61 @@ export const mapping = {
 };
 
 export default fieldData;
+export const advanceSearch = {
+  bl: [
+    {
+      label: "Location(POD)",
+      name: "podId",
+      type: "dropdown",
+      labelType: "port",
+      foreignTable: "name,tblPort",
+      isEdit: true,
+    },
+    {
+      label: "Vessel-Voyage No.",
+      name: "vesselVoyageNo",
+      type: "dropdown",
+      labelType: "vessel",
+      isEdit: true,
+    },
+    {
+      label: "MBL No",
+      name: "mblNo",
+      isEdit: true,
+    },
+    {
+      label: "HBL No",
+      name: "hblNo",
+      isEdit: true,
+    },
+
+    {
+      label: "From Date",
+      name: "validForm",
+      type: "date",
+      isEdit: true,
+    },
+    {
+      label: "To Date",
+      name: "validTo",
+      type: "date",
+      isEdit: true,
+    },
+    {
+      label: "Status",
+      name: "statusId",
+      type: "dropdown",
+      labelType: "container",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+    },
+    {
+      label: "Type of Cargo",
+      name: "cargoTypeId",
+      type: "dropdown",
+      labelType: "name,tblServiceType",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+    },
+  ],
+};

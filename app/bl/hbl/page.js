@@ -9,11 +9,16 @@ import CustomButton from "@/components/button/button";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import FormHeading from "@/components/formHeading/formHeading";
 import { formStore } from "@/store";
-import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
+import {
+  copyHandler,
+  formatDataWithForm,
+  formatFetchForm,
+  formatFormData,
+  useNextPrevData,
+} from "@/utils";
 import { fetchForm, insertUpdateForm } from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { useRecordNavigator, useTotalGrossAndPack } from "./utils";
-import { copyHandler } from "@/utils/formUtils";
+import { useTotalGrossAndPack } from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import AgreeTerms from "@/components/agreeTerms/agreeTerms";
@@ -27,9 +32,13 @@ export default function Home() {
   const [totals, setTotals] = useState({});
 
   useTotalGrossAndPack(formData, setTotals);
-
   const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
-    useRecordNavigator({ currentId: mode.formId });
+    useNextPrevData({
+      currentId: mode.formId,
+      tableName: "tblBl",
+      labelField: "mblNo",
+      orderBy: "createdDate desc",
+    });
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -91,7 +100,7 @@ export default function Home() {
           {(fieldsMode === "view" || fieldsMode === "edit") && (
             <Box className="flex justify-between items-center w-full">
               <CustomButton
-                text={prevLabel ? `Prev (${prevLabel})` : "Prev"}
+                text={prevLabel ? `Prev (MBLno:${prevLabel})` : "Prev"}
                 startIcon={<ArrowBackIosIcon />}
                 onClick={() =>
                   prevId && setMode({ mode: fieldsMode, formId: prevId })
@@ -99,10 +108,10 @@ export default function Home() {
                 disabled={!canPrev}
               />
               <CustomButton
-                text={nextLabel ? `Next (${nextLabel})` : "Next"}
+                text={nextLabel ? `Next (MBLno:${nextLabel})` : "Next"}
                 endIcon={<ArrowForwardIosIcon />}
                 onClick={() =>
-                  prevId && setMode({ mode: fieldsMode, formId: nextId })
+                  nextId && setMode({ mode: fieldsMode, formId: nextId })
                 }
                 disabled={!canNext}
               />
