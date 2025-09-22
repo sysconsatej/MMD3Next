@@ -138,7 +138,7 @@ export default function Home() {
                   fieldsMode={fieldsMode}
                 />
               </Box>
-              <FormHeading text="Transit Bond Details(Required if HBLs POD is different than MBLs POD)">
+              {/* <FormHeading text="Transit Bond Details(Required if HBLs POD is different than MBLs POD)">
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.transitFields}
@@ -147,7 +147,7 @@ export default function Home() {
                     fieldsMode={fieldsMode}
                   />
                 </Box>
-              </FormHeading>
+              </FormHeading> */}
               <FormHeading text="Consignor Details">
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
@@ -229,14 +229,6 @@ export default function Home() {
                   fieldsMode={fieldsMode}
                 />
               </Box>
-              <FormHeading text="Item Details" />
-              <TableGrid
-                fields={jsonData.itemFields}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
-                gridName="item"
-              />
               <FormHeading text="Container Details" />
               <TableGrid
                 fields={jsonData.tblBlContainer}
@@ -245,6 +237,14 @@ export default function Home() {
                 fieldsMode={fieldsMode}
                 gridName="tblBlContainer"
                 gridStatus={gridStatus}
+              />
+              <FormHeading text="Item Details" />
+              <TableGrid
+                fields={jsonData.itemFields}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
+                gridName="item"
               />
               <FormHeading text="Itinerary Details" />
               <TableGrid
