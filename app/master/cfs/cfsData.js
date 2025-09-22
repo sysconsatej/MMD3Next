@@ -42,4 +42,13 @@ const fieldData = {
   ],
 };
 
+export const cfs = [
+  { label: "Customer Code", value: "p.ediPortCode" },
+  { label: "Name", value: "p.name" },
+  { label: "Nominated Area Code", value: "p.code" },
+  { label: "Terminal Code", value: "p.ediCommonTerminalCode" },
+  { label: "Bond No", value: "p.bondNo" },
+  { label: "Address", value: "p.address" },
+];
+
 export default fieldData;

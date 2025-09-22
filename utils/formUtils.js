@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { getNextPrevData } from "@/apis";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 export function useDebounce(search = "", delay) {
@@ -171,3 +172,45 @@ export const copyHandler = (
   setFormData(updatedFormData);
   toast.success(toastMessage);
 };
+
+export function useNextPrevData({
+  currentId,
+  tableName = "tblUser",
+  labelField = "status",
+  orderBy = "id",
+}) {
+  const [neighbors, setNeighbors] = useState({});
+
+  const refresh = useCallback(async () => {
+    if (currentId == null) return;
+
+    try {
+      const getDataObj = {
+        formId: currentId,
+        columnName: labelField,
+        tableName: tableName,
+        orderBy: orderBy,
+      };
+
+      const { data } = await getNextPrevData(getDataObj);
+
+      setNeighbors(data);
+    } catch (err) {
+      console.error("useRecordNavigator error:", err);
+      setNeighbors({});
+    }
+  }, [currentId]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  return {
+    prevId: neighbors.prevId,
+    nextId: neighbors.nextId,
+    prevLabel: neighbors.prevName,
+    nextLabel: neighbors.nextName,
+    canPrev: neighbors.prevId,
+    canNext: neighbors.nextId,
+  };
+}

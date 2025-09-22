@@ -19,10 +19,10 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
+import { port } from "../portData";
 
 function createData(code, portName, activeInactive, portTypeName, country, id) {
   return { code, portName, activeInactive, portTypeName, country, id };
@@ -128,7 +128,7 @@ export default function PortList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.port}
+              options={port}
             />
             <CustomButton text="Add" href="/master/port" />
           </Box>

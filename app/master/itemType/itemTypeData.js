@@ -17,4 +17,9 @@ const fieldData = {
   ],
 };
 
+export const itemType = [
+  { label: " Name", value: "m.name" },
+  { label: "Code", value: "m.code" },
+];
+
 export default fieldData;

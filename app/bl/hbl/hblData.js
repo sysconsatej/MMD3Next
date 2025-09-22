@@ -13,10 +13,9 @@ const fieldData = {
       label: "Liner/FF",
       name: "blOfId",
       type: "dropdown",
-      labelType: "company",
-      foreignTable: "name,tblCompany",
-      isEdit: true,
+      labelType: "port",
       required: true,
+      isEdit: true,
     },
     {
       label: "MBL No",
@@ -50,7 +49,7 @@ const fieldData = {
       label: "Type of Cargo",
       name: "cargoTypeId",
       type: "dropdown",
-      labelType: "name,tblServiceType",
+      labelType: "name,tblCargoType",
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
@@ -707,7 +706,7 @@ export const mapping = {
 };
 
 export default fieldData;
-export const advanceSearch = {
+export const advanceSearchFields = {
   bl: [
     {
       label: "Location(POD)",
@@ -737,13 +736,13 @@ export const advanceSearch = {
 
     {
       label: "From Date",
-      name: "validForm",
+      name: "fromDate",
       type: "date",
       isEdit: true,
     },
     {
       label: "To Date",
-      name: "validTo",
+      name: "toDate",
       type: "date",
       isEdit: true,
     },

@@ -19,10 +19,10 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
+import { depot } from "../depotData";
 
 function createData(depotName, location, code, address, id) {
   return { depotName, location, code, address, id };
@@ -127,7 +127,7 @@ export default function DepotList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.depot}
+              options={depot}
             />
             <CustomButton text="Add" href="/master/depot" />
           </Box>

@@ -19,10 +19,10 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
+import { vessel } from "../vesselData";
 
 function createData(code, name, nationality, callSign, imoCode, id) {
   return { code, name, nationality, callSign, imoCode, id };
@@ -125,7 +125,7 @@ export default function VesselList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.vessel}
+              options={vessel}
             />
             <CustomButton text="Add" href="/master/vessel" />
           </Box>

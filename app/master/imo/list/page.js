@@ -19,10 +19,10 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
+import { imo } from "../imoData";
 
 function createData(unNo, Class, properShippingName, id) {
   return { unNo, Class, properShippingName, id };
@@ -124,7 +124,7 @@ export default function ImoList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.imo}
+              options={imo}
             />
             <CustomButton text="Add" href="/master/imo" />
           </Box>

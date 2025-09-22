@@ -19,10 +19,10 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
+import { companyBranch } from "../companyBranchData";
 
 function createData(
   code,
@@ -155,7 +155,7 @@ export default function CompanyBranchList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.companyBranch}
+              options={companyBranch}
             />
             <CustomButton text="Add" href="/master/companyBranch" />
           </Box>

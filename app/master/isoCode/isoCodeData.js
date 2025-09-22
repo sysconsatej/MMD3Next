@@ -27,4 +27,10 @@ const fieldData = {
   ],
 };
 
+export const isoCode = [
+  { label: "IsoCode", value: "i.isoCode" },
+  { label: "Size", value: "sizeData.name" },
+  { label: "Type", value: "typeData.name" },
+];
+
 export default fieldData;

@@ -19,10 +19,10 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
+import { typeOfCompany } from "../typeOfCompanyData";
 
 function createData(code, name, id) {
   return { code, name, id };
@@ -119,7 +119,7 @@ export default function TypeOfCompanyList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.typeOfCompany}
+              options={typeOfCompany}
             />
             <CustomButton text="Add" href="/master/typeOfCompany" />
           </Box>

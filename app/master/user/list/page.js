@@ -19,10 +19,11 @@ import { theme } from "@/styles/globalCss";
 import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
+import { deleteRecord } from "@/apis";
+import { user } from "../userData";
 
 function createData(name, emailId, mobile, id) {
   return { name, emailId, mobile, id };
@@ -118,7 +119,7 @@ export default function UserList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.user}
+              options={user}
             />
             <CustomButton text="Add" href="/master/user" />
           </Box>

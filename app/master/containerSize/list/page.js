@@ -19,10 +19,10 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
+import { ContainerSize } from "../containerSizeData";
 function createData(name, code, id) {
   return { name, code, id };
 }
@@ -118,7 +118,7 @@ export default function ContainerSizeList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.ContainerSize}
+              options={ContainerSize}
             />
             <CustomButton text="Add" href="/master/containerSize" />
           </Box>

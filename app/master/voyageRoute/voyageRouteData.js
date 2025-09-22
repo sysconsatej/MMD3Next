@@ -292,4 +292,15 @@ const fieldData = {
   ],
 };
 
+export const VoyageRoute = [
+  { label: "Port of Call", value: "p.name" },
+  { label: "Voyage No", value: "v.voyageId" },
+  { label: "Vessel No", value: "ve.name" },
+  { label: "IGM NO", value: "v.igmNo" },
+  { label: "Export Locking", value: "v.exportLocking" },
+  { label: "Import Locking", value: "v.importLocking" },
+  { label: "Terminal", value: "p.name" },
+  { label: "Voyage", value: "v.voyageNo" },
+];
+
 export default fieldData;

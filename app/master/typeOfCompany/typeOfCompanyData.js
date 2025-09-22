@@ -17,4 +17,9 @@ const fieldData = {
   ],
 };
 
+export const typeOfCompany = [
+  { label: "Company SubType Code", value: "m.code" },
+  { label: "Company SubType", value: "m.name" },
+];
+
 export default fieldData;

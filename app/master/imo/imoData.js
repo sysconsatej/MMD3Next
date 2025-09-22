@@ -22,4 +22,10 @@ const fieldData = {
   ],
 };
 
+export const imo = [
+  { label: "UnNo", value: "i.unNo" },
+  { label: "Class", value: "i.class" },
+  { label: "Product Name", value: "i.properShippingName" },
+];
+
 export default fieldData;

@@ -19,10 +19,10 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
+import { cargoType } from "../cargoData";
 
 function createData(code, name, id) {
   return { code, name, id };
@@ -120,7 +120,7 @@ export default function CargoTypeList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.cargoType}
+              options={cargoType}
             />
             <CustomButton text="Add" href="/master/cargoType" />
           </Box>

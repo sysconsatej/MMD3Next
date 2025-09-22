@@ -195,4 +195,16 @@ const fieldData = {
   ],
 };
 
+export const company = [
+  { label: "Code", value: "co.code" },
+  { label: "Name", value: "co.name" },
+  { label: "Country Name", value: "c.name" },
+  { label: "State Name", value: "s.name" },
+  { label: "City Name", value: "ci.name" },
+  { label: "Phone No", value: "co.telephoneNo" },
+  { label: "Email Id", value: "co.emailId " },
+  { label: "Pan No", value: "co.panNo " },
+  { label: "GSTIN No", value: "co.taxRegistrationNo" },
+];
+
 export default fieldData;

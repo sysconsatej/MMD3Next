@@ -24,4 +24,10 @@ const fieldData = {
   ],
 };
 
+export const user = [
+  { label: "Name", value: "name" },
+  { label: "Email Id", value: "emailId" },
+  { label: "Phone No", value: "mobile" },
+];
+
 export default fieldData;

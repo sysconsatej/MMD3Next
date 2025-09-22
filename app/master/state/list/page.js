@@ -19,10 +19,10 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
+import { state } from "../stateData";
 
 function createData(code, taxStateCode, name, countryName, id) {
   return { code, taxStateCode, name, countryName, id };
@@ -128,7 +128,7 @@ export default function StateList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.state}
+              options={state}
             />
             <CustomButton text="Add" href="/master/state" />
           </Box>
