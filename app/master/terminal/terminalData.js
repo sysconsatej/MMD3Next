@@ -15,4 +15,9 @@ const fieldData = {
   ],
 };
 
+export const terminal = [
+  { label: "Code", value: "p.code" },
+  { label: "Terminal", value: "p.name" },
+];
+
 export default fieldData;

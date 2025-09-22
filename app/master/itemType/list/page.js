@@ -19,10 +19,10 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
+import { itemType } from "../itemTypeData";
 
 function createData(code, name, id) {
   return { code, name, id };
@@ -120,7 +120,7 @@ export default function ItemTypeList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.itemType}
+              options={itemType}
             />
             <CustomButton text="Add" href="/master/itemType" />
           </Box>

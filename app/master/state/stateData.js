@@ -30,4 +30,11 @@ const fieldData = {
   ],
 };
 
+export const state = [
+  { label: "Code", value: "s.code" },
+  { label: "Tax State Code", value: "s.taxStateCode" },
+  { label: "Name", value: "s.name" },
+  { label: "Country Name", value: "c.name" },
+];
+
 export default fieldData;

@@ -32,4 +32,10 @@ const fieldData = {
   ],
 };
 
+export const depot = [
+  { label: "Code", value: "p.code" },
+  { label: "Empty Yard/Empty Depot", value: "p.name" },
+  { label: "Address", value: "p.address" },
+];
+
 export default fieldData;

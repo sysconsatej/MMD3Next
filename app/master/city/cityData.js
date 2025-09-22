@@ -28,4 +28,10 @@ const fieldData = {
   ],
 };
 
+export const city = [
+  { label: "City Name", value: "c.name" },
+  { label: "State Name", value: "s.name" },
+  { label: "Country Name", value: "co.name" },
+];
+
 export default fieldData;

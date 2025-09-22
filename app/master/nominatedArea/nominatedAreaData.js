@@ -53,4 +53,15 @@ const fieldData = {
   ],
 };
 
+export const nominatedArea = [
+  { label: "Nominated Area Code", value: "p.code" },
+  { label: "Nominated Area Description", value: "p.name" },
+  { label: "Nominated Area Address", value: "p.address" },
+  { label: "Direct Delivery", value: "p.directDelivery" },
+  { label: "EDI Port Code", value: "p.ediPortCode" },
+  { label: "EDI Common Terminal Code", value: "p.ediCommonTerminalCode" },
+  { label: "Bond No", value: "p.bondNo" },
+  { label: "Port Type", value: "m.name" },
+];
+
 export default fieldData;

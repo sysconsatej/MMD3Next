@@ -17,4 +17,9 @@ const fieldData = {
   ],
 };
 
+export const country = [
+  { label: "Country Code", value: "code" },
+  { label: "Country Name", value: "name" },
+];
+
 export default fieldData;

@@ -19,10 +19,10 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
+import { isoCode } from "../isoCodeData";
 
 function createData(code, size, type, id) {
   return { code, size, type, id };
@@ -121,7 +121,7 @@ export default function IsoCodeList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.isoCode}
+              options={isoCode}
             />
             <CustomButton text="Add" href="/master/isoCode" />
           </Box>

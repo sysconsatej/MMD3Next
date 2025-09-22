@@ -42,4 +42,14 @@ const fieldData = {
   ],
 };
 
+export const dpd = [
+  { label: "Nominated Area Code", value: "p.code" },
+  { label: "Nominated Area Description", value: "p.name" },
+  { label: "Nominated Area Address", value: "p.address" },
+  { label: "Direct Delivery", value: "p.directDelivery" },
+  { label: " Customer Code ", value: "p.ediPortCode" },
+  { label: "EDI Common Terminal Code", value: "p.ediCommonTerminalCode" },
+  { label: "Bond No", value: "p.bondNo" },
+];
+
 export default fieldData;

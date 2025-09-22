@@ -19,10 +19,10 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
+import { dpd } from "../dpdData";
 
 function createData(
   code,
@@ -144,7 +144,7 @@ export default function DpdList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.dpd}
+              options={dpd}
             />
             <CustomButton text="Add" href="/master/dpd" />
           </Box>

@@ -19,10 +19,10 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
+import { packageType } from "../packageData";
 
 function createData(code, name, id) {
   return { code, name, id };
@@ -119,7 +119,7 @@ export default function PackageTypeList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.packageType}
+              options={packageType}
             />
             <CustomButton text="Add" href="/master/packageType" />
           </Box>

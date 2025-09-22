@@ -19,10 +19,10 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { city } from "../cityData";
 
 function createData(cityName, stateName, countryName, id) {
   return { cityName, stateName, countryName, id };
@@ -128,7 +128,7 @@ export default function CityList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.city}
+              options={city}
             />
             <CustomButton text="Add" href="/master/city" />
           </Box>

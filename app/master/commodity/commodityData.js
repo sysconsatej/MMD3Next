@@ -17,4 +17,9 @@ const fieldData = {
   ],
 };
 
+export const Commodity = [
+  { label: " Code", value: "m.code" },
+  { label: "Name", value: "m.name" },
+];
+
 export default fieldData;

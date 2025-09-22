@@ -41,4 +41,12 @@ const fieldData = {
   ],
 };
 
+export const port = [
+  { label: "Code", value: "p.code" },
+  { label: "Port Name", value: "p.name" },
+  { label: "ActiveInactive", value: "p.activeInactive" },
+  { label: "Port Type Name", value: "m.name" },
+  { label: "Country", value: "c.name" },
+];
+
 export default fieldData;

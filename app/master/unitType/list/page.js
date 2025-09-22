@@ -19,10 +19,10 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
+import { unitType } from "../unitTypeData";
 function createData(code, name, id) {
   return { code, name, id };
 }
@@ -117,7 +117,7 @@ export default function UnitTypeList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.unitType}
+              options={unitType}
             />
             <CustomButton text="Add" href="/master/unitType" />
           </Box>
