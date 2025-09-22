@@ -11,9 +11,19 @@ import CustomButton from "@/components/button/button";
 import { CustomInput } from "@/components/customInput";
 import FormHeading from "../formHeading/formHeading";
 
-export default function AdvancedSearchBar({ fields, onSearch }) {
+export default function AdvancedSearchBar({
+  fields,
+  advanceSearch,
+  setAdvanceSearch,
+  rowsPerPage,
+  getData,
+}) {
   const [open, setOpen] = useState(false);
-  const [searchData, setSearchData] = useState({});
+
+  const handleSearch = () => {
+    getData(1, rowsPerPage);
+    setOpen(false);
+  };
 
   return (
     <>
@@ -35,8 +45,8 @@ export default function AdvancedSearchBar({ fields, onSearch }) {
           <Box className="grid grid-cols-2 gap-2 p-1 ">
             <CustomInput
               fields={fields}
-              formData={searchData}
-              setFormData={setSearchData}
+              formData={advanceSearch}
+              setFormData={setAdvanceSearch}
               fieldsMode="edit"
             />
           </Box>
@@ -44,17 +54,18 @@ export default function AdvancedSearchBar({ fields, onSearch }) {
         <DialogActions>
           <CustomButton
             buttonStyles="!bg-[#F5554A] !text-white !text-[10px] !px-1 !py-1 !text-base !font-semibold rounded-md"
+            onClick={() => setAdvanceSearch({})}
+            text="Clear"
+          />
+          <CustomButton
+            buttonStyles="!bg-[#F5554A] !text-white !text-[10px] !px-1 !py-1 !text-base !font-semibold rounded-md"
             onClick={() => setOpen(false)}
             text="Cancel"
           />
-
           <CustomButton
             buttonStyles="!bg-[#95a9e8] !text-white !text-[10px] !px-1 !py-1 !text-base !font-semibold rounded-md"
             text="Search"
-            onClick={() => {
-              if (onSearch) onSearch(searchData);
-              setOpen(false);
-            }}
+            onClick={handleSearch}
           />
         </DialogActions>
       </Dialog>

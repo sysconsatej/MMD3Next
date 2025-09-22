@@ -79,10 +79,6 @@ export const dropdowns = {
     { label: " Name", value: "m.name" },
     { label: "Code", value: "m.code" },
   ],
-  cargoType: [
-    { label: " Name", value: "m.name" },
-    { label: "Code", value: "m.code" },
-  ],
   packageType: [
     { label: " Name", value: "m.name" },
     { label: "Code", value: "m.code" },

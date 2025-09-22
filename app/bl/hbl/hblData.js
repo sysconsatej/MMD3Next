@@ -661,7 +661,7 @@ export const mapping = {
 };
 
 export default fieldData;
-export const advanceSearch = {
+export const advanceSearchFields = {
   bl: [
     {
       label: "Location(POD)",
@@ -691,13 +691,13 @@ export const advanceSearch = {
 
     {
       label: "From Date",
-      name: "validForm",
+      name: "fromDate",
       type: "date",
       isEdit: true,
     },
     {
       label: "To Date",
-      name: "validTo",
+      name: "toDate",
       type: "date",
       isEdit: true,
     },

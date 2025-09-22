@@ -17,14 +17,13 @@ import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
-import SearchBar from "@/components/searchBar/searchBar";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import { ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
-import { advanceSearch } from "../hblData";
+import { advanceSearchFields } from "../hblData";
+import { advanceSearchFilter } from "../utils";
 
 function createData(
   mblNo,
@@ -60,7 +59,7 @@ export default function BLList() {
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
   const [blData, setBlData] = useState([]);
-  const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
+  const [advanceSearch, setAdvanceSearch] = useState({});
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
@@ -74,10 +73,9 @@ export default function BLList() {
           tableName: "tblBl b",
           pageNo,
           pageSize,
-          searchColumn: search.searchColumn,
-          searchValue: search.searchValue,
           joins:
             " left join tblPort p on p.id = b.polId  left join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId",
+          advanceSearch: advanceSearchFilter(advanceSearch),
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -91,7 +89,7 @@ export default function BLList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, advanceSearch]
   );
 
   useEffect(() => {
@@ -149,11 +147,6 @@ export default function BLList() {
     setMode({ mode, formId });
     router.push("/bl/hbl");
   };
-  const handleAdvancedSearch = (searchData) => {
-    setSearch({ searchColumn: "", searchValue: "" });
-
-    getData(1, rowsPerPage, searchData);
-  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -164,16 +157,12 @@ export default function BLList() {
             HBL Request
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
-            {/* <SearchBar
+            <AdvancedSearchBar
+              fields={advanceSearchFields.bl}
+              advanceSearch={advanceSearch}
+              setAdvanceSearch={setAdvanceSearch}
               getData={getData}
               rowsPerPage={rowsPerPage}
-              search={search}
-              setSearch={setSearch}
-              options={dropdowns.bl}
-            /> */}
-            <AdvancedSearchBar
-              fields={advanceSearch.bl}
-              onSearch={handleAdvancedSearch}
             />
             <CustomButton text="Add" href="/bl/hbl" />
           </Box>
