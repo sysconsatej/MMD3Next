@@ -21,6 +21,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { useTotalGrossAndPack } from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import AgreeTerms from "@/components/agreeTerms/agreeTerms";
 
 export default function Home() {
   const [formData, setFormData] = useState({});
@@ -183,8 +184,7 @@ export default function Home() {
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
-                ]}
-              >
+                ]}>
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.consigneeFields}
@@ -209,8 +209,7 @@ export default function Home() {
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
-                ]}
-              >
+                ]}>
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.notifyFields}
@@ -274,6 +273,9 @@ export default function Home() {
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
               />
+            </Box>
+            <Box display="flex" justifyContent="center" mt={2}>
+              <AgreeTerms />
             </Box>
           </Box>
           <Box className="w-full flex mt-2">
