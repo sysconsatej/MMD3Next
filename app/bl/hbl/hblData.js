@@ -1,4 +1,9 @@
-const fieldData = {
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
+import FileCopyIcon from "@mui/icons-material/FileCopy";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+
+export const fieldData = {
   mblFields: [
     {
       label: "Location(POD)",
@@ -357,12 +362,16 @@ const fieldData = {
     {
       label: "Cargo Gross Wt(Kgs)",
       name: "grossWt",
+      type: "number",
+      style: "col-span-2 row-span-1",
       required: true,
       isEdit: true,
     },
     {
       label: "No of Package",
       name: "noOfPackages",
+      type: "number",
+      style: "col-span-2 row-span-1",
       isEdit: true,
       required: true,
     },
@@ -372,6 +381,7 @@ const fieldData = {
       type: "dropdown",
       labelType: "name,tblPackage",
       foreignTable: "name,tblMasterData",
+      style: "col-span-2 row-span-1",
       required: true,
       isEdit: true,
     },
@@ -623,7 +633,12 @@ const fieldData = {
     },
   ],
   tblBlContainer: [
-    { label: "Container No", name: "containerNo", isEdit: true },
+    {
+      label: "Container No",
+      name: "containerNo",
+      isEdit: true,
+      required: true,
+    },
     {
       label: "Seal Type",
       name: "sealTypeId",
@@ -633,28 +648,42 @@ const fieldData = {
       isEdit: true,
     },
     { label: "Seal No", name: "agentSealNo", isEdit: true },
-    { label: "SOC Flag", name: "soc", isEdit: true, type: "checkbox" },
-    { label: "Container Agent Code", name: "Agent", isEdit: true },
-    { label: "ISO Code", name: "isoCode", isEdit: true },
+    {
+      label: "SOC Flag",
+      name: "soc",
+      isEdit: true,
+      type: "checkbox",
+      required: true,
+    },
+    {
+      label: "Container Agent Code",
+      name: "Agent",
+      isEdit: true,
+      required: true,
+    },
+    { label: "ISO Code", name: "isoCode", isEdit: true, required: true },
     {
       label: "Cargo Gross Wt(Kgs)",
       name: "Cargo",
       type: "number",
       isEdit: true,
+      required: true,
     },
     {
       label: "Cargo net Wt(Kgs)",
       name: "netWt",
       type: "number",
       isEdit: true,
+      required: true,
     },
     { label: "Gross Weight", name: "grossWt", type: "number", isEdit: true },
-    { label: "Volume(CBM)", name: "volume", isEdit: true },
+    { label: "Volume(CBM)", name: "volume", isEdit: true, required: true },
     {
       label: "No of Packages",
       name: "noOfPackages",
       type: "number",
       isEdit: true,
+      required: true,
     },
     {
       label: "Package Type",
@@ -663,6 +692,7 @@ const fieldData = {
       labelType: "name,tblPackage",
       foreignTable: "name,tblMasterData",
       isEdit: true,
+      required: true,
     },
   ],
   itineraryFields: [
@@ -705,7 +735,6 @@ export const mapping = {
   notifyPartyAddress: "consigneeAddress",
 };
 
-export default fieldData;
 export const advanceSearchFields = {
   bl: [
     {
@@ -764,3 +793,26 @@ export const advanceSearchFields = {
     },
   ],
 };
+
+export const containerGridButtons = [
+  {
+    text: "Add Row",
+    icon: <AddIcon />,
+    func: "gridAddHandler",
+  },
+  {
+    text: "Delete Row",
+    icon: <CloseIcon />,
+    func: "gridDeleteHandler",
+  },
+  {
+    text: "Copy Row",
+    icon: <FileCopyIcon />,
+    func: "gridCopyHandler",
+  },
+  {
+    text: "Import Excel",
+    icon: <UploadFileIcon />,
+    func: "checkHandler",
+  },
+];

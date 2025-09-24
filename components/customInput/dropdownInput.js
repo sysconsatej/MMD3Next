@@ -76,7 +76,7 @@ const DropdownInput = ({
   return (
     <Box className={`flex items-end gap-2 ${field.style} `}>
       <InputLabel>
-        {commonProps.required && (
+        {commonProps.required && field.label && (
           <span className="text-red-600 font-bold ">┃</span>
         )}
         {field.label}
