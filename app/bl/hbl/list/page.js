@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import {
   Box,
   Table,
@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
 import { advanceSearchFields } from "../hblData";
 import { advanceSearchFilter } from "../utils";
+import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 
 function createData(
   mblNo,
@@ -63,6 +64,7 @@ export default function BLList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
+  const tableWrapRef = useRef(null);
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
@@ -167,8 +169,7 @@ export default function BLList() {
             <CustomButton text="Add" href="/bl/hbl" />
           </Box>
         </Box>
-
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} ref={tableWrapRef}>
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
@@ -215,16 +216,22 @@ export default function BLList() {
             </TableBody>
           </Table>
         </TableContainer>
-
-        <Box className="flex justify-end items-center mt-2">
-          <CustomPagination
-            count={totalPage}
-            totalRows={totalRows}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            handleChangeRowsPerPage={handleChangeRowsPerPage}
+        <Box className="flex justify-between items-center">
+          <TableExportButtons
+            targetRef={tableWrapRef}
+            title="HBL Request"
+            fileName="hbl-list"
           />
+          <Box className="flex justify-end items-center mt-2">
+            <CustomPagination
+              count={totalPage}
+              totalRows={totalRows}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={handleChangePage}
+              handleChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </Box>
         </Box>
       </Box>
       <ToastContainer />
