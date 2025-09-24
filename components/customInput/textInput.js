@@ -11,7 +11,7 @@ const TextInput = ({
   return (
     <Box className={`flex items-end gap-2 ${field.style} `}>
       <InputLabel>
-        {remainingProps.required && (
+        {remainingProps.required && label && (
           <span className="text-red-600 font-bold ">┃</span>
         )}
         {label}

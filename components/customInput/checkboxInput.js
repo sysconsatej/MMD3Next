@@ -10,7 +10,7 @@ const CheckBoxInput = ({
   return (
     <Box className="flex items-end gap-2">
       <InputLabel>
-        {commonProps.required && (
+        {commonProps.required && commonProps.label && (
           <span className="text-red-600 font-bold ">┃</span>
         )}
         {commonProps.label}

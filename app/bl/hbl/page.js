@@ -1,7 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ThemeProvider, Box, Typography } from "@mui/material";
-import data, { mapping, totalFieldData } from "./hblData";
+import {
+  mapping,
+  totalFieldData,
+  containerGridButtons,
+  fieldData,
+} from "./hblData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -26,7 +31,7 @@ import AgreeTerms from "@/components/agreeTerms/agreeTerms";
 export default function Home() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
-  const [jsonData, setJsonData] = useState(data);
+  const [jsonData, setJsonData] = useState(fieldData);
   const { mode, setMode } = formStore();
   const [gridStatus, setGridStatus] = useState(null);
   const [totals, setTotals] = useState({});
@@ -59,7 +64,7 @@ export default function Home() {
       setFieldsMode(mode.mode);
 
       const format = formatFetchForm(
-        data,
+        fieldData,
         "tblBl",
         mode.formId,
         '["tblBlContainer"]',
@@ -67,7 +72,7 @@ export default function Home() {
       );
       const { success, result, message, error } = await fetchForm(format);
       if (success) {
-        const getData = formatDataWithForm(result, data);
+        const getData = formatDataWithForm(result, fieldData);
         setFormData(getData);
         setGridStatus("fetchGrid");
       } else {
@@ -184,7 +189,8 @@ export default function Home() {
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
-                ]}>
+                ]}
+              >
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.consigneeFields}
@@ -209,7 +215,8 @@ export default function Home() {
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
-                ]}>
+                ]}
+              >
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.notifyFields}
@@ -245,6 +252,7 @@ export default function Home() {
                 fieldsMode={fieldsMode}
                 gridName="tblBlContainer"
                 gridStatus={gridStatus}
+                buttons={containerGridButtons}
               />
               <FormHeading text="Item Details" />
               <TableGrid
