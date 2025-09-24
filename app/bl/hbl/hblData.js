@@ -54,7 +54,7 @@ export const fieldData = {
       label: "Type of Cargo",
       name: "cargoTypeId",
       type: "dropdown",
-      labelType: "name,tblCargoType",
+      labelType: "name,tblServiceType",
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
