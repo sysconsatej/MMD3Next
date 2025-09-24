@@ -283,7 +283,7 @@ export default function Home() {
               />
             </Box>
             <Box display="flex" justifyContent="center" mt={2}>
-              <AgreeTerms />
+              {fieldsMode === "" && <AgreeTerms />}
             </Box>
           </Box>
           <Box className="w-full flex mt-2">
