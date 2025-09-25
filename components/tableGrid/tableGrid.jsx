@@ -13,6 +13,7 @@ import {
 import CustomPagination from "../pagination/pagination";
 import { CustomInput } from "../customInput";
 import CustomButton from "../button/button";
+import { toast } from "react-toastify";
 
 function TableGrid({
   fields,
@@ -25,8 +26,7 @@ function TableGrid({
 }) {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [loadingState, setLoadingState] = useState("No data found!");
-  const [gridId, setGridId] = useState(-1);
+  const [gridId, setGridId] = useState(0);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -36,20 +36,38 @@ function TableGrid({
     setRowsPerPage(+event.target.value);
   };
 
-  function modeHandler(mode, containerIndex) {}
+  function gridRequiredHandler() {
+    const gridRows = formData[gridName] || [];
+    const lastAndCurrentRow = [gridRows.length - 1 || 0, gridId || 0];
+    let checkRequired = true;
+
+    lastAndCurrentRow.forEach((rowIndex) => {
+      checkRequired = fields.every((field) =>
+        gridRows.length > 0
+          ? !field.required || !!gridRows[rowIndex][field.name]
+          : true
+      );
+    });
+
+    if (checkRequired === false) {
+      toast.error(
+        "Need to fill all required columns in current row or last row!"
+      );
+    }
+
+    return checkRequired;
+  }
 
   const funcHandler = {
     gridAddHandler: () => {
-      const filterData = formData[gridName]?.filter((obj) =>
-        Object.values(obj).some(
-          (val) => val !== null && val !== "" && val !== undefined
-        )
-      );
+      const checkRequired = gridRequiredHandler();
+      if (!checkRequired) return;
+
       setFormData((prev) => ({
         ...prev,
-        [gridName]: [...(filterData || []), {}],
+        [gridName]: [...(prev[gridName] || []), {}],
       }));
-      setGridId(filterData?.length || 0);
+      setGridId(formData[gridName]?.length || 0);
     },
     gridDeleteHandler: () => {
       const filterData = formData[gridName]?.filter((item, index) => {
@@ -59,16 +77,14 @@ function TableGrid({
         ...prev,
         [gridName]: filterData,
       }));
+      setGridId(null);
     },
     gridCopyHandler: () => {
+      const checkRequired = gridRequiredHandler();
+      if (!checkRequired) return;
+
       const filterData = formData[gridName]?.filter((item, index) => {
-        let isValueExist = null;
-        if (index === gridId) {
-          isValueExist = Object.values(item).some((val) => {
-            return val !== null && val !== "" && val !== undefined;
-          });
-        }
-        if (isValueExist) return index === gridId;
+        return index === gridId;
       });
 
       setFormData((prev) => ({
@@ -80,6 +96,17 @@ function TableGrid({
       return alert("working");
     },
   };
+
+  function doubleClickHandler(index) {
+    const checkRequired = gridRequiredHandler();
+    if (!checkRequired) return;
+
+    if (gridId === index) {
+      setGridId(null);
+    } else {
+      setGridId(index);
+    }
+  }
 
   return (
     <Box>
@@ -122,7 +149,9 @@ function TableGrid({
                 ?.map((rowItem, rowIndex) => {
                   const containerIndex = rowIndex + rowsPerPage * (page - 1);
                   return (
-                    <TableRow onDoubleClick={() => setGridId(containerIndex)}>
+                    <TableRow
+                      onDoubleClick={() => doubleClickHandler(containerIndex)}
+                    >
                       <TableCell sx={{ minWidth: "auto" }}>
                         {containerIndex + 1}
                       </TableCell>

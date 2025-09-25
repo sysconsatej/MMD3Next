@@ -75,12 +75,14 @@ const DropdownInput = ({
 
   return (
     <Box className={`flex items-end gap-2 ${field.style} `}>
-      <InputLabel>
-        {commonProps.required && field.label && (
-          <span className="text-red-600 font-bold ">┃</span>
-        )}
-        {field.label}
-      </InputLabel>
+      {field.label && (
+        <InputLabel>
+          {commonProps.required && (
+            <span className="text-red-600 font-bold ">┃</span>
+          )}
+          {field.label}
+        </InputLabel>
+      )}
       <Autocomplete
         key={commonProps.key}
         className={commonProps.className}

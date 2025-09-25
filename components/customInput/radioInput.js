@@ -18,12 +18,14 @@ const RadioInput = ({
     <FormControl
       className={`flex items-end !flex-row gap-2 ${commonProps.className}`}
     >
-      <FormLabel className="radioLabel">
-        {commonProps.required && (
-          <span className="text-red-600 font-bold ">┃</span>
-        )}
-        {commonProps.label}
-      </FormLabel>
+      {commonProps.label && (
+        <FormLabel className="radioLabel">
+          {commonProps.required && (
+            <span className="text-red-600 font-bold ">┃</span>
+          )}
+          {commonProps.label}
+        </FormLabel>
+      )}
       <RadioGroup
         row
         name="row-radio-buttons-group"

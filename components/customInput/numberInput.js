@@ -5,12 +5,14 @@ const NumberInput = ({ commonProps, fieldValue, field }) => {
   const { label, ...remainingProps } = commonProps;
   return (
     <Box className={`flex items-end gap-2 ${field.style} `}>
-      <InputLabel>
-        {remainingProps.required && label && (
-          <span className="text-red-600 font-bold ">┃</span>
-        )}
-        {label}
-      </InputLabel>
+      {label && (
+        <InputLabel>
+          {remainingProps.required && (
+            <span className="text-red-600 font-bold ">┃</span>
+          )}
+          {label}
+        </InputLabel>
+      )}
       <TextField
         {...remainingProps}
         key={commonProps.key}
