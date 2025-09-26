@@ -63,11 +63,17 @@ function TableGrid({
       const checkRequired = gridRequiredHandler();
       if (!checkRequired) return;
 
+      const filterData = formData[gridName]?.filter((obj) =>
+        Object.values(obj).some(
+          (val) => val !== null && val !== "" && val !== undefined
+        )
+      );
+
       setFormData((prev) => ({
         ...prev,
-        [gridName]: [...(prev[gridName] || []), {}],
+        [gridName]: [...(filterData || []), {}],
       }));
-      setGridId(formData[gridName]?.length || 0);
+      setGridId(filterData?.length || 0);
     },
     gridDeleteHandler: () => {
       const filterData = formData[gridName]?.filter((item, index) => {
@@ -84,7 +90,13 @@ function TableGrid({
       if (!checkRequired) return;
 
       const filterData = formData[gridName]?.filter((item, index) => {
-        return index === gridId;
+        let isValueExist = null;
+        if (index === gridId) {
+          isValueExist = Object.values(item).some((val) => {
+            return val !== null && val !== "" && val !== undefined;
+          });
+        }
+        if (isValueExist) return index === gridId;
       });
 
       setFormData((prev) => ({
