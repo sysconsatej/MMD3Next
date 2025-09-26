@@ -1,12 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ThemeProvider, Box, Typography } from "@mui/material";
-import {
-  mapping,
-  totalFieldData,
-  containerGridButtons,
-  fieldData,
-} from "./hblData";
+import { mapping, totalFieldData, gridButtons, fieldData } from "./hblData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -252,23 +247,16 @@ export default function Home() {
                 fieldsMode={fieldsMode}
                 gridName="tblBlContainer"
                 gridStatus={gridStatus}
-                buttons={containerGridButtons}
+                buttons={gridButtons}
               />
               <FormHeading text="Item Details" />
               <TableGrid
-                fields={jsonData.itemFields}
+                fields={jsonData.tblBlPackingList}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
-                gridName="item"
-              />
-              <FormHeading text="Itinerary Details" />
-              <TableGrid
-                fields={jsonData.itineraryFields}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
-                gridName="itinerary"
+                gridName="tblBlPackingList"
+                buttons={gridButtons}
               />
             </Box>
             <Box className="border border-gray-300 p-3 mt-2 flex flex-col gap-1">

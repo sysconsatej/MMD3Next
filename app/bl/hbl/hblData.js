@@ -247,7 +247,6 @@ export const fieldData = {
       isEdit: true,
     },
   ],
-
   hblFields: [
     {
       label: "HBL No",
@@ -605,33 +604,6 @@ export const fieldData = {
       isEdit: true,
     },
   ],
-  itemFields: [
-    { label: "Container No", name: "containerNo", isEdit: true },
-    { label: "HS No", name: "itemHsNo", isEdit: true },
-    { label: "Cargo Item Description", name: "itemCargoItemDes", isEdit: true },
-    { label: "UNO Code", name: "itemUnoCode", isEdit: true },
-    {
-      label: "IMDG Code",
-      name: "itemImdgCode",
-      type: "dropdown",
-      labelType: "port",
-      isEdit: true,
-    },
-    {
-      label: "No of Packages",
-      name: "itemNoOfPackages",
-      type: "number",
-      isEdit: true,
-    },
-    {
-      label: "Package Type Required",
-      name: "itemPackagesType",
-      type: "dropdown",
-      labelType: "name,tblPackage",
-      foreignTable: "name,tblMasterData",
-      isEdit: true,
-    },
-  ],
   tblBlContainer: [
     {
       label: "Container No",
@@ -664,14 +636,14 @@ export const fieldData = {
     { label: "ISO Code", name: "isoCode", isEdit: true, required: true },
     {
       label: "Cargo Gross Wt(Kgs)",
-      name: "Cargo",
+      name: "grosswt",
       type: "number",
       isEdit: true,
       required: true,
     },
     {
       label: "Cargo net Wt(Kgs)",
-      name: "netWt",
+      name: "netwt",
       type: "number",
       isEdit: true,
       required: true,
@@ -695,14 +667,21 @@ export const fieldData = {
       required: true,
     },
   ],
-  itineraryFields: [
-    { label: "From Port/ICD/Sez/CFS", name: "itineraryFrom", isEdit: true },
-    { label: "To Port/ICD/Sez/CFS", name: "itineraryTo", isEdit: true },
+  tblBlPackingList: [
+    { label: "HS No", name: "hsnCode", isEdit: true },
+    { label: "Cargo Item Description", name: "commodity", isEdit: true },
+    { label: "UNO Code", name: "imoId", isEdit: true },
     {
-      label: "Mode of transport",
-      name: "itineraryMode",
+      label: "No of Packages",
+      name: "noOfPackages",
+      type: "number",
+      isEdit: true,
+    },
+    {
+      label: "Package Type Required",
+      name: "packageId",
       type: "dropdown",
-      labelType: "name,tblTransportType",
+      labelType: "name,tblPackage",
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
@@ -794,7 +773,7 @@ export const advanceSearchFields = {
   ],
 };
 
-export const containerGridButtons = [
+export const gridButtons = [
   {
     text: "Add Row",
     icon: <AddIcon />,
