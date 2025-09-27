@@ -4,4 +4,9 @@ export {
   getNextPrevData,
 } from "./utils";
 export { fetchTableValues } from "./dynamicTable";
-export { insertUpdateForm, fetchForm, deleteRecord } from "./dynamicForm";
+export {
+  insertUpdateForm,
+  fetchForm,
+  deleteRecord,
+  uploadExcel,
+} from "./dynamicForm";

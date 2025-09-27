@@ -792,6 +792,6 @@ export const gridButtons = [
   {
     text: "Import Excel",
     icon: <UploadFileIcon />,
-    func: "checkHandler",
+    func: "excelUpload",
   },
 ];
