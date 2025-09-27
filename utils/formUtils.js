@@ -214,3 +214,25 @@ export function useNextPrevData({
     canNext: neighbors.nextId,
   };
 }
+
+export function formatExcelDataWithForm(data, format) {
+  return Object.values(data).reduce((result, row) => {
+    const obj = format.reduce((acc, { name, label }) => {
+      if (
+        row[label] !== null &&
+        row[label] !== undefined &&
+        row[label] !== ""
+      ) {
+        acc[name] = row[label];
+      }
+
+      return acc;
+    }, {});
+
+    if (Object.keys(obj).length > 0) {
+      result.push(obj);
+    }
+
+    return result;
+  }, []);
+}

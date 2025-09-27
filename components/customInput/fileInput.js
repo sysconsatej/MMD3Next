@@ -101,7 +101,11 @@ const FileInput = ({
   }
 
   return (
-    <Box className="flex flex-col gap-1 w-full">
+    <Box
+      className={`flex gap-1 w-full ${
+        field?.dragDrop ? "flex-col" : "items-end flex-row"
+      } `}
+    >
       <InputLabel>
         {remainingProps.required && (
           <span className="text-red-600 font-bold">┃</span>
