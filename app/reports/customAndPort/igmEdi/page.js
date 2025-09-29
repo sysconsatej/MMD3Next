@@ -8,14 +8,14 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { formStore } from "@/store";
-import GenerateReportButton from "@/components/generateReport/generateReport";
+import GenerateReportButton from "@/components/dynamicReport/generateReport";
 // import DynamicReportTable from "@/components/dynamicReport/dynamicReport";
-import DynamicReportTable from "@/components/dynamicReportEditable/dynamicReportEditable";
+import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable";
 
 import {
   fetchDynamicReportData,
   updateDynamicReportData,
-} from "@/apis/dynamicTable";
+} from "@/apis/dynamicReport";
 
 export default function IGMEDI() {
   const [formData, setFormData] = useState({});
@@ -50,23 +50,22 @@ export default function IGMEDI() {
     setLoading(true);
     try {
       const body = {
-        spName: "ImportBlSelection", // change to your SP if needed
+        spName: "ImportBlSelection",
         jsonData: tableFormData,
       };
-      console.log("body",body)
+      console.log("body", body);
       const resp = await updateDynamicReportData(body);
       if (!resp?.success) {
         toast.error(resp?.message || "Update failed.");
         return;
       }
 
-      const api = resp.data; // { success, spName, count, results: [...] }
+      const api = resp.data;
       const results = api?.results || [];
 
-      // ---- helpers to sanitize rows ----
       const stripCols = (obj) => {
         if (!obj || typeof obj !== "object") return { value: obj };
-        const { index, status, ID, Id, id, ...rest } = obj; // remove these keys
+        const { index, status, ID, Id, id, ...rest } = obj;
         return rest;
       };
       const pushRowsFromData = (acc, data) => {
@@ -75,22 +74,19 @@ export default function IGMEDI() {
         else if (data && typeof data === "object") acc.push(stripCols(data));
       };
 
-      // Build arrays for Excel
       const okRows = [];
-      const failedRows = []; // optional sheet for errors
+      const failedRows = []; 
 
       results.forEach((r) => {
         if (r?.ok) {
-          // Prefer parsed JSON in r.data; fall back to first recordset
           if (r.data) {
             pushRowsFromData(okRows, r.data);
           } else if (Array.isArray(r?.recordsets?.[0])) {
             r.recordsets[0].forEach((row) => okRows.push(stripCols(row)));
           } else {
-            okRows.push({}); // keep a placeholder so user sees a row existed
+            okRows.push({}); 
           }
         } else {
-          // keep a minimal error row (no index/status/id)
           failedRows.push({ error: r?.error || "Failed" });
         }
       });
@@ -100,7 +96,6 @@ export default function IGMEDI() {
         return;
       }
 
-      // Lazy-load xlsx to avoid big bundles
       const XLSX = await import("xlsx");
 
       const wb = XLSX.utils.book_new();
@@ -114,7 +109,6 @@ export default function IGMEDI() {
         XLSX.utils.book_append_sheet(wb, wsFailed, "Failed");
       }
 
-      // Filename with timestamp
       const ts = new Date();
       const pad = (n) => String(n).padStart(2, "0");
       const stamp = `${ts.getFullYear()}-${pad(ts.getMonth() + 1)}-${pad(
@@ -132,7 +126,7 @@ export default function IGMEDI() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // prevent form reload if inside <form>
+    e.preventDefault();
     setLoading(true);
     setError(null);
 

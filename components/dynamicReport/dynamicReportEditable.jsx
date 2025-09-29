@@ -130,7 +130,19 @@ const DynamicReportTable = ({ data, metaData = [], onSelectedEditedChange }) => 
     () => Array.from(new Set(editableRows.flatMap((r) => (r && typeof r === "object" ? Object.keys(r) : [])))),
     [editableRows]
   );
-  const DISPLAY_KEYS = useMemo(() => ALL_KEYS.filter((k) => k !== "id" && k !== "__uid"), [ALL_KEYS]);
+
+  /* ⬇️ added: hide id-like columns without changing existing logic/state */
+  const HIDDEN_KEYS = useMemo(
+    () => new Set(["__uid", "id", "_id", "rowid", "row_id"].map(normKey)),
+    []
+  );
+
+  const DISPLAY_KEYS = useMemo(
+    () => ALL_KEYS.filter((k) => !HIDDEN_KEYS.has(normKey(k))),
+    [ALL_KEYS, HIDDEN_KEYS]
+  );
+  /* ⬆️ end of addition */
+
   const columns = useMemo(() => ["Select", ...DISPLAY_KEYS], [DISPLAY_KEYS]);
   const customFieldMap = useMemo(() => buildCustomFieldMap(DISPLAY_KEYS, metaData), [DISPLAY_KEYS, metaData]);
 

@@ -8,11 +8,11 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { formStore } from "@/store";
-import DynamicReportTable from "@/components/dynamicReportEditable/dynamicReportEditable";
+import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable";
 import {
   fetchDynamicReportData,
   updateDynamicReportData,
-} from "@/apis/dynamicTable";
+} from "@/apis/dynamicReport";
 
 export default function ImportAdvanceList() {
   const [formData, setFormData] = useState({});
@@ -23,16 +23,14 @@ export default function ImportAdvanceList() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
-  useEffect(() => {
-    console.log("📦 tableFormData (live):", tableFormData);
-  }, [tableFormData]);
+
   const transformToIds = (data) => {
     return Object.fromEntries(
       Object.entries(data).map(([key, value]) => {
         if (value && typeof value === "object" && "Id" in value) {
-          return [key, value.Id]; // take only the Id
+          return [key, value.Id];
         }
-        return [key, value]; // keep original if not object
+        return [key, value];
       })
     );
   };
@@ -47,7 +45,7 @@ export default function ImportAdvanceList() {
     setLoading(true);
     try {
       const body = {
-        spName: "ialExcel", // change to your SP if needed
+        spName: "ialExcel",
         jsonData: tableFormData,
       };
 
@@ -57,13 +55,12 @@ export default function ImportAdvanceList() {
         return;
       }
 
-      const api = resp.data; // { success, spName, count, results: [...] }
+      const api = resp.data;
       const results = api?.results || [];
 
-      // ---- helpers to sanitize rows ----
       const stripCols = (obj) => {
         if (!obj || typeof obj !== "object") return { value: obj };
-        const { index, status, ID, Id, id, ...rest } = obj; // remove these keys
+        const { index, status, ID, Id, id, ...rest } = obj;
         return rest;
       };
       const pushRowsFromData = (acc, data) => {
@@ -72,22 +69,19 @@ export default function ImportAdvanceList() {
         else if (data && typeof data === "object") acc.push(stripCols(data));
       };
 
-      // Build arrays for Excel
       const okRows = [];
-      const failedRows = []; // optional sheet for errors
+      const failedRows = [];
 
       results.forEach((r) => {
         if (r?.ok) {
-          // Prefer parsed JSON in r.data; fall back to first recordset
           if (r.data) {
             pushRowsFromData(okRows, r.data);
           } else if (Array.isArray(r?.recordsets?.[0])) {
             r.recordsets[0].forEach((row) => okRows.push(stripCols(row)));
           } else {
-            okRows.push({}); // keep a placeholder so user sees a row existed
+            okRows.push({});
           }
         } else {
-          // keep a minimal error row (no index/status/id)
           failedRows.push({ error: r?.error || "Failed" });
         }
       });
@@ -129,8 +123,7 @@ export default function ImportAdvanceList() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // prevent form reload if inside <form>
-    setLoading(true);
+    e.preventDefault();
     setError(null);
 
     const requestBody = {
@@ -154,7 +147,9 @@ export default function ImportAdvanceList() {
       <form onSubmit={handleSubmit}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base flex items-end m-0 ">Import Advance List(Excel)</h1>
+            <h1 className="text-left text-base flex items-end m-0 ">
+              Import Advance List(Excel)
+            </h1>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">

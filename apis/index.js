@@ -10,3 +10,7 @@ export {
   deleteRecord,
   uploadExcel,
 } from "./dynamicForm";
+export {
+  fetchDynamicReportData,
+  updateDynamicReportData,
+} from "./dynamicReport";
