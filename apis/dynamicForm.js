@@ -27,3 +27,12 @@ export const deleteRecord = async (obj) => {
     return error.response.data;
   }
 };
+
+export const uploadExcel = async (obj) => {
+  try {
+    const res = await axios.post(`${url}api/v1/form/excelUpload`, obj);
+    return res.data;
+  } catch (error) {
+    return error.response.data;
+  }
+};

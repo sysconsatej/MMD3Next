@@ -14,6 +14,7 @@ import CustomPagination from "../pagination/pagination";
 import { CustomInput } from "../customInput";
 import CustomButton from "../button/button";
 import { toast } from "react-toastify";
+import ExcelModal from "./modal";
 
 function TableGrid({
   fields,
@@ -27,6 +28,7 @@ function TableGrid({
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [gridId, setGridId] = useState(0);
+  const [excelFile, setExcelFile] = useState({ open: false, excelFile: null });
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -63,11 +65,17 @@ function TableGrid({
       const checkRequired = gridRequiredHandler();
       if (!checkRequired) return;
 
+      const filterData = formData[gridName]?.filter((obj) =>
+        Object.values(obj).some(
+          (val) => val !== null && val !== "" && val !== undefined
+        )
+      );
+
       setFormData((prev) => ({
         ...prev,
-        [gridName]: [...(prev[gridName] || []), {}],
+        [gridName]: [...(filterData || []), {}],
       }));
-      setGridId(formData[gridName]?.length || 0);
+      setGridId(filterData?.length || 0);
     },
     gridDeleteHandler: () => {
       const filterData = formData[gridName]?.filter((item, index) => {
@@ -84,7 +92,13 @@ function TableGrid({
       if (!checkRequired) return;
 
       const filterData = formData[gridName]?.filter((item, index) => {
-        return index === gridId;
+        let isValueExist = null;
+        if (index === gridId) {
+          isValueExist = Object.values(item).some((val) => {
+            return val !== null && val !== "" && val !== undefined;
+          });
+        }
+        if (isValueExist) return index === gridId;
       });
 
       setFormData((prev) => ({
@@ -92,8 +106,8 @@ function TableGrid({
         [gridName]: [...prev[gridName], ...filterData],
       }));
     },
-    checkHandler: () => {
-      return alert("working");
+    excelUpload: () => {
+      setExcelFile((prev) => ({ ...prev, open: true }));
     },
   };
 
@@ -197,6 +211,13 @@ function TableGrid({
           />
         </Card>
       </Box>
+      <ExcelModal
+        excelFile={excelFile}
+        setExcelFile={setExcelFile}
+        setFormData={setFormData}
+        gridName={gridName}
+        fields={fields}
+      />
     </Box>
   );
 }

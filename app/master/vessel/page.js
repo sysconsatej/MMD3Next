@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data from "./vesselData";
+import data, { voyageGridButtons } from "./vesselData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -98,6 +98,7 @@ export default function Vessel() {
               fieldsMode={fieldsMode}
               gridName="tblVoyage"
               gridStatus={gridStatus}
+              buttons={voyageGridButtons}
             />
           </Box>
           <Box className="w-full flex mt-2 ">
