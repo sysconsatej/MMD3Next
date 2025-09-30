@@ -131,7 +131,7 @@ export default function IGMEDI() {
     setError(null);
 
     const requestBody = {
-      spName: "blContainerList",
+      spName: "importBlSelection",
       jsonData: transformed,
     };
 

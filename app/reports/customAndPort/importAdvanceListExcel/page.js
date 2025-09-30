@@ -44,9 +44,19 @@ export default function ImportAdvanceList() {
 
     setLoading(true);
     try {
+      // remove __dirty and normalize id
+      const cleanedRows = tableFormData.map(({ __dirty, ID, id, ...rest }) => ({
+        id: ID ?? id, // prefer uppercase ID if present
+      }));
+
       const body = {
         spName: "ialExcel",
-        jsonData: tableFormData,
+        jsonData: {
+          ...transformed,
+          clientId: 8,
+          userId: 4,
+          data: cleanedRows,
+        },
       };
 
       const resp = await updateDynamicReportData(body);
@@ -87,11 +97,10 @@ export default function ImportAdvanceList() {
       });
 
       if (!okRows.length && !failedRows.length) {
-        toast.info("Update completed, but nothing to export.");
+        toast.info(" Nothing to export.");
         return;
       }
 
-      // Lazy-load xlsx to avoid big bundles
       const XLSX = await import("xlsx");
 
       const wb = XLSX.utils.book_new();
@@ -105,7 +114,6 @@ export default function ImportAdvanceList() {
         XLSX.utils.book_append_sheet(wb, wsFailed, "Failed");
       }
 
-      // Filename with timestamp
       const ts = new Date();
       const pad = (n) => String(n).padStart(2, "0");
       const stamp = `${ts.getFullYear()}-${pad(ts.getMonth() + 1)}-${pad(
@@ -171,7 +179,6 @@ export default function ImportAdvanceList() {
             <CustomButton
               text="GENERATE FILE"
               onClick={handleUpdate}
-              disabled={loading || !tableFormData.length}
               title={
                 !tableFormData.length ? "Select & edit at least one row" : ""
               }
