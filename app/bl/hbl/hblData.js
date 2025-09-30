@@ -606,7 +606,7 @@ export const fieldData = {
   ],
   tblBlContainer: [
     {
-      label: "Container No",
+      label: "CONTAINER NO",
       name: "containerNo",
       isEdit: true,
       required: true,
@@ -619,7 +619,7 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
-    { label: "Seal No", name: "agentSealNo", isEdit: true },
+    { label: "Seal No.", name: "agentSealNo", isEdit: true },
     {
       label: "SOC Flag",
       name: "soc",
@@ -648,10 +648,10 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
-    { label: "Gross Weight", name: "grossWt", type: "number", isEdit: true },
+    { label: "Weight(Kgs)", name: "grossWt", type: "number", isEdit: true },
     { label: "Volume(CBM)", name: "volume", isEdit: true, required: true },
     {
-      label: "No of Packages",
+      label: "NO of Package",
       name: "noOfPackages",
       type: "number",
       isEdit: true,
