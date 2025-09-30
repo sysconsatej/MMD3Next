@@ -23,7 +23,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
-import { advanceSearchFields } from "../hblData";
+import { advanceSearchFields } from "../mblData";
 import { advanceSearchFilter } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
@@ -178,7 +178,7 @@ export default function BLList() {
       return;
     }
     setMode({ mode, formId });
-    router.push("/bl/hbl");
+    router.push("/bl/mbl");
   };
 
   return (
@@ -187,7 +187,7 @@ export default function BLList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center">
-            HBL Request
+            MBL Request
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <AdvancedSearchBar
@@ -197,7 +197,7 @@ export default function BLList() {
               getData={getData}
               rowsPerPage={rowsPerPage}
             />
-            <CustomButton text="Add" href="/bl/hbl" />
+            <CustomButton text="Add" href="/bl/mbl" />
           </Box>
         </Box>
 
@@ -280,8 +280,8 @@ export default function BLList() {
         <Box className="flex justify-between items-center">
           <TableExportButtons
             targetRef={tableWrapRef}
-            title="HBL Request"
-            fileName="hbl-list"
+            title="MBL Request"
+            fileName="mbl-list"
           />
           <Box className="flex justify-end items-center mt-2">
             <CustomPagination

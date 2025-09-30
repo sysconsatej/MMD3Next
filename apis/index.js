@@ -5,3 +5,4 @@ export {
 } from "./utils";
 export { fetchTableValues } from "./dynamicTable";
 export { insertUpdateForm, fetchForm, deleteRecord } from "./dynamicForm";
+export { updateStatusRows } from "./updateStatus";
