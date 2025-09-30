@@ -202,8 +202,8 @@ function TableGrid({
         </TableContainer>
         <Card className="flex justify-end items-center tableGrid">
           <CustomPagination
-            count={Math.ceil(formData[gridName]?.length / rowsPerPage)}
-            totalRows={formData[gridName]?.length}
+            count={Math.ceil(formData[gridName]?.length / rowsPerPage || 0)}
+            totalRows={formData[gridName]?.length || 0}
             page={page}
             rowsPerPage={rowsPerPage}
             onPageChange={handleChangePage}
