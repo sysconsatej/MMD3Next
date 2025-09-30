@@ -70,6 +70,7 @@ export const navItems = [
           { name: "SCMTR-SAM", href: "/reports/customAndPort/scmtrSam" },
           { name: "SCMTR-SEI", href: "/reports/customAndPort/scmtrSei" },
           { name: "SCMTR-CSN", href: "/reports/customAndPort/scmtrCsn" },
+          { name: "Cargo Arrival Notice", href: "/reports/customAndPort/cargoArrivalNotice" },
         ],
       },
     ],
