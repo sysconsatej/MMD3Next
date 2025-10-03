@@ -53,7 +53,6 @@ export default function Home() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(fieldData);
   const { mode, setMode } = formStore();
-  const [gridStatus, setGridStatus] = useState(null);
   const [totals, setTotals] = useState({});
   const [tabValue, setTabValue] = useState(0);
   const [hblArray, setHblArray] = useState([]);
@@ -78,7 +77,6 @@ export default function Home() {
     if (success) {
       toast.success(message);
       setFormData({});
-      setGridStatus("submit");
     } else {
       toast.error(error || message);
     }
@@ -108,7 +106,6 @@ export default function Home() {
       if (success) {
         const getData = formatDataWithForm(result, fieldData);
         setFormData(getData);
-        setGridStatus("fetchGrid");
       } else {
         toast.error(error || message);
       }
@@ -320,7 +317,6 @@ export default function Home() {
                         setFormData={setFormData}
                         fieldsMode={fieldsMode}
                         gridName="tblBlContainer"
-                        gridStatus={gridStatus}
                         buttons={gridButtons}
                         tabName={"tblHbl"}
                         tabIndex={index}

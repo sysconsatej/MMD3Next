@@ -24,7 +24,6 @@ function TableGrid({
   gridName,
   tabName = null,
   tabIndex = null,
-  gridStatus = null,
   buttons = [],
 }) {
   const [page, setPage] = useState(1);
