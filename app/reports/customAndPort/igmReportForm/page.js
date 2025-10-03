@@ -10,6 +10,7 @@ import CustomButton from "@/components/button/button";
 import { formStore } from "@/store";
 import { fetchForm, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
+import GenerateReportButton from "@/components/dynamicReport/generateReport";
 
 export default function IGM() {
   const [formData, setFormData] = useState({});
@@ -41,12 +42,22 @@ export default function IGM() {
             </Box>
           </Box>
           <Box className="w-full flex mt-2  gap-2">
-            {fieldsMode !== "view" && (
-              <CustomButton text={"GET BL DETAILS"} type="submit" />
-            )}
-            {fieldsMode !== "view" && (
-              <CustomButton text={"GENERATE REPORT"} type="submit" />
-            )}
+            <CustomButton text={"GET BL DETAILS"} type="submit" />
+            <GenerateReportButton
+              reportOptions={["Import General Manifest", "Other Report"]}
+              onDownload={(ctx) => {
+                console.log("DOWNLOAD clicked:", ctx);
+                // 👉 put your CSV export logic here
+              }}
+              onPdf={(ctx) => {
+                console.log("PDF clicked:", ctx);
+                // 👉 call jsPDF or your PDF generator here
+              }}
+              onEmail={async (ctx) => {
+                console.log("EMAIL clicked:", ctx);
+                // 👉 call your email API here
+              }}
+            />
           </Box>
         </section>
       </form>
