@@ -247,6 +247,15 @@ export const theme = createTheme({
         },
       },
     },
+    MuiTabs: {
+      styleOverrides: {
+        root: {
+          "& .MuiButtonBase-root": {
+            minHeight: "auto",
+          },
+        },
+      },
+    },
   },
 });
 

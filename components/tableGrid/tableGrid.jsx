@@ -22,6 +22,8 @@ function TableGrid({
   setFormData,
   fieldsMode,
   gridName,
+  tabName = null,
+  tabIndex = null,
   gridStatus = null,
   buttons = [],
 }) {
@@ -182,6 +184,8 @@ function TableGrid({
                                   fieldsMode={fieldsMode}
                                   gridName={gridName}
                                   containerIndex={containerIndex}
+                                  tabName={tabName}
+                                  tabIndex={tabIndex}
                                 />
                               </TableCell>
                             ) : (

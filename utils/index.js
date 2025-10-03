@@ -7,4 +7,4 @@ export {
   useNextPrevData,
   formatExcelDataWithForm,
 } from "./formUtils";
-export { dropdowns } from "./tableSearchDropdownUtils";
+export { setInputValue, getInputValue } from "./inputUtils";
