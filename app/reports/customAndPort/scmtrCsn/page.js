@@ -8,9 +8,9 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { formStore } from "@/store";
-import { fetchDynamicReportData, fetchForm, insertUpdateForm, updateDynamicReportData } from "@/apis";
-import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
+import { fetchDynamicReportData, updateDynamicReportData } from "@/apis";
 import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable";
+import { useRouter } from "next/navigation"; // ⬅️ import router
 
 export default function CSN() {
   const [formData, setFormData] = useState({});
@@ -21,6 +21,7 @@ export default function CSN() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
+  const router = useRouter(); // ⬅️ initialize router
 
   const transformToIds = (data) => {
     return Object.fromEntries(
@@ -127,7 +128,7 @@ export default function CSN() {
 
       window.URL.revokeObjectURL(url);
 
-      toast.success("Update completed. JSON file downloaded.");
+      toast.success("JSON file downloaded.");
     } catch (e) {
       toast.error(e?.message || "Update failed.");
     } finally {
@@ -187,6 +188,12 @@ export default function CSN() {
               title={
                 !tableFormData.length ? "Select & edit at least one row" : ""
               }
+            />
+            <CustomButton
+              text="Cancel"
+              buttonStyles="!text-[white] !bg-[#f5554a] !text-[11px]"
+              onClick={() => router.push("/")}
+              type="button"
             />
           </Box>
         </section>

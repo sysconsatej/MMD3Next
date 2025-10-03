@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { metaData } from "./igmData";
 import { CustomInput } from "@/components/customInput";
@@ -8,14 +8,13 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { formStore } from "@/store";
-import GenerateReportButton from "@/components/dynamicReport/generateReport";
-// import DynamicReportTable from "@/components/dynamicReport/dynamicReport";
 import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable";
-
+import { useRouter } from "next/navigation"; 
 import {
   fetchDynamicReportData,
   updateDynamicReportData,
 } from "@/apis/dynamicReport";
+import { exportText } from "@/utils";
 
 export default function IGMEDI() {
   const [formData, setFormData] = useState({});
@@ -26,105 +25,40 @@ export default function IGMEDI() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
-  useEffect(() => {
-    console.log("📦 tableFormData (live):", tableFormData);
-  }, [tableFormData]);
+  const router = useRouter(); 
+
   const transformToIds = (data) => {
     return Object.fromEntries(
       Object.entries(data).map(([key, value]) => {
         if (value && typeof value === "object" && "Id" in value) {
-          return [key, value.Id]; // take only the Id
+          return [key, value.Id];
         }
-        return [key, value]; // keep original if not object
+        return [key, value];
       })
     );
   };
 
   const transformed = transformToIds(formData);
-  const handleUpdate = async () => {
-    if (!tableFormData?.length) {
-      toast.info("Select & edit at least one row to update.");
-      return;
-    }
 
-    setLoading(true);
-    try {
-      const body = {
-        spName: "ImportBlSelection",
-        jsonData: tableFormData,
-      };
-      console.log("body", body);
-      const resp = await updateDynamicReportData(body);
-      if (!resp?.success) {
-        toast.error(resp?.message || "Update failed.");
-        return;
-      }
-
-      const api = resp.data;
-      const results = api?.results || [];
-
-      const stripCols = (obj) => {
-        if (!obj || typeof obj !== "object") return { value: obj };
-        const { index, status, ID, Id, id, ...rest } = obj;
-        return rest;
-      };
-      const pushRowsFromData = (acc, data) => {
-        if (Array.isArray(data))
-          data.forEach((row) => acc.push(stripCols(row)));
-        else if (data && typeof data === "object") acc.push(stripCols(data));
-      };
-
-      const okRows = [];
-      const failedRows = []; 
-
-      results.forEach((r) => {
-        if (r?.ok) {
-          if (r.data) {
-            pushRowsFromData(okRows, r.data);
-          } else if (Array.isArray(r?.recordsets?.[0])) {
-            r.recordsets[0].forEach((row) => okRows.push(stripCols(row)));
-          } else {
-            okRows.push({}); 
-          }
-        } else {
-          failedRows.push({ error: r?.error || "Failed" });
-        }
-      });
-
-      if (!okRows.length && !failedRows.length) {
-        toast.info("Update completed, but nothing to export.");
-        return;
-      }
-
-      const XLSX = await import("xlsx");
-
-      const wb = XLSX.utils.book_new();
-
-      if (okRows.length) {
-        const wsOK = XLSX.utils.json_to_sheet(okRows);
-        XLSX.utils.book_append_sheet(wb, wsOK, "Results");
-      }
-      if (failedRows.length) {
-        const wsFailed = XLSX.utils.json_to_sheet(failedRows);
-        XLSX.utils.book_append_sheet(wb, wsFailed, "Failed");
-      }
-
-      const ts = new Date();
-      const pad = (n) => String(n).padStart(2, "0");
-      const stamp = `${ts.getFullYear()}-${pad(ts.getMonth() + 1)}-${pad(
-        ts.getDate()
-      )}_${pad(ts.getHours())}-${pad(ts.getMinutes())}-${pad(ts.getSeconds())}`;
-      const filename = `Advance List(Excel)${stamp}.xlsx`;
-
-      XLSX.writeFile(wb, filename);
-      toast.success("Update completed. Excel downloaded.");
-    } catch (e) {
-      toast.error(e?.message || "Update failed.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  const handleUpdate = () =>
+    exportText({
+      tableFormData,
+      updateFn: updateDynamicReportData,
+      filenamePrefix: "IGMEdi",
+      toast,
+      setLoading,
+      filterDirty: false,
+      join: "\r\n",
+      buildBody: (rows) => ({
+        spName: "IGMEdi",
+        jsonData: {
+          ...transformed,
+          data: rows,
+          clientId: 8,
+          userId: 4,
+        },
+      }),
+    });
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -171,34 +105,19 @@ export default function IGMEDI() {
               disabled={loading}
             />
             <CustomButton
-              text="Update"
+              text="GENERATE FILE"
               onClick={handleUpdate}
               disabled={loading || !tableFormData.length}
               title={
                 !tableFormData.length ? "Select & edit at least one row" : ""
               }
             />
-            {/* <CustomButton
-              text="Generate Report"
-              onClick={() =>
-                console.log("📝 tableFormData now:", tableFormData)
-              }
-            /> */}
-            {/* <GenerateReportButton
-              reportOptions={["Import General Manifest", "Other Report"]}
-              onDownload={(ctx) => {
-                console.log("DOWNLOAD clicked:", ctx);
-                // 👉 put your CSV export logic here
-              }}
-              onPdf={(ctx) => {
-                console.log("PDF clicked:", ctx);
-                // 👉 call jsPDF or your PDF generator here
-              }}
-              onEmail={async (ctx) => {
-                console.log("EMAIL clicked:", ctx);
-                // 👉 call your email API here
-              }}
-            /> */}
+            <CustomButton
+              text="Cancel"
+              buttonStyles="!text-[white] !bg-[#f5554a] !text-[11px]"
+              onClick={() => router.push("/")}
+              type="button"
+            />
           </Box>
         </section>
       </form>
@@ -208,7 +127,6 @@ export default function IGMEDI() {
           metaData={metaData}
           onSelectedEditedChange={setTableFormData}
         />
-        {/* <DynamicReportTable data={tableData} /> */}
       </Box>
       <ToastContainer />
     </ThemeProvider>

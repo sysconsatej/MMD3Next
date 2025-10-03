@@ -13,16 +13,18 @@ import {
   fetchDynamicReportData,
   updateDynamicReportData,
 } from "@/apis/dynamicReport";
+import { useRouter } from "next/navigation"; 
+import { exportExcel } from "@/utils/dynamicReportUtils";
 
 export default function ImportAdvanceList() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
-  const { mode, setMode } = formStore();
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
+  const router = useRouter(); 
 
   const transformToIds = (data) => {
     return Object.fromEntries(
@@ -36,100 +38,25 @@ export default function ImportAdvanceList() {
   };
 
   const transformed = transformToIds(formData);
-  const handleUpdate = async () => {
-    if (!tableFormData?.length) {
-      toast.info("Select & edit at least one row to update.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // remove __dirty and normalize id
-      const cleanedRows = tableFormData.map(({ __dirty, ID, id, ...rest }) => ({
-        id: ID ?? id, // prefer uppercase ID if present
-      }));
-
-      const body = {
+ 
+  const handleUpdate = () =>
+    exportExcel({
+      tableFormData, 
+      updateFn: updateDynamicReportData,
+      filenamePrefix: "Advance List(Excel)", 
+      toast,
+      setLoading,
+      filterDirty: false,
+      buildBody: (rows) => ({
         spName: "ialExcel",
         jsonData: {
           ...transformed,
           clientId: 8,
           userId: 4,
-          data: cleanedRows,
+          data: rows,
         },
-      };
-
-      const resp = await updateDynamicReportData(body);
-      if (!resp?.success) {
-        toast.error(resp?.message || "Update failed.");
-        return;
-      }
-
-      const api = resp.data;
-      const results = api?.results || [];
-
-      const stripCols = (obj) => {
-        if (!obj || typeof obj !== "object") return { value: obj };
-        const { index, status, ID, Id, id, ...rest } = obj;
-        return rest;
-      };
-      const pushRowsFromData = (acc, data) => {
-        if (Array.isArray(data))
-          data.forEach((row) => acc.push(stripCols(row)));
-        else if (data && typeof data === "object") acc.push(stripCols(data));
-      };
-
-      const okRows = [];
-      const failedRows = [];
-
-      results.forEach((r) => {
-        if (r?.ok) {
-          if (r.data) {
-            pushRowsFromData(okRows, r.data);
-          } else if (Array.isArray(r?.recordsets?.[0])) {
-            r.recordsets[0].forEach((row) => okRows.push(stripCols(row)));
-          } else {
-            okRows.push({});
-          }
-        } else {
-          failedRows.push({ error: r?.error || "Failed" });
-        }
-      });
-
-      if (!okRows.length && !failedRows.length) {
-        toast.info(" Nothing to export.");
-        return;
-      }
-
-      const XLSX = await import("xlsx");
-
-      const wb = XLSX.utils.book_new();
-
-      if (okRows.length) {
-        const wsOK = XLSX.utils.json_to_sheet(okRows);
-        XLSX.utils.book_append_sheet(wb, wsOK, "Results");
-      }
-      if (failedRows.length) {
-        const wsFailed = XLSX.utils.json_to_sheet(failedRows);
-        XLSX.utils.book_append_sheet(wb, wsFailed, "Failed");
-      }
-
-      const ts = new Date();
-      const pad = (n) => String(n).padStart(2, "0");
-      const stamp = `${ts.getFullYear()}-${pad(ts.getMonth() + 1)}-${pad(
-        ts.getDate()
-      )}_${pad(ts.getHours())}-${pad(ts.getMinutes())}-${pad(ts.getSeconds())}`;
-      const filename = `Advance List(Excel)${stamp}.xlsx`;
-
-      XLSX.writeFile(wb, filename);
-      toast.success("Update completed. Excel downloaded.");
-    } catch (e) {
-      toast.error(e?.message || "Update failed.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+      }),
+    });
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -152,7 +79,7 @@ export default function ImportAdvanceList() {
 
   return (
     <ThemeProvider theme={theme}>
-      <form onSubmit={handleSubmit}>
+      <form>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
@@ -182,6 +109,12 @@ export default function ImportAdvanceList() {
               title={
                 !tableFormData.length ? "Select & edit at least one row" : ""
               }
+            />
+            <CustomButton
+              text="Cancel"
+              buttonStyles="!text-[white] !bg-[#f5554a] !text-[11px]"
+              onClick={() => router.push("/")}
+              type="button"
             />
           </Box>
         </section>
