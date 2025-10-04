@@ -1,7 +1,4 @@
 "use client";
-import CustomButton from "@/components/button/button";
-import SendIcon from "@mui/icons-material/Send";
-import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function Home() {
   return (
