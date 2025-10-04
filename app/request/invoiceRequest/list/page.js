@@ -19,7 +19,6 @@ import { theme } from "@/styles/globalCss";
 import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
-import { dropdowns } from "@/utils";
 
 function createData(
   mblNo,
@@ -128,7 +127,6 @@ export default function CFSList() {
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={dropdowns.bl}
             />
             <CustomButton text="Add" href="/request/invoiceRequest" />
           </Box>

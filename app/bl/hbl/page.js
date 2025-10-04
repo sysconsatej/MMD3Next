@@ -185,6 +185,7 @@ export default function Home() {
                   {hblArray.map((item, index) => {
                     return (
                       <Tab
+                        key={index}
                         label={`HBL ${item + 1}`}
                         {...a11yProps(index)}
                         icon={<CloseIcon onClick={() => handleRemove(index)} />}
@@ -207,7 +208,7 @@ export default function Home() {
               </Box>
               {hblArray.map((item, index) => {
                 return (
-                  <CustomTabPanel value={tabValue} index={index}>
+                  <CustomTabPanel value={tabValue} index={index} key={index}>
                     <Box className="border-2 border-solid border-gray-300 p-3 mt-2 ">
                       <Box className="grid grid-cols-6 gap-2 p-2 ">
                         <CustomInput
