@@ -338,11 +338,13 @@ export default function CargoArrivalNotice() {
           </Box>
         </section>
       </form>
-      <DynamicReportTable
-        data={tableData}
-        metaData={metaData}
-        onSelectedEditedChange={setTableFormData}
-      />
+      <Box className="!p-0">
+        <DynamicReportTable
+          data={tableData}
+          metaData={metaData}
+          onSelectedEditedChange={setTableFormData}
+        />
+      </Box>
       <ToastContainer />
     </ThemeProvider>
   );

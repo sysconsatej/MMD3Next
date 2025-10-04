@@ -17,7 +17,6 @@ export default function Company() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
-  const [gridStatus, setGridStatus] = useState(null);
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -31,7 +30,6 @@ export default function Company() {
     if (success) {
       toast.success(message);
       setFormData({});
-      setGridStatus("submit");
     } else {
       toast.error(error || message);
     }
@@ -52,7 +50,6 @@ export default function Company() {
         if (success) {
           const getData = formatDataWithForm(result, data);
           setFormData(getData);
-          setGridStatus("fetchGrid");
         } else {
           toast.error(error || message);
         }
@@ -94,7 +91,6 @@ export default function Company() {
               setFormData={setFormData}
               fieldsMode={fieldsMode}
               gridName="tblCompanyBranch"
-              gridStatus={gridStatus}
             />
           </Box>
           <Box className="w-full flex mt-2 ">

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ThemeProvider, Box, Typography } from "@mui/material";
+import { ThemeProvider, Box, Typography, Tab, Tabs } from "@mui/material";
 import { mapping, totalFieldData, gridButtons, fieldData } from "./hblData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
@@ -22,14 +22,44 @@ import { useTotalGrossAndPack } from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import AgreeTerms from "@/components/agreeTerms/agreeTerms";
+import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from "@mui/icons-material/Add";
+
+function CustomTabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box>{children}</Box>}
+    </div>
+  );
+}
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
 
 export default function Home() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(fieldData);
   const { mode, setMode } = formStore();
-  const [gridStatus, setGridStatus] = useState(null);
   const [totals, setTotals] = useState({});
+  const [tabValue, setTabValue] = useState(0);
+  const [hblArray, setHblArray] = useState([]);
+
+  const handleChangeTab = (event, newValue) => {
+    setTabValue(newValue);
+  };
 
   useTotalGrossAndPack(formData, setTotals);
   const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
@@ -47,11 +77,18 @@ export default function Home() {
     if (success) {
       toast.success(message);
       setFormData({});
-      setGridStatus("submit");
     } else {
       toast.error(error || message);
     }
   };
+
+  function handleRemove(index) {
+    setHblArray((prev) => prev.filter((num, indexArr) => indexArr !== index)),
+      setFormData((prev) => ({
+        ...prev,
+        tblHbl: prev?.tblHbl?.filter((num, indexArr) => indexArr !== index),
+      }));
+  }
 
   useEffect(() => {
     async function fetchFormHandler() {
@@ -69,7 +106,6 @@ export default function Home() {
       if (success) {
         const getData = formatDataWithForm(result, fieldData);
         setFormData(getData);
-        setGridStatus("fetchGrid");
       } else {
         toast.error(error || message);
       }
@@ -139,125 +175,168 @@ export default function Home() {
               </Box>
             </FormHeading>
             <FormHeading text="HBL Details" />
-            <Box className="border-2 border-solid border-gray-300 p-3 mt-2 ">
-              <Box className="grid grid-cols-6 gap-2 p-2 ">
-                <CustomInput
-                  fields={jsonData.hblFields}
-                  formData={formData}
-                  setFormData={setFormData}
-                  fieldsMode={fieldsMode}
-                />
+            <Box sx={{ width: "100%" }}>
+              <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                <Tabs
+                  value={tabValue}
+                  onChange={handleChangeTab}
+                  aria-label="basic tabs example"
+                >
+                  {hblArray.map((item, index) => {
+                    return (
+                      <Tab
+                        key={index}
+                        label={`HBL ${item + 1}`}
+                        {...a11yProps(index)}
+                        icon={<CloseIcon onClick={() => handleRemove(index)} />}
+                        iconPosition="end"
+                      />
+                    );
+                  })}
+                  <Tab
+                    label="Add HBL"
+                    onClick={() =>
+                      setHblArray((prev) => [
+                        ...prev,
+                        prev[prev.length - 1] + 1 || 0,
+                      ])
+                    }
+                    icon={<AddIcon />}
+                    iconPosition="end"
+                  />
+                </Tabs>
               </Box>
-              {/* <FormHeading text="Transit Bond Details(Required if HBLs POD is different than MBLs POD)">
-                <Box className="grid grid-cols-6 gap-2 p-2 ">
-                  <CustomInput
-                    fields={jsonData.transitFields}
-                    formData={formData}
-                    setFormData={setFormData}
-                    fieldsMode={fieldsMode}
-                  />
-                </Box>
-              </FormHeading> */}
-              <FormHeading text="Consignor Details">
-                <Box className="grid grid-cols-6 gap-2 p-2 ">
-                  <CustomInput
-                    fields={jsonData.consignorFields}
-                    formData={formData}
-                    setFormData={setFormData}
-                    fieldsMode={fieldsMode}
-                  />
-                </Box>
-              </FormHeading>
+              {hblArray.map((item, index) => {
+                return (
+                  <CustomTabPanel value={tabValue} index={index} key={index}>
+                    <Box className="border-2 border-solid border-gray-300 p-3 mt-2 ">
+                      <Box className="grid grid-cols-6 gap-2 p-2 ">
+                        <CustomInput
+                          fields={jsonData.hblFields}
+                          formData={formData}
+                          setFormData={setFormData}
+                          fieldsMode={fieldsMode}
+                          tabName={"tblHbl"}
+                          tabIndex={index}
+                        />
+                      </Box>
+                      <FormHeading text="Consignor Details">
+                        <Box className="grid grid-cols-6 gap-2 p-2 ">
+                          <CustomInput
+                            fields={jsonData.consignorFields}
+                            formData={formData}
+                            setFormData={setFormData}
+                            fieldsMode={fieldsMode}
+                            tabName={"tblHbl"}
+                            tabIndex={index}
+                          />
+                        </Box>
+                      </FormHeading>
 
-              <FormHeading
-                text="Consignee Details"
-                buttons={[
-                  {
-                    text: "Copy Notify Details",
-                    onClick: () =>
-                      copyHandler(
-                        formData,
-                        setFormData,
-                        "left",
-                        mapping,
-                        "Notify details copied to Consignee!"
-                      ),
-                    icon: <ContentCopyIcon fontSize="small" />,
-                  },
-                ]}
-              >
-                <Box className="grid grid-cols-6 gap-2 p-2 ">
-                  <CustomInput
-                    fields={jsonData.consigneeFields}
-                    formData={formData}
-                    setFormData={setFormData}
-                    fieldsMode={fieldsMode}
-                  />
-                </Box>
-              </FormHeading>
-              <FormHeading
-                text="Notify Details"
-                buttons={[
-                  {
-                    text: "Copy Consignee Details",
-                    onClick: () =>
-                      copyHandler(
-                        formData,
-                        setFormData,
-                        "right",
-                        mapping,
-                        "Consignee details copied to Notify!"
-                      ),
-                    icon: <ContentCopyIcon fontSize="small" />,
-                  },
-                ]}
-              >
-                <Box className="grid grid-cols-6 gap-2 p-2 ">
-                  <CustomInput
-                    fields={jsonData.notifyFields}
-                    formData={formData}
-                    setFormData={setFormData}
-                    fieldsMode={fieldsMode}
-                  />
-                </Box>
-              </FormHeading>
-              <FormHeading text="Invoicing Instructions">
-                <Box className="grid grid-cols-6 gap-2 p-2 ">
-                  <CustomInput
-                    fields={jsonData.invoiceFields}
-                    formData={formData}
-                    setFormData={setFormData}
-                    fieldsMode={fieldsMode}
-                  />
-                </Box>
-              </FormHeading>
-              <Box className="grid grid-cols-6 gap-2 p-2 ">
-                <CustomInput
-                  fields={jsonData.hblBottomFields}
-                  formData={formData}
-                  setFormData={setFormData}
-                  fieldsMode={fieldsMode}
-                />
-              </Box>
-              <FormHeading text="Container Details" />
-              <TableGrid
-                fields={jsonData.tblBlContainer}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
-                gridName="tblBlContainer"
-                gridStatus={gridStatus}
-                buttons={gridButtons}
-              />
-              <FormHeading text="Item Details" />
-              <TableGrid
-                fields={jsonData.tblBlPackingList}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
-                gridName="tblBlPackingList"
-                buttons={gridButtons}
-              />
+                      <FormHeading
+                        text="Consignee Details"
+                        buttons={[
+                          {
+                            text: "Copy Notify Details",
+                            onClick: () =>
+                              copyHandler(
+                                formData,
+                                setFormData,
+                                "left",
+                                mapping,
+                                "Notify details copied to Consignee!"
+                              ),
+                            icon: <ContentCopyIcon fontSize="small" />,
+                          },
+                        ]}
+                      >
+                        <Box className="grid grid-cols-6 gap-2 p-2 ">
+                          <CustomInput
+                            fields={jsonData.consigneeFields}
+                            formData={formData}
+                            setFormData={setFormData}
+                            fieldsMode={fieldsMode}
+                            tabName={"tblHbl"}
+                            tabIndex={index}
+                          />
+                        </Box>
+                      </FormHeading>
+                      <FormHeading
+                        text="Notify Details"
+                        buttons={[
+                          {
+                            text: "Copy Consignee Details",
+                            onClick: () =>
+                              copyHandler(
+                                formData,
+                                setFormData,
+                                "right",
+                                mapping,
+                                "Consignee details copied to Notify!"
+                              ),
+                            icon: <ContentCopyIcon fontSize="small" />,
+                          },
+                        ]}
+                      >
+                        <Box className="grid grid-cols-6 gap-2 p-2 ">
+                          <CustomInput
+                            fields={jsonData.notifyFields}
+                            formData={formData}
+                            setFormData={setFormData}
+                            fieldsMode={fieldsMode}
+                            tabName={"tblHbl"}
+                            tabIndex={index}
+                          />
+                        </Box>
+                      </FormHeading>
+                      <FormHeading text="Invoicing Instructions">
+                        <Box className="grid grid-cols-6 gap-2 p-2 ">
+                          <CustomInput
+                            fields={jsonData.invoiceFields}
+                            formData={formData}
+                            setFormData={setFormData}
+                            fieldsMode={fieldsMode}
+                            tabName={"tblHbl"}
+                            tabIndex={index}
+                          />
+                        </Box>
+                      </FormHeading>
+                      <Box className="grid grid-cols-6 gap-2 p-2 ">
+                        <CustomInput
+                          fields={jsonData.hblBottomFields}
+                          formData={formData}
+                          setFormData={setFormData}
+                          fieldsMode={fieldsMode}
+                          tabName={"tblHbl"}
+                          tabIndex={index}
+                        />
+                      </Box>
+                      <FormHeading text="Container Details" />
+                      <TableGrid
+                        fields={jsonData.tblBlContainer}
+                        formData={formData}
+                        setFormData={setFormData}
+                        fieldsMode={fieldsMode}
+                        gridName="tblBlContainer"
+                        buttons={gridButtons}
+                        tabName={"tblHbl"}
+                        tabIndex={index}
+                      />
+                      <FormHeading text="Item Details" />
+                      <TableGrid
+                        fields={jsonData.tblBlPackingList}
+                        formData={formData}
+                        setFormData={setFormData}
+                        fieldsMode={fieldsMode}
+                        gridName="tblBlPackingList"
+                        buttons={gridButtons}
+                        tabName={"tblHbl"}
+                        tabIndex={index}
+                      />
+                    </Box>
+                  </CustomTabPanel>
+                );
+              })}
             </Box>
             <Box className="border border-gray-300 p-3 mt-2 flex flex-col gap-1">
               <Typography variant="caption" className="text-red-500">
