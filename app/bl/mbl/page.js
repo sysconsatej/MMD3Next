@@ -138,16 +138,17 @@ export default function Home() {
                 />
               </Box>
             </FormHeading>
-            <FormHeading text="MBL Details" />
             <Box className="border-2 border-solid border-gray-300 p-3 mt-2 ">
-              <Box className="grid grid-cols-6 gap-2 p-2 ">
-                <CustomInput
-                  fields={jsonData.hblFields}
-                  formData={formData}
-                  setFormData={setFormData}
-                  fieldsMode={fieldsMode}
-                />
-              </Box>
+              <FormHeading text="Route Details">
+                <Box className="grid grid-cols-5 gap-2 p-2 ">
+                  <CustomInput
+                    fields={jsonData.routeDetails}
+                    formData={formData}
+                    setFormData={setFormData}
+                    fieldsMode={fieldsMode}
+                  />
+                </Box>
+              </FormHeading>
               {/* <FormHeading text="Transit Bond Details(Required if HBLs POD is different than MBLs POD)">
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
