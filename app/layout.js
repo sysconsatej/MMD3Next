@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
           <Sidebar />
           <div className="flex flex-col flex-1 min-w-0">
             <Navbar />
-            <main className="flex-1 bg-gray-100 overflow-y-auto">
+            <main className=" bg-gray-100 overflow-y-auto h-[calc(100vh-46px)] ">
               {children}
             </main>
           </div>
