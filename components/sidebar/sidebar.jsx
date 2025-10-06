@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import clsx from "clsx";
 import { navItems } from "./menuData";
+import "./sidebar-scrollbar.css";
 
 export default function Sidebar({ className = "" }) {
   const pathname = usePathname();
@@ -183,13 +184,8 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
         )}
       </button>
 
-      <div
-        id={`menu-${key}`}
-        className={clsx(
-          "overflow-hidden transition-all duration-300",
-          isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-60"
-        )}
-      >
+      {/* Dynamic-height collapsible so ALL children show */}
+      <Collapsible id={`menu-${key}`} isOpen={isOpen}>
         <ul className="ml-3 mt-1 space-y-[2px] border-l border-white/10 pl-2">
           {(node.submenu || node.children || []).map((child, i) => (
             <MenuNode
@@ -203,8 +199,43 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
             />
           ))}
         </ul>
-      </div>
+      </Collapsible>
     </li>
+  );
+}
+
+/* ---------------- Collapsible (measured height) ---------------- */
+function Collapsible({ isOpen, id, children }) {
+  const innerRef = useRef(null);
+  const [height, setHeight] = useState(0);
+
+  // Measure on mount + when content changes + when opened
+  useEffect(() => {
+    if (!innerRef.current) return;
+
+    const el = innerRef.current;
+    const ro = new ResizeObserver(() => {
+      setHeight(el.scrollHeight);
+    });
+    ro.observe(el);
+
+    // initial measure (in case ResizeObserver hasn't fired yet)
+    setHeight(el.scrollHeight);
+
+    return () => ro.disconnect();
+  }, [children, isOpen]);
+
+  return (
+    <div
+      id={id}
+      style={{ maxHeight: isOpen ? height : 0 }}
+      className={clsx(
+        "overflow-hidden transition-[max-height,opacity,transform] duration-300",
+        isOpen ? "opacity-100 translate-y-0" : "opacity-60 -translate-y-0.5"
+      )}
+    >
+      <div ref={innerRef}>{children}</div>
+    </div>
   );
 }
 
