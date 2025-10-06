@@ -6,10 +6,14 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import clsx from "clsx";
 import { navItems } from "./menuData";
+import { useAuth } from "@/store/index";
 
 export default function Sidebar({ className = "" }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(true);
+
+  //  aakashyadav code
+  const { userDataToken } = useAuth();
 
   // Auto-expand groups that contain the current route
   const initialExpanded = useMemo(() => {
@@ -59,41 +63,51 @@ export default function Sidebar({ className = "" }) {
     "m-1 flex min-h-0 flex-1 flex-col rounded-lg bg-white/10 backdrop-blur-md ring-1 ring-white/20";
 
   return (
-    <aside className={asideCls}>
-      <div className={glassCls}>
-        {/* Header */}
-        <div className="flex items-center justify-between px-2 py-2 border-b border-white/10">
-          {open && (
-            <h2 className="font-semibold text-[11px] tracking-wide">Menu</h2>
-          )}
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
-            className="flex items-center justify-center w-7 h-7 rounded-md bg-white/10 hover:bg-white/20 transition-colors"
-          >
-            {open ? <CloseIcon /> : <HamburgerIcon />}
-          </button>
-        </div>
+    <>
+      {userDataToken ? (
+        <>
+          <aside className={asideCls}>
+            <div className={glassCls}>
+              {/* Header */}
+              <div className="flex items-center justify-between px-2 py-2 border-b border-white/10">
+                {open && (
+                  <h2 className="font-semibold text-[11px] tracking-wide">
+                    Menu
+                  </h2>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setOpen((v) => !v)}
+                  aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
+                  className="flex items-center justify-center w-7 h-7 rounded-md bg-white/10 hover:bg-white/20 transition-colors"
+                >
+                  {open ? <CloseIcon /> : <HamburgerIcon />}
+                </button>
+              </div>
 
-        {/* Nav */}
-        <nav className="mt-1 flex-1 overflow-y-auto custom-scroll">
-          <ul className="space-y-[2px] px-1 pb-2">
-            {navItems.map((node, i) => (
-              <MenuNode
-                key={node.href || node.name || i}
-                node={node}
-                level={0}
-                openSidebar={open}
-                expanded={expanded}
-                onToggle={toggleExpand}
-                pathname={pathname}
-              />
-            ))}
-          </ul>
-        </nav>
-      </div>
-    </aside>
+              {/* Nav */}
+              <nav className="mt-1 flex-1 overflow-y-auto custom-scroll">
+                <ul className="space-y-[2px] px-1 pb-2">
+                  {navItems.map((node, i) => (
+                    <MenuNode
+                      key={node.href || node.name || i}
+                      node={node}
+                      level={0}
+                      openSidebar={open}
+                      expanded={expanded}
+                      onToggle={toggleExpand}
+                      pathname={pathname}
+                    />
+                  ))}
+                </ul>
+              </nav>
+            </div>
+          </aside>
+        </>
+      ) : (
+        <></>
+      )}
+    </>
   );
 }
 
