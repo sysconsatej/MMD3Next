@@ -22,13 +22,17 @@ function TableGrid({
   setFormData,
   fieldsMode,
   gridName,
-  gridStatus = null,
+  tabName = null,
+  tabIndex = null,
   buttons = [],
 }) {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [gridId, setGridId] = useState(0);
   const [excelFile, setExcelFile] = useState({ open: false, excelFile: null });
+  const targetGrid = tabName
+    ? formData?.[tabName]?.[tabIndex || 0]?.[gridName]
+    : formData[gridName];
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -39,7 +43,7 @@ function TableGrid({
   };
 
   function gridRequiredHandler() {
-    const gridRows = formData[gridName] || [];
+    const gridRows = targetGrid || [];
     const lastAndCurrentRow = [gridRows.length - 1 || 0, gridId || 0];
     let checkRequired = true;
 
@@ -65,33 +69,60 @@ function TableGrid({
       const checkRequired = gridRequiredHandler();
       if (!checkRequired) return;
 
-      const filterData = formData[gridName]?.filter((obj) =>
+      const filterData = targetGrid?.filter((obj) =>
         Object.values(obj).some(
           (val) => val !== null && val !== "" && val !== undefined
         )
       );
 
-      setFormData((prev) => ({
-        ...prev,
-        [gridName]: [...(filterData || []), {}],
-      }));
+      setFormData((prev) => {
+        if (tabName) {
+          const updatedTab = [...(prev[tabName] || [])];
+          const tabItem = { ...(updatedTab[tabIndex] || {}) };
+          tabItem[gridName] = [...(filterData || []), {}];
+          updatedTab[tabIndex] = tabItem;
+          return {
+            ...prev,
+            [tabName]: updatedTab,
+          };
+        } else {
+          return {
+            ...prev,
+            [gridName]: [...(filterData || []), {}],
+          };
+        }
+      });
       setGridId(filterData?.length || 0);
     },
     gridDeleteHandler: () => {
-      const filterData = formData[gridName]?.filter((item, index) => {
+      const filterData = targetGrid?.filter((item, index) => {
         return index !== gridId;
       });
-      setFormData((prev) => ({
-        ...prev,
-        [gridName]: filterData,
-      }));
+
+      setFormData((prev) => {
+        if (tabName) {
+          const updatedTab = [...(prev[tabName] || [])];
+          const tabItem = { ...(updatedTab[tabIndex] || {}) };
+          tabItem[gridName] = [...(filterData || [])];
+          updatedTab[tabIndex] = tabItem;
+          return {
+            ...prev,
+            [tabName]: updatedTab,
+          };
+        } else {
+          return {
+            ...prev,
+            [gridName]: filterData,
+          };
+        }
+      });
       setGridId(null);
     },
     gridCopyHandler: () => {
       const checkRequired = gridRequiredHandler();
       if (!checkRequired) return;
 
-      const filterData = formData[gridName]?.filter((item, index) => {
+      const filterData = targetGrid?.filter((item, index) => {
         let isValueExist = null;
         if (index === gridId) {
           isValueExist = Object.values(item).some((val) => {
@@ -101,10 +132,23 @@ function TableGrid({
         if (isValueExist) return index === gridId;
       });
 
-      setFormData((prev) => ({
-        ...prev,
-        [gridName]: [...prev[gridName], ...filterData],
-      }));
+      setFormData((prev) => {
+        if (tabName) {
+          const updatedTab = [...(prev[tabName] || [])];
+          const tabItem = { ...(updatedTab[tabIndex] || {}) };
+          tabItem[gridName] = [...tabItem[gridName], ...filterData];
+          updatedTab[tabIndex] = tabItem;
+          return {
+            ...prev,
+            [tabName]: updatedTab,
+          };
+        } else {
+          return {
+            ...prev,
+            [gridName]: [...(prev[gridName] || []), ...filterData],
+          };
+        }
+      });
     },
     excelUpload: () => {
       setExcelFile((prev) => ({ ...prev, open: true }));
@@ -155,7 +199,7 @@ function TableGrid({
               </TableRow>
             </TableHead>
             <TableBody>
-              {formData[gridName]
+              {targetGrid
                 ?.slice(
                   (page - 1) * rowsPerPage,
                   (page - 1) * rowsPerPage + rowsPerPage
@@ -182,6 +226,8 @@ function TableGrid({
                                   fieldsMode={fieldsMode}
                                   gridName={gridName}
                                   containerIndex={containerIndex}
+                                  tabName={tabName}
+                                  tabIndex={tabIndex}
                                 />
                               </TableCell>
                             ) : (
@@ -202,8 +248,8 @@ function TableGrid({
         </TableContainer>
         <Card className="flex justify-end items-center tableGrid">
           <CustomPagination
-            count={Math.ceil(formData[gridName]?.length / rowsPerPage)}
-            totalRows={formData[gridName]?.length}
+            count={Math.ceil(targetGrid?.length / rowsPerPage || 0)}
+            totalRows={targetGrid?.length || 0}
             page={page}
             rowsPerPage={rowsPerPage}
             onPageChange={handleChangePage}

@@ -15,6 +15,7 @@ import {
   DateTimeInput,
   FileInput,
 } from "./index";
+import { getInputValue, setInputValue } from "@/utils";
 
 const CustomInput = ({
   fields,
@@ -22,6 +23,8 @@ const CustomInput = ({
   setFormData,
   gridName = null,
   containerIndex = null,
+  tabName = null,
+  tabIndex = null,
   handleBlurEventFunctions = null,
   handleChangeEventFunctions = null,
   popUp = true,
@@ -34,21 +37,20 @@ const CustomInput = ({
 
   const changeHandler = (e, containerIndex) => {
     const { name, value } = e.target;
-    if (gridName === null) {
-      setFormData((prevData) => ({ ...prevData, [name]: value }));
-    } else {
-      setFormData((prevData) => {
-        const updatedContainers = [...prevData[gridName]];
-        updatedContainers[containerIndex] = {
-          ...updatedContainers[containerIndex],
-          [name]: value,
-        };
-        return {
-          ...prevData,
-          [gridName]: updatedContainers,
-        };
-      });
-    }
+
+    setFormData((prevData) => {
+      const obj = {
+        prevData,
+        tabName,
+        gridName,
+        tabIndex,
+        containerIndex,
+        name,
+        value,
+      };
+      return setInputValue(obj);
+    });
+
     if (!isChange && popUp) {
       localStorage.setItem("isChange", true);
       setIsChange(true);
@@ -59,21 +61,18 @@ const CustomInput = ({
     const { name, value } = e.target;
     const isInclude = dropdowns[name].filter((items) => items.Name === value);
     if (isInclude) {
-      if (gridName === null) {
-        setFormData((prevData) => ({ ...prevData, [name]: isInclude[0] }));
-      } else {
-        setFormData((prevData) => {
-          const updatedContainers = [...prevData[gridName]];
-          updatedContainers[containerIndex] = {
-            ...updatedContainers[containerIndex],
-            [name]: isInclude[0],
-          };
-          return {
-            ...prevData,
-            [gridName]: updatedContainers,
-          };
-        });
-      }
+      setFormData((prevData) => {
+        const obj = {
+          prevData,
+          tabName,
+          gridName,
+          tabIndex,
+          containerIndex,
+          name,
+          value: isInclude[0],
+        };
+        return setInputValue(obj);
+      });
     }
   };
 
@@ -116,10 +115,15 @@ const CustomInput = ({
   };
 
   return fields?.map((field, index) => {
-    const fieldValue =
-      gridName === null
-        ? formData[field.name] || ""
-        : formData?.[gridName]?.[containerIndex]?.[field.name] || "";
+    const obj = {
+      gridName,
+      tabName,
+      containerIndex,
+      tabIndex,
+      formData,
+      name: field.name,
+    };
+    const fieldValue = getInputValue(obj);
 
     let isDisabled =
       fieldsMode === "view" ||

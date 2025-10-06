@@ -22,6 +22,7 @@ export default function CargoArrivalNotice() {
   const { mode, setMode } = formStore();
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
 
@@ -60,33 +61,109 @@ export default function CargoArrivalNotice() {
   };
 
   const handleSendEmail = async () => {
-    if (tableFormData?.length == 0) {
-      toast.info("Please Select at least one Record");
+    // 1) Validate selection
+    if (!Array.isArray(tableFormData) || tableFormData.length === 0) {
+      toast.info("Please select at least one record");
       return;
     }
-    setLoading(true);
+
+    setEmailLoading(true);
     try {
-      console.log("Table Form Data:", tableFormData);
-      const generatedHtml = generatedHtmlReport(1);
-      const obj = {
-        tailwindLocalPath: "./assets/css/tailwind.min.css",
-        to: "rohitanabhavane26@gmail.com,satyasharma4232@gmail.com,nilay@sysconinfotech.com,akash@sysconinfotech.com,tejas@sysconinfotech.com",
-        htmlContent: generatedHtml,
-      };
-      const response = await sendEmail(obj);
-      if (response?.success) {
-        toast.success("Email sent successfully.");
-      } else {
-        toast.error(response?.message);
+      // 2) Build clean id list: prefer ID over id, remove empties, de-dupe
+      const cleanedRows = Array.from(
+        new Set(
+          tableFormData
+            .map((r) => r?.ID ?? r?.id)
+            .filter((v) => v !== undefined && v !== null)
+        )
+      ).map((id) => ({ id }));
+
+      if (cleanedRows.length === 0) {
+        toast.info("No valid IDs found in selected rows");
+        return;
       }
+
+      // 3) Request payload
+      const requestBody = {
+        spName: "blData",
+        jsonData: {
+          ...transformed,
+          data: cleanedRows,
+        },
+      };
+
+      const fetchedData = await fetchDynamicReportData(requestBody);
+      const data = fetchedData?.data?.data;
+
+      if (!Array.isArray(data) || data.length === 0) {
+        toast.info("No data returned to email");
+        return;
+      }
+
+      // 5) Send emails one by one (sequential ensures simpler rate-limit handling)
+      let successCount = 0;
+      let failureCount = 0;
+      let blNo = null;
+
+      for (const item of data) {
+        try {
+          blNo = item?.blNo || "";
+          const html = generatedHtmlReport(item); // assumes this never throws
+          const emailPayload = {
+            tailwindLocalPath: "./assets/css/tailwind.min.css", // optional
+            to: "rohitanabhavane26@gmail.com", // TODO: replace with item-specific email if needed
+            htmlContent: html,
+          };
+
+          const resp = await sendEmail(emailPayload);
+          if (resp?.success) {
+            successCount++;
+            toast.success(`Email Send Successfully To BlNo: ${blNo}`);
+          } else {
+            failureCount++;
+            toast.error(resp?.message || "Failed to send one email");
+          }
+        } catch (err) {
+          failureCount++;
+          //toast.error(err?.message || "Failed to send one email");
+        }
+      }
+
+      // 6) Final summary
+      if (successCount > 0) {
+      }
+      if (failureCount > 0) {
+        //toast.error(`Failed: ${failureCount}`);
+      }
+
+      // (Optional) console logs for debugging
+      console.log("Fetched Data:", data);
+      console.log("Selected Rows:", tableFormData);
     } catch (e) {
       toast.error(e?.message || "Something went wrong.");
     } finally {
-      setLoading(false);
+      setEmailLoading(false);
     }
   };
 
-  const generatedHtmlReport = (data) => {
+  const formatBlData = (item) => {
+    if (!item) return ""; // if null/undefined return nothing
+
+    const dateObj = new Date(item);
+    if (isNaN(dateObj)) return ""; // not a valid date
+
+    return dateObj.toLocaleDateString("en-GB"); // dd/MM/yyyy
+  };
+
+  const formatGrossWt = (grossWt) => {
+    if (grossWt == null || grossWt === "") return ""; // handle null/empty
+    const num = Number(grossWt);
+    if (isNaN(num)) return ""; // safeguard
+    return num.toFixed(2); // 2 decimals
+  };
+
+  const generatedHtmlReport = (item) => {
+    console.log("data", item);
     const html = `<div style="width: 210mm; height: 297mm;background-color: white ">
    <div style="width: 210mm; height: 150px; overflow: hidden;">
    <img src=${headerImg}  
@@ -95,9 +172,12 @@ export default function CargoArrivalNotice() {
    </div>
    <div style="display: flex; padding: 20px;">
       <div style="width: 50%">
-         <p style="font-size: 16px; font-weight: bold; margin: 0;">JN FREIGHT FORWARDERS PVT LTD</p>
-         <p style="font-size: 11px; ; margin: 5px 0 0 0; width: 70%;">DOOR NO 39/3720C, 1ST FLOOR, SR COMPLEX
-            CHITTOOR ROAD, RAVIPURAM, ERNAKULUMKOCHI 682016 IEC NO : 3200013087*
+         <p style="font-size: 16px; font-weight: bold; margin: 0;">${
+           item?.shipper || ""
+         }</p>
+         <p style="font-size: 11px; ; margin: 5px 0 0 0; width: 70%;">${
+           item?.shipperAddress || ""
+         }
          </p>
       </div>
       <div style="width: 50%;">
@@ -106,44 +186,53 @@ export default function CargoArrivalNotice() {
       </div>
    </div>
    <div style="padding: 0 20px;">
-      <p style="font-size: 11px; ; margin: 0;">IEC: AABCJ1901B</p>
-      <p style="font-size: 11px; ; margin: 0;">PAN: AABCJ1901B</p>
-      <p style="font-size: 11px; ; margin: 0;">GSTN: 32AABCJ1901B1ZJ</p>
+      <p style="font-size: 11px; ; margin: 0;">IEC: </p>
+      <p style="font-size: 11px; ; margin: 0;">PAN: </p>
+      <p style="font-size: 11px; ; margin: 0;">GSTN: </p>
    </div>
    <div style="padding: 20px;">
       <p style="font-size: 11px; ; margin: 0;">Dear Sir/Madam</p>
       <p style="font-size: 11px; ; margin: 0; width: 70%;">This notice is to update your good office about the arrival of below mentioned shipment at destination.
-         ETA: 17/09/2025 (Contact us and verify ETA as last-minute schedule change can happen)
-         WAN HAI 515 - 102W
+         ETA: ${formatBlData(
+           item?.arrivalDate
+         )} (Contact us and verify ETA as last-minute schedule change can happen)
+         ${formatBlData(item?.podVessel)} - ${formatBlData(item?.podVoyage)}
       </p>
    </div>
    <div style="padding: 0 20px; display: flex;">
       <div style="width: 40%;">
          <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">Shipper Name & Address</p>
-         <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">RED LINE LOGISTICS VIETNAM CO.,LTD 01 PHO
-            QUANG ST., TAN SON HOA WARD, HO CHI MINH
-            CITY, VIETNAM.
+         <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">${
+           item?.shipper || ""
+         }
+            ${item?.shipperAddress || ""}
          </p>
       </div>
       <div style="width: 60%; display: flex;">
          <div style="width: 50%;" >
             <div>
                <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">BL No</p>
-               <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">039FX74532</p>
+               <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">${
+                 item?.blNo || ""
+               }</p>
             </div>
             <div style="margin-top: 5px;">
                <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">Container</p>
-               <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">1 X Dry-20'GP</p>
+               <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;"></p>
             </div>
          </div>
          <div style="width: 50%;" >
             <div>
                <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">BL Date</p>
-               <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">13/08/2025</p>
+               <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">${formatBlData(
+                 "2025-06-16"
+               )}</p>
             </div>
             <div style="margin-top: 5px;">
                <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">Gross Weight - Kg</p>
-               <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">17400.00</p>
+               <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">${formatGrossWt(
+                 item?.grossWt || ""
+               )}</p>
             </div>
          </div>
       </div>
@@ -151,32 +240,41 @@ export default function CargoArrivalNotice() {
    <div style="padding: 0 20px; display: flex;">
       <div style="width: 20%;">
          <p style="font-size: 9px; margin: 0;  color: #7F7C82;">PLR</p>
-         <p style="font-size: 11px; margin: 0; width: 90%; color: black;">VNCLP</p>
+         <p style="font-size: 11px; margin: 0; width: 90%; color: black;">${
+           item?.plrCode || ""
+         }</p>
       </div>
       <div style="width: 20%;">
          <p style="font-size: 9px; margin: 0;  color: #7F7C82;">POL</p>
-         <p style="font-size: 11px; margin: 0; width: 90%; color: black;">VNCLP</p>
+         <p style="font-size: 11px; margin: 0; width: 90%; color: black;">${
+           item?.polCode || ""
+         }</p>
       </div>
       <div style="width: 30%;">
          <p style="font-size: 9px; margin: 0;  color: #7F7C82;">POD</p>
-         <p style="font-size: 11px; margin: 0; width: 90%; color: black;">ICTT VALLARPADAM</p>
+         <p style="font-size: 11px; margin: 0; width: 90%; color: black;">${
+           item?.podCode || ""
+         }</p>
       </div>
       <div style="width: 24%;">
          <p style="font-size: 9px; margin: 0;  color: #7F7C82;">PLD</p>
-         <p style="font-size: 11px; margin: 0; width: 90%; color: black;">ICTT VALLARPADAM</p>
+         <p style="font-size: 11px; margin: 0; width: 90%; color: black;"></p>
       </div>
    </div>
    <div style="padding: 0 20px; display: flex;">
       <div style="width: 40%; display: flex;">
          <div style="width: 100%;">
             <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">Marks & No</p>
-            <p style="font-size: 11px; ; margin: 0; color: black;">CASHEW KERNELS WHOLES</p>
+            <p style="font-size: 11px; ; margin: 0; color: black;">${
+              item?.marksNos || ""
+            }</p>
          </div>
       </div>
       <div style="width: 60%;">
          <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">Description</p>
-         <p style="font-size: 11px; ; margin: 0; width: 100%; color: black;">750 CARTONS OF CASHEW KERNELS W HOLES (UNGRADED & UNSORTED) NW: 17,010.00 KGS
-            (37,500.00 LB S) GW: 17,400.00 KGS (38,359.79 LB S) HS CODE: 080132
+         <p style="font-size: 11px; ; margin: 0; width: 100%; color: black;">${
+           item?.goodsDesc || ""
+         }
          </p>
       </div>
    </div>
@@ -195,7 +293,9 @@ export default function CargoArrivalNotice() {
    <div style="padding: 20px 20px;">
       <p style="color: black; font-size: 9px;">Thanking you,</p>
       <p style="color: black; font-size: 9px;">Yours faithfully</p>
-      <p style="color: black; font-size: 10px; font-weight: bold; margin-top: 20px;">For OMEGA SHIPPING AGENCIES PVT LTD</p>
+      <p style="color: black; font-size: 10px; font-weight: bold; margin-top: 20px;">For ${
+        item?.company || ""
+      }</p>
       <img src=${signImg}  alt="sign" height="100px" width="180px" />
       <p style="color: black; font-size: 12px;">(AUTHORISED SIGNATORY)</p>
       <hr style="border: 0.5px solid #7F7C82;">
@@ -231,7 +331,7 @@ export default function CargoArrivalNotice() {
               disabled={loading}
             />
             <CustomButton
-              text={" SEND EMAIL"}
+              text={emailLoading ? "Loading..." : "SEND EMAIL"}
               onClick={async () => handleSendEmail()}
               //disabled={loading || !tableFormData.length}
             />

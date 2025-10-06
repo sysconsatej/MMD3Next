@@ -160,7 +160,7 @@ export default function Navbar() {
           {!isMobile && (
             <Box className="nav-grid">
               <Box className="nav-links">
-                {navItems.map((item) =>
+                {/* {navItems.map((item) =>
                   item.submenu ? (
                     <Box
                       key={item.name}
@@ -302,7 +302,7 @@ export default function Navbar() {
                       </Link>
                     </Box>
                   )
-                )}
+                )} */}
               </Box>
 
               <Box className="nav-account">
@@ -326,7 +326,7 @@ export default function Navbar() {
       <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
         <Box role="presentation">
           <List>
-            {navItems.map((item) =>
+            {/* {navItems.map((item) =>
               item.submenu ? (
                 <React.Fragment key={item.name}>
                   <ListItemButton
@@ -446,7 +446,7 @@ export default function Navbar() {
                   </ListItemButton>
                 </Link>
               )
-            )}
+            )} */}
           </List>
 
           <Box className="nav-mobile-chip">

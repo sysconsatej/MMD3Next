@@ -18,7 +18,6 @@ export default function Vessel() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
-  const [gridStatus, setGridStatus] = useState(null);
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -32,7 +31,6 @@ export default function Vessel() {
     if (success) {
       toast.success(message);
       setFormData({});
-      setGridStatus("submit");
     } else {
       toast.error(error || message);
     }
@@ -53,7 +51,6 @@ export default function Vessel() {
         if (success) {
           const getData = formatDataWithForm(result, data);
           setFormData(getData);
-          setGridStatus("fetchGrid");
         } else {
           toast.error(error || message);
         }
@@ -97,7 +94,6 @@ export default function Vessel() {
               setFormData={setFormData}
               fieldsMode={fieldsMode}
               gridName="tblVoyage"
-              gridStatus={gridStatus}
               buttons={voyageGridButtons}
             />
           </Box>
