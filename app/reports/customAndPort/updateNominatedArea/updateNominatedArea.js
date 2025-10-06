@@ -44,6 +44,13 @@ const fieldData = {
       labelType: "port",
       isEdit: "true",
     },
+    {
+      label: " Dpd Code",
+      name: "dpdCode",
+      type: "dropdown",
+      labelType: "port",
+      isEdit: "true",
+    },
   ],
 };
 

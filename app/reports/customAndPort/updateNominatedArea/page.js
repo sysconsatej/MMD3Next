@@ -8,9 +8,9 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { formStore } from "@/store";
-import { fetchDynamicReportData } from "@/apis";
+import { fetchDynamicReportData, updateDynamicReportData } from "@/apis";
 import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable";
-import { useRouter } from "next/navigation"; // ⬅️ import router
+import { useRouter } from "next/navigation";
 
 export default function IGM() {
   const [formData, setFormData] = useState({});
@@ -21,7 +21,7 @@ export default function IGM() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
-  const router = useRouter(); // ⬅️ initialize router
+  const router = useRouter();
 
   const transformToIds = (data) => {
     return Object.fromEntries(
@@ -35,9 +35,74 @@ export default function IGM() {
   };
 
   const transformed = transformToIds(formData);
+  const valuesOnly = (rows = []) =>
+    rows.map(({ __dirty, ...row }) =>
+      Object.fromEntries(Object.entries(row).map(([k, v]) => [k, onlyVal(v)]))
+    );
+
+  const onlyVal = (v) => {
+    if (Array.isArray(v)) {
+      const vals = v.map(onlyVal).filter((x) => x !== null && x !== undefined);
+      return vals.length === 0 ? null : vals.length === 1 ? vals[0] : vals;
+    }
+    if (v && typeof v === "object") {
+      if ("value" in v) return v.value;
+      if ("Id" in v) return v.Id;
+      if ("id" in v) return v.id;
+    }
+    return v;
+  };
+
+  const handleUpdate = async () => {
+    if (!Array.isArray(tableFormData) || tableFormData.length === 0) {
+      toast.info("Select & edit at least one row to update.");
+      return;
+    }
+
+    const cleaned = valuesOnly(tableFormData);
+
+    const body = {
+      spName: "updateNominatedArea",
+      jsonData: {
+        clientId: 8,
+        ...transformed,
+        companyId: 7819,
+        branchId: 5594,
+        userId: 235,
+        data: cleaned,
+      },
+    };
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const resp = await updateDynamicReportData(body);
+      const api = resp?.data ?? resp;
+
+      if (api?.success) {
+        toast.success(api?.message || "Update successful.");
+      } else {
+        const errText = api?.error || api?.message || "Update failed.";
+        setError(errText);
+        toast.error(errText);
+      }
+    } catch (err) {
+      const errText =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Network/Server error.";
+      setError(errText);
+      toast.error(errText);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError(null);
 
     const requestBody = {
@@ -51,15 +116,57 @@ export default function IGM() {
       },
     };
 
-    const fetchedData = await fetchDynamicReportData(requestBody);
+    const getErr = (src) =>
+      (src?.error && String(src.error)) ||
+      (src?.message && String(src.message)) ||
+      "";
 
-    if (fetchedData.success) {
-      setTableData(fetchedData.data);
-    } else {
-      setError(fetchedData.message);
+    const isNoDataError = (txt = "") =>
+      txt.toLowerCase().includes("did not return valid json text");
+
+    try {
+      const res = await fetchDynamicReportData(requestBody);
+
+      if (res.success) {
+        const rows = Array.isArray(res.data) ? res.data : [];
+        if (rows.length) {
+          setTableData(rows);
+        } else {
+          setTableData([]);
+          toast.info("No data found.");
+        }
+      } else {
+        const errText = getErr(res);
+        setTableData([]);
+
+        if (isNoDataError(errText)) {
+          setError(null);
+          toast.info("No data found.");
+        } else {
+          setError(errText || "Request failed.");
+          toast.error(
+            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`
+          );
+        }
+      }
+    } catch (err) {
+      const body = err?.response?.data;
+      const errText =
+        (body && (body.error || body.message)) ||
+        err?.message ||
+        "Network/Server error.";
+
+      setTableData([]);
+      if (isNoDataError(errText)) {
+        setError(null);
+        toast.info("No data found.");
+      } else {
+        setError(errText);
+        toast.error(errText);
+      }
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
   return (
     <ThemeProvider theme={theme}>
@@ -87,7 +194,11 @@ export default function IGM() {
               onClick={handleSubmit}
               disabled={loading}
             />
-            <CustomButton text={"Update Nominated Area"} type="submit" />
+            <CustomButton
+              text={"Update Nominated Area"}
+              type="button"
+              onClick={handleUpdate}
+            />
             <CustomButton
               text="Cancel"
               buttonStyles="!text-[white] !bg-[#f5554a] !text-[11px]"

@@ -13,7 +13,7 @@ import {
   fetchDynamicReportData,
   updateDynamicReportData,
 } from "@/apis/dynamicReport";
-import { useRouter } from "next/navigation"; 
+import { useRouter } from "next/navigation";
 import { exportExcel } from "@/utils/dynamicReportUtils";
 
 export default function ImportAdvanceList() {
@@ -24,7 +24,7 @@ export default function ImportAdvanceList() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
-  const router = useRouter(); 
+  const router = useRouter();
 
   const transformToIds = (data) => {
     return Object.fromEntries(
@@ -38,12 +38,12 @@ export default function ImportAdvanceList() {
   };
 
   const transformed = transformToIds(formData);
- 
+
   const handleUpdate = () =>
     exportExcel({
-      tableFormData, 
+      tableFormData,
       updateFn: updateDynamicReportData,
-      filenamePrefix: "Advance List(Excel)", 
+      filenamePrefix: "Advance List(Excel)",
       toast,
       setLoading,
       filterDirty: false,
@@ -59,6 +59,7 @@ export default function ImportAdvanceList() {
     });
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError(null);
 
     const requestBody = {
@@ -66,15 +67,57 @@ export default function ImportAdvanceList() {
       jsonData: transformed,
     };
 
-    const fetchedData = await fetchDynamicReportData(requestBody);
+    const getErr = (src) =>
+      (src?.error && String(src.error)) ||
+      (src?.message && String(src.message)) ||
+      "";
 
-    if (fetchedData.success) {
-      setTableData(fetchedData.data);
-    } else {
-      setError(fetchedData.message);
+    const isNoDataError = (txt = "") =>
+      txt.toLowerCase().includes("did not return valid json text");
+
+    try {
+      const res = await fetchDynamicReportData(requestBody);
+
+      if (res.success) {
+        const rows = Array.isArray(res.data) ? res.data : [];
+        if (rows.length) {
+          setTableData(rows);
+        } else {
+          setTableData([]);
+          toast.info("No data found.");
+        }
+      } else {
+        const errText = getErr(res);
+        setTableData([]);
+
+        if (isNoDataError(errText)) {
+          setError(null);
+          toast.info("No data found.");
+        } else {
+          setError(errText || "Request failed.");
+          toast.error(
+            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`
+          );
+        }
+      }
+    } catch (err) {
+      const body = err?.response?.data;
+      const errText =
+        (body && (body.error || body.message)) ||
+        err?.message ||
+        "Network/Server error.";
+
+      setTableData([]);
+      if (isNoDataError(errText)) {
+        setError(null);
+        toast.info("No data found.");
+      } else {
+        setError(errText);
+        toast.error(errText);
+      }
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
