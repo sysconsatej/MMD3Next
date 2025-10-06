@@ -85,6 +85,10 @@ export const navItems = [
             name: "Cargo Arrival Notice",
             href: "/reports/customAndPort/cargoArrivalNotice",
           },
+          {
+            name: " Shipping Bill",
+            href: "/reports/customAndPort/shippingBill",
+          },
         ],
       },
     ],
