@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/navbar";
 import Sidebar from "@/components/sidebar/sidebar";
 import "./globals.css";
+import CustomModal from "@/components/customModal/customModal";
 
 export const metadata = {
   title: "MMD3",
@@ -21,6 +22,7 @@ export default function RootLayout({ children }) {
             </main>
           </div>
         </div>
+        <CustomModal  />
       </body>
     </html>
   );

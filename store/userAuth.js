@@ -5,19 +5,36 @@ const useAuthStore = create(
   persist(
     (set) => ({
       userDataToken: null,
+      userData: {},
       setToken: (token) => set({ userDataToken: token }),
       logout: () => set({ userDataToken: null }),
+      setUserData: (userData) => set({ userData: userData }),
+      clearUserData: () => set({ userData: {} }),
     }),
     {
       name: "auth-storage",
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );
 
 const useAuth = () => {
-  const { userDataToken, setToken, logout } = useAuthStore();
-  return { userDataToken, setToken, logout };
+  const {
+    userDataToken,
+    setToken,
+    logout,
+    clearUserData,
+    setUserData,
+    userData,
+  } = useAuthStore();
+  return {
+    userDataToken,
+    setToken,
+    logout,
+    clearUserData,
+    setUserData,
+    userData,
+  };
 };
 
 export default useAuth;

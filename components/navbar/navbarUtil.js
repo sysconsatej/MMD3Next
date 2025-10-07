@@ -1,5 +1,5 @@
 export const navItems = [
-  { name: "Home", href: "/" },
+  { name: "Home", href: "/home" },
   {
     name: "Master",
     submenu: [

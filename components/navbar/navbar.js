@@ -25,7 +25,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { navItems } from "./index";
 import { navTheme } from "@/styles";
-import { useAuth } from "@/store/index";
+import { useAuth, useModal } from "@/store/index";
 
 const norm = (s) => (s ? s.split("?")[0].replace(/\/$/, "") : "");
 const scope = (path, depth) => norm(path).split("/").slice(0, depth).join("/");
@@ -124,7 +124,9 @@ export default function Navbar() {
   const router = useRouter();
 
   // aakash yadav code
-  const { userDataToken , logout } = useAuth();
+  const { userDataToken  ,userData} = useAuth();
+  const { setModalOpen } = useModal();
+  
 
   const closeMenus = () => {
     setAnchorEl(null);
@@ -311,13 +313,18 @@ export default function Navbar() {
                 )} */}
                   </Box>
 
-                  <Box className="nav-account">
+                  <Box
+                    className="nav-account cursor-pointer "
+                    role="button"
+                    tabIndex={1}
+                    onClick={() => setModalOpen("logout")}
+                  >
                     <Avatar>A</Avatar>
                     <Box>
-                      <div className="account-name" role="button"  tabIndex={1} onClick={()  => logout()}  >
+                      <div className="account-name">
                         Syscon Infotech Pvt Ltd
                       </div>
-                      <div className="account-role">Admin</div>
+                      <div className="account-role">{userData?.username || "Admin"}</div>
                     </Box>
                   </Box>
                 </Box>
@@ -457,7 +464,7 @@ export default function Navbar() {
             )} */}
               </List>
 
-              <Box className="nav-mobile-chip" >
+              <Box className="nav-mobile-chip">
                 <Avatar>A</Avatar>
                 <Box>
                   <Typography className="account-name">

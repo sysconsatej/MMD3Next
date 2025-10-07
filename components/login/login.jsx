@@ -7,9 +7,11 @@ import { Box, Card, CardContent } from "@mui/material";
 import { login } from "@/apis";
 import { toast, ToastContainer } from "react-toastify";
 import { useAuth } from "@/store/index";
+import { useRouter } from "next/navigation";
 
 export const LoginForm = () => {
-  const { setToken , userDataToken } = useAuth();
+  const { push  }  = useRouter();
+  const { setToken , userDataToken  , setUserData} = useAuth();
   const [formData, setFormData] = useState({});
   const formRef = useRef(null);
   const fieldData = {
@@ -42,10 +44,13 @@ export const LoginForm = () => {
       const res = await login(requestBody);
       if (res?.token) {
         setToken(res?.token);
+        console.log(res, 'res')
+        setUserData(res?.user)
         toast.success(`${res?.message}`, {
           position: "top-right",
           autoClose: 1000,
         });
+        push("/home")
       }
     } catch (e) {
       console.log(e, "e");
