@@ -1,0 +1,79 @@
+/* Scoped to elements with .sidebar-scroll */
+.sidebar-scroll {
+  /* keeps layout stable when scrollbar appears */
+  scrollbar-gutter: stable both-edges;
+  overscroll-behavior: contain;
+
+  /* Firefox */
+  scrollbar-width: thin; /* auto | thin | none */
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+
+/* WebKit (Chrome/Edge/Safari) */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 6px; /* slim */
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.35);
+  border-radius: 9999px;
+  border: 2px solid rgba(255, 255, 255, 0.08); /* subtle inset look */
+}
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.55);
+}
+.sidebar-scroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Optional: slightly larger, still elegant */
+.sidebar-scroll--comfort::-webkit-scrollbar {
+  width: 8px;
+}
+.sidebar-scroll--comfort {
+  scrollbar-width: thin;
+}
+
+/* Optional: ultra-thin variant */
+.sidebar-scroll--ultra::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-scroll--ultra {
+  scrollbar-width: thin;
+}
+
+/* Respect reduced motion (no animated color changes on hover) */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-scroll::-webkit-scrollbar-thumb,
+  .sidebar-scroll--comfort::-webkit-scrollbar-thumb,
+  .sidebar-scroll--ultra::-webkit-scrollbar-thumb {
+    transition: none !important;
+  }
+}
+
+/* Light theme adjustments (if you ever switch backgrounds) */
+@media (prefers-color-scheme: light) {
+  .sidebar-scroll {
+    scrollbar-color: rgba(0, 0, 0, 0.35) transparent;
+  }
+  .sidebar-scroll::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.35);
+    border: 2px solid rgba(0, 0, 0, 0.08);
+  }
+  .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.55);
+  }
+}
+
+/* High contrast (forced colors) — makes the thumb visible */
+@media (forced-colors: active) {
+  .sidebar-scroll {
+    scrollbar-color: ButtonText ButtonFace;
+  }
+  .sidebar-scroll::-webkit-scrollbar-thumb {
+    background-color: ButtonText !important;
+    border-color: ButtonFace !important;
+  }
+}
