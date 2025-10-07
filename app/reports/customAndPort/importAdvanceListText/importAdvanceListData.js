@@ -2,25 +2,26 @@ const fieldData = {
   igmEdiFields: [
     {
       label: "Vessel",
-      name: "name",
+      name: "vessel",
       type: "dropdown",
       labelType: "vessel",
       isEdit: "true",
     },
     {
       label: "Voyage",
-      name: "stateId",
+      name: "voyage",
       type: "dropdown",
       labelType: "voyage",
-      selectedCondition: "name",
+      selectedCondition: "vessel",
       isEdit: "true",
     },
 
     {
       label: "POD",
-      name: "countryId",
+      name: "pod",
       type: "dropdown",
       labelType: "port",
+      selectedCondition: "vessel",
       isEdit: "true",
     },
     {
@@ -34,3 +35,4 @@ const fieldData = {
 };
 
 export default fieldData;
+export const metaData = [];

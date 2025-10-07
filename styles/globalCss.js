@@ -247,6 +247,15 @@ export const theme = createTheme({
         },
       },
     },
+    MuiTabs: {
+      styleOverrides: {
+        root: {
+          "& .MuiButtonBase-root": {
+            minHeight: "auto",
+          },
+        },
+      },
+    },
   },
 });
 
@@ -388,7 +397,7 @@ export const navTheme = createTheme({
       styleOverrides: {
         ".nav-root": {
           backgroundColor: "#edf1f4",
-          padding: "0.25rem 1rem",
+          padding: "4px 16px",
           borderBottom: "1px solid #e6ebf2",
           boxShadow: "none",
           position: "sticky",

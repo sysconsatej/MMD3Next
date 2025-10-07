@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/navbar";
+import Sidebar from "@/components/sidebar/sidebar";
 import "./globals.css";
 
 export const metadata = {
@@ -10,9 +11,16 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
-        <Navbar />
-        {children}
+      <body className="flex flex-col">
+        <div className="flex flex-row">
+          <Sidebar />
+          <div className="flex flex-col flex-1 min-w-0">
+            <Navbar />
+            <main className="overflow-y-auto h-[calc(100vh-47px)] ">
+              {children}
+            </main>
+          </div>
+        </div>
       </body>
     </html>
   );

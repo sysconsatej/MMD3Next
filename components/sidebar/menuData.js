@@ -1,7 +1,13 @@
+// components/sidebar/menuData.js
+// Parent items can specify an `icon` string: "home" | "cube" | "file" | "inbox" | "chart"
+// Only parent level renders icons; children render text-only.
+
 export const navItems = [
-  { name: "Home", href: "/" },
+  { name: "Home", href: "/", icon: "home" },
+
   {
     name: "Master",
+    icon: "cube",
     submenu: [
       { name: "Commodity", href: "/master/commodity/list" },
       { name: "Company", href: "/master/company/list" },
@@ -12,7 +18,7 @@ export const navItems = [
       { name: "CFS", href: "/master/cfs/list" },
       { name: "Depot", href: "/master/depot/list" },
       { name: "ISO Code", href: "/master/isoCode/list" },
-      { name: "HAZ Details ", href: "/master/imo/list" },
+      { name: "HAZ Details", href: "/master/imo/list" },
       { name: "Item Type", href: "/master/itemType/list" },
       { name: "Cargo Type", href: "/master/cargoType/list" },
       { name: "Country", href: "/master/country/list" },
@@ -34,22 +40,25 @@ export const navItems = [
       { name: "Movement Type", href: "/master/movementType/list" },
     ],
   },
+
   {
     name: "BL",
-    submenu: [
-      { name: " HBL Request", href: "/bl/hbl/list" },
-      { name: " MBL Request", href: "/bl/mbl/list" },
-    ],
+    icon: "file",
+    submenu: [{ name: "HBL Request", href: "/bl/hbl/list" }],
   },
+
   {
     name: "Requests",
+    icon: "inbox",
     submenu: [
       { name: "CFS Request For Invoice", href: "/request/invoiceRequest/list" },
       { name: "CFS Request For Container", href: "/request/cfsRequest/list" },
     ],
   },
+
   {
     name: "Reports",
+    icon: "chart",
     href: "/reports",
     submenu: [
       {
@@ -64,7 +73,6 @@ export const navItems = [
             name: "Import Advance List(Text)",
             href: "/reports/customAndPort/importAdvanceListText",
           },
-
           { name: "IGM EDI 1.5", href: "/reports/customAndPort/igmEdi" },
           {
             name: "IGM REPORT FORM III",
@@ -80,6 +88,10 @@ export const navItems = [
           {
             name: "Update Nominated Area",
             href: "/reports/customAndPort/updateNominatedArea",
+          },
+          {
+            name: " Shipping Bill",
+            href: "/reports/customAndPort/shippingBill",
           },
         ],
       },
