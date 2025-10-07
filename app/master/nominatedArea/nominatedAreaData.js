@@ -14,7 +14,7 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Customer code.",
+      label: "Custom code.",
       name: "ediPortCode",
       isEdit: true,
     },
@@ -58,7 +58,7 @@ export const nominatedArea = [
   { label: "Nominated Area Description", value: "p.name" },
   { label: "Nominated Area Address", value: "p.address" },
   { label: "Direct Delivery", value: "p.directDelivery" },
-  { label: "EDI Port Code", value: "p.ediPortCode" },
+  { label: "Custom Code", value: "p.ediPortCode" },
   { label: "EDI Common Terminal Code", value: "p.ediCommonTerminalCode" },
   { label: "Bond No", value: "p.bondNo" },
   { label: "Port Type", value: "m.name" },

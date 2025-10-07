@@ -5,12 +5,14 @@ const fieldData = {
       name: "code",
       isEdit: true,
       required: true,
+      blurFun: "duplicateHandler",
     },
     {
       label: "Name",
       name: "name",
       isEdit: true,
       required: true,
+      blurFun: "duplicateHandler",
     },
     {
       label: "Address",
@@ -21,7 +23,7 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Customer code",
+      label: "Custom code",
       name: "ediPortCode",
       isEdit: true,
     },
@@ -47,7 +49,7 @@ export const dpd = [
   { label: "Nominated Area Description", value: "p.name" },
   { label: "Nominated Area Address", value: "p.address" },
   { label: "Direct Delivery", value: "p.directDelivery" },
-  { label: " Customer Code ", value: "p.ediPortCode" },
+  { label: " Custom Code ", value: "p.ediPortCode" },
   { label: "EDI Common Terminal Code", value: "p.ediCommonTerminalCode" },
   { label: "Bond No", value: "p.bondNo" },
 ];

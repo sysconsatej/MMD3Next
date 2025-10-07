@@ -5,12 +5,14 @@ const fieldData = {
       name: "code",
       isEdit: true,
       required: true,
+      blurFun: "duplicateHandler",
     },
     {
       label: "Name",
       name: "name",
       isEdit: true,
       required: true,
+      blurFun: "duplicateHandler",
     },
     {
       label: "Address",
@@ -21,7 +23,7 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Customer code",
+      label: "Custom code",
       name: "ediPortCode",
       isEdit: true,
     },
@@ -43,7 +45,7 @@ const fieldData = {
 };
 
 export const cfs = [
-  { label: "Customer Code", value: "p.ediPortCode" },
+  { label: "Custom Code", value: "p.ediPortCode" },
   { label: "Name", value: "p.name" },
   { label: "Nominated Area Code", value: "p.code" },
   { label: "Terminal Code", value: "p.ediCommonTerminalCode" },
