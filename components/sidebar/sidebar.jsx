@@ -1,36 +1,33 @@
-// components/sidebar/Sidebar.jsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import clsx from "clsx";
 import { navItems } from "./menuData";
-import { useAuth } from "@/store/index";
+import "./sidebar-scrollbar.css";
 
 export default function Sidebar({ className = "" }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(true);
 
-  //  aakashyadav code
-  const { userDataToken } = useAuth();
 
   // Auto-expand groups that contain the current route
   const initialExpanded = useMemo(() => {
     const keys = new Set();
-    const walk = (nodes, level, parentKeyPrefix = "") => {
+    const walk = (nodes, level) => {
       nodes?.forEach((n, idx) => {
         const key = (n.href || n.name || `group-${idx}`) + "|" + level;
-        const children = n.submenu || n.children;
+        const kids = n.submenu || n.children;
         const containsActive =
           (!!n.href && isPathActive(pathname, n.href)) ||
-          (children && hasActiveInTree(children, pathname));
+          (kids && hasActiveInTree(kids, pathname));
 
-        if (containsActive && children) {
+        if (containsActive && kids) {
           keys.add(key);
-          walk(children, level + 1, key);
-        } else if (children) {
-          walk(children, level + 1, key);
+          walk(kids, level + 1);
+        } else if (kids) {
+          walk(kids, level + 1);
         }
       });
     };
@@ -51,11 +48,10 @@ export default function Sidebar({ className = "" }) {
 
   const asideCls = clsx(
     "h-screen shrink-0 flex flex-col",
-    // Final gradient you chose
     "bg-gradient-to-b from-blue-600 via-indigo-700 to-blue-900",
     "text-white transition-all duration-300 ease-in-out will-change-[width]",
     className,
-    open ? "w-52" : "w-14" // slim & clean
+    open ? "w-52" : "w-14" // slim
   );
 
   // Glassmorphism inner panel
@@ -63,51 +59,41 @@ export default function Sidebar({ className = "" }) {
     "m-1 flex min-h-0 flex-1 flex-col rounded-lg bg-white/10 backdrop-blur-md ring-1 ring-white/20";
 
   return (
-    <>
-      {userDataToken ? (
-        <>
-          <aside className={asideCls}>
-            <div className={glassCls}>
-              {/* Header */}
-              <div className="flex items-center justify-between px-2 py-2 border-b border-white/10">
-                {open && (
-                  <h2 className="font-semibold text-[11px] tracking-wide">
-                    Menu
-                  </h2>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setOpen((v) => !v)}
-                  aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
-                  className="flex items-center justify-center w-7 h-7 rounded-md bg-white/10 hover:bg-white/20 transition-colors"
-                >
-                  {open ? <CloseIcon /> : <HamburgerIcon />}
-                </button>
-              </div>
+    <aside className={asideCls}>
+      <div className={glassCls}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-2 py-2 border-b border-white/10">
+          {open && (
+            <h2 className="font-semibold text-[11px] tracking-wide">Menu</h2>
+          )}
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
+            className="flex items-center justify-center w-7 h-7 rounded-md bg-white/10 hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/30"
+          >
+            {open ? <CloseIcon /> : <HamburgerIcon />}
+          </button>
+        </div>
 
-              {/* Nav */}
-              <nav className="mt-1 flex-1 overflow-y-auto custom-scroll">
-                <ul className="space-y-[2px] px-1 pb-2">
-                  {navItems.map((node, i) => (
-                    <MenuNode
-                      key={node.href || node.name || i}
-                      node={node}
-                      level={0}
-                      openSidebar={open}
-                      expanded={expanded}
-                      onToggle={toggleExpand}
-                      pathname={pathname}
-                    />
-                  ))}
-                </ul>
-              </nav>
-            </div>
-          </aside>
-        </>
-      ) : (
-        <></>
-      )}
-    </>
+        {/* Nav */}
+        <nav className="mt-1 flex-1 overflow-y-auto sidebar-scroll">
+          <ul className="space-y-[2px] px-1 pb-2">
+            {navItems.map((node, i) => (
+              <MenuNode
+                key={node.href || node.name || i}
+                node={node}
+                level={0}
+                openSidebar={open}
+                expanded={expanded}
+                onToggle={toggleExpand}
+                pathname={pathname}
+              />
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </aside>
   );
 }
 
@@ -159,7 +145,6 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
     ) : null;
 
   if (!hasChildren) {
-    // Leaf
     return (
       <li>
         <Link
@@ -178,7 +163,6 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
     );
   }
 
-  // Group
   return (
     <li>
       <button
@@ -201,13 +185,8 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
         )}
       </button>
 
-      <div
-        id={`menu-${key}`}
-        className={clsx(
-          "overflow-hidden transition-all duration-300",
-          isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-60"
-        )}
-      >
+      {/* Dynamic-height collapsible so ALL children show */}
+      <Collapsible id={`menu-${key}`} isOpen={isOpen}>
         <ul className="ml-3 mt-1 space-y-[2px] border-l border-white/10 pl-2">
           {(node.submenu || node.children || []).map((child, i) => (
             <MenuNode
@@ -221,8 +200,43 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
             />
           ))}
         </ul>
-      </div>
+      </Collapsible>
     </li>
+  );
+}
+
+/* ---------------- Collapsible (measured height) ---------------- */
+function Collapsible({ isOpen, id, children }) {
+  const innerRef = useRef(null);
+  const [height, setHeight] = useState(0);
+
+  // Measure on mount + when content changes + when opened
+  useEffect(() => {
+    if (!innerRef.current) return;
+
+    const el = innerRef.current;
+    const ro = new ResizeObserver(() => {
+      setHeight(el.scrollHeight);
+    });
+    ro.observe(el);
+
+    // initial measure (in case ResizeObserver hasn't fired yet)
+    setHeight(el.scrollHeight);
+
+    return () => ro.disconnect();
+  }, [children, isOpen]);
+
+  return (
+    <div
+      id={id}
+      style={{ maxHeight: isOpen ? height : 0 }}
+      className={clsx(
+        "overflow-hidden transition-[max-height,opacity,transform] duration-300",
+        isOpen ? "opacity-100 translate-y-0" : "opacity-60 -translate-y-0.5"
+      )}
+    >
+      <div ref={innerRef}>{children}</div>
+    </div>
   );
 }
 
@@ -240,10 +254,20 @@ function hasActiveInTree(nodes, pathname) {
   );
 }
 
-/* ---------------- Icons (minimal inline set) ---------------- */
+/* ---------------- Icons ---------------- */
 function HamburgerIcon() {
+  // Proper three-bar hamburger (SVG)
   return (
-    <div className="w-4 h-0.5 bg-white rounded-sm relative before:absolute before:-top-2 before:w-4 before:h-0.5 before:bg-white after:absolute after:top-2 after:w-4 after:h-0.5 after:bg-white" />
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      fill="none"
+    >
+      <path d="M4 7h16" strokeWidth="2" strokeLinecap="round" />
+      <path d="M4 12h16" strokeWidth="2" strokeLinecap="round" />
+      <path d="M4 17h16" strokeWidth="2" strokeLinecap="round" />
+    </svg>
   );
 }
 function CloseIcon() {
@@ -359,20 +383,3 @@ function pickIcon(icon) {
       return <DotIcon />;
   }
 }
-
-/* ---------------- Optional: custom scrollbar ---------------- */
-/* If you don't use a scrollbar plugin, add this to globals.css:
-.custom-scroll {
-  scrollbar-width: thin;
-}
-.custom-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-.custom-scroll::-webkit-scrollbar-thumb {
-  background-color: rgba(255,255,255,0.25);
-  border-radius: 9999px;
-}
-.custom-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-*/

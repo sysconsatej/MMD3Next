@@ -15,6 +15,8 @@ export default function Terminal() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
+  const [errorState, setErrorState] = useState({});
+
   const { mode, setMode } = formStore();
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -26,6 +28,23 @@ export default function Terminal() {
     } else {
       toast.error(error || message);
     }
+  };
+  const handleBlurEventFunctions = {
+    duplicateHandler: async (event) => {
+      const { value, name } = event.target;
+      const obj = {
+        columns: name,
+        tableName: "tblPort",
+        whereCondition: ` ${name} = '${value}' and portTypeId IN (SELECT id FROM tblMasterData WHERE name = 'PORT TERMINAL') and status = 1`,
+      };
+      const { success } = await getDataWithCondition(obj);
+      if (success) {
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        toast.error(`Duplicate ${name}!`);
+      } else {
+        setErrorState((prev) => ({ ...prev, [name]: false }));
+      }
+    },
   };
   useEffect(() => {
     async function fetchFormHandler() {
@@ -82,12 +101,14 @@ export default function Terminal() {
             />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <Box className="sm:grid sm:grid-cols-6 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-3 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
                 fields={jsonData.terminalFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleBlurEventFunctions={handleBlurEventFunctions}
+                errorState={errorState}
               />
             </Box>
           </Box>

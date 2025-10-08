@@ -2,24 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data, { metaData } from "./importAdvanceListData";
+import data, { metaData } from "./updateNominatedArea";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { formStore } from "@/store";
+import { fetchDynamicReportData, updateDynamicReportData } from "@/apis";
 import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable";
-import {
-  fetchDynamicReportData,
-  updateDynamicReportData,
-} from "@/apis/dynamicReport";
 import { useRouter } from "next/navigation";
-import { exportExcel } from "@/utils/dynamicReportUtils";
 
-export default function ImportAdvanceList() {
+export default function IGM() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
+  const { mode, setMode } = formStore();
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -38,33 +35,85 @@ export default function ImportAdvanceList() {
   };
 
   const transformed = transformToIds(formData);
+  const valuesOnly = (rows = []) =>
+    rows.map(({ __dirty, ...row }) =>
+      Object.fromEntries(Object.entries(row).map(([k, v]) => [k, onlyVal(v)]))
+    );
 
-  const handleUpdate = () =>
-    exportExcel({
-      tableFormData,
-      updateFn: updateDynamicReportData,
-      filenamePrefix: "Advance List(Excel)",
-      toast,
-      setLoading,
-      filterDirty: false,
-      buildBody: (rows) => ({
-        spName: "ialExcel",
-        jsonData: {
-          ...transformed,
-          clientId: 8,
-          userId: 4,
-          data: rows,
-        },
-      }),
-    });
+  const onlyVal = (v) => {
+    if (Array.isArray(v)) {
+      const vals = v.map(onlyVal).filter((x) => x !== null && x !== undefined);
+      return vals.length === 0 ? null : vals.length === 1 ? vals[0] : vals;
+    }
+    if (v && typeof v === "object") {
+      if ("value" in v) return v.value;
+      if ("Id" in v) return v.Id;
+      if ("id" in v) return v.id;
+    }
+    return v;
+  };
+
+  const handleUpdate = async () => {
+    if (!Array.isArray(tableFormData) || tableFormData.length === 0) {
+      toast.info("Select & edit at least one row to update.");
+      return;
+    }
+
+    const cleaned = valuesOnly(tableFormData);
+
+    const body = {
+      spName: "updateNominatedArea",
+      jsonData: {
+        clientId: 8,
+        ...transformed,
+        companyId: 7819,
+        branchId: 5594,
+        userId: 235,
+        data: cleaned,
+      },
+    };
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const resp = await updateDynamicReportData(body);
+      const api = resp?.data ?? resp;
+
+      if (api?.success) {
+        toast.success(api?.message || "Update successful.");
+      } else {
+        const errText = api?.error || api?.message || "Update failed.";
+        setError(errText);
+        toast.error(errText);
+      }
+    } catch (err) {
+      const errText =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Network/Server error.";
+      setError(errText);
+      toast.error(errText);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     const requestBody = {
-      spName: "importBlSelection",
-      jsonData: transformed,
+      spName: "getUpdateNominatedAreaBlDetails",
+      jsonData: {
+        clientId: 8,
+        ...transformed,
+        companyId: 7819,
+        branchId: 5594,
+        userId: 235,
+      },
     };
 
     const getErr = (src) =>
@@ -119,14 +168,13 @@ export default function ImportAdvanceList() {
       setLoading(false);
     }
   };
-
   return (
     <ThemeProvider theme={theme}>
       <form>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              Import Advance List(Excel)
+              Update Nominated Area
             </h1>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
@@ -147,11 +195,9 @@ export default function ImportAdvanceList() {
               disabled={loading}
             />
             <CustomButton
-              text="GENERATE FILE"
+              text={"Update Nominated Area"}
+              type="button"
               onClick={handleUpdate}
-              title={
-                !tableFormData.length ? "Select & edit at least one row" : ""
-              }
             />
             <CustomButton
               text="Cancel"

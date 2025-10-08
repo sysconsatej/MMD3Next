@@ -15,6 +15,7 @@ export default function Depot() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
+  const [errorState, setErrorState] = useState({});
   const { mode, setMode } = formStore();
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -27,7 +28,23 @@ export default function Depot() {
       toast.error(error || message);
     }
   };
-
+  const handleBlurEventFunctions = {
+    duplicateHandler: async (event) => {
+      const { value, name } = event.target;
+      const obj = {
+        columns: name,
+        tableName: "tblPort",
+        whereCondition: ` ${name} = '${value}' and portTypeId IN (SELECT id FROM tblMasterData WHERE name = 'DEPOT') and status = 1`,
+      };
+      const { success } = await getDataWithCondition(obj);
+      if (success) {
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        toast.error(`Duplicate ${name}!`);
+      } else {
+        setErrorState((prev) => ({ ...prev, [name]: false }));
+      }
+    },
+  };
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
@@ -86,6 +103,8 @@ export default function Depot() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleBlurEventFunctions={handleBlurEventFunctions}
+                errorState={errorState}
               />
             </Box>
           </Box>

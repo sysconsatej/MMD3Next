@@ -16,12 +16,7 @@ import {
 } from "@mui/material";
 import CustomButton from "@/components/button/button";
 
-/**
- * Props:
- * - onDownload?: (ctx) => void
- * - onPdf?: (ctx) => void
- * - onEmail?: (ctx) => void|Promise<void>
- */
+
 export default function GenerateReportButton({
   buttonText = "Generate Report",
   reportOptions = ["Import General Manifest"],
@@ -101,7 +96,7 @@ export default function GenerateReportButton({
       </Dialog>
 
       {/* STEP 2 */}
-      <Dialog open={step2Open} onClose={() => setStep2Open(false)} fullWidth maxWidth="md">
+      <Dialog open={step2Open} onClose={() => setStep2Open(false)} fullWidth maxWidth="xl">
         <DialogTitle>Output Options</DialogTitle>
         <DialogContent dividers>
           <Box className="flex gap-4">

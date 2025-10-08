@@ -14,6 +14,7 @@ import {
   formatDataWithForm,
   formatFetchForm,
   formatFormData,
+  formFormatThirdLevel,
   useNextPrevData,
 } from "@/utils";
 import { fetchForm, insertUpdateForm } from "@/apis";
@@ -72,14 +73,16 @@ export default function Home() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData("tblBl", formData, mode.formId, "blId");
-    const { success, error, message } = await insertUpdateForm(format);
-    if (success) {
-      toast.success(message);
-      setFormData({});
-    } else {
-      toast.error(error || message);
-    }
+    const format = formFormatThirdLevel(formData);
+    console.log("format", format);
+    // const format = formatFormData("tblBl", formData, mode.formId, "blId");
+    // const { success, error, message } = await insertUpdateForm(format);
+    // if (success) {
+    //   toast.success(message);
+    //   setFormData({});
+    // } else {
+    //   toast.error(error || message);
+    // }
   };
 
   function handleRemove(index) {

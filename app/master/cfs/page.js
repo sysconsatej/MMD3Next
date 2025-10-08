@@ -16,6 +16,8 @@ export default function Cfs() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
+  const [errorState, setErrorState] = useState({});
+
   const submitHandler = async (event) => {
     event.preventDefault();
     const format = formatFormData("tblPort", formData, mode.formId);
@@ -27,7 +29,23 @@ export default function Cfs() {
       toast.error(error || message);
     }
   };
-
+  const handleBlurEventFunctions = {
+    duplicateHandler: async (event) => {
+      const { value, name } = event.target;
+      const obj = {
+        columns: name,
+        tableName: "tblPort",
+        whereCondition: ` ${name} = '${value}'and portTypeId IN (SELECT id FROM tblMasterData WHERE code = 'CFS') and status = 1`,
+      };
+      const { success } = await getDataWithCondition(obj);
+      if (success) {
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        toast.error(`Duplicate ${name}!`);
+      } else {
+        setErrorState((prev) => ({ ...prev, [name]: false }));
+      }
+    },
+  };
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
@@ -87,6 +105,8 @@ export default function Cfs() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleBlurEventFunctions={handleBlurEventFunctions}
+                errorState={errorState}
               />
             </Box>
           </Box>
