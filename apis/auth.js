@@ -1,5 +1,6 @@
 import axios from "axios";
 const url = process.env.NEXT_PUBLIC_BACKEND_URL;
+console.log("Testing URL:", url);
 
 export const login = async (data) => {
   try {
