@@ -157,7 +157,7 @@ export default function DpdList() {
                 <TableCell>Code</TableCell>
                 <TableCell>Name</TableCell>
                 <TableCell>Address</TableCell>
-                <TableCell>Customer code</TableCell>
+                <TableCell>Custom code</TableCell>
                 <TableCell>EDI Common Terminal Code</TableCell>
               </TableRow>
             </TableHead>
