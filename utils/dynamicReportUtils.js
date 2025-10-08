@@ -220,3 +220,81 @@ export async function exportExcel({
   XLSX.writeFile(wb, filename);
   toast?.success?.("Excel downloaded.");
 }
+
+const toCSV = (
+  rows = [],
+  { delimiter = ",", eol = "\r\n", includeHeader = true, headerOrder } = {}
+) => {
+  if (!Array.isArray(rows) || rows.length === 0) return "";
+
+  const keys =
+    headerOrder && headerOrder.length
+      ? headerOrder
+      : Array.from(
+          rows.reduce((set, r) => {
+            Object.keys(r || {}).forEach((k) => set.add(k));
+            return set;
+          }, new Set())
+        );
+
+  const esc = (v) => {
+    if (v === null || v === undefined) return "";
+    const s = String(v);
+    const needsQuotes = /["\r\n,]/.test(s);
+    const q = s.replace(/"/g, '""');
+    return needsQuotes ? `"${q}"` : q;
+  };
+
+  const header = includeHeader ? keys.map(esc).join(delimiter) : null;
+  const lines = rows.map((r) => keys.map((k) => esc(r?.[k])).join(delimiter));
+  return [header, ...lines].filter(Boolean).join(eol);
+};
+
+export async function exportCSV({
+  filenamePrefix = "Export",
+  fileOkSuffix = "Results",
+  fileFailedSuffix = "Failed",
+  delimiter = ",",
+  eol = "\r\n",
+  includeHeader = true,
+  headerOrder,
+  toast,
+  setLoading,
+  ...runnerArgs
+}) {
+  const res = await runUpdate(runnerArgs);
+  if (!res) return;
+
+  const { ok, failed } = res;
+  if (!ok.length && !failed.length) {
+    toast?.info?.("Nothing to export.");
+    return;
+  }
+
+  if (ok.length) {
+    const csvOk = toCSV(ok, { delimiter, eol, includeHeader, headerOrder });
+    download(
+      `${filenamePrefix}${timestamp()}_${fileOkSuffix}.csv`,
+      csvOk,
+      "text/csv"
+    );
+  }
+
+  if (failed.length) {
+    const csvFailed = toCSV(failed, {
+      delimiter,
+      eol,
+      includeHeader,
+      headerOrder,
+    });
+    download(
+      `${filenamePrefix}${timestamp()}_${fileFailedSuffix}.csv`,
+      csvFailed,
+      "text/csv"
+    );
+  }
+
+  toast?.success?.(
+    ok.length && failed.length ? "CSV files downloaded." : "CSV downloaded."
+  );
+}
