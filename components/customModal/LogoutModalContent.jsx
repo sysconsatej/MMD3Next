@@ -7,12 +7,14 @@ import { useRouter } from "next/navigation";
 export const LogoutModalContent = () => {
   const { setModalClose } = useModal();
   const { logout } = useAuth();
-  const  router = useRouter();
+  const router = useRouter();
 
   const handleClickYes = () => {
-    setModalClose();
+    console.log("Hello")
     logout();
-    router.push("/");
+    setModalClose();
+    // router.refresh();
+    router.push("/login");
   };
 
   return (

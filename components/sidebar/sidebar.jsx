@@ -11,7 +11,6 @@ export default function Sidebar({ className = "" }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(true);
 
-
   // Auto-expand groups that contain the current route
   const initialExpanded = useMemo(() => {
     const keys = new Set();
@@ -57,6 +56,8 @@ export default function Sidebar({ className = "" }) {
   // Glassmorphism inner panel
   const glassCls =
     "m-1 flex min-h-0 flex-1 flex-col rounded-lg bg-white/10 backdrop-blur-md ring-1 ring-white/20";
+
+  if (pathname === "/login") return <></>;
 
   return (
     <aside className={asideCls}>

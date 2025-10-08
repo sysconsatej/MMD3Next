@@ -123,10 +123,10 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
 
+
   // aakash yadav code
-  const { userDataToken  ,userData} = useAuth();
+  const { userData } = useAuth();
   const { setModalOpen } = useModal();
-  
 
   const closeMenus = () => {
     setAnchorEl(null);
@@ -148,27 +148,28 @@ export default function Navbar() {
   const toggleSubmenu = (name) =>
     setOpenSubmenus((prev) => ({ ...prev, [name]: !prev[name] }));
 
+
+  if(pathname  ===  '/login')  return <></>;
+
   return (
-    <>
-      {userDataToken ? (
-        <ThemeProvider theme={navTheme}>
-          <CssBaseline />
+    <ThemeProvider theme={navTheme}>
+      <CssBaseline />
 
-          <Box className="nav-root">
-            <Box className="nav-container">
-              <Box className="mr-6">
-                <Image
-                  src="/images/logo.png"
-                  alt="Master Group Logo"
-                  width={40}
-                  height={30}
-                />
-              </Box>
+      <Box className="nav-root">
+        <Box className="nav-container">
+          <Box className="mr-6">
+            <Image
+              src="/images/logo.png"
+              alt="Master Group Logo"
+              width={40}
+              height={30}
+            />
+          </Box>
 
-              {!isMobile && (
-                <Box className="nav-grid">
-                  <Box className="nav-links">
-                    {/* {navItems.map((item) =>
+          {!isMobile && (
+            <Box className="nav-grid">
+              <Box className="nav-links">
+                {/* {navItems.map((item) =>
                   item.submenu ? (
                     <Box
                       key={item.name}
@@ -311,37 +312,37 @@ export default function Navbar() {
                     </Box>
                   )
                 )} */}
-                  </Box>
+              </Box>
 
-                  <Box
-                    className="nav-account cursor-pointer "
-                    role="button"
-                    tabIndex={1}
-                    onClick={() => setModalOpen("logout")}
-                  >
-                    <Avatar>A</Avatar>
-                    <Box>
-                      <div className="account-name">
-                        Syscon Infotech Pvt Ltd
-                      </div>
-                      <div className="account-role">{userData?.username || "Admin"}</div>
-                    </Box>
-                  </Box>
+              <Box
+                className="nav-account cursor-pointer "
+                role="button"
+                tabIndex={1}
+                onClick={() => setModalOpen("logout")}
+              >
+                <Avatar>A</Avatar>
+                <Box>
+                  <div className="account-name">Syscon Infotech Pvt Ltd</div>
+                  <div className="account-role">
+                    {userData?.username || "Admin"}
+                  </div>
                 </Box>
-              )}
-
-              {isMobile && (
-                <IconButton onClick={toggleDrawer} aria-label="open navigation">
-                  <MenuIcon />
-                </IconButton>
-              )}
+              </Box>
             </Box>
-          </Box>
+          )}
 
-          <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
-            <Box role="presentation">
-              <List>
-                {/* {navItems.map((item) =>
+          {isMobile && (
+            <IconButton onClick={toggleDrawer} aria-label="open navigation">
+              <MenuIcon />
+            </IconButton>
+          )}
+        </Box>
+      </Box>
+
+      <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
+        <Box role="presentation">
+          <List>
+            {/* {navItems.map((item) =>
               item.submenu ? (
                 <React.Fragment key={item.name}>
                   <ListItemButton
@@ -462,23 +463,19 @@ export default function Navbar() {
                 </Link>
               )
             )} */}
-              </List>
+          </List>
 
-              <Box className="nav-mobile-chip">
-                <Avatar>A</Avatar>
-                <Box>
-                  <Typography className="account-name">
-                    Syscon Infotech Pvt Ltd
-                  </Typography>
-                  <Typography className="account-role">Admin</Typography>
-                </Box>
-              </Box>
+          <Box className="nav-mobile-chip">
+            <Avatar>A</Avatar>
+            <Box>
+              <Typography className="account-name">
+                Syscon Infotech Pvt Ltd
+              </Typography>
+              <Typography className="account-role">Admin</Typography>
             </Box>
-          </Drawer>
-        </ThemeProvider>
-      ) : (
-        <></>
-      )}
-    </>
+          </Box>
+        </Box>
+      </Drawer>
+    </ThemeProvider>
   );
 }
