@@ -71,10 +71,21 @@ export default function Home() {
       orderBy: "createdDate desc",
     });
 
+
   const submitHandler = async (event) => {
     event.preventDefault();
     const format = formFormatThirdLevel(formData);
-    console.log("format", format);
+    const promises = format.map( async (item) => {
+      const formatItem = formatFormData("tblBl", item, mode.formId, "blId");
+      const { success, error, message } = await insertUpdateForm(formatItem);
+      if (success) {
+        toast.success(message);
+        // setFormData({});
+      } else {
+        toast.error(error || message);
+      }
+    });
+    await Promise.all(promises);
     // const format = formatFormData("tblBl", formData, mode.formId, "blId");
     // const { success, error, message } = await insertUpdateForm(format);
     // if (success) {
@@ -91,7 +102,7 @@ export default function Home() {
         ...prev,
         tblHbl: prev?.tblHbl?.filter((num, indexArr) => indexArr !== index),
       }));
-  }
+  };
 
   useEffect(() => {
     async function fetchFormHandler() {
