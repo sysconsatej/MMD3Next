@@ -35,6 +35,7 @@ export const fieldData = {
       labelType: "company",
       required: true,
       isEdit: true,
+      foreignTable: "name,tblCompany",
     },
     {
       label: "Company Branch",
@@ -43,6 +44,7 @@ export const fieldData = {
       labelType: "company",
       required: true,
       isEdit: true,
+      foreignTable: "name,tblCompany",
     },
     {
       label: "MBL Date",
@@ -592,6 +594,7 @@ export const fieldData = {
     {
       label: "Volume(CBM)",
       name: "volume",
+      type:"number",
       isEdit: true,
       //  required: true
     },

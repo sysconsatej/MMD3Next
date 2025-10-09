@@ -12,6 +12,7 @@ import { formStore } from "@/store";
 import {
   copyHandler,
   formatDataWithForm,
+  formatDataWithFormThirdLevel,
   formatFetchForm,
   formatFormData,
   formFormatThirdLevel,
@@ -63,20 +64,21 @@ export default function Home() {
   };
 
   useTotalGrossAndPack(formData, setTotals);
-  const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
-    useNextPrevData({
-      currentId: mode.formId,
-      tableName: "tblBl",
-      labelField: "mblNo",
-      orderBy: "createdDate desc",
-    });
-
+  // const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
+  //   useNextPrevData({
+  //     currentId: mode.formId,
+  //     tableName: "tblBl",
+  //     labelField: "mblNo",
+  //     orderBy: "createdDate desc",
+  //   });
 
   const submitHandler = async (event) => {
     event.preventDefault();
     const format = formFormatThirdLevel(formData);
-    const promises = format.map( async (item) => {
-      const formatItem = formatFormData("tblBl", item, mode.formId, "blId");
+    const promises = format.map(async (item) => {
+      const formId = item?.id ?? mode.formId;
+      const { id, ...resData } = item;
+      const formatItem = formatFormData("tblBl", resData, formId, "blId");
       const { success, error, message } = await insertUpdateForm(formatItem);
       if (success) {
         toast.success(message);
@@ -86,14 +88,6 @@ export default function Home() {
       }
     });
     await Promise.all(promises);
-    // const format = formatFormData("tblBl", formData, mode.formId, "blId");
-    // const { success, error, message } = await insertUpdateForm(format);
-    // if (success) {
-    //   toast.success(message);
-    //   setFormData({});
-    // } else {
-    //   toast.error(error || message);
-    // }
   };
 
   function handleRemove(index) {
@@ -102,27 +96,42 @@ export default function Home() {
         ...prev,
         tblHbl: prev?.tblHbl?.filter((num, indexArr) => indexArr !== index),
       }));
-  };
+  }
 
   useEffect(() => {
     async function fetchFormHandler() {
       if (!mode.formId) return;
       setFieldsMode(mode.mode);
+      const resArray = [];
 
-      const format = formatFetchForm(
-        fieldData,
-        "tblBl",
-        mode.formId,
-        '["tblBlContainer"]',
-        "blId"
+      const promises = mode.formId.split(",").map(async (id) => {
+        const format = formatFetchForm(
+          fieldData,
+          "tblBl",
+          id,
+          '["tblBlContainer"]',
+          "blId"
+        );
+        const { success, result, message, error } = await fetchForm(format);
+        if (success) {
+          const getData = formatDataWithForm(result, fieldData);
+          resArray.push({ ...getData, id });
+        } else {
+          toast.error(error || message);
+        }
+      });
+
+      await Promise.all(promises);
+
+      const formatState = formatDataWithFormThirdLevel(
+        resArray,
+        [...jsonData.mblFields, ...jsonData.csnFields],
+        "tblHbl"
       );
-      const { success, result, message, error } = await fetchForm(format);
-      if (success) {
-        const getData = formatDataWithForm(result, fieldData);
-        setFormData(getData);
-      } else {
-        toast.error(error || message);
-      }
+      setFormData(formatState);
+      setHblArray(
+        Array.from({ length: formatState.tblHbl.length }, (_, i) => i)
+      );
     }
     fetchFormHandler();
   }, [mode.formId]);
@@ -147,7 +156,7 @@ export default function Home() {
               />
             </Box>
           </Box>
-          {(fieldsMode === "view" || fieldsMode === "edit") && (
+          {/* {(fieldsMode === "view" || fieldsMode === "edit") && (
             <Box className="flex justify-between items-center w-full">
               <CustomButton
                 text={prevLabel ? `Prev (MBLno:${prevLabel})` : "Prev"}
@@ -166,7 +175,7 @@ export default function Home() {
                 disabled={!canNext}
               />
             </Box>
-          )}
+          )} */}
 
           <Box>
             <FormHeading text="MBL Details" />

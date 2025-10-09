@@ -250,14 +250,14 @@ export function formFormatThirdLevel(data) {
             const nestArray = fieldValue.map((item) => {
               const formatter = {};
               for (const [innerKey, innerValue] of Object.entries(item)) {
-                formatter[innerKey] = innerValue.Id ?? innerValue;
+                formatter[innerKey] = innerValue?.Id ?? innerValue;
               }
 
               return formatter;
             });
             tempData[fieldKey] = nestArray;
           } else {
-            tempData[fieldKey] = fieldValue.Id ?? fieldValue;
+            tempData[fieldKey] = fieldValue?.Id ?? fieldValue;
           }
         }
 
@@ -267,9 +267,31 @@ export function formFormatThirdLevel(data) {
         });
       }
     } else {
-      commonData[key] = value.Id ?? value;
+      commonData[key] = value?.Id ?? value;
     }
   }
 
   return result;
+}
+
+export function formatDataWithFormThirdLevel(data, common, tabTable) {
+  let commonKeysArray = common.map((item) => item.name);
+  let commonKeys = {};
+
+  const updatedData = data.map((item) => {
+    const resData = {
+      ...item,
+    };
+    commonKeysArray.forEach((key) => {
+      commonKeys[key] = resData[key];
+      delete resData[key];
+    });
+
+    return resData;
+  });
+
+  return {
+    ...commonKeys,
+    [tabTable]: updatedData,
+  };
 }

@@ -26,31 +26,14 @@ import { advanceSearchFields } from "../hblData";
 import { advanceSearchFilter } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 
-function createData(
-  mblNo,
-  mblDate,
-  consigneeText,
-  pol,
-  pod,
-  fpd,
-  cargoMovement,
-  arrivalVessel,
-  arrivalVoyage,
-  line,
-  id
-) {
+function createData(mblNo, hblNo, cargoTypeId, podVesselId, hblCount, hblId) {
   return {
     mblNo,
-    mblDate,
-    consigneeText,
-    pol,
-    pod,
-    fpd,
-    cargoMovement,
-    arrivalVessel,
-    arrivalVoyage,
-    line,
-    id,
+    hblNo,
+    cargoTypeId,
+    podVesselId,
+    hblCount,
+    hblId,
   };
 }
 
@@ -71,13 +54,15 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "b.mblNo mblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id",
+            "mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.hblNo) as hblCount, string_agg(b.id, ',') as hblId",
           tableName: "tblBl b",
           pageNo,
           pageSize,
-          joins:
-            " left join tblPort p on p.id = b.polId  left join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId",
           advanceSearch: advanceSearchFilter(advanceSearch),
+          groupBy: "group by b.mblNo, m.name, v.name",
+          orderBy: "order by max(b.createdDate) desc",
+          joins:
+            "left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -103,16 +88,11 @@ export default function BLList() {
     ? blData.map((item) =>
         createData(
           item["mblNo"],
-          item["mblDate"],
-          item["consigneeText"],
-          item["pol"],
-          item["pod"],
-          item["fpd"],
-          item["cargoMovement"],
-          item["arrivalVessel"],
-          item["arrivalVoyage"],
-          item["line"],
-          item["id"]
+          item["hblNo"],
+          item["cargoTypeId"],
+          item["podVesselId"],
+          item["hblCount"],
+          item["hblId"]
         )
       )
     : [];
@@ -174,14 +154,10 @@ export default function BLList() {
             <TableHead>
               <TableRow>
                 <TableCell>MBL NO</TableCell>
-                <TableCell>MBL date</TableCell>
-                <TableCell>Consignee Name</TableCell>
-                <TableCell>POL</TableCell>
-                <TableCell>POD</TableCell>
-                <TableCell>FPD</TableCell>
-                <TableCell>Cargo Movement</TableCell>
-                <TableCell>Arrival Vessel</TableCell>
-                <TableCell>Arrival Voyage</TableCell>
+                <TableCell>HBL NO</TableCell>
+                <TableCell>Type Of Cargo</TableCell>
+                <TableCell>Vessel-Voyage No</TableCell>
+                <TableCell>HBL Count</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -189,19 +165,15 @@ export default function BLList() {
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.mblNo}</TableCell>
-                    <TableCell>{row.mblDate}</TableCell>
-                    <TableCell>{row.consigneeText}</TableCell>
-                    <TableCell>{row.pol}</TableCell>
-                    <TableCell>{row.pod}</TableCell>
-                    <TableCell>{row.fpd}</TableCell>
-                    <TableCell>{row.cargoMovement}</TableCell>
-                    <TableCell>{row.arrivalVessel}</TableCell>
-                    <TableCell>{row.arrivalVoyage}</TableCell>
+                    <TableCell>{row.hblNo}</TableCell>
+                    <TableCell>{row.cargoTypeId}</TableCell>
+                    <TableCell>{row.podVesselId}</TableCell>
+                    <TableCell>{row.hblCount}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
-                        onView={() => modeHandler("view", row.id)}
-                        onEdit={() => modeHandler("edit", row.id)}
-                        onDelete={() => modeHandler("delete", row.id)}
+                        onView={() => modeHandler("view", row.hblId)}
+                        onEdit={() => modeHandler("edit", row.hblId)}
+                        onDelete={() => modeHandler("delete", row.hblId)}
                       />
                     </TableCell>
                   </TableRow>
