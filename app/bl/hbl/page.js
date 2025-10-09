@@ -121,7 +121,7 @@ export default function Home() {
         }
       });
 
-      await Promise.all(promises);
+      await Promise.allSettled(promises);
 
       const formatState = formatDataWithFormThirdLevel(
         resArray,

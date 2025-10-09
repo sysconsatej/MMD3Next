@@ -54,7 +54,7 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.hblNo) as hblCount, string_agg(b.id, ',') as hblId",
+            "mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.id) as hblCount, string_agg(b.id, ',') as hblId",
           tableName: "tblBl b",
           pageNo,
           pageSize,
