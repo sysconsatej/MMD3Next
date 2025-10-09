@@ -585,7 +585,7 @@ export const fieldData = {
     // },
     {
       label: "Cargo Gross Wt(Kgs)",
-      name: "grosswt",
+      name: "grossWt",
       type: "number",
       isEdit: true,
       // required: true,

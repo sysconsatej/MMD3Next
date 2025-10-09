@@ -76,7 +76,7 @@ export default function Home() {
     event.preventDefault();
     const format = formFormatThirdLevel(formData);
     const promises = format.map(async (item) => {
-      const formId = item?.id ?? mode.formId;
+      const formId = item?.id ?? null;
       const { id, ...resData } = item;
       const formatItem = formatFormData("tblBl", resData, formId, "blId");
       const { success, error, message } = await insertUpdateForm(formatItem);
@@ -109,7 +109,7 @@ export default function Home() {
           fieldData,
           "tblBl",
           id,
-          '["tblBlContainer"]',
+          '["tblBlContainer", "tblBlPackingList"]',
           "blId"
         );
         const { success, result, message, error } = await fetchForm(format);
