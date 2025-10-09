@@ -28,7 +28,7 @@ function TableGrid({
 }) {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [gridId, setGridId] = useState(0);
+  const [gridId, setGridId] = useState(null);
   const [excelFile, setExcelFile] = useState({ open: false, excelFile: null });
   const targetGrid = tabName
     ? formData?.[tabName]?.[tabIndex || 0]?.[gridName]

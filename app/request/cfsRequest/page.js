@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { ThemeProvider, Box, Typography } from "@mui/material";
-import data from "./cfsRequestData";
+import data, { cfsGridButtons, voyageGridButtons } from "./cfsRequestData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -54,7 +54,8 @@ export default function CfsRequest() {
               formData={formData}
               setFormData={setFormData}
               fieldsMode={fieldsMode}
-              gridName="attachments"
+              gridName="tblVoyage"
+              buttons={cfsGridButtons}
             />
           </Box>
           <Box className="w-full flex mt-2">
