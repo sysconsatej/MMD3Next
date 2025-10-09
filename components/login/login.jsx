@@ -8,6 +8,7 @@ import { login } from "@/apis";
 import { toast, ToastContainer } from "react-toastify";
 import { useAuth } from "@/store/index";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 export const LoginForm = () => {
   const { push  }  = useRouter();
@@ -43,8 +44,8 @@ export const LoginForm = () => {
 
       const res = await login(requestBody);
       if (res?.token) {
+        Cookies.set("auth_token", res?.token, { expires: 1 });
         setToken(res?.token);
-        console.log(res, 'res')
         setUserData(res?.user)
         toast.success(`${res?.message}`, {
           position: "top-right",

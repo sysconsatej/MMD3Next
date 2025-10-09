@@ -6,34 +6,30 @@ export default function middleware(request) {
 
   const isLoggedIn = token?.value;
 
+
+  const response = NextResponse.next();
+
   if (!isLoggedIn && pathname !== "/login") {
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
   if (isLoggedIn && pathname === "/login") {
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     return NextResponse.redirect(new URL("/home", request.url));
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
   matcher: [
-    "/login",
     "/home",
-    // "/bl/:path*",
-    // "/master/:path*",
-    // "/reports/:path*",
-    // "/home",
-    // "/request/:path*",
-    // "/menu-access/:path*",
-    {
-      source:
-        "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
-      missing: [
-        { type: "header", key: "next-router-prefetch" },
-        { type: "header", key: "purpose", value: "prefetch" },
-      ],
-    },
+    "/bl/:path*",
+    "/master/:path*",
+    "/reports/:path*",
+    "/request/:path*",
+    "/menu-access/:path*",
+    "/login",
   ],
 };
