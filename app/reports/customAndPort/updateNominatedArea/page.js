@@ -20,6 +20,7 @@ export default function IGM() {
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [tableFormData, setTableFormData] = useState([]);
   const router = useRouter();
 
@@ -73,7 +74,7 @@ export default function IGM() {
       },
     };
 
-    setLoading(true);
+    setLoadingUpdate(true);
     setError(null);
 
     try {
@@ -96,7 +97,7 @@ export default function IGM() {
       setError(errText);
       toast.error(errText);
     } finally {
-      setLoading(false);
+      setLoadingUpdate(false);
     }
   };
 
@@ -174,7 +175,7 @@ export default function IGM() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              Update Nominated Area
+              Update CFS DPD
             </h1>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
@@ -195,9 +196,10 @@ export default function IGM() {
               disabled={loading}
             />
             <CustomButton
-              text={"Update Nominated Area"}
+              text={loadingUpdate ? "Updating..." : "Update CFS DPD"}
               type="button"
               onClick={handleUpdate}
+              disabled={loadingUpdate}
             />
             <CustomButton
               text="Cancel"
