@@ -88,11 +88,11 @@ export const navItems = [
           },
           {
             name: "Update CFS DPD",
-            href: "/reports/customAndPort/updateNominatedArea",
+            href: "/reports/customAndPort/updateCfsDpd",
           },
           {
             name: "Update Line No",
-            href: "/reports/customAndPort/updateLineNo",
+            href: "/reports/customAndPort/updateLineNumber",
           },
           {
             name: " Shipping Bill",
