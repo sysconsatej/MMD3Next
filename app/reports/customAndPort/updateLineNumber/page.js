@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data, { metaData } from "./updateCfsDpd";
+import data, { metaData } from "./updateLineNumber";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -175,7 +175,7 @@ export default function IGM() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              Update CFS DPD
+              Update Line No
             </h1>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
