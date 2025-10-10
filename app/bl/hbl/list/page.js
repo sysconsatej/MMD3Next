@@ -28,7 +28,7 @@ import { advanceSearchFilter } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
 
-const LIST_TABLE = "tblBlTest b";
+const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
   .split(/\s+/)[0]
   .replace(/^dbo\./i, "");

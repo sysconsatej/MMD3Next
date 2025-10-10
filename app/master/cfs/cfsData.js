@@ -21,7 +21,7 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Customer code",
+      label: "Custom code",
       name: "ediPortCode",
       isEdit: true,
     },
@@ -35,9 +35,15 @@ const fieldData = {
       label: "Reference Port",
       name: "referencePortId",
       type: "dropdown",
-      labelType: "referencePort",
+      tableName: "tblPort p",
+      displayColumn: "p.name",
+      joins:
+        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+      where: "m.name IN ('SEA PORT','INLAND PORT')",
+      orderBy: "p.name",
+      labelType: "port",
       foreignTable: "name,tblPort",
-      isEdit: "true",
+      isEdit: true,
     },
   ],
 };

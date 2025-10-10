@@ -62,7 +62,7 @@ export default function Home() {
         fieldData,
         "tblBl",
         mode.formId,
-        '["tblBlContainer"]',
+        '["tblBlContainer","tblBlPackingList"]',
         "blId"
       );
       const { success, result, message, error } = await fetchForm(format);
