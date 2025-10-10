@@ -45,7 +45,7 @@ const RecursiveMenu = ({
   expandAll,
 }) => {
   const [open, setOpen] = useState(false);
-  const hasChildren = item.children && item.children.length > 0;
+  const hasChildren = item.child && item.child.length > 0;
 
   const handleCheckboxChange = (e) => {
     onCheckChange(item.id, e.target.checked);
@@ -105,7 +105,7 @@ const RecursiveMenu = ({
       {hasChildren && (
         <Collapse in={open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding sx={{ pl: 6 }}>
-            {item.children.map((child) => (
+            {item.child.map((child) => (
               <RecursiveMenu
                 key={child.id}
                 item={child}

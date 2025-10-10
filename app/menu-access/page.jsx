@@ -3,6 +3,7 @@ import React, { useState } from "react";
 // import { fetchReportData } from "@/services/auth/FormControl.services";
 import { MenuButton } from "./menuButton";
 import {
+  buildTree,
   // buildTree,
   // dropdownFieldData,
   // getMenuDataByUser,
@@ -24,7 +25,8 @@ import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp
 import { SmapleMenuData } from "./sampleMenuData";
 
 const MenuAccess = () => {
-  const [menuTree, setMenuTree] = useState(SmapleMenuData.data || []);
+  const [menuTree, setMenuTree] = useState(buildTree(SmapleMenuData.data));
+  console.log("menuTree", menuTree);
   // const [selectedUserName, setSelectedUserName] = useState("");
   // const [userNameInitial] = useState({
   //   exportdropdown: "",

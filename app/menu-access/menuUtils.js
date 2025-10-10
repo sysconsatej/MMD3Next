@@ -202,8 +202,8 @@ const renderToggleIcon = (condition, iconTrue, iconFalse, setCondition) => {
   const IconComponent = condition ? iconFalse : iconTrue;
   return (
     <IconComponent
+      className="tableArrow"
       onClick={() => setCondition(!condition)}
-      color={"info"}
     />
   );
 };
