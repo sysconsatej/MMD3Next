@@ -623,6 +623,7 @@ export const fieldData = {
       name: "imoId",
       type: "dropdown",
       labelType: "uno",
+      foreignTable: "class,tblImo",
       isEdit: true,
     },
     {
