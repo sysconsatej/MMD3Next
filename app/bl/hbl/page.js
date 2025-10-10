@@ -10,7 +10,6 @@ import TableGrid from "@/components/tableGrid/tableGrid";
 import FormHeading from "@/components/formHeading/formHeading";
 import { formStore } from "@/store";
 import {
-  copyHandler,
   formatDataWithForm,
   formatDataWithFormThirdLevel,
   formatFetchForm,
@@ -20,7 +19,7 @@ import {
 } from "@/utils";
 import { deleteRecord, fetchForm, insertUpdateForm } from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { useTotalGrossAndPack } from "./utils";
+import { copyHandler, useTotalGrossAndPack } from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import AgreeTerms from "@/components/agreeTerms/agreeTerms";
@@ -291,7 +290,8 @@ export default function Home() {
                                 setFormData,
                                 "left",
                                 mapping,
-                                "Notify details copied to Consignee!"
+                                "Notify details copied to Consignee!",
+                                index
                               ),
                             icon: <ContentCopyIcon fontSize="small" />,
                           },
@@ -319,7 +319,8 @@ export default function Home() {
                                 setFormData,
                                 "right",
                                 mapping,
-                                "Consignee details copied to Notify!"
+                                "Consignee details copied to Notify!",
+                                index
                               ),
                             icon: <ContentCopyIcon fontSize="small" />,
                           },

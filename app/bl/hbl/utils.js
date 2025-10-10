@@ -1,30 +1,37 @@
 import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 export function useTotalGrossAndPack(formData, setTotals) {
   useEffect(() => {
-    let grossWt = 0;
-    let packages = 0;
+    if (Array.isArray(formData?.tblBl)) {
+      const totalVal = formData?.tblBl?.reduce(
+        (tSum, item) => {
+          const totalContainer = item?.tblBlContainer?.reduce(
+            (sum, c) => {
+              sum.gross += Number(c?.grossWt) || 0;
+              sum.pack += Number(c?.noOfPackages) || 0;
+              return sum;
+            },
+            {
+              gross: 0,
+              pack: 0,
+            }
+          );
 
-    if (formData?.tblBlContainer && Array.isArray(formData.tblBlContainer)) {
-      grossWt += formData.tblBlContainer.reduce(
-        (sum, c) => sum + (Number(c.grossWt) || 0),
-        0
+          tSum.tGross += totalContainer?.gross || 0;
+          tSum.tPack += totalContainer?.pack || 0;
+
+          return tSum;
+        },
+        { tGross: 0, tPack: 0 }
       );
-      packages += formData.tblBlContainer.reduce(
-        (sum, c) => sum + (Number(c.noOfPackages) || 0),
-        0
-      );
+
+      setTotals({
+        grossWt: totalVal.tGross || 0,
+        packages: totalVal.tPack || 0,
+      });
     }
-
-    if (formData?.item && Array.isArray(formData.item)) {
-      packages += formData.item.reduce(
-        (sum, i) => sum + (Number(i.itemNoOfPackages) || 0),
-        0
-      );
-    }
-
-    setTotals({ grossWt, packages });
-  }, [formData.tblBlContainer, formData.item]);
+  }, [formData?.tblBl]);
 }
 
 export function advanceSearchFilter(advanceSearch) {
@@ -55,3 +62,31 @@ export function advanceSearchFilter(advanceSearch) {
 
   return condition.length > 0 ? condition.join(" and ") : null;
 }
+
+export const copyHandler = (
+  formData,
+  setFormData,
+  direction,
+  mapping,
+  toastMessage,
+  tabIndex
+) => {
+  const updatedFormData = { ...formData };
+  updatedFormData.tblBl = [...(formData.tblBl || [])];
+  updatedFormData.tblBl[tabIndex] = { ...(formData.tblBl[tabIndex] || {}) };
+
+  const fieldMapping =
+    direction === "left"
+      ? mapping
+      : Object.fromEntries(Object.entries(mapping).map(([k, v]) => [v, k]));
+
+  Object.entries(fieldMapping).forEach(([sourceKey, targetKey]) => {
+    if (formData?.tblBl?.[tabIndex][sourceKey]) {
+      updatedFormData.tblBl[tabIndex][targetKey] =
+        formData.tblBl[tabIndex][sourceKey];
+    }
+  });
+
+  setFormData(updatedFormData);
+  toast.success(toastMessage);
+};

@@ -36,7 +36,7 @@ export default function InvoiceRequest() {
               variant="body2"
               style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
             />
-            <Box className="grid grid-cols-6 gap-2 p-2 ">
+            <Box className="grid grid-cols-4 gap-2 p-2 ">
               <CustomInput
                 fields={jsonData.igmFields}
                 formData={formData}
