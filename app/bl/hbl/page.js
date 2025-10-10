@@ -18,7 +18,7 @@ import {
   formFormatThirdLevel,
   useNextPrevData,
 } from "@/utils";
-import { fetchForm, insertUpdateForm } from "@/apis";
+import { deleteRecord, fetchForm, insertUpdateForm } from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { useTotalGrossAndPack } from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -58,6 +58,7 @@ export default function Home() {
   const [totals, setTotals] = useState({});
   const [tabValue, setTabValue] = useState(0);
   const [hblArray, setHblArray] = useState([]);
+  const [blDelete, setBlDelete] = useState([]);
 
   const handleChangeTab = (event, newValue) => {
     setTabValue(newValue);
@@ -82,20 +83,39 @@ export default function Home() {
       const { success, error, message } = await insertUpdateForm(formatItem);
       if (success) {
         toast.success(message);
-        // setFormData({});
+        setFormData({});
       } else {
         toast.error(error || message);
       }
     });
     await Promise.all(promises);
+    if (blDelete.length > 0) {
+      const deletePromises = blDelete.map(async (item) => {
+        const obj = {
+          recordId: item,
+          tableName: "tblBl",
+        };
+        const { success, message, error } = await deleteRecord(obj);
+        if (success) {
+          toast.success(message);
+        } else {
+          toast.error(error || message);
+        }
+      });
+      await Promise.all(deletePromises);
+    }
   };
 
   function handleRemove(index) {
     setHblArray((prev) => prev.filter((num, indexArr) => indexArr !== index)),
       setFormData((prev) => ({
         ...prev,
-        tblHbl: prev?.tblHbl?.filter((num, indexArr) => indexArr !== index),
+        tblBl: prev?.tblBl?.filter((num, indexArr) => indexArr !== index),
       }));
+
+    if (formData?.tblBl?.[index]?.id) {
+      setBlDelete((prev) => [...prev, formData?.tblBl?.[index]?.id]);
+    }
   }
 
   useEffect(() => {
@@ -126,11 +146,11 @@ export default function Home() {
       const formatState = formatDataWithFormThirdLevel(
         resArray,
         [...jsonData.mblFields, ...jsonData.csnFields],
-        "tblHbl"
+        "tblBl"
       );
       setFormData(formatState);
       setHblArray(
-        Array.from({ length: formatState.tblHbl.length }, (_, i) => i)
+        Array.from({ length: formatState.tblBl.length }, (_, i) => i)
       );
     }
     fetchFormHandler();
@@ -209,24 +229,28 @@ export default function Home() {
                     return (
                       <Tab
                         key={index}
-                        label={`HBL ${item + 1}`}
+                        label={`HBL (${
+                          formData?.tblBl?.[index]?.hblNo || item + 1
+                        })`}
                         {...a11yProps(index)}
                         icon={<CloseIcon onClick={() => handleRemove(index)} />}
                         iconPosition="end"
                       />
                     );
                   })}
-                  <Tab
-                    label="Add HBL"
-                    onClick={() =>
-                      setHblArray((prev) => [
-                        ...prev,
-                        prev[prev.length - 1] + 1 || 0,
-                      ])
-                    }
-                    icon={<AddIcon />}
-                    iconPosition="end"
-                  />
+                  {mode.mode !== "view" && (
+                    <Tab
+                      label="Add HBL"
+                      onClick={() =>
+                        setHblArray((prev) => [
+                          ...prev,
+                          prev[prev.length - 1] + 1 || 0,
+                        ])
+                      }
+                      icon={<AddIcon />}
+                      iconPosition="end"
+                    />
+                  )}
                 </Tabs>
               </Box>
               {hblArray.map((item, index) => {
@@ -239,7 +263,7 @@ export default function Home() {
                           formData={formData}
                           setFormData={setFormData}
                           fieldsMode={fieldsMode}
-                          tabName={"tblHbl"}
+                          tabName={"tblBl"}
                           tabIndex={index}
                         />
                       </Box>
@@ -250,7 +274,7 @@ export default function Home() {
                             formData={formData}
                             setFormData={setFormData}
                             fieldsMode={fieldsMode}
-                            tabName={"tblHbl"}
+                            tabName={"tblBl"}
                             tabIndex={index}
                           />
                         </Box>
@@ -279,7 +303,7 @@ export default function Home() {
                             formData={formData}
                             setFormData={setFormData}
                             fieldsMode={fieldsMode}
-                            tabName={"tblHbl"}
+                            tabName={"tblBl"}
                             tabIndex={index}
                           />
                         </Box>
@@ -307,7 +331,7 @@ export default function Home() {
                             formData={formData}
                             setFormData={setFormData}
                             fieldsMode={fieldsMode}
-                            tabName={"tblHbl"}
+                            tabName={"tblBl"}
                             tabIndex={index}
                           />
                         </Box>
@@ -319,7 +343,7 @@ export default function Home() {
                             formData={formData}
                             setFormData={setFormData}
                             fieldsMode={fieldsMode}
-                            tabName={"tblHbl"}
+                            tabName={"tblBl"}
                             tabIndex={index}
                           />
                         </Box>
@@ -330,7 +354,7 @@ export default function Home() {
                           formData={formData}
                           setFormData={setFormData}
                           fieldsMode={fieldsMode}
-                          tabName={"tblHbl"}
+                          tabName={"tblBl"}
                           tabIndex={index}
                         />
                       </Box>
@@ -342,7 +366,7 @@ export default function Home() {
                         fieldsMode={fieldsMode}
                         gridName="tblBlContainer"
                         buttons={gridButtons}
-                        tabName={"tblHbl"}
+                        tabName={"tblBl"}
                         tabIndex={index}
                       />
                       <FormHeading text="Item Details" />
@@ -353,7 +377,7 @@ export default function Home() {
                         fieldsMode={fieldsMode}
                         gridName="tblBlPackingList"
                         buttons={gridButtons}
-                        tabName={"tblHbl"}
+                        tabName={"tblBl"}
                         tabIndex={index}
                       />
                     </Box>

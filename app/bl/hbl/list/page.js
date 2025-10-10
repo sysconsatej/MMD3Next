@@ -18,7 +18,7 @@ import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
@@ -105,20 +105,22 @@ export default function BLList() {
     getData(1, +event.target.value);
   };
 
-  const handleDeleteRecord = async (formId) => {
-    const obj = {
-      recordId: formId,
-      tableName: "tblBl",
-    };
+  const handleDeleteRecord = async (formIds) => {
+    const deleteRecords = formIds?.split(",")?.map(async (id) => {
+      const obj = {
+        recordId: id,
+        tableName: "tblBl",
+      };
+      const { success, message, error } = await deleteRecord(obj);
+      if (success) {
+        toast.success(message);
+      } else {
+        toast.error(error || message);
+      }
+    });
 
-    const { success, message, error } = await deleteRecord(obj);
-
-    if (success) {
-      toast.success(message);
-      getData(page, rowsPerPage);
-    } else {
-      toast.error(error || message);
-    }
+    await Promise.all(deleteRecords);
+    getData(page, rowsPerPage);
   };
 
   const modeHandler = (mode, formId = null) => {
