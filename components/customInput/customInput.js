@@ -157,16 +157,16 @@ const CustomInput = ({
 
     switch (field.type) {
       case "textarea":
-        return <TextAreaInput {...inputProps} />;
+        return <TextAreaInput {...inputProps} key={index} />;
 
       case "checkbox":
-        return <CheckBoxInput {...inputProps} />;
+        return <CheckBoxInput {...inputProps} key={index} />;
 
       case "radio":
-        return <RadioInput {...inputProps} />;
+        return <RadioInput {...inputProps} key={index} />;
 
       case "number":
-        return <NumberInput {...inputProps} />;
+        return <NumberInput {...inputProps} key={index} />;
 
       case "dropdown":
         return (
@@ -176,6 +176,7 @@ const CustomInput = ({
             getData={getData}
             keyTabHandler={keyTabHandler}
             handleChangeEventFunctions={handleChangeEventFunctions}
+            key={index}
           />
         );
 
@@ -185,20 +186,21 @@ const CustomInput = ({
             {...inputProps}
             dropdowns={dropdowns}
             getData={getData}
+            key={index}
           />
         );
 
       case "date":
-        return <DateInput {...inputProps} />;
+        return <DateInput {...inputProps} key={index} />;
 
       case "datetime":
-        return <DateTimeInput {...inputProps} />;
+        return <DateTimeInput {...inputProps} key={index} />;
 
       case "fileupload":
-        return <FileInput {...inputProps} />;
+        return <FileInput {...inputProps} key={index} />;
 
       default:
-        return <TextInput {...inputProps} />;
+        return <TextInput {...inputProps}  key={index}/>;
     }
   });
 };
