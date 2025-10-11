@@ -72,75 +72,56 @@ const CustomInput = ({
     }
   };
 
-  const getData = async (
-    typeOrField,
-    name,
-    pageNum = 1,
-    search = "",
-    selectedCondition = null
-  ) => {
-    const isView = fieldsMode === "view";
-
-    const resolveId = (v) =>
-      v && typeof v === "object" ? (v.Id ?? v.id ?? v.value ?? null) : (v ?? null);
-
+  const getData = async (typeOrField, name, pageNum = 1, search = "") => {
     let objData;
 
     if (typeOrField && typeof typeOrField === "object") {
       const fc = typeOrField;
 
-      const sc = isView ? null : (fc.selectedCondition ? resolveId(formData?.[fc.selectedCondition]) : (selectedCondition ? resolveId(formData?.[selectedCondition]) : null));
-      const sc1 = isView ? null : (fc.selectedCondition1 ? resolveId(formData?.[fc.selectedCondition1]) : null);
-      const sc2 = isView ? null : (fc.selectedCondition2 ? resolveId(formData?.[fc.selectedCondition2]) : null);
-
       let filtersJson = null;
-      if (!isView && Array.isArray(fc.selectedConditions) && fc.selectedConditions.length) {
+      if (
+        Array.isArray(fc.selectedConditions) &&
+        fc.selectedConditions.length
+      ) {
         const filters = fc.selectedConditions
           .map((key) => {
-            const v = resolveId(formData?.[key]);
+            const v = formData?.[key]?.Id;
             return v != null ? { col: key, op: "=", val: v } : null;
           })
           .filter(Boolean);
-        if (filters.length) filtersJson = JSON.stringify(filters);
+        if (filters.length <= 0) {
+          setDropdowns((prev) => ({
+            ...prev,
+            [name]: [],
+          }));
+          setFormData((prevData) =>
+            setInputValue({
+              prevData,
+              tabName,
+              gridName,
+              tabIndex,
+              containerIndex,
+              name,
+              value: null,
+            })
+          );
+          return;
+        }
+        filtersJson = JSON.stringify(filters);
       }
 
       objData = {
-        ...(fc.tableName || fc.displayColumn
-          ? {
-            tableName: fc.tableName,
-            displayColumn: fc.displayColumn || "name",
-            pageNo: pageNum,
-            pageSize: fc.pageSize ?? 50,
-            search,
-            idColumn: fc.idColumn ?? "id",
-            joins: fc.joins || "",
-            where: fc.where || "",
-            searchColumn: fc.searchColumn ?? null,
-            orderBy: fc.orderBy ?? null,
-            selectedCondition: sc,
-            selectedCondition1: sc1,
-            selectedCondition2: sc2,
-            ...(filtersJson ? { filtersJson } : {}),
-          }
-          : {
-            masterName: fc.foreignTable || fc.labelType || "",
-            pageNo: pageNum,
-            pageSize: fc.pageSize ?? 50,
-            search,
-            selectedCondition: isView ? null : sc,
-            joins: fc.joins || "",
-            where: fc.where || "",
-            searchColumn: fc.searchColumn ?? null,
-            orderBy: fc.orderBy ?? null,
-            idColumn: fc.idColumn ?? "id",
-          }),
-      };
-    } else {
-      objData = {
-        masterName: typeOrField,
+        tableName: fc.tableName,
+        displayColumn: fc.displayColumn || "name",
         pageNo: pageNum,
+        pageSize: fc.pageSize ?? 1000,
         search,
-        selectedCondition: isView ? null : resolveId(formData[selectedCondition]),
+        idColumn: fc.idColumn ?? "id",
+        joins: fc.joins || "",
+        where: fc.where || "",
+        searchColumn: fc.searchColumn ?? null,
+        orderBy: fc.orderBy ?? null,
+        filtersJson: filtersJson,
       };
     }
 
@@ -168,8 +149,7 @@ const CustomInput = ({
     }
   };
 
-
-
+  
   return fields?.map((field, index) => {
     const obj = {
       gridName,
@@ -181,11 +161,10 @@ const CustomInput = ({
     };
     const fieldValue = getInputValue(obj);
 
-    const canEdit = field.isEdit !== false;
     const isDisabled =
       fieldsMode === "view" ||
-      (fieldsMode === "edit" && !canEdit) ||
-      field.disabled === true;
+      (fieldsMode === "edit" && !field.isEdit) ||
+      field.disabled;
 
     const commonProps = {
       key: index,
@@ -233,7 +212,6 @@ const CustomInput = ({
             getData={getData}
             keyTabHandler={keyTabHandler}
             handleChangeEventFunctions={handleChangeEventFunctions}
-            formData={formData}
           />
         );
 
