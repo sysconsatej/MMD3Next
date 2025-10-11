@@ -36,7 +36,7 @@ export default function ModeOfTransport() {
       const obj = {
         columns: name,
         tableName: "tblMasterData",
-        whereCondition: ` ${name} = '${value}' and masterListName = 'tblTransportType'  and status = 1`,
+        whereCondition: ` ${name} = '${value}' and masterListName = 'tblMode'  and status = 1`,
       };
       const { success } = await getDataWithCondition(obj);
       if (success) {
@@ -70,7 +70,7 @@ export default function ModeOfTransport() {
       const obj = {
         columns: "id, name",
         tableName: "tblMasterList",
-        whereCondition: "name = 'tblTransportType'",
+        whereCondition: "name = 'tblMode'",
       };
 
       const { data, message, error, success } = await getDataWithCondition(obj);

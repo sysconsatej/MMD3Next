@@ -17,16 +17,19 @@ const fieldData = {
       name: "taxStateCode",
       isEdit: "true",
     },
-
     {
       label: "Country",
-      name: "countryID",
+      name: "countryId",
       type: "dropdown",
+      tableName: "tblCountry",
+      displayColumn: "t.name",
+      orderBy: "t.name",
       labelType: "country",
       foreignTable: "name,tblCountry",
-      isEdit: "true",
-      required: "true",
-    },
+      isEdit: true,
+      required: true,
+    }
+
   ],
 };
 
