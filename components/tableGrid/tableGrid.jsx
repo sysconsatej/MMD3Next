@@ -25,6 +25,7 @@ function TableGrid({
   tabName = null,
   tabIndex = null,
   buttons = [],
+  handleBlurEventFunctions = null,
 }) {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -228,6 +229,9 @@ function TableGrid({
                                   containerIndex={containerIndex}
                                   tabName={tabName}
                                   tabIndex={tabIndex}
+                                  handleBlurEventFunctions={
+                                    handleBlurEventFunctions
+                                  }
                                 />
                               </TableCell>
                             ) : (

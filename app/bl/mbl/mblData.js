@@ -498,7 +498,7 @@ export const fieldData = {
     },
     {
       label: "Currency",
-      name: "currencyId",
+      name: "demurrageCurrencyId",
       type: "dropdown",
       tableName: "tblMasterData m",
       foreignTable: "name,tblMasterData",
