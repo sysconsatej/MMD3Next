@@ -30,6 +30,7 @@ export const config = {
     "/reports/:path*",
     "/request/:path*",
     "/menu-access/:path*",
+    "/role-access/:path*",
     "/login",
   ],
 };

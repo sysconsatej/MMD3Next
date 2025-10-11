@@ -1,6 +1,8 @@
 "use client";
+import { insertUpdateForm } from "@/apis";
 import CustomButton from "@/components/button/button";
 import { CustomInput } from "@/components/customInput";
+import { formatFormData } from "@/utils";
 import { Box, Card, CardContent } from "@mui/material";
 import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
@@ -11,16 +13,16 @@ const fieldData = {
       label: "Select Role",
       name: "role",
       type: "dropdown",
-      labelType: "name,tblRole",
-      foreignTable: "name,tblMasterData",
+      labelType: "name",
+      foreignTable: "type,tblTestRole",
       key: "role",
     },
     {
       label: "Select User",
       name: "user",
       type: "dropdown",
-      labelType: "user",
-      foreignTable: "name,tblUser",
+      labelType: "id",
+      foreignTable: "username,tblTestUsers",
       key: "user",
     },
   ],
@@ -29,13 +31,32 @@ const fieldData = {
 const RoleAccessPage = () => {
   const [formData, setFormData] = useState({});
 
-  const onSubmitHandler = (e) => {
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
     console.log("Form Data Submitted: ", formData);
-    Object.keys(formData).length === 0
-      ? toast.error("Please fill in the form before submitting.")
-      : toast.info("Form submitted successfully!");
-    // Handle form submission logic here
+    if (Object.keys(formData).length === 0) {
+      toast.error("Please fill in the form before submitting.");
+      return
+    }
+
+    console.log("Submitted Form Data:", formData);
+    const dataToSubmit = {
+      roleId: formData?.role?.Id,
+    };
+
+    const format = formatFormData(
+      "tblTestUsers", // table name
+      dataToSubmit,
+      formData?.user?.Id, // column value to update the record
+      "id" // column name to identify the record
+    );
+    const { success, error, message } = await insertUpdateForm(format);
+    if (success) {
+      toast.success(message);
+      setFormData({});
+    } else {
+      toast.error(error || message);
+    }
   };
 
   return (
