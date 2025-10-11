@@ -31,15 +31,14 @@ const CustomInput = ({
   fieldsMode,
   errorState = {},
 }) => {
-  const [dropdowns, setDropdowns] = useState([]);
-  const [dropdownTotalPage, setDropdownTotalPage] = useState([]);
+  const [dropdowns, setDropdowns] = useState({});
+  const [dropdownTotalPage, setDropdownTotalPage] = useState({});
   const [isChange, setIsChange] = useState(false);
 
   const changeHandler = (e, containerIndex) => {
     const { name, value } = e.target;
-
-    setFormData((prevData) => {
-      const obj = {
+    setFormData((prevData) =>
+      setInputValue({
         prevData,
         tabName,
         gridName,
@@ -47,10 +46,8 @@ const CustomInput = ({
         containerIndex,
         name,
         value,
-      };
-      return setInputValue(obj);
-    });
-
+      })
+    );
     if (!isChange && popUp) {
       localStorage.setItem("isChange", true);
       setIsChange(true);
@@ -59,40 +56,97 @@ const CustomInput = ({
 
   const keyTabHandler = (e, containerIndex) => {
     const { name, value } = e.target;
-    const isInclude = dropdowns[name].filter((items) => items.Name === value);
-    if (isInclude) {
-      setFormData((prevData) => {
-        const obj = {
+    const match = (dropdowns?.[name] || []).find((i) => i.Name === value);
+    if (match) {
+      setFormData((prevData) =>
+        setInputValue({
           prevData,
           tabName,
           gridName,
           tabIndex,
           containerIndex,
           name,
-          value: isInclude[0],
-        };
-        return setInputValue(obj);
-      });
+          value: match,
+        })
+      );
     }
   };
 
   const getData = async (
-    type,
+    typeOrField,
     name,
     pageNum = 1,
     search = "",
     selectedCondition = null
   ) => {
-    const objData = {
-      masterName: type,
-      pageNo: pageNum,
-      search,
-      selectedCondition: formData[selectedCondition]?.Id || null,
-    };
+    const isView = fieldsMode === "view";
+
+    const resolveId = (v) =>
+      v && typeof v === "object" ? (v.Id ?? v.id ?? v.value ?? null) : (v ?? null);
+
+    let objData;
+
+    if (typeOrField && typeof typeOrField === "object") {
+      const fc = typeOrField;
+
+      const sc = isView ? null : (fc.selectedCondition ? resolveId(formData?.[fc.selectedCondition]) : (selectedCondition ? resolveId(formData?.[selectedCondition]) : null));
+      const sc1 = isView ? null : (fc.selectedCondition1 ? resolveId(formData?.[fc.selectedCondition1]) : null);
+      const sc2 = isView ? null : (fc.selectedCondition2 ? resolveId(formData?.[fc.selectedCondition2]) : null);
+
+      let filtersJson = null;
+      if (!isView && Array.isArray(fc.selectedConditions) && fc.selectedConditions.length) {
+        const filters = fc.selectedConditions
+          .map((key) => {
+            const v = resolveId(formData?.[key]);
+            return v != null ? { col: key, op: "=", val: v } : null;
+          })
+          .filter(Boolean);
+        if (filters.length) filtersJson = JSON.stringify(filters);
+      }
+
+      objData = {
+        ...(fc.tableName || fc.displayColumn
+          ? {
+            tableName: fc.tableName,
+            displayColumn: fc.displayColumn || "name",
+            pageNo: pageNum,
+            pageSize: fc.pageSize ?? 50,
+            search,
+            idColumn: fc.idColumn ?? "id",
+            joins: fc.joins || "",
+            where: fc.where || "",
+            searchColumn: fc.searchColumn ?? null,
+            orderBy: fc.orderBy ?? null,
+            selectedCondition: sc,
+            selectedCondition1: sc1,
+            selectedCondition2: sc2,
+            ...(filtersJson ? { filtersJson } : {}),
+          }
+          : {
+            masterName: fc.foreignTable || fc.labelType || "",
+            pageNo: pageNum,
+            pageSize: fc.pageSize ?? 50,
+            search,
+            selectedCondition: isView ? null : sc,
+            joins: fc.joins || "",
+            where: fc.where || "",
+            searchColumn: fc.searchColumn ?? null,
+            orderBy: fc.orderBy ?? null,
+            idColumn: fc.idColumn ?? "id",
+          }),
+      };
+    } else {
+      objData = {
+        masterName: typeOrField,
+        pageNo: pageNum,
+        search,
+        selectedCondition: isView ? null : resolveId(formData[selectedCondition]),
+      };
+    }
 
     const shouldFetch =
-      !dropdownTotalPage.hasOwnProperty(name) ||
-      dropdownTotalPage[name] == 0 ||
+      !Object.prototype.hasOwnProperty.call(dropdownTotalPage, name) ||
+      dropdownTotalPage[name] === 0 ||
       dropdownTotalPage[name] >= pageNum;
 
     if (!shouldFetch) return;
@@ -102,7 +156,7 @@ const CustomInput = ({
 
       setDropdowns((prev) => ({
         ...prev,
-        [name]: pageNum == 1 ? data : [...(prev[name] || []), ...data],
+        [name]: pageNum === 1 ? data : [...(prev[name] || []), ...data],
       }));
 
       setDropdownTotalPage((prev) => ({
@@ -110,9 +164,11 @@ const CustomInput = ({
         [name]: totalPage,
       }));
     } catch (error) {
-      console.log(`Failed to fetch dropdown value of this name ${name}`, error);
+      console.log(`Failed to fetch dropdown value of ${name}`, error);
     }
   };
+
+
 
   return fields?.map((field, index) => {
     const obj = {
@@ -125,10 +181,11 @@ const CustomInput = ({
     };
     const fieldValue = getInputValue(obj);
 
-    let isDisabled =
+    const canEdit = field.isEdit !== false;
+    const isDisabled =
       fieldsMode === "view" ||
-      (fieldsMode === "edit" && !field.isEdit) ||
-      field.disabled;
+      (fieldsMode === "edit" && !canEdit) ||
+      field.disabled === true;
 
     const commonProps = {
       key: index,
@@ -176,6 +233,7 @@ const CustomInput = ({
             getData={getData}
             keyTabHandler={keyTabHandler}
             handleChangeEventFunctions={handleChangeEventFunctions}
+            formData={formData}
             key={index}
           />
         );

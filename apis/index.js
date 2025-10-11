@@ -4,6 +4,7 @@ export {
   getNextPrevData,
 } from "./utils";
 export { fetchTableValues } from "./dynamicTable";
+export { updateStatusRows } from "./updateStatus";
 export {
   insertUpdateForm,
   fetchForm,
