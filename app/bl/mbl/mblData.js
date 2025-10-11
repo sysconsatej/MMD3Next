@@ -63,9 +63,18 @@ export const fieldData = {
       label: "Vessel-Voyage No.",
       name: "podvesselId",
       type: "dropdown",
+
+      tableName: "tblVoyage v",
+      idColumn: "id", // ✅ bare name; proc will use v.[id]
+
+      displayColumn: "ISNULL(ve.name,'') + ' - ' + ISNULL(v.voyageNo,'')",
+      joins: "JOIN tblVessel ve ON ve.id = v.vesselId",
+      searchColumn: "ve.name, v.voyageNo",
+      orderBy: "ve.name, v.voyageNo",
+
       labelType: "vessel-voyage",
-      required: true,
       isEdit: true,
+      required: true
     },
     // {
     //   label: "Manifest Vessel-Voyage",
@@ -585,9 +594,8 @@ export const fieldData = {
       tableName: "tblCity t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "city",
-      foreignTable: "name,tblCity",
-      selectedConditions: ["shipperCountry"],
+      selectedCondition: "shipperCountry",
+      where: "t.countryId = @selectedCondition",
       required: true,
       isEdit: true
     },
@@ -658,7 +666,8 @@ export const fieldData = {
       orderBy: "t.name",
       labelType: "city",
       foreignTable: "name,tblCity",
-      selectedConditions: ["consigneeCountry"],
+      selectedCondition: "consigneeCountry",
+      where: "t.countryId = @selectedCondition",
       isEdit: true,
       required: true
     },
@@ -726,7 +735,8 @@ export const fieldData = {
       orderBy: "t.name",
       labelType: "city",
       foreignTable: "name,tblCity",
-      selectedConditions: ["notifyingParty1Country"],
+      selectedCondition: "notifyingPartyCountry",
+      where: "t.countryId = @selectedCondition",
       isEdit: true,
       required: true
     },

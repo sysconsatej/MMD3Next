@@ -93,6 +93,10 @@ export const navItems = [
             href: "/reports/customAndPort/updateNominatedArea",
           },
           {
+            name: "Update Line No",
+            href: "/reports/customAndPort/updateLineNo",
+          },
+          {
             name: " Shipping Bill",
             href: "/reports/customAndPort/shippingBill",
           },

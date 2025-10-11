@@ -236,3 +236,62 @@ export function formatExcelDataWithForm(data, format) {
     return result;
   }, []);
 }
+
+export function formFormatThirdLevel(data) {
+  let result = [];
+  let commonData = {};
+
+  for (const [key, value] of Object.entries(data)) {
+    if (Array.isArray(value)) {
+      for (const subSection of value) {
+        const tempData = {};
+        for (const [fieldKey, fieldValue] of Object.entries(subSection)) {
+          if (Array.isArray(fieldValue)) {
+            const nestArray = fieldValue.map((item) => {
+              const formatter = {};
+              for (const [innerKey, innerValue] of Object.entries(item)) {
+                formatter[innerKey] = innerValue?.Id ?? innerValue;
+              }
+
+              return formatter;
+            });
+            tempData[fieldKey] = nestArray;
+          } else {
+            tempData[fieldKey] = fieldValue?.Id ?? fieldValue;
+          }
+        }
+
+        result.push({
+          ...commonData,
+          ...tempData,
+        });
+      }
+    } else {
+      commonData[key] = value?.Id ?? value;
+    }
+  }
+
+  return result;
+}
+
+export function formatDataWithFormThirdLevel(data, common, tabTable) {
+  let commonKeysArray = common.map((item) => item.name);
+  let commonKeys = {};
+
+  const updatedData = data.map((item) => {
+    const resData = {
+      ...item,
+    };
+    commonKeysArray.forEach((key) => {
+      commonKeys[key] = resData[key];
+      delete resData[key];
+    });
+
+    return resData;
+  });
+
+  return {
+    ...commonKeys,
+    [tabTable]: updatedData,
+  };
+}

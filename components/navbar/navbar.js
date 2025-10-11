@@ -308,7 +308,7 @@ export default function Navbar() {
               <Box className="nav-account">
                 <Avatar>A</Avatar>
                 <Box>
-                  <div className="account-name">Syscon Infotech Pvt Ltd</div>
+                  <div className="account-name">Master Marine</div>
                   <div className="account-role">Admin</div>
                 </Box>
               </Box>

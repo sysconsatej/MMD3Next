@@ -31,8 +31,8 @@ const CustomInput = ({
   fieldsMode,
   errorState = {},
 }) => {
-  const [dropdowns, setDropdowns] = useState([]);
-  const [dropdownTotalPage, setDropdownTotalPage] = useState([]);
+  const [dropdowns, setDropdowns] = useState({});
+  const [dropdownTotalPage, setDropdownTotalPage] = useState({});
   const [isChange, setIsChange] = useState(false);
 
   const changeHandler = (e, containerIndex) => {
