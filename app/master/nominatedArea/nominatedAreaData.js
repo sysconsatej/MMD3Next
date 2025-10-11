@@ -17,11 +17,7 @@ const fieldData = {
       isEdit: true,
     },
     {
-<<<<<<< HEAD
-      label: "Custom code",
-=======
       label: "Custom code.",
->>>>>>> 010ea410b6a61970a5e098578ef72f066af956e9
       name: "ediPortCode",
       isEdit: true,
     },

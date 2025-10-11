@@ -56,7 +56,6 @@ const fieldData = {
       isEdit: true,
     },
   ],
-<<<<<<< HEAD
   tblVoyage: [
     {
       label: "Voyage No",
@@ -90,8 +89,6 @@ const fieldData = {
       isEdit: true,
     },
   ],
-=======
->>>>>>> 7ca2b1f9f4afe2df448026a92ffe248b3532158a
 };
 
 export const vessel = [
