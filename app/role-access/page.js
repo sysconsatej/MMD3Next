@@ -65,7 +65,7 @@ const RoleAccessPage = () => {
       <Card className="mt-10">
         <CardContent>
           <form
-            className="flex flex-col gap-10 "
+            className="flex flex-row justify-around gap-10 "
             onSubmit={(e) => onSubmitHandler(e)}
           >
             <CustomInput
