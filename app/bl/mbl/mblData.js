@@ -63,15 +63,12 @@ export const fieldData = {
       label: "Vessel-Voyage No.",
       name: "podvesselId",
       type: "dropdown",
-
       tableName: "tblVoyage v",
-      idColumn: "id", // ✅ bare name; proc will use v.[id]
-
+      idColumn: "id",
       displayColumn: "ISNULL(ve.name,'') + ' - ' + ISNULL(v.voyageNo,'')",
       joins: "JOIN tblVessel ve ON ve.id = v.vesselId",
       searchColumn: "ve.name, v.voyageNo",
       orderBy: "ve.name, v.voyageNo",
-
       labelType: "vessel-voyage",
       isEdit: true,
       required: true
