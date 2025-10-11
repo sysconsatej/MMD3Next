@@ -1,8 +1,3 @@
-import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from "@mui/icons-material/Close";
-import FileCopyIcon from "@mui/icons-material/FileCopy";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
-
 const fieldData = {
   vesselFields: [
     {
@@ -23,6 +18,7 @@ const fieldData = {
       label: "IMO Code",
       name: "imoCode",
       isEdit: true,
+      required: true,
     },
     {
       label: "Nationality",
@@ -39,6 +35,7 @@ const fieldData = {
       label: "Call Sign",
       name: "callSign",
       isEdit: true,
+      required: true,
     },
     {
       label: "Build Year",
@@ -59,6 +56,7 @@ const fieldData = {
       isEdit: true,
     },
   ],
+<<<<<<< HEAD
   tblVoyage: [
     {
       label: "Voyage No",
@@ -92,6 +90,8 @@ const fieldData = {
       isEdit: true,
     },
   ],
+=======
+>>>>>>> 7ca2b1f9f4afe2df448026a92ffe248b3532158a
 };
 
 export const vessel = [
@@ -103,26 +103,3 @@ export const vessel = [
 ];
 
 export default fieldData;
-
-export const voyageGridButtons = [
-  {
-    text: "Add Row",
-    icon: <AddIcon />,
-    func: "gridAddHandler",
-  },
-  {
-    text: "Delete Row",
-    icon: <CloseIcon />,
-    func: "gridDeleteHandler",
-  },
-  {
-    text: "Copy Row",
-    icon: <FileCopyIcon />,
-    func: "gridCopyHandler",
-  },
-  {
-    text: "Import Excel",
-    icon: <UploadFileIcon />,
-    func: "checkHandler",
-  },
-];

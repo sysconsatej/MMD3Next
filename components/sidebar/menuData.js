@@ -26,6 +26,7 @@ export const navItems = [
       { name: "City", href: "/master/city/list" },
       { name: "Vessel", href: "/master/vessel/list" },
       { name: "Voyage Route", href: "/master/voyageRoute/list" },
+      { name: "Voyage", href: "/master/voyage/list" },
       { name: "Port", href: "/master/port/list" },
       { name: "Nominated Area", href: "/master/nominatedArea/list" },
       { name: "Terminal", href: "/master/terminal/list" },
@@ -89,12 +90,12 @@ export const navItems = [
             href: "/reports/customAndPort/cargoArrivalNotice",
           },
           {
-            name: "Update Nominated Area",
-            href: "/reports/customAndPort/updateNominatedArea",
+            name: "Update CFS DPD",
+            href: "/reports/customAndPort/updateCfsDpd",
           },
           {
             name: "Update Line No",
-            href: "/reports/customAndPort/updateLineNo",
+            href: "/reports/customAndPort/updateLineNumber",
           },
           {
             name: " Shipping Bill",

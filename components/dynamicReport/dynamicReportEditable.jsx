@@ -441,14 +441,42 @@ const DynamicReportTable = ({
              hover:[&::-webkit-scrollbar-thumb]:!bg-[#a0b2ea]"
         >
           <Box sx={{ minWidth: 900 }}>
-            <Table size="small" stickyHeader>
+            <Table
+              size="small"
+              stickyHeader
+              className="
+    [&_.MuiTableCell-paddingCheckbox]:!w-7
+    [&_.MuiTableCell-paddingCheckbox]:!min-w-7
+    [&_.MuiTableCell-paddingCheckbox]:!max-w-7
+    [&_.MuiTableCell-paddingCheckbox]:!px-1
+    [&_.MuiCheckbox-root]:!p-0
+    [&_.MuiCheckbox-root_.MuiSvgIcon-root]:!w-4
+    [&_.MuiCheckbox-root_.MuiSvgIcon-root]:!h-4
+     table-fixed
+    [&_th]:!w-[220px] [&_td]:!w-[220px]
+    [&_th]:!min-w-[220px] [&_td]:!min-w-[220px]
+    [&_th]:!max-w-[220px] [&_td]:!max-w-[220px]
+    [&_th]:!whitespace-normal [&_td]:!whitespace-normal
+    [&_th]:!break-words [&_td]:!break-words
+    [&_th]:!overflow-visible [&_td]:!overflow-visible
+    [&_td]:align-top
+
+    /* shrink numeric columns globally via data-attr */
+    [&_[data-num='1']]:!w-[110px]
+    [&_[data-num='1']]:!min-w-[110px]
+    [&_[data-num='1']]:!max-w-[110px]
+    [&_[data-num='1']]:!whitespace-nowrap
+    [&_[data-num='1']]:text-right
+    [&_[data-num='1']]:font-mono
+  "
+            >
               <TableHead
                 className="[&_.MuiTableCell-root]:border-r [&_.MuiTableCell-root]:border-gray-300
                [&_.MuiTableCell-root:last-child]:border-r-0"
               >
                 <TableRow className="bg-[#95a9e8]">
                   <TableCell
-                    padding="checkbox" 
+                    padding="checkbox"
                     align="left"
                     className="!bg-[#95a9e8] !text-white !font-light"
                   >
@@ -457,7 +485,7 @@ const DynamicReportTable = ({
                       checked={pageAllChecked}
                       indeterminate={false}
                       onChange={(e) => handleToggleAllOnPage(e.target.checked)}
-                      sx={{ color: "white", p: 0 }} 
+                      sx={{ color: "white", p: 0 }}
                     />
                   </TableCell>
 
@@ -465,6 +493,7 @@ const DynamicReportTable = ({
                   {DISPLAY_KEYS.map((col) => (
                     <TableCell
                       key={col}
+                      data-num={numericCols.has(col) ? 1 : undefined}
                       align="center"
                       sortDirection={orderBy === col ? order : false}
                       className="!px-1 !py-1 !font-light !whitespace-nowrap !bg-[#95a9e8] !text-white"
@@ -501,6 +530,7 @@ const DynamicReportTable = ({
                       {DISPLAY_KEYS.map((col) => (
                         <TableCell
                           key={col}
+                          data-num={numericCols.has(col) ? 1 : undefined}
                           align="center" // right-align numeric cols
                           sx={{
                             maxWidth: 360,
