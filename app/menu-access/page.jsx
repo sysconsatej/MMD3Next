@@ -23,10 +23,10 @@ import { theme } from "./menuAccessStyling";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import { SmapleMenuData } from "./sampleMenuData";
+import CustomButton from "@/components/button/button";
 
 const MenuAccess = () => {
   const [menuTree, setMenuTree] = useState(buildTree(SmapleMenuData.data));
-  console.log("menuTree", menuTree);
   // const [selectedUserName, setSelectedUserName] = useState("");
   // const [userNameInitial] = useState({
   //   exportdropdown: "",
@@ -87,16 +87,16 @@ const MenuAccess = () => {
   //     selectedUserId = copyUser || user;
   //   }
 
-    // setSelectedUserName(user);
-    // const requestBodyMenuAccess = {
-    //   columns: "menuId,isEdit,isView,isAdd,isDelete,isExport,isAccess",
-    //   tableName: "tblMenuAccess",
-    //   whereCondition: `userId = ${selectedUserId}`,
-    //   clientIdCondition: `status = 1 FOR JSON PATH, include_null_values`,
-    // };
-    // const { data } = await fetchReportData(requestBodyMenuAccess);
-    // const setMenuByUser = getMenuDataByUser(menuTree, data);
-    // setMenuTree(setMenuByUser);
+  // setSelectedUserName(user);
+  // const requestBodyMenuAccess = {
+  //   columns: "menuId,isEdit,isView,isAdd,isDelete,isExport,isAccess",
+  //   tableName: "tblMenuAccess",
+  //   whereCondition: `userId = ${selectedUserId}`,
+  //   clientIdCondition: `status = 1 FOR JSON PATH, include_null_values`,
+  // };
+  // const { data } = await fetchReportData(requestBodyMenuAccess);
+  // const setMenuByUser = getMenuDataByUser(menuTree, data);
+  // setMenuTree(setMenuByUser);
   // };
 
   // useEffect(() => {
@@ -131,29 +131,29 @@ const MenuAccess = () => {
             }
             values={userNameInitial}
           /> */}
-          <button onClick={null}>
+          <CustomButton text={"Submit"} type="submit" onClick={() => {}}>
             Submit
-          </button>
+          </CustomButton>
         </div>
         {/* <LightTooltip title={expandAll ? "Collapse All" : "Expand All"}> */}
-          {/* <div className="bg-['black'] cursor-pointer rounded-full w-[30px] h-[30px] flex items-center justify-center "> */}
-            {renderToggleIcon(
-              expandAll,
-              KeyboardDoubleArrowDownIcon,
-              KeyboardDoubleArrowUpIcon,
-              setExpandAll
-            )}
-          {/* </div> */}
+        {/* <div className="bg-['black'] cursor-pointer rounded-full w-[30px] h-[30px] flex items-center justify-center "> */}
+        {renderToggleIcon(
+          expandAll,
+          KeyboardDoubleArrowDownIcon,
+          KeyboardDoubleArrowUpIcon,
+          setExpandAll
+        )}
+        {/* </div> */}
         {/* </LightTooltip> */}
       </div>
       <div className="flex items-center justify-center">
-          <MenuButton
-            items={menuTree}
-            onCheckChange={handleCheckChange}
-            onCheckAccessChange={handleCheckAccessChange}
-            expandAll={expandAll}
-          />
-        </div>
+        <MenuButton
+          items={menuTree}
+          onCheckChange={handleCheckChange}
+          onCheckAccessChange={handleCheckAccessChange}
+          expandAll={expandAll}
+        />
+      </div>
     </ThemeProvider>
   );
 };

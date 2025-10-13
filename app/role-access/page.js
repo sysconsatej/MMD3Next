@@ -13,15 +13,19 @@ const fieldData = {
       label: "Select Role",
       name: "role",
       type: "dropdown",
-      labelType: "name",
+      tableName: "tblTestRole t",
       foreignTable: "type,tblTestRole",
+      displayColumn: "t.type",
+      orderBy: "t.type",
       key: "role",
     },
     {
       label: "Select User",
       name: "user",
       type: "dropdown",
-      labelType: "id",
+      tableName: "tblTestUsers t",
+      displayColumn: "t.username",
+      orderBy: "t.username",
       foreignTable: "username,tblTestUsers",
       key: "user",
     },
@@ -65,7 +69,7 @@ const RoleAccessPage = () => {
       <Card className="mt-10">
         <CardContent>
           <form
-            className="flex flex-row justify-around gap-10 "
+            className="flex flex-col justify-around gap-10 "
             onSubmit={(e) => onSubmitHandler(e)}
           >
             <CustomInput
