@@ -40,7 +40,7 @@ const fieldData = {
       tableName: "tblCity t",
       displayColumn: "t.name",
       foreignTable: "name,tblCity",
-      selectedConditions: ["countryId"],
+      selectedConditions: [{ "countryId": "countryId" }],
       orderBy: "t.name",
       isEdit: true,
     },

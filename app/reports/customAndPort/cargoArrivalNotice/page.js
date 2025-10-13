@@ -37,7 +37,7 @@ export default function CargoArrivalNotice() {
     );
   };
 
-  const transformed = transformToIds(formData);
+  const { vesselId, ...transformed } = transformToIds(formData);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,7 +46,7 @@ export default function CargoArrivalNotice() {
 
     const requestBody = {
       spName: "CANIndiaImportBlSelection",
-      jsonData: transformed,
+      jsonData: { ...transformed, vessel: vesselId },
     };
 
     const getErr = (src) =>
@@ -56,6 +56,8 @@ export default function CargoArrivalNotice() {
 
     const isNoDataError = (txt = "") =>
       txt.toLowerCase().includes("did not return valid json text");
+
+    console.log('requestBody', requestBody);
 
     try {
       const res = await fetchDynamicReportData(requestBody);
@@ -214,12 +216,10 @@ export default function CargoArrivalNotice() {
    </div>
    <div style="display: flex; padding: 20px;">
       <div style="width: 50%">
-         <p style="font-size: 16px; font-weight: bold; margin: 0;">${
-           item?.shipper || ""
-         }</p>
-         <p style="font-size: 11px; ; margin: 5px 0 0 0; width: 70%;">${
-           item?.shipperAddress || ""
-         }
+         <p style="font-size: 16px; font-weight: bold; margin: 0;">${item?.shipper || ""
+      }</p>
+         <p style="font-size: 11px; ; margin: 5px 0 0 0; width: 70%;">${item?.shipperAddress || ""
+      }
          </p>
       </div>
       <div style="width: 50%;">
@@ -236,17 +236,16 @@ export default function CargoArrivalNotice() {
       <p style="font-size: 11px; ; margin: 0;">Dear Sir/Madam</p>
       <p style="font-size: 11px; ; margin: 0; width: 70%;">This notice is to update your good office about the arrival of below mentioned shipment at destination.
          ETA: ${formatBlData(
-           item?.arrivalDate
-         )} (Contact us and verify ETA as last-minute schedule change can happen)
+        item?.arrivalDate
+      )} (Contact us and verify ETA as last-minute schedule change can happen)
          ${formatBlData(item?.podVessel)} - ${formatBlData(item?.podVoyage)}
       </p>
    </div>
    <div style="padding: 0 20px; display: flex;">
       <div style="width: 40%;">
          <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">Shipper Name & Address</p>
-         <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">${
-           item?.shipper || ""
-         }
+         <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">${item?.shipper || ""
+      }
             ${item?.shipperAddress || ""}
          </p>
       </div>
@@ -254,9 +253,8 @@ export default function CargoArrivalNotice() {
          <div style="width: 50%;" >
             <div>
                <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">BL No</p>
-               <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">${
-                 item?.blNo || ""
-               }</p>
+               <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">${item?.blNo || ""
+      }</p>
             </div>
             <div style="margin-top: 5px;">
                <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">Container</p>
@@ -267,14 +265,14 @@ export default function CargoArrivalNotice() {
             <div>
                <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">BL Date</p>
                <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">${formatBlData(
-                 "2025-06-16"
-               )}</p>
+        "2025-06-16"
+      )}</p>
             </div>
             <div style="margin-top: 5px;">
                <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">Gross Weight - Kg</p>
                <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">${formatGrossWt(
-                 item?.grossWt || ""
-               )}</p>
+        item?.grossWt || ""
+      )}</p>
             </div>
          </div>
       </div>
@@ -282,21 +280,18 @@ export default function CargoArrivalNotice() {
    <div style="padding: 0 20px; display: flex;">
       <div style="width: 20%;">
          <p style="font-size: 9px; margin: 0;  color: #7F7C82;">PLR</p>
-         <p style="font-size: 11px; margin: 0; width: 90%; color: black;">${
-           item?.plrCode || ""
-         }</p>
+         <p style="font-size: 11px; margin: 0; width: 90%; color: black;">${item?.plrCode || ""
+      }</p>
       </div>
       <div style="width: 20%;">
          <p style="font-size: 9px; margin: 0;  color: #7F7C82;">POL</p>
-         <p style="font-size: 11px; margin: 0; width: 90%; color: black;">${
-           item?.polCode || ""
-         }</p>
+         <p style="font-size: 11px; margin: 0; width: 90%; color: black;">${item?.polCode || ""
+      }</p>
       </div>
       <div style="width: 30%;">
          <p style="font-size: 9px; margin: 0;  color: #7F7C82;">POD</p>
-         <p style="font-size: 11px; margin: 0; width: 90%; color: black;">${
-           item?.podCode || ""
-         }</p>
+         <p style="font-size: 11px; margin: 0; width: 90%; color: black;">${item?.podCode || ""
+      }</p>
       </div>
       <div style="width: 24%;">
          <p style="font-size: 9px; margin: 0;  color: #7F7C82;">PLD</p>
@@ -307,16 +302,14 @@ export default function CargoArrivalNotice() {
       <div style="width: 40%; display: flex;">
          <div style="width: 100%;">
             <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">Marks & No</p>
-            <p style="font-size: 11px; ; margin: 0; color: black;">${
-              item?.marksNos || ""
-            }</p>
+            <p style="font-size: 11px; ; margin: 0; color: black;">${item?.marksNos || ""
+      }</p>
          </div>
       </div>
       <div style="width: 60%;">
          <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">Description</p>
-         <p style="font-size: 11px; ; margin: 0; width: 100%; color: black;">${
-           item?.goodsDesc || ""
-         }
+         <p style="font-size: 11px; ; margin: 0; width: 100%; color: black;">${item?.goodsDesc || ""
+      }
          </p>
       </div>
    </div>
@@ -335,8 +328,7 @@ export default function CargoArrivalNotice() {
    <div style="padding: 20px 20px;">
       <p style="color: black; font-size: 9px;">Thanking you,</p>
       <p style="color: black; font-size: 9px;">Yours faithfully</p>
-      <p style="color: black; font-size: 10px; font-weight: bold; margin-top: 20px;">For ${
-        item?.company || ""
+      <p style="color: black; font-size: 10px; font-weight: bold; margin-top: 20px;">For ${item?.company || ""
       }</p>
       <img src=${signImg}  alt="sign" height="100px" width="180px" />
       <p style="color: black; font-size: 12px;">(AUTHORISED SIGNATORY)</p>
@@ -375,7 +367,7 @@ export default function CargoArrivalNotice() {
             <CustomButton
               text={emailLoading ? "Loading..." : "SEND EMAIL"}
               onClick={async () => handleSendEmail()}
-              //disabled={loading || !tableFormData.length}
+            //disabled={loading || !tableFormData.length}
             />
           </Box>
         </section>

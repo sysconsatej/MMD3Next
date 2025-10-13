@@ -35,7 +35,7 @@ export default function SAM() {
     );
   };
 
-  const transformed = transformToIds(formData);
+  const { vesselId, ...transformed } = transformToIds(formData);
 
   const handleUpdate = () =>
     jsonExport({
@@ -49,6 +49,7 @@ export default function SAM() {
         spName: "scmtSam",
         jsonData: {
           ...transformed,
+          vessel: vesselId,
           terminal: null,
           clientId: 8,
           userId: 4,

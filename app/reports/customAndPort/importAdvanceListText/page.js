@@ -35,7 +35,7 @@ export default function ImportAdvanceList() {
     );
   };
 
-  const transformed = transformToIds(formData);
+  const { vesselId, ...transformed } = transformToIds(formData);
 
   const handleUpdate = () =>
     exportText({
@@ -50,6 +50,7 @@ export default function ImportAdvanceList() {
         spName: "ialText",
         jsonData: {
           ...transformed,
+          vessel: vesselId,
           data: rows,
           clientId: 8,
           userId: 4,
