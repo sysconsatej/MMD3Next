@@ -85,8 +85,17 @@ const CustomInput = ({
       ) {
         const filters = fc.selectedConditions
           .map((key) => {
-            const v = formData?.[key]?.Id;
-            return v != null ? { col: key, op: "=", val: v } : null;
+            const [key1, val] = Object.entries(key)[0];
+            const obj = {
+              gridName,
+              tabName,
+              containerIndex,
+              tabIndex,
+              formData,
+              name: key1,
+            };
+            const fieldValue = getInputValue(obj).Id;
+            return fieldValue != null ? { col: val, op: "=", val: fieldValue } : null;
           })
           .filter(Boolean);
         if (filters.length <= 0) {
@@ -149,7 +158,7 @@ const CustomInput = ({
     }
   };
 
-  
+
   return fields?.map((field, index) => {
     const obj = {
       gridName,

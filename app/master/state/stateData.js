@@ -24,7 +24,6 @@ const fieldData = {
       tableName: "tblCountry",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "country",
       foreignTable: "name,tblCountry",
       isEdit: true,
       required: true,

@@ -9,7 +9,6 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      labelType: "vessel",
       isEdit: true
     },
     {
@@ -21,8 +20,7 @@ const fieldData = {
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
       orderBy: "t.voyageNo",
-      selectedConditions: ["vesselId"],
-      labelType: "voyage",
+      selectedConditions: [{ "vesselId": "vesselId" }],
       isEdit: true
     },
     {
@@ -34,7 +32,6 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      labelType: "pod",
       isEdit: true
     },
     {
@@ -46,7 +43,6 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      labelType: "pod",
       isEdit: true
     },
     {
@@ -57,7 +53,6 @@ const fieldData = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblType'",
       orderBy: "m.name",
-      labelType: "name,tblType",
       foreignTable: "name,tblMasterData",
       isEdit: true
     },
@@ -73,19 +68,16 @@ export const metaData = [
   {
     name: "Nominated Area",
     type: "dropdown",
-    labelType: "port",
     isEdit: "true",
   },
   {
     name: "DPD Desciption",
     type: "dropdown",
-    labelType: "port",
     isEdit: "true",
   },
   {
     name: "Third CFS Desciption",
     type: "dropdown",
-    labelType: "port",
     isEdit: "true",
   },
 ];
