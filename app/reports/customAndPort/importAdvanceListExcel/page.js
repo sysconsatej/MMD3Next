@@ -37,7 +37,7 @@ export default function ImportAdvanceList() {
     );
   };
 
-  const transformed = transformToIds(formData);
+  const { vesselId, ...transformed } = transformToIds(formData);
 
   const handleUpdate = () =>
     exportExcel({
@@ -51,6 +51,7 @@ export default function ImportAdvanceList() {
         spName: "ialExcel",
         jsonData: {
           ...transformed,
+          vessel: vesselId,
           clientId: 8,
           userId: 4,
           data: rows,

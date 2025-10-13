@@ -4,7 +4,6 @@ import { useDebounce } from "@/utils";
 
 const ListboxComponent = forwardRef(function ListboxComponent(props, ref) {
   const { onScroll, ...other } = props;
-
   return <ul ref={ref} {...other} onScroll={onScroll} />;
 });
 
@@ -26,67 +25,49 @@ const DropdownInput = ({
 
   const handleScroll = (event) => {
     const { scrollHeight, scrollTop, clientHeight } = event.target;
-    const bottom = scrollHeight - scrollTop === clientHeight;
-
-    if (bottom) {
+    const nearBottom = scrollHeight - (scrollTop + clientHeight) <= 1;
+    if (nearBottom) {
       const nextPage = page + 1;
       setPage(nextPage);
-      getData(
-        field?.labelType,
-        commonProps.name,
-        nextPage,
-        search,
-        field?.selectedCondition
-      );
+      getData(field, commonProps.name, nextPage, search);
     }
   };
 
-  const handleInputChange = (event, value) => {
-    setSearch(value);
+  const handleInputChange = (_event, value) => {
+    setSearch(value ?? "");
     setPage(1);
   };
 
-  const handleInputFocus = (event) => {
+  const handleInputFocus = () => {
     if (skipNextFocus.current) {
       skipNextFocus.current = false;
       return;
     }
     setPage(1);
-    getData(
-      field?.labelType,
-      commonProps.name,
-      1,
-      "",
-      field?.selectedCondition
-    );
+    getData(field, commonProps.name, 1, "");
   };
 
   useEffect(() => {
     if (debouncedSearch !== "") {
-      getData(
-        field?.labelType,
-        commonProps.name,
-        1,
-        debouncedSearch,
-        field?.selectedCondition
-      );
+      getData(field, commonProps.name, 1, debouncedSearch);
     }
   }, [debouncedSearch]);
 
   return (
-    <Box className={`flex items-end gap-2 ${field.style} `}>
+    <Box className={`flex items-end gap-2 ${field.style}`}>
       {field.label && (
         <InputLabel>
           {commonProps.required && (
-            <span className="text-red-600 font-bold ">┃</span>
+            <span className="text-red-600 font-bold">┃</span>
           )}
           {field.label}
         </InputLabel>
       )}
+
       <Autocomplete
         key={commonProps.key}
         className={commonProps.className}
-        value={fieldValue ? fieldValue : null}
+        value={fieldValue || null}
         sx={commonProps.sx}
         disabled={commonProps.disabled}
         options={
@@ -117,33 +98,26 @@ const DropdownInput = ({
             skipNextFocus.current = true;
             return;
           }
-          if (reason === "input") {
-            handleInputChange(event, newInputValue);
-          }
+          if (reason === "input") handleInputChange(event, newInputValue);
         }}
-        onFocus={(event) => handleInputFocus(event)}
+        onFocus={handleInputFocus}
         onChange={(event, value) => {
           changeHandler(
             { target: { name: commonProps.name, value } },
             containerIndex
           );
-          field.changeFun
-            ? handleChangeEventFunctions[field.changeFun](
-                commonProps.name,
-                value,
-                containerIndex
-              )
-            : null;
+          if (field.changeFun && handleChangeEventFunctions) {
+            handleChangeEventFunctions[field.changeFun](
+              commonProps.name,
+              value,
+              containerIndex
+            );
+          }
         }}
         onKeyDown={(event) => {
           if (event.key === "Tab") {
             keyTabHandler(
-              {
-                target: {
-                  name: commonProps.name,
-                  value: event.target.value,
-                },
-              },
+              { target: { name: commonProps.name, value: event.target.value } },
               containerIndex
             );
           }

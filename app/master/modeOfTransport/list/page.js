@@ -49,7 +49,7 @@ export default function ModeOfTransportList() {
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: ` join tblMasterData m1 on m1.id = m.id and m.masterListName = 'tblTransportType'`,
+          joins: ` join tblMasterData m1 on m1.id = m.id and m.masterListName = 'tblMode'`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setModeOfTransportData(data);
@@ -71,8 +71,8 @@ export default function ModeOfTransportList() {
 
   const rows = modeOfTransportData
     ? modeOfTransportData.map((item) =>
-        createData(item["code"], item["name"], item["id"])
-      )
+      createData(item["code"], item["name"], item["id"])
+    )
     : [];
 
   const handleChangePage = (event, newPage) => {

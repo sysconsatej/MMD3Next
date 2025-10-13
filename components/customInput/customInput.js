@@ -31,15 +31,14 @@ const CustomInput = ({
   fieldsMode,
   errorState = {},
 }) => {
-  const [dropdowns, setDropdowns] = useState([]);
-  const [dropdownTotalPage, setDropdownTotalPage] = useState([]);
+  const [dropdowns, setDropdowns] = useState({});
+  const [dropdownTotalPage, setDropdownTotalPage] = useState({});
   const [isChange, setIsChange] = useState(false);
 
   const changeHandler = (e, containerIndex) => {
     const { name, value } = e.target;
-
-    setFormData((prevData) => {
-      const obj = {
+    setFormData((prevData) =>
+      setInputValue({
         prevData,
         tabName,
         gridName,
@@ -47,10 +46,8 @@ const CustomInput = ({
         containerIndex,
         name,
         value,
-      };
-      return setInputValue(obj);
-    });
-
+      })
+    );
     if (!isChange && popUp) {
       localStorage.setItem("isChange", true);
       setIsChange(true);
@@ -59,40 +56,78 @@ const CustomInput = ({
 
   const keyTabHandler = (e, containerIndex) => {
     const { name, value } = e.target;
-    const isInclude = dropdowns[name].filter((items) => items.Name === value);
-    if (isInclude) {
-      setFormData((prevData) => {
-        const obj = {
+    const match = (dropdowns?.[name] || []).find((i) => i.Name === value);
+    if (match) {
+      setFormData((prevData) =>
+        setInputValue({
           prevData,
           tabName,
           gridName,
           tabIndex,
           containerIndex,
           name,
-          value: isInclude[0],
-        };
-        return setInputValue(obj);
-      });
+          value: match,
+        })
+      );
     }
   };
 
-  const getData = async (
-    type,
-    name,
-    pageNum = 1,
-    search = "",
-    selectedCondition = null
-  ) => {
-    const objData = {
-      masterName: type,
-      pageNo: pageNum,
-      search,
-      selectedCondition: formData[selectedCondition]?.Id || null,
-    };
+  const getData = async (typeOrField, name, pageNum = 1, search = "") => {
+    let objData;
+
+    if (typeOrField && typeof typeOrField === "object") {
+      const fc = typeOrField;
+
+      let filtersJson = null;
+      if (
+        Array.isArray(fc.selectedConditions) &&
+        fc.selectedConditions.length
+      ) {
+        const filters = fc.selectedConditions
+          .map((key) => {
+            const v = formData?.[key]?.Id;
+            return v != null ? { col: key, op: "=", val: v } : null;
+          })
+          .filter(Boolean);
+        if (filters.length <= 0) {
+          setDropdowns((prev) => ({
+            ...prev,
+            [name]: [],
+          }));
+          setFormData((prevData) =>
+            setInputValue({
+              prevData,
+              tabName,
+              gridName,
+              tabIndex,
+              containerIndex,
+              name,
+              value: null,
+            })
+          );
+          return;
+        }
+        filtersJson = JSON.stringify(filters);
+      }
+
+      objData = {
+        tableName: fc.tableName,
+        displayColumn: fc.displayColumn || "name",
+        pageNo: pageNum,
+        pageSize: fc.pageSize ?? 1000,
+        search,
+        idColumn: fc.idColumn ?? "id",
+        joins: fc.joins || "",
+        where: fc.where || "",
+        searchColumn: fc.searchColumn ?? null,
+        orderBy: fc.orderBy ?? null,
+        filtersJson: filtersJson,
+      };
+    }
 
     const shouldFetch =
-      !dropdownTotalPage.hasOwnProperty(name) ||
-      dropdownTotalPage[name] == 0 ||
+      !Object.prototype.hasOwnProperty.call(dropdownTotalPage, name) ||
+      dropdownTotalPage[name] === 0 ||
       dropdownTotalPage[name] >= pageNum;
 
     if (!shouldFetch) return;
@@ -102,7 +137,7 @@ const CustomInput = ({
 
       setDropdowns((prev) => ({
         ...prev,
-        [name]: pageNum == 1 ? data : [...(prev[name] || []), ...data],
+        [name]: pageNum === 1 ? data : [...(prev[name] || []), ...data],
       }));
 
       setDropdownTotalPage((prev) => ({
@@ -110,10 +145,11 @@ const CustomInput = ({
         [name]: totalPage,
       }));
     } catch (error) {
-      console.log(`Failed to fetch dropdown value of this name ${name}`, error);
+      console.log(`Failed to fetch dropdown value of ${name}`, error);
     }
   };
 
+  
   return fields?.map((field, index) => {
     const obj = {
       gridName,
@@ -125,7 +161,7 @@ const CustomInput = ({
     };
     const fieldValue = getInputValue(obj);
 
-    let isDisabled =
+    const isDisabled =
       fieldsMode === "view" ||
       (fieldsMode === "edit" && !field.isEdit) ||
       field.disabled;

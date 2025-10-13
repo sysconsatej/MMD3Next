@@ -9,8 +9,11 @@ const fieldData = {
       label: "Port Type",
       name: "portTypeId",
       type: "dropdown",
-      labelType: "name,tblPortType",
+      tableName: "tblMasterData m",
+      displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
+      where: "m.masterListName = 'tblPortType'",
       foreignTable: "name,tblMasterData",
+      orderBy: "m.name",
       isEdit: true,
     },
     {

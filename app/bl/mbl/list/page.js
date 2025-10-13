@@ -19,11 +19,11 @@ import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
-import { ToastContainer, toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
-import { advanceSearchFields } from "../hblData";
+import { advanceSearchFields } from "../mblData";
 import { advanceSearchFilter } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
@@ -36,14 +36,31 @@ const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
 const CHECKBOX_CELL_SX = { width: 32, minWidth: 32, maxWidth: 32 };
 const CHECKBOX_SX = { p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } };
 
-function createData(mblNo, hblNo, cargoTypeId, podVesselId, hblCount, hblId) {
+function createData(
+  mblNo,
+  mblDate,
+  consigneeText,
+  pol,
+  pod,
+  fpd,
+  cargoMovement,
+  arrivalVessel,
+  arrivalVoyage,
+  line,
+  id
+) {
   return {
     mblNo,
-    hblNo,
-    cargoTypeId,
-    podVesselId,
-    hblCount,
-    hblId,
+    mblDate,
+    consigneeText,
+    pol,
+    pod,
+    fpd,
+    cargoMovement,
+    arrivalVessel,
+    arrivalVoyage,
+    line,
+    id,
   };
 }
 
@@ -68,15 +85,13 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.id) as hblCount, string_agg(b.id, ',') as hblId",
-          tableName: "tblBl b",
+            "b.mblNo mblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id",
+          tableName: LIST_TABLE,
           pageNo,
           pageSize,
-          advanceSearch: advanceSearchFilter(advanceSearch),
-          groupBy: "group by b.mblNo, m.name, v.name",
-          orderBy: "order by max(b.createdDate) desc",
           joins:
-            "left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id",
+            " left join tblPort p on p.id = b.polId  left join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId",
+          advanceSearch: advanceSearchFilter(advanceSearch),
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -101,15 +116,20 @@ export default function BLList() {
 
   const rows = blData
     ? blData.map((item) =>
-      createData(
-        item["mblNo"],
-        item["hblNo"],
-        item["cargoTypeId"],
-        item["podVesselId"],
-        item["hblCount"],
-        item["hblId"]
+        createData(
+          item["mblNo"],
+          item["mblDate"],
+          item["consigneeText"],
+          item["pol"],
+          item["pod"],
+          item["fpd"],
+          item["cargoMovement"],
+          item["arrivalVessel"],
+          item["arrivalVoyage"],
+          item["line"],
+          item["id"]
+        )
       )
-    )
     : [];
 
   useEffect(() => {
@@ -140,22 +160,16 @@ export default function BLList() {
     getData(1, +e.target.value);
   };
 
-  const handleDeleteRecord = async (formIds) => {
-    const deleteRecords = formIds?.split(",")?.map(async (id) => {
-      const obj = {
-        recordId: id,
-        tableName: "tblBl",
-      };
-      const { success, message, error } = await deleteRecord(obj);
-      if (success) {
-        toast.success(message);
-      } else {
-        toast.error(error || message);
-      }
-    });
+  const handleDeleteRecord = async (formId) => {
+    const obj = { recordId: formId, tableName: UPDATE_TABLE };
+    const { success, message, error } = await deleteRecord(obj);
 
-    await Promise.all(deleteRecords);
-    getData(page, rowsPerPage);
+    if (success) {
+      toast.success(message);
+      getData(page, rowsPerPage);
+    } else {
+      toast.error(error || message);
+    }
   };
 
   const modeHandler = (mode, formId = null) => {
@@ -164,7 +178,7 @@ export default function BLList() {
       return;
     }
     setMode({ mode, formId });
-    router.push("/bl/hbl");
+    router.push("/bl/mbl");
   };
 
   return (
@@ -173,7 +187,7 @@ export default function BLList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center">
-            HBL Request
+            MBL Request
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <AdvancedSearchBar
@@ -183,7 +197,7 @@ export default function BLList() {
               getData={getData}
               rowsPerPage={rowsPerPage}
             />
-            <CustomButton text="Add" href="/bl/hbl" />
+            <CustomButton text="Add" href="/bl/mbl" />
           </Box>
         </Box>
 
@@ -211,10 +225,14 @@ export default function BLList() {
                   />
                 </TableCell>
                 <TableCell>MBL NO</TableCell>
-                <TableCell>HBL NO</TableCell>
-                <TableCell>Type Of Cargo</TableCell>
-                <TableCell>Vessel-Voyage No</TableCell>
-                <TableCell>HBL Count</TableCell>
+                <TableCell>MBL date</TableCell>
+                <TableCell>Consignee Name</TableCell>
+                <TableCell>POL</TableCell>
+                <TableCell>POD</TableCell>
+                <TableCell>FPD</TableCell>
+                <TableCell>Cargo Movement</TableCell>
+                <TableCell>Arrival Vessel</TableCell>
+                <TableCell>Arrival Voyage</TableCell>
               </TableRow>
             </TableHead>
 
@@ -231,15 +249,19 @@ export default function BLList() {
                       />
                     </TableCell>
                     <TableCell>{row.mblNo}</TableCell>
-                    <TableCell>{row.hblNo}</TableCell>
-                    <TableCell>{row.cargoTypeId}</TableCell>
-                    <TableCell>{row.podVesselId}</TableCell>
-                    <TableCell>{row.hblCount}</TableCell>
+                    <TableCell>{row.mblDate}</TableCell>
+                    <TableCell>{row.consigneeText}</TableCell>
+                    <TableCell>{row.pol}</TableCell>
+                    <TableCell>{row.pod}</TableCell>
+                    <TableCell>{row.fpd}</TableCell>
+                    <TableCell>{row.cargoMovement}</TableCell>
+                    <TableCell>{row.arrivalVessel}</TableCell>
+                    <TableCell>{row.arrivalVoyage}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
-                        onView={() => modeHandler("view", row.hblId)}
-                        onEdit={() => modeHandler("edit", row.hblId)}
-                        onDelete={() => modeHandler("delete", row.hblId)}
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
                       />
                     </TableCell>
                   </TableRow>
@@ -258,8 +280,8 @@ export default function BLList() {
         <Box className="flex justify-between items-center">
           <TableExportButtons
             targetRef={tableWrapRef}
-            title="HBL Request"
-            fileName="hbl-list"
+            title="MBL Request"
+            fileName="mbl-list"
           />
           <Box className="flex justify-end items-center mt-2">
             <CustomPagination
