@@ -24,9 +24,18 @@ import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import { SmapleMenuData } from "./sampleMenuData";
 import CustomButton from "@/components/button/button";
+import { useMenuStore } from "@/store";
 
 const MenuAccess = () => {
-  const [menuTree, setMenuTree] = useState(buildTree(SmapleMenuData.data));
+
+  const { menuArray  }   = useMenuStore();
+
+  console.log("menuArray", menuArray);
+  console.log("SmapleMenuData", SmapleMenuData);
+
+
+
+  const [menuTree, setMenuTree] = useState(menuArray);
   // const [selectedUserName, setSelectedUserName] = useState("");
   // const [userNameInitial] = useState({
   //   exportdropdown: "",
@@ -123,7 +132,7 @@ const MenuAccess = () => {
   return (
     <ThemeProvider theme={theme}>
       <div className="flex items-center justify-between py-2 px-4 ">
-        <div className="flex">
+        <div className="flex pt-5 gap-5">
           {/* <CustomeInputFields
             inputFieldData={dropdownFieldData}
             onValuesChange={(value) =>
@@ -137,16 +146,16 @@ const MenuAccess = () => {
         </div>
         {/* <LightTooltip title={expandAll ? "Collapse All" : "Expand All"}> */}
         {/* <div className="bg-['black'] cursor-pointer rounded-full w-[30px] h-[30px] flex items-center justify-center "> */}
-        {renderToggleIcon(
+        {/* {renderToggleIcon(
           expandAll,
           KeyboardDoubleArrowDownIcon,
           KeyboardDoubleArrowUpIcon,
           setExpandAll
-        )}
+        )} */}
         {/* </div> */}
         {/* </LightTooltip> */}
       </div>
-      <div className="flex items-center justify-center">
+      <div className="flex items-center  w-full">
         <MenuButton
           items={menuTree}
           onCheckChange={handleCheckChange}

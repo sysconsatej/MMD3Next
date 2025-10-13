@@ -1,6 +1,6 @@
 import React from "react";
 
-const menuAccessArr = ["Edit", "View", "Add", "Delete", "Export", "Access"];
+const menuAccessArr = ["Edit", "View", "Add", "Delete"];
 
 const dropdownFieldData = [
   {

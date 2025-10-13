@@ -60,36 +60,23 @@ const RecursiveMenu = ({
   }, [expandAll]);
 
   return (
-    
     <Box>
       <ListItemButton>
         <Box className="w-full">
-          <Box className="flex items-center justify-between ">
-            <Box className="flex items-center ">
+          <Box className="flex items-center justify-between">
+            <Box className="flex items-center pl-5">
               {hasChildren &&
                 renderToggleIcon(open, AddIcon, RemoveIcon, setOpen)}
-              <Box className={!hasChildren ? "pl-5" : ""}>
-                <Checkbox
-                  checked={item.checked  ||  false}
-                  onChange={handleCheckboxChange}
-                />
-              </Box>
-              <Typography>{item.menuName}</Typography>
-              <Box>
-                <FormGroup row={true}>
-                  {menuAccessArr.map((menu) => {
-                    return (
-                      <FormControlLabel
-                        key={menu}
-                        control={<Checkbox checked={item["is" + menu]  ||  false} />}
-                        label={menu}
-                        onChange={(e) =>
-                          handleCheckboxAccessChange(e, "is" + menu)
-                        }
-                      />
-                    );
-                  })}
-                </FormGroup>
+              <Box className={"pl-5 flex align-center items-center gap-2"}>
+                <Typography>{item.menuName}</Typography>
+                {!hasChildren && item.icon ? (
+                  <Checkbox
+                    checked={item.checked || false}
+                    onChange={handleCheckboxChange}
+                  />
+                ) : (
+                  <></>
+                )}
               </Box>
             </Box>
             {hasChildren &&
@@ -106,13 +93,19 @@ const RecursiveMenu = ({
         <Collapse in={open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding sx={{ pl: 6 }}>
             {item.child.map((child) => (
-              <RecursiveMenu
-                key={child.id}
-                item={child}
-                onCheckChange={onCheckChange}
-                onCheckAccessChange={onCheckAccessChange}
-                expandAll={expandAll}
-              />
+              <Box key={child.id} className="flex items-center justify-between">
+                <RecursiveMenu
+                  key={child.id}
+                  item={child}
+                  onCheckChange={onCheckChange}
+                  onCheckAccessChange={onCheckAccessChange}
+                  expandAll={expandAll}
+                />
+                <Checkbox
+                  checked={item.checked || false}
+                  onChange={handleCheckboxChange}
+                />
+              </Box>
             ))}
           </List>
         </Collapse>
