@@ -53,7 +53,7 @@ export default function IGM() {
       })
     );
   };
-  const transformed = transformToIds(formData);
+  const { vesselId, ...transformed } = transformToIds(formData);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,7 +62,7 @@ export default function IGM() {
 
     const requestBody = {
       spName: "importBlSelection",
-      jsonData: transformed,
+      jsonData: { ...transformed, vessel: vesselId },
     };
 
     const getErr = (src) =>

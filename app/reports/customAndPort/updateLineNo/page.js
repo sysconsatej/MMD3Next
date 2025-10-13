@@ -34,7 +34,8 @@ export default function IGM() {
     );
   };
 
-  const transformed = transformToIds(formData);
+  const { vesselId, ...transformed } = transformToIds(formData);
+
   const valuesOnly = (rows = []) =>
     rows.map(({ __dirty, ...row }) =>
       Object.fromEntries(Object.entries(row).map(([k, v]) => [k, onlyVal(v)]))
@@ -66,6 +67,7 @@ export default function IGM() {
       jsonData: {
         clientId: 8,
         ...transformed,
+        vessel: vesselId,
         companyId: 7819,
         branchId: 5594,
         userId: 235,

@@ -303,7 +303,7 @@ export const fieldData = {
     },
     {
       label: "Transhipment Port 1",
-      name: "polId",
+      name: "transhipPort1Id",
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "p.name",
@@ -314,7 +314,7 @@ export const fieldData = {
     },
     {
       label: "Transhipment Port 2",
-      name: "polId",
+      name: "transhipPort2Id",
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "p.name",
@@ -325,7 +325,7 @@ export const fieldData = {
     },
     {
       label: "Transhipment Port 3",
-      name: "polId",
+      name: "transhipPort3Id",
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "p.name",

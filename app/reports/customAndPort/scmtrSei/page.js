@@ -34,7 +34,7 @@ export default function SEI() {
     );
   };
 
-  const transformed = transformToIds(formData);
+  const { vesselId, ...transformed } = transformToIds(formData);
 
   const handleUpdate = () =>
     jsonExport({
@@ -48,6 +48,7 @@ export default function SEI() {
         spName: "scmtSei",
         jsonData: {
           ...transformed,
+          vessel: vesselId,
           terminal: null,
           clientId: 8,
           userId: 4,

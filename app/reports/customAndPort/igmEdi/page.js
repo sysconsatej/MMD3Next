@@ -38,7 +38,7 @@ export default function IGMEDI() {
     );
   };
 
-  const transformed = transformToIds(formData);
+  const { vesselId, ...transformed } = transformToIds(formData);
 
   const handleUpdate = () =>
     exportText({
@@ -53,6 +53,7 @@ export default function IGMEDI() {
         spName: "IGMEdi",
         jsonData: {
           ...transformed,
+          vessel: vesselId,
           data: rows,
           clientId: 8,
           userId: 4,

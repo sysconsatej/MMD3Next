@@ -2,7 +2,7 @@ const fieldData = {
   igmEdiFields: [
     {
       label: "Vessel",
-      name: "vessel",
+      name: "vesselId",
       type: "dropdown",
       tableName: "tblVessel t",
       idColumn: "id",
@@ -21,8 +21,7 @@ const fieldData = {
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
       orderBy: "t.voyageNo",
-      selectedCondition: "vessel",
-      where: "(@selectedCondition IS NULL OR t.vesselId = @selectedCondition)",
+      selectedConditions: ["vesselId"],
       labelType: "voyage",
       isEdit: true
     },
