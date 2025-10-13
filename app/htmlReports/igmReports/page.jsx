@@ -1,11 +1,19 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { getIgmBlData } from "@/apis";
 import "./igmRep.css";
 
 export default function RptIGM() {
+  return (
+    <Suspense fallback={<main className="bg-gray-300 min-h-screen p-4" />}>
+      <RptIGMContent />
+    </Suspense>
+  );
+}
+
+function RptIGMContent() {
   const searchParams = useSearchParams();
   const enquiryModuleRefs = useRef([]);
   const rowRefsByGroup = useRef({});
