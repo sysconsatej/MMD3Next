@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import {
   Box,
   Table,
@@ -29,22 +29,15 @@ import TableExportButtons from "@/components/tableExportButtons/tableExportButto
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
 
 const LIST_TABLE = "tblBl b";
-const UPDATE_TABLE = LIST_TABLE.trim()
-  .split(/\s+/)[0]
-  .replace(/^dbo\./i, "");
+const UPDATE_TABLE = LIST_TABLE.trim().split(/\s+/)[0].replace(/^dbo\./i, "");
 const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
 const CHECKBOX_CELL_SX = { width: 32, minWidth: 32, maxWidth: 32 };
 const CHECKBOX_SX = { p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } };
 
-function createData(mblNo, hblNo, cargoTypeId, podVesselId, hblCount, hblId) {
-  return {
-    mblNo,
-    hblNo,
-    cargoTypeId,
-    podVesselId,
-    hblCount,
-    hblId,
-  };
+const getRowId = (item) => String(item?.mblNo ?? "");
+
+function createData(id, mblNo, hblNo, cargoTypeId, podVesselId, hblCount, hblId) {
+  return { id, mblNo, hblNo, cargoTypeId, podVesselId, hblCount, hblId };
 }
 
 export default function BLList() {
@@ -80,7 +73,7 @@ export default function BLList() {
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
-        setBlData(data);
+        setBlData(data || []);
         setTotalPage(totalPage);
         setPage(pageNo);
         setRowsPerPage(pageSize);
@@ -99,9 +92,10 @@ export default function BLList() {
     setMode({ mode: null, formId: null });
   }, []);
 
-  const rows = blData
+  const rows = Array.isArray(blData)
     ? blData.map((item) =>
       createData(
+        getRowId(item),
         item["mblNo"],
         item["hblNo"],
         item["cargoTypeId"],
@@ -113,7 +107,7 @@ export default function BLList() {
     : [];
 
   useEffect(() => {
-    setIdsOnPage((blData || []).map((r) => r.id));
+    setIdsOnPage((blData || []).map((r) => getRowId(r)));
   }, [blData]);
 
   useEffect(() => {
@@ -140,21 +134,19 @@ export default function BLList() {
     getData(1, +e.target.value);
   };
 
-  const handleDeleteRecord = async (formIds) => {
-    const deleteRecords = formIds?.split(",")?.map(async (id) => {
-      const obj = {
-        recordId: id,
-        tableName: "tblBl",
-      };
-      const { success, message, error } = await deleteRecord(obj);
-      if (success) {
-        toast.success(message);
-      } else {
-        toast.error(error || message);
-      }
-    });
+  const handleDeleteRecord = async (formIdsCsv) => {
+    const deleteRecords = formIdsCsv
+      ?.split(",")
+      ?.map((x) => x.trim())
+      .filter(Boolean)
+      .map(async (id) => {
+        const obj = { recordId: id, tableName: "tblBl" };
+        const { success, message, error } = await deleteRecord(obj);
+        if (success) toast.success(message);
+        else toast.error(error || message);
+      });
 
-    await Promise.all(deleteRecords);
+    await Promise.all(deleteRecords || []);
     getData(page, rowsPerPage);
   };
 
@@ -165,6 +157,22 @@ export default function BLList() {
     }
     setMode({ mode, formId });
     router.push("/bl/hbl");
+  };
+
+  const mblToHblIds = useMemo(() => {
+    const map = {};
+    (blData || []).forEach((r) => {
+      map[getRowId(r)] = r?.hblId;
+    });
+    return map;
+  }, [blData]);
+
+  const handleBulkDelete = async () => {
+    const csv = selectedIds
+      .map((mbl) => mblToHblIds[mbl])
+      .filter(Boolean)
+      .join(",");
+    if (csv) await handleDeleteRecord(csv);
   };
 
   return (
@@ -190,10 +198,16 @@ export default function BLList() {
         <SelectionActionsBar
           selectedIds={selectedIds}
           tableName={UPDATE_TABLE}
-          keyColumn="id"
-          onView={(id) => modeHandler("view", id)}
-          onEdit={(id) => modeHandler("edit", id)}
-          onDelete={(id) => handleDeleteRecord(id)}
+          keyColumn="mblNo"
+          onView={(mblKey) => {
+            const csv = mblToHblIds[mblKey];
+            if (csv) modeHandler("view", csv);
+          }}
+          onEdit={(mblKey) => {
+            const csv = mblToHblIds[mblKey];
+            if (csv) modeHandler("edit", csv);
+          }}
+          onDelete={handleBulkDelete}
           onUpdated={() => getData(page, rowsPerPage)}
         />
 

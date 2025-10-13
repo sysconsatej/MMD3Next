@@ -4,7 +4,6 @@ const fieldData = {
       label: "Port/Location",
       name: "portTypeId",
       type: "dropdown",
-      labelType: "name,tblPortType",
       foreignTable: "name,tblMasterData",
       tableName: "tblMasterData m",
       displayColumn: "m.name",

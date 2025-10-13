@@ -9,7 +9,6 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      labelType: "vessel",
       isEdit: true
     },
     {
@@ -20,10 +19,8 @@ const fieldData = {
       idColumn: "id",
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
-      selectedCondition: "vessel",
-      where: "(@selectedCondition IS NULL OR t.vesselId = @selectedCondition)",
+      selectedConditions: [{ "vesselId": "vesselId" }],
       orderBy: "t.voyageNo",
-      labelType: "voyage",
       isEdit: true
     },
     {
@@ -35,7 +32,6 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      labelType: "pod",
       isEdit: true
     },
     {
@@ -47,7 +43,6 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      labelType: "pod",
       isEdit: true
     },
     {
@@ -58,7 +53,6 @@ const fieldData = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblType'",
       orderBy: "m.name",
-      labelType: "name,tblType",
       foreignTable: "name,tblMasterData",
       isEdit: true
     },
@@ -71,7 +65,6 @@ const fieldData = {
       displayColumn: "ISNULL(t.code,'') + ' - ' + ISNULL(t.name,'')",
       searchColumn: "t.code, t.name",
       orderBy: "t.code, t.name",
-      labelType: "port",
       isEdit: true
     },
     {
@@ -83,7 +76,6 @@ const fieldData = {
       displayColumn: "t.code",
       searchColumn: "t.code, t.name",
       orderBy: "t.code",
-      labelType: "port",
       isEdit: true
     },
   ],
@@ -104,19 +96,16 @@ export const metaData = [
     displayColumn: "t.name",
     searchColumn: "t.name",
     orderBy: "t.name",
-    labelType: "port",
     isEdit: true
   },
   {
     name: "DPD Description",
     type: "dropdown",
-    labelType: "port",
     isEdit: "true",
   },
   {
     name: "Third CFS Description",
     type: "dropdown",
-    labelType: "port",
     isEdit: "true",
   },
 ];

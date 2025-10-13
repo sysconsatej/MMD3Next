@@ -29,7 +29,6 @@ export const fieldData = {
       tableName: "tblCompany t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "company",
       foreignTable: "name,tblCompany",
       required: true,
       isEdit: true
@@ -55,7 +54,6 @@ export const fieldData = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblType'",
       orderBy: "m.name",
-      labelType: "name,tblType",
       foreignTable: "name,tblMasterData",
       isEdit: true
     },
@@ -69,7 +67,6 @@ export const fieldData = {
       joins: "JOIN tblVessel ve ON ve.id = v.vesselId",
       searchColumn: "ve.name, v.voyageNo",
       orderBy: "ve.name, v.voyageNo",
-      labelType: "vessel-voyage",
       isEdit: true,
       required: true
     },
@@ -99,7 +96,6 @@ export const fieldData = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblContainerStatus'",
       orderBy: "m.name",
-      labelType: "name,tblContainerStatus",
       foreignTable: "name,tblMasterData",
       isEdit: true,
       required: true
@@ -184,7 +180,6 @@ export const fieldData = {
       tableName: "tblCompany t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "company",
       foreignTable: "name,tblCompany",
       isEdit: true,
       required: true
@@ -196,7 +191,6 @@ export const fieldData = {
       tableName: "tblCompanyBranch t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "companyBranch",
       foreignTable: "name,tblCompanyBranch",
       isEdit: true,
       required: true
@@ -223,7 +217,6 @@ export const fieldData = {
       tableName: "tblVessel t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "vessel",
       foreignTable: "name,tblVessel",
       required: true,
       isEdit: true
@@ -242,7 +235,6 @@ export const fieldData = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblSubmitterType'",
       orderBy: "m.name",
-      labelType: "name,tblSubmitterType",
       foreignTable: "name,tblMasterData",
       isEdit: true,
       required: true
@@ -285,7 +277,6 @@ export const fieldData = {
       tableName: "tblPort p",
       displayColumn: "p.name",
       orderBy: "p.name",
-      labelType: "port",
       foreignTable: "name,tblPort",
       isEdit: true
     },
@@ -296,7 +287,6 @@ export const fieldData = {
       tableName: "tblPort p",
       displayColumn: "p.name",
       orderBy: "p.name",
-      labelType: "port",
       foreignTable: "name,tblPort",
       isEdit: true,
       required: true,
@@ -308,7 +298,6 @@ export const fieldData = {
       tableName: "tblPort p",
       displayColumn: "p.name",
       orderBy: "p.name",
-      labelType: "port",
       foreignTable: "name,tblPort",
       isEdit: true,
     },
@@ -319,7 +308,6 @@ export const fieldData = {
       tableName: "tblPort p",
       displayColumn: "p.name",
       orderBy: "p.name",
-      labelType: "port",
       foreignTable: "name,tblPort",
       isEdit: true,
     },
@@ -330,7 +318,6 @@ export const fieldData = {
       tableName: "tblPort p",
       displayColumn: "p.name",
       orderBy: "p.name",
-      labelType: "port",
       foreignTable: "name,tblPort",
       isEdit: true,
     },
@@ -341,7 +328,6 @@ export const fieldData = {
       tableName: "tblPort p",
       displayColumn: "p.name",
       orderBy: "p.name",
-      labelType: "port",
       foreignTable: "name,tblPort",
       isEdit: true,
     },
@@ -352,7 +338,6 @@ export const fieldData = {
       tableName: "tblPort p",
       displayColumn: "p.name",
       orderBy: "p.name",
-      labelType: "port",
       foreignTable: "name,tblPort",
       isEdit: true,
       required: true,
@@ -366,7 +351,6 @@ export const fieldData = {
       joins: "LEFT JOIN tblMasterData m ON m.id = p.portTypeId",
       searchColumn: "p.name",
       orderBy: "p.name",
-      labelType: "port",
       foreignTable: "name,tblPort",
       isEdit: true,
       required: true
@@ -380,7 +364,6 @@ export const fieldData = {
       joins: "JOIN tblMasterData m ON m.id = t.portTypeId",
       where: "m.masterListName = 'tblPortType' AND m.code = 'DPD'",
       orderBy: "t.name",
-      labelType: "port",
       foreignTable: "name,tblPort",
       isEdit: true,
       required: true
@@ -393,7 +376,6 @@ export const fieldData = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblMode'",
       orderBy: "m.name",
-      labelType: "name,tblMode",
       foreignTable: "name,tblMasterData",
       isEdit: true
     },
@@ -405,7 +387,6 @@ export const fieldData = {
       displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
       where: "m.masterListName = 'tblMovementType'",
       orderBy: "m.name",
-      labelType: "name,tblMovementType",
       foreignTable: "name,tblMasterData",
       isEdit: true
     },
@@ -416,7 +397,6 @@ export const fieldData = {
       tableName: "tblCarrierPort t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "carrier",
       foreignTable: "name,tblCarrierPort",
       isEdit: true
     },
@@ -430,7 +410,6 @@ export const fieldData = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblTypeOfShipment'",
       orderBy: "m.name",
-      labelType: "name,tblTypeOfShipment",
       foreignTable: "name,tblMasterData",
       isEdit: true,
       required: true
@@ -472,7 +451,6 @@ export const fieldData = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblPackage'",
       orderBy: "m.name",
-      labelType: "name,tblPackage",
       foreignTable: "name,tblMasterData",
       required: true,
       isEdit: true
@@ -488,7 +466,6 @@ export const fieldData = {
       label: "UNO/IMO Code",
       name: "imoId",
       type: "dropdown",
-      labelType: "uno",
       isEdit: true,
     },
     {
@@ -552,7 +529,6 @@ export const fieldData = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblIdentificationType'",
       orderBy: "m.name",
-      labelType: "name,tblIdentificationType",
       foreignTable: "name,tblMasterData",
       isEdit: true
     },
@@ -568,7 +544,6 @@ export const fieldData = {
       tableName: "tblCountry t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "country",
       foreignTable: "name,tblCountry",
       required: true,
       isEdit: true
@@ -580,7 +555,6 @@ export const fieldData = {
       tableName: "tblState t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "state",
       foreignTable: "name,tblState",
       isEdit: true
     },
@@ -591,8 +565,7 @@ export const fieldData = {
       tableName: "tblCity t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      selectedCondition: "shipperCountry",
-      where: "t.countryId = @selectedCondition",
+      selectedConditions: [{ "shipperCountry": "countryId" }, { "shipperState": "stateId" }],
       required: true,
       isEdit: true
     },
@@ -626,7 +599,6 @@ export const fieldData = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblIdentificationType'",
       orderBy: "m.name",
-      labelType: "name,tblIdentificationType",
       foreignTable: "name,tblMasterData",
       isEdit: true
     },
@@ -638,7 +610,6 @@ export const fieldData = {
       tableName: "tblCountry t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "country",
       foreignTable: "name,tblCountry",
       isEdit: true,
       required: true
@@ -650,7 +621,6 @@ export const fieldData = {
       tableName: "tblState t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "state",
       foreignTable: "name,tblState",
       isEdit: true,
     },
@@ -661,10 +631,8 @@ export const fieldData = {
       tableName: "tblCity t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "city",
       foreignTable: "name,tblCity",
-      selectedCondition: "consigneeCountry",
-      where: "t.countryId = @selectedCondition",
+      selectedConditions: [{ "consigneeCountry": "countryId" }, { "consigneeState": "stateId" }],
       isEdit: true,
       required: true
     },
@@ -707,7 +675,6 @@ export const fieldData = {
       tableName: "tblCountry t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "country",
       foreignTable: "name,tblCountry",
       isEdit: true,
       required: true
@@ -719,7 +686,6 @@ export const fieldData = {
       tableName: "tblState t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "state",
       foreignTable: "name,tblState",
       isEdit: true,
     },
@@ -730,10 +696,8 @@ export const fieldData = {
       tableName: "tblCity t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "city",
       foreignTable: "name,tblCity",
-      selectedCondition: "notifyingPartyCountry",
-      where: "t.countryId = @selectedCondition",
+      selectedConditions: [{ "notifyingPartyCountry": "countryId" }, { "notifyPartyState": "stateId" }],
       isEdit: true,
       required: true
     },
@@ -790,7 +754,6 @@ export const fieldData = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblSize'",
       orderBy: "m.name",
-      labelType: "name,tblSize",
       foreignTable: "name,tblMasterData",
       isEdit: true
     },
@@ -802,7 +765,6 @@ export const fieldData = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblType'",
       orderBy: "m.name",
-      labelType: "name,tblType",
       foreignTable: "name,tblMasterData",
       isEdit: true
     },
@@ -815,7 +777,6 @@ export const fieldData = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblSealType'",
       orderBy: "m.name",
-      labelType: "name,tblSealType",
       foreignTable: "name,tblMasterData",
       isEdit: true
     },
@@ -865,7 +826,6 @@ export const fieldData = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblPackage'",
       orderBy: "m.name",
-      labelType: "name,tblPackage",
       foreignTable: "name,tblMasterData",
       required: true,
       isEdit: true
@@ -895,7 +855,6 @@ export const fieldData = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblPackage'",
       orderBy: "m.name",
-      labelType: "name,tblPackage",
       foreignTable: "name,tblMasterData",
       required: true,
       isEdit: true
@@ -938,7 +897,6 @@ export const advanceSearchFields = {
       tableName: "tblPort t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "pod",
       foreignTable: "name,tblPort",
       isEdit: true
     },
@@ -950,7 +908,6 @@ export const advanceSearchFields = {
       displayColumn: "ISNULL(ve.name,'') + ' - ' + ISNULL(v.voyageNo,'')",
       joins: "JOIN tblVessel ve ON ve.id = v.vesselId",
       orderBy: "ve.name, v.voyageNo",
-      labelType: "vessel-voyage",
       foreignTable: "voyageNo,tblVoyage",
       isEdit: true
     },
@@ -985,7 +942,6 @@ export const advanceSearchFields = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblContainerStatus'",
       orderBy: "m.name",
-      labelType: "name,tblContainerStatus",
       foreignTable: "name,tblMasterData",
       isEdit: true
     },
@@ -997,7 +953,6 @@ export const advanceSearchFields = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblServiceType'",
       orderBy: "m.name",
-      labelType: "name,tblServiceType",
       foreignTable: "name,tblMasterData",
       isEdit: true
     },

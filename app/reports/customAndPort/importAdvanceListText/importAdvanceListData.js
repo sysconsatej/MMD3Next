@@ -9,7 +9,6 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      labelType: "vessel",
       isEdit: true
     },
     {
@@ -20,9 +19,8 @@ const fieldData = {
       idColumn: "id",
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
-      selectedConditions: ["vesselId"],
+      selectedConditions: [{ "vesselId": "vesselId" }],
       orderBy: "t.voyageNo",
-      labelType: "voyage",
       isEdit: true
     },
     {
@@ -34,7 +32,6 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      labelType: "port",
       isEdit: true
     },
     {
@@ -46,7 +43,6 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      labelType: "port",
       isEdit: true
     },
   ],
