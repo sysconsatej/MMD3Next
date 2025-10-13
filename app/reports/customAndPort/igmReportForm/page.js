@@ -31,6 +31,7 @@ export default function IGM() {
   const { mode, setMode } = formStore();
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [goLoading, setGoLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
 
@@ -53,16 +54,16 @@ export default function IGM() {
       })
     );
   };
-  const { vesselId, ...transformed } = transformToIds(formData);
+  const transformed = transformToIds(formData);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setGoLoading(true);
     setError(null);
 
     const requestBody = {
       spName: "importBlSelection",
-      jsonData: { ...transformed, vessel: vesselId },
+      jsonData: transformed,
     };
 
     const getErr = (src) =>
@@ -114,7 +115,7 @@ export default function IGM() {
         toast.error(errText);
       }
     } finally {
-      setLoading(false);
+      setGoLoading(false);
     }
   };
 
@@ -181,13 +182,13 @@ export default function IGM() {
           </Box>
           <Box className="w-full flex mt-2  gap-2">
             <CustomButton
-              text={loading ? "Loading..." : "GET BL DETAILS"}
+              text={goLoading ? "Loading..." : "GET BL DETAILS"}
               type="submit"
               onClick={handleSubmit}
               disabled={loading}
             />
             <CustomButton
-              text="GENERATE REPORT"
+              text={loading ? "Loading..." : "GENERATE REPORT"}
               type="button"
               onClick={() => {
                 if (!tableFormData?.length) {

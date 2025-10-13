@@ -19,7 +19,7 @@ const fieldData = {
       idColumn: "id",
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
-      selectedConditions: [{ "vesselId": "vesselId" }],
+      selectedConditions: [{ "vessel": "vesselId" }],
       orderBy: "t.voyageNo",
       isEdit: true
     },
