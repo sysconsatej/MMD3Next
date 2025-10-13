@@ -130,18 +130,18 @@ export default function IGM() {
   };
 
   const handlePrint = () => {
-    if (!tableFormData?.length) {
-      toast.info("Select at least one row to print.");
-      return;
-    }
-    if (!reportChecks.importGeneralManifest) {
-      toast.info("Select at least one report to print.");
-      return;
-    }
+    if (!tableFormData?.length)
+      return toast.info("Select at least one row to print.");
+    if (!reportChecks.importGeneralManifest)
+      return toast.info("Select at least one report to print.");
 
-    const cleanedRows = tableFormData.map(({ __dirty, ID, id }) => ({
-      id: ID ?? id,
-    }));
+    const ids = tableFormData
+      .map(({ __dirty, ID, id }) => ID ?? id)
+      .filter(Boolean)
+      .map(String)
+      .map((s) => s.trim());
+
+    if (!ids.length) return toast.info("No valid IDs to print.");
 
     const body = {
       spName: "IGMEdi",
@@ -149,13 +149,15 @@ export default function IGM() {
         ...transformed,
         clientId: 8,
         userId: 4,
-        data: cleanedRows,
+        data: ids.map((id) => ({ id })),
       },
     };
-
     console.log("PRINT body =>", body);
-    toast.success("Report generated. Check console for output.");
+
     setReportOpen(false);
+
+    const recordIdParam = ids.map(encodeURIComponent).join(",");
+    router.push(`/htmlReports/igmReports?recordId=${recordIdParam}`);
   };
 
   return (

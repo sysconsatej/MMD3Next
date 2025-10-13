@@ -1,0 +1,5 @@
+@media print {
+  .print\:break-after-page {
+    break-after: page;
+  }
+}

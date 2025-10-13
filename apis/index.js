@@ -13,5 +13,6 @@ export {
 export {
   fetchDynamicReportData,
   updateDynamicReportData,
+  getIgmBlData,
 } from "./dynamicReport";
 export { sendEmail } from "./sendEmail";
