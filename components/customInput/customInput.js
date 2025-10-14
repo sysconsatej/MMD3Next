@@ -158,7 +158,6 @@ const CustomInput = ({
     }
   };
 
-
   return fields?.map((field, index) => {
     const obj = {
       gridName,
@@ -220,7 +219,6 @@ const CustomInput = ({
             dropdowns={dropdowns}
             getData={getData}
             keyTabHandler={keyTabHandler}
-            handleChangeEventFunctions={handleChangeEventFunctions}
           />
         );
 
