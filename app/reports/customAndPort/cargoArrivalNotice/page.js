@@ -37,7 +37,7 @@ export default function CargoArrivalNotice() {
     );
   };
 
-  const { vesselId, ...transformed } = transformToIds(formData);
+  const transformed = transformToIds(formData);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,7 +46,7 @@ export default function CargoArrivalNotice() {
 
     const requestBody = {
       spName: "CANIndiaImportBlSelection",
-      jsonData: { ...transformed, vessel: vesselId },
+      jsonData: transformed,
     };
 
     const getErr = (src) =>

@@ -31,6 +31,7 @@ export default function IGM() {
   const { mode, setMode } = formStore();
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [goLoading, setGoLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
 
@@ -53,16 +54,16 @@ export default function IGM() {
       })
     );
   };
-  const { vesselId, ...transformed } = transformToIds(formData);
+  const transformed = transformToIds(formData);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setGoLoading(true);
     setError(null);
 
     const requestBody = {
       spName: "importBlSelection",
-      jsonData: { ...transformed, vessel: vesselId },
+      jsonData: transformed,
     };
 
     const getErr = (src) =>
@@ -114,7 +115,7 @@ export default function IGM() {
         toast.error(errText);
       }
     } finally {
-      setLoading(false);
+      setGoLoading(false);
     }
   };
 
@@ -130,18 +131,18 @@ export default function IGM() {
   };
 
   const handlePrint = () => {
-    if (!tableFormData?.length) {
-      toast.info("Select at least one row to print.");
-      return;
-    }
-    if (!reportChecks.importGeneralManifest) {
-      toast.info("Select at least one report to print.");
-      return;
-    }
+    if (!tableFormData?.length)
+      return toast.info("Select at least one row to print.");
+    if (!reportChecks.importGeneralManifest)
+      return toast.info("Select at least one report to print.");
 
-    const cleanedRows = tableFormData.map(({ __dirty, ID, id }) => ({
-      id: ID ?? id,
-    }));
+    const ids = tableFormData
+      .map(({ __dirty, ID, id }) => ID ?? id)
+      .filter(Boolean)
+      .map(String)
+      .map((s) => s.trim());
+
+    if (!ids.length) return toast.info("No valid IDs to print.");
 
     const body = {
       spName: "IGMEdi",
@@ -149,13 +150,15 @@ export default function IGM() {
         ...transformed,
         clientId: 8,
         userId: 4,
-        data: cleanedRows,
+        data: ids.map((id) => ({ id })),
       },
     };
-
     console.log("PRINT body =>", body);
-    toast.success("Report generated. Check console for output.");
+
     setReportOpen(false);
+
+    const recordIdParam = ids.map(encodeURIComponent).join(",");
+    router.push(`/htmlReports/igmReports?recordId=${recordIdParam}`);
   };
 
   return (
@@ -179,13 +182,13 @@ export default function IGM() {
           </Box>
           <Box className="w-full flex mt-2  gap-2">
             <CustomButton
-              text={loading ? "Loading..." : "GET BL DETAILS"}
+              text={goLoading ? "Loading..." : "GET BL DETAILS"}
               type="submit"
               onClick={handleSubmit}
               disabled={loading}
             />
             <CustomButton
-              text="GENERATE REPORT"
+              text={loading ? "Loading..." : "GENERATE REPORT"}
               type="button"
               onClick={() => {
                 if (!tableFormData?.length) {

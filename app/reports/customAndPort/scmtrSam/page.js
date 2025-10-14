@@ -20,6 +20,7 @@ export default function SAM() {
   const { mode, setMode } = formStore();
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [goLoading, setGoLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
   const router = useRouter();
@@ -35,7 +36,7 @@ export default function SAM() {
     );
   };
 
-  const { vesselId, ...transformed } = transformToIds(formData);
+  const transformed = transformToIds(formData);
 
   const handleUpdate = () =>
     jsonExport({
@@ -49,7 +50,6 @@ export default function SAM() {
         spName: "scmtSam",
         jsonData: {
           ...transformed,
-          vessel: vesselId,
           terminal: null,
           clientId: 8,
           userId: 4,
@@ -59,7 +59,7 @@ export default function SAM() {
     });
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setGoLoading(true);
     setError(null);
 
     const requestBody = {
@@ -116,7 +116,7 @@ export default function SAM() {
         toast.error(errText);
       }
     } finally {
-      setLoading(false);
+      setGoLoading(false);
     }
   };
 
@@ -141,12 +141,12 @@ export default function SAM() {
           </Box>
           <Box className="w-full flex mt-2  gap-2">
             <CustomButton
-              text={loading ? "Loading..." : "GO"}
+              text={goLoading ? "Loading..." : "GO"}
               onClick={handleSubmit}
               disabled={loading}
             />
             <CustomButton
-              text="GENERATE FILE"
+              text={loading ? "Loading..." : "GENERATE REPORT"}
               onClick={handleUpdate}
               title={
                 !tableFormData.length ? "Select & edit at least one row" : ""

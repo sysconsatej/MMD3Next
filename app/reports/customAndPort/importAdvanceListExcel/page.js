@@ -22,6 +22,7 @@ export default function ImportAdvanceList() {
   const [jsonData, setJsonData] = useState(data);
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [goLoading, setGoLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function ImportAdvanceList() {
     );
   };
 
-  const { vesselId, ...transformed } = transformToIds(formData);
+  const transformed = transformToIds(formData);
 
   const handleUpdate = () =>
     exportExcel({
@@ -51,7 +52,6 @@ export default function ImportAdvanceList() {
         spName: "ialExcel",
         jsonData: {
           ...transformed,
-          vessel: vesselId,
           clientId: 8,
           userId: 4,
           data: rows,
@@ -60,7 +60,7 @@ export default function ImportAdvanceList() {
     });
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setGoLoading(true);
     setError(null);
 
     const requestBody = {
@@ -117,7 +117,7 @@ export default function ImportAdvanceList() {
         toast.error(errText);
       }
     } finally {
-      setLoading(false);
+      setGoLoading(false);
     }
   };
 
@@ -142,13 +142,13 @@ export default function ImportAdvanceList() {
           </Box>
           <Box className="w-full flex mt-2  gap-2">
             <CustomButton
-              text={loading ? "Loading..." : "GO"}
+              text={goLoading ? "Loading..." : "GO"}
               type="submit"
               onClick={handleSubmit}
               disabled={loading}
             />
             <CustomButton
-              text="GENERATE FILE"
+              text={loading ? "Loading..." : "GENERATE REPORT"}
               onClick={handleUpdate}
               title={
                 !tableFormData.length ? "Select & edit at least one row" : ""
