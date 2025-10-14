@@ -45,7 +45,7 @@ const RecursiveMenu = ({
   expandAll,
 }) => {
   const [open, setOpen] = useState(false);
-  const hasChildren = item.child && item.child.length > 0;
+  const hasChildren = item.subMenu && item.subMenu.length > 0;
 
   const handleCheckboxChange = (e) => {
     onCheckChange(item.id, e.target.checked);
@@ -69,14 +69,14 @@ const RecursiveMenu = ({
                 renderToggleIcon(open, AddIcon, RemoveIcon, setOpen)}
               <Box className={"pl-5 flex align-center items-center gap-2"}>
                 <Typography>{item.menuName}</Typography>
-                {!hasChildren && item.icon ? (
+                {/* {!hasChildren && item.icon ? (
                   <Checkbox
                     checked={item.checked || false}
                     onChange={handleCheckboxChange}
                   />
                 ) : (
                   <></>
-                )}
+                )} */}
               </Box>
             </Box>
             {hasChildren &&
@@ -92,7 +92,7 @@ const RecursiveMenu = ({
       {hasChildren && (
         <Collapse in={open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding sx={{ pl: 6 }}>
-            {item.child.map((child) => (
+            {item.subMenu.map((child) => (
               <Box key={child.id} className="flex items-center justify-between">
                 <RecursiveMenu
                   key={child.id}

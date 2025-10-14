@@ -12,7 +12,7 @@ export const navItems = [
     menuName: "Master",
     // icon: "cube",
     isChecked: false, // Added isChecked for parent
-    child: [
+    subMenu: [
       {
         id: 3,
         menuName: "Commodity",
@@ -208,7 +208,7 @@ export const navItems = [
     menuName: "BL",
     icon: "file",
     isChecked: false, // Added isChecked for parent
-    child: [
+    subMenu: [
       {
         id: 34,
         menuName: "HBL Request",
@@ -229,7 +229,7 @@ export const navItems = [
     menuName: "Requests",
     icon: "inbox",
     isChecked: false, // Added isChecked for parent
-    child: [
+    subMenu: [
       {
         id: 37,
         menuName: "CFS Request For Invoice",
@@ -251,13 +251,13 @@ export const navItems = [
     icon: "chart",
     menuLink: "/reports",
     isChecked: false, // Added isChecked for parent
-    child: [
+    subMenu: [
       {
         id: 40,
         menuName: "Customs And Port",
         menuLink: "/reports/customsAndPort",
         isChecked: false, // Added isChecked for parent
-        children: [
+        subMenu: [
           {
             id: 41,
             menuName: "Import Advance List(Excel)",

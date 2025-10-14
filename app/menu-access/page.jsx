@@ -1,168 +1,127 @@
 "use client";
-import React, { useState } from "react";
-// import { fetchReportData } from "@/services/auth/FormControl.services";
-import { MenuButton } from "./menuButton";
-import {
-  buildTree,
-  // buildTree,
-  // dropdownFieldData,
-  // getMenuDataByUser,
-  // getMenuSubmitValues,
-  markParentsChecked,
-  renderToggleIcon,
-  updateCheckAccessStatus,
-  updateCheckStatus,
-} from "./menuUtils";
+import React, { useEffect, useState, useCallback } from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./menuAccessStyling";
-// import { menuAccessSubmit } from "@/services/auth/Auth.services";
-// import styles from "@/app/app.module.css";
-// import { getUserDetails } from "@/helper/userDetails";
-// import CustomeInputFields from "@/components/Inputs/customeInputFields";
-// import LightTooltip from "@/components/Tooltip/customToolTip";
-import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
-import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
-import { SmapleMenuData } from "./sampleMenuData";
 import CustomButton from "@/components/button/button";
-import { useMenuStore } from "@/store";
+import { getMenuButtons } from "@/apis/getMenuButtons";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  Checkbox,
+  Typography,
+} from "@mui/material";
+import { ExpandMoreOutlined } from "@mui/icons-material";
 
 const MenuAccess = () => {
+  const [menuButtons, setMenuButtons] = useState([]);
+  const [expand, setExpand] = useState("");
 
-  const { menuArray  }   = useMenuStore();
+  // Memoized handleChange function using useCallback
+  const handleChange = useCallback((menuName, buttonName, status) => {
+    setMenuButtons((prevMenuButtons) => {
+      // Update the buttons state immutably and avoid unnecessary updates
+      const updatedMenuButtons = prevMenuButtons.map((menu) => {
+        if (menu.menuName === menuName) {
+          const updatedButtons = menu.buttons.map((button) => {
+            if (button.buttonName === buttonName && button.status !== !status) {
+              // Only update the button status if it actually changes
+              return { ...button, status: !status };
+            }
+            return button;
+          });
 
-  console.log("menuArray", menuArray);
-  console.log("SmapleMenuData", SmapleMenuData);
+          return { ...menu, buttons: updatedButtons };
+        }
+        return menu;
+      });
 
+      // Compare the previous state and the new state to avoid unnecessary updates
+      // Only update if the menuButtons array has changed
+      const isChanged = !updatedMenuButtons.every(
+        (menu, index) =>
+          JSON.stringify(menu.buttons) ===
+          JSON.stringify(prevMenuButtons[index]?.buttons)
+      );
 
+      return isChanged ? updatedMenuButtons : prevMenuButtons;
+    });
+  }, []);
 
-  const [menuTree, setMenuTree] = useState(menuArray);
-  // const [selectedUserName, setSelectedUserName] = useState("");
-  // const [userNameInitial] = useState({
-  //   exportdropdown: "",
-  // });
-  const [expandAll, setExpandAll] = useState(false);
-  // const { clientId, userId, roleId } = getUserDetails();
-
-  const handleCheckChange = (id, checked) => {
-    let newTree = updateCheckStatus([...menuTree], id, checked);
-    if (checked) {
-      newTree = markParentsChecked(newTree, id);
-    }
-    setMenuTree([...newTree]);
+  const handleExpand = (panel) => (event, isExpanded) => {
+    setExpand(isExpanded ? panel : false);
   };
 
-  const handleCheckAccessChange = (id, type, checked) => {
-    const newTree = updateCheckAccessStatus([...menuTree], id, type, checked);
-    setMenuTree([...newTree]);
-  };
+  useEffect(() => {
+    const fetchMenuButtons = async () => {
+      try {
+        const data = await getMenuButtons();
+        const arr = Array.isArray(data?.menuButtons) ? data.menuButtons : [];
+        setMenuButtons(arr);
+      } catch (error) {
+        console.error("Error fetching menu buttons:", error);
+      }
+    };
 
-  // async function handleSubmit() {
-  //   const userObj = {
-  //     createdBy: userId,
-  //     roleId: roleId,
-  //     clientId: clientId,
-  //     updatedBy: userId,
-  //     userId: selectedUserName,
-  //   };
-  //   let result = getMenuSubmitValues(menuTree, userObj);
-  //   const menuObj = {
-  //     userId: selectedUserName,
-  //     menu_json: JSON.stringify(result),
-  //     updatedBy: userId,
-  //   };
-  //   if (selectedUserName) {
-  //     const response = await menuAccessSubmit(menuObj);
-  //     if (response?.success) {
-  //       toast.success("Menu updated successfully!");
-  //     } else {
-  //       toast.error(response?.message);
-  //     }
-  //   } else {
-  //     toast.warning("Select User!");
-  //   }
-  // }
-
-  // const handleChange = async (updatedValue) => {
-  //   const { user, copyUser } = updatedValue;
-  //   let selectedUserId = null;
-
-  //   if (copyUser && !user) {
-  //     setSelectedUserName(user);
-  //     toast.warn("Please select user first for copy!");
-  //     return;
-  //   }
-
-  //   if (copyUser || user) {
-  //     selectedUserId = copyUser || user;
-  //   }
-
-  // setSelectedUserName(user);
-  // const requestBodyMenuAccess = {
-  //   columns: "menuId,isEdit,isView,isAdd,isDelete,isExport,isAccess",
-  //   tableName: "tblMenuAccess",
-  //   whereCondition: `userId = ${selectedUserId}`,
-  //   clientIdCondition: `status = 1 FOR JSON PATH, include_null_values`,
-  // };
-  // const { data } = await fetchReportData(requestBodyMenuAccess);
-  // const setMenuByUser = getMenuDataByUser(menuTree, data);
-  // setMenuTree(setMenuByUser);
-  // };
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const requestBodyMenu = {
-  //       columns: "menuName,id,parentMenuId",
-  //       tableName: "tblMenu",
-  //       whereCondition: null,
-  //       clientIdCondition: `status = 1 FOR JSON PATH, include_null_values`,
-  //     };
-
-  //     try {
-  //       const { data } = await fetchReportData(requestBodyMenu);
-  //       const treeData = buildTree(data);
-  //       setMenuTree(treeData);
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, []);
+    fetchMenuButtons();
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
-      <div className="flex items-center justify-between py-2 px-4 ">
-        <div className="flex pt-5 gap-5">
-          {/* <CustomeInputFields
-            inputFieldData={dropdownFieldData}
-            onValuesChange={(value) =>
-              handleChange({ ...userNameInitial, ...value })
-            }
-            values={userNameInitial}
-          /> */}
-          <CustomButton text={"Submit"} type="submit" onClick={() => {}}>
-            Submit
-          </CustomButton>
-        </div>
-        {/* <LightTooltip title={expandAll ? "Collapse All" : "Expand All"}> */}
-        {/* <div className="bg-['black'] cursor-pointer rounded-full w-[30px] h-[30px] flex items-center justify-center "> */}
-        {/* {renderToggleIcon(
-          expandAll,
-          KeyboardDoubleArrowDownIcon,
-          KeyboardDoubleArrowUpIcon,
-          setExpandAll
-        )} */}
-        {/* </div> */}
-        {/* </LightTooltip> */}
-      </div>
-      <div className="flex items-center  w-full">
-        <MenuButton
-          items={menuTree}
-          onCheckChange={handleCheckChange}
-          onCheckAccessChange={handleCheckAccessChange}
-          expandAll={expandAll}
-        />
-      </div>
+      <Box className="p-4 overflow-auto h-[calc(100vh-120px)]">
+        <CustomButton text={"Submit"} type="submit" onClick={() => {}} />
+        <Box className="mt-4">
+          {menuButtons && menuButtons.length > 0 ? (
+            <>
+              {menuButtons.map((item) => (
+                <Accordion
+                  className="mt-4 "
+                  key={item.menuName}
+                  expanded={expand === item.menuName}
+                  onChange={handleExpand(item.menuName)}
+                  style={{ background: "transparent", borderRadius: "5px" }}
+                >
+                  <AccordionSummary
+                    className="bg-gradient-to-b from-blue-600 via-indigo-700 to-blue-900 rounded"
+                    expandIcon={
+                      <ExpandMoreOutlined style={{ color: "#FFF" }} />
+                    }
+                    id={`${item.menuName}-header`}
+                    aria-controls={`${item.menuName}-content`}
+                    style={{ borderRadius: "5px" }}
+                  >
+                    <Typography
+                      color="white"
+                      sx={{ fontWeight: "500", fontSize: "14px" }}
+                    >
+                      {item.menuName}
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails className="flex flex-row justify-between gap-10">
+                    {item.buttons?.map((r, __index) => (
+                      <Box key={__index} className="flex flex-row items-center">
+                        <Typography key={__index}>
+                          {String(r.buttonName).charAt(0).toUpperCase() +
+                            String(r.buttonName).slice(1)}
+                        </Typography>
+                        <Checkbox
+                          checked={r.status || false}
+                          onChange={() =>
+                            handleChange(item?.menuName, r.buttonName, r.status)
+                          }
+                        />
+                      </Box>
+                    ))}
+                  </AccordionDetails>
+                </Accordion>
+              ))}
+            </>
+          ) : (
+            <> No Data </>
+          )}
+        </Box>
+      </Box>
     </ThemeProvider>
   );
 };

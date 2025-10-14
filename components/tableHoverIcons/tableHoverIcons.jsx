@@ -4,7 +4,7 @@ import { Edit, Delete, Visibility } from "@mui/icons-material";
 
 export const HoverActionIcons = ({ onView, onEdit, onDelete }) => {
   return (
-    <Box className="flex justify-end items-center gap-2">
+    <Box className="flex justify-end items-center gap-2" id="table-icons">
       <Tooltip title="View" arrow>
         <IconButton onClick={onView} sx={{ color: "#95a9e8" }} size="small">
           <Visibility fontSize="small" />
