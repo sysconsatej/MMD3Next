@@ -17,7 +17,12 @@ import {
   formFormatThirdLevel,
   useNextPrevData,
 } from "@/utils";
-import { deleteRecord, fetchForm, insertUpdateForm } from "@/apis";
+import {
+  deleteRecord,
+  fetchForm,
+  getDataWithCondition,
+  insertUpdateForm,
+} from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { copyHandler, useTotalGrossAndPack } from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -58,6 +63,7 @@ export default function Home() {
   const [tabValue, setTabValue] = useState(0);
   const [hblArray, setHblArray] = useState([]);
   const [blDelete, setBlDelete] = useState([]);
+  const [packTypeState, setPackTypeState] = useState(null);
 
   const handleChangeTab = (event, newValue) => {
     setTabValue(newValue);
@@ -118,7 +124,48 @@ export default function Home() {
   }
 
   useEffect(() => {
+    if (formData?.tblBl?.[tabValue]?.tblBlContainer) {
+      let packType =
+        formData?.tblBl?.[tabValue]?.tblBlContainer?.[0]?.packageId;
+      const totalGrossAndPack = formData?.tblBl?.[
+        tabValue
+      ]?.tblBlContainer?.reduce(
+        (sum, cur) => {
+          sum.grossWt += Number(cur?.grossWt || 0);
+          sum.noOfPackages += Number(cur?.noOfPackages || 0);
+          if (
+            (packType?.Name !== cur?.packageId?.Name &&
+              cur?.packageId !== undefined) ||
+            null
+          ) {
+            sum.packType = packTypeState;
+          }
+          return sum;
+        },
+        { grossWt: 0, noOfPackages: 0, packType: packType }
+      );
+      const updateForm = { ...formData };
+      updateForm.tblBl = [...(updateForm?.tblBl || [])];
+      updateForm.tblBl[tabValue] = {
+        ...(updateForm.tblBl[tabValue] || {}),
+        grossWt: totalGrossAndPack?.grossWt,
+        noOfPackages: totalGrossAndPack?.noOfPackages,
+        packageId: totalGrossAndPack?.packType,
+      };
+      setFormData(updateForm);
+    }
+  }, [formData?.tblBl?.[tabValue]?.tblBlContainer]);
+
+  useEffect(() => {
     async function fetchFormHandler() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      setPackTypeState(data[0]);
+
       if (!mode.formId) return;
       setFieldsMode(mode.mode);
       const resArray = [];
@@ -228,9 +275,7 @@ export default function Home() {
                     return (
                       <Tab
                         key={index}
-                        label={`HBL (${
-                          formData?.tblBl?.[index]?.hblNo || item + 1
-                        })`}
+                        label={`${formData?.tblBl?.[index]?.hblNo || item + 1}`}
                         {...a11yProps(index)}
                         icon={<CloseIcon onClick={() => handleRemove(index)} />}
                         iconPosition="end"

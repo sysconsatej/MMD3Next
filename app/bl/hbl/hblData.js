@@ -39,7 +39,7 @@ export const fieldData = {
       orderBy: "t.name",
       labelType: "company",
       isEdit: true,
-      required: true
+      required: true,
     },
     {
       label: "Company Branch",
@@ -51,7 +51,7 @@ export const fieldData = {
       labelType: "companyBranch",
       foreignTable: "name,tblCompanyBranch",
       isEdit: true,
-      required: true
+      required: true,
     },
     {
       label: "MBL Date",
@@ -72,7 +72,7 @@ export const fieldData = {
       orderBy: "ve.name, v.voyageNo",
       labelType: "vessel-voyage",
       isEdit: true,
-      required: true
+      required: true,
     },
     {
       label: "Type of Cargo",
@@ -83,7 +83,7 @@ export const fieldData = {
       displayColumn: "m.name",
       where: "m.masterListName = 'tblCargoType'",
       orderBy: "m.name",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Port of Acceptance",
@@ -102,7 +102,7 @@ export const fieldData = {
       orderBy: "p.name",
       labelType: "port",
       foreignTable: "name,tblPort",
-      isEdit: true
+      isEdit: true,
     },
     // {
     //   label: "Port of Unloading",
@@ -134,7 +134,7 @@ export const fieldData = {
       searchColumn: "t.name",
       orderBy: "t.name",
       labelType: "container-status",
-      isEdit: true
+      isEdit: true,
     },
     // {
     //   label: "Mobile(Requester)",
@@ -258,7 +258,7 @@ export const fieldData = {
       searchColumn: "t.name",
       orderBy: "t.name",
       labelType: "item-type",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Nature of Cargo",
@@ -271,7 +271,7 @@ export const fieldData = {
       orderBy: "t.name",
       labelType: "nature-of-cargo",
       style: "col-span-2 row-span-1",
-      isEdit: true
+      isEdit: true,
     },
     // {
     //   label: "Short Shipment",
@@ -335,15 +335,17 @@ export const fieldData = {
       type: "number",
       style: "col-span-2 row-span-1",
       // required: true,
-      isEdit: true,
+      // isEdit: true,
+      disabled: true,
     },
     {
       label: "No of Package",
       name: "noOfPackages",
       type: "number",
       style: "col-span-2 row-span-1",
-      isEdit: true,
+      // isEdit: true,
       // required: true,
+      disabled: true,
     },
     {
       label: "Package Type",
@@ -357,7 +359,8 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       style: "col-span-2 row-span-1",
       // required: true,
-      isEdit: true,
+      // isEdit: true,
+      disabled: true,
     },
   ],
   transitFields: [
@@ -389,7 +392,7 @@ export const fieldData = {
       orderBy: "m.name",
       labelType: "name,tblIdentificationType",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
     // {
     //   label: "Code",
@@ -406,7 +409,7 @@ export const fieldData = {
       labelType: "country",
       foreignTable: "name,tblCountry",
       required: true,
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "State",
@@ -417,7 +420,7 @@ export const fieldData = {
       orderBy: "t.name",
       labelType: "state",
       foreignTable: "name,tblState",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "City",
@@ -429,7 +432,7 @@ export const fieldData = {
       selectedCondition: "shipperCountry",
       where: "t.countryId = @selectedCondition",
       required: true,
-      isEdit: true
+      isEdit: true,
     },
     // {
     //   label: "Post Code",
@@ -463,7 +466,7 @@ export const fieldData = {
       orderBy: "m.name",
       labelType: "name,tblIdentificationType",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
     // { label: "Code", name: "consigneeCode" },
     {
@@ -476,7 +479,7 @@ export const fieldData = {
       labelType: "country",
       foreignTable: "name,tblCountry",
       isEdit: true,
-      required: true
+      required: true,
     },
     {
       label: "State",
@@ -501,7 +504,7 @@ export const fieldData = {
       selectedCondition: "consigneeCountry",
       where: "t.countryId = @selectedCondition",
       isEdit: true,
-      required: true
+      required: true,
     },
     {
       label: "Post Code",
@@ -537,7 +540,7 @@ export const fieldData = {
       labelType: "country",
       foreignTable: "name,tblCountry",
       isEdit: true,
-      required: true
+      required: true,
     },
     {
       label: "State",
@@ -562,7 +565,7 @@ export const fieldData = {
       selectedCondition: "notifyingPartyCountry",
       where: "t.countryId = @selectedCondition",
       isEdit: true,
-      required: true
+      required: true,
     },
     {
       label: "Post Code",
@@ -619,7 +622,7 @@ export const fieldData = {
       orderBy: "m.name",
       labelType: "name,tblSize",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Type",
@@ -631,7 +634,7 @@ export const fieldData = {
       orderBy: "m.name",
       labelType: "name,tblType",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "ISO Code",
@@ -649,7 +652,7 @@ export const fieldData = {
       orderBy: "m.name",
       labelType: "name,tblSealType",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
     { label: "Seal No.", name: "agentSealNo", isEdit: true },
     {
@@ -671,6 +674,7 @@ export const fieldData = {
       type: "number",
       isEdit: true,
       // required: true,
+      blurFun: "countHandler",
     },
     // { label: "Weight(Kgs)", name: "grossWt", type: "number", isEdit: true },
     {
@@ -686,6 +690,7 @@ export const fieldData = {
       type: "number",
       isEdit: true,
       // required: true,
+      blurFun: "countHandler",
     },
     {
       label: "Package Type",
@@ -697,8 +702,8 @@ export const fieldData = {
       orderBy: "m.name",
       labelType: "name,tblPackage",
       foreignTable: "name,tblMasterData",
-      required: true,
-      isEdit: true
+      // required: true,
+      isEdit: true,
     },
   ],
   tblBlPackingList: [
@@ -728,8 +733,8 @@ export const fieldData = {
       orderBy: "m.name",
       labelType: "name,tblPackage",
       foreignTable: "name,tblMasterData",
-      required: true,
-      isEdit: true
+      // required: true,
+      isEdit: true,
     },
   ],
   attachmentFields: [
@@ -771,7 +776,7 @@ export const advanceSearchFields = {
       orderBy: "t.name",
       labelType: "pod",
       foreignTable: "name,tblPort",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Vessel-Voyage No.",
@@ -783,7 +788,7 @@ export const advanceSearchFields = {
       orderBy: "ve.name, v.voyageNo",
       labelType: "vessel-voyage",
       foreignTable: "voyageNo,tblVoyage",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "MBL No",
@@ -818,7 +823,7 @@ export const advanceSearchFields = {
       orderBy: "m.name",
       labelType: "name,tblContainerStatus",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Type of Cargo",
@@ -830,7 +835,7 @@ export const advanceSearchFields = {
       orderBy: "m.name",
       labelType: "name,tblServiceType",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
   ],
 };
