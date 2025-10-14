@@ -14,7 +14,6 @@ const fieldData = {
       label: " Master Nationality",
       name: "masterNationalityId",
       type: "dropdown",
-      labelType: "country",
       foreignTable: "name,tblCountry",
       isEdit: "true",
     },
@@ -32,15 +31,14 @@ const fieldData = {
       label: "Vessel Name",
       name: "vesselId",
       type: "dropdown",
-      labelType: "vessel",
       foreignTable: "name,tblVessel",
       isEdit: "true",
     },
   ],
 };
 
- export const voyage = [
-    { label: "Vessel Name", value: "v1.name" },
-    { label: "Voyage No", value: "v.voyageNo" },
-  ]
+export const voyage = [
+  { label: "Vessel Name", value: "v1.name" },
+  { label: "Voyage No", value: "v.voyageNo" },
+]
 export default fieldData;

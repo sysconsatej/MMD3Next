@@ -63,3 +63,44 @@ export const updateDynamicReportData = async (obj) => {
     };
   }
 };
+export const getIgmBlData = async (input) => {
+  let jsonData;
+
+  if (Array.isArray(input)) {
+    jsonData = input.map(String).join(",");
+  } else if (typeof input === "string") {
+    jsonData = input;
+  } else if (input && typeof input === "object") {
+    jsonData = input.json
+      ? input.json
+      : Array.isArray(input.ids)
+      ? input.ids.map(String).join(",")
+      : input;
+  } else {
+    jsonData = "";
+  }
+
+  try {
+    const res = await axios.post(`${url}api/v1/igmData`, { jsonData });
+
+    const body = res?.data ?? {};
+    return {
+      success: !!body?.success,
+      data: body?.data ?? null,
+      message: body?.message ?? null,
+      error: body?.error ?? null,
+      status: res.status,
+      spName: body?.spName ?? "igmBldata",
+    };
+  } catch (error) {
+    const body = error?.response?.data ?? null;
+    return {
+      success: false,
+      data: body?.data ?? null,
+      message: body?.message ?? error?.message ?? "Something went wrong",
+      error: body?.error ?? error?.message ?? null,
+      status: error?.response?.status ?? 0,
+      spName: "igmBldata",
+    };
+  }
+};

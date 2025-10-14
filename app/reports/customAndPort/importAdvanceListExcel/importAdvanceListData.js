@@ -2,14 +2,13 @@ const fieldData = {
   igmEdiFields: [
     {
       label: "Vessel",
-      name: "vesselId",
+      name: "vessel",
       type: "dropdown",
       tableName: "tblVessel t",
       idColumn: "id",
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      labelType: "vessel",
       isEdit: true
     },
     {
@@ -19,10 +18,9 @@ const fieldData = {
       tableName: "tblVoyage t",
       idColumn: "id",
       displayColumn: "t.voyageNo",
-      selectedConditions: ["vesselId"],
+      selectedConditions: [{ "vessel": "vesselId" }],
       searchColumn: "t.voyageNo",
       orderBy: "t.voyageNo",
-      labelType: "voyage",
       isEdit: true
     },
     {
@@ -34,7 +32,6 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      labelType: "port",
       isEdit: true
     },
     {
@@ -46,7 +43,6 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      labelType: "port",
       isEdit: true
     },
   ],

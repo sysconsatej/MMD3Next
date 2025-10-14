@@ -11,7 +11,6 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      labelType: "port",
       required: true,
       isEdit: true
     },
@@ -24,7 +23,6 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      labelType: "liner-ff",
       required: true,
       isEdit: true
     },
@@ -67,7 +65,6 @@ const fieldData = {
       searchColumn: "m.name",
       orderBy: "m.name",
       where: "m.masterListName = 'tblStuffingDestuffingType'",
-      labelType: "delivery-type",
       required: true,
       isEdit: true
     },

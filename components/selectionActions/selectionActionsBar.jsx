@@ -22,12 +22,10 @@ export default function SelectionActionsBar({
   onUpdated,
 }) {
   const count = selectedIds.length;
-  if (count === 0) return null; // hide when nothing selected
 
   const isSingle = count === 1;
   const hasAny = count > 0;
 
-  // reject dialog state (remarks only)
   const [rejectOpen, setRejectOpen] = useState(false);
   const [remarks, setRemarks] = useState("");
 
@@ -37,7 +35,6 @@ export default function SelectionActionsBar({
   };
   const closeReject = () => setRejectOpen(false);
 
-  // ---- helper to call API ----
   const applyUpdate = async (rowsPayload, okMsg) => {
     const res = await updateStatusRows({
       tableName,
@@ -54,7 +51,6 @@ export default function SelectionActionsBar({
     return true;
   };
 
-  // REQUEST: set blStatus to "Requested" (no dialog)
   const handleRequest = async () => {
     if (!hasAny) return;
     const rowsPayload = selectedIds.map((id) => ({
@@ -65,7 +61,6 @@ export default function SelectionActionsBar({
     await applyUpdate(rowsPayload, "Requested");
   };
 
-  // VERIFY: set blStatus to "Verified" (no dialog)
   const handleVerify = async () => {
     if (!hasAny) return;
     const rowsPayload = selectedIds.map((id) => ({
@@ -76,7 +71,6 @@ export default function SelectionActionsBar({
     await applyUpdate(rowsPayload, "Verified");
   };
 
-  // REJECT: set blStatus to "Rejected" (with remarks)
   const submitReject = async () => {
     const rowsPayload = selectedIds.map((id) => ({
       id,
@@ -87,7 +81,6 @@ export default function SelectionActionsBar({
     if (ok) closeReject();
   };
 
-  // segment helper
   const Segment = ({ label, onClick, disabled, isLast }) => {
     let cls =
       "flex-1 text-center py-1 px-3 cursor-pointer hover:bg-[#B5C4F0] hover:text-white";
@@ -104,7 +97,6 @@ export default function SelectionActionsBar({
     <>
       <Box className="flex items-center justify-between">
         <div className="flex border text-black border-[#B5C4F0] mt-2 text-xs rounded-sm overflow-hidden">
-          {/* Single-row actions */}
           <Segment
             label="View"
             onClick={() => isSingle && onView && onView(selectedIds[0])}
@@ -120,7 +112,6 @@ export default function SelectionActionsBar({
             onClick={() => isSingle && onDelete && onDelete(selectedIds[0])}
             disabled={!isSingle}
           />
-          {/* Bulk or single */}
           <Segment label="Request" onClick={handleRequest} disabled={!hasAny} />
           <Segment label="Reject" onClick={openReject} disabled={!hasAny} />
           <Segment
@@ -136,7 +127,6 @@ export default function SelectionActionsBar({
         </Typography>
       </Box>
 
-      {/* Reject dialog (remarks only) */}
       <Dialog open={rejectOpen} onClose={closeReject} maxWidth="xs" fullWidth>
         <DialogTitle>Reject — Add Remarks</DialogTitle>
         <DialogContent dividers>

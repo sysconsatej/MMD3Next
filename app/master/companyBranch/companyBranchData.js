@@ -23,7 +23,6 @@ const fieldData = {
       tableName: "tblCountry t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "country",
       foreignTable: "name,tblCountry",
       isEdit: true,
     },
@@ -35,8 +34,6 @@ const fieldData = {
       tableName: "tblState t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "state",
-
       foreignTable: "name,tblState",
       isEdit: true,
     },
@@ -48,9 +45,8 @@ const fieldData = {
       tableName: "tblCity t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      labelType: "city",
       foreignTable: "name,tblCity",
-      selectedConditions: ["countryId"],
+      selectedConditions: [{ "countryId": "countryId" }],
       isEdit: true,
     },
     {

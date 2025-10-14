@@ -12,7 +12,6 @@ const fieldData = {
       joins: "JOIN tblMasterData m ON m.id = t.portTypeId AND m.name = 'CONTAINER FREIGHT STATION'",
       searchColumn: "t.name",
       orderBy: "t.name",
-      labelType: "cfs",
       required: true,
       isEdit: true
     },
@@ -25,7 +24,6 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      labelType: "port",
       required: true,
       isEdit: true
     },
@@ -52,7 +50,6 @@ const fieldData = {
       searchColumn: "m.name",
       orderBy: "m.name",
       where: "m.masterListName = 'tblMode'",
-      labelType: "name,tblMode",
       isEdit: true,
       required: true
     },
