@@ -18,15 +18,12 @@ const MenuAccess = () => {
   const [menuButtons, setMenuButtons] = useState([]);
   const [expand, setExpand] = useState("");
 
-  // Memoized handleChange function using useCallback
   const handleChange = useCallback((menuName, buttonName, status) => {
     setMenuButtons((prevMenuButtons) => {
-      // Update the buttons state immutably and avoid unnecessary updates
       const updatedMenuButtons = prevMenuButtons.map((menu) => {
         if (menu.menuName === menuName) {
           const updatedButtons = menu.buttons.map((button) => {
             if (button.buttonName === buttonName && button.status !== !status) {
-              // Only update the button status if it actually changes
               return { ...button, status: !status };
             }
             return button;
@@ -36,9 +33,6 @@ const MenuAccess = () => {
         }
         return menu;
       });
-
-      // Compare the previous state and the new state to avoid unnecessary updates
-      // Only update if the menuButtons array has changed
       const isChanged = !updatedMenuButtons.every(
         (menu, index) =>
           JSON.stringify(menu.buttons) ===
