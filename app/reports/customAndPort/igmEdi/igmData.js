@@ -9,30 +9,30 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Voyage",
       name: "voyage",
       type: "dropdown",
       tableName: "tblVoyage t",
-      idColumn: "id",
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
-      selectedConditions: [{ "vessel": "vesselId" }],
+      selectedConditions: [{ vessel: "vesselId" }],
       orderBy: "t.voyageNo",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "POD",
       name: "pod",
       type: "dropdown",
-      tableName: "tblPort t",
-      idColumn: "id",
-      displayColumn: "t.name",
-      searchColumn: "t.name",
-      orderBy: "t.name",
-      isEdit: true
+      tableName: "tblPort p",
+      displayColumn: "p.name",
+      joins: `join tblMasterData d on p.portTypeId = d.id and d.name = 'SEA PORT' join tblVoyageRoute v on v.portOfCallId = p.id`,
+      selectedConditions: [{ voyage: "v.voyageId" }],
+      searchColumn: "p.name",
+      orderBy: "p.name",
+      isEdit: true,
     },
   ],
 };
@@ -48,7 +48,6 @@ export const metaData = [
   //   name: "BL No",
   //   isEdit: true,
   // },
-
   // {
   //   name: "Gross Wt",
   //   type:"number",
