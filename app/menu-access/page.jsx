@@ -13,10 +13,47 @@ import {
   Typography,
 } from "@mui/material";
 import { ExpandMoreOutlined } from "@mui/icons-material";
+import { CustomInput } from "@/components/customInput";
+
+const fieldsData = {
+  dp: [
+    {
+      label: "Select User",
+      name: "user",
+      type: "dropdown",
+      tableName: "tblUser",
+      displayColumn: "name",
+      orderBy: "name",
+      foreignTable: "name,tblUser",
+      where: "userType = 'R'",
+      key: "user",
+    },
+  ],
+};
 
 const MenuAccess = () => {
   const [menuButtons, setMenuButtons] = useState([]);
   const [expand, setExpand] = useState("");
+  const [arr, setArr] = useState([]);
+  const [formData, setFromData] = useState({});
+
+  const handleExpand = (panel) => (event, isExpanded) => {
+    setExpand(isExpanded ? panel : false);
+  };
+
+  useEffect(() => {
+    const fetchMenuButtons = async () => {
+      try {
+        const data = await getMenuButtons();
+        const arr = Array.isArray(data?.menuButtons) ? data.menuButtons : [];
+        setMenuButtons(arr);
+      } catch (error) {
+        console.error("Error fetching menu buttons:", error);
+      }
+    };
+
+    fetchMenuButtons();
+  }, []);
 
   const handleChange = useCallback((menuName, buttonName, status) => {
     setMenuButtons((prevMenuButtons) => {
@@ -43,77 +80,93 @@ const MenuAccess = () => {
     });
   }, []);
 
-  const handleExpand = (panel) => (event, isExpanded) => {
-    setExpand(isExpanded ? panel : false);
-  };
-
-  useEffect(() => {
-    const fetchMenuButtons = async () => {
-      try {
-        const data = await getMenuButtons();
-        const arr = Array.isArray(data?.menuButtons) ? data.menuButtons : [];
-        setMenuButtons(arr);
-      } catch (error) {
-        console.error("Error fetching menu buttons:", error);
-      }
-    };
-
-    fetchMenuButtons();
+  const getBtnArr = useCallback((id, status) => {
+    const obj = { id: id, status: status };
+    console.log(obj, "obj");
   }, []);
+
+  const handleSubmit = () => {
+    console.log(arr, "arr");
+    console.log("Form submitted");
+  };
 
   return (
     <ThemeProvider theme={theme}>
-      <Box className="p-4 overflow-auto h-[calc(100vh-120px)]">
-        <CustomButton text={"Submit"} type="submit" onClick={() => {}} />
-        <Box className="mt-4">
-          {menuButtons && menuButtons.length > 0 ? (
-            <>
-              {menuButtons.map((item) => (
-                <Accordion
-                  className="mt-4 "
-                  key={item.menuName}
-                  expanded={expand === item.menuName}
-                  onChange={handleExpand(item.menuName)}
-                  style={{ background: "transparent", borderRadius: "5px" }}
-                >
-                  <AccordionSummary
-                    className="bg-gradient-to-b from-blue-600 via-indigo-700 to-blue-900 rounded"
-                    expandIcon={
-                      <ExpandMoreOutlined style={{ color: "#FFF" }} />
-                    }
-                    id={`${item.menuName}-header`}
-                    aria-controls={`${item.menuName}-content`}
-                    style={{ borderRadius: "5px" }}
+      <Box className="p-4">
+        <CustomButton
+          text={"Submit"}
+          type="submit"
+          onClick={() => handleSubmit()}
+        />
+        <br />
+        <CustomInput
+          fields={fieldsData.dp}
+          formData={formData}
+          setFormData={setFromData}
+        />
+        <br />
+        <Box className="p-1 overflow-auto h-[calc(100vh-120px)]">
+          <Box className="mt-4">
+            {menuButtons && menuButtons.length > 0 ? (
+              <>
+                {menuButtons.map((item) => (
+                  <Accordion
+                    className="mt-4"
+                    key={item.menuName}
+                    expanded={expand === item.menuName}
+                    onChange={handleExpand(item.menuName)}
+                    style={{ background: "transparent", borderRadius: "5px" }}
                   >
-                    <Typography
-                      color="white"
-                      sx={{ fontWeight: "500", fontSize: "14px" }}
+                    <AccordionSummary
+                      className="bg-gradient-to-t from-blue-500  to-indigo-500"
+                      expandIcon={
+                        <ExpandMoreOutlined style={{ color: "#FFF" }} />
+                      }
+                      id={`${item.menuName}-header`}
+                      aria-controls={`${item.menuName}-content`}
+                      style={{
+                        borderRadius: "5px",
+                      }}
                     >
-                      {item.menuName}
-                    </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails className="flex flex-row justify-between gap-10">
-                    {item.buttons?.map((r, __index) => (
-                      <Box key={__index} className="flex flex-row items-center">
-                        <Typography key={__index}>
-                          {String(r.buttonName).charAt(0).toUpperCase() +
-                            String(r.buttonName).slice(1)}
-                        </Typography>
-                        <Checkbox
-                          checked={r.status || false}
-                          onChange={() =>
-                            handleChange(item?.menuName, r.buttonName, r.status)
-                          }
-                        />
-                      </Box>
-                    ))}
-                  </AccordionDetails>
-                </Accordion>
-              ))}
-            </>
-          ) : (
-            <> No Data </>
-          )}
+                      <Typography
+                        color="white"
+                        sx={{ fontWeight: "500", fontSize: "14px" }}
+                      >
+                        {item.menuName}
+                      </Typography>
+                    </AccordionSummary>
+                    {/* <Typography>Buttons</Typography> */}
+                    <AccordionDetails className="flex flex-row flex-wrap  gap-10 ">
+                      {item.buttons?.map((r, __index) => (
+                        <Box
+                          key={__index}
+                          className="flex  flex-row   items-center"
+                        >
+                          <Typography key={__index}>
+                            {String(r.buttonName).charAt(0).toUpperCase() +
+                              String(r.buttonName).slice(1)}
+                          </Typography>
+                          <Checkbox
+                            checked={r.status || false}
+                            onChange={(e) => {
+                              (handleChange(
+                                item?.menuName,
+                                r.buttonName,
+                                r.status
+                              ),
+                                getBtnArr(r?.id, e.target.checked));
+                            }}
+                          />
+                        </Box>
+                      ))}
+                    </AccordionDetails>
+                  </Accordion>
+                ))}
+              </>
+            ) : (
+              <> No Data </>
+            )}
+          </Box>
         </Box>
       </Box>
     </ThemeProvider>
