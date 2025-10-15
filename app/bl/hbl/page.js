@@ -70,13 +70,14 @@ export default function Home() {
   };
 
   useTotalGrossAndPack(formData, setTotals);
-  // const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
-  //   useNextPrevData({
-  //     currentId: mode.formId,
-  //     tableName: "tblBl",
-  //     labelField: "mblNo",
-  //     orderBy: "createdDate desc",
-  //   });
+  const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
+    useNextPrevData({
+      currentId: mode.formId,
+      tableName: "tblBl",
+      labelField: `mblNo curName, string_agg(id, ',')  curId, lag(mblNo) over (order by max(createdDate) desc) as prevName, lag(string_agg(id, ',')) over (order by max(createdDate) desc) as prevId, lead(mblNo) over (order by max(createdDate) desc) as nextName, lead(string_agg(id, ',')) over (order by max(createdDate) desc) as nextId, max(createdDate) createdDate`,
+      orderBy: "createdDate desc",
+      groupBy: "group by mblNo",
+    });
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -222,7 +223,7 @@ export default function Home() {
               />
             </Box>
           </Box>
-          {/* {(fieldsMode === "view" || fieldsMode === "edit") && (
+          {(fieldsMode === "view" || fieldsMode === "edit") && (
             <Box className="flex justify-between items-center w-full">
               <CustomButton
                 text={prevLabel ? `Prev (MBLno:${prevLabel})` : "Prev"}
@@ -241,8 +242,7 @@ export default function Home() {
                 disabled={!canNext}
               />
             </Box>
-          )} */}
-
+          )}
           <Box>
             <FormHeading text="MBL Details" />
             <Box className="grid grid-cols-5 items-end gap-2 p-2 ">

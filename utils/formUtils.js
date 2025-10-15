@@ -178,6 +178,7 @@ export function useNextPrevData({
   tableName = "tblUser",
   labelField = "status",
   orderBy = "id",
+  groupBy = "",
 }) {
   const [neighbors, setNeighbors] = useState({});
 
@@ -187,9 +188,10 @@ export function useNextPrevData({
     try {
       const getDataObj = {
         formId: currentId,
-        columnName: labelField,
+        columnNames: labelField,
         tableName: tableName,
         orderBy: orderBy,
+        groupBy: groupBy,
       };
 
       const { data } = await getNextPrevData(getDataObj);
