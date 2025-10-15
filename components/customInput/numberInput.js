@@ -1,7 +1,12 @@
 import React from "react";
 import { Box, InputLabel, TextField } from "@mui/material";
 
-const NumberInput = ({ commonProps, fieldValue, field }) => {
+const NumberInput = ({
+  commonProps,
+  fieldValue,
+  field,
+  handleBlurEventFunctions,
+}) => {
   const { label, ...remainingProps } = commonProps;
   return (
     <Box className={`flex items-end gap-2 ${field.style} `}>
@@ -25,6 +30,9 @@ const NumberInput = ({ commonProps, fieldValue, field }) => {
             step: 1,
           },
         }}
+        onBlur={(event) =>
+          field.blurFun ? handleBlurEventFunctions[field.blurFun](event) : null
+        }
       />
     </Box>
   );
