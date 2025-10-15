@@ -47,12 +47,22 @@ export const fieldData = {
       required: true,
     },
     {
+      label: "BLStatus",
+      name: "blStatus",
+      type: "radio",
+      radioData: [
+        { label: "Draft", value: "D" },
+        { label: "Final", value: "F" },
+      ],
+      isEdit: true,
+    },
+    {
       label: "BL Type",
-      name: "typeId",
+      name: "blTypeId",
       type: "dropdown",
       tableName: "tblMasterData m",
       displayColumn: "m.name",
-      where: "m.masterListName = 'tblType'",
+      where: "m.masterListName = 'tblBlIssueType'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       isEdit: true
@@ -81,10 +91,10 @@ export const fieldData = {
       label: "Type of Cargo",
       name: "cargoTypeId",
       type: "dropdown",
-      tableName: "tblMasterData m",
-      foreignTable: "name,tblMasterData",
-      displayColumn: "m.name",
-      where: "m.masterListName = 'tblCargoType'",
+      // tableName: "tblMasterData m",
+      // foreignTable: "name,tblMasterData",
+      // displayColumn: "m.name",
+      // where: "m.masterListName = 'tblCargoType'",
       orderBy: "m.name",
       isEdit: true
     },
@@ -100,13 +110,13 @@ export const fieldData = {
       isEdit: true,
       required: true
     },
-    {
-      label: "Mobile(Requester)",
-      name: "mobileNo",
-      type: "number",
-      required: true,
-      isEdit: true,
-    },
+    // {
+    //   label: "Mobile(Requester)",
+    //   name: "mobileNo",
+    //   type: "number",
+    //   required: true,
+    //   isEdit: true,
+    // },
 
     // {
     //   label: "CIN Type",
@@ -173,28 +183,28 @@ export const fieldData = {
     //   isEdit: true,
     //   required: true,
     // },
-    {
-      label: "Company",
-      name: "companyId",
-      type: "dropdown",
-      tableName: "tblCompany t",
-      displayColumn: "t.name",
-      orderBy: "t.name",
-      foreignTable: "name,tblCompany",
-      isEdit: true,
-      required: true
-    },
-    {
-      label: "Company Branch",
-      name: "companyBranchId",
-      type: "dropdown",
-      tableName: "tblCompanyBranch t",
-      displayColumn: "t.name",
-      orderBy: "t.name",
-      foreignTable: "name,tblCompanyBranch",
-      isEdit: true,
-      required: true
-    },
+    // {
+    //   label: "Company",
+    //   name: "companyId",
+    //   type: "dropdown",
+    //   tableName: "tblCompany t",
+    //   displayColumn: "t.name",
+    //   orderBy: "t.name",
+    //   foreignTable: "name,tblCompany",
+    //   isEdit: true,
+    //   required: true
+    // },
+    // {
+    //   label: "Company Branch",
+    //   name: "companyBranchId",
+    //   type: "dropdown",
+    //   tableName: "tblCompanyBranch t",
+    //   displayColumn: "t.name",
+    //   orderBy: "t.name",
+    //   foreignTable: "name,tblCompanyBranch",
+    //   isEdit: true,
+    //   required: true
+    // },
 
   ],
   csnFields: [
@@ -214,10 +224,10 @@ export const fieldData = {
       label: "Vessel Id Type",
       name: "vesselIdType",
       type: "dropdown",
-      tableName: "tblVessel t",
-      displayColumn: "t.name",
-      orderBy: "t.name",
-      foreignTable: "name,tblVessel",
+      // tableName: "tblVessel t",
+      // displayColumn: "t.name",
+      // orderBy: "t.name",
+      // foreignTable: "name,tblVessel",
       required: true,
       isEdit: true
     },
@@ -323,7 +333,7 @@ export const fieldData = {
     },
     {
       label: "Port of Unloading",
-      name: "portOfUnloading",
+      name: "",
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "p.name",
@@ -369,23 +379,23 @@ export const fieldData = {
       required: true
     },
     {
+      label: "Cargo Movement",
+      name: "movementTypeId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
+      where: "m.masterListName = 'tblMovementType'",
+      orderBy: "m.name",
+      foreignTable: "name,tblMasterData",
+      isEdit: true
+    },
+    {
       label: "Post Carriage",
       name: "postCarriageId",
       type: "dropdown",
       tableName: "tblMasterData m",
       displayColumn: "m.name",
       where: "m.masterListName = 'tblMode'",
-      orderBy: "m.name",
-      foreignTable: "name,tblMasterData",
-      isEdit: true
-    },
-    {
-      label: "Cargo Movement",
-      name: "cargoMovementId",
-      type: "dropdown",
-      tableName: "tblMasterData m",
-      displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
-      where: "m.masterListName = 'tblMovementType'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       isEdit: true
@@ -400,6 +410,16 @@ export const fieldData = {
       foreignTable: "name,tblCarrierPort",
       isEdit: true
     },
+    {
+      label: "Transit Bond No",
+      name: "transitBondNo",
+      isEdit: true,
+    },
+    {
+      label: "Carrier Code",
+      name: "carrierCode",
+      isEdit: true,
+    }
   ],
   hblBottomFields: [
     {
@@ -425,8 +445,8 @@ export const fieldData = {
     {
       label: "MLO Code",
       name: "mloId",
-      isEdit: true,
       type: "dropdown",
+      isEdit: true,
     },
     {
       label: "Cargo Gross Wt(Kgs)",
@@ -466,7 +486,11 @@ export const fieldData = {
       label: "UNO/IMO Code",
       name: "imoId",
       type: "dropdown",
-      isEdit: true,
+      tableName: "tblImo m",
+      displayColumn: "ISNULL(m.unNo,'') + ' - ' + ISNULL(m.class,'')",
+      searchColumn: "m.unNo, m.class",
+      orderBy: "m.unNo, m.class",
+      isEdit: true
     },
     {
       label: "Invoice Value",
@@ -479,7 +503,7 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblMasterData m",
       foreignTable: "name,tblMasterData",
-      displayColumn: "m.name",
+      displayColumn: "m.code",
       where: "m.masterListName = 'tblCurrency'",
       isEdit: true,
     },
@@ -534,7 +558,7 @@ export const fieldData = {
     },
     {
       label: "Code",
-      name: "consignorCode",
+      name: "shipperIdNo",
       isEdit: true,
     },
     {
@@ -565,6 +589,7 @@ export const fieldData = {
       tableName: "tblCity t",
       displayColumn: "t.name",
       orderBy: "t.name",
+      foreignTable: "name,tblCity",
       selectedConditions: [{ "shipperCountry": "countryId" }, { "shipperState": "stateId" }],
       required: true,
       isEdit: true
@@ -602,7 +627,7 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true
     },
-    { label: "Code", name: "consigneeCode" },
+    { label: "Code", name: "consigneeIdNo", isEdit: true },
     {
       label: "Country",
       name: "consigneeCountry",
@@ -651,6 +676,11 @@ export const fieldData = {
       isEdit: true,
     },
     {
+      label: "Email Id",
+      name: "emailTo",
+      isEdit: true,
+    },
+    {
       label: "Address",
       name: "consigneeAddress",
       type: "textarea",
@@ -667,10 +697,10 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
-    { label: "PAN Number", name: "pan", isEdit: true },
+    { label: "PAN Number", name: "notifyParty1IdNo", isEdit: true },
     {
       label: "Country",
-      name: "notifyingPartyCountry",
+      name: "notifyingParty1Country",
       type: "dropdown",
       tableName: "tblCountry t",
       displayColumn: "t.name",
@@ -681,7 +711,7 @@ export const fieldData = {
     },
     {
       label: "State",
-      name: "notifyPartyState",
+      name: "notifyParty1State",
       type: "dropdown",
       tableName: "tblState t",
       displayColumn: "t.name",
@@ -691,20 +721,25 @@ export const fieldData = {
     },
     {
       label: "City",
-      name: "notifyPartyCity",
+      name: "notifyParty1City",
       type: "dropdown",
       tableName: "tblCity t",
       displayColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblCity",
-      selectedConditions: [{ "notifyingPartyCountry": "countryId" }, { "notifyPartyState": "stateId" }],
+      selectedConditions: [{ "notifyingParty1Country": "countryId" }, { "notifyParty1State": "stateId" }],
       isEdit: true,
       required: true
     },
     {
       label: "Post Code",
-      name: "notifyPartyPinCode",
+      name: "notifyParty1PinCode",
       type: "number",
+      isEdit: true,
+    },
+    {
+      label: "Email Id",
+      name: "emailCC",
       isEdit: true,
     },
     {
@@ -716,28 +751,25 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
+
   ],
-  invoiceFields: [
+  tgBondDetails: [
     {
-      label: "Invoicing Consignee Name",
-      name: "invoiceName",
-      style: "col-span-2 row-span-1",
+      label: "TG Carrier",
+      name: "tgCarrierId",
+      type: "dropdown",
       isEdit: true,
     },
     {
-      label: "GSTIN No",
-      name: "invoiceGSTINNO",
-      style: "col-span-2 row-span-1",
+      label: "TG Bond No",
+      name: "tgBondNo",
       isEdit: true,
     },
     {
-      label: "Address",
-      name: "invoiceAddress",
-      type: "textarea",
-      rows: 2,
-      gridColumn: "col-span-2 row-span-1 ",
+      label: "TG Carrier Code",
+      name: "tgCarrierCode",
       isEdit: true,
-    },
+    }
   ],
   tblBlContainer: [
     {
@@ -802,6 +834,7 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
+
     // {
     //   label: "Cargo net Wt(Kgs)",
     //   name: "netwt",
@@ -829,6 +862,75 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       required: true,
       isEdit: true
+    },
+    {
+      label: "IMO Code",
+      name: "imoId",
+      type: "dropdown",
+      tableName: "tblImo m",
+      displayColumn: "ISNULL(m.unNo,'') + ' - ' + ISNULL(m.class,'')",
+      searchColumn: "m.unNo, m.class",
+      orderBy: "m.unNo, m.class",
+      isEdit: true
+    },
+    {
+      label: "Reefer Temp",
+      name: "refTemp",
+      type: "number",
+      isEdit: true,
+    },
+    {
+      label: "Reefer Temp Unit",
+      name: "refTempUnitId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where: "m.groupId in (select id from tblMasterData where name = 'TEMPERATURE')",
+      orderBy: "m.name",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+    },
+
+    {
+      label: "OGG Front",
+      name: "oogFront",
+      isEdit: true,
+    },
+    {
+      label: "OGG Back",
+      name: "oogBack",
+      isEdit: true,
+    },
+    {
+      label: "OGG Front",
+      name: "oogFront",
+      isEdit: true,
+    },
+    {
+      label: "OGG Back Left",
+      name: "oogBackLeft",
+      isEdit: true,
+    },
+    {
+      label: "OGG Right",
+      name: "oogRight",
+      isEdit: true,
+    },
+    {
+      label: "OGG Top",
+      name: "oogTop",
+      isEdit: true,
+    },
+    {
+      label: "Dimensions",
+      name: "dimensionUnitId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where: "m.groupId in (select id from tblMasterData where name = 'LENGTH')",
+      orderBy: "m.name",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
     },
   ],
   tblBlPackingList: [

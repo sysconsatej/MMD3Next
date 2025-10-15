@@ -159,6 +159,16 @@ export default function Home() {
                   />
                 </Box>
               </FormHeading> */}
+              <FormHeading text="TG Bond Details">
+                <Box className="grid grid-cols-3 gap-2 p-2 ">
+                  <CustomInput
+                    fields={jsonData.tgBondDetails}
+                    formData={formData}
+                    setFormData={setFormData}
+                    fieldsMode={fieldsMode}
+                  />
+                </Box>
+              </FormHeading>
               <FormHeading text="Consignor Details">
                 <Box className="grid grid-cols-6 gap-2 p-2 ">
                   <CustomInput
@@ -186,7 +196,7 @@ export default function Home() {
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
                 ]}>
-                <Box className="grid grid-cols-6 gap-2 p-2 ">
+                <Box className="grid grid-cols-4 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.consigneeFields}
                     formData={formData}
@@ -211,7 +221,7 @@ export default function Home() {
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
                 ]}>
-                <Box className="grid grid-cols-6 gap-2 p-2 ">
+                <Box className="grid grid-cols-4 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.notifyFields}
                     formData={formData}
@@ -220,17 +230,8 @@ export default function Home() {
                   />
                 </Box>
               </FormHeading>
-              <FormHeading text="Invoicing Instructions">
-                <Box className="grid grid-cols-6 gap-2 p-2 ">
-                  <CustomInput
-                    fields={jsonData.invoiceFields}
-                    formData={formData}
-                    setFormData={setFormData}
-                    fieldsMode={fieldsMode}
-                  />
-                </Box>
-              </FormHeading>
-              <Box className="grid grid-cols-6 gap-2 p-2 ">
+
+              <Box className="grid grid-cols-5 gap-2 p-2 ">
                 <CustomInput
                   fields={jsonData.hblBottomFields}
                   formData={formData}
