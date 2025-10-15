@@ -9,7 +9,7 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Voyage",
@@ -19,20 +19,21 @@ const fieldData = {
       idColumn: "id",
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
-      selectedConditions: [{ "vessel": "vesselId" }],
+      selectedConditions: [{ vessel: "vesselId" }],
       orderBy: "t.voyageNo",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "POD",
       name: "pod",
       type: "dropdown",
-      tableName: "tblPort t",
-      idColumn: "id",
-      displayColumn: "t.name",
-      searchColumn: "t.name",
-      orderBy: "t.name",
-      isEdit: true
+      tableName: "tblPort p",
+      displayColumn: "p.name",
+      joins: `join tblMasterData d on p.portTypeId = d.id and d.name = 'SEA PORT' join tblVoyageRoute v on v.portOfCallId = p.id`,
+      selectedConditions: [{ voyage: "v.voyageId" }],
+      searchColumn: "p.name",
+      orderBy: "p.name",
+      isEdit: true,
     },
     {
       label: "FPD",
@@ -43,7 +44,7 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "BL Type",
@@ -51,10 +52,10 @@ const fieldData = {
       type: "dropdown",
       tableName: "tblMasterData m",
       displayColumn: "m.name",
-      where: "m.masterListName = 'tblType'",
+      where: "m.masterListName = 'tblMovementType'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Nominated Area Code",
@@ -62,10 +63,10 @@ const fieldData = {
       type: "dropdown",
       tableName: "tblPort t",
       idColumn: "id",
-      displayColumn: "ISNULL(t.code,'') + ' - ' + ISNULL(t.name,'')",
+      displayColumn: "t.name",
       searchColumn: "t.code, t.name",
       orderBy: "t.code, t.name",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Dpd Code",
@@ -73,10 +74,10 @@ const fieldData = {
       type: "dropdown",
       tableName: "tblPort t",
       idColumn: "id",
-      displayColumn: "t.code",
+      displayColumn: "t.name",
       searchColumn: "t.code, t.name",
       orderBy: "t.code",
-      isEdit: true
+      isEdit: true,
     },
   ],
 };
@@ -96,7 +97,7 @@ export const metaData = [
     displayColumn: "t.name",
     searchColumn: "t.name",
     orderBy: "t.name",
-    isEdit: true
+    isEdit: true,
   },
   {
     name: "DPD Description",
