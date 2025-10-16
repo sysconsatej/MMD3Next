@@ -24,15 +24,15 @@ export default function InvoiceRequest() {
         <section className="py-2 px-4">
           <Box className="flex justify-between items-end mb-2">
             <h1 className="text-left text-base flex items-end m-0 ">
-              CFS Request For Invoice
+              Invoice Request
             </h1>
             <Box>
               <CustomButton text="Back" href="/request/invoiceRequest/list" />
             </Box>
           </Box>
-          <Box className="border border-solid border-black rounded-[4px] ">
+          <Box>
             <FormHeading
-              text="IGM Information"
+              // text="IGM Information"
               variant="body2"
               style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
             />
@@ -44,19 +44,29 @@ export default function InvoiceRequest() {
                 fieldsMode={fieldsMode}
               />
             </Box>
+            <FormHeading text="CSN">
+              <Box className="grid grid-cols-4 gap-2 p-2 ">
+                <CustomInput
+                  fields={jsonData.invoiceFields}
+                  formData={formData}
+                  setFormData={setFormData}
+                  fieldsMode={fieldsMode}
+                />
+              </Box>
+            </FormHeading>
             <FormHeading
               text="Attachment Details"
               variant="body2"
               style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
             />
-            <TableGrid
-              fields={jsonData.attachmentFields}
-              formData={formData}
-              setFormData={setFormData}
-              fieldsMode={fieldsMode}
-              gridName="tblVoyage"
-              buttons={ cfsGridButtons}
-            />
+            <Box className="grid grid-cols-3 gap-2 p-2 ">
+              <CustomInput
+                fields={jsonData.attachmentFields}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
+              />
+            </Box>
           </Box>
           <Box className="w-full flex mt-2">
             <CustomButton text={"Submit"} type="submit" />
