@@ -25,8 +25,8 @@ import { useRouter } from "next/navigation";
 import { deleteRecord } from "@/apis";
 import { user } from "../userData";
 
-function createData(name, emailId, mobile, id) {
-  return { name, emailId, mobile, id };
+function createData(name, emailId, companyId, branchId, roles, roleCount, id) {
+  return { name, emailId, companyId, branchId, roles, roleCount, id };
 }
 
 export default function UserList() {
@@ -44,12 +44,20 @@ export default function UserList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "name,emailId,mobile,id",
-          tableName: "tblUser",
+          columns:
+            "u.name name,u.emailId emailId,c.name companyId,b.name branchId,string_agg(u2.name,',') as roles,COUNT(DISTINCT u2.id) as roleCount,u.id",
+          tableName: "tblUser u",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
+          joins: `JOIN (VALUES ('U')) AS f(userType) ON u.userType = f.userType 
+                left join tblCompany c on c.id=u.companyId
+                left join tblCompanyBranch b on b.id=u.branchId
+                left join tblUserRoleMapping m on m.userId = u.id 
+                left join tblUser u2 on u2.id = m.roleId and m.status = 1`,
+          groupBy: "GROUP BY u.id, u.name, u.emailId, c.name, b.name",
+          orderBy: "ORDER BY u.name",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setUserData(data);
@@ -71,7 +79,15 @@ export default function UserList() {
 
   const rows = userData
     ? userData.map((item) =>
-        createData(item["name"], item["emailId"], item["mobile"], item["id"])
+        createData(
+          item["name"],
+          item["emailId"],
+          item["companyId"],
+          item["branchId"],
+          item["roles"],
+          item["roleCount"],
+          item["id"]
+        )
       )
     : [];
 
@@ -130,7 +146,10 @@ export default function UserList() {
               <TableRow>
                 <TableCell> Name</TableCell>
                 <TableCell> Email Id</TableCell>
-                <TableCell>Phone No</TableCell>
+                <TableCell> Company</TableCell>
+                <TableCell> Company Branch </TableCell>
+                <TableCell> Role </TableCell>
+                <TableCell>Role Count </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -141,9 +160,12 @@ export default function UserList() {
               ) : (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
-                    <TableCell>admin</TableCell>
-                    <TableCell>admin@gmail.com</TableCell>
-                    <TableCell>1234567890</TableCell>
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.emailId}</TableCell>
+                    <TableCell>{row.companyId}</TableCell>
+                    <TableCell>{row.branchId}</TableCell>
+                    <TableCell>{row.roles}</TableCell>
+                    <TableCell>{row.roleCount}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

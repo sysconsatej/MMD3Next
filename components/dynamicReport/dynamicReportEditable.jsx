@@ -562,12 +562,20 @@ const DynamicReportTable = ({
                [&_.MuiTableCell-root:last-child]:border-r-0"
                 >
                   <TableRow className="bg-[#dbdbdb]">
-                    <TableCell sx={{ fontWeight: 700 }}>Total</TableCell>
+                    {/* checkbox-width cell with tiny label */}
+                    <TableCell
+                      padding="checkbox"
+                      className="!px-1 !text-center !font-semibold !text-[10px] !leading-none whitespace-nowrap
+                   !w-[28px] !min-w-[28px] !max-w-[28px]"
+                    >
+                      Total
+                    </TableCell>
+
                     {DISPLAY_KEYS.map((col) => (
                       <TableCell
                         key={col}
                         align="center"
-                        sx={{ fontWeight: 700 }}
+                        className={numericCols.has(col) ? "!font-semibold" : ""}
                       >
                         {numericCols.has(col)
                           ? formatNumber(pageTotals[col] || 0)
