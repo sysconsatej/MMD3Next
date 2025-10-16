@@ -36,7 +36,7 @@ export default function Home() {
     useNextPrevData({
       currentId: mode.formId,
       tableName: "tblBl",
-      labelField: "mblNo",
+      labelField: `mblNo curName, id  curId, lag(mblNo) over (order by createdDate desc) as prevName, lag(id) over (order by createdDate desc) as prevId, lead(mblNo) over (order by createdDate desc) as nextName, lead(id) over (order by createdDate desc) as nextId, createdDate createdDate`,
       orderBy: "createdDate desc",
     });
 
@@ -220,15 +220,21 @@ export default function Home() {
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
+<<<<<<< HEAD
                 ]}>
                 <Box className="grid grid-cols-4 gap-2 p-2 ">
-                  <CustomInput
-                    fields={jsonData.notifyFields}
-                    formData={formData}
-                    setFormData={setFormData}
-                    fieldsMode={fieldsMode}
-                  />
-                </Box>
+=======
+                ]}
+              >
+                <Box className="grid grid-cols-6 gap-2 p-2 ">
+>>>>>>> 30d9be32e9c0cfe226756b2e48d576139a37c1e2
+                    <CustomInput
+                      fields={jsonData.notifyFields}
+                      formData={formData}
+                      setFormData={setFormData}
+                      fieldsMode={fieldsMode}
+                    />
+                  </Box>
               </FormHeading>
 
               <Box className="grid grid-cols-5 gap-2 p-2 ">

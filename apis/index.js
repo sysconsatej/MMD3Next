@@ -17,3 +17,4 @@ export {
   getIgmBlData,
 } from "./dynamicReport";
 export { sendEmail } from "./sendEmail";
+export { login } from "./auth";
