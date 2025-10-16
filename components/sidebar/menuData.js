@@ -28,7 +28,6 @@ export const navItems = [
       { name: "Voyage Route", href: "/master/voyageRoute/list" },
       { name: "Voyage", href: "/master/voyage/list" },
       { name: "Port", href: "/master/port/list" },
-      { name: "Nominated Area", href: "/master/nominatedArea/list" },
       { name: "Terminal", href: "/master/terminal/list" },
       { name: "Dpd", href: "/master/dpd/list" },
       { name: "Type Of Company", href: "/master/typeOfCompany/list" },
@@ -55,8 +54,7 @@ export const navItems = [
     name: "Requests",
     icon: "inbox",
     submenu: [
-      { name: "CFS Request For Invoice", href: "/request/invoiceRequest/list" },
-      { name: "CFS Request For Container", href: "/request/cfsRequest/list" },
+      { name: "Invoice Request", href: "/request/invoiceRequest/list" },
     ],
   },
 

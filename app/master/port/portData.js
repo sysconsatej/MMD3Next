@@ -7,7 +7,8 @@ const fieldData = {
       foreignTable: "name,tblMasterData",
       tableName: "tblMasterData m",
       displayColumn: "m.name",
-      where: "m.masterListName = 'tblPortType'",
+      where:
+        "m.masterListName = 'tblPortType' and m.name in ('INLAND PORT','SEA PORT')",
       orderBy: "m.name",
       isEdit: true,
     },

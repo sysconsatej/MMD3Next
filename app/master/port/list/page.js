@@ -50,7 +50,7 @@ export default function PortList() {
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
           joins:
-            "left join tblMasterData m on m.id = p.portTypeId left join tblCountry c on c.id = p.countryId",
+            "join tblMasterData m on m.id = p.portTypeId and m.name in ('INLAND PORT','SEA PORT') left join tblCountry c on c.id = p.countryId",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setPortData(data);
