@@ -26,7 +26,7 @@ const fieldsData = {
       displayColumn: "name",
       orderBy: "name",
       foreignTable: "name,tblUser",
-      where: "userType = 'R'",
+      where: "userType = 'U'",
       key: "user",
     },
   ],
@@ -51,7 +51,6 @@ const MenuAccess = () => {
         const data = await getMenuButtons();
         const arr = Array.isArray(data?.menuButtons) ? data.menuButtons : [];
         if (data) {
-          setMenuNames(arr?.map((r) => r.menuName));
           setMenuButtons(arr);
           setIsLoading(false);
         }
@@ -116,6 +115,8 @@ const MenuAccess = () => {
       </Box>
     );
   }
+
+  console.log(formData , 'formData')
 
   return (
     <ThemeProvider theme={theme}>
