@@ -47,7 +47,8 @@ function createData(
   arrivalVessel,
   arrivalVoyage,
   line,
-  id
+  id,
+  clientId
 ) {
   return {
     mblNo,
@@ -61,6 +62,7 @@ function createData(
     arrivalVoyage,
     line,
     id,
+    clientId,
   };
 }
 
@@ -79,13 +81,15 @@ export default function BLList() {
   const [idsOnPage, setIdsOnPage] = useState([]);
   const [allChecked, setAllChecked] = useState(false);
   const [someChecked, setSomeChecked] = useState(false);
+  const REPORTS = ["Survey Letter"];
+  const REPORT_ROUTE = "/htmlReports/rptDoLetter";
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
           columns:
-            "b.mblNo mblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id",
+            "b.mblNo mblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId",
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
@@ -116,20 +120,21 @@ export default function BLList() {
 
   const rows = blData
     ? blData.map((item) =>
-        createData(
-          item["mblNo"],
-          item["mblDate"],
-          item["consigneeText"],
-          item["pol"],
-          item["pod"],
-          item["fpd"],
-          item["cargoMovement"],
-          item["arrivalVessel"],
-          item["arrivalVoyage"],
-          item["line"],
-          item["id"]
-        )
+      createData(
+        item["mblNo"],
+        item["mblDate"],
+        item["consigneeText"],
+        item["pol"],
+        item["pod"],
+        item["fpd"],
+        item["cargoMovement"],
+        item["arrivalVessel"],
+        item["arrivalVoyage"],
+        item["line"],
+        item["id"],
+        item["clientId"]
       )
+    )
     : [];
 
   useEffect(() => {
@@ -179,6 +184,18 @@ export default function BLList() {
     }
     setMode({ mode, formId });
     router.push("/bl/mbl");
+  };
+
+  const handlePrint = (id, clientId) => {
+    try {
+      sessionStorage.setItem("selectedReportIds", JSON.stringify(REPORTS));
+    } catch { }
+
+    const recordId = encodeURIComponent(id);
+    const cid = encodeURIComponent(clientId);
+    const reportName = encodeURIComponent(REPORTS[0]);
+    router.push(`${REPORT_ROUTE}?recordId=${recordId}&reportName=${reportName}`);
+    router.push(`${REPORT_ROUTE}?recordId=${recordId}&clientId=${cid}&reportName=${reportName}`);
   };
 
   return (
@@ -256,14 +273,20 @@ export default function BLList() {
                     <TableCell>{row.fpd}</TableCell>
                     <TableCell>{row.cargoMovement}</TableCell>
                     <TableCell>{row.arrivalVessel}</TableCell>
-                    <TableCell>{row.arrivalVoyage}</TableCell>
-                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
-                      <HoverActionIcons
-                        onView={() => modeHandler("view", row.id)}
-                        onEdit={() => modeHandler("edit", row.id)}
-                        onDelete={() => modeHandler("delete", row.id)}
-                      />
+                    <TableCell>
+                      <Box className="flex items-center justify-between gap-1">
+                        <span>{row.arrivalVoyage}</span>
+                        <span className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <HoverActionIcons
+                            onView={() => modeHandler("view", row.id)}
+                            onEdit={() => modeHandler("edit", row.id)}
+                            onDelete={() => modeHandler("delete", row.id)}
+                            onPrint={() => handlePrint(row.id, row.clientId)}
+                          />
+                        </span>
+                      </Box>
                     </TableCell>
+
                   </TableRow>
                 ))
               ) : (

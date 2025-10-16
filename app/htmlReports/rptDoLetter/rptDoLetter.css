@@ -1,0 +1,55 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #f0f0f0;
+}
+
+.a4-size {
+  width: 210mm;
+  height: 297mm;
+  margin: 1rem auto;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  page-break-after: always;
+  padding: 5mm; /* creates spacing inside the page */
+}
+
+.main-border {
+  border: 1px solid #000;
+  height: calc(100%); /* fill height minus the padding */
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5mm;
+}
+
+/* Print styles */
+@media print {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+
+  .a4-size {
+    width: 210mm;
+    height: 297mm;
+    box-shadow: none;
+    padding: 5mm;
+    page-break-after: always;
+  }
+
+  .main-border {
+    border: 1px solid #000;
+    height: calc(100%);
+    padding: 5mm;
+    box-sizing: border-box;
+  }
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+}
