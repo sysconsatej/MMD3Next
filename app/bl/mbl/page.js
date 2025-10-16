@@ -220,21 +220,15 @@ export default function Home() {
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
-<<<<<<< HEAD
                 ]}>
                 <Box className="grid grid-cols-4 gap-2 p-2 ">
-=======
-                ]}
-              >
-                <Box className="grid grid-cols-6 gap-2 p-2 ">
->>>>>>> 30d9be32e9c0cfe226756b2e48d576139a37c1e2
-                    <CustomInput
-                      fields={jsonData.notifyFields}
-                      formData={formData}
-                      setFormData={setFormData}
-                      fieldsMode={fieldsMode}
-                    />
-                  </Box>
+                  <CustomInput
+                    fields={jsonData.notifyFields}
+                    formData={formData}
+                    setFormData={setFormData}
+                    fieldsMode={fieldsMode}
+                  />
+                </Box>
               </FormHeading>
 
               <Box className="grid grid-cols-5 gap-2 p-2 ">
