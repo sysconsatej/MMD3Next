@@ -25,6 +25,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { navItems } from "./index";
 import { navTheme } from "@/styles";
+import { useAuth, useModal } from "@/store/index";
 
 const norm = (s) => (s ? s.split("?")[0].replace(/\/$/, "") : "");
 const scope = (path, depth) => norm(path).split("/").slice(0, depth).join("/");
@@ -122,6 +123,11 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
 
+
+  // aakash yadav code
+  const { userData } = useAuth();
+  const { setModalOpen } = useModal();
+
   const closeMenus = () => {
     setAnchorEl(null);
     setThirdMenuAnchor(null);
@@ -141,6 +147,9 @@ export default function Navbar() {
   const toggleDrawer = () => setDrawerOpen((v) => !v);
   const toggleSubmenu = (name) =>
     setOpenSubmenus((prev) => ({ ...prev, [name]: !prev[name] }));
+
+
+  if(pathname  ===  '/login')  return <></>;
 
   return (
     <ThemeProvider theme={navTheme}>
@@ -305,11 +314,18 @@ export default function Navbar() {
                 )} */}
               </Box>
 
-              <Box className="nav-account">
+              <Box
+                className="nav-account cursor-pointer "
+                role="button"
+                tabIndex={1}
+                onClick={() => setModalOpen("logout")}
+              >
                 <Avatar>A</Avatar>
                 <Box>
-                  <div className="account-name">Master Marine</div>
-                  <div className="account-role">Admin</div>
+                  <div className="account-name">Syscon Infotech Pvt Ltd</div>
+                  <div className="account-role">
+                    {userData?.username || "Admin"}
+                  </div>
                 </Box>
               </Box>
             </Box>
