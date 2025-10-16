@@ -2,6 +2,7 @@ import { Navbar } from "@/components/navbar";
 import Sidebar from "@/components/sidebar/sidebar";
 import "./globals.css";
 import CustomModal from "@/components/customModal/customModal";
+import { Suspense } from "react";
 
 export const metadata = {
   title: "MMD3",
@@ -18,11 +19,11 @@ export default function RootLayout({ children }) {
           <div className="flex flex-col flex-1 min-w-0">
             <Navbar />
             <main className="overflow-y-auto h-[calc(100vh-47px)] ">
-              {children}
+              <Suspense>{children}</Suspense>
             </main>
           </div>
         </div>
-        <CustomModal  />
+        <CustomModal />
       </body>
     </html>
   );
