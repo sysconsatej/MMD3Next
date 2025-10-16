@@ -46,7 +46,7 @@ export const LoginForm = () => {
       if (res?.token) {
         Cookies.set("auth_token", res?.token, { expires: 1 });
         setToken(res?.token);
-        setUserData(res?.user)
+        setUserData({ data  : res?.user , name : "Master Marine" })
         toast.success(`${res?.message}`, {
           position: "top-right",
           autoClose: 1000,

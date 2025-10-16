@@ -10,6 +10,7 @@ import {
   AccordionSummary,
   Box,
   Checkbox,
+  Skeleton,
   Typography,
 } from "@mui/material";
 import { ExpandMoreOutlined } from "@mui/icons-material";
@@ -32,10 +33,12 @@ const fieldsData = {
 };
 
 const MenuAccess = () => {
+  const [menuNames, setMenuNames] = useState([]);
   const [menuButtons, setMenuButtons] = useState([]);
   const [expand, setExpand] = useState("");
   const [arr, setArr] = useState([]);
   const [formData, setFromData] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleExpand = (panel) => (event, isExpanded) => {
     setExpand(isExpanded ? panel : false);
@@ -44,11 +47,18 @@ const MenuAccess = () => {
   useEffect(() => {
     const fetchMenuButtons = async () => {
       try {
+        setIsLoading(true);
         const data = await getMenuButtons();
         const arr = Array.isArray(data?.menuButtons) ? data.menuButtons : [];
-        setMenuButtons(arr);
+        if (data) {
+          setMenuNames(arr?.map((r) => r.menuName));
+          setMenuButtons(arr);
+          setIsLoading(false);
+        }
       } catch (error) {
         console.error("Error fetching menu buttons:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -88,7 +98,24 @@ const MenuAccess = () => {
   const handleSubmit = () => {
     console.log(arr, "arr");
     console.log("Form submitted");
+    console.log(menuNames, "menuName[][][");
   };
+
+  if (isLoading) {
+    return (
+      <Box className="p-16">
+        {Array.from({ length: 10 }).map((_, idx) => (
+          <Skeleton
+            key={idx}
+            variant="rectangular"
+            className="rounded-xl"
+            width={"100%"}
+            height={50}
+          />
+        ))}
+      </Box>
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -105,6 +132,7 @@ const MenuAccess = () => {
           setFormData={setFromData}
         />
         <br />
+
         <Box className="p-1 overflow-auto h-[calc(100vh-120px)]">
           <Box className="mt-4">
             {menuButtons && menuButtons.length > 0 ? (
@@ -164,7 +192,7 @@ const MenuAccess = () => {
                 ))}
               </>
             ) : (
-              <> No Data </>
+              <> </>
             )}
           </Box>
         </Box>
