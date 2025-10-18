@@ -96,6 +96,10 @@ export const navItems = [
             href: "/reports/customAndPort/updateLineNumber",
           },
           {
+            name: "Update Vessel/Voyage",
+            href: "/reports/customAndPort/updateVesselVoyage",
+          },
+          {
             name: " Shipping Bill",
             href: "/reports/customAndPort/shippingBill",
           },

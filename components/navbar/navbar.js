@@ -320,11 +320,11 @@ export default function Navbar() {
                 tabIndex={1}
                 onClick={() => setModalOpen("logout")}
               >
-                <Avatar>A</Avatar>
+                <Avatar>M</Avatar>
                 <Box>
-                  <div className="account-name">Syscon Infotech Pvt Ltd</div>
+                  <div className="account-name">{userData?.name}</div>
                   <div className="account-role">
-                    {userData?.username || "Admin"}
+                    {userData.data?.username || "Admin"}
                   </div>
                 </Box>
               </Box>
@@ -466,12 +466,12 @@ export default function Navbar() {
           </List>
 
           <Box className="nav-mobile-chip">
-            <Avatar>A</Avatar>
+            <Avatar>{`M`}</Avatar>
             <Box>
               <Typography className="account-name">
-                Syscon Infotech Pvt Ltd
+                 { userData?.name || `Syscon Infotech Pvt Ltd`}
               </Typography>
-              <Typography className="account-role">Admin</Typography>
+              <Typography className="account-role">{userData?.data?.username || `Admin`}</Typography>
             </Box>
           </Box>
         </Box>

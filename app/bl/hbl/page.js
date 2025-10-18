@@ -1,7 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ThemeProvider, Box, Typography, Tab, Tabs } from "@mui/material";
-import { mapping, totalFieldData, gridButtons, fieldData } from "./hblData";
+import { ThemeProvider, Box, Tab, Tabs } from "@mui/material";
+import {
+  mapping,
+  totalFieldData,
+  gridButtons,
+  fieldData,
+  gridButtonsWithoutExcel,
+} from "./hblData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -176,7 +182,7 @@ export default function Home() {
           fieldData,
           "tblBl",
           id,
-          '["tblBlContainer", "tblBlPackingList"]',
+          '["tblBlContainer", "tblBlPackingList", "tblAttachement"]',
           "blId"
         );
         const { success, result, message, error } = await fetchForm(format);
@@ -422,7 +428,18 @@ export default function Home() {
                         setFormData={setFormData}
                         fieldsMode={fieldsMode}
                         gridName="tblBlPackingList"
-                        buttons={gridButtons}
+                        buttons={gridButtonsWithoutExcel}
+                        tabName={"tblBl"}
+                        tabIndex={index}
+                      />
+                      <FormHeading text="Attachment Details" />
+                      <TableGrid
+                        fields={jsonData.tblAttachement}
+                        formData={formData}
+                        setFormData={setFormData}
+                        fieldsMode={fieldsMode}
+                        gridName="tblAttachement"
+                        buttons={gridButtonsWithoutExcel}
                         tabName={"tblBl"}
                         tabIndex={index}
                       />
@@ -430,17 +447,6 @@ export default function Home() {
                   </CustomTabPanel>
                 );
               })}
-            </Box>
-            <Box className="border border-gray-300 p-3 mt-2 flex flex-col gap-1">
-              <Typography variant="caption" className="text-red-500">
-                Total Attachment size should not exceed 3MB for the Request
-              </Typography>
-              <CustomInput
-                fields={jsonData.attachmentFields}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
-              />
             </Box>
             <Box display="flex" justifyContent="center" mt={2}>
               {fieldsMode === "" && <AgreeTerms />}

@@ -37,6 +37,7 @@ export const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
+      foreignTable: "name,tblCompany",
       isEdit: true,
       required: true,
     },
@@ -68,6 +69,7 @@ export const fieldData = {
       joins: "JOIN tblVessel ve ON ve.id = v.vesselId",
       searchColumn: "ve.name, v.voyageNo",
       orderBy: "ve.name, v.voyageNo",
+      foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
       required: true,
     },
@@ -127,7 +129,7 @@ export const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      isEdit: true
+      isEdit: true,
     },
     // {
     //   label: "Mobile(Requester)",
@@ -250,7 +252,7 @@ export const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Nature of Cargo",
@@ -396,7 +398,7 @@ export const fieldData = {
       displayColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblCountry",
-      required: true,
+      // required: true,
       isEdit: true,
     },
     {
@@ -416,8 +418,11 @@ export const fieldData = {
       tableName: "tblCity t",
       displayColumn: "t.name",
       orderBy: "t.name",
-      selectedConditions: [{ "shipperCountry": "countryId" }, { "shipperState": "stateId" }],
-      required: true,
+      selectedConditions: [
+        { shipperCountry: "countryId" },
+        { shipperState: "stateId" },
+      ],
+      // required: true,
       isEdit: true,
     },
     // {
@@ -463,7 +468,7 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblCountry",
       isEdit: true,
-      required: true,
+      // required: true,
     },
     {
       label: "State",
@@ -483,9 +488,12 @@ export const fieldData = {
       displayColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblCity",
-      selectedConditions: [{ "consigneeCountry": "countryId" }, { "consigneeState": "stateId" }],
+      selectedConditions: [
+        { consigneeCountry: "countryId" },
+        { consigneeState: "stateId" },
+      ],
       isEdit: true,
-      required: true,
+      // required: true,
     },
     {
       label: "Post Code",
@@ -520,7 +528,7 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblCountry",
       isEdit: true,
-      required: true,
+      // required: true,
     },
     {
       label: "State",
@@ -540,9 +548,12 @@ export const fieldData = {
       displayColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblCity",
-      selectedConditions: [{ "notifyingPartyCountry": "countryId" }, { "notifyPartyState": "stateId" }],
+      selectedConditions: [
+        { notifyingPartyCountry: "countryId" },
+        { notifyPartyState: "stateId" },
+      ],
       isEdit: true,
-      required: true,
+      // required: true,
     },
     {
       label: "Post Code",
@@ -708,12 +719,12 @@ export const fieldData = {
       isEdit: true,
     },
   ],
-  attachmentFields: [
+  tblAttachement: [
     {
-      name: "attachment",
+      label: "Upload File",
+      name: "path",
       type: "fileupload",
       isEdit: true,
-      dragDrop: true,
     },
   ],
 };
@@ -827,5 +838,23 @@ export const gridButtons = [
     text: "Import Excel",
     icon: <UploadFileIcon />,
     func: "excelUpload",
+  },
+];
+
+export const gridButtonsWithoutExcel = [
+  {
+    text: "Add Row",
+    icon: <AddIcon />,
+    func: "gridAddHandler",
+  },
+  {
+    text: "Delete Row",
+    icon: <CloseIcon />,
+    func: "gridDeleteHandler",
+  },
+  {
+    text: "Copy Row",
+    icon: <FileCopyIcon />,
+    func: "gridCopyHandler",
   },
 ];
