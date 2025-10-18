@@ -1,55 +1,93 @@
 html,
 body {
-  margin: 0;
-  padding: 0;
-  background: #f0f0f0;
+margin: 0;
+padding: 0;
+background: #f0f0f0;
 }
 
 .a4-size {
-  width: 210mm;
-  height: 297mm;
-  margin: 1rem auto;
-  background: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  box-sizing: border-box;
-  page-break-after: always;
-  padding: 5mm; /* creates spacing inside the page */
+width: 210mm;
+height: 297mm;
+margin: 1rem auto;
+background: #fff;
+box-shadow: 0 0 10px rgba(0,0,0,.2);
+box-sizing: border-box;
+page-break-after: always;
+padding: 5mm;
+position: relative;
+-webkit-print-color-adjust: exact;
+print-color-adjust: exact;
 }
 
 .main-border {
-  border: 1px solid #000;
-  height: calc(100%); /* fill height minus the padding */
-  width: 100%;
-  box-sizing: border-box;
-  padding: 5mm;
+border: 1px solid #000;
+height: 100%;
+width: 100%;
+box-sizing: border-box;
+padding: 5mm;
+display: flex;
+flex-direction: column;
 }
 
-/* Print styles */
+.content {
+flex: 1 1 auto;
+break-inside: avoid;
+page-break-inside: avoid;
+overflow: visible;
+}
+
+.footer {
+margin-top: auto;
+break-inside: avoid;
+page-break-inside: avoid;
+}
+
+table {
+width: 100%;
+border-collapse: collapse;
+page-break-inside: auto;
+}
+tr, td, th {
+page-break-inside: avoid;
+break-inside: avoid;
+}
+
+img { max-width: 100%; height: auto; }
+
+.exported .no-print { display: none !important; }
+
 @media print {
-  html,
-  body {
-    margin: 0;
-    padding: 0;
-    background: white;
-  }
+html, body {
+margin: 0;
+padding: 0;
+background: #fff;
+}
 
-  .a4-size {
-    width: 210mm;
-    height: 297mm;
-    box-shadow: none;
-    padding: 5mm;
-    page-break-after: always;
-  }
+.a4-size {
+width: 210mm;
+height: 297mm;
+box-shadow: none;
+padding: 5mm;
+page-break-after: always;
+margin: 0 auto;
+}
 
-  .main-border {
-    border: 1px solid #000;
-    height: calc(100%);
-    padding: 5mm;
-    box-sizing: border-box;
-  }
+.content { padding: 0; box-sizing: border-box; }
 
-  @page {
-    size: A4;
-    margin: 0;
-  }
+.main-border {
+width: 100%;
+height: 100%;
+border: 1px solid #000;
+box-sizing: border-box;
+margin: 0;
+display: flex;
+flex-direction: column;
+}
+
+.no-print { display: none !important; }
+
+@page {
+size: A4 portrait;
+margin: 0;
+}
 }
