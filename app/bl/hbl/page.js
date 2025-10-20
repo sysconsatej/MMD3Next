@@ -198,7 +198,7 @@ export default function Home() {
 
       const formatState = formatDataWithFormThirdLevel(
         resArray,
-        [...jsonData.mblFields, ...jsonData.csnFields],
+        [...jsonData.mblFields],
         "tblBl"
       );
       setFormData(formatState);
@@ -251,7 +251,7 @@ export default function Home() {
           )}
           <Box>
             <FormHeading text="MBL Details" />
-            <Box className="grid grid-cols-5 items-end gap-2 p-2 ">
+            <Box className="grid grid-cols-4 items-end gap-2 p-2 ">
               <CustomInput
                 fields={jsonData.mblFields}
                 formData={formData}
@@ -259,7 +259,7 @@ export default function Home() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <FormHeading text="CSN">
+            {/* <FormHeading text="CSN">
               <Box className="grid grid-cols-6 gap-2 p-2 ">
                 <CustomInput
                   fields={jsonData.csnFields}
@@ -268,7 +268,7 @@ export default function Home() {
                   fieldsMode={fieldsMode}
                 />
               </Box>
-            </FormHeading>
+            </FormHeading> */}
             <FormHeading text="HBL Details" />
             <Box sx={{ width: "100%" }}>
               <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
