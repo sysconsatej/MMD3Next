@@ -144,7 +144,7 @@ function RptDoLetter() {
 
     const ImgSign = () => (
         <img
-            src="https://expresswayshipping.com/sql-api/uploads/sign1.jpg"
+            // src="https://expresswayshipping.com/sql-api/uploads/sign1.jpg"
             width="20%"
             height="15%"
             alt="Signature"
