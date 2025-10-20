@@ -89,8 +89,7 @@ export const metaData = [
     isEdit: true,
   },
   {
-    label: "Nominated Area",
-    name: "nominatedArea",
+    name: "Nominated Area",
     type: "dropdown",
     tableName: "tblPort t",
     idColumn: "id",
@@ -100,13 +99,13 @@ export const metaData = [
     isEdit: true,
   },
   {
-    name: "DPD Description",
+    name: "DPD Desciption",
     type: "dropdown",
-    isEdit: "true",
-  },
-  {
-    name: "Third CFS Description",
-    type: "dropdown",
-    isEdit: "true",
+    tableName: "tblPort t",
+    idColumn: "id",
+    displayColumn: "t.name",
+    searchColumn: "t.code, t.name",
+    orderBy: "t.code",
+    isEdit: true,
   },
 ];

@@ -153,9 +153,8 @@ const denormalizeOut = (meta, val) => {
   return val;
 };
 
-/* ---------- NEW: numeric helpers (added) ---------- */
+/* ---------- NEW: numeric helpers ---------- */
 
-// number parser (ignores commas)
 const valueToNumber = (v) => {
   const s = displayText(v).replace(/,/g, "").trim();
   if (s === "") return NaN;
@@ -163,12 +162,11 @@ const valueToNumber = (v) => {
   return Number.isFinite(n) ? n : NaN;
 };
 
-// strict check: column is numeric only if *all* non-empty values are numeric (no mixed types)
 const isStrictNumericColumn = (rows, col) => {
   for (const r of rows) {
     const raw = r?.[col];
     const txt = displayText(raw).trim();
-    if (txt === "") continue; // allow blanks
+    if (txt === "") continue;
     if (!Number.isFinite(valueToNumber(raw))) return false;
   }
   return true;
@@ -188,7 +186,7 @@ const DynamicReportTable = ({
   data,
   metaData = [],
   onSelectedEditedChange,
-  showTotalsRow = false, // ⬅️ NEW prop (default off)
+  showTotalsRow = false,
 }) => {
   const rawRows = Array.isArray(data)
     ? data
@@ -238,7 +236,6 @@ const DynamicReportTable = ({
     [DISPLAY_KEYS, metaData]
   );
 
-  /* ---------- NEW: detect strictly-numeric columns (only once over all rows) ---------- */
   const numericCols = useMemo(() => {
     const set = new Set();
     for (const col of DISPLAY_KEYS) {
@@ -247,7 +244,6 @@ const DynamicReportTable = ({
     return set;
   }, [DISPLAY_KEYS, editableRows]);
 
-  /* ---------- baseline snapshot for dirty-check ---------- */
   const editableKeys = useMemo(
     () => Array.from(customFieldMap.keys()),
     [customFieldMap]
@@ -279,7 +275,6 @@ const DynamicReportTable = ({
     [pickEditable]
   );
 
-  /* ---------- selection ---------- */
   const [selectedUids, setSelectedUids] = useState([]);
 
   const emitSelected = useCallback(
@@ -296,7 +291,6 @@ const DynamicReportTable = ({
     [isDirty, onSelectedEditedChange, selectedUids]
   );
 
-  /* ---------- sorting / pagination ---------- */
   const defaultSortKey = DISPLAY_KEYS[0] ?? "";
   const [orderBy, setOrderBy] = useState(defaultSortKey);
   const [order, setOrder] = useState("asc");
@@ -374,6 +368,13 @@ const DynamicReportTable = ({
   const renderCellContent = (row, colKey) => {
     const meta = customFieldMap.get(colKey);
     if (meta) {
+      // Normalize row-level formData so selectedConditions can read dependencies
+      const rowFormDataNormalized = DISPLAY_KEYS.reduce((acc, k) => {
+        const m = customFieldMap.get(k);
+        acc[k] = m ? normalizeIn(m, row?.[k]) : row?.[k] ?? "";
+        return acc;
+      }, {});
+
       const fieldDef = {
         label: "",
         name: colKey,
@@ -383,22 +384,39 @@ const DynamicReportTable = ({
         disabled: meta.disabled ?? false,
         labelType: meta.labelType,
         foreignTable: meta.foreignTable,
-        selectedCondition: meta.selectedCondition ?? null,
+
+        // ✅ forward dropdown config from meta to CustomInput.getData()
+        tableName: meta.tableName,
+        idColumn: meta.idColumn ?? "id",
+        displayColumn: meta.displayColumn ?? "name",
+        searchColumn: meta.searchColumn ?? null,
+        orderBy: meta.orderBy ?? null,
+        joins: meta.joins ?? "",
+        where: meta.where ?? "",
+        pageSize: meta.pageSize,
+
+        // support singular/plural spelling used in different places
+        selectedConditions:
+          meta.selectedConditions ?? meta.selectedCondition ?? null,
+
         options: meta.options,
       };
-      const cellFormData = { [colKey]: normalizeIn(meta, row?.[colKey]) };
+
       const setCellFormData = (updater) => {
         const nextLocal =
-          typeof updater === "function" ? updater(cellFormData) : updater;
+          typeof updater === "function"
+            ? updater(rowFormDataNormalized)
+            : updater;
         const chosen = nextLocal?.[colKey];
         const valueToStore = denormalizeOut(meta, chosen);
         updateCell(row.__uid, colKey, valueToStore);
       };
+
       return (
         <div style={{ minWidth: 200, maxWidth: 360 }}>
           <CustomInput
             fields={[fieldDef]}
-            formData={cellFormData}
+            formData={rowFormDataNormalized}
             setFormData={setCellFormData}
             fieldsMode={fieldDef.isEdit ? "edit" : "view"}
             errorState={{}}
@@ -412,7 +430,7 @@ const DynamicReportTable = ({
     return text || "-";
   };
 
-  /* ---------- NEW: totals for current page (only when showTotalsRow) ---------- */
+  /* ---------- totals for current page ---------- */
   const pageTotals = useMemo(() => {
     if (!showTotalsRow) return {};
     const acc = {};
@@ -489,7 +507,6 @@ const DynamicReportTable = ({
                     />
                   </TableCell>
 
-                  {/* other headers */}
                   {DISPLAY_KEYS.map((col) => (
                     <TableCell
                       key={col}
@@ -531,7 +548,7 @@ const DynamicReportTable = ({
                         <TableCell
                           key={col}
                           data-num={numericCols.has(col) ? 1 : undefined}
-                          align="center" // right-align numeric cols
+                          align="center"
                           sx={{
                             maxWidth: 360,
                             overflow: "hidden",
@@ -562,7 +579,6 @@ const DynamicReportTable = ({
                [&_.MuiTableCell-root:last-child]:border-r-0"
                 >
                   <TableRow className="bg-[#dbdbdb]">
-                    {/* checkbox-width cell with tiny label */}
                     <TableCell
                       padding="checkbox"
                       className="!px-1 !text-center !font-semibold !text-[10px] !leading-none whitespace-nowrap
@@ -589,7 +605,6 @@ const DynamicReportTable = ({
           </Box>
         </TableContainer>
 
-        {/* footer */}
         <Box className="flex flex-wrap items-center justify-end gap-3 px-4 py-2">
           <Pagination
             count={Math.max(1, Math.ceil(editableRows.length / rowsPerPage))}

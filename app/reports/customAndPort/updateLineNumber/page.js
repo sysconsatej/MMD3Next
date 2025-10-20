@@ -196,7 +196,7 @@ export default function IGM() {
               disabled={loading}
             />
             <CustomButton
-              text={loadingUpdate ? "Updating..." : "Update CFS DPD"}
+              text={loadingUpdate ? "Updating..." : "Update Line No"}
               type="button"
               onClick={handleUpdate}
               disabled={loadingUpdate}

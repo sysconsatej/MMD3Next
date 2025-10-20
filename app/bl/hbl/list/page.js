@@ -1,5 +1,11 @@
 "use client";
-import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from "react";
 import {
   Box,
   Table,
@@ -27,16 +33,28 @@ import { advanceSearchFields } from "../hblData";
 import { advanceSearchFilter } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
+import BLModal from "../modal";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 
 const LIST_TABLE = "tblBl b";
-const UPDATE_TABLE = LIST_TABLE.trim().split(/\s+/)[0].replace(/^dbo\./i, "");
+const UPDATE_TABLE = LIST_TABLE.trim()
+  .split(/\s+/)[0]
+  .replace(/^dbo\./i, "");
 const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
 const CHECKBOX_CELL_SX = { width: 32, minWidth: 32, maxWidth: 32 };
 const CHECKBOX_SX = { p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } };
 
 const getRowId = (item) => String(item?.mblNo ?? "");
 
-function createData(id, mblNo, hblNo, cargoTypeId, podVesselId, hblCount, hblId) {
+function createData(
+  id,
+  mblNo,
+  hblNo,
+  cargoTypeId,
+  podVesselId,
+  hblCount,
+  hblId
+) {
   return { id, mblNo, hblNo, cargoTypeId, podVesselId, hblCount, hblId };
 }
 
@@ -55,6 +73,7 @@ export default function BLList() {
   const [idsOnPage, setIdsOnPage] = useState([]);
   const [allChecked, setAllChecked] = useState(false);
   const [someChecked, setSomeChecked] = useState(false);
+  const [modal, setModal] = useState({ toggle: false, value: null });
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
@@ -94,16 +113,16 @@ export default function BLList() {
 
   const rows = Array.isArray(blData)
     ? blData.map((item) =>
-      createData(
-        getRowId(item),
-        item["mblNo"],
-        item["hblNo"],
-        item["cargoTypeId"],
-        item["podVesselId"],
-        item["hblCount"],
-        item["hblId"]
+        createData(
+          getRowId(item),
+          item["mblNo"],
+          item["hblNo"],
+          item["cargoTypeId"],
+          item["podVesselId"],
+          item["hblCount"],
+          item["hblId"]
+        )
       )
-    )
     : [];
 
   useEffect(() => {
@@ -229,6 +248,7 @@ export default function BLList() {
                 <TableCell>Type Of Cargo</TableCell>
                 <TableCell>Vessel-Voyage No</TableCell>
                 <TableCell>HBL Count</TableCell>
+                <TableCell>Attachment</TableCell>
               </TableRow>
             </TableHead>
 
@@ -249,6 +269,18 @@ export default function BLList() {
                     <TableCell>{row.cargoTypeId}</TableCell>
                     <TableCell>{row.podVesselId}</TableCell>
                     <TableCell>{row.hblCount}</TableCell>
+                    <TableCell>
+                      <AttachFileIcon
+                        sx={{ cursor: "pointer", fontSize: "16px" }}
+                        onClick={() =>
+                          setModal((prev) => ({
+                            ...prev,
+                            toggle: true,
+                            value: row.hblId,
+                          }))
+                        }
+                      />
+                    </TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.hblId)}
@@ -287,6 +319,7 @@ export default function BLList() {
           </Box>
         </Box>
       </Box>
+      <BLModal modal={modal} setModal={setModal} />
       <ToastContainer />
     </ThemeProvider>
   );
