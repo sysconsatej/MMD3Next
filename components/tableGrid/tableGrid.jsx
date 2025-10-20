@@ -216,6 +216,7 @@ function TableGrid({
                       </TableCell>
                       {fields.map((item) => {
                         const { label, ...remainItem } = item;
+                        const value = rowItem[item.name];
                         return (
                           <>
                             {gridId == containerIndex ? (
@@ -236,13 +237,12 @@ function TableGrid({
                               </TableCell>
                             ) : (
                               <TableCell>
-                                {rowItem[item.name]?.Name ??
+                                {value?.Name ??
                                   `${
                                     item.type == "fileupload"
-                                      ? rowItem[item.name]?.name?.split(
-                                          /-(.+)/
-                                        )[1]
-                                      : rowItem[item.name] || ""
+                                      ? value?.name?.split(/-(.+)/)[1] ??
+                                        value.split(/-(.+)/)[1]
+                                      : value || ""
                                   }`}
                               </TableCell>
                             )}
