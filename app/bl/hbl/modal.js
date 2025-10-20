@@ -77,7 +77,7 @@ export default function BLModal({ modal, setModal }) {
                           href={`${url}uploads/${item.path}`}
                           style={{ color: "#95a9e8" }}
                         >
-                          {item.path}
+                          {item.path?.split(/-(.+)/)[1]}
                         </a>
                       </TableCell>
                     </TableRow>
