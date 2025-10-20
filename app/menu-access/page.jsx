@@ -89,11 +89,6 @@ const MenuAccess = () => {
     });
   }, []);
 
-  const getBtnArr = useCallback((id, status) => {
-    const obj = { id: id, status: status };
-    console.log(obj, "obj");
-  }, []);
-
   const handleSubmit = () => {
     console.log(arr, "arr");
     console.log("Form submitted");
@@ -116,7 +111,7 @@ const MenuAccess = () => {
     );
   }
 
-  console.log(formData , 'formData')
+  console.log(formData, "formData");
 
   return (
     <ThemeProvider theme={theme}>
@@ -178,12 +173,12 @@ const MenuAccess = () => {
                           <Checkbox
                             checked={r.status || false}
                             onChange={(e) => {
-                              (handleChange(
+                              handleChange(
                                 item?.menuName,
                                 r.buttonName,
                                 r.status
-                              ),
-                                getBtnArr(r?.id, e.target.checked));
+                              );
+                              // getBtnArr(r?.id, e.target.checked));
                             }}
                           />
                         </Box>

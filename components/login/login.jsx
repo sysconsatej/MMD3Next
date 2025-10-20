@@ -11,8 +11,8 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
 export const LoginForm = () => {
-  const { push  }  = useRouter();
-  const { setToken , userDataToken  , setUserData} = useAuth();
+  const { push } = useRouter();
+  const { setToken, userDataToken, setUserData } = useAuth();
   const [formData, setFormData] = useState({});
   const formRef = useRef(null);
   const fieldData = {
@@ -21,6 +21,8 @@ export const LoginForm = () => {
         name: "username",
         type: "text",
         key: "username",
+        placeholder  : "Enter Your User Name",
+        
       },
       {
         name: "password",
@@ -44,14 +46,14 @@ export const LoginForm = () => {
 
       const res = await login(requestBody);
       if (res?.token) {
-        Cookies.set("auth_token", res?.token, { expires: 1 });
+        Cookies.set("auth_token", res?.token, { expires: 60 });
         setToken(res?.token);
-        setUserData({ data  : res?.user , name : "Master Marine" })
+        setUserData({ data: res?.user, name: "Master Marine" });
         toast.success(`${res?.message}`, {
           position: "top-right",
           autoClose: 1000,
         });
-        push("/home")
+        push("/home");
       }
     } catch (e) {
       console.log(e, "e");
@@ -70,14 +72,17 @@ export const LoginForm = () => {
         <></>
       ) : (
         <>
-          <Card>
-            <CardContent className="bg-gradient-to-b from-blue-600 via-indigo-700 to-blue-900">
+          <Card style={{ borderRadius: "10px" }}>
+            <CardContent
+              className=""
+            >
               <form
                 id="login-form"
                 onSubmit={(e) => submitHandler(e)}
                 ref={formRef}
+                className=""
               >
-                <Box className="flex flex-col  justify-between  gap-1 items-end py-1">
+                <Box className="">
                   <CustomInput
                     fields={fieldData.loginFields}
                     formData={formData}
@@ -91,6 +96,7 @@ export const LoginForm = () => {
                   <CustomButton text={"Submit"} type="submit" />
                 </Box>
               </form>
+              
             </CardContent>
           </Card>
           <ToastContainer />
