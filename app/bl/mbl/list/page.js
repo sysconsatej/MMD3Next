@@ -281,7 +281,7 @@ export default function BLList() {
         onClose={() => { setReportModalOpen(false); setReportModalForRow(null); }}
         availableReports={REPORTS}
         defaultSelectedKeys={REPORTS.map(r => r.key)}
-        initialMode="combined"  // you can change this to "separate" if you prefer default
+        initialMode="combined"
         onGenerate={handleGenerateReports}
         recordId={reportModalForRow?.id}
         clientId={reportModalForRow?.clientId}
