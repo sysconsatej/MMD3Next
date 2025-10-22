@@ -1,3 +1,5 @@
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
 const fieldData = {
   companyFields: [
     {
@@ -37,7 +39,7 @@ const fieldData = {
       tableName: "tblCity t",
       displayColumn: "t.name",
       foreignTable: "name,tblCity",
-      selectedConditions: [{ "countryId": "countryId" }],
+      selectedConditions: [{ countryId: "countryId" }],
       orderBy: "t.name",
       isEdit: true,
     },
@@ -136,22 +138,31 @@ const fieldData = {
       label: "Country",
       name: "countryId",
       type: "dropdown",
+      tableName: "tblCountry t",
       foreignTable: "name,tblCountry",
+      displayColumn: "t.name",
+      orderBy: "t.name",
       isEdit: true,
     },
     {
       label: "State",
       name: "stateId",
       type: "dropdown",
+      tableName: "tblState t",
+      displayColumn: "t.name",
       foreignTable: "name,tblState",
+      orderBy: "t.name",
       isEdit: true,
     },
     {
       label: "City",
       name: "cityId",
       type: "dropdown",
-      selectedConditions: [{ "countryId": "countryId" }],
+      tableName: "tblCity t",
+      displayColumn: "t.name",
       foreignTable: "name,tblCity",
+      selectedConditions: [{ countryId: "countryId" }],
+      orderBy: "t.name",
       isEdit: true,
     },
     {
@@ -214,3 +225,15 @@ export const company = [
 ];
 
 export default fieldData;
+export const branchGridButtons = [
+  {
+    text: "Add ",
+    icon: <AddIcon />,
+    func: "gridAddHandler",
+  },
+  {
+    text: "Delete ",
+    icon: <CloseIcon />,
+    func: "gridDeleteHandler",
+  },
+];
