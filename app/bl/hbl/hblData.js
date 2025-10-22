@@ -656,7 +656,6 @@ export const fieldData = {
       where: "m.masterListName = 'tblPackage'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
-      required: true,
       isEdit: true,
     },
   ],
