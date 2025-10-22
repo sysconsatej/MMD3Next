@@ -22,7 +22,7 @@ export const LoginForm = () => {
         type: "text",
         key: "username",
         placeholder  : "Enter Your User Name",
-        
+
       },
       {
         name: "password",
@@ -89,6 +89,7 @@ export const LoginForm = () => {
                     setFormData={setFormData}
                     fieldsMode={""}
                     popUp={false}
+                    
                   />
                 </Box>
 
