@@ -21,8 +21,6 @@ export const LoginForm = () => {
         name: "username",
         type: "text",
         key: "username",
-        placeholder  : "Enter Your User Name",
-
       },
       {
         name: "password",
@@ -46,7 +44,7 @@ export const LoginForm = () => {
 
       const res = await login(requestBody);
       if (res?.token) {
-        Cookies.set("auth_token", res?.token, { expires: 60 });
+        Cookies.set("auth_token", res?.token, { expires: 1 });
         setToken(res?.token);
         setUserData({ data: res?.user, name: "Master Marine" });
         toast.success(`${res?.message}`, {
@@ -72,24 +70,20 @@ export const LoginForm = () => {
         <></>
       ) : (
         <>
-          <Card style={{ borderRadius: "10px" }}>
-            <CardContent
-              className=""
-            >
+          <Card>
+            <CardContent className="bg-gradient-to-b from-blue-600 via-indigo-700 to-blue-900">
               <form
                 id="login-form"
                 onSubmit={(e) => submitHandler(e)}
                 ref={formRef}
-                className=""
               >
-                <Box className="">
+                <Box className="flex flex-col  justify-between  gap-1 items-end py-1">
                   <CustomInput
                     fields={fieldData.loginFields}
                     formData={formData}
                     setFormData={setFormData}
                     fieldsMode={""}
                     popUp={false}
-                    
                   />
                 </Box>
 
@@ -97,7 +91,6 @@ export const LoginForm = () => {
                   <CustomButton text={"Submit"} type="submit" />
                 </Box>
               </form>
-              
             </CardContent>
           </Card>
           <ToastContainer />
