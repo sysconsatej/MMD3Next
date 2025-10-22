@@ -33,10 +33,9 @@ const fieldsData = {
 };
 
 const MenuAccess = () => {
-  const [menuNames, setMenuNames] = useState([]);
   const [menuButtons, setMenuButtons] = useState([]);
   const [expand, setExpand] = useState("");
-  const [arr, setArr] = useState([]);
+  // const [arr, setArr] = useState([]);
   const [formData, setFromData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -90,9 +89,11 @@ const MenuAccess = () => {
   }, []);
 
   const handleSubmit = () => {
-    console.log(arr, "arr");
     console.log("Form submitted");
-    console.log(menuNames, "menuName[][][");
+    console.log(menuButtons, "menuName[][][");
+    const data = {
+      roleId: formData?.user?.Id,
+    };
   };
 
   if (isLoading) {

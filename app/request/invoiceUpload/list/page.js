@@ -48,7 +48,7 @@ export default function InvoicUpload() {
 
   return (
     <ThemeProvider theme={theme}>
-      <form onSubmit={(e)  => handleSubmit(e)}>
+      <form onSubmit={(e) => handleSubmit(e)}>
         <section className="py-2 px-4 text-[12px]">
           <Box className="flex justify-between items-end py-1">
             <Typography
@@ -57,6 +57,12 @@ export default function InvoicUpload() {
             >
               Invoice Uploads
             </Typography>
+
+              <CustomButton
+                text={loading ? "Submitting..." : "Submit"}
+                type="submit"
+                disabled={loading}
+              />
           </Box>
 
           <Box className="border border-solid border-black rounded-[4px] p-2">
@@ -67,14 +73,6 @@ export default function InvoicUpload() {
               accept="application/pdf"
               onChange={handleFiles}
               className="w-full"
-            />
-          </Box>
-
-          <Box className="w-full flex mt-2 gap-2">
-            <CustomButton
-              text={loading ? "Submitting..." : "Submit"}
-              type="submit"
-              disabled={loading}
             />
           </Box>
         </section>
