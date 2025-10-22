@@ -26,7 +26,7 @@ const fieldsData = {
       displayColumn: "name",
       orderBy: "name",
       foreignTable: "name,tblUser",
-      where: "userType = 'R'",
+      where: "userType = 'U'",
       key: "user",
     },
   ],
@@ -51,7 +51,6 @@ const MenuAccess = () => {
         const data = await getMenuButtons();
         const arr = Array.isArray(data?.menuButtons) ? data.menuButtons : [];
         if (data) {
-          setMenuNames(arr?.map((r) => r.menuName));
           setMenuButtons(arr);
           setIsLoading(false);
         }
@@ -90,11 +89,6 @@ const MenuAccess = () => {
     });
   }, []);
 
-  const getBtnArr = useCallback((id, status) => {
-    const obj = { id: id, status: status };
-    console.log(obj, "obj");
-  }, []);
-
   const handleSubmit = () => {
     console.log(arr, "arr");
     console.log("Form submitted");
@@ -116,6 +110,8 @@ const MenuAccess = () => {
       </Box>
     );
   }
+
+  console.log(formData, "formData");
 
   return (
     <ThemeProvider theme={theme}>
@@ -177,12 +173,12 @@ const MenuAccess = () => {
                           <Checkbox
                             checked={r.status || false}
                             onChange={(e) => {
-                              (handleChange(
+                              handleChange(
                                 item?.menuName,
                                 r.buttonName,
                                 r.status
-                              ),
-                                getBtnArr(r?.id, e.target.checked));
+                              );
+                              // getBtnArr(r?.id, e.target.checked));
                             }}
                           />
                         </Box>

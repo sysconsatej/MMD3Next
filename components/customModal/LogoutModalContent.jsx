@@ -7,11 +7,12 @@ import Cookies from "js-cookie";
 
 export const LogoutModalContent = () => {
   const { setModalClose } = useModal();
-  const { logout } = useAuth();
+  const { logout , clearUserData } = useAuth();
   const router = useRouter();
 
   const handleClickYes = () => {
     logout();
+    clearUserData();
     setModalClose();
     Cookies.remove("auth_token");
     router.refresh();
