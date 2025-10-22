@@ -6,13 +6,13 @@ import CustomButton from "../button/button";
 import { Box, Card, CardContent } from "@mui/material";
 import { login } from "@/apis";
 import { toast, ToastContainer } from "react-toastify";
-import { useAuth } from "@/store/index";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { auth } from "@/store";
 
 export const LoginForm = () => {
   const { push } = useRouter();
-  const { setToken, userDataToken, setUserData } = useAuth();
+  const { setToken, userDataToken, setUserData } = auth();
   const [formData, setFormData] = useState({});
   const formRef = useRef(null);
   const fieldData = {

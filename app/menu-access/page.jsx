@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { ExpandMoreOutlined } from "@mui/icons-material";
 import { CustomInput } from "@/components/customInput";
+import { insertAccess } from "@/apis";
 
 const fieldsData = {
   dp: [
@@ -26,7 +27,7 @@ const fieldsData = {
       displayColumn: "name",
       orderBy: "name",
       foreignTable: "name,tblUser",
-      where: "userType = 'U'",
+      where: "userType = 'R'",
       key: "user",
     },
   ],
@@ -63,13 +64,13 @@ const MenuAccess = () => {
     fetchMenuButtons();
   }, []);
 
-  const handleChange = useCallback((menuName, buttonName, status) => {
+  const handleChange = useCallback((menuName, buttonName, status, roleId) => {
     setMenuButtons((prevMenuButtons) => {
       const updatedMenuButtons = prevMenuButtons.map((menu) => {
         if (menu.menuName === menuName) {
           const updatedButtons = menu.buttons.map((button) => {
             if (button.buttonName === buttonName && button.status !== !status) {
-              return { ...button, status: !status };
+              return { ...button, status: !status, roleId: roleId };
             }
             return button;
           });
@@ -88,13 +89,43 @@ const MenuAccess = () => {
     });
   }, []);
 
-  const handleSubmit = () => {
-    console.log("Form submitted");
-    console.log(menuButtons, "menuName[][][");
-    const data = {
-      roleId: formData?.user?.Id,
-    };
+  const handleSubmit = async () => {
+    const uploadData = menuButtons
+      ?.map((r) => r.buttons)
+      .flat()
+      .filter((x) => x.status === true);
+    const data = uploadData?.map((r) => {
+      return {
+        roleId: r?.roleId,
+        menuButtonId: r?.id,
+        accessFlag: r.status === true ? "Y" : "N",
+      };
+    });
+
+    console.log(data)
+
+    return;
+
+    try {
+      const res = await insertAccess({
+        roleId: formData?.user?.Id,
+        menu_json: JSON.stringify(data),
+      });
+      console.log(res, "res");
+    } catch (err) {
+      console.log(err, "error");
+    }
   };
+
+  const handleSelectAll = () => {
+    console.log(menuButtons)
+    if (menuButtons?.length > 0) {
+      // setMenuButtons((prev )  =>  {
+      //   const updatedButtons = prev.map(r  =>  )
+      // })
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -112,7 +143,10 @@ const MenuAccess = () => {
     );
   }
 
-  console.log(formData, "formData");
+
+  console.log(formData , "formData")
+
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -122,13 +156,16 @@ const MenuAccess = () => {
           type="submit"
           onClick={() => handleSubmit()}
         />
-        <br />
-        <CustomInput
-          fields={fieldsData.dp}
-          formData={formData}
-          setFormData={setFromData}
-        />
-        <br />
+
+        <Box className="mt-5  flex flex-row  justify-between ">
+          <CustomInput
+            fields={fieldsData.dp}
+            formData={formData}
+            setFormData={setFromData}
+          />
+
+          <CustomButton text={"Select All"} onClick={() => handleSelectAll()} />
+        </Box>
 
         <Box className="p-1 overflow-auto h-[calc(100vh-120px)]">
           <Box className="mt-4">
@@ -138,7 +175,7 @@ const MenuAccess = () => {
                   <Accordion
                     className="mt-4"
                     key={item.menuName}
-                    expanded={expand === item.menuName}
+                    expanded={true}
                     onChange={handleExpand(item.menuName)}
                     style={{ background: "transparent", borderRadius: "5px" }}
                   >
@@ -172,12 +209,13 @@ const MenuAccess = () => {
                               String(r.buttonName).slice(1)}
                           </Typography>
                           <Checkbox
-                            checked={r.status || false}
+                            checked={!r.status ||  false}
                             onChange={(e) => {
                               handleChange(
                                 item?.menuName,
                                 r.buttonName,
-                                r.status
+                                r.status,
+                                formData?.user?.Id
                               );
                               // getBtnArr(r?.id, e.target.checked));
                             }}
