@@ -22,10 +22,10 @@ const fieldData = {
       name: "companyId",
       type: "dropdown",
       tableName: "tblCompany t",
-      idColumn: "id",
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
+      foreignTable:"name,tblCompany",
       isEdit: true,
     },
     {

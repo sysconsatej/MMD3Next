@@ -6,15 +6,6 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 export const fieldData = {
   mblFields: [
     {
-      label: "Location(POD)",
-      name: "podId",
-      type: "dropdown",
-      labelType: "pod",
-      foreignTable: "name,tblPort",
-      isEdit: true,
-      required: true,
-    },
-    {
       label: "Liner",
       name: "companyId",
       type: "dropdown",
@@ -42,14 +33,14 @@ export const fieldData = {
       label: "MBL No",
       name: "mblNo",
       isEdit: true,
-      // required: true,
+      required: true,
     },
     {
       label: "MBL Date",
       name: "mblDate",
       type: "date",
       isEdit: true,
-      // required: true,
+      required: true,
     },
     {
       label: "Vessel-Voyage No.",
@@ -86,14 +77,17 @@ export const fieldData = {
       foreignTable: "name,tblPort",
       isEdit: true,
     },
-    // {
-    //   label: "Port of Unloading",
-    //   name: "portOfUnloading",
-    //   type: "dropdown",
-    //   labelType: "port",
-    //   required: true,
-    //   isEdit: true,
-    // },
+    {
+      label: "Port of Unloading",
+      name: "podId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      displayColumn: "p.name",
+      orderBy: "p.name",
+      foreignTable: "name,tblPort",
+      isEdit: true,
+      required: true,
+    },
     {
       label: "Port of Destination",
       name: "fpdId",
@@ -195,14 +189,14 @@ export const fieldData = {
       label: "HBL No",
       name: "hblNo",
       isEdit: true,
-      // required: true,
+      required: true,
     },
     {
       label: "HBL Date",
       name: "hblDate",
       type: "date",
       isEdit: true,
-      // required: true,
+      required: true,
     },
     {
       label: "CIN Type",
@@ -281,7 +275,7 @@ export const fieldData = {
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
-      // required: true,
+      required: true,
     },
     {
       label: "Good & Description",
@@ -290,7 +284,7 @@ export const fieldData = {
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
-      // required: true,
+      required: true,
     },
     {
       label: "Invoice Value",
@@ -312,7 +306,7 @@ export const fieldData = {
       name: "grossWt",
       type: "number",
       style: "col-span-2 row-span-1",
-      // required: true,
+      required: true,
       // isEdit: true,
       disabled: true,
     },
@@ -322,7 +316,7 @@ export const fieldData = {
       type: "number",
       style: "col-span-2 row-span-1",
       // isEdit: true,
-      // required: true,
+      required: true,
       disabled: true,
     },
     {
@@ -335,28 +329,16 @@ export const fieldData = {
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       style: "col-span-2 row-span-1",
-      // required: true,
+      required: true,
       // isEdit: true,
       disabled: true,
     },
-  ],
-  transitFields: [
-    // {
-    //   label: "Transit Bond No",
-    //   name: "transitBondNo",
-    //   isEdit: true,
-    // },
-    // {
-    //   label: "Carrier Code",
-    //   name: "carrierCode",
-    //   isEdit: true,
-    // },
   ],
   consignorFields: [
     {
       label: "Name",
       name: "shipperText",
-      // required: true,
+      required: true,
       isEdit: true,
     },
     {
@@ -371,11 +353,6 @@ export const fieldData = {
       isEdit: true,
     },
     {
-      label: "Code",
-      name: "shipperType",
-      isEdit: true,
-    },
-    {
       label: "Country",
       name: "shipperCountry",
       type: "dropdown",
@@ -383,7 +360,7 @@ export const fieldData = {
       displayColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblCountry",
-      // required: true,
+      required: true,
       isEdit: true,
     },
     {
@@ -407,21 +384,16 @@ export const fieldData = {
         { shipperCountry: "countryId" },
         { shipperState: "stateId" },
       ],
-      // required: true,
+      required: true,
       isEdit: true,
     },
-    // {
-    //   label: "Post Code",
-    //   name: "consignorPostCode",
-    //   isEdit: true,
-    // },
     {
       label: "Address",
       name: "shipperAddress",
       type: "textarea",
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
-      // required: true,
+      required: true,
       isEdit: true,
     },
   ],
@@ -430,7 +402,7 @@ export const fieldData = {
       label: "Name",
       name: "consigneeText",
       isEdit: true,
-      // required: true,
+      required: true,
     },
     {
       label: "Type",
@@ -443,7 +415,6 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
-    // { label: "Code", name: "consigneeCode" },
     {
       label: "Country",
       name: "consigneeCountry",
@@ -453,7 +424,7 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblCountry",
       isEdit: true,
-      // required: true,
+      required: true,
     },
     {
       label: "State",
@@ -478,13 +449,7 @@ export const fieldData = {
         { consigneeState: "stateId" },
       ],
       isEdit: true,
-      // required: true,
-    },
-    {
-      label: "Post Code",
-      name: "consigneePinCode",
-      type: "number",
-      isEdit: true,
+      required: true,
     },
     {
       label: "Address",
@@ -493,7 +458,7 @@ export const fieldData = {
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
-      // required: true,
+      required: true,
     },
   ],
   notifyFields: [
@@ -501,9 +466,9 @@ export const fieldData = {
       label: "Name",
       name: "notifyPartyText",
       isEdit: true,
-      // required: true,
+      required: true,
     },
-    // { label: "PAN Number", name: "pan", isEdit: true },
+    { label: "PAN Number", name: "notifyParty1IdNo", isEdit: true },
     {
       label: "Country",
       name: "notifyingPartyCountry",
@@ -513,7 +478,7 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblCountry",
       isEdit: true,
-      // required: true,
+      required: true,
     },
     {
       label: "State",
@@ -538,13 +503,7 @@ export const fieldData = {
         { notifyPartyState: "stateId" },
       ],
       isEdit: true,
-      // required: true,
-    },
-    {
-      label: "Post Code",
-      name: "notifyParty1PinCode",
-      type: "number",
-      isEdit: true,
+      required: true,
     },
     {
       label: "Address",
@@ -553,7 +512,7 @@ export const fieldData = {
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
-      // required: true,
+      required: true,
     },
   ],
   invoiceFields: [
@@ -583,7 +542,7 @@ export const fieldData = {
       label: "CONTAINER NO",
       name: "containerNo",
       isEdit: true,
-      // required: true,
+      required: true,
     },
     {
       label: "Size",
@@ -611,7 +570,7 @@ export const fieldData = {
       label: "ISO Code",
       name: "isoCode",
       isEdit: true,
-      // required: true
+      required: true,
     },
     {
       label: "Seal Type",
@@ -630,7 +589,7 @@ export const fieldData = {
       name: "soc",
       isEdit: true,
       type: "checkbox",
-      // required: true,
+      required: true,
     },
     // {
     //   label: "Container Agent Code",
@@ -643,7 +602,7 @@ export const fieldData = {
       name: "grossWt",
       type: "number",
       isEdit: true,
-      // required: true,
+      required: true,
       blurFun: "countHandler",
     },
     { label: "Weight(Kgs)", name: "netWt", type: "number", isEdit: true },
@@ -652,14 +611,14 @@ export const fieldData = {
       name: "volume",
       type: "number",
       isEdit: true,
-      //  required: true
+      required: true,
     },
     {
       label: "NO of Package",
       name: "noOfPackages",
       type: "number",
       isEdit: true,
-      // required: true,
+      required: true,
       blurFun: "countHandler",
     },
     {
@@ -671,7 +630,7 @@ export const fieldData = {
       where: "m.masterListName = 'tblPackage'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
-      // required: true,
+      required: true,
       isEdit: true,
     },
   ],
@@ -700,7 +659,6 @@ export const fieldData = {
       where: "m.masterListName = 'tblPackage'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
-      // required: true,
       isEdit: true,
     },
   ],
@@ -734,16 +692,6 @@ export const mapping = {
 
 export const advanceSearchFields = {
   bl: [
-    {
-      label: "Location(POD)",
-      name: "podId",
-      type: "dropdown",
-      tableName: "tblPort t",
-      displayColumn: "t.name",
-      orderBy: "t.name",
-      foreignTable: "name,tblPort",
-      isEdit: true,
-    },
     {
       label: "Vessel-Voyage No.",
       name: "vesselVoyageNo",

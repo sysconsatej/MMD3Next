@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data from "./companyData";
+import data, { branchGridButtons } from "./companyData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -91,6 +91,7 @@ export default function Company() {
               setFormData={setFormData}
               fieldsMode={fieldsMode}
               gridName="tblCompanyBranch"
+              buttons={branchGridButtons}
             />
           </Box>
           <Box className="w-full flex mt-2 ">
