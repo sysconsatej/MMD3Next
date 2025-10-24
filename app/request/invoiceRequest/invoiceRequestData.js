@@ -42,6 +42,8 @@ const fieldData = {
       idColumn: "id",
       displayColumn: "p.name",
       searchColumn: "p.name",
+      joins: "JOIN tblMasterData m ON m.id = p.portTypeId",
+      where: "m.name IN ('SEA PORT','INLAND PORT')",
       orderBy: "p.name",
       isEdit: true,
       required: true,

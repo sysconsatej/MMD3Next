@@ -23,6 +23,7 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { imo } from "../imoData";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 function createData(unNo, Class, properShippingName, id) {
   return { unNo, Class, properShippingName, id };
@@ -38,6 +39,7 @@ export default function ImoList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
+  const { data } = useGetUserAccessUtils("HAZ Details");
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {

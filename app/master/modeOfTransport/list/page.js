@@ -23,6 +23,7 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { modeOfTransport } from "../modeData";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 function createData(code, name, id) {
   return { code, name, id };
@@ -38,6 +39,7 @@ export default function ModeOfTransportList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
+  const { data } = useGetUserAccessUtils("Mode Of Transport");
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
@@ -71,8 +73,8 @@ export default function ModeOfTransportList() {
 
   const rows = modeOfTransportData
     ? modeOfTransportData.map((item) =>
-      createData(item["code"], item["name"], item["id"])
-    )
+        createData(item["code"], item["name"], item["id"])
+      )
     : [];
 
   const handleChangePage = (event, newPage) => {

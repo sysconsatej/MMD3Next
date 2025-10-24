@@ -23,6 +23,7 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { isoCode } from "../isoCodeData";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 function createData(code, size, type, id) {
   return { code, size, type, id };
@@ -38,6 +39,7 @@ export default function IsoCodeList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
+  const { data } = useGetUserAccessUtils("ISO Code");
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {

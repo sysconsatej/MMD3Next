@@ -35,6 +35,7 @@ import TableExportButtons from "@/components/tableExportButtons/tableExportButto
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
 import BLModal from "../modal";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -74,6 +75,7 @@ export default function BLList() {
   const [allChecked, setAllChecked] = useState(false);
   const [someChecked, setSomeChecked] = useState(false);
   const [modal, setModal] = useState({ toggle: false, value: null });
+  const { data } = useGetUserAccessUtils("HBL Request");
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
@@ -86,7 +88,7 @@ export default function BLList() {
           pageSize,
           advanceSearch: advanceSearchFilter(advanceSearch),
           groupBy: "group by b.mblNo, m.name, v.name",
-          orderBy: "order by max(b.createdDate) desc",
+          orderBy: "order by max(b.createdDate) desc, b.mblNo asc",
           joins:
             "left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id",
         };
@@ -252,7 +254,7 @@ export default function BLList() {
               </TableRow>
             </TableHead>
 
-            <TableBody>
+            <TableBody key={`page-${page}-${rowsPerPage}`}>
               {rows.length > 0 ? (
                 rows.map((row) => (
                   <TableRow key={row.id} hover className="relative group ">
@@ -286,6 +288,7 @@ export default function BLList() {
                         onView={() => modeHandler("view", row.hblId)}
                         onEdit={() => modeHandler("edit", row.hblId)}
                         onDelete={() => modeHandler("delete", row.hblId)}
+                        menuAccess={data ?? {}}
                       />
                     </TableCell>
                   </TableRow>

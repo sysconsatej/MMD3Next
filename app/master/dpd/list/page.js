@@ -23,6 +23,7 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { dpd } from "../dpdData";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 function createData(
   code,
@@ -52,6 +53,7 @@ export default function DpdList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
+  const { data } = useGetUserAccessUtils("Dpd");
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {

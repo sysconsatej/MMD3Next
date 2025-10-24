@@ -23,6 +23,7 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { itemType } from "../itemTypeData";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 function createData(code, name, id) {
   return { code, name, id };
@@ -38,6 +39,7 @@ export default function ItemTypeList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
+  const { data } = useGetUserAccessUtils("Item Type");
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
