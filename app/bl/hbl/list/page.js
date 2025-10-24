@@ -86,7 +86,7 @@ export default function BLList() {
           pageSize,
           advanceSearch: advanceSearchFilter(advanceSearch),
           groupBy: "group by b.mblNo, m.name, v.name",
-          orderBy: "order by max(b.createdDate) desc",
+          orderBy: "order by max(b.createdDate) desc, b.mblNo asc",
           joins:
             "left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id",
         };
