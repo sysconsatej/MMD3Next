@@ -1,8 +1,17 @@
 "use client";
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import {
-  Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Typography, CssBaseline, Checkbox,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  CssBaseline,
+  Checkbox,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import CustomButton from "@/components/button/button";
@@ -19,9 +28,12 @@ import { advanceSearchFilter } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
 import ReportPickerModal from "@/components/ReportPickerModal/reportPickerModal";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 const LIST_TABLE = "tblBl b";
-const UPDATE_TABLE = LIST_TABLE.trim().split(/\s+/)[0].replace(/^dbo\./i, "");
+const UPDATE_TABLE = LIST_TABLE.trim()
+  .split(/\s+/)[0]
+  .replace(/^dbo\./i, "");
 const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
 const CHECKBOX_CELL_SX = { width: 32, minWidth: 32, maxWidth: 32 };
 const CHECKBOX_SX = { p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } };
@@ -34,12 +46,32 @@ const REPORTS = [
 const REPORT_ROUTE = "/htmlReports/rptDoLetter";
 
 function createData(
-  mblNo, mblDate, consigneeText, pol, pod, fpd, cargoMovement,
-  arrivalVessel, arrivalVoyage, line, id, clientId
+  mblNo,
+  mblDate,
+  consigneeText,
+  pol,
+  pod,
+  fpd,
+  cargoMovement,
+  arrivalVessel,
+  arrivalVoyage,
+  line,
+  id,
+  clientId
 ) {
   return {
-    mblNo, mblDate, consigneeText, pol, pod, fpd, cargoMovement,
-    arrivalVessel, arrivalVoyage, line, id, clientId,
+    mblNo,
+    mblDate,
+    consigneeText,
+    pol,
+    pod,
+    fpd,
+    cargoMovement,
+    arrivalVessel,
+    arrivalVoyage,
+    line,
+    id,
+    clientId,
   };
 }
 
@@ -61,31 +93,35 @@ export default function BLList() {
 
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportModalForRow, setReportModalForRow] = useState(null);
+  const { data } = useGetUserAccessUtils("HBL Request");
 
-  const getData = useCallback(async (pageNo = page, pageSize = rowsPerPage) => {
-    try {
-      const tableObj = {
-        columns:
-          "b.mblNo mblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId",
-        tableName: LIST_TABLE,
-        pageNo,
-        pageSize,
-        joins:
-          " left join tblPort p on p.id = b.polId  left join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId",
-        advanceSearch: advanceSearchFilter(advanceSearch),
-      };
-      const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-      setBlData(data);
-      setTotalPage(totalPage);
-      setPage(pageNo);
-      setRowsPerPage(pageSize);
-      setTotalRows(totalRows);
-      setSelectedIds([]);
-    } catch (err) {
-      console.error("Error fetching data:", err);
-      setLoadingState("Failed to load data");
-    }
-  }, [page, rowsPerPage, advanceSearch]);
+  const getData = useCallback(
+    async (pageNo = page, pageSize = rowsPerPage) => {
+      try {
+        const tableObj = {
+          columns:
+            "b.mblNo mblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId",
+          tableName: LIST_TABLE,
+          pageNo,
+          pageSize,
+          joins:
+            " left join tblPort p on p.id = b.polId  left join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId",
+          advanceSearch: advanceSearchFilter(advanceSearch),
+        };
+        const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
+        setBlData(data);
+        setTotalPage(totalPage);
+        setPage(pageNo);
+        setRowsPerPage(pageSize);
+        setTotalRows(totalRows);
+        setSelectedIds([]);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setLoadingState("Failed to load data");
+      }
+    },
+    [page, rowsPerPage, advanceSearch]
+  );
 
   useEffect(() => {
     getData(1, rowsPerPage);
@@ -94,21 +130,21 @@ export default function BLList() {
 
   const rows = blData
     ? blData.map((item) =>
-      createData(
-        item["mblNo"],
-        item["mblDate"],
-        item["consigneeText"],
-        item["pol"],
-        item["pod"],
-        item["fpd"],
-        item["cargoMovement"],
-        item["arrivalVessel"],
-        item["arrivalVoyage"],
-        item["line"],
-        item["id"],
-        item["clientId"]
+        createData(
+          item["mblNo"],
+          item["mblDate"],
+          item["consigneeText"],
+          item["pol"],
+          item["pod"],
+          item["fpd"],
+          item["cargoMovement"],
+          item["arrivalVessel"],
+          item["arrivalVoyage"],
+          item["line"],
+          item["id"],
+          item["clientId"]
+        )
       )
-    )
     : [];
 
   useEffect(() => {
@@ -116,18 +152,28 @@ export default function BLList() {
   }, [blData]);
 
   useEffect(() => {
-    const all = selectedIds.length > 0 && idsOnPage.length > 0 && selectedIds.length === idsOnPage.length;
-    const some = selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
+    const all =
+      selectedIds.length > 0 &&
+      idsOnPage.length > 0 &&
+      selectedIds.length === idsOnPage.length;
+    const some =
+      selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
     setAllChecked(all);
     setSomeChecked(some);
   }, [selectedIds, idsOnPage]);
 
   const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
   const toggleOne = (id) =>
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
 
-  const handleChangePage = (_e, newPage) => { getData(newPage, rowsPerPage); };
-  const handleChangeRowsPerPage = (e) => { getData(1, +e.target.value); };
+  const handleChangePage = (_e, newPage) => {
+    getData(newPage, rowsPerPage);
+  };
+  const handleChangeRowsPerPage = (e) => {
+    getData(1, +e.target.value);
+  };
 
   const handleDeleteRecord = async (formId) => {
     const obj = { recordId: formId, tableName: UPDATE_TABLE };
@@ -141,7 +187,10 @@ export default function BLList() {
   };
 
   const modeHandler = (mode, formId = null) => {
-    if (mode === "delete") { handleDeleteRecord(formId); return; }
+    if (mode === "delete") {
+      handleDeleteRecord(formId);
+      return;
+    }
     setMode({ mode, formId });
     router.push("/bl/mbl");
   };
@@ -240,6 +289,7 @@ export default function BLList() {
                             onEdit={() => modeHandler("edit", row.id)}
                             onDelete={() => modeHandler("delete", row.id)}
                             onPrint={() => handlePrint(row.id, row.clientId)}
+                            menuAccess={data ?? {}}
                           />
                         </span>
                       </Box>
@@ -278,9 +328,12 @@ export default function BLList() {
 
       <ReportPickerModal
         open={reportModalOpen}
-        onClose={() => { setReportModalOpen(false); setReportModalForRow(null); }}
+        onClose={() => {
+          setReportModalOpen(false);
+          setReportModalForRow(null);
+        }}
         availableReports={REPORTS}
-        defaultSelectedKeys={REPORTS.map(r => r.key)}
+        defaultSelectedKeys={REPORTS.map((r) => r.key)}
         initialMode="combined"
         onGenerate={handleGenerateReports}
         recordId={reportModalForRow?.id}
