@@ -51,16 +51,11 @@ export const navItems = [
   },
 
   {
-    name: "Requests",
+    name: "Invoice",
     icon: "inbox",
     submenu: [
-      {
-        name: "Invoice",
-        children: [
-          { name: "Invoice Request", href: "/request/invoiceRequest/list" },
-          { name: "Invoice Upload", href: "/request/invoiceUpload/list" },
-        ],
-      },
+      { name: "Invoice Request", href: "/request/invoiceRequest/list" },
+      { name: "Invoice Upload", href: "/request/invoiceUpload/list" },
     ],
   },
 
