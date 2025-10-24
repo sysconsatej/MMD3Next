@@ -23,6 +23,7 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { terminal } from "../terminalData";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 function createData(code, terminal, port, id) {
   return { code, terminal, port, id };
@@ -38,6 +39,8 @@ export default function TerminalList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
+  const { data } = useGetUserAccessUtils("Terminal");
+
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {

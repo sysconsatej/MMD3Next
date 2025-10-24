@@ -24,6 +24,7 @@ import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { deleteRecord } from "@/apis";
 import { user } from "../userData";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 function createData(name, emailId, companyId, branchId, roles, roleCount, id) {
   return { name, emailId, companyId, branchId, roles, roleCount, id };
@@ -39,6 +40,7 @@ export default function UserList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
+  const { data } = useGetUserAccessUtils("User");
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {

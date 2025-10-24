@@ -23,6 +23,7 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { port } from "../portData";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 function createData(code, portName, activeInactive, portTypeName, country, id) {
   return { code, portName, activeInactive, portTypeName, country, id };
@@ -38,6 +39,8 @@ export default function PortList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
+  const { data } = useGetUserAccessUtils("Port");
+
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {

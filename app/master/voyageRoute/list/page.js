@@ -23,6 +23,7 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { VoyageRoute } from "../voyageRouteData";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 function createData(
   portOfCall,
@@ -58,6 +59,7 @@ export default function VoyageRouteList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
+  const { data } = useGetUserAccessUtils("Voyage Route");
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {

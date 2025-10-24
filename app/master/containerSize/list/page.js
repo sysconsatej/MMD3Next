@@ -23,6 +23,7 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { ContainerSize } from "../containerSizeData";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 function createData(name, code, id) {
   return { name, code, id };
 }
@@ -37,6 +38,8 @@ export default function ContainerSizeList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
+  const { data } = useGetUserAccessUtils("Container Size");
+
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {

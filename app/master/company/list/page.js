@@ -23,6 +23,7 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { company } from "../companyData";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 function createData(
   code,
@@ -60,6 +61,7 @@ export default function CompanyList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
+  const { data } = useGetUserAccessUtils("Company");
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
