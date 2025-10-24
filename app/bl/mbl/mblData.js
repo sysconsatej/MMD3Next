@@ -228,7 +228,7 @@ export const fieldData = {
       // displayColumn: "t.name",
       // orderBy: "t.name",
       // foreignTable: "name,tblVessel",
-      required: true,
+      // required: true,
       isEdit: true
     },
     {
