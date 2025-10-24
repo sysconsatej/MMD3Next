@@ -21,17 +21,25 @@ export const HoverActionIcons = ({
         <></>
       )}
 
-      <Tooltip title="Edit" arrow>
-        <IconButton onClick={onEdit} sx={{ color: "#95a9e8" }} size="small">
-          <Edit fontSize="small" />
-        </IconButton>
-      </Tooltip>
+      {menuAccess["add"] ? (
+        <Tooltip title="Edit" arrow>
+          <IconButton onClick={onEdit} sx={{ color: "#95a9e8" }} size="small">
+            <Edit fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      ) : (
+        <></>
+      )}
 
-      <Tooltip title="Delete" arrow>
-        <IconButton onClick={onDelete} color="error" size="small">
-          <Delete fontSize="small" />
-        </IconButton>
-      </Tooltip>
+      {menuAccess["delete"] ? (
+        <Tooltip title="Delete" arrow>
+          <IconButton onClick={onDelete} color="error" size="small">
+            <Delete fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      ) : (
+        <></>
+      )}
 
       <Tooltip title="Print" arrow>
         <IconButton onClick={onPrint} sx={{ color: "#95a9e8" }} size="small">

@@ -144,7 +144,7 @@ const MenuAccess = () => {
   }
 
 
-  console.log(formData , "formData")
+  console.log(menuButtons.map(r   => r.menuName) , "formData")
 
 
 

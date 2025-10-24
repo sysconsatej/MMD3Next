@@ -41,7 +41,6 @@ export default function CountryList() {
   const router = useRouter();
 
   const { data } = useGetUserAccessUtils("Country");
-  console.log(data);
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
@@ -108,6 +107,8 @@ export default function CountryList() {
     setMode({ mode, formId });
     router.push("/master/country");
   };
+
+  console.log(data)
 
   return (
     <ThemeProvider theme={theme}>

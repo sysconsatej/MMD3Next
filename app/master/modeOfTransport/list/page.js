@@ -148,6 +148,7 @@ export default function ModeOfTransportList() {
                         onView={() => modeHandler("view", row.id)}
                         onEdit={() => modeHandler("edit", row.id)}
                         onDelete={() => modeHandler("delete", row.id)}
+                        menuAccess={data ?? {}}
                       />
                     </TableCell>
                   </TableRow>

@@ -1,0 +1,37 @@
+const arr = [
+  "Cargo Type",
+  "CFS",
+  "City",
+  "Commodity",
+  "Company",
+  "Company Branch",
+  "Container Size",
+  "Container Status",
+  "Container Type",
+  "Country", // done
+  "Depot",
+  "Dpd",
+  "HAZ Details",
+  "HBL Request",
+  "ISO Code",
+  "Item Type",
+  "MBL Request",
+  "Mode Of Transport",
+  "Movement Type",
+  "Nominated Area",
+  "Package Type",
+  "Port",
+  "SMTP",
+  "State",
+  "Terminal",
+  "Type Of Company",
+  "Unit",
+  "Unit Type",
+  "User",
+  "Vessel",
+  "Voyage",
+  "Voyage Route",
+];
+
+
+// const { data } = useGetUserAccessUtils("menuName");
