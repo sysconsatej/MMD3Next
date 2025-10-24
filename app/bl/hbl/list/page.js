@@ -86,7 +86,7 @@ export default function BLList() {
           pageSize,
           advanceSearch: advanceSearchFilter(advanceSearch),
           groupBy: "group by b.mblNo, m.name, v.name",
-          orderBy: "order by max(b.createdDate) desc",
+          orderBy: "order by max(b.createdDate) desc, b.mblNo asc",
           joins:
             "left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id",
         };
@@ -113,16 +113,16 @@ export default function BLList() {
 
   const rows = Array.isArray(blData)
     ? blData.map((item) =>
-        createData(
-          getRowId(item),
-          item["mblNo"],
-          item["hblNo"],
-          item["cargoTypeId"],
-          item["podVesselId"],
-          item["hblCount"],
-          item["hblId"]
-        )
+      createData(
+        getRowId(item),
+        item["mblNo"],
+        item["hblNo"],
+        item["cargoTypeId"],
+        item["podVesselId"],
+        item["hblCount"],
+        item["hblId"]
       )
+    )
     : [];
 
   useEffect(() => {
@@ -252,7 +252,7 @@ export default function BLList() {
               </TableRow>
             </TableHead>
 
-            <TableBody>
+            <TableBody key={`page-${page}-${rowsPerPage}`}>
               {rows.length > 0 ? (
                 rows.map((row) => (
                   <TableRow key={row.id} hover className="relative group ">
