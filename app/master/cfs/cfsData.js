@@ -46,6 +46,31 @@ const fieldData = {
       foreignTable: "name,tblPort",
       isEdit: true,
     },
+    {
+      label: "Mode Of Transport",
+      name: "modeOfTransport",
+      type: "dropdown",
+      tableName: "tblMasterData",
+      where: "masterListName ='tblMode'",
+      orderBy: "name",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+    },
+    {
+      label: "Carrier/Vendor Code",
+      name: "carrierVendorCode",
+      isEdit: true,
+    },
+    {
+      label: "Transit Bond No",
+      name: "TransitBondNo",
+      isEdit: true,
+    },
+    {
+      label: "Carrier Pan",
+      name: "carrierPan",
+      isEdit: true,
+    },
   ],
 };
 

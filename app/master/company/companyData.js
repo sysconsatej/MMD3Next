@@ -6,11 +6,13 @@ const fieldData = {
       label: "Company Code",
       name: "code",
       isEdit: true,
+      required: true,
     },
     {
       label: "Company Name",
       name: "name",
       isEdit: true,
+      required: true,
     },
     {
       label: "Country Name",
@@ -21,6 +23,7 @@ const fieldData = {
       displayColumn: "t.name",
       orderBy: "t.name",
       isEdit: true,
+      required: true,
     },
     {
       label: "State/Region",
@@ -50,6 +53,7 @@ const fieldData = {
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
+      required: true,
     },
     {
       label: "Zip Code",
@@ -71,12 +75,16 @@ const fieldData = {
       label: "Pan No",
       name: "panNo",
       isEdit: true,
+      blurFun: "validatePanCard",
+      required: true,
     },
 
     {
       label: "GSTIN No",
       name: "taxRegistrationNo",
       isEdit: true,
+      blurFun: "validateGstNO",
+      required: true,
     },
     {
       label: "Company Group Name",
@@ -128,11 +136,13 @@ const fieldData = {
       label: "Branch Code",
       name: "code",
       isEdit: true,
+      required: "true",
     },
     {
       label: "Branch Name",
       name: "name",
       isEdit: true,
+      required: "true",
     },
     {
       label: "Country",
@@ -169,21 +179,25 @@ const fieldData = {
       label: "GSTIN No",
       name: "taxRegistrationNo",
       isEdit: true,
+      blurFun: "validateGstNO",
     },
     {
       label: "Zipcode",
       name: "pincode",
       isEdit: true,
+      required: true,
     },
     {
       label: "Telephone No",
       name: "telephoneNo",
       isEdit: true,
+      required: true,
     },
     {
       label: "Email Id",
       name: "emailId",
       isEdit: true,
+      required: true,
     },
 
     {
@@ -208,6 +222,7 @@ const fieldData = {
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
+      required: true,
     },
   ],
 };

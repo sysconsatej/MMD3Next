@@ -143,7 +143,7 @@ export default function PortList() {
                 <TableCell>Code</TableCell>
                 <TableCell>Port Name</TableCell>
                 <TableCell>ActiveInactive</TableCell>
-                <TableCell>Port Type Name</TableCell>
+                <TableCell>Port Type </TableCell>
                 <TableCell>Country Name</TableCell>
               </TableRow>
             </TableHead>
