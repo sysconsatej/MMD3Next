@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 export const useGetUserAccessUtils = (menuName) => {
   const { userData } = auth();
-  const roleId = userData?.data?.roleId;
+  const roleId = userData?.data?.roleId  ||  3;
   const [data, setData] = useState();
 
   useEffect(() => {

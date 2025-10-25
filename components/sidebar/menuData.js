@@ -11,7 +11,6 @@ export const navItems = [
     submenu: [
       { name: "Commodity", href: "/master/commodity/list" },
       { name: "Company", href: "/master/company/list" },
-      { name: "Company Branch", href: "/master/companyBranch/list" },
       { name: "Container Size", href: "/master/containerSize/list" },
       { name: "Container Status", href: "/master/containerStatus/list" },
       { name: "Container Type", href: "/master/containerType/list" },
@@ -35,7 +34,6 @@ export const navItems = [
       { name: "User", href: "/master/user/list" },
       { name: "Unit", href: "/master/unit/list" },
       { name: "Unit Type", href: "/master/unitType/list" },
-      { name: "SMTP", href: "/master/smtpCarrier/list" },
       { name: "Mode Of Transport", href: "/master/modeOfTransport/list" },
       { name: "Movement Type", href: "/master/movementType/list" },
     ],
