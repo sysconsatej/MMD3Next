@@ -219,6 +219,7 @@ const CustomInput = ({
             dropdowns={dropdowns}
             getData={getData}
             keyTabHandler={keyTabHandler}
+            handleChangeEventFunctions={handleChangeEventFunctions}
           />
         );
 

@@ -15,7 +15,8 @@ import {
 } from "@mui/material";
 import { ExpandMoreOutlined } from "@mui/icons-material";
 import { CustomInput } from "@/components/customInput";
-import { insertAccess } from "@/apis";
+import { getDataWithCondition, insertAccess } from "@/apis";
+import { toast, ToastContainer } from "react-toastify";
 
 const fieldsData = {
   dp: [
@@ -36,14 +37,16 @@ const fieldsData = {
 const MenuAccess = () => {
   const [menuButtons, setMenuButtons] = useState([]);
   const [expand, setExpand] = useState("");
-  // const [arr, setArr] = useState([]);
   const [formData, setFromData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [expandAllMenus, setExpandAllMenus] = useState(false);
+  const [selectType, setSelectType] = useState("all");
 
   const handleExpand = (panel) => (event, isExpanded) => {
     setExpand(isExpanded ? panel : false);
   };
 
+  // menuButtons data
   useEffect(() => {
     const fetchMenuButtons = async () => {
       try {
@@ -64,7 +67,26 @@ const MenuAccess = () => {
     fetchMenuButtons();
   }, []);
 
+  //
+  useEffect(() => {
+    if (formData?.user?.Id) {
+      const fetchData = async () => {
+        const reqBody = {
+          tableName: "tblUserAccess",
+          columns: "id, menuButtonId, accessFlag",
+          whereCondition: `roleId=${formData?.user?.Id}`,
+        };
+
+        const res = await getDataWithCondition(reqBody);
+        console.log(res);
+      };
+      fetchData();
+    }
+  }, [formData]);
+
   const handleChange = useCallback((menuName, buttonName, status, roleId) => {
+    if (!formData?.user?.Id) return toast.warn("Please Select User Role");
+
     setMenuButtons((prevMenuButtons) => {
       const updatedMenuButtons = prevMenuButtons.map((menu) => {
         if (menu.menuName === menuName) {
@@ -93,16 +115,16 @@ const MenuAccess = () => {
     const uploadData = menuButtons
       ?.map((r) => r.buttons)
       .flat()
-      .filter((x) => x.status === true);
+      .filter((x) => x.status === false);
     const data = uploadData?.map((r) => {
       return {
         roleId: r?.roleId,
         menuButtonId: r?.id,
-        accessFlag: r.status === true ? "Y" : "N",
+        accessFlag: r.status === false ? "Y" : "N",
       };
     });
 
-    console.log(data)
+    console.log(data);
 
     return;
 
@@ -117,15 +139,31 @@ const MenuAccess = () => {
     }
   };
 
-  const handleSelectAll = () => {
-    console.log(menuButtons)
-    if (menuButtons?.length > 0) {
-      // setMenuButtons((prev )  =>  {
-      //   const updatedButtons = prev.map(r  =>  )
-      // })
-    }
+  const expandAll = () => {
+    setExpandAllMenus(true);
   };
 
+  const collapseAll = () => {
+    setExpandAllMenus(false);
+  };
+
+  const handleSelectAll = ({ type = "all" }) => {
+    if (!formData?.user?.Id) return toast.warn("Please Select User Role");
+    if (menuButtons?.length > 0) {
+      setSelectType(type);
+      const updatedMenuButtons = menuButtons.map((i) => {
+        const updatedButtons = i?.buttons?.map((t) => ({
+          ...t,
+          status: type === "all" ? false : true,
+          roleId: formData?.user?.Id,
+        }));
+
+        return { ...i, buttons: updatedButtons };
+      });
+
+      setMenuButtons([...updatedMenuButtons]);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -143,29 +181,36 @@ const MenuAccess = () => {
     );
   }
 
-
-  console.log(menuButtons.map(r   => r.menuName) , "formData")
-
-
-
   return (
     <ThemeProvider theme={theme}>
       <Box className="p-4">
-        <CustomButton
-          text={"Submit"}
-          type="submit"
-          onClick={() => handleSubmit()}
-        />
-
-        <Box className="mt-5  flex flex-row  justify-between ">
-          <CustomInput
-            fields={fieldsData.dp}
-            formData={formData}
-            setFormData={setFromData}
+        <Box className="mt-5 mb-5 flex flex-row  justify-between ">
+          <CustomButton
+            text={"Submit"}
+            type="submit"
+            onClick={() => handleSubmit()}
           />
-
-          <CustomButton text={"Select All"} onClick={() => handleSelectAll()} />
+          <Box className="gap-10  flex flex-row  justify-between ">
+            <CustomButton
+              text={expandAllMenus ? "Close All" : "Expand All"}
+              onClick={() => (expandAllMenus ? collapseAll() : expandAll())}
+            />
+            <CustomButton
+              text={selectType === "all" ? "UnSelect All" : "Select All"}
+              onClick={() => {
+                selectType === "all"
+                  ? handleSelectAll({ type: "none" })
+                  : handleSelectAll({ type: "all" });
+              }}
+            />
+          </Box>
         </Box>
+
+        <CustomInput
+          fields={fieldsData.dp}
+          formData={formData}
+          setFormData={setFromData}
+        />
 
         <Box className="p-1 overflow-auto h-[calc(100vh-120px)]">
           <Box className="mt-4">
@@ -175,7 +220,7 @@ const MenuAccess = () => {
                   <Accordion
                     className="mt-4"
                     key={item.menuName}
-                    expanded={true}
+                    expanded={expandAllMenus || expand === item.menuName}
                     onChange={handleExpand(item.menuName)}
                     style={{ background: "transparent", borderRadius: "5px" }}
                   >
@@ -209,7 +254,7 @@ const MenuAccess = () => {
                               String(r.buttonName).slice(1)}
                           </Typography>
                           <Checkbox
-                            checked={!r.status ||  false}
+                            checked={!r.status || false}
                             onChange={(e) => {
                               handleChange(
                                 item?.menuName,
@@ -232,6 +277,7 @@ const MenuAccess = () => {
           </Box>
         </Box>
       </Box>
+      <ToastContainer />
     </ThemeProvider>
   );
 };
