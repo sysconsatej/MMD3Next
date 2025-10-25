@@ -124,10 +124,6 @@ const MenuAccess = () => {
       };
     });
 
-    console.log(data);
-
-    return;
-
     try {
       const res = await insertAccess({
         roleId: formData?.user?.Id,
