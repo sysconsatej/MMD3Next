@@ -18,9 +18,9 @@ export const LoginForm = () => {
   const fieldData = {
     loginFields: [
       {
-        name: "username",
+        name: "emailId",
         type: "text",
-        key: "username",
+        key: "emailId",
       },
       {
         name: "password",
@@ -66,36 +66,30 @@ export const LoginForm = () => {
 
   return (
     <>
-      {userDataToken ? (
-        <></>
-      ) : (
-        <>
-          <Card>
-            <CardContent className="bg-gradient-to-b from-blue-600 via-indigo-700 to-blue-900">
-              <form
-                id="login-form"
-                onSubmit={(e) => submitHandler(e)}
-                ref={formRef}
-              >
-                <Box className="flex flex-col  justify-between  gap-1 items-end py-1">
-                  <CustomInput
-                    fields={fieldData.loginFields}
-                    formData={formData}
-                    setFormData={setFormData}
-                    fieldsMode={""}
-                    popUp={false}
-                  />
-                </Box>
+        <Card>
+          <CardContent className="bg-gradient-to-b from-blue-600 via-indigo-700 to-blue-900">
+            <form
+              id="login-form"
+              onSubmit={(e) => submitHandler(e)}
+              ref={formRef}
+            >
+              <Box className="flex flex-col  justify-between  gap-1 items-end py-1">
+                <CustomInput
+                  fields={fieldData.loginFields}
+                  formData={formData}
+                  setFormData={setFormData}
+                  fieldsMode={""}
+                  popUp={false}
+                />
+              </Box>
 
-                <Box className={"mt-10 flex justify-center "}>
-                  <CustomButton text={"Submit"} type="submit" />
-                </Box>
-              </form>
-            </CardContent>
-          </Card>
-          <ToastContainer />
-        </>
-      )}
+              <Box className={"mt-10 flex justify-center "}>
+                <CustomButton text={"Submit"} type="submit" />
+              </Box>
+            </form>
+          </CardContent>
+        </Card>
+        <ToastContainer />
     </>
   );
 };
