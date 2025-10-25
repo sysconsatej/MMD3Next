@@ -196,7 +196,7 @@ const MenuAccess = () => {
               onClick={() => (expandAllMenus ? collapseAll() : expandAll())}
             />
             <CustomButton
-              text={selectType !== "all" ? "UnSelect All" : "Select All"}
+              text={selectType === "all" ? "UnSelect All" : "Select All"}
               onClick={() => {
                 selectType === "all"
                   ? handleSelectAll({ type: "none" })
