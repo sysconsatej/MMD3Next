@@ -16,7 +16,7 @@ import {
   formatFormData,
   useNextPrevData,
 } from "@/utils";
-import { fetchForm, insertUpdateForm } from "@/apis";
+import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { useTotalGrossAndPack } from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -51,6 +51,28 @@ export default function Home() {
     } else {
       toast.error(error || message);
     }
+  };
+
+  const handleGridEventFunctions = {
+    addGrid: async ({ tabIndex, gridIndex }) => {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblSealType' and name = 'BTSL' and status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      setFormData((prev) => {
+        const prevContainer = prev.tblBlContainer || [];
+        prevContainer[gridIndex] = {
+          ...prevContainer[gridIndex],
+          sealTypeId: data[0],
+        };
+        return {
+          ...prev,
+          tblBlContainer: prevContainer,
+        };
+      });
+    },
   };
 
   useEffect(() => {
@@ -195,7 +217,8 @@ export default function Home() {
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
-                ]}>
+                ]}
+              >
                 <Box className="grid grid-cols-4 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.consigneeFields}
@@ -220,7 +243,8 @@ export default function Home() {
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
-                ]}>
+                ]}
+              >
                 <Box className="grid grid-cols-4 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.notifyFields}
@@ -248,6 +272,7 @@ export default function Home() {
                 gridName="tblBlContainer"
                 gridStatus={gridStatus}
                 buttons={gridButtons}
+                handleGridEventFunctions={handleGridEventFunctions}
               />
               <FormHeading text="Item Details" />
               <TableGrid
