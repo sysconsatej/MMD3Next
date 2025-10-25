@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { city } from "../cityData";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 function createData(cityName, stateName, countryName, id) {
   return { cityName, stateName, countryName, id };
@@ -37,6 +38,8 @@ export default function CityList() {
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
   const router = useRouter();
+  const { data } = useGetUserAccessUtils("City");
+
   const { setMode } = formStore();
 
   const getData = useCallback(
@@ -155,6 +158,7 @@ export default function CityList() {
                         onView={() => modeHandler("view", row.id)}
                         onEdit={() => modeHandler("edit", row.id)}
                         onDelete={() => modeHandler("delete", row.id)}
+                        menuAccess={data ?? {}}
                       />
                     </TableCell>
                   </TableRow>

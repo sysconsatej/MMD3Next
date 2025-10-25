@@ -23,6 +23,7 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { voyage } from "../voyageData";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 function createData(vesselName, voyageNO, id) {
   return { vesselName, voyageNO, id };
@@ -38,6 +39,7 @@ export default function VoyageList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
+  const { data } = useGetUserAccessUtils("Voyage");
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
@@ -94,7 +96,7 @@ export default function VoyageList() {
       <Box className="sm:px-4 py-1 ">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
-            Voyage 
+            Voyage
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
@@ -130,6 +132,7 @@ export default function VoyageList() {
                         onView={() => modeHandler("view", row.id)}
                         onEdit={() => modeHandler("edit", row.id)}
                         onDelete={() => modeHandler("delete", row.id)}
+                        menuAccess={data ?? {}}
                       />
                     </TableCell>
                   </TableRow>

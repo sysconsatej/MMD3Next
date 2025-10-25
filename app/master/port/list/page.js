@@ -23,6 +23,7 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { port } from "../portData";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 function createData(code, portName, activeInactive, portTypeName, country, id) {
   return { code, portName, activeInactive, portTypeName, country, id };
@@ -38,6 +39,8 @@ export default function PortList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
+  const { data } = useGetUserAccessUtils("Port");
+
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
@@ -140,7 +143,7 @@ export default function PortList() {
                 <TableCell>Code</TableCell>
                 <TableCell>Port Name</TableCell>
                 <TableCell>ActiveInactive</TableCell>
-                <TableCell>Port Type Name</TableCell>
+                <TableCell>Port Type </TableCell>
                 <TableCell>Country Name</TableCell>
               </TableRow>
             </TableHead>
@@ -162,6 +165,7 @@ export default function PortList() {
                         onView={() => modeHandler("view", row.id)}
                         onEdit={() => modeHandler("edit", row.id)}
                         onDelete={() => modeHandler("delete", row.id)}
+                        menuAccess={data ?? {}}
                       />
                     </TableCell>
                   </TableRow>

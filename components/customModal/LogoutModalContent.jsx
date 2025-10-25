@@ -1,13 +1,14 @@
 "use client";
-import { useAuth, useModal } from "@/store";
+import {  useModal } from "@/store";
 import CustomButton from "../button/button";
 import { Box } from "@mui/material";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { auth } from "@/store";
 
 export const LogoutModalContent = () => {
   const { setModalClose } = useModal();
-  const { logout , clearUserData } = useAuth();
+  const { logout , clearUserData } = auth();
   const router = useRouter();
 
   const handleClickYes = () => {

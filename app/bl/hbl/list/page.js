@@ -35,6 +35,7 @@ import TableExportButtons from "@/components/tableExportButtons/tableExportButto
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
 import BLModal from "../modal";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -74,6 +75,7 @@ export default function BLList() {
   const [allChecked, setAllChecked] = useState(false);
   const [someChecked, setSomeChecked] = useState(false);
   const [modal, setModal] = useState({ toggle: false, value: null });
+  const { data } = useGetUserAccessUtils("HBL Request");
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
@@ -113,16 +115,16 @@ export default function BLList() {
 
   const rows = Array.isArray(blData)
     ? blData.map((item) =>
-      createData(
-        getRowId(item),
-        item["mblNo"],
-        item["hblNo"],
-        item["cargoTypeId"],
-        item["podVesselId"],
-        item["hblCount"],
-        item["hblId"]
+        createData(
+          getRowId(item),
+          item["mblNo"],
+          item["hblNo"],
+          item["cargoTypeId"],
+          item["podVesselId"],
+          item["hblCount"],
+          item["hblId"]
+        )
       )
-    )
     : [];
 
   useEffect(() => {
@@ -286,6 +288,7 @@ export default function BLList() {
                         onView={() => modeHandler("view", row.hblId)}
                         onEdit={() => modeHandler("edit", row.hblId)}
                         onDelete={() => modeHandler("delete", row.hblId)}
+                        menuAccess={data ?? {}}
                       />
                     </TableCell>
                   </TableRow>

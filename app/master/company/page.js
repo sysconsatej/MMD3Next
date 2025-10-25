@@ -59,6 +59,32 @@ export default function Company() {
     fetchFormHandler();
   }, [mode.formId]);
 
+  const handleBlurEventFunctions = {
+    validatePanCard: (e) => {
+      const value = e.target.value;
+      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+      if (value !== String(value).toUpperCase()) {
+        return toast.error("Pan card should be always in caps");
+      }
+
+      if (panRegex.test(value)) {
+        return true;
+      } else {
+        return toast.error("Pan Number is invalid ");
+      }
+    },
+    validateGstNO: (e) => {
+      const gstinRegex =
+        /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      const value = e.target.value;
+      if(gstinRegex.test(value)){
+        return true;
+      }else{
+        return toast.error("Invalid GST Number")
+      }
+    },
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
@@ -78,6 +104,7 @@ export default function Company() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleBlurEventFunctions={handleBlurEventFunctions}
               />
             </Box>
             <FormHeading
@@ -92,6 +119,7 @@ export default function Company() {
               fieldsMode={fieldsMode}
               gridName="tblCompanyBranch"
               buttons={branchGridButtons}
+              handleBlurEventFunctions={handleBlurEventFunctions}
             />
           </Box>
           <Box className="w-full flex mt-2 ">

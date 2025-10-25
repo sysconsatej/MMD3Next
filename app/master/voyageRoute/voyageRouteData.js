@@ -7,8 +7,7 @@ const fieldData = {
       tableName: "tblPort p",
       displayColumn: "p.name",
       foreignTable: "name,tblPort",
-      joins:
-        "JOIN tblMasterData m ON m.id = p.portTypeId",
+      joins: "JOIN tblMasterData m ON m.id = p.portTypeId",
       where: "m.name IN ('SEA PORT','INLAND PORT')",
       orderBy: "p.name",
       foreignTable: "name,tblPort",
@@ -47,11 +46,11 @@ const fieldData = {
       type: "dropdown",
       tableName: "tblPort p",
       foreignTable: "name,tblPort",
-       joins:
-        "JOIN tblMasterData m ON m.id = p.portTypeId",
+      joins: "JOIN tblMasterData m ON m.id = p.portTypeId",
       where: "m.name IN ('PORT TERMINAL')",
       displayColumn: "p.name",
       orderBy: "p.name",
+      selectedConditions: [{ portOfCallId: "referencePortId" }],
       isEdit: true,
       required: true,
     },

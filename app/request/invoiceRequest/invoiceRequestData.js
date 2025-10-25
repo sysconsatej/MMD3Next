@@ -42,6 +42,8 @@ const fieldData = {
       idColumn: "id",
       displayColumn: "p.name",
       searchColumn: "p.name",
+      joins: "JOIN tblMasterData m ON m.id = p.portTypeId",
+      where: "m.name IN ('SEA PORT','INLAND PORT')",
       orderBy: "p.name",
       isEdit: true,
       required: true,
@@ -139,7 +141,7 @@ const fieldData = {
       displayColumn: "m.name",
       searchColumn: "m.name",
       orderBy: "m.name",
-      where: "m.masterListName = 'tblDocument'",
+      where: "m.masterListName = 'tblInvoiceAttachmentType'",
       isEdit: true,
     },
     {

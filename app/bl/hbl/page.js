@@ -130,6 +130,35 @@ export default function Home() {
     }
   }
 
+  const handleGridEventFunctions = {
+    addGrid: async ({ tabIndex, gridIndex }) => {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblSealType' and name = 'BTSL' and status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      setFormData((prev) => {
+        const prevTblBl = [...(prev.tblBl || [])];
+        const prevContainer = [...(prev.tblBl[tabIndex].tblBlContainer || [])];
+
+        prevContainer[gridIndex] = {
+          ...(prevContainer[gridIndex] || {}),
+          sealTypeId: data[0],
+        };
+
+        prevTblBl[tabIndex] = {
+          ...(prevTblBl[tabIndex] || {}),
+          tblBlContainer: prevContainer,
+        };
+        return {
+          ...prev,
+          tblBl: prevTblBl,
+        };
+      });
+    },
+  };
+
   useEffect(() => {
     if (formData?.tblBl?.[tabValue]?.tblBlContainer) {
       let packType =
@@ -420,6 +449,7 @@ export default function Home() {
                         buttons={gridButtons}
                         tabName={"tblBl"}
                         tabIndex={index}
+                        handleGridEventFunctions={handleGridEventFunctions}
                       />
                       <FormHeading text="Item Details" />
                       <TableGrid
