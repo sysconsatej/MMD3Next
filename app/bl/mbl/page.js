@@ -21,7 +21,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { useTotalGrossAndPack } from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import AgreeTerms from "@/components/agreeTerms/agreeTerms";
+// import AgreeTerms from "@/components/agreeTerms/agreeTerms";
 
 export default function Home() {
   const [formData, setFormData] = useState({});
@@ -76,6 +76,7 @@ export default function Home() {
     }
     fetchFormHandler();
   }, [mode.formId]);
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -270,9 +271,9 @@ export default function Home() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <Box display="flex" justifyContent="center" mt={2}>
+            {/* <Box display="flex" justifyContent="center" mt={2}>
               {fieldsMode === "" && <AgreeTerms />}
-            </Box>
+            </Box> */}
           </Box>
           <Box className="w-full flex mt-2">
             {fieldsMode !== "view" && (

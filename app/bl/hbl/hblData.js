@@ -355,6 +355,11 @@ export const fieldData = {
       isEdit: true,
     },
     {
+      label: "Code",
+      name: "shipperIdNo",
+      isEdit: true,
+    },
+    {
       label: "Country",
       name: "shipperCountry",
       type: "dropdown",
@@ -417,6 +422,7 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
+    { label: "Code", name: "consigneeIdNo", isEdit: true },
     {
       label: "Country",
       name: "consigneeCountry",
@@ -473,7 +479,7 @@ export const fieldData = {
     { label: "PAN Number", name: "notifyParty1IdNo", isEdit: true },
     {
       label: "Country",
-      name: "notifyingPartyCountry",
+      name: "notifyingParty1Country",
       type: "dropdown",
       tableName: "tblCountry t",
       displayColumn: "t.name",
@@ -484,7 +490,7 @@ export const fieldData = {
     },
     {
       label: "State",
-      name: "notifyPartyState",
+      name: "notifyParty1State",
       type: "dropdown",
       tableName: "tblState t",
       displayColumn: "t.name",
@@ -494,7 +500,7 @@ export const fieldData = {
     },
     {
       label: "City",
-      name: "notifyPartyCity",
+      name: "notifyParty1City",
       type: "dropdown",
       tableName: "tblCity t",
       displayColumn: "t.name",
@@ -682,12 +688,11 @@ export const totalFieldData = {
 
 export const mapping = {
   notifyPartyText: "consigneeText",
-  notifyFieldsCode: "consigneeCode",
-  notifyParty1TypeId: "consigneeTypeId",
+  notifyParty1IdNo: "consigneeIdNo",
+  notifyPartyTypeId: "consigneeTypeId",
   notifyingParty1Country: "consigneeCountry",
   notifyParty1State: "consigneeState",
   notifyParty1City: "consigneeCity",
-  notifyParty1PinCode: "consigneePinCode",
   notifyPartyAddress: "consigneeAddress",
 };
 

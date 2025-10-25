@@ -981,13 +981,14 @@ export const totalFieldData = {
 
 export const mapping = {
   notifyPartyText: "consigneeText",
-  notifyFieldsCode: "consigneeCode",
+  notifyParty1IdNo: "consigneeIdNo",
   notifyPartyTypeId: "consigneeTypeId",
-  notifyingPartyCountry: "consigneeCountry",
-  notifyPartyState: "consigneeState",
-  notifyPartyCity: "consigneeCity",
-  notifyPartyPinCode: "consigneePinCode",
+  notifyingParty1Country: "consigneeCountry",
+  notifyParty1State: "consigneeState",
+  notifyParty1City: "consigneeCity",
+  notifyParty1PinCode: "consigneePinCode",
   notifyPartyAddress: "consigneeAddress",
+  emailCC: "emailTo",
 };
 
 export const advanceSearchFields = {
