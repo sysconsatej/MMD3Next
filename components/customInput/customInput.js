@@ -195,6 +195,7 @@ const CustomInput = ({
       fieldValue,
       field,
       containerIndex,
+      tabIndex,
       handleBlurEventFunctions,
       changeHandler,
     };
