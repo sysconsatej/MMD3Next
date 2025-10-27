@@ -191,6 +191,43 @@ export default function Home() {
     },
   };
 
+  const handleBlurEventFunctions = {
+    getMblHandler: async (event) => {
+      const { value, name } = event.target;
+      const obj = {
+        columns: "id,status",
+        tableName: "tblBl",
+        whereCondition: `mblNo = '${value}'`,
+      };
+      const { success, data } = await getDataWithCondition(obj);
+      if (success) {
+        const getHblIds = data
+          .filter((item) => {
+            if (item.status) {
+              return item;
+            }
+          })
+          .map((item) => item.id)
+          .join(",");
+
+        setMode({ mode: mode.mode, formId: getHblIds });
+        setJsonData((prev) => {
+          const prevMblFields = prev.mblFields;
+          const disableMbl = prevMblFields.map((item) => {
+            if (item.name === "mblNo") {
+              return { ...item, disabled: true };
+            }
+            return item;
+          });
+          return {
+            ...prev,
+            mblFields: disableMbl,
+          };
+        });
+      }
+    },
+  };
+
   useEffect(() => {
     if (formData?.tblBl?.[tabValue]?.tblBlContainer) {
       let packType =
@@ -318,6 +355,7 @@ export default function Home() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleBlurEventFunctions={handleBlurEventFunctions}
               />
             </Box>
             {/* <FormHeading text="CSN">
