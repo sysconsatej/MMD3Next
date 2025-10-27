@@ -71,6 +71,9 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "p.name",
+      joins:
+        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+      where: "m.name IN ('SEA PORT','INLAND PORT')",
       orderBy: "p.name",
       foreignTable: "name,tblPort",
       isEdit: true,
@@ -81,6 +84,9 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "p.name",
+      joins:
+        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+      where: "m.name IN ('SEA PORT') and c.name = 'India'",
       orderBy: "p.name",
       foreignTable: "name,tblPort",
       isEdit: true,
@@ -92,6 +98,9 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "p.name",
+      joins:
+        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+      where: "m.name IN ('INLAND PORT') and c.name = 'India'",
       orderBy: "p.name",
       foreignTable: "name,tblPort",
       isEdit: true,
