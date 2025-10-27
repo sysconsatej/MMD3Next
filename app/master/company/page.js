@@ -64,12 +64,14 @@ export default function Company() {
       const value = e.target.value;
       const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
       if (value !== String(value).toUpperCase()) {
+        setFormData((prev) => ({ ...prev, panNo: null }));
         return toast.error("Pan card should be always in caps");
       }
 
       if (panRegex.test(value)) {
         return true;
       } else {
+        setFormData((prev) => ({ ...prev, panNo: null }));
         return toast.error("Pan Number is invalid ");
       }
     },
@@ -77,10 +79,21 @@ export default function Company() {
       const gstinRegex =
         /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
       const value = e.target.value;
-      if(gstinRegex.test(value)){
+      if (gstinRegex.test(value)) {
         return true;
-      }else{
-        return toast.error("Invalid GST Number")
+      } else {
+        setFormData((prev) => ({ ...prev, taxRegistrationNo: null }));
+        return toast.error("Invalid GST Number");
+      }
+    },
+    validateIecNO: (e) => {
+      const value = String(e.target.value).toUpperCase().trim();
+      const iecRegex = /^[A-Z]{3}[0-9]{7}$/;
+      if (iecRegex.test(value)) {
+        return true;
+      } else {
+        setFormData((prev) => ({ ...prev, importExportCode: null }));
+        return toast.error("Invalid IEC number");
       }
     },
   };
