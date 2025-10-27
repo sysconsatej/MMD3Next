@@ -116,6 +116,7 @@ const fieldData = {
       label: "IEC No",
       name: "importExportCode",
       isEdit: true,
+      blurFun:"validateIecNO"
     },
     {
       label: "Website",
