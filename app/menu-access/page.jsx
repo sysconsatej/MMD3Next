@@ -78,7 +78,9 @@ const MenuAccess = () => {
         };
 
         const res = await getDataWithCondition(reqBody);
-        console.log(res);
+        // const  useRoleAccessData  = res.data  || [];
+        // const buttons  =  menuButtons.map( r => r.buttons).flat();
+
       };
       fetchData();
     }
@@ -176,6 +178,8 @@ const MenuAccess = () => {
       </Box>
     );
   }
+
+  console.log(formData)
 
   return (
     <ThemeProvider theme={theme}>

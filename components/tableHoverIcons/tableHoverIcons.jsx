@@ -41,11 +41,15 @@ export const HoverActionIcons = ({
         <></>
       )}
 
-      <Tooltip title="Print" arrow>
-        <IconButton onClick={onPrint} sx={{ color: "#95a9e8" }} size="small">
-          <LocalPrintshop fontSize="small" />
-        </IconButton>
-      </Tooltip>
+      {menuAccess["print"] ? (
+        <Tooltip title="Print" arrow>
+          <IconButton onClick={onPrint} sx={{ color: "#95a9e8" }} size="small">
+            <LocalPrintshop fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      ) : (
+        <></>
+      )}
     </Box>
   );
 };
