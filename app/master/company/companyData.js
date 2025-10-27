@@ -7,6 +7,7 @@ const fieldData = {
       name: "code",
       isEdit: true,
       required: true,
+      blurFun: "duplicateHandler",
     },
     {
       label: "Company Name",
@@ -116,7 +117,7 @@ const fieldData = {
       label: "IEC No",
       name: "importExportCode",
       isEdit: true,
-      blurFun:"validateIecNO"
+      blurFun: "validateIecNO",
     },
     {
       label: "Website",
@@ -144,6 +145,14 @@ const fieldData = {
       name: "name",
       isEdit: true,
       required: "true",
+    },
+    {
+      label: "Branch address",
+      name: "address",
+      type: "textarea",
+      rows: 2,
+      gridColumn: "col-span-2 row-span-1 ",
+      isEdit: true,
     },
     {
       label: "Country",
@@ -200,22 +209,6 @@ const fieldData = {
       isEdit: true,
       required: true,
     },
-
-    {
-      label: "Language",
-      name: "languageId",
-      type: "dropdown",
-      foreignTable: "name,tblMasterData",
-      isEdit: true,
-    },
-    {
-      label: "Branch address",
-      name: "address",
-      type: "textarea",
-      rows: 2,
-      gridColumn: "col-span-2 row-span-1 ",
-      isEdit: true,
-    },
     {
       label: "Remarks",
       name: "remarks",
@@ -223,7 +216,6 @@ const fieldData = {
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
-      required: true,
     },
   ],
 };

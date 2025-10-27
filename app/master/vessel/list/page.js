@@ -137,7 +137,6 @@ export default function VesselList() {
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell> Code</TableCell>
                 <TableCell> Name</TableCell>
                 <TableCell>Nationality</TableCell>
                 <TableCell>CallSign</TableCell>
@@ -152,7 +151,6 @@ export default function VesselList() {
               ) : (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
-                    <TableCell>{row.code}</TableCell>
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.nationality}</TableCell>
                     <TableCell>{row.callSign}</TableCell>
