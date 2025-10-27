@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Box,
   Dialog,
@@ -20,9 +20,19 @@ export default function SelectionActionsBar({
   onEdit,
   onDelete,
   onUpdated,
+  allowBulkDelete = false, // NEW: opt-in to multi-delete
 }) {
-  const count = selectedIds.length;
+  // sanitize ids (avoid null/empty/whitespace)
+  const ids = useMemo(
+    () =>
+      (Array.isArray(selectedIds) ? selectedIds : [])
+        .map((v) => (v ?? ""))
+        .map((v) => (typeof v === "string" ? v.trim() : v))
+        .filter((v) => v !== "" && v !== null && v !== undefined),
+    [selectedIds]
+  );
 
+  const count = ids.length;
   const isSingle = count === 1;
   const hasAny = count > 0;
 
@@ -53,8 +63,8 @@ export default function SelectionActionsBar({
 
   const handleRequest = async () => {
     if (!hasAny) return;
-    const rowsPayload = selectedIds.map((id) => ({
-      id,
+    const rowsPayload = ids.map((keyVal) => ({
+      [keyColumn]: keyVal, // dynamic key
       blStatus: "Requested",
       remarks: null,
     }));
@@ -63,8 +73,8 @@ export default function SelectionActionsBar({
 
   const handleVerify = async () => {
     if (!hasAny) return;
-    const rowsPayload = selectedIds.map((id) => ({
-      id,
+    const rowsPayload = ids.map((keyVal) => ({
+      [keyColumn]: keyVal, // dynamic key
       blStatus: "Verified",
       remarks: null,
     }));
@@ -72,8 +82,9 @@ export default function SelectionActionsBar({
   };
 
   const submitReject = async () => {
-    const rowsPayload = selectedIds.map((id) => ({
-      id,
+    if (!hasAny) return;
+    const rowsPayload = ids.map((keyVal) => ({
+      [keyColumn]: keyVal, // dynamic key
       blStatus: "Rejected",
       remarks: (remarks || "").trim() || null,
     }));
@@ -99,18 +110,25 @@ export default function SelectionActionsBar({
         <div className="flex border text-black border-[#B5C4F0] mt-2 text-xs rounded-sm overflow-hidden">
           <Segment
             label="View"
-            onClick={() => isSingle && onView && onView(selectedIds[0])}
+            onClick={() => isSingle && onView && onView(ids[0])}
             disabled={!isSingle}
           />
           <Segment
             label="Edit"
-            onClick={() => isSingle && onEdit && onEdit(selectedIds[0])}
+            onClick={() => isSingle && onEdit && onEdit(ids[0])}
             disabled={!isSingle}
           />
           <Segment
             label="Delete"
-            onClick={() => isSingle && onDelete && onDelete(selectedIds[0])}
-            disabled={!isSingle}
+            onClick={() => {
+              if (!onDelete) return;
+              if (allowBulkDelete) {
+                onDelete(ids); // array of keys
+              } else if (isSingle) {
+                onDelete(ids[0]); // single key (legacy behavior)
+              }
+            }}
+            disabled={allowBulkDelete ? !hasAny : !isSingle}
           />
           <Segment label="Request" onClick={handleRequest} disabled={!hasAny} />
           <Segment label="Reject" onClick={openReject} disabled={!hasAny} />
@@ -143,12 +161,14 @@ export default function SelectionActionsBar({
         <DialogActions>
           <div
             className="py-1 px-3 border border-[#B5C4F0] rounded-sm text-xs cursor-pointer hover:bg-[#B5C4F0] hover:text-white"
-            onClick={closeReject}>
+            onClick={closeReject}
+          >
             Cancel
           </div>
           <div
             className="py-1 px-3 border border-[#B5C4F0] rounded-sm text-xs cursor-pointer hover:bg-[#B5C4F0] hover:text-white"
-            onClick={submitReject}>
+            onClick={submitReject}
+          >
             Save
           </div>
         </DialogActions>
