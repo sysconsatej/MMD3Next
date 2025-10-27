@@ -159,6 +159,38 @@ export default function Home() {
     },
   };
 
+  const handleChangeEventFunctions = {
+    setCountryAndState: async (name, value, { containerIndex, tabIndex }) => {
+      const setName = name.replace("City", "");
+
+      const obj = {
+        columns: `(select id from tblState s where s.id = ci.stateId and s.status = 1) stateId,
+                  (select name from tblState s where s.id = ci.stateId and s.status = 1) stateName,
+                  (select id from tblCountry c where c.id = ci.countryId and c.status = 1) countyId,
+                  (select name from tblCountry c where c.id = ci.countryId and c.status = 1) countryName`,
+        tableName: "tblCity ci",
+        whereCondition: `ci.id = ${value.Id} and ci.status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      setFormData((prev) => {
+        const prevTblBl = [...(prev.tblBl || [])];
+        prevTblBl[tabIndex] = {
+          ...prevTblBl[tabIndex],
+          [`${setName}State`]: { Id: data[0].stateId, Name: data[0].stateName },
+          [`${setName}Country`]: {
+            Id: data[0].countyId,
+            Name: data[0].countryName,
+          },
+        };
+
+        return {
+          ...prev,
+          tblBl: prevTblBl,
+        };
+      });
+    },
+  };
+
   useEffect(() => {
     if (formData?.tblBl?.[tabValue]?.tblBlContainer) {
       let packType =
@@ -355,6 +387,9 @@ export default function Home() {
                             fieldsMode={fieldsMode}
                             tabName={"tblBl"}
                             tabIndex={index}
+                            handleChangeEventFunctions={
+                              handleChangeEventFunctions
+                            }
                           />
                         </Box>
                       </FormHeading>
@@ -385,6 +420,9 @@ export default function Home() {
                             fieldsMode={fieldsMode}
                             tabName={"tblBl"}
                             tabIndex={index}
+                            handleChangeEventFunctions={
+                              handleChangeEventFunctions
+                            }
                           />
                         </Box>
                       </FormHeading>
@@ -406,7 +444,7 @@ export default function Home() {
                           },
                         ]}
                       >
-                        <Box className="grid grid-cols-6 gap-2 p-2 ">
+                        <Box className="grid grid-cols-5 gap-2 p-2 ">
                           <CustomInput
                             fields={jsonData.notifyFields}
                             formData={formData}
@@ -414,6 +452,9 @@ export default function Home() {
                             fieldsMode={fieldsMode}
                             tabName={"tblBl"}
                             tabIndex={index}
+                            handleChangeEventFunctions={
+                              handleChangeEventFunctions
+                            }
                           />
                         </Box>
                       </FormHeading>

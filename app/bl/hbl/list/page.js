@@ -115,16 +115,16 @@ export default function BLList() {
 
   const rows = Array.isArray(blData)
     ? blData.map((item) =>
-        createData(
-          getRowId(item),
-          item["mblNo"],
-          item["hblNo"],
-          item["cargoTypeId"],
-          item["podVesselId"],
-          item["hblCount"],
-          item["hblId"]
-        )
+      createData(
+        getRowId(item),
+        item["mblNo"],
+        item["hblNo"],
+        item["cargoTypeId"],
+        item["podVesselId"],
+        item["hblCount"],
+        item["hblId"]
       )
+    )
     : [];
 
   useEffect(() => {
@@ -188,6 +188,20 @@ export default function BLList() {
     return map;
   }, [blData]);
 
+  // helpers
+  const splitCsv = (csv) =>
+    String(csv || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+  // flatten selected MBLs -> unique HBL ids
+  const selectedHblIds = useMemo(() => {
+    const list = selectedIds.flatMap((mbl) => splitCsv(mblToHblIds[mbl] || ""));
+    return Array.from(new Set(list));
+  }, [selectedIds, mblToHblIds]);
+
+
   const handleBulkDelete = async () => {
     const csv = selectedIds
       .map((mbl) => mblToHblIds[mbl])
@@ -217,18 +231,13 @@ export default function BLList() {
         </Box>
 
         <SelectionActionsBar
-          selectedIds={selectedIds}
-          tableName={UPDATE_TABLE}
-          keyColumn="mblNo"
-          onView={(mblKey) => {
-            const csv = mblToHblIds[mblKey];
-            if (csv) modeHandler("view", csv);
-          }}
-          onEdit={(mblKey) => {
-            const csv = mblToHblIds[mblKey];
-            if (csv) modeHandler("edit", csv);
-          }}
-          onDelete={handleBulkDelete}
+          selectedIds={selectedHblIds}             // real HBL ids (flattened)
+          tableName={UPDATE_TABLE}                 // 'tblBl'
+          keyColumn="id"
+          allowBulkDelete                          // enables multi-delete in the bar
+          onView={(id) => modeHandler("view", id)} // works when exactly 1 HBL id is selected
+          onEdit={(id) => modeHandler("edit", id)}
+          onDelete={(ids) => handleDeleteRecord((ids || []).join(","))}
           onUpdated={() => getData(page, rowsPerPage)}
         />
 
