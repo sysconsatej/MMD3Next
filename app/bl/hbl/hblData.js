@@ -365,7 +365,6 @@ export const fieldData = {
     },
     {
       label: "City",
-<<<<<<< HEAD
       name: "shipperCityText",
       // type: "dropdown",
       // tableName: "tblCity t",
@@ -390,18 +389,6 @@ export const fieldData = {
     },
 
     {
-=======
-      name: "shipperCity",
-      type: "dropdown",
-      tableName: "tblCity t",
-      displayColumn: "t.name",
-      orderBy: "t.name",
-      required: true,
-      isEdit: true,
-      changeFun: "setCountryAndState",
-    },
-    {
->>>>>>> 2586c10ab47d18f20aefc26cd476b47537c545e4
       label: "Country",
       name: "shipperCountry",
       type: "dropdown",
@@ -443,7 +430,6 @@ export const fieldData = {
     { label: "Code", name: "consigneeIdNo", isEdit: true },
     {
       label: "City",
-<<<<<<< HEAD
       name: "consigneeCityText",
       // type: "dropdown",
       // tableName: "tblCity t",
@@ -454,14 +440,6 @@ export const fieldData = {
       //   { consigneeCountry: "countryId" },
       //   { consigneeState: "stateId" },
       // ],
-=======
-      name: "consigneeCity",
-      type: "dropdown",
-      tableName: "tblCity t",
-      displayColumn: "t.name",
-      orderBy: "t.name",
-      foreignTable: "name,tblCity",
->>>>>>> 2586c10ab47d18f20aefc26cd476b47537c545e4
       isEdit: true,
       required: true,
       changeFun: "setCountryAndState",
@@ -478,11 +456,7 @@ export const fieldData = {
     },
     {
       label: "Country",
-<<<<<<< HEAD
       name: "consigneeCountryText",
-=======
-      name: "consigneeCountry",
->>>>>>> 2586c10ab47d18f20aefc26cd476b47537c545e4
       type: "dropdown",
       tableName: "tblCountry t",
       displayColumn: "t.name",
@@ -511,7 +485,6 @@ export const fieldData = {
     { label: "PAN Number", name: "notifyParty1IdNo", isEdit: true },
     {
       label: "City",
-<<<<<<< HEAD
       name: "notifyParty1CityText",
       // type: "dropdown",
       // tableName: "tblCity t",
@@ -522,14 +495,6 @@ export const fieldData = {
       //   { notifyingPartyCountry: "countryId" },
       //   { notifyPartyState: "stateId" },
       // ],
-=======
-      name: "notifyParty1City",
-      type: "dropdown",
-      tableName: "tblCity t",
-      displayColumn: "t.name",
-      orderBy: "t.name",
-      foreignTable: "name,tblCity",
->>>>>>> 2586c10ab47d18f20aefc26cd476b47537c545e4
       isEdit: true,
       required: true,
       changeFun: "setCountryAndState",
@@ -546,11 +511,7 @@ export const fieldData = {
     },
     {
       label: "Country",
-<<<<<<< HEAD
       name: "notifyingParty1Country",
-=======
-      name: "notifyParty1Country",
->>>>>>> 2586c10ab47d18f20aefc26cd476b47537c545e4
       type: "dropdown",
       tableName: "tblCountry t",
       displayColumn: "t.name",
@@ -734,15 +695,9 @@ export const totalFieldData = {
 
 export const mapping = {
   notifyPartyText: "consigneeText",
-<<<<<<< HEAD
   notifyParty1IdNo: "consigneeIdNo",
   notifyPartyTypeId: "consigneeTypeId",
   notifyingParty1Country: "consigneeCountry",
-=======
-  notifyFieldsCode: "consigneeCode",
-  notifyParty1TypeId: "consigneeTypeId",
-  notifyParty1Country: "consigneeCountry",
->>>>>>> 2586c10ab47d18f20aefc26cd476b47537c545e4
   notifyParty1State: "consigneeState",
   notifyParty1City: "consigneeCity",
   notifyPartyAddress: "consigneeAddress",
