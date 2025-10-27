@@ -39,7 +39,7 @@ export default function DepotList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
-  const { data } = useGetUserAccessUtils("Depot");
+  const { data } = useGetUserAccessUtils("Empty Depot");
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
@@ -121,7 +121,7 @@ export default function DepotList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-2">
           <Typography variant="body1" className="text-left flex items-center">
-            Depot
+             Empty Depot
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar

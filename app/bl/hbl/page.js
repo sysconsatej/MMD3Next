@@ -482,7 +482,7 @@ export default function Home() {
                           },
                         ]}
                       >
-                        <Box className="grid grid-cols-6 gap-2 p-2 ">
+                        <Box className="grid grid-cols-5 gap-2 p-2 ">
                           <CustomInput
                             fields={jsonData.notifyFields}
                             formData={formData}

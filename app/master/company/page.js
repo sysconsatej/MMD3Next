@@ -6,7 +6,7 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import { fetchForm, insertUpdateForm } from "@/apis";
+import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
@@ -16,6 +16,7 @@ export default function Company() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
+  const [errorState, setErrorState] = useState({});
   const { mode, setMode } = formStore();
 
   const submitHandler = async (event) => {
@@ -94,6 +95,21 @@ export default function Company() {
       } else {
         setFormData((prev) => ({ ...prev, importExportCode: null }));
         return toast.error("Invalid IEC number");
+      }
+    },
+    duplicateHandler: async (event) => {
+      const { value, name } = event.target;
+      const obj = {
+        columns: name,
+        tableName: "tblCompany",
+        whereCondition: ` ${name} = '${value}'  and status = 1`,
+      };
+      const { success } = await getDataWithCondition(obj);
+      if (success) {
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        toast.error(`Duplicate ${name}!`);
+      } else {
+        setErrorState((prev) => ({ ...prev, [name]: false }));
       }
     },
   };
