@@ -19,6 +19,8 @@ import { theme } from "@/styles/globalCss";
 import { fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { payment } from "@/apis/payment";
 
 function createData(
   mblNo,
@@ -151,7 +153,7 @@ export default function CFSList() {
             <TableBody>
               {rows.length > 0 ? (
                 rows.map((row, index) => (
-                  <TableRow key={index} hover>
+                  <TableRow key={index} hover className="relative group">
                     <TableCell>{row.mblNo}</TableCell>
                     <TableCell>{row.mblDate}</TableCell>
                     <TableCell>{row.consigneeText}</TableCell>
@@ -162,6 +164,14 @@ export default function CFSList() {
                     <TableCell>{row.arrivalVessel}</TableCell>
                     <TableCell>{row.arrivalVoyage}</TableCell>
                     <TableCell>{row.line}</TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => {}}
+                        onEdit={() => {}}
+                        onDelete={() => {}}
+                        menuAccess={{}}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
