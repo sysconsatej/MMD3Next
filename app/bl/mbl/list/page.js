@@ -130,21 +130,21 @@ export default function BLList() {
 
   const rows = blData
     ? blData.map((item) =>
-        createData(
-          item["mblNo"],
-          item["mblDate"],
-          item["consigneeText"],
-          item["pol"],
-          item["pod"],
-          item["fpd"],
-          item["cargoMovement"],
-          item["arrivalVessel"],
-          item["arrivalVoyage"],
-          item["line"],
-          item["id"],
-          item["clientId"]
-        )
+      createData(
+        item["mblNo"],
+        item["mblDate"],
+        item["consigneeText"],
+        item["pol"],
+        item["pod"],
+        item["fpd"],
+        item["cargoMovement"],
+        item["arrivalVessel"],
+        item["arrivalVoyage"],
+        item["line"],
+        item["id"],
+        item["clientId"]
       )
+    )
     : [];
 
   useEffect(() => {
@@ -200,7 +200,6 @@ export default function BLList() {
     setReportModalOpen(true);
   };
 
-  // Keep onGenerate PURE — modal handles window.open
   const handleGenerateReports = () => {
     setReportModalOpen(false);
     setReportModalForRow(null);
