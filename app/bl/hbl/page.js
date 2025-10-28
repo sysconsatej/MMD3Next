@@ -205,6 +205,18 @@ export default function Home() {
             value: data[0],
           })
         );
+      } else {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex,
+            containerIndex,
+            name: "isoCode",
+            value: null,
+          })
+        );
       }
     },
     setISOByType: async (name, value, { containerIndex, tabIndex }) => {
@@ -228,6 +240,18 @@ export default function Home() {
             containerIndex,
             name: "isoCode",
             value: data[0],
+          })
+        );
+      } else {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex,
+            containerIndex,
+            name: "isoCode",
+            value: null,
           })
         );
       }
