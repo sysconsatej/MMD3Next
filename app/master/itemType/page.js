@@ -29,24 +29,38 @@ export default function UnitType() {
       toast.error(error || message);
     }
   };
-
   const handleBlurEventFunctions = {
     duplicateHandler: async (event) => {
-      const { value, name } = event.target;
+      const { name } = event.target;
+      const raw = String(event.target.value ?? "");
+
+      const specialRe = /[@#$%&!`~*]/;
+      if (specialRe.test(raw)) {
+        setFormData((prev) => ({ ...prev, [name]: "" }));
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        return toast.error("Characters special & are not allowed.");
+      }
+
+      const cleaned = raw.replace(/'/g, "''");
+
       const obj = {
         columns: name,
         tableName: "tblMasterData",
-        whereCondition: ` ${name} = '${value}' and masterListName = 'tblItemType'  and status = 1`,
+        whereCondition: ` ${name} = '${cleaned}' AND masterListName = 'tblItemType' AND status = 1`,
       };
+
       const { success } = await getDataWithCondition(obj);
+
       if (success) {
         setErrorState((prev) => ({ ...prev, [name]: true }));
-        toast.error(`Duplicate ${name}!`);
+        return toast.error(`Duplicate ${name}!`);
       } else {
         setErrorState((prev) => ({ ...prev, [name]: false }));
+        return true;
       }
     },
   };
+
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {

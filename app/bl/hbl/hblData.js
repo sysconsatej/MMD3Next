@@ -549,6 +549,7 @@ export const fieldData = {
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       isEdit: true,
+      changeFun: "setISOBySize",
     },
     {
       label: "Type",
@@ -560,6 +561,7 @@ export const fieldData = {
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       isEdit: true,
+      changeFun: "setISOByType",
     },
     {
       label: "ISO Code",

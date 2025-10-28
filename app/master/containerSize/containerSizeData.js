@@ -19,7 +19,7 @@ const fieldData = {
 
 export const ContainerSize = [
   { label: "Size", value: "m.name" },
-  { label: "Code", value: "m.code" },
+  // { label: "Code", value: "m.code" },
 ];
 
 export default fieldData;

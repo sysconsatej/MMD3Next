@@ -27,6 +27,7 @@ function TableGrid({
   buttons = [],
   handleBlurEventFunctions = null,
   handleGridEventFunctions = null,
+  handleChangeEventFunctions = null,
 }) {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -96,7 +97,10 @@ function TableGrid({
       });
       setGridId(filterData?.length || 0);
       if (handleGridEventFunctions["addGrid"])
-        handleGridEventFunctions["addGrid"]({ tabIndex, gridIndex: filterData?.length || 0 });
+        handleGridEventFunctions["addGrid"]({
+          tabIndex,
+          gridIndex: filterData?.length || 0,
+        });
     },
     gridDeleteHandler: () => {
       const filterData = targetGrid?.filter((item, index) => {
@@ -235,6 +239,9 @@ function TableGrid({
                                   tabIndex={tabIndex}
                                   handleBlurEventFunctions={
                                     handleBlurEventFunctions
+                                  }
+                                  handleChangeEventFunctions={
+                                    handleChangeEventFunctions
                                   }
                                 />
                               </TableCell>

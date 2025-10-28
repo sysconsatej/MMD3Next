@@ -21,6 +21,7 @@ import {
   formatFetchForm,
   formatFormData,
   formFormatThirdLevel,
+  setInputValue,
   useNextPrevData,
 } from "@/utils";
 import {
@@ -138,31 +139,23 @@ export default function Home() {
         whereCondition: `masterListName = 'tblSealType' and name = 'BTSL' and status = 1`,
       };
       const { data } = await getDataWithCondition(obj);
-      setFormData((prev) => {
-        const prevTblBl = [...(prev.tblBl || [])];
-        const prevContainer = [...(prev.tblBl[tabIndex].tblBlContainer || [])];
-
-        prevContainer[gridIndex] = {
-          ...(prevContainer[gridIndex] || {}),
-          sealTypeId: data[0],
-        };
-
-        prevTblBl[tabIndex] = {
-          ...(prevTblBl[tabIndex] || {}),
-          tblBlContainer: prevContainer,
-        };
-        return {
-          ...prev,
-          tblBl: prevTblBl,
-        };
-      });
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          tabName: "tblBl",
+          gridName: "tblBlContainer",
+          tabIndex,
+          containerIndex: gridIndex,
+          name: "sealTypeId",
+          value: data[0],
+        })
+      );
     },
   };
 
   const handleChangeEventFunctions = {
     setCountryAndState: async (name, value, { containerIndex, tabIndex }) => {
       const setName = name.replace("City", "");
-
       const obj = {
         columns: `(select id from tblState s where s.id = ci.stateId and s.status = 1) stateId,
                   (select name from tblState s where s.id = ci.stateId and s.status = 1) stateName,
@@ -188,6 +181,80 @@ export default function Home() {
           tblBl: prevTblBl,
         };
       });
+    },
+    setISOBySize: async (name, value, { containerIndex, tabIndex }) => {
+      const typeId =
+        formData?.tblBl[tabIndex]?.tblBlContainer[containerIndex]?.typeId?.Id;
+      const obj = {
+        columns: `s.id id, s.isocode Name`,
+        tableName: "tblIsocode s",
+        joins:
+          "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
+        whereCondition: `d.id = ${value.Id} and d1.id = ${typeId}`,
+      };
+      const { data, success } = await getDataWithCondition(obj);
+      if (success) {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex,
+            containerIndex,
+            name: "isoCode",
+            value: data[0],
+          })
+        );
+      } else {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex,
+            containerIndex,
+            name: "isoCode",
+            value: null,
+          })
+        );
+      }
+    },
+    setISOByType: async (name, value, { containerIndex, tabIndex }) => {
+      const sizeId =
+        formData?.tblBl[tabIndex]?.tblBlContainer[containerIndex]?.sizeId?.Id;
+      const obj = {
+        columns: `s.id id, s.isocode Name`,
+        tableName: "tblIsocode s",
+        joins:
+          "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
+        whereCondition: `d.id = ${sizeId} and d1.id = ${value.Id}`,
+      };
+      const { data, success } = await getDataWithCondition(obj);
+      if (success) {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex,
+            containerIndex,
+            name: "isoCode",
+            value: data[0],
+          })
+        );
+      } else {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex,
+            containerIndex,
+            name: "isoCode",
+            value: null,
+          })
+        );
+      }
     },
   };
 
@@ -529,6 +596,7 @@ export default function Home() {
                         tabName={"tblBl"}
                         tabIndex={index}
                         handleGridEventFunctions={handleGridEventFunctions}
+                        handleChangeEventFunctions={handleChangeEventFunctions}
                       />
                       <FormHeading text="Item Details" />
                       <TableGrid
