@@ -15,7 +15,6 @@ const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblState",
       isEdit: "true",
-      required: true,
     },
     {
       label: "Country",

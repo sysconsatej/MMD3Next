@@ -28,93 +28,27 @@ export default function State() {
       toast.error(error || message);
     }
   };
-  const VALID_TAX_CODES = new Set([
-    "01",
-    "02",
-    "03",
-    "04",
-    "05",
-    "06",
-    "07",
-    "08",
-    "09",
-    "10",
-    "11",
-    "12",
-    "13",
-    "14",
-    "15",
-    "16",
-    "17",
-    "18",
-    "19",
-    "20",
-    "21",
-    "22",
-    "23",
-    "24",
-    "25",
-    "26",
-    "27",
-    "28",
-    "29",
-    "30",
-    "31",
-    "32",
-    "33",
-    "34",
-    "35",
-    "36",
-    "37",
-    "38",
-    "97", 
-  ]);
-
   const handleBlurEventFunctions = {
-    // already added earlier
     validateStateCode: (e) => {
       const name = e.target.name || "code";
       const raw = String(e.target.value ?? "");
-      const val = raw.toUpperCase().replace(/\s+/g, "");
-      setFormData((prev) => ({ ...prev, [name]: val }));
-
+      const val = raw.toUpperCase().trim().replace(/\s+/g, "");
       if (!/^[A-Z]{2}$/.test(val)) {
+        toast.error("State Code must be exactly two letters (e.g., MH).");
         setFormData((prev) => ({ ...prev, [name]: "" }));
-        setErrorState?.((prev) => ({ ...prev, [name]: true }));
-        return toast.error(
-          "State Code must be exactly two letters (e.g., MH)."
-        );
+        return;
       }
-      setErrorState?.((prev) => ({ ...prev, [name]: false }));
-      return true;
+      setFormData((prev) => ({ ...prev, [name]: val }));
     },
-
-    // NEW: GST "Tax State Code" validation (must be a valid 2-digit code)
     validateTaxStateCode: (e) => {
       const name = e.target.name || "taxStateCode";
       const raw = String(e.target.value ?? "").trim();
-
-      // keep only digits; auto-pad single digit to 2 digits (e.g., "9" -> "09")
-      if (!/^\d{1,2}$/.test(raw)) {
+      if (!/^\d{2}$/.test(raw)) {
+        toast.error("Tax State Code must be exactly two digits (e.g., 27).");
         setFormData((prev) => ({ ...prev, [name]: "" }));
-        setErrorState?.((prev) => ({ ...prev, [name]: true }));
-        return toast.error("Enter a 1–2 digit code (e.g., 27, 09).");
+        return;
       }
-      const val = raw.padStart(2, "0");
-
-      // must be one of the official GST state/UT codes (01–38, 97)
-      if (!VALID_TAX_CODES.has(val)) {
-        setFormData((prev) => ({ ...prev, [name]: "" }));
-        setErrorState?.((prev) => ({ ...prev, [name]: true }));
-        return toast.error(
-          "Invalid Tax State Code. Use a valid code like 27 (MH) or 09 (UP)."
-        );
-      }
-
-      // reflect normalized 2-digit value back
-      setFormData((prev) => ({ ...prev, [name]: val }));
-      setErrorState?.((prev) => ({ ...prev, [name]: false }));
-      return true;
+      setFormData((prev) => ({ ...prev, [name]: raw }));
     },
   };
 

@@ -41,6 +41,8 @@ const fieldData = {
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
+      defaultValue: "Y", // 👈 add this
+
       isEdit: "true",
       required: true,
     },
