@@ -371,6 +371,7 @@ export const fieldData = {
       tableName: "tblCity t",
       displayColumn: "t.name",
       orderBy: "t.name",
+      foreignTable: "name,tblCity",
       required: true,
       isEdit: true,
       changeFun: "setCountryAndState",
@@ -601,7 +602,7 @@ export const fieldData = {
       required: true,
       blurFun: "countHandler",
     },
-    { label: "Weight(Kgs)", name: "netWt", type: "number", isEdit: true },
+    { label: "NetWt(Kgs)", name: "netWt", type: "number", isEdit: true },
     {
       label: "Volume(CBM)",
       name: "volume",
