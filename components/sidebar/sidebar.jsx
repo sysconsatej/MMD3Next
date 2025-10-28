@@ -6,10 +6,37 @@ import Link from "next/link";
 import clsx from "clsx";
 import { navItems } from "./menuData";
 import "./sidebar-scrollbar.css";
+import { auth } from "@/store";
+import { getRoleAccessByRole } from "@/apis/menuAccess";
 
 export default function Sidebar({ className = "" }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(true);
+  const { userData } = auth();
+  const roleId = userData?.data?.roleId;
+  const [arr, setArr] = useState([]);
+
+  useEffect(() => {
+    if (roleId) {
+      const fetechData = async () => {
+        const res = await getRoleAccessByRole({ roleId: roleId });
+        const menusData = res?.data?.map((info) => {
+          return {
+            ...info,
+            buttons: info?.buttons?.filter(
+              (item) => item.buttonName === "showMenu"
+            ),
+          };
+        });
+        setArr(menusData);
+      };
+      fetechData();
+    }
+  }, [roleId]);
+
+  const subMenus = navItems.map((r) => r.submenu).flat();
+
+  console.log(subMenus, arr, "[][][[]");  
 
   // Auto-expand groups that contain the current route
   const initialExpanded = useMemo(() => {
@@ -114,8 +141,8 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
     level === 0
       ? "bg-white/15 ring-1 ring-white/20"
       : level === 1
-      ? "bg-white/10 ring-1 ring-white/10"
-      : "bg-white/5 ring-1 ring-white/5";
+        ? "bg-white/10 ring-1 ring-white/10"
+        : "bg-white/5 ring-1 ring-white/5";
 
   // Shared base item styles — slim, full width hover
   const baseItemCls = clsx(
