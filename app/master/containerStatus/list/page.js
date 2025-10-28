@@ -131,7 +131,7 @@ export default function ContainerStatusList() {
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell> Code</TableCell>
+                {/* <TableCell> Code</TableCell> */}
                 <TableCell> Name</TableCell>
               </TableRow>
             </TableHead>
@@ -143,7 +143,7 @@ export default function ContainerStatusList() {
               ) : (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
-                    <TableCell>{row.code}</TableCell>
+                    {/* <TableCell>{row.code}</TableCell> */}
                     <TableCell>{row.name}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons

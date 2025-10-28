@@ -32,18 +32,32 @@ export default function Country() {
 
   const handleBlurEventFunctions = {
     duplicateHandler: async (event) => {
-      const { value, name } = event.target;
+      const { name } = event.target;
+      const raw = String(event.target.value ?? "");
+
+      const specialRe = /[@#$%&!`~*]/;
+      if (specialRe.test(raw)) {
+        setFormData((prev) => ({ ...prev, [name]: "" }));
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        return toast.error("Characters special & are not allowed.");
+      }
+
+      const cleaned = raw.replace(/'/g, "''");
+
       const obj = {
         columns: name,
         tableName: "tblCountry",
-        whereCondition: ` ${name} = '${value}' and status = 1`,
+        whereCondition: ` ${name} = '${cleaned}'  AND status = 1`,
       };
+
       const { success } = await getDataWithCondition(obj);
+
       if (success) {
         setErrorState((prev) => ({ ...prev, [name]: true }));
-        toast.error(`Duplicate ${name}!`);
+        return toast.error(`Duplicate ${name}!`);
       } else {
         setErrorState((prev) => ({ ...prev, [name]: false }));
+        return true;
       }
     },
   };

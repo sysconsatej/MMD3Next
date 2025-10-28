@@ -59,6 +59,56 @@ export default function Company() {
 
     fetchFormHandler();
   }, [mode.formId]);
+  const handleChangeEventFunctions = {
+    setStateCountryFromCity: async (_name, value) => {
+      if (!value?.Id) return;
+      const obj = {
+        columns: `(select id from tblState s where s.id = ci.stateId and s.status = 1) stateId,
+                (select name from tblState s where s.id = ci.stateId and s.status = 1) stateName,
+                (select id from tblCountry c where c.id = ci.countryId and c.status = 1) countryId,
+                (select name from tblCountry c where c.id = ci.countryId and c.status = 1) countryName`,
+        tableName: "tblCity ci",
+        whereCondition: `ci.id = ${value.Id} and ci.status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      if (!Array.isArray(data) || !data[0]) return;
+
+      setFormData((prev) => ({
+        ...prev,
+        cityId: value,
+        stateId: { Id: data[0].stateId, Name: data[0].stateName },
+        countryId: { Id: data[0].countryId, Name: data[0].countryName },
+      }));
+    },
+
+    setBranchStateCountryFromCity: async (name, value, {containerIndex}) => {
+
+      const obj = {
+        columns: `(select id from tblState s where s.id = ci.stateId and s.status = 1) stateId,
+                (select name from tblState s where s.id = ci.stateId and s.status = 1) stateName,
+                (select id from tblCountry c where c.id = ci.countryId and c.status = 1) countryId,
+                (select name from tblCountry c where c.id = ci.countryId and c.status = 1) countryName`,
+        tableName: "tblCity ci",
+        whereCondition: `ci.id = ${value.Id} and ci.status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      if (!Array.isArray(data) || !data[0]) return;
+
+      setFormData((prev) => {
+        const rows = Array.isArray(prev.tblCompanyBranch)
+          ? [...prev.tblCompanyBranch]
+          : [];
+        const current = { ...(rows[containerIndex] || {}) };
+        rows[containerIndex] = {
+          ...current,
+          cityId: value,
+          stateId: { Id: data[0].stateId, Name: data[0].stateName },
+          countryId: { Id: data[0].countryId, Name: data[0].countryName },
+        };
+        return { ...prev, tblCompanyBranch: rows };
+      });
+    },
+  };
 
   const handleBlurEventFunctions = {
     validatePanCard: (e) => {
@@ -134,6 +184,7 @@ export default function Company() {
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
                 handleBlurEventFunctions={handleBlurEventFunctions}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
             <FormHeading
@@ -149,6 +200,7 @@ export default function Company() {
               gridName="tblCompanyBranch"
               buttons={branchGridButtons}
               handleBlurEventFunctions={handleBlurEventFunctions}
+              handleChangeEventFunctions={handleChangeEventFunctions}
             />
           </Box>
           <Box className="w-full flex mt-2 ">

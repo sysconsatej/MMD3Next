@@ -5,6 +5,7 @@ const fieldData = {
       name: "code",
       isEdit: "true",
       required: "true",
+      blurFun: "validateStateCode",
     },
     {
       label: "Name",
@@ -16,6 +17,7 @@ const fieldData = {
       label: "Tax State Code",
       name: "taxStateCode",
       isEdit: "true",
+      blurFun: "validateTaxStateCode",
     },
     {
       label: "Country",
@@ -27,8 +29,7 @@ const fieldData = {
       foreignTable: "name,tblCountry",
       isEdit: true,
       required: true,
-    }
-
+    },
   ],
 };
 
