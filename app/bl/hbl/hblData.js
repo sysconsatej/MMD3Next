@@ -676,7 +676,7 @@ export const mapping = {
   notifyPartyText: "consigneeText",
   notifyParty1IdNo: "consigneeIdNo",
   notifyPartyTypeId: "consigneeTypeId",
-  notifyingParty1Country: "consigneeCountry",
+  notifyParty1Country: "consigneeCountry",
   notifyParty1State: "consigneeState",
   notifyParty1City: "consigneeCity",
   notifyPartyAddress: "consigneeAddress",
