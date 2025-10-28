@@ -678,7 +678,6 @@ export const totalFieldData = {
 export const mapping = {
   notifyPartyText: "consigneeText",
   notifyParty1IdNo: "consigneeIdNo",
-  notifyPartyTypeId: "consigneeTypeId",
   notifyParty1Country: "consigneeCountry",
   notifyParty1State: "consigneeState",
   notifyParty1City: "consigneeCity",
