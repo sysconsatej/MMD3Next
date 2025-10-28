@@ -585,6 +585,9 @@ export const fieldData = {
     {
       label: "ISO Code",
       name: "isoCode",
+      type: "dropdown",
+      tableName: "tblIsocode m",
+      displayColumn: "m.isocode",
       isEdit: true,
       required: true,
     },
