@@ -75,6 +75,32 @@ export default function Home() {
     },
   };
 
+  const handleChangeEventFunctions = {
+    setCountryAndState: async (name, value) => {
+      const setName = name.replace("City", "");
+
+      const obj = {
+        columns: `(select id from tblState s where s.id = ci.stateId and s.status = 1) stateId,
+                  (select name from tblState s where s.id = ci.stateId and s.status = 1) stateName,
+                  (select id from tblCountry c where c.id = ci.countryId and c.status = 1) countyId,
+                  (select name from tblCountry c where c.id = ci.countryId and c.status = 1) countryName`,
+        tableName: "tblCity ci",
+        whereCondition: `ci.id = ${value.Id} and ci.status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      setFormData((prev) => {
+        return {
+          ...prev,
+          [`${setName}State`]: { Id: data[0].stateId, Name: data[0].stateName },
+          [`${setName}Country`]: {
+            Id: data[0].countyId,
+            Name: data[0].countryName,
+          },
+        };
+      });
+    },
+  };
+
   useEffect(() => {
     async function fetchFormHandler() {
       if (!mode.formId) return;
@@ -98,7 +124,6 @@ export default function Home() {
     }
     fetchFormHandler();
   }, [mode.formId]);
-
 
   return (
     <ThemeProvider theme={theme}>
@@ -199,6 +224,7 @@ export default function Home() {
                     formData={formData}
                     setFormData={setFormData}
                     fieldsMode={fieldsMode}
+                    handleChangeEventFunctions={handleChangeEventFunctions}
                   />
                 </Box>
               </FormHeading>
@@ -226,6 +252,7 @@ export default function Home() {
                     formData={formData}
                     setFormData={setFormData}
                     fieldsMode={fieldsMode}
+                    handleChangeEventFunctions={handleChangeEventFunctions}
                   />
                 </Box>
               </FormHeading>
@@ -252,6 +279,7 @@ export default function Home() {
                     formData={formData}
                     setFormData={setFormData}
                     fieldsMode={fieldsMode}
+                    handleChangeEventFunctions={handleChangeEventFunctions}
                   />
                 </Box>
               </FormHeading>

@@ -16,11 +16,12 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "p.name",
-      joins: "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+      joins:
+        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
       where: "m.name = 'SEA PORT' AND c.name = 'India'",
       orderBy: "p.name",
       isEdit: true,
-      required: true
+      required: true,
     },
     {
       label: "Liner",
@@ -31,7 +32,7 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblCompany",
       required: true,
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "MBL No",
@@ -65,7 +66,7 @@ export const fieldData = {
       where: "m.masterListName = 'tblBlIssueType'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Vessel-Voyage No.",
@@ -78,7 +79,7 @@ export const fieldData = {
       orderBy: "v.name, vo.voyageNo",
       foreignTable: "name,tblVessel",
       isEdit: true,
-      required: true
+      required: true,
     },
     // {
     //   label: "Manifest Vessel-Voyage",
@@ -96,7 +97,7 @@ export const fieldData = {
       // displayColumn: "m.name",
       // where: "m.masterListName = 'tblCargoType'",
       orderBy: "m.name",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Container Status",
@@ -108,7 +109,7 @@ export const fieldData = {
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       isEdit: true,
-      required: true
+      required: true,
     },
     // {
     //   label: "Mobile(Requester)",
@@ -205,7 +206,6 @@ export const fieldData = {
     //   isEdit: true,
     //   required: true
     // },
-
   ],
   csnFields: [
     {
@@ -229,7 +229,7 @@ export const fieldData = {
       // orderBy: "t.name",
       // foreignTable: "name,tblVessel",
       // required: true,
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Vessel No",
@@ -247,7 +247,7 @@ export const fieldData = {
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       isEdit: true,
-      required: true
+      required: true,
     },
     {
       label: "Code",
@@ -288,7 +288,7 @@ export const fieldData = {
       displayColumn: "p.name",
       orderBy: "p.name",
       foreignTable: "name,tblPort",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Port of Loading",
@@ -363,7 +363,7 @@ export const fieldData = {
       orderBy: "p.name",
       foreignTable: "name,tblPort",
       isEdit: true,
-      required: true
+      required: true,
     },
     {
       label: "Direct Port Delivery",
@@ -376,7 +376,7 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblPort",
       isEdit: true,
-      required: true
+      required: true,
     },
     {
       label: "Cargo Movement",
@@ -387,7 +387,7 @@ export const fieldData = {
       where: "m.masterListName = 'tblMovementType'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Post Carriage",
@@ -398,7 +398,7 @@ export const fieldData = {
       where: "m.masterListName = 'tblMode'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Movement Carrier",
@@ -408,7 +408,7 @@ export const fieldData = {
       displayColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblCarrierPort",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Transit Bond No",
@@ -419,7 +419,7 @@ export const fieldData = {
       label: "Carrier Code",
       name: "carrierCode",
       isEdit: true,
-    }
+    },
   ],
   hblBottomFields: [
     {
@@ -432,7 +432,7 @@ export const fieldData = {
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       isEdit: true,
-      required: true
+      required: true,
     },
     // {
     //   label: "Item Type",
@@ -473,7 +473,7 @@ export const fieldData = {
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       required: true,
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "No of Package",
@@ -490,7 +490,7 @@ export const fieldData = {
       displayColumn: "ISNULL(m.unNo,'') + ' - ' + ISNULL(m.class,'')",
       searchColumn: "m.unNo, m.class",
       orderBy: "m.unNo, m.class",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Invoice Value",
@@ -554,7 +554,7 @@ export const fieldData = {
       where: "m.masterListName = 'tblIdentificationType'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Code",
@@ -563,25 +563,15 @@ export const fieldData = {
     },
     {
       label: "City",
-      name: "shipperCityText",
-      // type: "dropdown",
-      // tableName: "tblCity t",
-      // displayColumn: "t.name",
-      // orderBy: "t.name",
-      // foreignTable: "name,tblCity",
-      // selectedConditions: [{ "shipperCountry": "countryId" }, { "shipperState": "stateId" }],
+      name: "shipperCity",
+      type: "dropdown",
+      tableName: "tblCity t",
+      displayColumn: "t.name",
+      orderBy: "t.name",
+      foreignTable: "name,tblCity",
       required: true,
-      isEdit: true
-    },
-    {
-      label: "State",
-      name: "shipperStateText",
-      // type: "dropdown",
-      // tableName: "tblState t",
-      // displayColumn: "t.name",
-      // orderBy: "t.name",
-      // foreignTable: "name,tblState",
-      isEdit: true
+      isEdit: true,
+      changeFun: "setCountryAndState",
     },
     {
       label: "Country",
@@ -592,7 +582,7 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblCountry",
       required: true,
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Post Code",
@@ -625,29 +615,29 @@ export const fieldData = {
       where: "m.masterListName = 'tblIdentificationType'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
     { label: "Code", name: "consigneeIdNo", isEdit: true },
     {
       label: "City",
-      name: "consigneeCityText",
-      // type: "dropdown",
-      // tableName: "tblCity t",
-      // displayColumn: "t.name",
-      // orderBy: "t.name",
-      // foreignTable: "name,tblCity",
-      // selectedConditions: [{ "consigneeCountry": "countryId" }, { "consigneeState": "stateId" }],
+      name: "consigneeCity",
+      type: "dropdown",
+      tableName: "tblCity t",
+      displayColumn: "t.name",
+      orderBy: "t.name",
+      foreignTable: "name,tblCity",
       isEdit: true,
-      required: true
+      required: true,
+      changeFun: "setCountryAndState",
     },
     {
       label: "State",
-      name: "consigneeStateText",
-      // type: "dropdown",
-      // tableName: "tblState t",
-      // displayColumn: "t.name",
-      // orderBy: "t.name",
-      // foreignTable: "name,tblState",
+      name: "consigneeState",
+      type: "dropdown",
+      tableName: "tblState t",
+      displayColumn: "t.name",
+      orderBy: "t.name",
+      foreignTable: "name,tblState",
       isEdit: true,
     },
     {
@@ -659,7 +649,7 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblCountry",
       isEdit: true,
-      required: true
+      required: true,
     },
     // { label: "GSTIN", name: "consigneeGSTIN", isEdit: true },
     // { label: "IEC", name: "consigneeIdNo", required: true, isEdit: true },
@@ -700,15 +690,15 @@ export const fieldData = {
     { label: "PAN Number", name: "notifyParty1IdNo", isEdit: true },
     {
       label: "City",
-      name: "notifyParty1CityText",
-      // type: "dropdown",
-      // tableName: "tblCity t",
-      // displayColumn: "t.name",
-      // orderBy: "t.name",
-      // foreignTable: "name,tblCity",
-      // selectedConditions: [{ "notifyingParty1Country": "countryId" }, { "notifyParty1State": "stateId" }],
+      name: "notifyParty1City",
+      type: "dropdown",
+      tableName: "tblCity t",
+      displayColumn: "t.name",
+      orderBy: "t.name",
+      foreignTable: "name,tblCity",
       isEdit: true,
-      required: true
+      required: true,
+      changeFun: "setCountryAndState",
     },
     {
       label: "State",
@@ -722,14 +712,14 @@ export const fieldData = {
     },
     {
       label: "Country",
-      name: "notifyingParty1Country",
+      name: "notifyParty1Country",
       type: "dropdown",
       tableName: "tblCountry t",
       displayColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblCountry",
       isEdit: true,
-      required: true
+      required: true,
     },
     {
       label: "Post Code",
@@ -751,7 +741,6 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
-
   ],
   tgBondDetails: [
     {
@@ -769,7 +758,7 @@ export const fieldData = {
       label: "TG Carrier Code",
       name: "tgCarrierCode",
       isEdit: true,
-    }
+    },
   ],
   tblBlContainer: [
     {
@@ -787,7 +776,7 @@ export const fieldData = {
       where: "m.masterListName = 'tblSize'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Type",
@@ -798,7 +787,7 @@ export const fieldData = {
       where: "m.masterListName = 'tblType'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
     { label: "ISO Code", name: "isoCode", isEdit: true, required: true },
     {
@@ -810,7 +799,7 @@ export const fieldData = {
       where: "m.masterListName = 'tblSealType'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
     { label: "Seal No.", name: "agentSealNo", isEdit: true },
     {
@@ -861,7 +850,7 @@ export const fieldData = {
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       required: true,
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "IMO Code",
@@ -871,7 +860,7 @@ export const fieldData = {
       displayColumn: "ISNULL(m.unNo,'') + ' - ' + ISNULL(m.class,'')",
       searchColumn: "m.unNo, m.class",
       orderBy: "m.unNo, m.class",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Reefer Temp",
@@ -885,7 +874,8 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblMasterData m",
       displayColumn: "m.name",
-      where: "m.groupId in (select id from tblMasterData where name = 'TEMPERATURE')",
+      where:
+        "m.groupId in (select id from tblMasterData where name = 'TEMPERATURE')",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       isEdit: true,
@@ -927,7 +917,8 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblMasterData m",
       displayColumn: "m.name",
-      where: "m.groupId in (select id from tblMasterData where name = 'LENGTH')",
+      where:
+        "m.groupId in (select id from tblMasterData where name = 'LENGTH')",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       isEdit: true,
@@ -959,7 +950,7 @@ export const fieldData = {
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       required: true,
-      isEdit: true
+      isEdit: true,
     },
   ],
   attachmentFields: [
@@ -1001,7 +992,7 @@ export const advanceSearchFields = {
       displayColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblPort",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Vessel-Voyage No.",
@@ -1012,7 +1003,7 @@ export const advanceSearchFields = {
       joins: "JOIN tblVessel ve ON ve.id = v.vesselId",
       orderBy: "ve.name, v.voyageNo",
       foreignTable: "voyageNo,tblVoyage",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "MBL No",
@@ -1046,7 +1037,7 @@ export const advanceSearchFields = {
       where: "m.masterListName = 'tblContainerStatus'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Type of Cargo",
@@ -1057,7 +1048,7 @@ export const advanceSearchFields = {
       where: "m.masterListName = 'tblServiceType'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
-      isEdit: true
+      isEdit: true,
     },
   ],
 };
