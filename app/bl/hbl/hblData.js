@@ -33,6 +33,7 @@ export const fieldData = {
       name: "mblNo",
       isEdit: true,
       required: true,
+      blurFun: "getMblHandler",
     },
     {
       label: "MBL Date",
