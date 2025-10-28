@@ -16,6 +16,7 @@ const DropdownInput = ({
   changeHandler,
   keyTabHandler,
   containerIndex,
+  tabIndex,
   handleChangeEventFunctions,
 }) => {
   const [page, setPage] = useState(1);
@@ -110,7 +111,7 @@ const DropdownInput = ({
             handleChangeEventFunctions[field.changeFun](
               commonProps.name,
               value,
-              containerIndex
+              { containerIndex, tabIndex }
             );
           }
         }}

@@ -89,7 +89,7 @@ export default function Depot() {
       <form onSubmit={submitHandler}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base flex items-end m-0 ">Depot</h1>
+            <h1 className="text-left text-base flex items-end m-0 ">Empty Depot</h1>
             <CustomButton
               text="Back"
               href="/master/depot/list"

@@ -21,7 +21,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { useTotalGrossAndPack } from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import AgreeTerms from "@/components/agreeTerms/agreeTerms";
+// import AgreeTerms from "@/components/agreeTerms/agreeTerms";
 
 export default function Home() {
   const [formData, setFormData] = useState({});
@@ -99,6 +99,7 @@ export default function Home() {
     fetchFormHandler();
   }, [mode.formId]);
 
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
@@ -162,7 +163,7 @@ export default function Home() {
             </FormHeading>
             <Box className="border-2 border-solid border-gray-300 p-3 mt-2 ">
               <FormHeading text="Route Details">
-                <Box className="grid grid-cols-5 gap-2 p-2 ">
+                <Box className="grid grid-cols-4 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.routeDetails}
                     formData={formData}
@@ -192,7 +193,7 @@ export default function Home() {
                 </Box>
               </FormHeading>
               <FormHeading text="Consignor Details">
-                <Box className="grid grid-cols-6 gap-2 p-2 ">
+                <Box className="grid grid-cols-5 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.consignorFields}
                     formData={formData}
@@ -295,9 +296,9 @@ export default function Home() {
                 fieldsMode={fieldsMode}
               />
             </Box>
-            <Box display="flex" justifyContent="center" mt={2}>
+            {/* <Box display="flex" justifyContent="center" mt={2}>
               {fieldsMode === "" && <AgreeTerms />}
-            </Box>
+            </Box> */}
           </Box>
           <Box className="w-full flex mt-2">
             {fieldsMode !== "view" && (
