@@ -789,7 +789,15 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
-    { label: "ISO Code", name: "isoCode", isEdit: true, required: true },
+    {
+      label: "ISO Code",
+      name: "isoCode",
+      type: "dropdown",
+      tableName: "tblIsocode m",
+      displayColumn: "m.isocode",
+      isEdit: true,
+      required: true,
+    },
     {
       label: "Seal Type",
       name: "sealTypeId",
