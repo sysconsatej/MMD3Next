@@ -8,7 +8,7 @@ import data from "./uploadData";
 import { theme } from "@/styles";
 import { ToastContainer } from "react-toastify";
 
-const mblUpload = () => {
+const MblUpload = () => {
     const [formData, setFormData] = useState({});
     const [jsonData, setJsonData] = useState(data);
 
@@ -42,4 +42,4 @@ const mblUpload = () => {
     );
 };
 
-export default mblUpload;
+export default MblUpload;
