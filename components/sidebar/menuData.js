@@ -55,7 +55,19 @@ export const navItems = [
           },
         ],
       },
-      { name: "MBL Request", href: "/bl/mbl/list" },
+      {
+        name: "MBL",
+        children: [
+          {
+            name: "MBL Request",
+            href: "/bl/mbl/list",
+          },
+          {
+            name: "MBL Upload",
+            href: "/bl/mbl/upload",
+          },
+        ],
+      },
     ],
   },
 

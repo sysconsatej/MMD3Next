@@ -48,7 +48,7 @@ const fieldData = {
     {
       label: "Upload File",
       name: "upload",
-      type: "uploadfile",
+      type: "fileupload"
     },
   ],
 };
