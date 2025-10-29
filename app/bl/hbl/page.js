@@ -86,6 +86,8 @@ export default function Home() {
       groupBy: "group by mblNo",
     });
 
+  const [agreed, setAgreed] = useState(false);
+
   const submitHandler = async (event) => {
     event.preventDefault();
     const format = formFormatThirdLevel(formData);
@@ -626,7 +628,14 @@ export default function Home() {
               })}
             </Box>
             <Box display="flex" justifyContent="center" mt={2}>
-              {fieldsMode === "" && <AgreeTerms />}
+              {fieldsMode === "" && (
+                <AgreeTerms
+                  required
+                  checked={agreed}
+                  onChange={setAgreed}
+                  name="agreeTerms"
+                />
+              )}
             </Box>
           </Box>
           <Box className="w-full flex mt-2">

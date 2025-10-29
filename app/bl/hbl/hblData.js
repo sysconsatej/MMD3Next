@@ -25,6 +25,7 @@ export const fieldData = {
       displayColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblCompanyBranch",
+      selectedConditions: [{ companyId: "companyId" }],
       isEdit: true,
       required: true,
     },

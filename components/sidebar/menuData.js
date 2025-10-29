@@ -42,8 +42,32 @@ export const navItems = [
     name: "BL",
     icon: "file",
     submenu: [
-      { name: "HBL Request", href: "/bl/hbl/list" },
-      { name: "MBL Request", href: "/bl/mbl/list" },
+      {
+        name: "HBL",
+        children: [
+          {
+            name: "HBL Request",
+            href: "/bl/hbl/list",
+          },
+          {
+            name: "HBL Upload",
+            href: "/bl/hbl/upload",
+          },
+        ],
+      },
+      {
+        name: "MBL",
+        children: [
+          {
+            name: "MBL Request",
+            href: "/bl/mbl/list",
+          },
+          {
+            name: "MBL Upload",
+            href: "/bl/mbl/upload",
+          },
+        ],
+      },
     ],
   },
 

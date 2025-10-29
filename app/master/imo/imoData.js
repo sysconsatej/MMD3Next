@@ -6,6 +6,7 @@ const fieldData = {
       type: "number",
       isEdit: "true",
       required: true,
+      blurFun: "duplicateHandler",
     },
     {
       label: "Class",
