@@ -1,12 +1,6 @@
 const fieldData = {
   isoCodeFields: [
     {
-      label: "ISO Code",
-      name: "isocode",
-      isEdit: "true",
-      required: "true",
-    },
-    {
       label: "Size",
       name: "sizeId",
       type: "dropdown",
@@ -29,6 +23,13 @@ const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
       required: true,
+    },
+    {
+      label: "ISO Code",
+      name: "isocode",
+      isEdit: true,
+      required: true,
+      blurFun: "isoCodeSizeGate", // ← add this
     },
   ],
 };

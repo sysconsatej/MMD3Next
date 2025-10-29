@@ -25,8 +25,8 @@ import { useRouter } from "next/navigation";
 import { isoCode } from "../isoCodeData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
-function createData(code, size, type, id) {
-  return { code, size, type, id };
+function createData(size, type, code, id) {
+  return { size, type, code, id };
 }
 
 export default function IsoCodeList() {
@@ -74,7 +74,7 @@ export default function IsoCodeList() {
 
   const rows = isoCodeData
     ? isoCodeData.map((item) =>
-        createData(item["code"], item["size"], item["type"], item["id"])
+        createData(item["size"], item["type"], item["code"], item["id"])
       )
     : [];
 
@@ -132,9 +132,9 @@ export default function IsoCodeList() {
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell> IsoCode</TableCell>
                 <TableCell> Size</TableCell>
                 <TableCell>Type</TableCell>
+                <TableCell> IsoCode</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -145,9 +145,9 @@ export default function IsoCodeList() {
               ) : (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
-                    <TableCell>{row.code}</TableCell>
                     <TableCell>{row.size}</TableCell>
                     <TableCell>{row.type}</TableCell>
+                    <TableCell>{row.code}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

@@ -7,7 +7,7 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import { fetchForm, insertUpdateForm } from "@/apis";
+import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { formStore } from "@/store";
 
@@ -15,6 +15,8 @@ export default function Port() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
+  const [errorState, setErrorState] = useState({});
+
   const { mode, setMode } = formStore();
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -27,6 +29,36 @@ export default function Port() {
       toast.error(error || message);
     }
   };
+  const handleBlurEventFunctions = {
+    duplicateHandler: async (event) => {
+      const { name, value } = event.target;
+      const normalized = String(value ?? "").trim();
+      const literal = normalized.replace(/'/g, "''");
+      const obj = {
+        columns: name,
+        tableName: "tblPort",
+        whereCondition: `
+          UPPER(${name}) = '${literal.toUpperCase()}'
+          AND portTypeId IN (SELECT id FROM tblMasterData WHERE name in ('SEA PORT','INLAND PORT'))
+          AND status = 1
+        `,
+      };
+      const resp = await getDataWithCondition(obj);
+      const isDuplicate =
+        resp?.success === true ||
+        (Array.isArray(resp?.data) && resp.data.length > 0);
+      if (isDuplicate) {
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        setFormData((prev) => ({ ...prev, [name]: "" }));
+        toast.error(`Duplicate ${name}!`);
+        return false;
+      }
+      setFormData((prev) => ({ ...prev, [name]: normalized }));
+      setErrorState((prev) => ({ ...prev, [name]: false }));
+      return true;
+    },
+  };
+
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
@@ -48,7 +80,7 @@ export default function Port() {
     if (!mode.formId) {
       setFormData((prev) => ({
         ...prev,
-        activeInactive: prev?.activeInactive ?? "Y", 
+        activeInactive: prev?.activeInactive ?? "Y",
       }));
     }
   }, [mode.formId]);
@@ -72,6 +104,8 @@ export default function Port() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleBlurEventFunctions={handleBlurEventFunctions}
+                errorState={errorState}
               />
             </Box>
           </Box>

@@ -32,21 +32,44 @@ export default function ContainerStatus() {
 
   const handleBlurEventFunctions = {
     duplicateHandler: async (event) => {
-      const { value, name } = event.target;
+      const { name } = event.target;
+      const raw = String(event.target.value ?? "").trim();
+      const specialRe = /[@#$%&!`~*]/;
+      if (specialRe.test(raw)) {
+        setFormData((prev) => ({ ...prev, [name]: "" }));
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        toast.error(" Special Characters are not allowed.");
+        return false;
+      }
+      setFormData((prev) => ({ ...prev, [name]: raw }));
+      const literal = raw.replace(/'/g, "''");
       const obj = {
         columns: name,
         tableName: "tblMasterData",
-        whereCondition: ` ${name} = '${value}' and masterListName = 'tblContainerStatus'  and status = 1`,
+        whereCondition: `
+        UPPER(${name}) = '${literal.toUpperCase()}'
+        AND masterListName = 'tblContainerStatus'
+        AND status = 1
+      `,
       };
-      const { success } = await getDataWithCondition(obj);
-      if (success) {
+
+      const resp = await getDataWithCondition(obj);
+      const isDuplicate =
+        resp?.success === true ||
+        (Array.isArray(resp?.data) && resp.data.length > 0);
+
+      if (isDuplicate) {
         setErrorState((prev) => ({ ...prev, [name]: true }));
+        setFormData((prev) => ({ ...prev, [name]: "" }));
         toast.error(`Duplicate ${name}!`);
-      } else {
-        setErrorState((prev) => ({ ...prev, [name]: false }));
+        return false;
       }
+
+      setErrorState((prev) => ({ ...prev, [name]: false }));
+      return true;
     },
   };
+
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {

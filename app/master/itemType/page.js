@@ -31,36 +31,62 @@ export default function UnitType() {
   };
   const handleBlurEventFunctions = {
     duplicateHandler: async (event) => {
-      const { name } = event.target;
-      const raw = String(event.target.value ?? "");
-
-      const specialRe = /[@#$%&!`~*]/;
-      if (specialRe.test(raw)) {
-        setFormData((prev) => ({ ...prev, [name]: "" }));
-        setErrorState((prev) => ({ ...prev, [name]: true }));
-        return toast.error("Characters special & are not allowed.");
+      const { name, value } = event.target;
+      const SPECIAL_RE = /[@#$%&!`~*]/;
+      const toSql = (s) => String(s).replace(/'/g, "''");
+      const norm = (n, v) => {
+        const t = String(v ?? "").trim();
+        return n === "code" ? t.toUpperCase() : t;
+      };
+      const setField = (val) =>
+        setFormData((prev) => ({ ...prev, [name]: val }));
+      const setErr = (flag) =>
+        setErrorState?.((prev) => ({ ...prev, [name]: flag }));
+      const normalized = norm(name, value);
+      setField(normalized);
+      // if (!normalized) {
+      //   setErr(true);
+      //   toast.error("Value cannot be empty.");
+      //   return false;
+      // }
+      if (name === "code") {
+        if (!/^[A-Z]{2}$/.test(normalized)) {
+          setField("");
+          setErr(true);
+          toast.error("Code must be exactly two letters (e.g., OT).");
+          return false;
+        }
+      } else if (SPECIAL_RE.test(normalized)) {
+        setField("");
+        setErr(true);
+        toast.error("Special characters @ # $ % & ! ` ~ * are not allowed.");
+        return false;
       }
 
-      const cleaned = raw.replace(/'/g, "''");
+      const literal = toSql(normalized.toUpperCase());
+      const whereCondition = `UPPER(${name}) = '${literal}' AND masterListName = 'tblItemType' AND status = 1`;
 
-      const obj = {
+      const resp = await getDataWithCondition({
         columns: name,
         tableName: "tblMasterData",
-        whereCondition: ` ${name} = '${cleaned}' AND masterListName = 'tblItemType' AND status = 1`,
-      };
+        whereCondition,
+      });
 
-      const { success } = await getDataWithCondition(obj);
+      const isDuplicate =
+        resp?.success === true ||
+        (Array.isArray(resp?.data) && resp.data.length > 0);
 
-      if (success) {
-        setErrorState((prev) => ({ ...prev, [name]: true }));
-        return toast.error(`Duplicate ${name}!`);
-      } else {
-        setErrorState((prev) => ({ ...prev, [name]: false }));
-        return true;
+      if (isDuplicate) {
+        setField("");
+        setErr(true);
+        toast.error(`Duplicate ${name}!`);
+        return false;
       }
+
+      setErr(false);
+      return true;
     },
   };
-
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
@@ -130,7 +156,7 @@ export default function UnitType() {
           <Box className="w-full flex mt-2 ">
             {fieldsMode !== "view" && (
               <CustomButton text={"Submit"} type="submit" />
-            )}{" "}
+            )}
           </Box>
         </section>
       </form>
