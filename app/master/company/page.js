@@ -192,6 +192,21 @@ export default function Company() {
         setErrorState((prev) => ({ ...prev, [name]: false }));
       }
     },
+    duplicateBranchHandler: async (event) => {
+      const { value, name } = event.target;
+      const obj = {
+        columns: name,
+        tableName: "tblCompanyBranch",
+        whereCondition: ` ${name} = '${value}'  and status = 1`,
+      };
+      const { success } = await getDataWithCondition(obj);
+      if (success) {
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        toast.error(`Duplicate ${name}!`);
+      } else {
+        setErrorState((prev) => ({ ...prev, [name]: false }));
+      }
+    },
   };
 
   return (

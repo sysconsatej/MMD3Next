@@ -82,7 +82,7 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.id) as hblCount, string_agg(b.id, ',') as hblId",
+            "b.mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.id) as hblCount, string_agg(b.id, ',') as hblId",
           tableName: "tblBl b",
           pageNo,
           pageSize,
@@ -90,7 +90,7 @@ export default function BLList() {
           groupBy: "group by b.mblNo, m.name, v.name",
           orderBy: "order by max(b.createdDate) desc, b.mblNo asc",
           joins:
-            "left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id",
+            "left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
