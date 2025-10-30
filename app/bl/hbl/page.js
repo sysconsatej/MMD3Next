@@ -269,22 +269,24 @@ export default function Home() {
     getMblHandler: async (event) => {
       const { value, name } = event.target;
       const obj = {
-        columns: "id,status",
+        columns: "id",
         tableName: "tblBl",
-        whereCondition: `mblNo = '${value}'`,
+        whereCondition: `mblNo = '${value}' and mblHblFlag = 'MBL' and status = 1`,
       };
       const { success, data } = await getDataWithCondition(obj);
       if (success) {
-        const getHblIds = data
-          .filter((item) => {
-            if (item.status) {
-              return item;
-            }
-          })
-          .map((item) => item.id)
-          .join(",");
-
-        setMode({ mode: mode.mode, formId: getHblIds });
+        const format = formatFetchForm(
+          {
+            mblFields: fieldData.mblFields,
+          },
+          "tblBl",
+          data[0].id
+        );
+        const { result } = await fetchForm(format);
+        const getData = formatDataWithForm(result, {
+          mblFields: fieldData.mblFields,
+        });
+        setFormData((prev) => ({ ...prev, ...getData }));
         setJsonData((prev) => {
           const prevMblFields = prev.mblFields;
           const disableMbl = prevMblFields.map((item) => {
