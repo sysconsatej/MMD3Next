@@ -115,6 +115,13 @@ export default function CFSList() {
     getData(1, +event.target.value);
   };
 
+  const paymentLoad = async () => {
+    const res = await payment();
+    if(res) {
+      window.location.href=`${res?.data?.link}`
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -170,6 +177,8 @@ export default function CFSList() {
                         onEdit={() => {}}
                         onDelete={() => {}}
                         menuAccess={{}}
+                        paymentLogo
+                        onPayment={paymentLoad}
                       />
                     </TableCell>
                   </TableRow>

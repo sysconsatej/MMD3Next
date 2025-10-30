@@ -49,6 +49,14 @@ const MenuAccess = () => {
     setExpand(isExpanded ? panel : false);
   };
 
+  const expandAll = () => {
+    setExpandAllMenus(true);
+  };
+
+  const collapseAll = () => {
+    setExpandAllMenus(false);
+  };
+
   // menuButtons data
   useEffect(() => {
     const fetchMenuButtons = async () => {
@@ -86,6 +94,7 @@ const MenuAccess = () => {
         const fetchedArr = res?.data;
         setMenuButtons(fetchedArr);
         setMode("edit");
+        expandAll();
       };
       fetchData();
     } else {
@@ -146,14 +155,6 @@ const MenuAccess = () => {
     }
   };
 
-  const expandAll = () => {
-    setExpandAllMenus(true);
-  };
-
-  const collapseAll = () => {
-    setExpandAllMenus(false);
-  };
-
   const handleSelectAll = ({ type }) => {
     if (!formData?.user?.Id) return toast.warn("Please Select User Role");
     if (menuButtons?.length > 0) {
@@ -170,7 +171,6 @@ const MenuAccess = () => {
       setMenuButtons(updatedMenuButtons);
     }
   };
-
   if (isLoading) {
     return (
       <Box className="p-16">
@@ -232,24 +232,28 @@ const MenuAccess = () => {
                     onChange={handleExpand(item.menuName)}
                     style={{ background: "transparent", borderRadius: "5px" }}
                   >
-                    <AccordionSummary
-                      className="bg-gradient-to-t from-blue-500  to-indigo-500"
-                      expandIcon={
-                        <ExpandMoreOutlined style={{ color: "#FFF" }} />
-                      }
-                      id={`${item.menuName}-header`}
-                      aria-controls={`${item.menuName}-content`}
-                      style={{
-                        borderRadius: "5px",
-                      }}
-                    >
-                      <Typography
-                        color="white"
-                        sx={{ fontWeight: "500", fontSize: "14px" }}
+                    {item?.menuName !== "Nominated Area" ? (
+                      <AccordionSummary
+                        className="bg-gradient-to-t from-blue-500  to-indigo-500"
+                        expandIcon={
+                          <ExpandMoreOutlined style={{ color: "#FFF" }} />
+                        }
+                        id={`${item.menuName}-header`}
+                        aria-controls={`${item.menuName}-content`}
+                        style={{
+                          borderRadius: "5px",
+                        }}
                       >
-                        {item.menuName}
-                      </Typography>
-                    </AccordionSummary>
+                        <Typography
+                          color="white"
+                          sx={{ fontWeight: "500", fontSize: "14px" }}
+                        >
+                          {item.menuName}
+                        </Typography>
+                      </AccordionSummary>
+                    ) : (
+                      <></>
+                    )}
                     {/* <Typography>Buttons</Typography> */}
                     <AccordionDetails className="flex flex-row flex-wrap  gap-10 ">
                       {item.buttons

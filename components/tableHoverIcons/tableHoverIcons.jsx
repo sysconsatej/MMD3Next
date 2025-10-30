@@ -1,6 +1,6 @@
 "use client";
 import { Box, IconButton, Tooltip } from "@mui/material";
-import { Edit, Delete, Visibility, LocalPrintshop } from "@mui/icons-material";
+import { Edit, Delete, Visibility, LocalPrintshop , Payment } from "@mui/icons-material";
 
 export const HoverActionIcons = ({
   onView,
@@ -8,6 +8,8 @@ export const HoverActionIcons = ({
   onDelete,
   onPrint,
   menuAccess,
+  paymentLogo,
+  onPayment,
 }) => {
   return (
     <Box className="flex justify-end items-center gap-2" id="table-icons">
@@ -45,6 +47,15 @@ export const HoverActionIcons = ({
         <Tooltip title="Print" arrow>
           <IconButton onClick={onPrint} sx={{ color: "#95a9e8" }} size="small">
             <LocalPrintshop fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      ) : (
+        <></>
+      )}
+      {paymentLogo ? (
+        <Tooltip title="Payment" arrow>
+          <IconButton onClick={onPayment} sx={{ color: "#95a9e8" }} size="small">
+            <Payment fontSize="small" />
           </IconButton>
         </Tooltip>
       ) : (
