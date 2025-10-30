@@ -16,6 +16,8 @@ export default function IscCode() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
+  const [errorState, setErrorState] = useState({});
+
   const submitHandler = async (event) => {
     event.preventDefault();
     const format = formatFormData("tblIsocode", formData, mode.formId);
@@ -26,6 +28,55 @@ export default function IscCode() {
     } else {
       toast.error(error || message);
     }
+  };
+  const handleBlurEventFunctions = {
+    isoCodeSizeGate: (event) => {
+      const fieldName = event.target.name || "isocode";
+      const iso = String(event.target.value ?? "")
+        .trim()
+        .toUpperCase();
+
+      setFormData((p) => ({ ...p, [fieldName]: iso }));
+
+      const sel = formData?.sizeId;
+      const sizeText =
+        (sel && (sel.Name || sel.name)) ?? (sel != null ? String(sel) : "");
+
+      if (!sizeText) {
+        toast.error("Please select a Size before entering ISO Code.");
+        setErrorState?.((p) => ({ ...p, [fieldName]: true }));
+        setTimeout(() => {
+          setFormData((p) => ({ ...p, [fieldName]: "" }));
+        }, 0);
+        return false;
+      }
+
+      if (!iso) {
+        toast.error("ISO Code is required.");
+        setErrorState?.((p) => ({ ...p, [fieldName]: true }));
+        return false;
+      }
+
+      const firstDigit = (sizeText.trim().match(/\d/) || [])[0];
+      if (!firstDigit) {
+        setErrorState?.((p) => ({ ...p, [fieldName]: false }));
+        return true;
+      }
+
+      if (!iso.startsWith(firstDigit)) {
+        toast.error(
+          `Invalid ISO Code for Size ${sizeText}. It must start with '${firstDigit}'.`
+        );
+        setErrorState?.((p) => ({ ...p, [fieldName]: true }));
+        setTimeout(() => {
+          setFormData((p) => ({ ...p, [fieldName]: "" }));
+        }, 0);
+        return false;
+      }
+
+      setErrorState?.((p) => ({ ...p, [fieldName]: false }));
+      return true;
+    },
   };
 
   useEffect(() => {
@@ -67,6 +118,8 @@ export default function IscCode() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleBlurEventFunctions={handleBlurEventFunctions}
+                errorState={errorState}
               />
             </Box>
           </Box>

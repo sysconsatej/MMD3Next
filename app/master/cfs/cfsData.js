@@ -26,12 +26,14 @@ const fieldData = {
       label: "Custom code",
       name: "ediPortCode",
       isEdit: true,
+      blurFun: "duplicateHandler",
     },
     {
       label: "EDI Common Terminal Code",
       name: "ediCommonTerminalCode",
       isEdit: true,
       required: true,
+      blurFun: "duplicateHandler",
     },
     {
       label: "Reference Port",

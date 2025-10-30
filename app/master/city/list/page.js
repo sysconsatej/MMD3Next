@@ -25,8 +25,8 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { city } from "../cityData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
-function createData(cityName, stateName, countryName, id) {
-  return { cityName, stateName, countryName, id };
+function createData(countryName, stateName, cityName, id) {
+  return { countryName, stateName, cityName, id };
 }
 
 export default function CityList() {
@@ -78,9 +78,9 @@ export default function CityList() {
   const rows = cityData
     ? cityData.map((item) =>
         createData(
-          item["cityName"],
-          item["stateName"],
           item["countryName"],
+          item["stateName"],
+          item["cityName"],
           item["id"]
         )
       )
@@ -141,18 +141,18 @@ export default function CityList() {
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell>City</TableCell>
-                <TableCell>State</TableCell>
                 <TableCell>Country</TableCell>
+                <TableCell>State</TableCell>
+                <TableCell>City</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {rows.length > 0 ? (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
-                    <TableCell>{row.cityName}</TableCell>
-                    <TableCell>{row.stateName}</TableCell>
                     <TableCell>{row.countryName}</TableCell>
+                    <TableCell>{row.stateName}</TableCell>
+                    <TableCell>{row.cityName}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

@@ -1,10 +1,17 @@
 const fieldData = {
   cityFields: [
     {
-      label: "City",
-      name: "name",
-      isEdit: "true",
+      label: "Country",
+      name: "countryId",
+      type: "dropdown",
+      tableName: "tblCountry",
+      displayColumn: "t.name",
+      orderBy: "t.name",
+      foreignTable: "name,tblCountry",
+      isEdit: true,
       required: true,
+      // NEW: wire the handler
+      changeFun: "toggleStateRequired",
     },
     {
       label: "State",
@@ -15,17 +22,12 @@ const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblState",
       isEdit: "true",
-      required: true,
+      required: true, // default; your handler will set this to false for foreign countries
     },
     {
-      label: "Country",
-      name: "countryId",
-      type: "dropdown",
-      tableName: "tblCountry",
-      displayColumn: "t.name",
-      orderBy: "t.name",
-      foreignTable: "name,tblCountry",
-      isEdit: true,
+      label: "City",
+      name: "name",
+      isEdit: "true",
       required: true,
     },
   ],

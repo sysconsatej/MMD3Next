@@ -28,6 +28,29 @@ export default function State() {
       toast.error(error || message);
     }
   };
+  const handleBlurEventFunctions = {
+    validateStateCode: (e) => {
+      const name = e.target.name || "code";
+      const raw = String(e.target.value ?? "");
+      const val = raw.toUpperCase().trim().replace(/\s+/g, "");
+      if (!/^[A-Z]{2}$/.test(val)) {
+        toast.error("State Code must be exactly two letters (e.g., MH).");
+        setFormData((prev) => ({ ...prev, [name]: "" }));
+        return;
+      }
+      setFormData((prev) => ({ ...prev, [name]: val }));
+    },
+    validateTaxStateCode: (e) => {
+      const name = e.target.name || "taxStateCode";
+      const raw = String(e.target.value ?? "").trim();
+      if (!/^\d{2}$/.test(raw)) {
+        toast.error("Tax State Code must be exactly two digits (e.g., 27).");
+        setFormData((prev) => ({ ...prev, [name]: "" }));
+        return;
+      }
+      setFormData((prev) => ({ ...prev, [name]: raw }));
+    },
+  };
 
   useEffect(() => {
     async function fetchFormHandler() {
@@ -66,6 +89,7 @@ export default function State() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleBlurEventFunctions={handleBlurEventFunctions}
               />
             </Box>
           </Box>

@@ -32,21 +32,37 @@ export default function ContainerSize() {
 
   const handleBlurEventFunctions = {
     duplicateHandler: async (event) => {
-      const { value, name } = event.target;
+      const { name, value } = event.target;
+      const raw = String(value ?? "").trim();
+      if (!/^\d{2}$/.test(raw)) {
+        setFormData((prev) => ({ ...prev, [name]: "" }));
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        toast.error("Value must be exactly two digits (e.g., 20).");
+        return false;
+      }
       const obj = {
         columns: name,
         tableName: "tblMasterData",
-        whereCondition: ` ${name} = '${value}' and masterListName = 'tblSize'  and status = 1`,
+        whereCondition: ` ${name} = '${raw}' AND masterListName = 'tblSize' AND status = 1`,
       };
-      const { success } = await getDataWithCondition(obj);
-      if (success) {
+
+      const resp = await getDataWithCondition(obj);
+      const isDuplicate =
+        resp?.success === true ||
+        (Array.isArray(resp?.data) && resp.data.length > 0);
+
+      if (isDuplicate) {
+        setFormData((prev) => ({ ...prev, [name]: "" }));
         setErrorState((prev) => ({ ...prev, [name]: true }));
         toast.error(`Duplicate ${name}!`);
-      } else {
-        setErrorState((prev) => ({ ...prev, [name]: false }));
+        return false;
       }
+      setFormData((prev) => ({ ...prev, [name]: raw }));
+      setErrorState((prev) => ({ ...prev, [name]: false }));
+      return true;
     },
   };
+
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {

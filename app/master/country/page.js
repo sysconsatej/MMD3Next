@@ -32,19 +32,54 @@ export default function Country() {
 
   const handleBlurEventFunctions = {
     duplicateHandler: async (event) => {
-      const { value, name } = event.target;
-      const obj = {
+      const { name, value } = event.target;
+      const SPECIAL_RE = /[@#$%&!`~*]/;
+      const toSql = (s) => String(s).replace(/'/g, "''");
+      const norm = (n, v) => {
+        const t = String(v ?? "").trim();
+        return n === "code" ? t.toUpperCase() : t;
+      };
+      const setField = (val) =>
+        setFormData((prev) => ({ ...prev, [name]: val }));
+      const setErr = (flag) =>
+        setErrorState?.((prev) => ({ ...prev, [name]: flag }));
+      const normalized = norm(name, value);
+      setField(normalized);
+      if (name === "code") {
+        if (!/^[A-Z]{2}$/.test(normalized)) {
+          setField("");
+          setErr(true);
+          toast.error("Code must be exactly two letters (e.g., IN).");
+          return false;
+        }
+      } else if (SPECIAL_RE.test(normalized)) {
+        setField("");
+        setErr(true);
+        toast.error("Special characters are not allowed.");
+        return false;
+      }
+      const literal = toSql(normalized.toUpperCase());
+      const whereCondition = `UPPER(${name}) = '${literal}' AND status = 1`;
+
+      const resp = await getDataWithCondition({
         columns: name,
         tableName: "tblCountry",
-        whereCondition: ` ${name} = '${value}' and status = 1`,
-      };
-      const { success } = await getDataWithCondition(obj);
-      if (success) {
-        setErrorState((prev) => ({ ...prev, [name]: true }));
+        whereCondition,
+      });
+
+      const isDuplicate =
+        resp?.success === true ||
+        (Array.isArray(resp?.data) && resp.data.length > 0);
+
+      if (isDuplicate) {
+        setField("");
+        setErr(true);
         toast.error(`Duplicate ${name}!`);
-      } else {
-        setErrorState((prev) => ({ ...prev, [name]: false }));
+        return false;
       }
+
+      setErr(false);
+      return true;
     },
   };
 

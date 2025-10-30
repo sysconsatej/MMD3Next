@@ -27,6 +27,26 @@ export default function City() {
       toast.error(error || message);
     }
   };
+  const handleChangeEventFunctions = {
+    toggleStateRequired: (name, value) => {
+      const countryName = String(value?.Name ?? "")
+        .trim()
+        .toLowerCase();
+      const isIndia = countryName === "india"; 
+
+      setJsonData((prev) => {
+        const next = { ...prev };
+        next.cityFields = (prev.cityFields || []).map((f) =>
+          f.name === "stateId" ? { ...f, required: isIndia } : f
+        );
+        return next;
+      });
+
+      if (!isIndia) {
+        setFormData((prev) => ({ ...prev, stateId: null }));
+      }
+    },
+  };
 
   useEffect(() => {
     async function fetchFormHandler() {
@@ -64,6 +84,7 @@ export default function City() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>

@@ -90,7 +90,7 @@ const fieldData = {
 };
 
 export const vessel = [
-  { label: " Code", value: "v.code" },
+  // { label: " Code", value: "v.code" },
   { label: "Name", value: "v.name" },
   { label: "Nationality", value: "c.name" },
   { label: "CallSign", value: "v.callSign" },

@@ -208,12 +208,12 @@ export function useNextPrevData({
   }, [refresh]);
 
   return {
-    prevId: neighbors.prevId,
-    nextId: neighbors.nextId,
-    prevLabel: neighbors.prevName,
-    nextLabel: neighbors.nextName,
-    canPrev: neighbors.prevId,
-    canNext: neighbors.nextId,
+    prevId: neighbors?.prevId,
+    nextId: neighbors?.nextId,
+    prevLabel: neighbors?.prevName,
+    nextLabel: neighbors?.nextName,
+    canPrev: neighbors?.prevId,
+    canNext: neighbors?.nextId,
   };
 }
 

@@ -20,9 +20,8 @@ export default function SelectionActionsBar({
   onEdit,
   onDelete,
   onUpdated,
-  allowBulkDelete = false, // NEW: opt-in to multi-delete
+  allowBulkDelete = false,
 }) {
-  // sanitize ids (avoid null/empty/whitespace)
   const ids = useMemo(
     () =>
       (Array.isArray(selectedIds) ? selectedIds : [])
@@ -64,7 +63,7 @@ export default function SelectionActionsBar({
   const handleRequest = async () => {
     if (!hasAny) return;
     const rowsPayload = ids.map((keyVal) => ({
-      [keyColumn]: keyVal, // dynamic key
+      [keyColumn]: keyVal,
       blStatus: "Requested",
       remarks: null,
     }));
@@ -74,7 +73,7 @@ export default function SelectionActionsBar({
   const handleVerify = async () => {
     if (!hasAny) return;
     const rowsPayload = ids.map((keyVal) => ({
-      [keyColumn]: keyVal, // dynamic key
+      [keyColumn]: keyVal,
       blStatus: "Verified",
       remarks: null,
     }));
@@ -84,7 +83,7 @@ export default function SelectionActionsBar({
   const submitReject = async () => {
     if (!hasAny) return;
     const rowsPayload = ids.map((keyVal) => ({
-      [keyColumn]: keyVal, // dynamic key
+      [keyColumn]: keyVal,
       blStatus: "Rejected",
       remarks: (remarks || "").trim() || null,
     }));
@@ -123,9 +122,9 @@ export default function SelectionActionsBar({
             onClick={() => {
               if (!onDelete) return;
               if (allowBulkDelete) {
-                onDelete(ids); // array of keys
+                onDelete(ids);
               } else if (isSingle) {
-                onDelete(ids[0]); // single key (legacy behavior)
+                onDelete(ids[0]);
               }
             }}
             disabled={allowBulkDelete ? !hasAny : !isSingle}

@@ -16,11 +16,13 @@ const fieldData = {
       label: "Port Code",
       name: "code",
       isEdit: "true",
+      blurFun: "duplicateHandler",
     },
     {
       label: "Port Name",
       name: "name",
       isEdit: "true",
+      blurFun: "duplicateHandler",
     },
     {
       label: "Country",
@@ -41,6 +43,8 @@ const fieldData = {
         { label: "Yes", value: "Y" },
         { label: "No", value: "N" },
       ],
+      defaultValue: "Y", // 👈 add this
+
       isEdit: "true",
       required: true,
     },

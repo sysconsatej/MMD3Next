@@ -30,21 +30,34 @@ export default function Depot() {
   };
   const handleBlurEventFunctions = {
     duplicateHandler: async (event) => {
-      const { value, name } = event.target;
+      const { name, value } = event.target;
+      const normalized = String(value ?? "").trim();
+      const literal = normalized.replace(/'/g, "''");
       const obj = {
         columns: name,
         tableName: "tblPort",
-        whereCondition: ` ${name} = '${value}' and portTypeId IN (SELECT id FROM tblMasterData WHERE name = 'DEPOT') and status = 1`,
+        whereCondition: `
+        UPPER(${name}) = '${literal.toUpperCase()}'
+        AND portTypeId IN (SELECT id FROM tblMasterData WHERE name = 'DEPOT')
+        AND status = 1
+      `,
       };
-      const { success } = await getDataWithCondition(obj);
-      if (success) {
+      const resp = await getDataWithCondition(obj);
+      const isDuplicate =
+        resp?.success === true ||
+        (Array.isArray(resp?.data) && resp.data.length > 0);
+      if (isDuplicate) {
         setErrorState((prev) => ({ ...prev, [name]: true }));
+        setFormData((prev) => ({ ...prev, [name]: "" }));
         toast.error(`Duplicate ${name}!`);
-      } else {
-        setErrorState((prev) => ({ ...prev, [name]: false }));
+        return false;
       }
+      setFormData((prev) => ({ ...prev, [name]: normalized }));
+      setErrorState((prev) => ({ ...prev, [name]: false }));
+      return true;
     },
   };
+
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
@@ -89,7 +102,9 @@ export default function Depot() {
       <form onSubmit={submitHandler}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base flex items-end m-0 ">Empty Depot</h1>
+            <h1 className="text-left text-base flex items-end m-0 ">
+              Empty Depot
+            </h1>
             <CustomButton
               text="Back"
               href="/master/depot/list"

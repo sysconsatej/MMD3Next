@@ -7,7 +7,12 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
-import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
+import {
+  formatDataWithForm,
+  formatFetchForm,
+  formatFormData,
+  setInputValue,
+} from "@/utils";
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
@@ -59,6 +64,81 @@ export default function Company() {
 
     fetchFormHandler();
   }, [mode.formId]);
+  const handleChangeEventFunctions = {
+    setStateCountryFromCity: async (_name, value) => {
+      if (!value?.Id) return;
+      const obj = {
+        columns: `(select id from tblState s where s.id = ci.stateId and s.status = 1) stateId,
+                (select name from tblState s where s.id = ci.stateId and s.status = 1) stateName,
+                (select id from tblCountry c where c.id = ci.countryId and c.status = 1) countryId,
+                (select name from tblCountry c where c.id = ci.countryId and c.status = 1) countryName`,
+        tableName: "tblCity ci",
+        whereCondition: `ci.id = ${value.Id} and ci.status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      if (!Array.isArray(data) || !data[0]) return;
+
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          tabName: null,
+          gridName: null,
+          tabIndex: null,
+          containerIndex: null,
+          name: "stateId",
+          value: { Id: data[0].stateId, Name: data[0].stateName },
+        })
+      );
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          tabName: null,
+          gridName: null,
+          tabIndex: null,
+          containerIndex: null,
+          name: "countryId",
+          value: { Id: data[0].countryId, Name: data[0].countryName },
+        })
+      );
+    },
+
+    setBranchStateCountryFromCity: async (name, value, { containerIndex }) => {
+      const obj = {
+        columns: `(select id from tblState s where s.id = ci.stateId and s.status = 1) stateId,
+                (select name from tblState s where s.id = ci.stateId and s.status = 1) stateName,
+                (select id from tblCountry c where c.id = ci.countryId and c.status = 1) countryId,
+                (select name from tblCountry c where c.id = ci.countryId and c.status = 1) countryName`,
+        tableName: "tblCity ci",
+        whereCondition: `ci.id = ${value.Id} and ci.status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      if (!Array.isArray(data) || !data[0]) return;
+
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          tabName: null,
+          gridName: "tblCompanyBranch",
+          tabIndex: null,
+          containerIndex: containerIndex,
+          name: "stateId",
+          value: { Id: data[0].stateId, Name: data[0].stateName },
+        })
+      );
+
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          tabName: null,
+          gridName: "tblCompanyBranch",
+          tabIndex: null,
+          containerIndex: containerIndex,
+          name: "countryId",
+          value: { Id: data[0].countryId, Name: data[0].countryName },
+        })
+      );
+    },
+  };
 
   const handleBlurEventFunctions = {
     validatePanCard: (e) => {
@@ -134,6 +214,7 @@ export default function Company() {
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
                 handleBlurEventFunctions={handleBlurEventFunctions}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
             <FormHeading
@@ -149,6 +230,7 @@ export default function Company() {
               gridName="tblCompanyBranch"
               buttons={branchGridButtons}
               handleBlurEventFunctions={handleBlurEventFunctions}
+              handleChangeEventFunctions={handleChangeEventFunctions}
             />
           </Box>
           <Box className="w-full flex mt-2 ">
