@@ -174,14 +174,27 @@ export default function Home() {
       const { data } = await getDataWithCondition(obj);
       setFormData((prev) => {
         const prevTblBl = [...(prev.tblBl || [])];
-        prevTblBl[tabIndex] = {
-          ...prevTblBl[tabIndex],
-          [`${setName}State`]: { Id: data[0].stateId, Name: data[0].stateName },
-          [`${setName}Country`]: {
-            Id: data[0].countyId,
-            Name: data[0].countryName,
-          },
-        };
+        if (setName === "shipper") {
+          prevTblBl[tabIndex] = {
+            ...prevTblBl[tabIndex],
+            [`${setName}Country`]: {
+              Id: data[0].countyId,
+              Name: data[0].countryName,
+            },
+          };
+        } else {
+          prevTblBl[tabIndex] = {
+            ...prevTblBl[tabIndex],
+            [`${setName}State`]: {
+              Id: data[0].stateId,
+              Name: data[0].stateName,
+            },
+            [`${setName}Country`]: {
+              Id: data[0].countyId,
+              Name: data[0].countryName,
+            },
+          };
+        }
 
         return {
           ...prev,
