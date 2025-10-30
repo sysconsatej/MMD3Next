@@ -8,7 +8,7 @@ import data from "./uploadData";
 import { theme } from "@/styles";
 import { ToastContainer } from "react-toastify";
 
-const hblUpload = () => {
+const HblUpload = () => {
   const [formData, setFormData] = useState({});
   const [jsonData, setJsonData] = useState(data);
 
@@ -42,4 +42,4 @@ const hblUpload = () => {
   );
 };
 
-export default hblUpload;
+export default HblUpload;
