@@ -94,7 +94,12 @@ export default function Home() {
     const promises = format.map(async (item) => {
       const formId = item?.id ?? null;
       const { id, ...resData } = item;
-      const formatItem = formatFormData("tblBl", resData, formId, "blId");
+      const formatItem = formatFormData(
+        "tblBl",
+        { ...resData, mblHblFlag: "HBL" },
+        formId,
+        "blId"
+      );
       const { success, error, message } = await insertUpdateForm(formatItem);
       if (success) {
         toast.success(message);

@@ -43,7 +43,7 @@ export default function Home() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData("tblBl", formData, mode.formId, "blId");
+    const format = formatFormData("tblBl", {...formData, mblHblFlag:"MBL"}, mode.formId, "blId");
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
