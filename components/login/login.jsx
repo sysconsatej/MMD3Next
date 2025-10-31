@@ -1,11 +1,9 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { CustomInput } from "../customInput";
 import CustomButton from "../button/button";
-import { Box, Card, CardContent } from "@mui/material";
 import { login } from "@/apis";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { auth } from "@/store";
@@ -47,7 +45,7 @@ export const LoginForm = () => {
         setUserData({ data: res?.user, name: "Master Marine" });
         toast.success(`${res?.message}`, {
           position: "top-right",
-          autoClose: 1000,
+          // autoClose: 1000,
         });
         push("/home");
       }
