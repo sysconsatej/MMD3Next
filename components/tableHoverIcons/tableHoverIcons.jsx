@@ -43,15 +43,15 @@ export const HoverActionIcons = ({
         <></>
       )}
 
-      {menuAccess["print"] ? (
+      {/* {menuAccess["print"] ? ( */}
         <Tooltip title="Print" arrow>
           <IconButton onClick={onPrint} sx={{ color: "#95a9e8" }} size="small">
             <LocalPrintshop fontSize="small" />
           </IconButton>
         </Tooltip>
-      ) : (
-        <></>
-      )}
+      {/* ) : ( */}
+        {/* <></> */}
+      {/* )} */}
       {paymentLogo ? (
         <Tooltip title="Payment" arrow>
           <IconButton onClick={onPayment} sx={{ color: "#95a9e8" }} size="small">
