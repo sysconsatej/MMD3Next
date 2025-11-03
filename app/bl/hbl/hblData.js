@@ -634,20 +634,27 @@ export const fieldData = {
     },
   ],
   tblBlPackingList: [
-    { label: "HS No", name: "hsnCode", isEdit: true },
-    { label: "Cargo Item Description", name: "commodity", isEdit: true },
+    { label: "HS No", name: "hsnCode", isEdit: true, required: true },
+    {
+      label: "Cargo Item Description",
+      name: "commodity",
+      isEdit: true,
+      required: true,
+    },
     {
       label: "UNO Code",
       name: "imoId",
       type: "dropdown",
       foreignTable: "class,tblImo",
       isEdit: true,
+      required: true,
     },
     {
       label: "No of Packages",
       name: "noOfPackages",
       type: "number",
       isEdit: true,
+      required: true,
     },
     {
       label: "Package Type",
@@ -659,6 +666,7 @@ export const fieldData = {
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       isEdit: true,
+      required: true,
     },
   ],
   tblAttachement: [
@@ -667,6 +675,7 @@ export const fieldData = {
       name: "path",
       type: "fileupload",
       isEdit: true,
+      required: true,
     },
   ],
 };
