@@ -33,26 +33,36 @@ export default function Port() {
     duplicateHandler: async (event) => {
       const { name, value } = event.target;
       const normalized = String(value ?? "").trim();
+      if (name === "code" && /[^A-Za-z0-9]/.test(normalized)) {
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        setFormData((prev) => ({ ...prev, [name]: "" }));
+        toast.error(
+          "Port Code can contain only letters and digits (no spaces or special characters)."
+        );
+        return false;
+      }
       const literal = normalized.replace(/'/g, "''");
       const obj = {
         columns: name,
         tableName: "tblPort",
         whereCondition: `
-          UPPER(${name}) = '${literal.toUpperCase()}'
-          AND portTypeId IN (SELECT id FROM tblMasterData WHERE name in ('SEA PORT','INLAND PORT'))
-          AND status = 1
-        `,
+        UPPER(${name}) = '${literal.toUpperCase()}'
+        AND portTypeId IN (SELECT id FROM tblMasterData WHERE name in ('SEA PORT','INLAND PORT'))
+        AND status = 1
+      `,
       };
       const resp = await getDataWithCondition(obj);
       const isDuplicate =
         resp?.success === true ||
         (Array.isArray(resp?.data) && resp.data.length > 0);
+
       if (isDuplicate) {
         setErrorState((prev) => ({ ...prev, [name]: true }));
         setFormData((prev) => ({ ...prev, [name]: "" }));
         toast.error(`Duplicate ${name}!`);
         return false;
       }
+
       setFormData((prev) => ({ ...prev, [name]: normalized }));
       setErrorState((prev) => ({ ...prev, [name]: false }));
       return true;

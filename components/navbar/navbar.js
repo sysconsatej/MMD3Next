@@ -127,7 +127,6 @@ export default function Navbar() {
   const { userData } = auth();
   const { setModalOpen } = useModal();
 
-
   const closeMenus = () => {
     setAnchorEl(null);
     setThirdMenuAnchor(null);

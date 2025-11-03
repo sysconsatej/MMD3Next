@@ -69,7 +69,11 @@ export default function InvoiceRequest() {
       return changed ? { ...prev, tblContainer: updated } : prev;
     });
   }, [formData?.tblContainer?.length]);
-
+  useEffect(() => {
+    setFormData((prev) =>
+      prev?.freeDays === undefined ? { ...prev, freeDays: true } : prev
+    );
+  }, []);
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>

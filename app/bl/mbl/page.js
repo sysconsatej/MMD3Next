@@ -43,7 +43,12 @@ export default function Home() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData("tblBl", formData, mode.formId, "blId");
+    const format = formatFormData(
+      "tblBl",
+      { ...formData, mblHblFlag: "MBL" },
+      mode.formId,
+      "blId"
+    );
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
@@ -90,14 +95,27 @@ export default function Home() {
       };
       const { data } = await getDataWithCondition(obj);
       setFormData((prev) => {
-        return {
-          ...prev,
-          [`${setName}State`]: { Id: data[0].stateId, Name: data[0].stateName },
-          [`${setName}Country`]: {
-            Id: data[0].countyId,
-            Name: data[0].countryName,
-          },
-        };
+        if (setName === "shipper") {
+          return {
+            ...prev,
+            [`${setName}Country`]: {
+              Id: data[0].countyId,
+              Name: data[0].countryName,
+            },
+          };
+        } else {
+          return {
+            ...prev,
+            [`${setName}State`]: {
+              Id: data[0].stateId,
+              Name: data[0].stateName,
+            },
+            [`${setName}Country`]: {
+              Id: data[0].countyId,
+              Name: data[0].countryName,
+            },
+          };
+        }
       });
     },
     setISOBySize: async (name, value, { containerIndex, tabIndex }) => {

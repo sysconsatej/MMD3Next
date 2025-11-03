@@ -66,6 +66,7 @@ const fieldData = {
       name: "freeDays",
       isEdit: true,
       type: "checkbox",
+      defaultValue: true, 
     },
     {
       label: " Valid Till",

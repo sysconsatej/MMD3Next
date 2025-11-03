@@ -3,6 +3,7 @@ import Sidebar from "@/components/sidebar/sidebar";
 import "./globals.css";
 import CustomModal from "@/components/customModal/customModal";
 import { Suspense } from "react";
+import { ToastContainer } from "react-toastify";
 
 export const metadata = {
   title: "MMD3",
@@ -24,6 +25,7 @@ export default function RootLayout({ children }) {
           </div>
         </div>
         <CustomModal />
+        <ToastContainer />
       </body>
     </html>
   );

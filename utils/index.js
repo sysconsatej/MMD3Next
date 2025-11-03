@@ -16,3 +16,4 @@ export {
   jsonExport,
   exportCSV,
 } from "./dynamicReportUtils";
+export { updateMenuVisibility }  from './showMenuData'

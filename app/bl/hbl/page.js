@@ -94,7 +94,12 @@ export default function Home() {
     const promises = format.map(async (item) => {
       const formId = item?.id ?? null;
       const { id, ...resData } = item;
-      const formatItem = formatFormData("tblBl", resData, formId, "blId");
+      const formatItem = formatFormData(
+        "tblBl",
+        { ...resData, mblHblFlag: "HBL" },
+        formId,
+        "blId"
+      );
       const { success, error, message } = await insertUpdateForm(formatItem);
       if (success) {
         toast.success(message);
@@ -169,14 +174,27 @@ export default function Home() {
       const { data } = await getDataWithCondition(obj);
       setFormData((prev) => {
         const prevTblBl = [...(prev.tblBl || [])];
-        prevTblBl[tabIndex] = {
-          ...prevTblBl[tabIndex],
-          [`${setName}State`]: { Id: data[0].stateId, Name: data[0].stateName },
-          [`${setName}Country`]: {
-            Id: data[0].countyId,
-            Name: data[0].countryName,
-          },
-        };
+        if (setName === "shipper") {
+          prevTblBl[tabIndex] = {
+            ...prevTblBl[tabIndex],
+            [`${setName}Country`]: {
+              Id: data[0].countyId,
+              Name: data[0].countryName,
+            },
+          };
+        } else {
+          prevTblBl[tabIndex] = {
+            ...prevTblBl[tabIndex],
+            [`${setName}State`]: {
+              Id: data[0].stateId,
+              Name: data[0].stateName,
+            },
+            [`${setName}Country`]: {
+              Id: data[0].countyId,
+              Name: data[0].countryName,
+            },
+          };
+        }
 
         return {
           ...prev,
@@ -264,22 +282,24 @@ export default function Home() {
     getMblHandler: async (event) => {
       const { value, name } = event.target;
       const obj = {
-        columns: "id,status",
+        columns: "id",
         tableName: "tblBl",
-        whereCondition: `mblNo = '${value}'`,
+        whereCondition: `mblNo = '${value}' and mblHblFlag = 'MBL' and status = 1`,
       };
       const { success, data } = await getDataWithCondition(obj);
       if (success) {
-        const getHblIds = data
-          .filter((item) => {
-            if (item.status) {
-              return item;
-            }
-          })
-          .map((item) => item.id)
-          .join(",");
-
-        setMode({ mode: mode.mode, formId: getHblIds });
+        const format = formatFetchForm(
+          {
+            mblFields: fieldData.mblFields,
+          },
+          "tblBl",
+          data[0].id
+        );
+        const { result } = await fetchForm(format);
+        const getData = formatDataWithForm(result, {
+          mblFields: fieldData.mblFields,
+        });
+        setFormData((prev) => ({ ...prev, ...getData }));
         setJsonData((prev) => {
           const prevMblFields = prev.mblFields;
           const disableMbl = prevMblFields.map((item) => {

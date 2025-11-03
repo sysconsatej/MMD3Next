@@ -18,3 +18,14 @@ export const getMenuAccessDetails = async (obj) => {
     return { message: e };
   }
 };
+
+export const getRoleAccessByRole = async ({ roleId }) => {
+  try {
+    const res = await axios.post(`${url}api/v1/access/getRoleAccess`, {
+      roleId: roleId,
+    });
+    return res.data;
+  } catch (e) {
+    return { message: e };
+  }
+};
