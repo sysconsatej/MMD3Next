@@ -10,19 +10,19 @@ export const fieldData = {
       name: "lineNo",
       isEdit: true,
     },
-    {
-      label: "Location(POD)",
-      name: "podId",
-      type: "dropdown",
-      tableName: "tblPort p",
-      displayColumn: "p.name",
-      joins:
-        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
-      where: "m.name = 'SEA PORT' AND c.name = 'India'",
-      orderBy: "p.name",
-      isEdit: true,
-      required: true,
-    },
+    // {
+    //   label: "Location",
+    //   name: "podId",
+    //   type: "dropdown",
+    //   tableName: "tblPort p",
+    //   displayColumn: "p.name",
+    //   joins:
+    //     "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+    //   where: "m.name = 'SEA PORT' AND c.name = 'India'",
+    //   orderBy: "p.name",
+    //   isEdit: true,
+    //   required: true,
+    // },
     {
       label: "Liner",
       name: "blOfId",
@@ -212,13 +212,11 @@ export const fieldData = {
       label: "Sender Id",
       name: "senderId",
       isEdit: true,
-      required: true,
     },
     {
       label: "Receive Id",
       name: "receiveId",
       isEdit: true,
-      required: true,
     },
     {
       label: "Vessel Id Type",
@@ -235,7 +233,6 @@ export const fieldData = {
       label: "Vessel No",
       name: "vesselNo",
       isEdit: true,
-      required: true,
     },
     {
       label: "Submit Type",
@@ -247,25 +244,21 @@ export const fieldData = {
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       isEdit: true,
-      required: true,
     },
     {
       label: "Code",
       name: "code",
       isEdit: true,
-      required: true,
     },
     {
       label: "Auth.Person Code",
       name: "authPersonCode",
       isEdit: true,
-      required: true,
     },
     {
       label: "VCN No",
       name: "vcnNo",
       isEdit: true,
-      required: true,
     },
     {
       label: "CSN No",
@@ -333,7 +326,7 @@ export const fieldData = {
     },
     {
       label: "Port of Unloading",
-      name: "",
+      name: "podId",
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "p.name",
