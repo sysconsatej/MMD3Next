@@ -611,7 +611,6 @@ export const fieldData = {
       name: "volume",
       type: "number",
       isEdit: true,
-      required: true,
     },
     {
       label: "NO of Package",

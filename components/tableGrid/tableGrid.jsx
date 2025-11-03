@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import {
   Card,
@@ -96,7 +96,7 @@ function TableGrid({
         }
       });
       setGridId(filterData?.length || 0);
-      if (handleGridEventFunctions["addGrid"])
+      if (handleGridEventFunctions?.["addGrid"])
         handleGridEventFunctions["addGrid"]({
           tabIndex,
           gridIndex: filterData?.length || 0,
@@ -173,6 +173,12 @@ function TableGrid({
       setGridId(index);
     }
   }
+
+  useEffect(() => {
+    if (fieldsMode === "") {
+      funcHandler.gridAddHandler();
+    }
+  }, []);
 
   return (
     <Box>
