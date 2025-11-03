@@ -229,3 +229,70 @@ export const printPDF = async (data) => {
     throw error; // Re-throw the error to handle it outside
   }
 };
+
+
+export const execSp = async ({ spName, jsonData = {}, paramName } = {}) => {
+  try {
+    const base = url?.endsWith("/") ? url : `${url}/`;
+    const res = await axios.post(
+      `${base}api/v1/execSpJsonUniversal`,
+      { spName, jsonData, ...(paramName ? { paramName } : {}) },
+      { validateStatus: () => true }
+    );
+
+    const body = res?.data ?? {};
+    return {
+      success: !!body?.success,
+      data: body?.data ?? null,
+      message: body?.message ?? null,
+      error: body?.error ?? null,
+      status: res.status,
+      spName,
+    };
+  } catch (error) {
+    const body = error?.response?.data ?? null;
+    return {
+      success: false,
+      data: body?.data ?? null,
+      message: body?.message ?? error?.message ?? "Something went wrong",
+      error: body?.error ?? error?.message ?? null,
+      status: error?.response?.status ?? 0,
+      spName,
+    };
+  }
+};
+
+export const execSpBatch = async ({ spName, jsonArray = [], paramName } = {}) => {
+  try {
+    const base = url?.endsWith("/") ? url : `${url}/`;
+    const res = await axios.post(
+      `${base}api/v1/execSpJsonUniversal`,
+      { spName, jsonData: jsonArray, ...(paramName ? { paramName } : {}) },
+      { validateStatus: () => true }
+    );
+
+    const body = res?.data ?? {};
+    return {
+      success: !!body?.success,
+      data: body?.data ?? null, // batch array from server
+      message: body?.message ?? null,
+      error: body?.error ?? null,
+      status: res.status,
+      spName,
+      batch: !!body?.batch,
+      count: body?.count ?? (Array.isArray(body?.data) ? body.data.length : 0),
+    };
+  } catch (error) {
+    const body = error?.response?.data ?? null;
+    return {
+      success: false,
+      data: body?.data ?? null,
+      message: body?.message ?? error?.message ?? "Something went wrong",
+      error: body?.error ?? error?.message ?? null,
+      status: error?.response?.status ?? 0,
+      spName,
+      batch: true,
+      count: 0,
+    };
+  }
+};

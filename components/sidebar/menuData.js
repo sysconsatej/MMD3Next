@@ -77,6 +77,7 @@ export const navItems = [
     submenu: [
       { name: "Invoice Request", href: "/request/invoiceRequest/list" },
       { name: "Invoice Upload", href: "/request/invoiceUpload/list" },
+      { name: "BL Hold", href: "/blPartyHold" },
     ],
   },
 
