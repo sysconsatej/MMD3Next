@@ -117,6 +117,7 @@ export const navItems = [
         href: "/request/invoiceUpload/list",
         isShow: false,
       },
+      { name: "BL Hold", href: "/blPartyHold" },
     ],
   },
 
