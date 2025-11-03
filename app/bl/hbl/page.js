@@ -73,7 +73,13 @@ export default function Home() {
   const [packTypeState, setPackTypeState] = useState(null);
 
   const handleChangeTab = (event, newValue) => {
-    setTabValue(newValue);
+    const form = document.querySelector("form");
+    if (!form.reportValidity()) {
+      toast.warn("Please fill required field first!");
+      return;
+    } else {
+      setTabValue(newValue);
+    }
   };
 
   useTotalGrossAndPack(formData, setTotals);
