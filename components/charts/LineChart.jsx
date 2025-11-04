@@ -32,7 +32,9 @@ const LineChart = ({ type }) => {
       <Line
         options={allChartData[`${type}`].options}
         data={allChartData[`${type}`].data}
+        height={400}
       />
+
     </>
   );
 };
