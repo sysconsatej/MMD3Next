@@ -35,6 +35,17 @@ export const fieldData = {
       isEdit: true,
     },
     {
+      label: "Company Branch",
+      name: "companyBranchId",
+      type: "dropdown",
+      tableName: "tblCompanyBranch t",
+      displayColumn: "t.name",
+      orderBy: "t.name",
+      foreignTable: "name,tblCompanyBranch",
+      isEdit: true,
+      required: true
+    },
+    {
       label: "MBL No",
       name: "mblNo",
       isEdit: true,
@@ -195,17 +206,7 @@ export const fieldData = {
     //   isEdit: true,
     //   required: true
     // },
-    // {
-    //   label: "Company Branch",
-    //   name: "companyBranchId",
-    //   type: "dropdown",
-    //   tableName: "tblCompanyBranch t",
-    //   displayColumn: "t.name",
-    //   orderBy: "t.name",
-    //   foreignTable: "name,tblCompanyBranch",
-    //   isEdit: true,
-    //   required: true
-    // },
+
   ],
   csnFields: [
     {
@@ -451,7 +452,7 @@ export const fieldData = {
     },
 
     {
-      label: "Gross Wt(Kgs)",
+      label: "Net Wt(Kgs)",
       name: "netWt",
       type: "number",
       // required: true,
@@ -840,8 +841,8 @@ export const fieldData = {
     //   isEdit: true,
     //   required: true,
     // },
-    { label: "Weight(Kgs)", name: "grossWt", type: "number", isEdit: true },
-    { label: "Volume(CBM)", name: "volume", isEdit: true, required: true },
+    { label: "NetWt(Kgs)", name: "netWt", type: "number", isEdit: true },
+    { label: "Volume(CBM)", name: "volume", isEdit: true, },
     {
       label: "NO of Package",
       name: "noOfPackages",
