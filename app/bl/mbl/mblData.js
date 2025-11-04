@@ -25,7 +25,7 @@ export const fieldData = {
     // },
     {
       label: "Liner",
-      name: "blOfId",
+      name: "companyId",
       type: "dropdown",
       tableName: "tblCompany t",
       displayColumn: "t.name",
@@ -445,15 +445,17 @@ export const fieldData = {
       label: "Cargo Gross Wt(Kgs)",
       name: "grossWt",
       type: "number",
-      required: true,
+      // required: true,
       isEdit: true,
+      disabled: true,
     },
 
     {
       label: "Gross Wt(Kgs)",
       name: "netWt",
       type: "number",
-      required: true,
+      // required: true,
+      disabled: true,
       isEdit: true,
     },
     {
@@ -581,11 +583,11 @@ export const fieldData = {
       required: true,
       isEdit: true,
     },
-    {
-      label: "Post Code",
-      name: "consignorPostCode",
-      isEdit: true,
-    },
+    // {
+    //   label: "Post Code",
+    //   name: "consignorPostCode",
+    //   isEdit: true,
+    // },
     {
       label: "Address",
       name: "shipperAddress",
@@ -980,7 +982,7 @@ export const totalFieldData = {
 export const mapping = {
   notifyPartyText: "consigneeText",
   notifyParty1IdNo: "consigneeIdNo",
-  notifyPartyTypeId: "consigneeTypeId",
+  // notifyPartyTypeId: "consigneeTypeId",
   notifyParty1Country: "consigneeCountry",
   notifyParty1State: "consigneeState",
   notifyParty1City: "consigneeCity",
