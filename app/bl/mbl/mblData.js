@@ -466,14 +466,18 @@ export const fieldData = {
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       required: true,
-      isEdit: true,
+      // isEdit: true,
+      disabled: true,
+
     },
     {
       label: "No of Package",
       name: "noOfPackages",
       type: "number",
       isEdit: true,
-      required: true,
+      // required: true,
+      disabled: true,
+
     },
     {
       label: "UNO/IMO Code",
@@ -791,7 +795,7 @@ export const fieldData = {
       tableName: "tblIsocode m",
       displayColumn: "m.isocode",
       isEdit: true,
-      // required: true,
+      required: true,
     },
     {
       label: "Seal Type",
@@ -810,7 +814,7 @@ export const fieldData = {
       name: "soc",
       isEdit: true,
       type: "checkbox",
-      required: true,
+      // required: true,
     },
     // {
     //   label: "Container Agent Code",
@@ -976,8 +980,8 @@ export const totalFieldData = {
 export const mapping = {
   notifyPartyText: "consigneeText",
   notifyParty1IdNo: "consigneeIdNo",
-  // notifyPartyTypeId: "consigneeTypeId",
-  notifyingParty1Country: "consigneeCountry",
+  notifyPartyTypeId: "consigneeTypeId",
+  notifyParty1Country: "consigneeCountry",
   notifyParty1State: "consigneeState",
   notifyParty1City: "consigneeCity",
   notifyParty1PinCode: "consigneePinCode",
