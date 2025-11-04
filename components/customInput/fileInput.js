@@ -106,12 +106,14 @@ const FileInput = ({
         field?.dragDrop ? "flex-col" : "items-end flex-row"
       } `}
     >
-      <InputLabel>
-        {remainingProps.required && (
-          <span className="text-red-600 font-bold">┃</span>
-        )}
-        {label}
-      </InputLabel>
+      {label && (
+        <InputLabel>
+          {remainingProps.required && (
+            <span className="text-red-600 font-bold ">┃</span>
+          )}
+          {label}
+        </InputLabel>
+      )}
       {!fieldValue ? (
         field?.dragDrop ? (
           <BrowserButton
