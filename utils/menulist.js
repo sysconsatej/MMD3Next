@@ -8,7 +8,7 @@ const arr = [
   "Container Size",//d
   "Container Status",//d
   "Container Type",//d
-  "Country", // done
+  // "Country", // done
   "Depot",//d
   "Dpd",//d
   "HAZ Details",//d

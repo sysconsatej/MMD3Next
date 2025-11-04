@@ -276,6 +276,8 @@ export default function InvoiceRequestList() {
                         onEdit={() => modeHandler("edit", row.id)}
                         onDelete={() => modeHandler("delete", row.id)}
                         menuAccess={{}}
+                        paymentLogo
+                        onPayment={paymentLoad}
                       />
                     </TableCell>
                   </TableRow>

@@ -6,10 +6,28 @@ import Link from "next/link";
 import clsx from "clsx";
 import { navItems } from "./menuData";
 import "./sidebar-scrollbar.css";
+import { auth, useRoleStore } from "@/store";
+import { getRoleAccessByRole } from "@/apis/menuAccess";
+import { updateMenuVisibility } from "@/utils";
 
 export default function Sidebar({ className = "" }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(true);
+  const { userData } = auth();
+  const roleId = userData?.data?.roleId;
+  const { data, fetchData } = useRoleStore();
+
+  useEffect(() => {
+    if (roleId) {
+      (async () => {
+        await fetchData(roleId);
+      })();
+    }
+  }, [roleId]);
+
+  const formattedData = data?.filter((r) => r.buttons !== undefined);
+  const renderMenuBasedonAccess =  updateMenuVisibility(navItems, formattedData);
+
 
   // Auto-expand groups that contain the current route
   const initialExpanded = useMemo(() => {
@@ -57,7 +75,7 @@ export default function Sidebar({ className = "" }) {
   const glassCls =
     "m-1 flex min-h-0 flex-1 flex-col rounded-lg bg-white/10 backdrop-blur-md ring-1 ring-white/20";
 
-  if (pathname === "/login") return <></>;
+    if (pathname === "/login") return <></>;
 
   return (
     <aside className={asideCls}>
@@ -80,7 +98,7 @@ export default function Sidebar({ className = "" }) {
         {/* Nav */}
         <nav className="mt-1 flex-1 overflow-y-auto sidebar-scroll">
           <ul className="space-y-[2px] px-1 pb-2">
-            {navItems.map((node, i) => (
+            {renderMenuBasedonAccess?.filter(i  => i?.isShow).map((node, i) => (
               <MenuNode
                 key={node.href || node.name || i}
                 node={node}
@@ -114,8 +132,8 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
     level === 0
       ? "bg-white/15 ring-1 ring-white/20"
       : level === 1
-      ? "bg-white/10 ring-1 ring-white/10"
-      : "bg-white/5 ring-1 ring-white/5";
+        ? "bg-white/10 ring-1 ring-white/10"
+        : "bg-white/5 ring-1 ring-white/5";
 
   // Shared base item styles — slim, full width hover
   const baseItemCls = clsx(
@@ -189,7 +207,7 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
       {/* Dynamic-height collapsible so ALL children show */}
       <Collapsible id={`menu-${key}`} isOpen={isOpen}>
         <ul className="ml-3 mt-1 space-y-[2px] border-l border-white/10 pl-2">
-          {(node.submenu || node.children || []).map((child, i) => (
+          {(node.submenu || node.children || []).filter(i  => i.isShow).map((child, i) => (
             <MenuNode
               key={child.href || child.name || i}
               node={child}

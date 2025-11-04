@@ -38,30 +38,10 @@ const fieldData = {
             foreignTable: "name,tblMasterData",
             isEdit: true,
         },
-
         {
             label: "Submitter Code",
             name: "submitterId",
         },
-        // {
-        //     label: "Vessel-Voyage No.",
-        //     name: "podvesselId",
-        //     type: "dropdown",
-        //     tableName: "tblVessel v",
-        //     displayColumn: "ISNULL(v.name,'') + ' - ' + ISNULL(vo.voyageNo,'')",
-        //     joins: "left JOIN tblVoyage vo ON vo.vesselId = v.id",
-        //     searchColumn: "v.name",
-        //     orderBy: "v.name, vo.voyageNo",
-        //     foreignTable: "name,tblVessel",
-        //     isEdit: true,
-        //     required: true,
-        // },
-        // {
-        //     label: "Mobile (Requester)",
-        //     name: "name",
-        //     isEdit: true,
-        //     required: true,
-        // },
         {
             label: "Upload File",
             name: "upload",

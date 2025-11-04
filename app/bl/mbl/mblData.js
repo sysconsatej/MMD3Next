@@ -7,25 +7,25 @@ export const fieldData = {
   mblFields: [
     {
       label: "Line No/Sub Line No",
-      name: "lineNo",
+      name: "subLineNo",
       isEdit: true,
     },
-    {
-      label: "Location(POD)",
-      name: "podId",
-      type: "dropdown",
-      tableName: "tblPort p",
-      displayColumn: "p.name",
-      joins:
-        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
-      where: "m.name = 'SEA PORT' AND c.name = 'India'",
-      orderBy: "p.name",
-      isEdit: true,
-      required: true,
-    },
+    // {
+    //   label: "Location",
+    //   name: "podId",
+    //   type: "dropdown",
+    //   tableName: "tblPort p",
+    //   displayColumn: "p.name",
+    //   joins:
+    //     "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+    //   where: "m.name = 'SEA PORT' AND c.name = 'India'",
+    //   orderBy: "p.name",
+    //   isEdit: true,
+    //   required: true,
+    // },
     {
       label: "Liner",
-      name: "blOfId",
+      name: "companyId",
       type: "dropdown",
       tableName: "tblCompany t",
       displayColumn: "t.name",
@@ -33,6 +33,17 @@ export const fieldData = {
       foreignTable: "name,tblCompany",
       required: true,
       isEdit: true,
+    },
+    {
+      label: "Company Branch",
+      name: "companyBranchId",
+      type: "dropdown",
+      tableName: "tblCompanyBranch t",
+      displayColumn: "t.name",
+      orderBy: "t.name",
+      foreignTable: "name,tblCompanyBranch",
+      isEdit: true,
+      required: true
     },
     {
       label: "MBL No",
@@ -195,30 +206,18 @@ export const fieldData = {
     //   isEdit: true,
     //   required: true
     // },
-    // {
-    //   label: "Company Branch",
-    //   name: "companyBranchId",
-    //   type: "dropdown",
-    //   tableName: "tblCompanyBranch t",
-    //   displayColumn: "t.name",
-    //   orderBy: "t.name",
-    //   foreignTable: "name,tblCompanyBranch",
-    //   isEdit: true,
-    //   required: true
-    // },
+
   ],
   csnFields: [
     {
       label: "Sender Id",
       name: "senderId",
       isEdit: true,
-      required: true,
     },
     {
       label: "Receive Id",
       name: "receiveId",
       isEdit: true,
-      required: true,
     },
     {
       label: "Vessel Id Type",
@@ -235,7 +234,6 @@ export const fieldData = {
       label: "Vessel No",
       name: "vesselNo",
       isEdit: true,
-      required: true,
     },
     {
       label: "Submit Type",
@@ -247,25 +245,21 @@ export const fieldData = {
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       isEdit: true,
-      required: true,
     },
     {
       label: "Code",
       name: "code",
       isEdit: true,
-      required: true,
     },
     {
       label: "Auth.Person Code",
       name: "authPersonCode",
       isEdit: true,
-      required: true,
     },
     {
       label: "VCN No",
       name: "vcnNo",
       isEdit: true,
-      required: true,
     },
     {
       label: "CSN No",
@@ -333,7 +327,7 @@ export const fieldData = {
     },
     {
       label: "Port of Unloading",
-      name: "",
+      name: "podId",
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "p.name",
@@ -452,15 +446,17 @@ export const fieldData = {
       label: "Cargo Gross Wt(Kgs)",
       name: "grossWt",
       type: "number",
-      required: true,
+      // required: true,
       isEdit: true,
+      disabled: true,
     },
 
     {
-      label: "Gross Wt(Kgs)",
+      label: "Net Wt(Kgs)",
       name: "netWt",
       type: "number",
-      required: true,
+      // required: true,
+      disabled: true,
       isEdit: true,
     },
     {
@@ -473,14 +469,18 @@ export const fieldData = {
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       required: true,
-      isEdit: true,
+      // isEdit: true,
+      disabled: true,
+
     },
     {
       label: "No of Package",
       name: "noOfPackages",
       type: "number",
       isEdit: true,
-      required: true,
+      // required: true,
+      disabled: true,
+
     },
     {
       label: "UNO/IMO Code",
@@ -584,11 +584,11 @@ export const fieldData = {
       required: true,
       isEdit: true,
     },
-    {
-      label: "Post Code",
-      name: "consignorPostCode",
-      isEdit: true,
-    },
+    // {
+    //   label: "Post Code",
+    //   name: "consignorPostCode",
+    //   isEdit: true,
+    // },
     {
       label: "Address",
       name: "shipperAddress",
@@ -817,7 +817,7 @@ export const fieldData = {
       name: "soc",
       isEdit: true,
       type: "checkbox",
-      required: true,
+      // required: true,
     },
     // {
     //   label: "Container Agent Code",
@@ -841,8 +841,8 @@ export const fieldData = {
     //   isEdit: true,
     //   required: true,
     // },
-    { label: "Weight(Kgs)", name: "grossWt", type: "number", isEdit: true },
-    { label: "Volume(CBM)", name: "volume", isEdit: true, required: true },
+    { label: "NetWt(Kgs)", name: "netWt", type: "number", isEdit: true },
+    { label: "Volume(CBM)", name: "volume", isEdit: true, },
     {
       label: "NO of Package",
       name: "noOfPackages",
@@ -983,8 +983,8 @@ export const totalFieldData = {
 export const mapping = {
   notifyPartyText: "consigneeText",
   notifyParty1IdNo: "consigneeIdNo",
-  notifyPartyTypeId: "consigneeTypeId",
-  notifyingParty1Country: "consigneeCountry",
+  // notifyPartyTypeId: "consigneeTypeId",
+  notifyParty1Country: "consigneeCountry",
   notifyParty1State: "consigneeState",
   notifyParty1City: "consigneeCity",
   notifyParty1PinCode: "consigneePinCode",
