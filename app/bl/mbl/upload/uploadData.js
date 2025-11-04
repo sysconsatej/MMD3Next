@@ -6,8 +6,7 @@ const fieldData = {
             type: "dropdown",
             tableName: "tblPort p",
             displayColumn: "p.name + ' - ' + ISNULL(p.code,'')",
-            joins:
-                "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+            joins: "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
             where: "m.name IN ('SEA PORT') and c.name = 'India'",
             orderBy: "p.name, p.code",
             foreignTable: "name,tblPort",
@@ -38,14 +37,15 @@ const fieldData = {
             foreignTable: "name,tblMasterData",
             isEdit: true,
         },
-        {
-            label: "Submitter Code",
-            name: "submitterId",
-        },
+        { label: "Submitter Code", name: "submitterId" },
+
+        // fileupload as you already had (add accept/multiple only if supported)
         {
             label: "Upload File",
             name: "upload",
-            type: "fileupload"
+            type: "fileupload",
+            // accept: ".xlsx,.xls,.csv,.json",
+            // multiple: true,
         },
     ],
 };

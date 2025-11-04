@@ -791,7 +791,7 @@ export const fieldData = {
       tableName: "tblIsocode m",
       displayColumn: "m.isocode",
       isEdit: true,
-      required: true,
+      // required: true,
     },
     {
       label: "Seal Type",
@@ -976,7 +976,7 @@ export const totalFieldData = {
 export const mapping = {
   notifyPartyText: "consigneeText",
   notifyParty1IdNo: "consigneeIdNo",
-  notifyPartyTypeId: "consigneeTypeId",
+  // notifyPartyTypeId: "consigneeTypeId",
   notifyingParty1Country: "consigneeCountry",
   notifyParty1State: "consigneeState",
   notifyParty1City: "consigneeCity",
