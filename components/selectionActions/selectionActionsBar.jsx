@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Dialog,
@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import { toast } from "react-toastify";
-import { updateStatusRows } from "@/apis";
+import { getDataWithCondition, updateStatusRows } from "@/apis";
 
 export default function SelectionActionsBar({
   selectedIds = [],
@@ -25,7 +25,7 @@ export default function SelectionActionsBar({
   const ids = useMemo(
     () =>
       (Array.isArray(selectedIds) ? selectedIds : [])
-        .map((v) => (v ?? ""))
+        .map((v) => v ?? "")
         .map((v) => (typeof v === "string" ? v.trim() : v))
         .filter((v) => v !== "" && v !== null && v !== undefined),
     [selectedIds]
@@ -37,6 +37,7 @@ export default function SelectionActionsBar({
 
   const [rejectOpen, setRejectOpen] = useState(false);
   const [remarks, setRemarks] = useState("");
+  const [hblStatus, setHblStatus] = useState(null);
 
   const openReject = () => {
     setRemarks("");
@@ -62,31 +63,46 @@ export default function SelectionActionsBar({
 
   const handleRequest = async () => {
     if (!hasAny) return;
-    const rowsPayload = ids.map((keyVal) => ({
-      [keyColumn]: keyVal,
-      blStatus: "Requested",
-      remarks: null,
-    }));
+    const requestStatus = hblStatus.filter((item) => item.Name === "Request");
+    const rowsPayload = ids.flatMap((keyVal) =>
+      keyVal.split(",").map((id) => {
+        return {
+          [keyColumn]: id,
+          hblRequestStatus: requestStatus[0].Id,
+          hblRequestRemarks: null,
+        };
+      })
+    );
     await applyUpdate(rowsPayload, "Requested");
   };
 
   const handleVerify = async () => {
     if (!hasAny) return;
-    const rowsPayload = ids.map((keyVal) => ({
-      [keyColumn]: keyVal,
-      blStatus: "Verified",
-      remarks: null,
-    }));
+    const veriFyStatus = hblStatus.filter((item) => item.Name === "Confirm");
+    const rowsPayload = ids.flatMap((keyVal) =>
+      keyVal.split(",").map((id) => {
+        return {
+          [keyColumn]: id,
+          hblRequestStatus: veriFyStatus[0].Id,
+          hblRequestRemarks: null,
+        };
+      })
+    );
     await applyUpdate(rowsPayload, "Verified");
   };
 
   const submitReject = async () => {
     if (!hasAny) return;
-    const rowsPayload = ids.map((keyVal) => ({
-      [keyColumn]: keyVal,
-      blStatus: "Rejected",
-      remarks: (remarks || "").trim() || null,
-    }));
+    const rejectStatus = hblStatus.filter((item) => item.Name === "Reject");
+    const rowsPayload = ids.flatMap((keyVal) =>
+      keyVal.split(",").map((id) => {
+        return {
+          [keyColumn]: id,
+          hblRequestStatus: rejectStatus[0].Id,
+          hblRequestRemarks: (remarks || "").trim() || null,
+        };
+      })
+    );
     const ok = await applyUpdate(rowsPayload, "Rejected");
     if (ok) closeReject();
   };
@@ -102,6 +118,20 @@ export default function SelectionActionsBar({
       </div>
     );
   };
+
+  useEffect(() => {
+    async function getHblStatus() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblHblStatus' and status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      setHblStatus(data);
+    }
+
+    getHblStatus();
+  }, []);
 
   return (
     <>
