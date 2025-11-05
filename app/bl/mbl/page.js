@@ -31,6 +31,7 @@ export default function Home() {
   const { mode, setMode } = formStore();
   const [gridStatus, setGridStatus] = useState(null);
   const [totals, setTotals] = useState({});
+  const [packTypeState, setPackTypeState] = useState(null);
 
   useTotalGrossAndPack(formData, setTotals);
   const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
@@ -193,7 +194,45 @@ export default function Home() {
   };
 
   useEffect(() => {
+    if (formData?.tblBlContainer) {
+      let packType = formData?.tblBlContainer?.[0]?.packageId;
+      const totalGrossAndPack = formData?.tblBlContainer?.reduce(
+        (sum, cur) => {
+          sum.grossWt += Number(cur?.grossWt || 0);
+          sum.netWt += Number(cur?.netWt || 0);
+          sum.noOfPackages += Number(cur?.noOfPackages || 0);
+          if (
+            (packType?.Name !== cur?.packageId?.Name &&
+              cur?.packageId !== undefined) ||
+            null
+          ) {
+            sum.packType = packTypeState;
+          }
+          return sum;
+        },
+        { grossWt: 0, noOfPackages: 0, packType: packType, netWt: 0 }
+      );
+      const updateForm = {
+        ...formData,
+        grossWt: totalGrossAndPack?.grossWt,
+        netWt: totalGrossAndPack?.netWt,
+        noOfPackages: totalGrossAndPack?.noOfPackages,
+        packageId: totalGrossAndPack?.packType,
+      };
+      setFormData(updateForm);
+    }
+  }, [formData?.tblBlContainer]);
+
+  useEffect(() => {
     async function fetchFormHandler() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      setPackTypeState(data[0]);
+
       if (!mode.formId) return;
       setFieldsMode(mode.mode);
 
