@@ -115,16 +115,16 @@ export default function BLList() {
 
   const rows = Array.isArray(blData)
     ? blData.map((item) =>
-      createData(
-        getRowId(item),
-        item["mblNo"],
-        item["hblNo"],
-        item["cargoTypeId"],
-        item["podVesselId"],
-        item["hblCount"],
-        item["hblId"]
+        createData(
+          getRowId(item),
+          item["mblNo"],
+          item["hblNo"],
+          item["cargoTypeId"],
+          item["podVesselId"],
+          item["hblCount"],
+          item["hblId"]
+        )
       )
-    )
     : [];
 
   useEffect(() => {
@@ -188,25 +188,10 @@ export default function BLList() {
     return map;
   }, [blData]);
 
-  const splitCsv = (csv) =>
-    String(csv || "")
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
   const selectedHblIds = useMemo(() => {
-    const list = selectedIds.flatMap((mbl) => splitCsv(mblToHblIds[mbl] || ""));
+    const list = selectedIds.flatMap((mbl) => mblToHblIds[mbl] || "");
     return Array.from(new Set(list));
   }, [selectedIds, mblToHblIds]);
-
-
-  const handleBulkDelete = async () => {
-    const csv = selectedIds
-      .map((mbl) => mblToHblIds[mbl])
-      .filter(Boolean)
-      .join(",");
-    if (csv) await handleDeleteRecord(csv);
-  };
 
   return (
     <ThemeProvider theme={theme}>
