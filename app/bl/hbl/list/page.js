@@ -54,9 +54,19 @@ function createData(
   cargoTypeId,
   podVesselId,
   hblCount,
-  hblId
+  hblId,
+  status
 ) {
-  return { id, mblNo, hblNo, cargoTypeId, podVesselId, hblCount, hblId };
+  return {
+    id,
+    mblNo,
+    hblNo,
+    cargoTypeId,
+    podVesselId,
+    hblCount,
+    hblId,
+    status,
+  };
 }
 
 export default function BLList() {
@@ -82,15 +92,15 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "b.mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.id) as hblCount, string_agg(b.id, ',') as hblId",
+            "b.mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.id) as hblCount, string_agg(b.id, ',') as hblId, m1.name status",
           tableName: "tblBl b",
           pageNo,
           pageSize,
           advanceSearch: advanceSearchFilter(advanceSearch),
-          groupBy: "group by b.mblNo, m.name, v.name",
+          groupBy: "group by b.mblNo, m.name, v.name, m1.name",
           orderBy: "order by max(b.createdDate) desc, b.mblNo asc",
           joins:
-            "left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1",
+            "left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id left join tblMasterData m1 on m1.id = b.hblRequestStatus join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -115,16 +125,17 @@ export default function BLList() {
 
   const rows = Array.isArray(blData)
     ? blData.map((item) =>
-      createData(
-        getRowId(item),
-        item["mblNo"],
-        item["hblNo"],
-        item["cargoTypeId"],
-        item["podVesselId"],
-        item["hblCount"],
-        item["hblId"]
+        createData(
+          getRowId(item),
+          item["mblNo"],
+          item["hblNo"],
+          item["cargoTypeId"],
+          item["podVesselId"],
+          item["hblCount"],
+          item["hblId"],
+          item["status"]
+        )
       )
-    )
     : [];
 
   useEffect(() => {
@@ -188,25 +199,10 @@ export default function BLList() {
     return map;
   }, [blData]);
 
-  const splitCsv = (csv) =>
-    String(csv || "")
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
   const selectedHblIds = useMemo(() => {
-    const list = selectedIds.flatMap((mbl) => splitCsv(mblToHblIds[mbl] || ""));
+    const list = selectedIds.flatMap((mbl) => mblToHblIds[mbl] || "");
     return Array.from(new Set(list));
   }, [selectedIds, mblToHblIds]);
-
-
-  const handleBulkDelete = async () => {
-    const csv = selectedIds
-      .map((mbl) => mblToHblIds[mbl])
-      .filter(Boolean)
-      .join(",");
-    if (csv) await handleDeleteRecord(csv);
-  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -257,6 +253,7 @@ export default function BLList() {
                 <TableCell>Type Of Cargo</TableCell>
                 <TableCell>Vessel-Voyage No</TableCell>
                 <TableCell>HBL Count</TableCell>
+                <TableCell>Status</TableCell>
                 <TableCell>Attachment</TableCell>
               </TableRow>
             </TableHead>
@@ -278,6 +275,7 @@ export default function BLList() {
                     <TableCell>{row.cargoTypeId}</TableCell>
                     <TableCell>{row.podVesselId}</TableCell>
                     <TableCell>{row.hblCount}</TableCell>
+                    <TableCell>{row.status}</TableCell>
                     <TableCell>
                       <AttachFileIcon
                         sx={{ cursor: "pointer", fontSize: "16px" }}
@@ -290,7 +288,7 @@ export default function BLList() {
                         }
                       />
                     </TableCell>
-                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100 !min-w-fit">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.hblId)}
                         onEdit={() => modeHandler("edit", row.hblId)}
