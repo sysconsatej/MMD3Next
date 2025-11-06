@@ -356,7 +356,6 @@ export const fieldData = {
       orderBy: "p.name",
       foreignTable: "name,tblPort",
       isEdit: true,
-      required: true,
     },
     {
       label: "Direct Port Delivery",
@@ -369,7 +368,6 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblPort",
       isEdit: true,
-      required: true,
     },
     {
       label: "Cargo Movement",
@@ -427,14 +425,17 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
-    // {
-    //   label: "Item Type",
-    //   name: "itemTypeId",
-    //   type: "dropdown",
-    //   labelType: "name,tblItemType",
-    //   foreignTable: "name,tblMasterData",
-    //   isEdit: true,
-    // },
+    {
+      label: "Item Type",
+      name: "blTypeId",
+      type: "dropdown",
+      displayColumn: "m.name",
+      tableName: "tblMasterData m",
+      where: "m.masterListName = 'tblItemType'",
+      orderBy: "m.name",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+    },
     {
       label: "MLO Code",
       name: "mloId",
@@ -817,13 +818,12 @@ export const fieldData = {
       type: "checkbox",
       // required: true,
     },
-    // {
-    //   label: "Container Agent Code",
-    //   name: "Agent",
-    //   isEdit: true,
-    //   required: true,
-    // },
-
+    {
+      label: "Container Agent Code",
+      name: "containerAgentCode",
+      isEdit: true,
+      required: true,
+    },
     {
       label: "Cargo Gross Wt(Kgs)",
       name: "grossWt",
