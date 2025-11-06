@@ -45,4 +45,3 @@ export const BlStatus = () => {
   );
 };
 
-export default BlStatus;
