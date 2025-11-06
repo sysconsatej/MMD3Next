@@ -43,7 +43,7 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblCompanyBranch",
       isEdit: true,
-      required: true
+      required: true,
     },
     {
       label: "MBL No",
@@ -206,7 +206,6 @@ export const fieldData = {
     //   isEdit: true,
     //   required: true
     // },
-
   ],
   csnFields: [
     {
@@ -471,7 +470,6 @@ export const fieldData = {
       required: true,
       // isEdit: true,
       disabled: true,
-
     },
     {
       label: "No of Package",
@@ -480,7 +478,6 @@ export const fieldData = {
       isEdit: true,
       // required: true,
       disabled: true,
-
     },
     {
       label: "UNO/IMO Code",
@@ -797,6 +794,7 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblIsocode m",
       displayColumn: "m.isocode",
+      foreignTable: "isocode,tblIsocode",
       isEdit: true,
       required: true,
     },
@@ -842,7 +840,7 @@ export const fieldData = {
     //   required: true,
     // },
     { label: "NetWt(Kgs)", name: "netWt", type: "number", isEdit: true },
-    { label: "Volume(CBM)", name: "volume", isEdit: true, },
+    { label: "Volume(CBM)", name: "volume", isEdit: true },
     {
       label: "NO of Package",
       name: "noOfPackages",
