@@ -3,7 +3,7 @@
 // Only parent level renders icons; children render text-only.
 
 export const navItems = [
-  { name: "Home", href: "/home", icon: "home", isShow: true, },
+  { name: "Home", href: "/home", icon: "home", isShow: true },
   {
     name: "Master",
     icon: "cube",
@@ -107,6 +107,18 @@ export const navItems = [
     icon: "inbox",
     isShow: false,
     submenu: [
+      // { name: "Invoice Request", href: "/request/invoiceRequest/list" },
+      {
+        name: "Invoices Release",
+        href: "/request/invoiceRelease/list",
+        isShow: true,
+      },
+      {
+        name: "Invoice Payment",
+        href: "/request/invoicePayment",
+        isShow: true,
+      },
+      { name: "Invoice Upload", href: "/request/invoiceUpload/list" },
       {
         name: "Invoice Request",
         href: "/request/invoiceRequest/list",

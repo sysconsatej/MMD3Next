@@ -21,17 +21,18 @@ import {
   Link, // ⬅️ added Link
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
-import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
-import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer, toast } from "react-toastify";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
-import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
+import InvoiceToolbarActions from "@/components/selectionActions/selectionActionBarInvoice";
+import InvoiceMiniToggles from "@/components/selectionActions/selectionActionBarInvoiceProcess";
+import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
+import { advanceSearchFields, advanceSearchFilter } from "../invoiceReleaseData";
 
 const LIST_TABLE = "tblInvoiceRequest i";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -53,7 +54,8 @@ function createData(
   freeDays,
   highSealSale,
   remarks,
-  date
+  date,
+  Requester
 ) {
   return {
     id,
@@ -64,6 +66,7 @@ function createData(
     highSealSale,
     remarks,
     date,
+    Requester,
   };
 }
 
@@ -76,9 +79,14 @@ export default function InvoiceRequestList() {
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
   const [rows, setRows] = useState([]);
-  const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
+  const [advanceSearch, setAdvanceSearch] = useState({});
   const [loadingState, setLoadingState] = useState("Loading...");
   const tableWrapRef = useRef(null);
+  const [filters, setFilters] = useState({
+    reRequest: false,
+    reProcess: false,
+    hblCount: false,
+  });
 
   const [selectedIds, setSelectedIds] = useState([]);
   const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
@@ -98,14 +106,14 @@ export default function InvoiceRequestList() {
       try {
         const tableObj = {
           columns:
-            "i.id id, c.name liner, i.blNo blNo, m.name type, i.isFreeDays freeDays, i.isHighSealSale highSealSale, i.remarks remarks, i.createdDate date",
+            "i.id id, c.name liner, i.blNo blNo, m.name type, i.isFreeDays freeDays, i.isHighSealSale highSealSale, i.remarks remarks, i.createdDate date,u.name Requester",
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
-          searchColumn: search.searchColumn,
-          searchValue: search.searchValue,
+          advanceSearch: advanceSearchFilter(advanceSearch),
           joins: `left join tblCompany c on c.id = i.shippingLineId  
-            left join tblMasterData m on m.id = i.deliveryTypeId`,
+            left join tblMasterData m on m.id = i.deliveryTypeId
+            left join tblUser u ON i.createdBy = u.id`,
           orderBy:
             "order by isnull(i.updatedDate, i.createdDate) desc, i.id desc",
         };
@@ -121,7 +129,8 @@ export default function InvoiceRequestList() {
             item["freeDays"],
             item["highSealSale"],
             item["remarks"],
-            item["date"]
+            item["date"],
+            item["Requester"]
           )
         );
 
@@ -136,7 +145,7 @@ export default function InvoiceRequestList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, advanceSearch]
   );
 
   useEffect(() => {
@@ -158,11 +167,6 @@ export default function InvoiceRequestList() {
     }
   };
 
-  const handleBulkDelete = async (ids = []) => {
-    if (!ids?.length) return;
-    await Promise.all(ids.map((rid) => handleDeleteRecord(rid)));
-  };
-
   const modeHandler = useCallback(
     (mode, formId = null) => {
       if (mode === "delete") {
@@ -181,19 +185,19 @@ export default function InvoiceRequestList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center">
-            Invoice Request
+            Invoice Release
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
-            <SearchBar
+            <AdvancedSearchBar
+              fields={advanceSearchFields.bl}
+              advanceSearch={advanceSearch}
+              setAdvanceSearch={setAdvanceSearch}
               getData={getData}
               rowsPerPage={rowsPerPage}
-              search={search}
-              setSearch={setSearch}
             />
-            <CustomButton text="Add" onClick={() => modeHandler(null, null)} />
           </Box>
         </Box>
-        <SelectionActionsBar
+        {/* <SelectionActionsBar
           selectedIds={selectedIds}
           tableName={UPDATE_TABLE}
           keyColumn="id"
@@ -202,8 +206,39 @@ export default function InvoiceRequestList() {
           onEdit={(id) => modeHandler("edit", id)}
           onDelete={(ids) => handleBulkDelete(Array.isArray(ids) ? ids : [ids])}
           onUpdated={() => getData(page, rowsPerPage)}
+        /> */}
+        <InvoiceToolbarActions
+          selectedIds={selectedIds}
+          onView={(id) => modeHandler("view", id)}
+          onRelease={(idsOrId) => {
+            /* call API */
+          }}
+          onKyc={(ids) => {
+            /* open KYC flow */
+          }}
+          onUpload={(ids) => {
+            /* open upload dialog */
+          }}
+          onInvoiceLookup={(ids) => {
+            /* navigate / fetch invoices */
+          }}
+          onNotify={(ids) => {
+            /* send email/SMS */
+          }}
+          onClose={(ids) => {
+            /* close requests */
+          }}
+          onReprocess={(ids) => {
+            /* re-run process */
+          }}
         />
-
+        <InvoiceMiniToggles
+          reRequest={filters.reRequest}
+          reProcess={filters.reProcess}
+          hblCount={filters.hblCount}
+          onToggle={(name, val) => setFilters((p) => ({ ...p, [name]: val }))}
+          onOpenNotifications={() => setNotificationModal(true)}
+        />
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small" sx={{ minWidth: 900 }}>
             <TableHead>
@@ -224,6 +259,7 @@ export default function InvoiceRequestList() {
                 <TableCell>High Sea Sales</TableCell>
                 <TableCell>Remarks</TableCell>
                 <TableCell>Request Date</TableCell>
+                <TableCell>Requested By</TableCell>
               </TableRow>
             </TableHead>
 
@@ -262,6 +298,7 @@ export default function InvoiceRequestList() {
                     <TableCell>{toYesNo(row.highSealSale)}</TableCell>
                     <TableCell>{row.remarks}</TableCell>
                     <TableCell>{row.date}</TableCell>
+                    <TableCell>{row.Requester}</TableCell>
                     <TableCell
                       align="right"
                       className="table-icons opacity-0 group-hover:opacity-100"
