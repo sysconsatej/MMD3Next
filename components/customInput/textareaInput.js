@@ -4,12 +4,14 @@ import { Box, InputLabel } from "@mui/material";
 const TextAreaInput = ({ commonProps, fieldValue, field }) => {
   return (
     <Box className={`flex items-end gap-2 ${field.gridColumn}`}>
-      <InputLabel>
-        {commonProps.required && (
-          <span className="text-red-600 font-bold ">┃</span>
-        )}
-        {commonProps.label}
-      </InputLabel>
+      {commonProps.label && (
+        <InputLabel>
+          {commonProps.required && (
+            <span className="text-red-600 font-bold ">┃</span>
+          )}
+          {commonProps.label}
+        </InputLabel>
+      )}
       <textarea
         {...commonProps}
         value={fieldValue ? fieldValue : ""}

@@ -48,7 +48,7 @@ const fieldData = {
       foreignTable: "name,tblPort",
       joins: "JOIN tblMasterData m ON m.id = p.portTypeId",
       where: "m.name IN ('PORT TERMINAL')",
-      displayColumn: "p.name",
+      displayColumn: "p.code",
       orderBy: "p.name",
       selectedConditions: [{ portOfCallId: "referencePortId" }],
       isEdit: true,

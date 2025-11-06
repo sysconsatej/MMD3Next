@@ -51,7 +51,7 @@ export default function VoyageList() {
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: "left join tblVessel v1  on v1.id =v.id",
+          joins: "left join tblVessel v1  on v1.id = v.vesselId",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setVoyageData(data);

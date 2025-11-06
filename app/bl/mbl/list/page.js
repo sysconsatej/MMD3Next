@@ -239,7 +239,7 @@ export default function BLList() {
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
+                {/* <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
                   <Checkbox
                     size="small"
                     indeterminate={someChecked}
@@ -247,7 +247,7 @@ export default function BLList() {
                     onChange={toggleAll}
                     sx={CHECKBOX_SX}
                   />
-                </TableCell>
+                </TableCell> */}
                 <TableCell>MBL NO</TableCell>
                 <TableCell>MBL date</TableCell>
                 <TableCell>Consignee Name</TableCell>
@@ -263,14 +263,14 @@ export default function BLList() {
               {rows.length > 0 ? (
                 rows.map((row) => (
                   <TableRow key={row.id} hover className="relative group ">
-                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                    {/* <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <Checkbox
                         size="small"
                         checked={selectedIds.includes(row.id)}
                         onChange={() => toggleOne(row.id)}
                         sx={CHECKBOX_SX}
                       />
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>{row.mblNo}</TableCell>
                     <TableCell>{row.mblDate}</TableCell>
                     <TableCell>{row.consigneeText}</TableCell>
