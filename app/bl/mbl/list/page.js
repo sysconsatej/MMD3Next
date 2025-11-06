@@ -225,7 +225,7 @@ export default function BLList() {
           </Box>
         </Box>
 
-        <SelectionActionsBar
+        {/* <SelectionActionsBar
           selectedIds={selectedIds}
           tableName={UPDATE_TABLE}
           keyColumn="id"
@@ -233,7 +233,7 @@ export default function BLList() {
           onEdit={(id) => modeHandler("edit", id)}
           onDelete={(id) => handleDeleteRecord(id)}
           onUpdated={() => getData(page, rowsPerPage)}
-        />
+        /> */}
 
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small" sx={{ minWidth: 650 }}>
