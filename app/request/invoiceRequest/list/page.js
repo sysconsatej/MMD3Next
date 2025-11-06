@@ -33,7 +33,6 @@ import SelectionActionsBar from "@/components/selectionActions/selectionActionsB
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
 
-
 const LIST_TABLE = "tblInvoiceRequest i";
 const UPDATE_TABLE = LIST_TABLE.trim()
   .split(/\s+/)[0]
@@ -54,7 +53,7 @@ function createData(
   freeDays,
   highSealSale,
   remarks,
-  date,
+  date
 ) {
   return {
     id,
@@ -81,7 +80,6 @@ export default function InvoiceRequestList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const tableWrapRef = useRef(null);
 
-
   const [selectedIds, setSelectedIds] = useState([]);
   const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
   const allChecked =
@@ -106,8 +104,7 @@ export default function InvoiceRequestList() {
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins:
-            `left join tblCompany c on c.id = i.shippingLineId  
+          joins: `left join tblCompany c on c.id = i.shippingLineId  
             left join tblMasterData m on m.id = i.deliveryTypeId`,
           orderBy:
             "order by isnull(i.updatedDate, i.createdDate) desc, i.id desc",
@@ -124,7 +121,7 @@ export default function InvoiceRequestList() {
             item["freeDays"],
             item["highSealSale"],
             item["remarks"],
-            item["date"],
+            item["date"]
           )
         );
 
@@ -178,8 +175,6 @@ export default function InvoiceRequestList() {
     [router, setMode]
   );
 
-
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -208,7 +203,7 @@ export default function InvoiceRequestList() {
           onDelete={(ids) => handleBulkDelete(Array.isArray(ids) ? ids : [ids])}
           onUpdated={() => getData(page, rowsPerPage)}
         />
-        
+
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small" sx={{ minWidth: 900 }}>
             <TableHead>
@@ -276,8 +271,6 @@ export default function InvoiceRequestList() {
                         onEdit={() => modeHandler("edit", row.id)}
                         onDelete={() => modeHandler("delete", row.id)}
                         menuAccess={{}}
-                        paymentLogo
-                        onPayment={paymentLoad}
                       />
                     </TableCell>
                   </TableRow>

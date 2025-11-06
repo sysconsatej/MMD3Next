@@ -1,9 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { ThemeProvider, Box, Tabs, Tab, Typography } from "@mui/material";
+import {
+  ThemeProvider,
+  Box,
+  Tabs,
+  Tab,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
+  CircularProgress,
+  Button,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 import { theme } from "@/styles";
 import { ToastContainer, toast } from "react-toastify";
@@ -18,12 +31,7 @@ import { payment } from "@/apis/payment";
 
 function CustomTabPanel({ children, value, index, ...other }) {
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`inv-tabpanel-${index}`}
-      {...other}
-    >
+    <div role="tabpanel" hidden={value !== index} id={`inv-tabpanel-${index}`} {...other}>
       {value === index && <Box className="pt-2">{children}</Box>}
     </div>
   );
@@ -41,7 +49,12 @@ export default function InvoicePayment() {
   const [invoiceArray, setInvoiceArray] = useState([0]);
   const [tabValue, setTabValue] = useState(0);
 
+  // payment modal state
   const [paying, setPaying] = useState(false);
+  const [payOpen, setPayOpen] = useState(false);
+  const [payUrl, setPayUrl] = useState(null);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [iframeError, setIframeError] = useState(null);
 
   const handleChangeTab = (_e, newValue) => setTabValue(newValue);
   const handleAddInvoice = () => {
@@ -62,24 +75,32 @@ export default function InvoicePayment() {
     toast.success("Saved!");
   };
 
+  const handleClosePay = () => {
+    setPayOpen(false);
+    setPayUrl(null);
+    setIframeLoaded(false);
+    setIframeError(null);
+  };
+
   const quickPayHandler = async () => {
     try {
       setPaying(true);
+      setIframeLoaded(false);
+      setIframeError(null);
+
       const res = await payment();
-      const link =
-        res?.data?.link || res?.data?.url || res?.link || res?.url || null;
+      const link = res?.data?.link || res?.data?.url || res?.link || res?.url || null;
 
       if (link) {
-        window.location.assign(link);
+        setPayUrl(link);
+        setPayOpen(true);
       } else {
         toast.error("Payment link not received.");
       }
     } catch (err) {
       console.error(err);
       const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Payment initialization failed.";
+        err?.response?.data?.message || err?.message || "Payment initialization failed.";
       toast.error(msg);
     } finally {
       setPaying(false);
@@ -129,12 +150,7 @@ export default function InvoicePayment() {
           </Box>
 
           <Box className="px-3">
-            <Tabs
-              value={tabValue}
-              onChange={handleChangeTab}
-              aria-label="Invoice Tabs"
-              variant="scrollable"
-            >
+            <Tabs value={tabValue} onChange={handleChangeTab} aria-label="Invoice Tabs" variant="scrollable">
               {invoiceArray.map((_, index) => (
                 <Tab
                   key={index}
@@ -144,12 +160,7 @@ export default function InvoicePayment() {
                   {...a11yProps(index)}
                 />
               ))}
-              <Tab
-                label="Add Invoice"
-                icon={<AddIcon />}
-                iconPosition="end"
-                onClick={handleAddInvoice}
-              />
+              <Tab label="Add Invoice" icon={<AddIcon />} iconPosition="end" onClick={handleAddInvoice} />
             </Tabs>
           </Box>
 
@@ -200,15 +211,80 @@ export default function InvoicePayment() {
           ))}
 
           <Box className="w-full flex justify-center gap-2 mt-4">
-            <CustomButton
-              text={paying ? "Processing…" : "Quick Pay"}
-              onClick={quickPayHandler}
-              disabled={paying}
-            />
+            <CustomButton text={paying ? "Processing…" : "Quick Pay"} onClick={quickPayHandler} disabled={paying} />
             <CustomButton text="Save" type="submit" />
           </Box>
         </section>
       </form>
+
+      {/* Payment Modal */}
+      <Dialog open={payOpen} onClose={handleClosePay} fullWidth maxWidth="xl">
+        <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          Payment
+          <IconButton aria-label="close" onClick={handleClosePay} size="small">
+            <CloseRoundedIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          {!payUrl ? (
+            <Box className="flex items-center justify-center" sx={{ height: "60vh" }}>
+              <Typography variant="body2">No payment link available.</Typography>
+            </Box>
+          ) : (
+            <Box sx={{ position: "relative", height: "80vh", width: "100%" }}>
+              {!iframeLoaded && !iframeError && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    zIndex: 1,
+                    background: "rgba(255,255,255,0.6)",
+                  }}
+                >
+                  <CircularProgress size={28} />
+                </Box>
+              )}
+
+              {iframeError && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexDirection: "column",
+                    gap: 1.5,
+                  }}
+                >
+                  <Typography variant="body2" align="center">
+                    The payment page refused to load inside a modal (X-Frame-Options).
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    onClick={() => window.open(payUrl, "_blank", "noopener,noreferrer")}
+                  >
+                    Open in new tab
+                  </Button>
+                </Box>
+              )}
+
+              <iframe
+                src={payUrl}
+                title="Payment"
+                style={{ border: 0, width: "100%", height: "100%" }}
+                onLoad={() => setIframeLoaded(true)}
+                onError={() => setIframeError(true)}
+                allow="payment *; geolocation *; camera *; microphone *;"
+              />
+            </Box>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <ToastContainer />
     </ThemeProvider>
   );
