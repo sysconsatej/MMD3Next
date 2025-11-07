@@ -25,7 +25,13 @@ const fieldData = {
       foreignTable: "name,tblPort",
       isEdit: true,
     },
-    { label: "BL No", name: "blNo", isEdit: true, required: true },
+    {
+      label: "BL No",
+      name: "blNo",
+      isEdit: true,
+      required: true,
+      blurFun: "checkBlForCompany",
+    },
     {
       label: "Type",
       name: "typeId",
@@ -58,23 +64,23 @@ const fieldData = {
     },
     {
       label: "Inv Amt",
-      name: "invAmt",
+      name: "totalInvoiceAmount",
       type: "number",
       isEdit: true,
       required: true,
     },
-    {
-      label: "Currency",
-      name: "currencyId",
-      type: "dropdown",
-      tableName: "tblMasterData m",
-      displayColumn: "m.name",
-      searchColumn: "m.name",
-      orderBy: "m.name",
-      where: "m.masterListName = 'tblCurrency'",
-      foreignTable: "name,tblMasterData",
-      isEdit: true,
-    },
+    // {
+    //   label: "Currency",
+    //   name: "currencyId",
+    //   type: "dropdown",
+    //   tableName: "tblMasterData m",
+    //   displayColumn: "m.name",
+    //   searchColumn: "m.name",
+    //   orderBy: "m.name",
+    //   where: "m.masterListName = 'tblCurrency'",
+    //   foreignTable: "name,tblMasterData",
+    //   isEdit: true,
+    // },
     {
       label: "Invoice Date",
       name: "invoiceDate",
@@ -94,26 +100,14 @@ const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
-    { label: "Valid Till", name: "validTill", type: "date", isEdit: true },
-    {
-      label: "Payment Remarks",
-      name: "paymentRemarksId",
-      type: "dropdown",
-      tableName: "tblMasterData m",
-      displayColumn: "m.name",
-      where: "m.masterListName='tblPaymentRemarks'",
-      orderBy: "m.name",
-      foreignTable: "name,tblMasterData",
-      isEdit: true,
-    },
 
     {
       label: "Bill to Party",
-      name: "billToParty",
+      name: "billingPartyId",
       isEdit: true,
       gridColumn: "col-span-2",
     },
-    { label: "GSTIN", name: "gstin", isEdit: true },
+    { label: "GSTIN", name: "billingPartyGstinNo", isEdit: true },
     {
       label: "Remarks",
       name: "remarks",
@@ -122,11 +116,6 @@ const fieldData = {
       gridColumn: "col-span-2",
       isEdit: true,
     },
-  ],
-
-  customerFields: [
-    { label: "Customer Id", name: "customerId", isEdit: true },
-    { label: "Liner Reference No.", name: "linerReferenceNo", isEdit: true },
   ],
 
   // Uploads (HBL-style grid)

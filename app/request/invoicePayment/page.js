@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   ThemeProvider,
   Box,
@@ -26,14 +26,22 @@ import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
 import data, { cfsGridButtons } from "./invoicePaymentData";
 import { payment } from "@/apis/payment";
+import { getDataWithCondition, insertUpdateForm } from "@/apis";
+import { formatFormData } from "@/utils";
 
 function CustomTabPanel({ children, value, index, ...other }) {
   return (
-    <div role="tabpanel" hidden={value !== index} id={`inv-tabpanel-${index}`} {...other}>
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`inv-tabpanel-${index}`}
+      {...other}
+    >
       {value === index && <Box className="pt-2">{children}</Box>}
     </div>
   );
 }
+
 const a11yProps = (index) => ({
   id: `inv-tab-${index}`,
   "aria-controls": `inv-tabpanel-${index}`,
@@ -47,6 +55,7 @@ export default function InvoicePayment() {
 
   const [invoiceArray, setInvoiceArray] = useState([0]);
   const [tabValue, setTabValue] = useState(0);
+  const [errorState, setErrorState] = useState({});
 
   // payment modal state
   const [paying, setPaying] = useState(false);
@@ -56,6 +65,7 @@ export default function InvoicePayment() {
   const [iframeError, setIframeError] = useState(null);
 
   const handleChangeTab = (_e, newValue) => setTabValue(newValue);
+
   const handleAddInvoice = () => {
     setInvoiceArray((prev) => {
       const nextIndex = (prev.at(-1) ?? -1) + 1;
@@ -64,16 +74,132 @@ export default function InvoicePayment() {
       return next;
     });
   };
+
   const handleRemove = (index) => {
     setInvoiceArray((prev) => prev.filter((_, i) => i !== index));
     if (tabValue >= index && tabValue > 0) setTabValue(tabValue - 1);
   };
 
-  const submitHandler = (e) => {
-    e.preventDefault();
-    toast.success("Saved!");
+  /* === helpers for BL/MBL check === */
+  const extractId = useCallback((v) => {
+    if (v && typeof v === "object") {
+      return v.id ?? v.value ?? v.companyId ?? v.Id ?? null;
+    }
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  }, []);
+
+  const sqlEscape = useCallback((s = "") => String(s).replace(/'/g, "''"), []);
+
+  /* === BL/MBL exists for Beneficiary (Company) === */
+  const checkBlForCompany = useCallback(
+    async (event) => {
+      const { value, name } = event.target; // ex: name === "blNo" or "mblNo"
+      const typed = (value || "").trim();
+
+      if (!typed) return;
+
+      // pull companyId (Beneficiary) from current formData
+      const companyId =
+        extractId(formData?.beneficiaryName) ??
+        extractId(formData?.companyId) ??
+        extractId(formData?.beneficiaryId);
+
+      const errKey = name || "blNo";
+
+      if (!companyId) {
+        setErrorState((p) => ({ ...p, [errKey]: true }));
+        toast.warn("Please select Beneficiary Name first.");
+        return;
+      }
+
+      // Query: tblBl b with b.mblNo & b.companyId
+      const payload = {
+        columns: "TOP 1 b.id, b.mblNo",
+        tableName: "tblBl b",
+        whereCondition: `
+          LOWER(b.mblNo) = LOWER('${sqlEscape(typed)}')
+          AND b.companyId = ${companyId}
+          AND ISNULL(b.status, 1) = 1`,
+      };
+
+      try {
+        const { success, data } = await getDataWithCondition(payload);
+
+        if (success && Array.isArray(data) && data.length > 0) {
+          setErrorState((p) => ({ ...p, [errKey]: false }));
+          toast.success("BL found for this Beneficiary.");
+
+          // ✅ Store the blId in formData for use in submitHandler
+          setFormData((p) => ({ ...p, blId: data[0].id }));
+        } else {
+          setErrorState((p) => ({ ...p, [errKey]: true }));
+          toast.error("BL not found for this Beneficiary.");
+        }
+      } catch (e) {
+        console.error(e);
+        setErrorState((p) => ({ ...p, [errKey]: true }));
+        toast.error("Error checking BL/MBL. Please try again.");
+      }
+    },
+    [formData, extractId, sqlEscape]
+  );
+
+  // bundle handlers to feed into CustomInput
+  const handleBlurEventFunctions = {
+    checkBlForCompany,
   };
 
+  /* === Submit Handler === */
+  const submitHandler = async (e) => {
+    e.preventDefault();
+
+    try {
+      const blId = formData?.blId;
+      if (!blId) {
+        toast.error("BL not found. Please check BL No first.");
+        return;
+      }
+
+      const invoiceTabs = formData?.tblInvoice || [];
+
+      if (invoiceTabs.length === 0) {
+        toast.warn("Please add at least one invoice before submitting.");
+        return;
+      }
+
+      const promises = invoiceTabs.map(async (invoice, index) => {
+        const invoiceId = invoice?.id ?? null;
+
+        const formatted = formatFormData(
+          "tblInvoice",
+          {
+            ...invoice,
+            blId,
+            tblInvoiceRequestContainer:
+              invoice.tblInvoiceRequestContainer || [],
+          },
+          invoiceId,
+          "invoiceRequestId"
+        );
+
+        const { success, message, error } = await insertUpdateForm(formatted);
+        if (success) {
+          toast.success(`Invoice ${index + 1} saved successfully.`);
+        } else {
+          toast.error(error || message || `Error saving Invoice ${index + 1}.`);
+        }
+      });
+
+      await Promise.all(promises);
+      toast.success("All invoices submitted successfully!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Error submitting invoices. Please try again.");
+    }
+  };
+
+  /* === Quick Pay Logic === */
   const handleClosePay = () => {
     setPayOpen(false);
     setPayUrl(null);
@@ -88,7 +214,8 @@ export default function InvoicePayment() {
       setIframeError(null);
 
       const res = await payment();
-      const link = res?.data?.link || res?.data?.url || res?.link || res?.url || null;
+      const link =
+        res?.data?.link || res?.data?.url || res?.link || res?.url || null;
 
       if (link) {
         setPayUrl(link);
@@ -99,7 +226,9 @@ export default function InvoicePayment() {
     } catch (err) {
       console.error(err);
       const msg =
-        err?.response?.data?.message || err?.message || "Payment initialization failed.";
+        err?.response?.data?.message ||
+        err?.message ||
+        "Payment initialization failed.";
       toast.error(msg);
     } finally {
       setPaying(false);
@@ -110,6 +239,7 @@ export default function InvoicePayment() {
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
         <section className="py-2 px-4">
+          {/* Header Row */}
           <Box className="flex justify-between items-end mb-2">
             <h1 className="text-left text-base m-0">Payment New Invoice</h1>
             <Box className="flex gap-2">
@@ -117,6 +247,7 @@ export default function InvoicePayment() {
             </Box>
           </Box>
 
+          {/* BL Info */}
           <FormHeading
             text="BL Information"
             variant="body2"
@@ -128,9 +259,12 @@ export default function InvoicePayment() {
               formData={formData}
               setFormData={setFormData}
               fieldsMode={fieldsMode}
+              handleBlurEventFunctions={handleBlurEventFunctions}
+              errorState={errorState}
             />
           </Box>
 
+          {/* Attachments */}
           <FormHeading
             text="Invoice Details"
             variant="body2"
@@ -148,8 +282,14 @@ export default function InvoicePayment() {
             />
           </Box>
 
+          {/* Invoice Tabs */}
           <Box className="px-3">
-            <Tabs value={tabValue} onChange={handleChangeTab} aria-label="Invoice Tabs" variant="scrollable">
+            <Tabs
+              value={tabValue}
+              onChange={handleChangeTab}
+              aria-label="Invoice Tabs"
+              variant="scrollable"
+            >
               {invoiceArray.map((_, index) => (
                 <Tab
                   key={index}
@@ -159,10 +299,16 @@ export default function InvoicePayment() {
                   {...a11yProps(index)}
                 />
               ))}
-              <Tab label="Add Invoice" icon={<AddIcon />} iconPosition="end" onClick={handleAddInvoice} />
+              <Tab
+                label="Add Invoice"
+                icon={<AddIcon />}
+                iconPosition="end"
+                onClick={handleAddInvoice}
+              />
             </Tabs>
           </Box>
 
+          {/* Invoice Tab Panels */}
           {invoiceArray.map((_, index) => (
             <CustomTabPanel key={index} value={tabValue} index={index}>
               <Box className="border-2 border-solid border-gray-300 p-3 mt-2 ">
@@ -174,21 +320,10 @@ export default function InvoicePayment() {
                     fieldsMode={fieldsMode}
                     tabName="tblInvoice"
                     tabIndex={index}
+                    handleBlurEventFunctions={handleBlurEventFunctions}
+                    errorState={errorState}
                   />
                 </Box>
-
-                <FormHeading text="Invoicing Instructions">
-                  <Box className="grid grid-cols-3 gap-2 p-2 ">
-                    <CustomInput
-                      fields={jsonData.customerFields}
-                      formData={formData}
-                      setFormData={setFormData}
-                      fieldsMode={fieldsMode}
-                      tabName={"tblBl"}
-                      tabIndex={index}
-                    />
-                  </Box>
-                </FormHeading>
 
                 <FormHeading
                   text="Container Details"
@@ -209,8 +344,13 @@ export default function InvoicePayment() {
             </CustomTabPanel>
           ))}
 
+          {/* Footer Buttons */}
           <Box className="w-full flex justify-center gap-2 mt-4">
-            <CustomButton text={paying ? "Processing…" : "Quick Pay"} onClick={quickPayHandler} disabled={paying} />
+            <CustomButton
+              text={paying ? "Processing…" : "Quick Pay"}
+              onClick={quickPayHandler}
+              disabled={paying}
+            />
             <CustomButton text="Save" type="submit" />
           </Box>
         </section>
@@ -218,7 +358,13 @@ export default function InvoicePayment() {
 
       {/* Payment Modal */}
       <Dialog open={payOpen} onClose={handleClosePay} fullWidth maxWidth="xl">
-        <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <DialogTitle
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           Payment
           <IconButton aria-label="close" onClick={handleClosePay} size="small">
             <CloseRoundedIcon />
@@ -226,8 +372,13 @@ export default function InvoicePayment() {
         </DialogTitle>
         <DialogContent dividers>
           {!payUrl ? (
-            <Box className="flex items-center justify-center" sx={{ height: "60vh" }}>
-              <Typography variant="body2">No payment link available.</Typography>
+            <Box
+              className="flex items-center justify-center"
+              sx={{ height: "60vh" }}
+            >
+              <Typography variant="body2">
+                No payment link available.
+              </Typography>
             </Box>
           ) : (
             <Box sx={{ position: "relative", height: "80vh", width: "100%" }}>
@@ -260,11 +411,14 @@ export default function InvoicePayment() {
                   }}
                 >
                   <Typography variant="body2" align="center">
-                    The payment page refused to load inside a modal (X-Frame-Options).
+                    The payment page refused to load inside a modal
+                    (X-Frame-Options).
                   </Typography>
                   <Button
                     variant="contained"
-                    onClick={() => window.open(payUrl, "_blank", "noopener,noreferrer")}
+                    onClick={() =>
+                      window.open(payUrl, "_blank", "noopener,noreferrer")
+                    }
                   >
                     Open in new tab
                   </Button>
