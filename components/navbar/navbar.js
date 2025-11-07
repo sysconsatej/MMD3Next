@@ -26,6 +26,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { navItems } from "./index";
 import { navTheme } from "@/styles";
 import { useModal, auth } from "@/store";
+import { useInitUser } from "@/utils";
 
 const norm = (s) => (s ? s.split("?")[0].replace(/\/$/, "") : "");
 const scope = (path, depth) => norm(path).split("/").slice(0, depth).join("/");
@@ -109,6 +110,7 @@ const sx = {
 };
 
 export default function Navbar() {
+  useInitUser();
   const [anchorEl, setAnchorEl] = useState(null);
   const [thirdMenuAnchor, setThirdMenuAnchor] = useState(null);
   const [openThirdMenu, setOpenThirdMenu] = useState(null);
@@ -126,6 +128,7 @@ export default function Navbar() {
   // aakash yadav code
   const { userData } = auth();
   const { setModalOpen } = useModal();
+  console.log("Navbar User Data:", userData);
 
 
   const closeMenus = () => {
@@ -148,7 +151,7 @@ export default function Navbar() {
   const toggleSubmenu = (name) =>
     setOpenSubmenus((prev) => ({ ...prev, [name]: !prev[name] }));
 
-  if (pathname === "/login") return <></>;
+  // if (pathname === "/login") return <></>;
 
   return (
     <ThemeProvider theme={navTheme}>
