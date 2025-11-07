@@ -115,7 +115,7 @@ export default function Navbar() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeLink, setActiveLink] = useState("Home");
-  const [activeSubLink, setActiveSubLink] = useState("");
+  const [activeSubLink, setActiveSubLink] = useState(""); 
   const [activeParentSubLink, setActiveParentSubLink] = useState("");
   const [openSubmenus, setOpenSubmenus] = useState({});
 
@@ -321,7 +321,7 @@ export default function Navbar() {
               >
                 <Avatar>{String(userData?.data?.userName).charAt(0).toUpperCase() }</Avatar>
                 <Box>
-                  <div className="account-name">{userData?.name}</div>
+                  <div className="account-name">{userData?.data?.companyName}</div>
                   <div className="account-role">
                     {userData.data?.roleName || ""}
                   </div>
@@ -468,7 +468,7 @@ export default function Navbar() {
             <Avatar>{String(userData?.data?.userName).charAt(0).toUpperCase()}</Avatar>
             <Box>
               <Typography className="account-name">
-                {userData?.data?.userName || ``}
+                {userData?.data?.companyName || ``}
               </Typography>
               <Typography className="account-role">
                 {userData?.data?.roleName || ''}
