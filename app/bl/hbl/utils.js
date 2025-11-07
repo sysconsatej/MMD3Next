@@ -46,8 +46,14 @@ export function advanceSearchFilter(advanceSearch) {
     condition.push(`b.hblNo = '${advanceSearch.hblNo}'`);
   }
 
-  if (advanceSearch.podId) {
-    condition.push(`b.podId = '${advanceSearch.podId.Id}'`);
+  if (advanceSearch.hblRequestStatus) {
+    condition.push(
+      `b.hblRequestStatus = '${advanceSearch.hblRequestStatus.Id}'`
+    );
+  }
+
+  if (advanceSearch.podvesselId) {
+    condition.push(`b.podvesselId = '${advanceSearch.podvesselId.Id}'`);
   }
 
   if (advanceSearch.cargoTypeId) {
