@@ -264,8 +264,8 @@ export function formFormatThirdLevel(data) {
         }
 
         result.push({
-          ...commonData,
           ...tempData,
+          ...commonData,
         });
       }
     } else {

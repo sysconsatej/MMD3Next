@@ -21,6 +21,10 @@ export default function SelectionActionsBar({
   onDelete,
   onUpdated,
   allowBulkDelete = false,
+  isDelete = false,
+  isRequest = false,
+  isReject = false,
+  isVerify = false,
 }) {
   const ids = useMemo(
     () =>
@@ -147,26 +151,38 @@ export default function SelectionActionsBar({
             onClick={() => isSingle && onEdit && onEdit(ids[0])}
             disabled={!isSingle}
           />
-          <Segment
-            label="Delete"
-            onClick={() => {
-              if (!onDelete) return;
-              if (allowBulkDelete) {
-                onDelete(ids);
-              } else if (isSingle) {
-                onDelete(ids[0]);
-              }
-            }}
-            disabled={allowBulkDelete ? !hasAny : !isSingle}
-          />
-          <Segment label="Request" onClick={handleRequest} disabled={!hasAny} />
-          <Segment label="Reject" onClick={openReject} disabled={!hasAny} />
-          <Segment
-            label="Verify"
-            onClick={handleVerify}
-            disabled={!hasAny}
-            isLast
-          />
+          {isDelete && (
+            <Segment
+              label="Delete"
+              onClick={() => {
+                if (!onDelete) return;
+                if (allowBulkDelete) {
+                  onDelete(ids);
+                } else if (isSingle) {
+                  onDelete(ids[0]);
+                }
+              }}
+              disabled={allowBulkDelete ? !hasAny : !isSingle}
+            />
+          )}
+          {isRequest && (
+            <Segment
+              label="Request"
+              onClick={handleRequest}
+              disabled={!hasAny}
+            />
+          )}
+          {isReject && (
+            <Segment label="Reject" onClick={openReject} disabled={!hasAny} />
+          )}
+          {isVerify && (
+            <Segment
+              label="Verify"
+              onClick={handleVerify}
+              disabled={!hasAny}
+              isLast
+            />
+          )}
         </div>
 
         <Typography variant="caption" className="mt-2 ml-2">

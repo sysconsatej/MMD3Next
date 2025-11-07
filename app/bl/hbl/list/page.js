@@ -55,7 +55,8 @@ function createData(
   podVesselId,
   hblCount,
   hblId,
-  status
+  status,
+  remark
 ) {
   return {
     id,
@@ -66,6 +67,7 @@ function createData(
     hblCount,
     hblId,
     status,
+    remark,
   };
 }
 
@@ -92,12 +94,12 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "b.mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.id) as hblCount, string_agg(b.id, ',') as hblId, m1.name status",
+            "b.mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.id) as hblCount, string_agg(b.id, ',') as hblId, m1.name status, b.hblRequestRemarks remark",
           tableName: "tblBl b",
           pageNo,
           pageSize,
           advanceSearch: advanceSearchFilter(advanceSearch),
-          groupBy: "group by b.mblNo, m.name, v.name, m1.name",
+          groupBy: "group by b.mblNo, m.name, v.name, m1.name, b.hblRequestRemarks",
           orderBy: "order by max(b.createdDate) desc, b.mblNo asc",
           joins:
             "left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id left join tblMasterData m1 on m1.id = b.hblRequestStatus join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1",
@@ -133,7 +135,8 @@ export default function BLList() {
           item["podVesselId"],
           item["hblCount"],
           item["hblId"],
-          item["status"]
+          item["status"],
+          item["remark"]
         )
       )
     : [];
@@ -233,6 +236,8 @@ export default function BLList() {
           onEdit={(id) => modeHandler("edit", id)}
           onDelete={(ids) => handleDeleteRecord((ids || []).join(","))}
           onUpdated={() => getData(page, rowsPerPage)}
+          isDelete={true}
+          isRequest={true}
         />
 
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
@@ -254,6 +259,7 @@ export default function BLList() {
                 <TableCell>Vessel-Voyage No</TableCell>
                 <TableCell>HBL Count</TableCell>
                 <TableCell>Status</TableCell>
+                <TableCell>Remark</TableCell>
                 <TableCell>Attachment</TableCell>
               </TableRow>
             </TableHead>
@@ -276,6 +282,7 @@ export default function BLList() {
                     <TableCell>{row.podVesselId}</TableCell>
                     <TableCell>{row.hblCount}</TableCell>
                     <TableCell>{row.status}</TableCell>
+                    <TableCell>{row.remark}</TableCell>
                     <TableCell>
                       <AttachFileIcon
                         sx={{ cursor: "pointer", fontSize: "16px" }}

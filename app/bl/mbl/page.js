@@ -427,7 +427,7 @@ export default function Home() {
                 fields={jsonData.tblBlContainer}
                 formData={formData}
                 setFormData={setFormData}
-                fieldsMode={fieldsMode}
+                fieldsMode={mode.mode}
                 gridName="tblBlContainer"
                 gridStatus={gridStatus}
                 buttons={gridButtons}
@@ -439,20 +439,9 @@ export default function Home() {
                 fields={jsonData.tblBlPackingList}
                 formData={formData}
                 setFormData={setFormData}
-                fieldsMode={fieldsMode}
+                fieldsMode={mode.mode}
                 gridName="tblBlPackingList"
                 buttons={gridButtons}
-              />
-            </Box>
-            <Box className="border border-gray-300 p-3 mt-2 flex flex-col gap-1">
-              <Typography variant="caption" className="text-red-500">
-                Total Attachment size should not exceed 3MB for the Request
-              </Typography>
-              <CustomInput
-                fields={jsonData.attachmentFields}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
               />
             </Box>
             {/* <Box display="flex" justifyContent="center" mt={2}>

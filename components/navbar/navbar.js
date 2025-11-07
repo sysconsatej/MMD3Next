@@ -115,7 +115,7 @@ export default function Navbar() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeLink, setActiveLink] = useState("Home");
-  const [activeSubLink, setActiveSubLink] = useState("");
+  const [activeSubLink, setActiveSubLink] = useState(""); 
   const [activeParentSubLink, setActiveParentSubLink] = useState("");
   const [openSubmenus, setOpenSubmenus] = useState({});
 
@@ -126,6 +126,7 @@ export default function Navbar() {
   // aakash yadav code
   const { userData } = auth();
   const { setModalOpen } = useModal();
+
 
   const closeMenus = () => {
     setAnchorEl(null);
@@ -318,11 +319,11 @@ export default function Navbar() {
                 tabIndex={1}
                 onClick={() => setModalOpen("logout")}
               >
-                <Avatar>M</Avatar>
+                <Avatar>{String(userData?.data?.userName).charAt(0).toUpperCase() }</Avatar>
                 <Box>
-                  <div className="account-name">{userData?.name}</div>
+                  <div className="account-name">{userData?.data?.companyName}</div>
                   <div className="account-role">
-                    {userData.data?.username || "Admin"}
+                    {userData.data?.roleName || ""}
                   </div>
                 </Box>
               </Box>
@@ -464,13 +465,13 @@ export default function Navbar() {
           </List>
 
           <Box className="nav-mobile-chip">
-            <Avatar>{`M`}</Avatar>
+            <Avatar>{String(userData?.data?.userName).charAt(0).toUpperCase()}</Avatar>
             <Box>
               <Typography className="account-name">
-                {userData?.name || `Syscon Infotech Pvt Ltd`}
+                {userData?.data?.companyName || ``}
               </Typography>
               <Typography className="account-role">
-                {userData?.data?.username || `Admin`}
+                {userData?.data?.roleName || ''}
               </Typography>
             </Box>
           </Box>

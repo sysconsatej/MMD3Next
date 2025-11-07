@@ -1,4 +1,3 @@
-// app/bl/mbl/upload/page.jsx
 "use client";
 /* eslint-disable */
 import React, { useState } from "react";
@@ -6,18 +5,70 @@ import * as XLSX from "xlsx";
 import CustomButton from "@/components/button/button";
 import { CustomInput } from "@/components/customInput";
 import { ThemeProvider } from "@emotion/react";
-import { Box, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { Box } from "@mui/material";
 import { theme } from "@/styles";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import fieldData from "./uploadData";
+import { uploads } from "@/apis"; // no need to fetch master row anymore
 
-import fieldData, { dataConfig } from "./uploadData";
-import { uploads } from "@/apis";
+/* ------------------ fixed ctx (replace with session) ------------------ */
+const FIXED_CTX = Object.freeze({
+    companyId: 7819,
+    companyBranchId: 7239,
+    clientId: 17,
+    financialYearId: 31,
+    userId: 279,
+});
+
+/* ------------------ URL + template file map ------------------ */
+const BASE_URL = ((process.env.NEXT_PUBLIC_BACKEND_URL || "").replace(/\/+$/, "")) + "/";
+
+/** Canonicalize text for matching */
+const canon = (s = "") =>
+    String(s)
+        .normalize("NFKC")
+        .replace(/\u200B/g, "")
+        .replace(/\s*\([^)]*\)\s*/g, " ")
+        .replace(/[.\-_/]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
+
+/** Your uploaded files on Node (add/edit names if your MD names differ) */
+const TEMPLATE_FILES = [
+    {
+        names: ["MBLMaster", "MBL Master", "Master BL", "MasterBL"],
+        filename: "mblBlMasterUpload.xlsx",
+        path: `${BASE_URL}uploads/mblBlMasterUpload.xlsx`,
+    },
+    {
+        names: ["MBLContainer", "MBL Container", "Container", "BL Container"],
+        filename: "mblBlContainerUpload.xlsx",
+        path: `${BASE_URL}uploads/mblBlContainerUpload.xlsx`,
+    },
+    {
+        names: ["MBLItem", "MBL Item", "Item", "BL Item"],
+        filename: "mblBlItemUpload.xlsx",
+        path: `${BASE_URL}uploads/mblBlItemUpload.xlsx`,
+    },
+];
+
+/** Find file by matching the selected template name */
+const findTemplateFile = (selectedName = "") => {
+    const csel = canon(selectedName);
+    // exact/alias match
+    for (const f of TEMPLATE_FILES) {
+        if (f.names.some((n) => canon(n) === csel)) return f;
+    }
+    // heuristic by keyword
+    if (/\bcontainer\b/.test(csel)) return TEMPLATE_FILES[1];
+    if (/\bitem\b/.test(csel)) return TEMPLATE_FILES[2];
+    // default master
+    return TEMPLATE_FILES[0];
+};
 
 /* ------------------ helpers ------------------ */
-const stripParens = (s = "") => s.replace(/\s*\([^)]*\)\s*/g, " ").trim();
-const canon = (s = "") => stripParens(String(s)).replace(/\s+/g, " ").trim().toLowerCase();
-
 const isEmptyRow = (obj = {}) =>
     Object.values(obj).every((v) => v === null || v === "" || typeof v === "undefined");
 
@@ -26,7 +77,6 @@ const toIsoDate = (d) => {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
 
-// Extract File from your CustomInput fileupload field
 const getFirstFile = (val) => {
     if (!val) return null;
     if (val instanceof File) return val;
@@ -37,26 +87,20 @@ const getFirstFile = (val) => {
     return null;
 };
 
-// Convert dropdown objects to Id/value for SP; ignore the file
 const formatHeaderForSp = (obj = {}) => {
     const out = {};
     for (const [k, v] of Object.entries(obj)) {
-        if (k === "upload") continue;
-        if (v && typeof v === "object") {
-            out[k] = v.Id ?? v.id ?? v.value ?? null;
-        } else {
-            out[k] = v ?? null;
-        }
+        if (k === "upload") continue; // don't send file
+        if (v && typeof v === "object") out[k] = v.Id ?? v.id ?? v.value ?? null;
+        else out[k] = v ?? null;
     }
     return out;
 };
 
-// Excel/CSV/JSON → rows
+// Minimal parse: first sheet only
 const parseFile = async (file) => {
     const ext = (file?.name?.split(".").pop() || "").toLowerCase();
-    if (!["xlsx", "xls", "csv", "json"].includes(ext)) {
-        throw new Error("Unsupported file type");
-    }
+    if (!["xlsx", "xls", "csv", "json"].includes(ext)) throw new Error("Unsupported file type");
 
     if (ext === "json") {
         const text = await file.text();
@@ -77,116 +121,103 @@ const parseFile = async (file) => {
 
     const rows = rawRows.map((r) => {
         const o = {};
-        for (const [k, v] of Object.entries(r)) {
-            o[k] = v instanceof Date ? toIsoDate(v) : v;
-        }
+        for (const [k, v] of Object.entries(r)) o[k] = v instanceof Date ? toIsoDate(v) : v;
         return o;
     });
-
     return rows.filter((r) => !isEmptyRow(r));
 };
 
-// Soft header validation (warn-only)
-const validateHeaders = (rows, expected) => {
-    if (!rows?.length) return { ok: false, missing: expected, extra: [] };
-    const firstRowHeaders = Object.keys(rows[0]);
-    const expectedSet = new Set(expected.map(canon));
-    const gotSet = new Set(firstRowHeaders.map(canon));
-    const missing = expected.filter((h) => !gotSet.has(canon(h)));
-    const extra = firstRowHeaders.filter((h) => !expectedSet.has(canon(h)));
-    return { ok: missing.length === 0, missing, extra };
+/** Infer SP directly from template name */
+const getSpFromTemplateName = (name = "") => {
+    const c = canon(name);
+    if (/\bcontainer\b/.test(c)) return "inputMblContainer";
+    if (/\bitem\b/.test(c)) return "inputMblItem";
+    return "inputMbl"; // default
 };
-/* --------------------------------------------- */
+
+/** Download helper: try blob, fallback window.open */
+const downloadViaUrl = async (url, filenameBase = "Template") => {
+    try {
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error("Download failed");
+        const blob = await resp.blob();
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        const extGuess = url.split("?")[0].split("#")[0].split(".").pop()?.toLowerCase() || "xlsx";
+        a.download = `${filenameBase}.${extGuess.replace(/[^a-z0-9]/gi, "")}`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(a.href);
+    } catch {
+        window.open(url, "_blank");
+    }
+};
 
 export default function MblUpload() {
     const [formData, setFormData] = useState({});
-    const [selectedTemplate, setSelectedTemplate] = useState(""); // blank by default
     const [busy, setBusy] = useState(false);
 
-    const exportTemplate = (keyParam) => {
+    const getSelectedTemplateName = () =>
+        formData?.template?.Name ||
+        formData?.template?.name ||
+        formData?.template?.label ||
+        formData?.template?.Code ||
+        formData?.template?.code ||
+        "";
+
+    /* ------------------ Download Template (mapped to Node files) ------------------ */
+    const handleDownloadTemplate = async () => {
+        const selectedName = getSelectedTemplateName();
+        if (!selectedName) {
+            toast.info("Please select a Template first.");
+            return;
+        }
         try {
-            const key = keyParam || selectedTemplate;
-            if (!key) {
-                toast.info("Choose a template to download.");
-                return;
-            }
-            const cfg = dataConfig[key];
-            if (!cfg?.templateColumns?.length) throw new Error("No columns configured");
-            const ws = XLSX.utils.aoa_to_sheet([cfg.templateColumns]);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Template");
-            const names = {
-                BL: "BL_Template.xlsx",
-                Item: "Item_Template.xlsx",
-                ContainerImp: "Container_Import_Template.xlsx",
-            };
-            XLSX.writeFile(wb, names[key] || `${key}_Template.xlsx`);
-            toast.success(`${cfg.label} template downloaded`);
-        } catch (e) {
-            toast.error(e.message || "Failed to export template");
+            setBusy(true);
+            const file = findTemplateFile(selectedName);
+            if (!file?.path) throw new Error("No template file mapped for this selection.");
+            await downloadViaUrl(file.path, file.filename.replace(/\.xlsx$/i, ""));
+            toast.success("Template download started.");
+        } catch (err) {
+            toast.error(err?.message || "Unable to download template");
+        } finally {
+            setBusy(false);
         }
     };
 
-    // Selecting a template should immediately download it
-    const handleTemplateChange = (e) => {
-        const value = e.target.value;
-        setSelectedTemplate(value);
-        if (value) exportTemplate(value);
-    };
-
+    /* ------------------ Upload (SP inferred from Template name) ------------------ */
     const handleUpload = async (e) => {
         e.preventDefault();
 
-        if (!selectedTemplate) {
-            toast.warn("Please select a template first.");
-            return;
-        }
-
         const file = getFirstFile(formData.upload);
         if (!file) return toast.warn("Please choose a file in the 'Upload File' field");
+
+        const selectedName = getSelectedTemplateName();
+        if (!selectedName) return toast.warn("Please select a Template before uploading.");
 
         setBusy(true);
         try {
             const rows = await parseFile(file);
             if (!rows?.length) throw new Error("No data rows found");
 
-            const cfg = dataConfig[selectedTemplate];
-            if (!cfg?.sp) throw new Error("Stored procedure not configured for this template");
+            const header = { ...formatHeaderForSp(formData), ...FIXED_CTX };
+            const spName = getSpFromTemplateName(selectedName);
 
-            if (cfg.templateColumns?.length) {
-                const { ok, missing, extra } = validateHeaders(rows, cfg.templateColumns);
-                if (!ok) {
-                    toast.warn(
-                        `Missing columns: ${missing.slice(0, 6).join(", ")}${missing.length > 6 ? "..." : ""
-                        }`
-                    );
-                }
-                if (extra?.length) {
-                    toast.warn(
-                        `Ignoring extra columns: ${extra.slice(0, 6).join(", ")}${extra.length > 6 ? "..." : ""
-                        }`
-                    );
-                }
-            }
-
-            const header = formatHeaderForSp(formData);
             const payload = {
-                spName: cfg.sp,
+                spName,
                 json: {
-                    template: selectedTemplate,
+                    template: selectedName,
                     header,
-                    data: rows, // send raw rows (SP maps/validates)
+                    data: rows,
                 },
             };
 
             const resp = await uploads(payload);
-            if (resp?.success) {
-                toast.success(resp?.message || "Uploaded successfully");
-            } else {
-                toast.warn(resp?.message || "No data returned from SP");
-            }
+            if (resp?.success) toast.success(resp?.message || "Uploaded successfully");
+            else toast.warn(resp?.message || "No data returned from SP");
         } catch (err) {
-            toast.error(err.message || "Failed to upload");
+            toast.error(err?.message || "Failed to upload");
         } finally {
             setBusy(false);
         }
@@ -209,91 +240,12 @@ export default function MblUpload() {
                                 setFormData={setFormData}
                                 disabled={busy}
                             />
-
-                            {/* Template dropdown — blank by default, auto-download on select */}
-                            <FormControl
-                                size="small"
-                                disabled={busy}
-                                sx={{
-                                    minWidth: 260,
-                                    "& .MuiOutlinedInput-root": {
-                                        height: 36,
-                                        fontSize: "0.85rem",
-                                        borderRadius: "10px",
-                                        "& .MuiSelect-select": {
-                                            display: "flex",
-                                            alignItems: "center",
-                                            padding: "6px 10px",
-                                        },
-                                        /* make the outline behave + keep corners rounded */
-                                        "& .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "rgba(0,0,0,0.25)",
-                                            borderRadius: "10px",
-                                        },
-                                        "&:hover .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "#3d74b6",
-                                        },
-                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "#3d74b6",
-                                            borderWidth: "1px",
-                                        },
-                                        /* remove the notch gap so you don't see the broken left curve */
-                                        "& .MuiOutlinedInput-notchedOutline legend": {
-                                            display: "none",
-                                        },
-                                    },
-                                }}
-                            >
-
-                                <Select
-                                    labelId="template-select-label"
-                                    value={selectedTemplate}
-                                    label="Template"
-                                    onChange={handleTemplateChange}
-                                    displayEmpty
-                                    renderValue={(v) =>
-                                        v ? dataConfig[v]?.label || v : (
-                                            <span style={{ color: "#9aa0a6" }}>— Select File —</span>
-                                        )
-                                    }
-                                    MenuProps={{
-                                        PaperProps: {
-                                            sx: {
-                                                borderRadius: "10px",
-                                                boxShadow:
-                                                    "0 10px 25px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.06)",
-                                                "& .MuiMenuItem-root": {
-                                                    fontSize: "0.9rem",
-                                                    py: 1,
-                                                },
-                                            },
-                                        },
-                                    }}
-                                >
-                                    <MenuItem value="">
-                                        <em>— Select File —</em>
-                                    </MenuItem>
-                                    {Object.entries(dataConfig).map(([key, v]) => (
-                                        <MenuItem key={key} value={key}>
-                                            {v.label}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
                         </Box>
                     </Box>
 
                     <Box className="w-full flex mt-2 gap-2 items-center">
-                        <CustomButton
-                            text="Download Template"
-                            onClick={() => exportTemplate()}
-                            disabled={busy}
-                        />
-                        <CustomButton
-                            text={busy ? "Uploading…" : "Upload"}
-                            onClick={handleUpload}
-                            disabled={busy}
-                        />
+                        <CustomButton text="Download Template" onClick={handleDownloadTemplate} disabled={busy} />
+                        <CustomButton text={busy ? "Uploading…" : "Upload"} onClick={handleUpload} disabled={busy} />
                     </Box>
                 </section>
             </form>
