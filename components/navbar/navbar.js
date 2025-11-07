@@ -127,6 +127,8 @@ export default function Navbar() {
   const { userData } = auth();
   const { setModalOpen } = useModal();
 
+  console.log("userData in navbar:", userData);
+
   const closeMenus = () => {
     setAnchorEl(null);
     setThirdMenuAnchor(null);
@@ -318,11 +320,11 @@ export default function Navbar() {
                 tabIndex={1}
                 onClick={() => setModalOpen("logout")}
               >
-                <Avatar>M</Avatar>
+                <Avatar>{String(userData?.data?.userName).charAt(0).toUpperCase() }</Avatar>
                 <Box>
                   <div className="account-name">{userData?.name}</div>
                   <div className="account-role">
-                    {userData.data?.username || "Admin"}
+                    {userData.data?.roleName || ""}
                   </div>
                 </Box>
               </Box>
@@ -464,13 +466,13 @@ export default function Navbar() {
           </List>
 
           <Box className="nav-mobile-chip">
-            <Avatar>{`M`}</Avatar>
+            <Avatar>{String(userData?.data?.userName).charAt(0).toUpperCase()}</Avatar>
             <Box>
               <Typography className="account-name">
-                {userData?.name || `Syscon Infotech Pvt Ltd`}
+                {userData?.data?.userName || ``}
               </Typography>
               <Typography className="account-role">
-                {userData?.data?.username || `Admin`}
+                {userData?.data?.roleName || ''}
               </Typography>
             </Box>
           </Box>

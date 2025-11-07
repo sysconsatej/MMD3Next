@@ -13,7 +13,7 @@ import RequestCard from "./RequestCards";
 
 const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
-    // top: 22,
+    top: 22,
   },
   [`&.${stepConnectorClasses.active}`]: {
     [`& .${stepConnectorClasses.line}`]: {
@@ -28,7 +28,7 @@ const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
   [`& .${stepConnectorClasses.line}`]: {
     height: 2,
     backgroundColor: "#eaeaf0",
-    zIndex: 10,
+    zIndex: 1,
     ...theme.applyStyles("dark", {
       backgroundColor: theme.palette.grey[800],
     }),
@@ -36,7 +36,7 @@ const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
 }));
 
 const ColorlibStepIconRoot = styled("div")(({ theme, ownerState }) => ({
-  zIndex: -1,
+  // zIndex: -1,
   width: 30,
   height: 30,
   display: "flex",
