@@ -81,6 +81,11 @@ export const navItems = [
             href: "/bl/hbl/upload",
             isShow: false,
           },
+          {
+            name: "HBL Track",
+            href: "/bl/hbl/linerSearch",
+            isShow: false,
+          },
         ],
       },
       {
@@ -132,9 +137,8 @@ export const navItems = [
       {
         name: "BL Hold",
         href: "/blPartyHold",
-        isShow: false
+        isShow: false,
       },
-
     ],
   },
 

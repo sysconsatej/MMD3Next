@@ -210,7 +210,7 @@ export default function BLList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center">
-            HBL Request
+            HBL Track
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <AdvancedSearchBar
@@ -224,22 +224,22 @@ export default function BLList() {
           </Box>
         </Box>
 
-        {/* <SelectionActionsBar
+        <SelectionActionsBar
           selectedIds={selectedHblIds}
           tableName={UPDATE_TABLE}
           keyColumn="id"
           allowBulkDelete
           onView={(id) => modeHandler("view", id)}
           onEdit={(id) => modeHandler("edit", id)}
-          onDelete={(ids) => handleDeleteRecord((ids || []).join(","))}
+          // onDelete={(ids) => handleDeleteRecord((ids || []).join(","))}
           onUpdated={() => getData(page, rowsPerPage)}
-        /> */}
+        />
 
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                {/* <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
+                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
                   <Checkbox
                     size="small"
                     indeterminate={someChecked}
@@ -247,7 +247,7 @@ export default function BLList() {
                     onChange={toggleAll}
                     sx={CHECKBOX_SX}
                   />
-                </TableCell> */}
+                </TableCell>
                 <TableCell>MBL NO</TableCell>
                 <TableCell>HBL NO</TableCell>
                 <TableCell>Type Of Cargo</TableCell>
@@ -262,14 +262,14 @@ export default function BLList() {
               {rows.length > 0 ? (
                 rows.map((row) => (
                   <TableRow key={row.id} hover className="relative group ">
-                    {/* <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <Checkbox
                         size="small"
                         checked={selectedIds.includes(row.id)}
                         onChange={() => toggleOne(row.id)}
                         sx={CHECKBOX_SX}
                       />
-                    </TableCell> */}
+                    </TableCell>
                     <TableCell>{row.mblNo}</TableCell>
                     <TableCell>{row.hblNo}</TableCell>
                     <TableCell>{row.cargoTypeId}</TableCell>
