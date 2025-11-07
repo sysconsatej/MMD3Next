@@ -147,7 +147,7 @@ export default function SelectionActionsBar({
             onClick={() => isSingle && onEdit && onEdit(ids[0])}
             disabled={!isSingle}
           />
-          <Segment
+          {/* <Segment
             label="Delete"
             onClick={() => {
               if (!onDelete) return;
@@ -158,7 +158,7 @@ export default function SelectionActionsBar({
               }
             }}
             disabled={allowBulkDelete ? !hasAny : !isSingle}
-          />
+          /> */}
           <Segment label="Request" onClick={handleRequest} disabled={!hasAny} />
           <Segment label="Reject" onClick={openReject} disabled={!hasAny} />
           <Segment

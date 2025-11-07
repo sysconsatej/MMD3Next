@@ -8,11 +8,14 @@ import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
+import { formStore } from "@/store";
+
 export default function CfsRequest() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const [loading, setLoading] = useState(false);
+    const { mode, setMode } = formStore();
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -53,7 +56,7 @@ export default function CfsRequest() {
               fields={jsonData.attachmentFields}
               formData={formData}
               setFormData={setFormData}
-              fieldsMode={fieldsMode}
+              fieldsMode={mode.mode}
               gridName="tblVoyage"
               buttons={cfsGridButtons}
             />

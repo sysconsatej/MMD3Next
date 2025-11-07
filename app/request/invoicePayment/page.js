@@ -17,15 +17,13 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-
 import { theme } from "@/styles";
 import { ToastContainer, toast } from "react-toastify";
-
 import { CustomInput } from "@/components/customInput";
 import CustomButton from "@/components/button/button";
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
-
+import { formStore } from "@/store";
 import data, { cfsGridButtons } from "./invoicePaymentData";
 import { payment } from "@/apis/payment";
 
@@ -45,6 +43,7 @@ export default function InvoicePayment() {
   const [formData, setFormData] = useState({});
   const [fieldsMode] = useState("");
   const [jsonData] = useState(data);
+    const { mode, setMode } = formStore();
 
   const [invoiceArray, setInvoiceArray] = useState([0]);
   const [tabValue, setTabValue] = useState(0);
@@ -200,7 +199,7 @@ export default function InvoicePayment() {
                   fields={jsonData.tblInvoiceRequestContainer}
                   formData={formData}
                   setFormData={setFormData}
-                  fieldsMode={fieldsMode}
+                  fieldsMode={mode.mode}
                   gridName="tblInvoiceRequestContainer"
                   buttons={cfsGridButtons}
                   tabName="tblInvoice"

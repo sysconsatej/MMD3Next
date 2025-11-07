@@ -1,6 +1,6 @@
 // app/bl/mbl/upload/uploadData.js
 
-// ---------- header fields (unchanged) ----------
+// ---------- header fields ----------
 const fieldData = {
     mblFields: [
         {
@@ -19,7 +19,7 @@ const fieldData = {
         },
         {
             label: "Vessel-Voyage No.",
-            name: "podvesselId",
+            name: "podvesselId", // keep this name (controller/SP expect podvesselId)
             type: "dropdown",
             tableName: "tblVessel v",
             displayColumn: "ISNULL(v.name,'') + ' - ' + ISNULL(vo.voyageNo,'')",
@@ -40,6 +40,7 @@ const fieldData = {
             orderBy: "m.name",
             foreignTable: "name,tblMasterData",
             isEdit: true,
+            required: true, // ensure a value is chosen
         },
         { label: "Submitter Code", name: "consigneeIdNo" },
         { label: "Upload File", name: "upload", type: "fileupload" },
@@ -50,7 +51,7 @@ const fieldData = {
 export const dataConfig = {
     BL: {
         label: "Master BL",
-        sp: "inputBl", // your SP for BL header
+        sp: "inputMbl", // ← your upsert SP with extra params (handled in controller)
         templateColumns: [
             "BL NO",
             "BL DATE",
@@ -118,13 +119,13 @@ export const dataConfig = {
 
     ContainerImp: {
         label: "BL Container",
-        sp: "inputContainer", // your SP for container
+        sp: "inputMblContainer",
         templateColumns: [
             "BL NO",
             "CONTAINER NO.",
             "PACKAGE TYPE",
             "NO OF PACKAGES",
-            "CARGO GROSS WEIGHT (KGS) ",
+            "CARGO GROSS WEIGHT (KGS)",
             "CONTAINER WEIGHT (VGM/Gross) (KGS)",
             "CONTAINER Tare Weight (KGS)",
             "Gross Volume (CBM)",
@@ -147,7 +148,7 @@ export const dataConfig = {
 
     Item: {
         label: "BL Item",
-        sp: "inputItem", // your SP for items
+        sp: "inputMblItem",
         templateColumns: [
             "BL NO",
             "CONTAINER NO.",

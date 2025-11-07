@@ -181,7 +181,7 @@ export default function InvoiceRequest() {
                   fields={jsonData.tblAttachement}
                   formData={formData}
                   setFormData={setFormData}
-                  fieldsMode={fieldsMode}
+                  fieldsMode={mode.mode}
                   gridName="tblAttachement"
                   buttons={cfsGridButtons}
                 />
@@ -198,7 +198,7 @@ export default function InvoiceRequest() {
                     fields={jsonData.tblInvoiceRequestContainer}
                     formData={formData}
                     setFormData={setFormData}
-                    fieldsMode={fieldsMode}
+                    fieldsMode={mode.mode}
                     gridName="tblInvoiceRequestContainer"
                     buttons={cfsGridButtons}
                   />

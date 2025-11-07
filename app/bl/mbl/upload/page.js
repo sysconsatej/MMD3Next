@@ -1,4 +1,3 @@
-// app/bl/mbl/upload/page.jsx
 "use client";
 /* eslint-disable */
 import React, { useState } from "react";
@@ -6,7 +5,7 @@ import * as XLSX from "xlsx";
 import CustomButton from "@/components/button/button";
 import { CustomInput } from "@/components/customInput";
 import { ThemeProvider } from "@emotion/react";
-import { Box, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { Box, FormControl, Select, MenuItem } from "@mui/material";
 import { theme } from "@/styles";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -14,9 +13,26 @@ import "react-toastify/dist/ReactToastify.css";
 import fieldData, { dataConfig } from "./uploadData";
 import { uploads } from "@/apis";
 
+/* ------------------ hard-coded session (replace later) ------------------ */
+const FIXED_CTX = Object.freeze({
+    companyId: 7819,
+    companyBranchId: 7239,
+    clientId: 17,
+    financialYearId: 31,
+    userId: 279,
+});
+
 /* ------------------ helpers ------------------ */
-const stripParens = (s = "") => s.replace(/\s*\([^)]*\)\s*/g, " ").trim();
-const canon = (s = "") => stripParens(String(s)).replace(/\s+/g, " ").trim().toLowerCase();
+// more robust canonicalizer: trim, drop parens, punctuation, dashes, zero-width
+const canon = (s = "") =>
+    String(s)
+        .normalize("NFKC")
+        .replace(/\u200B/g, "")
+        .replace(/\s*\([^)]*\)\s*/g, " ")
+        .replace(/[.\-_/]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
 
 const isEmptyRow = (obj = {}) =>
     Object.values(obj).every((v) => v === null || v === "" || typeof v === "undefined");
@@ -26,7 +42,7 @@ const toIsoDate = (d) => {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
 
-// Extract File from your CustomInput fileupload field
+// Extract a File from the CustomInput fileupload field
 const getFirstFile = (val) => {
     if (!val) return null;
     if (val instanceof File) return val;
@@ -51,13 +67,14 @@ const formatHeaderForSp = (obj = {}) => {
     return out;
 };
 
-// Excel/CSV/JSON → rows
-const parseFile = async (file) => {
+/** Read workbook and auto-pick the sheet whose headers best match `expectedCols`. */
+const parseFile = async (file, expectedCols = []) => {
     const ext = (file?.name?.split(".").pop() || "").toLowerCase();
     if (!["xlsx", "xls", "csv", "json"].includes(ext)) {
         throw new Error("Unsupported file type");
     }
 
+    // JSON passthrough
     if (ext === "json") {
         const text = await file.text();
         const obj = JSON.parse(text);
@@ -65,9 +82,31 @@ const parseFile = async (file) => {
         return arr.filter((r) => !isEmptyRow(r));
     }
 
+    // Excel/CSV
     const buf = await file.arrayBuffer();
     const wb = XLSX.read(buf, { type: "array", cellDates: true });
-    const sheet = wb.Sheets[wb.SheetNames[0]];
+
+    // Build canonical expected set
+    const expectedSet = new Set(expectedCols.map(canon));
+
+    // Score each sheet by header overlap (canon)
+    let bestName = wb.SheetNames[0];
+    let bestScore = -1;
+
+    for (const name of wb.SheetNames) {
+        const sh = wb.Sheets[name];
+        // get first row as headers
+        const headerRow = XLSX.utils.sheet_to_json(sh, { header: 1, range: 0 })?.[0] || [];
+        const gotSet = new Set(headerRow.map(canon));
+        let score = 0;
+        for (const h of expectedSet) if (gotSet.has(h)) score++;
+        if (score > bestScore) {
+            bestScore = score;
+            bestName = name;
+        }
+    }
+
+    const sheet = wb.Sheets[bestName];
     const rawRows = XLSX.utils.sheet_to_json(sheet, {
         defval: null,
         raw: false,
@@ -83,6 +122,8 @@ const parseFile = async (file) => {
         return o;
     });
 
+    // Debug which sheet got picked
+    console.log("[Upload] Picked sheet:", bestName, "score:", bestScore);
     return rows.filter((r) => !isEmptyRow(r));
 };
 
@@ -90,8 +131,10 @@ const parseFile = async (file) => {
 const validateHeaders = (rows, expected) => {
     if (!rows?.length) return { ok: false, missing: expected, extra: [] };
     const firstRowHeaders = Object.keys(rows[0]);
+
     const expectedSet = new Set(expected.map(canon));
     const gotSet = new Set(firstRowHeaders.map(canon));
+
     const missing = expected.filter((h) => !gotSet.has(canon(h)));
     const extra = firstRowHeaders.filter((h) => !expectedSet.has(canon(h)));
     return { ok: missing.length === 0, missing, extra };
@@ -100,7 +143,7 @@ const validateHeaders = (rows, expected) => {
 
 export default function MblUpload() {
     const [formData, setFormData] = useState({});
-    const [selectedTemplate, setSelectedTemplate] = useState(""); // blank by default
+    const [selectedTemplate, setSelectedTemplate] = useState("");
     const [busy, setBusy] = useState(false);
 
     const exportTemplate = (keyParam) => {
@@ -127,11 +170,9 @@ export default function MblUpload() {
         }
     };
 
-    // Selecting a template should immediately download it
+    // DO NOT auto-download on change (fix for your bug)
     const handleTemplateChange = (e) => {
-        const value = e.target.value;
-        setSelectedTemplate(value);
-        if (value) exportTemplate(value);
+        setSelectedTemplate(e.target.value);
     };
 
     const handleUpload = async (e) => {
@@ -147,36 +188,39 @@ export default function MblUpload() {
 
         setBusy(true);
         try {
-            const rows = await parseFile(file);
-            if (!rows?.length) throw new Error("No data rows found");
-
             const cfg = dataConfig[selectedTemplate];
             if (!cfg?.sp) throw new Error("Stored procedure not configured for this template");
 
+            // Read the workbook and auto-pick the correct sheet for this template
+            const rows = await parseFile(file, cfg.templateColumns || []);
+            if (!rows?.length) throw new Error("No data rows found");
+
             if (cfg.templateColumns?.length) {
                 const { ok, missing, extra } = validateHeaders(rows, cfg.templateColumns);
-                if (!ok) {
+                if (!ok && missing?.length) {
                     toast.warn(
-                        `Missing columns: ${missing.slice(0, 6).join(", ")}${missing.length > 6 ? "..." : ""
-                        }`
+                        `Missing columns: ${missing.slice(0, 6).join(", ")}${missing.length > 6 ? "..." : ""}`
                     );
                 }
                 if (extra?.length) {
                     toast.warn(
-                        `Ignoring extra columns: ${extra.slice(0, 6).join(", ")}${extra.length > 6 ? "..." : ""
-                        }`
+                        `Ignoring extra columns: ${extra.slice(0, 6).join(", ")}${extra.length > 6 ? "..." : ""}`
                     );
                 }
             }
 
-            const header = formatHeaderForSp(formData);
+            const header = {
+                ...formatHeaderForSp(formData),
+                ...FIXED_CTX,
+            };
+
+            // BL → inputMbl ; others use their configured SPs
+            const spName = selectedTemplate === "BL" ? "inputMbl" : cfg.sp;
+
+            console.log("Uploading via SP:", spName, { template: selectedTemplate });
             const payload = {
-                spName: cfg.sp,
-                json: {
-                    template: selectedTemplate,
-                    header,
-                    data: rows, // send raw rows (SP maps/validates)
-                },
+                spName,
+                json: { template: selectedTemplate, header, data: rows },
             };
 
             const resp = await uploads(payload);
@@ -210,7 +254,7 @@ export default function MblUpload() {
                                 disabled={busy}
                             />
 
-                            {/* Template dropdown — blank by default, auto-download on select */}
+                            {/* Template dropdown — no auto-download */}
                             <FormControl
                                 size="small"
                                 disabled={busy}
@@ -220,31 +264,14 @@ export default function MblUpload() {
                                         height: 36,
                                         fontSize: "0.85rem",
                                         borderRadius: "10px",
-                                        "& .MuiSelect-select": {
-                                            display: "flex",
-                                            alignItems: "center",
-                                            padding: "6px 10px",
-                                        },
-                                        /* make the outline behave + keep corners rounded */
-                                        "& .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "rgba(0,0,0,0.25)",
-                                            borderRadius: "10px",
-                                        },
-                                        "&:hover .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "#3d74b6",
-                                        },
-                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "#3d74b6",
-                                            borderWidth: "1px",
-                                        },
-                                        /* remove the notch gap so you don't see the broken left curve */
-                                        "& .MuiOutlinedInput-notchedOutline legend": {
-                                            display: "none",
-                                        },
+                                        "& .MuiSelect-select": { display: "flex", alignItems: "center", padding: "6px 10px" },
+                                        "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(0,0,0,0.25)", borderRadius: "10px" },
+                                        "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#3d74b6" },
+                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#3d74b6", borderWidth: "1px" },
+                                        "& .MuiOutlinedInput-notchedOutline legend": { display: "none" },
                                     },
                                 }}
                             >
-
                                 <Select
                                     labelId="template-select-label"
                                     value={selectedTemplate}
@@ -252,20 +279,14 @@ export default function MblUpload() {
                                     onChange={handleTemplateChange}
                                     displayEmpty
                                     renderValue={(v) =>
-                                        v ? dataConfig[v]?.label || v : (
-                                            <span style={{ color: "#9aa0a6" }}>— Select File —</span>
-                                        )
+                                        v ? dataConfig[v]?.label || v : <span style={{ color: "#9aa0a6" }}>— Select File —</span>
                                     }
                                     MenuProps={{
                                         PaperProps: {
                                             sx: {
                                                 borderRadius: "10px",
-                                                boxShadow:
-                                                    "0 10px 25px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.06)",
-                                                "& .MuiMenuItem-root": {
-                                                    fontSize: "0.9rem",
-                                                    py: 1,
-                                                },
+                                                boxShadow: "0 10px 25px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.06)",
+                                                "& .MuiMenuItem-root": { fontSize: "0.9rem", py: 1 },
                                             },
                                         },
                                     }}
@@ -284,16 +305,8 @@ export default function MblUpload() {
                     </Box>
 
                     <Box className="w-full flex mt-2 gap-2 items-center">
-                        <CustomButton
-                            text="Download Template"
-                            onClick={() => exportTemplate()}
-                            disabled={busy}
-                        />
-                        <CustomButton
-                            text={busy ? "Uploading…" : "Upload"}
-                            onClick={handleUpload}
-                            disabled={busy}
-                        />
+                        <CustomButton text="Download Template" onClick={() => exportTemplate()} disabled={busy} />
+                        <CustomButton text={busy ? "Uploading…" : "Upload"} onClick={handleUpload} disabled={busy} />
                     </Box>
                 </section>
             </form>
