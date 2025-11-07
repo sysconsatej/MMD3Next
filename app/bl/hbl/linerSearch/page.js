@@ -1,5 +1,11 @@
 "use client";
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from "react";
 import {
   Box,
   Table,
@@ -19,15 +25,16 @@ import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
-import { advanceSearchFields } from "../mblData";
+import { advanceSearchFields } from "../hblData";
 import { advanceSearchFilter } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
-import ReportPickerModal from "@/components/ReportPickerModal/reportPickerModal";
+import BLModal from "../modal";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 const LIST_TABLE = "tblBl b";
@@ -38,40 +45,27 @@ const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
 const CHECKBOX_CELL_SX = { width: 32, minWidth: 32, maxWidth: 32 };
 const CHECKBOX_SX = { p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } };
 
-const REPORTS = [
-  { key: "Survey Letter", label: "Survey Letter" },
-  { key: "Delivery Order", label: "Delivery Order" },
-  { key: "EmptyOffLoadingLetter", label: "Empty Off-Loading Letter" },
-];
-const REPORT_ROUTE = "/htmlReports/rptDoLetter";
+const getRowId = (item) => String(item?.mblNo ?? "");
 
 function createData(
-  mblNo,
-  mblDate,
-  consigneeText,
-  pol,
-  pod,
-  fpd,
-  cargoMovement,
-  arrivalVessel,
-  arrivalVoyage,
-  line,
   id,
-  clientId
+  mblNo,
+  hblNo,
+  cargoTypeId,
+  podVesselId,
+  hblCount,
+  hblId,
+  status
 ) {
   return {
-    mblNo,
-    mblDate,
-    consigneeText,
-    pol,
-    pod,
-    fpd,
-    cargoMovement,
-    arrivalVessel,
-    arrivalVoyage,
-    line,
     id,
-    clientId,
+    mblNo,
+    hblNo,
+    cargoTypeId,
+    podVesselId,
+    hblCount,
+    hblId,
+    status,
   };
 }
 
@@ -90,9 +84,7 @@ export default function BLList() {
   const [idsOnPage, setIdsOnPage] = useState([]);
   const [allChecked, setAllChecked] = useState(false);
   const [someChecked, setSomeChecked] = useState(false);
-
-  const [reportModalOpen, setReportModalOpen] = useState(false);
-  const [reportModalForRow, setReportModalForRow] = useState(null);
+  const [modal, setModal] = useState({ toggle: false, value: null });
   const { data } = useGetUserAccessUtils("HBL Request");
 
   const getData = useCallback(
@@ -100,16 +92,19 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "b.mblNo mblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId",
-          tableName: LIST_TABLE,
+            "b.mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.id) as hblCount, string_agg(b.id, ',') as hblId, m1.name status",
+          tableName: "tblBl b",
           pageNo,
           pageSize,
-          joins:
-            "left join tblPort p on p.id = b.polId left  join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'MBL' and b1.status = 1",
           advanceSearch: advanceSearchFilter(advanceSearch),
+          groupBy: "group by b.mblNo, m.name, v.name, m1.name",
+          orderBy: "order by max(b.createdDate) desc, b.mblNo asc",
+          joins:
+            "left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id left join tblMasterData m1 on m1.id = b.hblRequestStatus join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-        setBlData(data);
+
+        setBlData(data || []);
         setTotalPage(totalPage);
         setPage(pageNo);
         setRowsPerPage(pageSize);
@@ -128,27 +123,23 @@ export default function BLList() {
     setMode({ mode: null, formId: null });
   }, []);
 
-  const rows = blData
+  const rows = Array.isArray(blData)
     ? blData.map((item) =>
         createData(
+          getRowId(item),
           item["mblNo"],
-          item["mblDate"],
-          item["consigneeText"],
-          item["pol"],
-          item["pod"],
-          item["fpd"],
-          item["cargoMovement"],
-          item["arrivalVessel"],
-          item["arrivalVoyage"],
-          item["line"],
-          item["id"],
-          item["clientId"]
+          item["hblNo"],
+          item["cargoTypeId"],
+          item["podVesselId"],
+          item["hblCount"],
+          item["hblId"],
+          item["status"]
         )
       )
     : [];
 
   useEffect(() => {
-    setIdsOnPage((blData || []).map((r) => r.id));
+    setIdsOnPage((blData || []).map((r) => getRowId(r)));
   }, [blData]);
 
   useEffect(() => {
@@ -175,15 +166,20 @@ export default function BLList() {
     getData(1, +e.target.value);
   };
 
-  const handleDeleteRecord = async (formId) => {
-    const obj = { recordId: formId, tableName: UPDATE_TABLE };
-    const { success, message, error } = await deleteRecord(obj);
-    if (success) {
-      toast.success(message);
-      getData(page, rowsPerPage);
-    } else {
-      toast.error(error || message);
-    }
+  const handleDeleteRecord = async (formIdsCsv) => {
+    const deleteRecords = formIdsCsv
+      ?.split(",")
+      ?.map((x) => x.trim())
+      .filter(Boolean)
+      .map(async (id) => {
+        const obj = { recordId: id, tableName: "tblBl" };
+        const { success, message, error } = await deleteRecord(obj);
+        if (success) toast.success(message);
+        else toast.error(error || message);
+      });
+
+    await Promise.all(deleteRecords || []);
+    getData(page, rowsPerPage);
   };
 
   const modeHandler = (mode, formId = null) => {
@@ -192,18 +188,21 @@ export default function BLList() {
       return;
     }
     setMode({ mode, formId });
-    router.push("/bl/mbl");
+    router.push("/bl/hbl");
   };
 
-  const handlePrint = (id, clientId) => {
-    setReportModalForRow({ id, clientId });
-    setReportModalOpen(true);
-  };
+  const mblToHblIds = useMemo(() => {
+    const map = {};
+    (blData || []).forEach((r) => {
+      map[getRowId(r)] = r?.hblId;
+    });
+    return map;
+  }, [blData]);
 
-  const handleGenerateReports = () => {
-    setReportModalOpen(false);
-    setReportModalForRow(null);
-  };
+  const selectedHblIds = useMemo(() => {
+    const list = selectedIds.flatMap((mbl) => mblToHblIds[mbl] || "");
+    return Array.from(new Set(list));
+  }, [selectedIds, mblToHblIds]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -211,7 +210,7 @@ export default function BLList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center">
-            MBL Request
+            HBL Track
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <AdvancedSearchBar
@@ -221,25 +220,26 @@ export default function BLList() {
               getData={getData}
               rowsPerPage={rowsPerPage}
             />
-            <CustomButton text="Add" href="/bl/mbl" />
+            <CustomButton text="Add" href="/bl/hbl" />
           </Box>
         </Box>
 
-        {/* <SelectionActionsBar
-          selectedIds={selectedIds}
+        <SelectionActionsBar
+          selectedIds={selectedHblIds}
           tableName={UPDATE_TABLE}
           keyColumn="id"
+          allowBulkDelete
           onView={(id) => modeHandler("view", id)}
           onEdit={(id) => modeHandler("edit", id)}
-          onDelete={(id) => handleDeleteRecord(id)}
+          // onDelete={(ids) => handleDeleteRecord((ids || []).join(","))}
           onUpdated={() => getData(page, rowsPerPage)}
-        /> */}
+        />
 
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                {/* <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
+                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
                   <Checkbox
                     size="small"
                     indeterminate={someChecked}
@@ -247,51 +247,54 @@ export default function BLList() {
                     onChange={toggleAll}
                     sx={CHECKBOX_SX}
                   />
-                </TableCell> */}
+                </TableCell>
                 <TableCell>MBL NO</TableCell>
-                <TableCell>MBL date</TableCell>
-                <TableCell>Consignee Name</TableCell>
-                <TableCell>POL</TableCell>
-                <TableCell>POD</TableCell>
-                <TableCell>FPD</TableCell>
-                <TableCell>Cargo Movement</TableCell>
-                <TableCell>Arrival Vessel</TableCell>
-                <TableCell>Arrival Voyage</TableCell>
+                <TableCell>HBL NO</TableCell>
+                <TableCell>Type Of Cargo</TableCell>
+                <TableCell>Vessel-Voyage No</TableCell>
+                <TableCell>HBL Count</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Attachment</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
+
+            <TableBody key={`page-${page}-${rowsPerPage}`}>
               {rows.length > 0 ? (
                 rows.map((row) => (
                   <TableRow key={row.id} hover className="relative group ">
-                    {/* <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <Checkbox
                         size="small"
                         checked={selectedIds.includes(row.id)}
                         onChange={() => toggleOne(row.id)}
                         sx={CHECKBOX_SX}
                       />
-                    </TableCell> */}
+                    </TableCell>
                     <TableCell>{row.mblNo}</TableCell>
-                    <TableCell>{row.mblDate}</TableCell>
-                    <TableCell>{row.consigneeText}</TableCell>
-                    <TableCell>{row.pol}</TableCell>
-                    <TableCell>{row.pod}</TableCell>
-                    <TableCell>{row.fpd}</TableCell>
-                    <TableCell>{row.cargoMovement}</TableCell>
-                    <TableCell>{row.arrivalVessel}</TableCell>
+                    <TableCell>{row.hblNo}</TableCell>
+                    <TableCell>{row.cargoTypeId}</TableCell>
+                    <TableCell>{row.podVesselId}</TableCell>
+                    <TableCell>{row.hblCount}</TableCell>
+                    <TableCell>{row.status}</TableCell>
                     <TableCell>
-                      <Box className="flex items-center justify-between gap-1">
-                        <span>{row.arrivalVoyage}</span>
-                        <span className="opacity-0 group-hover:opacity-100 transition-opacity">
-                          <HoverActionIcons
-                            onView={() => modeHandler("view", row.id)}
-                            onEdit={() => modeHandler("edit", row.id)}
-                            onDelete={() => modeHandler("delete", row.id)}
-                            onPrint={() => handlePrint(row.id, row.clientId)}
-                            menuAccess={data ?? {}}
-                          />
-                        </span>
-                      </Box>
+                      <AttachFileIcon
+                        sx={{ cursor: "pointer", fontSize: "16px" }}
+                        onClick={() =>
+                          setModal((prev) => ({
+                            ...prev,
+                            toggle: true,
+                            value: row.hblId,
+                          }))
+                        }
+                      />
+                    </TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100 !min-w-fit">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.hblId)}
+                        onEdit={() => modeHandler("edit", row.hblId)}
+                        onDelete={() => modeHandler("delete", row.hblId)}
+                        menuAccess={data ?? {}}
+                      />
                     </TableCell>
                   </TableRow>
                 ))
@@ -309,8 +312,8 @@ export default function BLList() {
         <Box className="flex justify-between items-center">
           <TableExportButtons
             targetRef={tableWrapRef}
-            title="MBL Request"
-            fileName="mbl-list"
+            title="HBL Request"
+            fileName="hbl-list"
           />
           <Box className="flex justify-end items-center mt-2">
             <CustomPagination
@@ -324,22 +327,7 @@ export default function BLList() {
           </Box>
         </Box>
       </Box>
-
-      <ReportPickerModal
-        open={reportModalOpen}
-        onClose={() => {
-          setReportModalOpen(false);
-          setReportModalForRow(null);
-        }}
-        availableReports={REPORTS}
-        defaultSelectedKeys={REPORTS.map((r) => r.key)}
-        initialMode="combined"
-        onGenerate={handleGenerateReports}
-        recordId={reportModalForRow?.id}
-        clientId={reportModalForRow?.clientId}
-        reportRoute={REPORT_ROUTE}
-      />
-
+      <BLModal modal={modal} setModal={setModal} />
       <ToastContainer />
     </ThemeProvider>
   );

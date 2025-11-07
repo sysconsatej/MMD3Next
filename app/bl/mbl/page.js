@@ -31,6 +31,7 @@ export default function Home() {
   const { mode, setMode } = formStore();
   const [gridStatus, setGridStatus] = useState(null);
   const [totals, setTotals] = useState({});
+  const [packTypeState, setPackTypeState] = useState(null);
 
   useTotalGrossAndPack(formData, setTotals);
   const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
@@ -193,7 +194,45 @@ export default function Home() {
   };
 
   useEffect(() => {
+    if (formData?.tblBlContainer) {
+      let packType = formData?.tblBlContainer?.[0]?.packageId;
+      const totalGrossAndPack = formData?.tblBlContainer?.reduce(
+        (sum, cur) => {
+          sum.grossWt += Number(cur?.grossWt || 0);
+          sum.netWt += Number(cur?.netWt || 0);
+          sum.noOfPackages += Number(cur?.noOfPackages || 0);
+          if (
+            (packType?.Name !== cur?.packageId?.Name &&
+              cur?.packageId !== undefined) ||
+            null
+          ) {
+            sum.packType = packTypeState;
+          }
+          return sum;
+        },
+        { grossWt: 0, noOfPackages: 0, packType: packType, netWt: 0 }
+      );
+      const updateForm = {
+        ...formData,
+        grossWt: totalGrossAndPack?.grossWt,
+        netWt: totalGrossAndPack?.netWt,
+        noOfPackages: totalGrossAndPack?.noOfPackages,
+        packageId: totalGrossAndPack?.packType,
+      };
+      setFormData(updateForm);
+    }
+  }, [formData?.tblBlContainer]);
+
+  useEffect(() => {
     async function fetchFormHandler() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      setPackTypeState(data[0]);
+
       if (!mode.formId) return;
       setFieldsMode(mode.mode);
 
@@ -388,7 +427,7 @@ export default function Home() {
                 fields={jsonData.tblBlContainer}
                 formData={formData}
                 setFormData={setFormData}
-                fieldsMode={fieldsMode}
+                fieldsMode={mode.mode}
                 gridName="tblBlContainer"
                 gridStatus={gridStatus}
                 buttons={gridButtons}
@@ -400,20 +439,9 @@ export default function Home() {
                 fields={jsonData.tblBlPackingList}
                 formData={formData}
                 setFormData={setFormData}
-                fieldsMode={fieldsMode}
+                fieldsMode={mode.mode}
                 gridName="tblBlPackingList"
                 buttons={gridButtons}
-              />
-            </Box>
-            <Box className="border border-gray-300 p-3 mt-2 flex flex-col gap-1">
-              <Typography variant="caption" className="text-red-500">
-                Total Attachment size should not exceed 3MB for the Request
-              </Typography>
-              <CustomInput
-                fields={jsonData.attachmentFields}
-                formData={formData}
-                setFormData={setFormData}
-                fieldsMode={fieldsMode}
               />
             </Box>
             {/* <Box display="flex" justifyContent="center" mt={2}>

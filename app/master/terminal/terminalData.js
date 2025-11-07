@@ -1,11 +1,25 @@
 const fieldData = {
   terminalFields: [
     {
-      label: "Port code",
+      label: "Code",
       name: "code",
       isEdit: "true",
       required: true,
       blurFun: "duplicateHandler",
+    },
+    {
+      label: "Location",
+      name: "referencePortId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      displayColumn: "p.name",
+      foreignTable: "name,tblPort",
+      joins: "JOIN tblMasterData m ON m.id = p.portTypeId",
+      where: "m.name IN ('SEA PORT','INLAND PORT')",
+      orderBy: "p.name",
+      foreignTable: "name,tblPort",
+      isEdit: true,
+      required: true,
     },
     {
       label: "Terminal Name",

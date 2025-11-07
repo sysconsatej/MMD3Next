@@ -43,7 +43,7 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblCompanyBranch",
       isEdit: true,
-      required: true
+      required: true,
     },
     {
       label: "MBL No",
@@ -103,10 +103,10 @@ export const fieldData = {
       label: "Type of Cargo",
       name: "cargoTypeId",
       type: "dropdown",
-      // tableName: "tblMasterData m",
-      // foreignTable: "name,tblMasterData",
-      // displayColumn: "m.name",
-      // where: "m.masterListName = 'tblCargoType'",
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where: "m.masterListName = 'tblServiceType'",
+      foreignTable: "name,tblMasterData",
       orderBy: "m.name",
       isEdit: true,
     },
@@ -206,7 +206,6 @@ export const fieldData = {
     //   isEdit: true,
     //   required: true
     // },
-
   ],
   csnFields: [
     {
@@ -357,7 +356,6 @@ export const fieldData = {
       orderBy: "p.name",
       foreignTable: "name,tblPort",
       isEdit: true,
-      required: true,
     },
     {
       label: "Direct Port Delivery",
@@ -370,7 +368,6 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblPort",
       isEdit: true,
-      required: true,
     },
     {
       label: "Cargo Movement",
@@ -428,14 +425,17 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
-    // {
-    //   label: "Item Type",
-    //   name: "itemTypeId",
-    //   type: "dropdown",
-    //   labelType: "name,tblItemType",
-    //   foreignTable: "name,tblMasterData",
-    //   isEdit: true,
-    // },
+    {
+      label: "Item Type",
+      name: "blTypeId",
+      type: "dropdown",
+      displayColumn: "m.name",
+      tableName: "tblMasterData m",
+      where: "m.masterListName = 'tblItemType'",
+      orderBy: "m.name",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+    },
     {
       label: "MLO Code",
       name: "mloId",
@@ -471,7 +471,6 @@ export const fieldData = {
       required: true,
       // isEdit: true,
       disabled: true,
-
     },
     {
       label: "No of Package",
@@ -480,7 +479,6 @@ export const fieldData = {
       isEdit: true,
       // required: true,
       disabled: true,
-
     },
     {
       label: "UNO/IMO Code",
@@ -797,6 +795,7 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblIsocode m",
       displayColumn: "m.isocode",
+      foreignTable: "isocode,tblIsocode",
       isEdit: true,
       required: true,
     },
@@ -819,16 +818,15 @@ export const fieldData = {
       type: "checkbox",
       // required: true,
     },
-    // {
-    //   label: "Container Agent Code",
-    //   name: "Agent",
-    //   isEdit: true,
-    //   required: true,
-    // },
-
+    {
+      label: "Container Agent Code",
+      name: "containerAgentCode",
+      isEdit: true,
+      required: true,
+    },
     {
       label: "Cargo Gross Wt(Kgs)",
-      name: "grosswt",
+      name: "grossWt",
       type: "number",
       isEdit: true,
       required: true,
@@ -842,7 +840,7 @@ export const fieldData = {
     //   required: true,
     // },
     { label: "NetWt(Kgs)", name: "netWt", type: "number", isEdit: true },
-    { label: "Volume(CBM)", name: "volume", isEdit: true, },
+    { label: "Volume(CBM)", name: "volume", isEdit: true },
     {
       label: "NO of Package",
       name: "noOfPackages",

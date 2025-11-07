@@ -618,7 +618,7 @@ export default function Home() {
                         fields={jsonData.tblBlContainer}
                         formData={formData}
                         setFormData={setFormData}
-                        fieldsMode={fieldsMode}
+                        fieldsMode={mode.mode}
                         gridName="tblBlContainer"
                         buttons={gridButtons}
                         tabName={"tblBl"}
@@ -631,7 +631,7 @@ export default function Home() {
                         fields={jsonData.tblBlPackingList}
                         formData={formData}
                         setFormData={setFormData}
-                        fieldsMode={fieldsMode}
+                        fieldsMode={mode.mode}
                         gridName="tblBlPackingList"
                         buttons={gridButtonsWithoutExcel}
                         tabName={"tblBl"}
@@ -642,7 +642,7 @@ export default function Home() {
                         fields={jsonData.tblAttachement}
                         formData={formData}
                         setFormData={setFormData}
-                        fieldsMode={fieldsMode}
+                        fieldsMode={mode.mode}
                         gridName="tblAttachement"
                         buttons={gridButtonsWithoutExcel}
                         tabName={"tblBl"}
