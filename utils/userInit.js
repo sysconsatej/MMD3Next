@@ -16,7 +16,6 @@ export const useInitUser = () => {
       ? decodeURIComponent(cookies.user)
       : null;
     const tokenCookie = cookies.token ? cookies.token : null;
-    console.log("User Cookie:", userCookie);
 
     if (userCookie) {
       try {
