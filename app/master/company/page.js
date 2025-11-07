@@ -241,7 +241,7 @@ export default function Company() {
               fields={jsonData.tblCompanyBranch}
               formData={formData}
               setFormData={setFormData}
-              fieldsMode={fieldsMode}
+              fieldsMode={mode.mode}
               gridName="tblCompanyBranch"
               buttons={branchGridButtons}
               handleBlurEventFunctions={handleBlurEventFunctions}

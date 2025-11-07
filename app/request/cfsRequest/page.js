@@ -53,7 +53,7 @@ export default function CfsRequest() {
               fields={jsonData.attachmentFields}
               formData={formData}
               setFormData={setFormData}
-              fieldsMode={fieldsMode}
+              fieldsMode={mode.mode}
               gridName="tblVoyage"
               buttons={cfsGridButtons}
             />

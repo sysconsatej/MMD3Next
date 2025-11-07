@@ -427,7 +427,7 @@ export default function Home() {
                 fields={jsonData.tblBlContainer}
                 formData={formData}
                 setFormData={setFormData}
-                fieldsMode={fieldsMode}
+                fieldsMode={mode.mode}
                 gridName="tblBlContainer"
                 gridStatus={gridStatus}
                 buttons={gridButtons}
@@ -439,7 +439,7 @@ export default function Home() {
                 fields={jsonData.tblBlPackingList}
                 formData={formData}
                 setFormData={setFormData}
-                fieldsMode={fieldsMode}
+                fieldsMode={mode.mode}
                 gridName="tblBlPackingList"
                 buttons={gridButtons}
               />

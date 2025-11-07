@@ -175,7 +175,9 @@ function TableGrid({
   }
 
   useEffect(() => {
-    funcHandler.gridAddHandler();
+    if (fieldsMode === null) {
+      funcHandler.gridAddHandler();
+    }
   }, []);
 
   return (

@@ -200,7 +200,7 @@ export default function InvoicePayment() {
                   fields={jsonData.tblInvoiceRequestContainer}
                   formData={formData}
                   setFormData={setFormData}
-                  fieldsMode={fieldsMode}
+                  fieldsMode={mode.mode}
                   gridName="tblInvoiceRequestContainer"
                   buttons={cfsGridButtons}
                   tabName="tblInvoice"

@@ -105,7 +105,7 @@ export default function User() {
               fields={jsonData.tblUserRoleMapping}
               formData={formData}
               setFormData={setFormData}
-              fieldsMode={fieldsMode}
+              fieldsMode={mode.mode}
               gridName="tblUserRoleMapping" // must match child collection key
               buttons={cfsGridButtons}
             />
