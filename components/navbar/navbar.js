@@ -126,7 +126,6 @@ export default function Navbar() {
   // aakash yadav code
   const { userData } = auth();
   const { setModalOpen } = useModal();
-  console.log("Navbar User Data:", userData);
 
 
   const closeMenus = () => {
