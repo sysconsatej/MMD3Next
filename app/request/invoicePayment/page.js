@@ -45,6 +45,7 @@ export default function InvoicePayment() {
   const [formData, setFormData] = useState({});
   const [fieldsMode] = useState("");
   const [jsonData] = useState(data);
+    const { mode, setMode } = formStore();
 
   const [invoiceArray, setInvoiceArray] = useState([0]);
   const [tabValue, setTabValue] = useState(0);

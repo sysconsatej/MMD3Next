@@ -13,6 +13,7 @@ export default function CfsRequest() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const [loading, setLoading] = useState(false);
+    const { mode, setMode } = formStore();
 
   const submitHandler = async (event) => {
     event.preventDefault();
