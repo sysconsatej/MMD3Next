@@ -103,7 +103,7 @@ export default function BLList() {
             "group by b.mblNo, m.name, v.name, m1.name, b.hblRequestRemarks",
           orderBy:
             "order by case m1.name when 'Request' then 1 when 'Reject' then 2 when 'Confirm' then 3 end,  max(b.createdDate) asc, b.mblNo asc",
-          joins: `left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id  left join tblMasterData m1 on m1.id = b.hblRequestStatus left join tblUser u on  u.id = ${userData.data.userId} join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1 and m1.name in ('Request', 'Reject', 'Confirm') and b1.shippingLineId = u.companyId`,
+          joins: `left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id  left join tblMasterData m1 on m1.id = b.hblRequestStatus left join tblUser u on  u.id = ${userData  &&  userData?.data?.userId} join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1 and m1.name in ('Request', 'Reject', 'Confirm') and b1.shippingLineId = u.companyId`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -118,13 +118,13 @@ export default function BLList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch]
+    [page, rowsPerPage, advanceSearch  , userData]
   );
 
   useEffect(() => {
     getData(1, rowsPerPage);
     setMode({ mode: null, formId: null });
-  }, []);
+  }, [userData]);
 
   const rows = Array.isArray(blData)
     ? blData.map((item) =>

@@ -104,7 +104,7 @@ export default function BLList() {
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
-          joins: `left join tblPort p on p.id = b.polId left join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId left join tblUser u on u.id = ${userData.data.userId} left join tblUser usr1 on usr1.companyId = u.companyId join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'MBL' and b1.status = 1 and b1.createdBy = usr1.id`,
+          joins: `left join tblPort p on p.id = b.polId left join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId left join tblUser u on u.id = ${userData &&  userData?.data?.userId} left join tblUser usr1 on usr1.companyId = u.companyId join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'MBL' and b1.status = 1 and b1.createdBy = usr1.id`,
           advanceSearch: advanceSearchFilter(advanceSearch),
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
@@ -119,13 +119,13 @@ export default function BLList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch]
+    [page, rowsPerPage, advanceSearch , userData]
   );
 
   useEffect(() => {
     getData(1, rowsPerPage);
     setMode({ mode: null, formId: null });
-  }, []);
+  }, [userData]);
 
   const rows = blData
     ? blData.map((item) =>
