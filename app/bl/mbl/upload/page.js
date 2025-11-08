@@ -10,10 +10,10 @@ import { theme } from "@/styles";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import fieldData from "./uploadData";
-import { uploads } from "@/apis"; // no need to fetch master row anymore
+import { uploads } from "@/apis"; // ← functional now
 
 /* ------------------ fixed ctx (replace with session) ------------------ */
-const FIXED_CTX = Object.freeze({
+const CTX = Object.freeze({
     companyId: 7819,
     companyBranchId: 7239,
     clientId: 17,
@@ -21,52 +21,47 @@ const FIXED_CTX = Object.freeze({
     userId: 279,
 });
 
-/* ------------------ URL + template file map ------------------ */
+/* ------------------ URL helpers ------------------ */
 const BASE_URL = ((process.env.NEXT_PUBLIC_BACKEND_URL || "").replace(/\/+$/, "")) + "/";
+const joinUrl = (base, path) =>
+    `${String(base).replace(/\/+$/, "")}/${String(path).replace(/^\/+/, "")}`;
 
-/** Canonicalize text for matching */
-const canon = (s = "") =>
-    String(s)
-        .normalize("NFKC")
-        .replace(/\u200B/g, "")
-        .replace(/\s*\([^)]*\)\s*/g, " ")
-        .replace(/[.\-_/]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-        .toLowerCase();
+/* =======================================================================
+   STRICT mapping (no heuristics)
+   - Accept ONLY:
+     Code: MBLMaster | MBLContainer | MBLItem
+     Name: MBL Master | MBL Container | MBL Item
+   ======================================================================= */
+function mapTemplateToConfig(tpl) {
+    const code = (tpl?.Code ?? tpl?.code ?? "").trim();
+    const name = (tpl?.Name ?? tpl?.name ?? tpl?.label ?? "").trim();
+    const key = code || name; // prefer Code; else Name
 
-/** Your uploaded files on Node (add/edit names if your MD names differ) */
-const TEMPLATE_FILES = [
-    {
-        names: ["MBLMaster", "MBL Master", "Master BL", "MasterBL"],
-        filename: "mblBlMasterUpload.xlsx",
-        path: `${BASE_URL}uploads/mblBlMasterUpload.xlsx`,
-    },
-    {
-        names: ["MBLContainer", "MBL Container", "Container", "BL Container"],
-        filename: "mblBlContainerUpload.xlsx",
-        path: `${BASE_URL}uploads/mblBlContainerUpload.xlsx`,
-    },
-    {
-        names: ["MBLItem", "MBL Item", "Item", "BL Item"],
-        filename: "mblBlItemUpload.xlsx",
-        path: `${BASE_URL}uploads/mblBlItemUpload.xlsx`,
-    },
-];
-
-/** Find file by matching the selected template name */
-const findTemplateFile = (selectedName = "") => {
-    const csel = canon(selectedName);
-    // exact/alias match
-    for (const f of TEMPLATE_FILES) {
-        if (f.names.some((n) => canon(n) === csel)) return f;
+    switch (key) {
+        case "MBLMaster":
+        case "MBL Master":
+            return {
+                spName: "inputMbl",
+                downloadPath: "uploads/mblBlMasterUpload.xlsx",
+            };
+        case "MBLContainer":
+        case "MBL Container":
+            return {
+                spName: "inputMblContainer",
+                downloadPath: "uploads/mblBlContainerUpload.xlsx",
+            };
+        case "MBLItem":
+        case "MBL Item":
+            return {
+                spName: "inputMblItem",
+                downloadPath: "uploads/mblBlItemUpload.xlsx",
+            };
+        default:
+            throw new Error(
+                `Unknown Template. Expected Code [MBLMaster|MBLContainer|MBLItem] or Name [MBL Master|MBL Container|MBL Item]. Got Code='${code}' Name='${name}'.`
+            );
     }
-    // heuristic by keyword
-    if (/\bcontainer\b/.test(csel)) return TEMPLATE_FILES[1];
-    if (/\bitem\b/.test(csel)) return TEMPLATE_FILES[2];
-    // default master
-    return TEMPLATE_FILES[0];
-};
+}
 
 /* ------------------ helpers ------------------ */
 const isEmptyRow = (obj = {}) =>
@@ -87,21 +82,22 @@ const getFirstFile = (val) => {
     return null;
 };
 
-const formatHeaderForSp = (obj = {}) => {
+const formatCriteria = (obj = {}) => {
     const out = {};
     for (const [k, v] of Object.entries(obj)) {
-        if (k === "upload") continue; // don't send file
+        if (k === "upload" || k === "template" || k === "templatedropdown") continue;
         if (v && typeof v === "object") out[k] = v.Id ?? v.id ?? v.value ?? null;
         else out[k] = v ?? null;
     }
     return out;
 };
 
-// Minimal parse: first sheet only
+// Replace your current parseFile with this:
 const parseFile = async (file) => {
     const ext = (file?.name?.split(".").pop() || "").toLowerCase();
     if (!["xlsx", "xls", "csv", "json"].includes(ext)) throw new Error("Unsupported file type");
 
+    // JSON passthrough (no row skipping needed)
     if (ext === "json") {
         const text = await file.text();
         const obj = JSON.parse(text);
@@ -109,33 +105,36 @@ const parseFile = async (file) => {
         return arr.filter((r) => !isEmptyRow(r));
     }
 
+    // Excel / CSV path
     const buf = await file.arrayBuffer();
     const wb = XLSX.read(buf, { type: "array", cellDates: true });
-    const sheet = wb.Sheets[wb.SheetNames[0]];
-    const rawRows = XLSX.utils.sheet_to_json(sheet, {
-        defval: null,
-        raw: false,
+    const ws = wb.Sheets[wb.SheetNames[0]];
+
+    const headerRow = (XLSX.utils.sheet_to_json(ws, {
+        header: 1,
+        range: 0,
+        raw: true,
         blankrows: false,
-        dateNF: "yyyy-mm-dd",
+        defval: null,
+    })[0]) || [];
+
+    const objects = XLSX.utils.sheet_to_json(ws, {
+        range: 2,
+        header: headerRow,
+        raw: true,
+        blankrows: false,
+        defval: null,
     });
 
-    const rows = rawRows.map((r) => {
+    const rows = objects.map((r) => {
         const o = {};
         for (const [k, v] of Object.entries(r)) o[k] = v instanceof Date ? toIsoDate(v) : v;
         return o;
-    });
-    return rows.filter((r) => !isEmptyRow(r));
+    }).filter((r) => !isEmptyRow(r));
+
+    return rows;
 };
 
-/** Infer SP directly from template name */
-const getSpFromTemplateName = (name = "") => {
-    const c = canon(name);
-    if (/\bcontainer\b/.test(c)) return "inputMblContainer";
-    if (/\bitem\b/.test(c)) return "inputMblItem";
-    return "inputMbl"; // default
-};
-
-/** Download helper: try blob, fallback window.open */
 const downloadViaUrl = async (url, filenameBase = "Template") => {
     try {
         const resp = await fetch(url);
@@ -158,26 +157,34 @@ export default function MblUpload() {
     const [formData, setFormData] = useState({});
     const [busy, setBusy] = useState(false);
 
-    const getSelectedTemplateName = () =>
-        formData?.template?.Name ||
-        formData?.template?.name ||
-        formData?.template?.label ||
-        formData?.template?.Code ||
-        formData?.template?.code ||
-        "";
+    const selectedTemplate = () =>
+        formData?.template ?? formData?.templatedropdown ?? null;
 
-    /* ------------------ Download Template (mapped to Node files) ------------------ */
+    const selectedTemplateLabel = (tpl) =>
+        tpl?.Name || tpl?.name || tpl?.label || tpl?.Code || tpl?.code || "";
+
     const handleDownloadTemplate = async () => {
-        const selectedName = getSelectedTemplateName();
-        if (!selectedName) {
-            toast.info("Please select a Template first.");
+        const tpl = selectedTemplate();
+        if (!tpl) return toast.error("Select a Template first.");
+
+        let cfg;
+        try {
+            cfg = mapTemplateToConfig(tpl);
+        } catch (e) {
+            toast.error(e.message);
+            console.warn("[Template] mapping failed:", { tpl });
             return;
         }
+
         try {
             setBusy(true);
-            const file = findTemplateFile(selectedName);
-            if (!file?.path) throw new Error("No template file mapped for this selection.");
-            await downloadViaUrl(file.path, file.filename.replace(/\.xlsx$/i, ""));
+            const url = joinUrl(BASE_URL, cfg.downloadPath);
+            console.log("[Template] download", {
+                template: selectedTemplateLabel(tpl),
+                sp: cfg.spName,
+                url,
+            });
+            await downloadViaUrl(url, cfg.spName);
             toast.success("Template download started.");
         } catch (err) {
             toast.error(err?.message || "Unable to download template");
@@ -186,36 +193,58 @@ export default function MblUpload() {
         }
     };
 
-    /* ------------------ Upload (SP inferred from Template name) ------------------ */
     const handleUpload = async (e) => {
         e.preventDefault();
 
         const file = getFirstFile(formData.upload);
-        if (!file) return toast.warn("Please choose a file in the 'Upload File' field");
+        if (!file) return toast.warn("Choose a file in the 'Upload File' field");
 
-        const selectedName = getSelectedTemplateName();
-        if (!selectedName) return toast.warn("Please select a Template before uploading.");
+        const tpl = selectedTemplate();
+        if (!tpl) return toast.error("Select a Template before uploading.");
+
+        let cfg;
+        try {
+            cfg = mapTemplateToConfig(tpl);
+        } catch (e) {
+            toast.error(e.message);
+            console.warn("[Upload] mapping failed:", { tpl });
+            return;
+        }
 
         setBusy(true);
         try {
             const rows = await parseFile(file);
             if (!rows?.length) throw new Error("No data rows found");
 
-            const header = { ...formatHeaderForSp(formData), ...FIXED_CTX };
-            const spName = getSpFromTemplateName(selectedName);
-
-            const payload = {
-                spName,
-                json: {
-                    template: selectedName,
-                    header,
-                    data: rows,
+            const json = {
+                template: selectedTemplateLabel(tpl),
+                header: {
+                    clientId: CTX.clientId,
+                    userId: CTX.userId,
+                    createdBy: CTX.userId,
+                    companyId: CTX.companyId,
+                    companyBranchId: CTX.companyBranchId,
                 },
+                criteria: formatCriteria(formData),
+                data: rows,
             };
 
+            const payload = { spName: cfg.spName, json };
+            if (cfg.spName === "inputMbl") {
+                payload.createdBy = CTX.userId;
+                payload.clientId = CTX.clientId;
+                payload.companyId = CTX.companyId;
+                payload.companyBranchId = CTX.companyBranchId;
+            }
+
+            console.log("[Upload] calling", cfg.spName, payload);
+
             const resp = await uploads(payload);
-            if (resp?.success) toast.success(resp?.message || "Uploaded successfully");
-            else toast.warn(resp?.message || "No data returned from SP");
+            if (resp?.success) {
+                toast.success(resp?.message || "Uploaded successfully");
+            } else {
+                toast.warn(resp?.message || "Upload completed, but no success flag returned");
+            }
         } catch (err) {
             toast.error(err?.message || "Failed to upload");
         } finally {
