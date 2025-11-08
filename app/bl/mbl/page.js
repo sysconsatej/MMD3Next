@@ -255,8 +255,10 @@ export default function Home() {
         tableName: "tblMasterData",
         whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
       };
-      const { data } = await getDataWithCondition(obj);
-      setPackTypeState(data[0]);
+      const { data, success } = await getDataWithCondition(obj);
+      if (success) {
+        setPackTypeState(data[0]);
+      }
       setFormData((prev) => ({
         ...prev,
         companyId: {

@@ -426,8 +426,10 @@ export default function Home() {
         tableName: "tblMasterData",
         whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
       };
-      const { data: data1 } = await getDataWithCondition(obj1);
-      setPackTypeState(data1[0]);
+      const { data: data1, success } = await getDataWithCondition(obj1);
+      if (success) {
+        setPackTypeState(data1[0]);
+      }
 
       const obj = {
         columns: "id as Id, name as Name",
