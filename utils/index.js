@@ -17,3 +17,4 @@ export {
   exportCSV,
 } from "./dynamicReportUtils";
 export { updateMenuVisibility }  from './showMenuData';
+export { useInitUser } from  './userInit'
