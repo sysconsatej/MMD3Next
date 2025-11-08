@@ -1,5 +1,5 @@
 "use client";
-import {  useModal } from "@/store";
+import { useModal } from "@/store";
 import CustomButton from "../button/button";
 import { Box } from "@mui/material";
 import { useRouter } from "next/navigation";
@@ -8,17 +8,18 @@ import { auth } from "@/store";
 
 export const LogoutModalContent = () => {
   const { setModalClose } = useModal();
-  const { logout , clearUserData } = auth();
+  const { logout, clearUserData } = auth();
   const router = useRouter();
 
   const handleClickYes = () => {
     logout();
     clearUserData();
     setModalClose();
-    Cookies.remove("auth_token");
+    Cookies.remove("user");
+    Cookies.remove("token");
     router.refresh();
-    router.push("/login");
-    window.location.reload("/login");
+    router.push("https://mmd3.mastergroups.com/");
+    window.location.href = "https://mmd3.mastergroups.com/";
   };
 
   return (
