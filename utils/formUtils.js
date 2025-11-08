@@ -76,7 +76,6 @@ export function formatFormData(
   }
 
   if (formId) {
-    console.log("{ ...data, ...updateObj }", { ...data, ...updateObj });
     formData.append("tableName", tableName);
     formData.append("formId", formId);
     formData.append("submitJson", JSON.stringify({ ...data, ...updateObj }));

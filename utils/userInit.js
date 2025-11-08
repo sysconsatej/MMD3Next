@@ -30,11 +30,21 @@ export const useInitUser = () => {
 };
 
 export function getUserByCookies() {
-  const cookies = Object.fromEntries(
-    document.cookie.split("; ").map((c) => c.split("="))
-  );
+  if (typeof window !== "undefined") {
+    const cookies = Object.fromEntries(
+      document.cookie.split("; ").map((c) => c.split("="))
+    );
 
-  const userCookie = cookies.user ? decodeURIComponent(cookies.user) : null;
-  const parsedUser = JSON.parse(userCookie);
-  return parsedUser;
+    const userCookie = cookies.user ? decodeURIComponent(cookies.user) : null;
+
+    if (!userCookie) return null;
+
+    try {
+      return JSON.parse(userCookie);
+    } catch (err) {
+      console.error("Invalid JSON in user cookie", err);
+      return null;
+    }
+  }
 }
+

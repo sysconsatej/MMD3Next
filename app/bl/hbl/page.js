@@ -110,13 +110,13 @@ export default function Home() {
         formId,
         "blId"
       );
-      // const { success, error, message } = await insertUpdateForm(formatItem);
-      // if (success) {
-      //   toast.success(message);
-      //   setFormData({});
-      // } else {
-      //   toast.error(error || message);
-      // }
+      const { success, error, message } = await insertUpdateForm(formatItem);
+      if (success) {
+        toast.success(message);
+        setFormData({});
+      } else {
+        toast.error(error || message);
+      }
     });
     await Promise.all(promises);
     if (blDelete.length > 0) {
