@@ -442,18 +442,18 @@ export default function Home() {
       setFormData((prev) => ({
         ...prev,
         companyId: {
-          Id: userData.data.companyId,
-          Name: userData.data.companyName,
+          Id: userData?.data?.companyId,
+          Name: userData.data?.companyName,
         },
         companyBranchId: {
-          Id: userData.data.branchId,
-          Name: userData.data.branchName,
+          Id: userData?.data?.branchId,
+          Name: userData?.data?.branchName,
         },
       }));
     }
 
     getHblStatus();
-  }, []);
+  }, [userData]);
 
   return (
     <ThemeProvider theme={theme}>
