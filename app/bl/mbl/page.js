@@ -259,20 +259,20 @@ export default function Home() {
       if (success) {
         setPackTypeState(data[0]);
       }
-      setFormData((prev) => ({
-        ...prev,
-        companyId: {
-          Id: userData.data.companyId,
-          Name: userData.data.companyName,
-        },
-        companyBranchId: {
-          Id: userData.data.branchId,
-          Name: userData.data.branchName,
-        },
-      }));
     }
+    setFormData((prev) => ({
+      ...prev,
+      companyId: {
+        Id: userData?.data?.companyId,
+        Name: userData?.data?.companyName,
+      },
+      companyBranchId: {
+        Id: userData?.data?.branchId,
+        Name: userData?.data?.branchName,
+      },
+    }));
     getMblData();
-  }, []);
+  }, [userData]);
 
   return (
     <ThemeProvider theme={theme}>

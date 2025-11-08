@@ -74,6 +74,7 @@ export default function Home() {
   const [packTypeState, setPackTypeState] = useState(null);
   const [hblStatus, setHblStatus] = useState(null);
   const { userData } = auth();
+  console.log("userData in HBL page:", userData);
 
   const handleChangeTab = (event, newValue) => {
     const form = document.querySelector("form");
@@ -439,21 +440,24 @@ export default function Home() {
       const { data } = await getDataWithCondition(obj);
       setHblStatus(data);
 
-      setFormData((prev) => ({
-        ...prev,
-        companyId: {
-          Id: userData.data.companyId,
-          Name: userData.data.companyName,
-        },
-        companyBranchId: {
-          Id: userData.data.branchId,
-          Name: userData.data.branchName,
-        },
-      }));
+      
     }
 
     getHblStatus();
-  }, []);
+    setFormData((prev) => {
+        return {
+          ...prev,
+          companyId: {
+            Id: userData?.data?.companyId,
+            Name: userData?.data?.companyName,
+          },
+          companyBranchId: {
+            Id: userData?.data?.branchId,
+            Name: userData?.data?.branchName,
+          },
+        };
+      });
+  }, [userData]);
 
   return (
     <ThemeProvider theme={theme}>
