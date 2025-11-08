@@ -26,7 +26,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { navItems } from "./index";
 import { navTheme } from "@/styles";
 import { useModal, auth } from "@/store";
-import { useInitUser } from "@/utils";
+import { useInitUser } from "@/utils/userInit";
 
 const norm = (s) => (s ? s.split("?")[0].replace(/\/$/, "") : "");
 const scope = (path, depth) => norm(path).split("/").slice(0, depth).join("/");
@@ -113,22 +113,21 @@ export default function Navbar() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [thirdMenuAnchor, setThirdMenuAnchor] = useState(null);
   const [openThirdMenu, setOpenThirdMenu] = useState(null);
-
+  
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeLink, setActiveLink] = useState("Home");
   const [activeSubLink, setActiveSubLink] = useState("");
   const [activeParentSubLink, setActiveParentSubLink] = useState("");
   const [openSubmenus, setOpenSubmenus] = useState({});
-
+  
   const isMobile = useMediaQuery("(max-width:900px)");
   const pathname = usePathname();
   const router = useRouter();
-
+  
   // aakash yadav code
   useInitUser();
   const { userData } = auth();
   const { setModalOpen } = useModal();
-  console.log("Navbar User Data:", userData);
 
   const closeMenus = () => {
     setAnchorEl(null);

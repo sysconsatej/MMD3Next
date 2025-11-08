@@ -29,6 +29,7 @@ import {
   fetchForm,
   getDataWithCondition,
   insertUpdateForm,
+  updateStatusRows,
 } from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { copyHandler, useTotalGrossAndPack } from "./utils";
@@ -71,6 +72,7 @@ export default function Home() {
   const [hblArray, setHblArray] = useState([]);
   const [blDelete, setBlDelete] = useState([]);
   const [packTypeState, setPackTypeState] = useState(null);
+  const [hblStatus, setHblStatus] = useState(null);
 
   const handleChangeTab = (event, newValue) => {
     const form = document.querySelector("form");
@@ -323,6 +325,28 @@ export default function Home() {
     },
   };
 
+  async function requestHandler() {
+    const requestStatus = hblStatus.filter((item) => item.Name === "Request");
+    const rowsPayload = mode.formId.split(",").map((id) => {
+      return {
+        id: id,
+        hblRequestStatus: requestStatus[0].Id,
+        hblRequestRemarks: null,
+      };
+    });
+    const res = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Request updated successfully!");
+  }
+
   useEffect(() => {
     if (formData?.tblBl?.[tabValue]?.tblBlContainer) {
       let packType =
@@ -401,6 +425,20 @@ export default function Home() {
     }
     fetchFormHandler();
   }, [mode.formId]);
+
+  useEffect(() => {
+    async function getHblStatus() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblHblStatus' and status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      setHblStatus(data);
+    }
+
+    getHblStatus();
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -664,9 +702,12 @@ export default function Home() {
               )}
             </Box>
           </Box>
-          <Box className="w-full flex mt-2">
+          <Box className="w-full flex mt-2 gap-3">
             {fieldsMode !== "view" && (
               <CustomButton text={"Submit"} type="submit" />
+            )}
+            {fieldsMode === "edit" && (
+              <CustomButton text={"Request"} onClick={requestHandler} />
             )}
           </Box>
         </section>

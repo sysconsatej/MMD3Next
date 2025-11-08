@@ -1,6 +1,6 @@
 // app/bl/mbl/upload/uploadData.js
 
-// ---------- header fields ----------
+// Add Template dropdown from Master Data (tblMblExcel)
 const fieldData = {
     mblFields: [
         {
@@ -9,8 +9,7 @@ const fieldData = {
             type: "dropdown",
             tableName: "tblPort p",
             displayColumn: "p.name + ' - ' + ISNULL(p.code,'')",
-            joins:
-                "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+            joins: "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
             where: "m.name IN ('SEA PORT') and c.name = 'India'",
             orderBy: "p.name, p.code",
             foreignTable: "name,tblPort",
@@ -19,7 +18,7 @@ const fieldData = {
         },
         {
             label: "Vessel-Voyage No.",
-            name: "podvesselId", // keep this name (controller/SP expect podvesselId)
+            name: "podvesselId", // expected by controller/SP
             type: "dropdown",
             tableName: "tblVessel v",
             displayColumn: "ISNULL(v.name,'') + ' - ' + ISNULL(vo.voyageNo,'')",
@@ -40,126 +39,23 @@ const fieldData = {
             orderBy: "m.name",
             foreignTable: "name,tblMasterData",
             isEdit: true,
-            required: true, // ensure a value is chosen
+            required: true,
         },
         { label: "Submitter Code", name: "consigneeIdNo" },
+        {
+            label: "Template",
+            name: "template",
+            type: "dropdown",
+            tableName: "tblMasterData m",
+            displayColumn: "m.name",
+            where: "m.masterListName = 'tblMblExcel'",
+            orderBy: "m.name",
+            foreignTable: "name,tblMasterData",
+            isEdit: true,
+            required: true,
+        },
         { label: "Upload File", name: "upload", type: "fileupload" },
     ],
-};
-
-// ---------- templates + SP mapping ----------
-export const dataConfig = {
-    BL: {
-        label: "Master BL",
-        sp: "inputMbl", // ← your upsert SP with extra params (handled in controller)
-        templateColumns: [
-            "BL NO",
-            "BL DATE",
-            "CIN Type",
-            "CIN Number",
-            "CIN DATE",
-            "CSN Number",
-            "CSN DATE",
-            "POA",
-            "POL",
-            "POD",
-            "FPOD",
-            "Port of Transshipment",
-            "MARKS & NUMBERS",
-            "CARGO DESCRIPTION",
-            "ITEM TYPE",
-            "NATURE OF CARGO",
-            "INVOICE VALUE OF CONSIGNMENT",
-            "CURRENCY CODE",
-            "CONSIGNEE NAME",
-            "CONSIGNEE ADDRESS1",
-            "CONSIGNEE ADDRESS2",
-            "CONSIGNEE ADDRESS3",
-            "CONSIGNEE CITY",
-            "Consignee Country Sub- division/ State name",
-            "Consignee Country Sub- division/ State Code",
-            "CONSIGNEE COUNTRY CODE",
-            "CONSIGNEE ZIP CODE",
-            "CONSIGNEE IEC",
-            "CONSIGNEE GST",
-            "CONSIGNEE PAN",
-            "CONSIGNEE EMAIL",
-            "NOTIFY PAN",
-            "NOTIFY NAME",
-            "NOTIFY ADDRESS1",
-            "NOTIFY ADDRESS2",
-            "NOTIFY ADDRESS3",
-            "NOTIFY CITY",
-            "Notify party Country Sub- division/ State name",
-            "Notify party Country Sub- division/ State code",
-            "NOTIFY COUNTRY CODE",
-            "NOTIFY ZIP CODE",
-            "CONSIGNOR NAME",
-            "CONSIGNOR ADDRESS1",
-            "CONSIGNOR ADDRESS2",
-            "CONSIGNOR ADDRESS3",
-            "CONSIGNOR CITY",
-            "Consignor Country Sub- division/ State name",
-            "Consignor Country Sub- division/ State Code",
-            "CONSIGNOR COUNTRY CODE",
-            "CONSIGNOR ZIP CODE",
-            "CONSIGNOR IEC",
-            "CONSIGNOR GST",
-            "CONSIGNOR PAN",
-            "CONSIGNOR EMAIL",
-            "MBL No.",
-            "MBL DATE",
-            "Transit Bond No.",
-            "Carrier PAN No.",
-            "Carrier/ Vendor Name",
-            "Mode of Transport",
-            "Forwarder's PAN No.",
-        ],
-    },
-
-    ContainerImp: {
-        label: "BL Container",
-        sp: "inputMblContainer",
-        templateColumns: [
-            "BL NO",
-            "CONTAINER NO.",
-            "PACKAGE TYPE",
-            "NO OF PACKAGES",
-            "CARGO GROSS WEIGHT (KGS)",
-            "CONTAINER WEIGHT (VGM/Gross) (KGS)",
-            "CONTAINER Tare Weight (KGS)",
-            "Gross Volume (CBM)",
-            "ISO CODE",
-            "TEMPERATURE",
-            "TEMPERATURE UOM",
-            "Over Dimension at Front",
-            "Over Dimension at Rear",
-            "Over Dimension at Height",
-            "Over Dimension at Left width",
-            "Over Dimension at Right width",
-            "SOC FLAG",
-            "SEAL TYPE",
-            "SEAL NO1",
-            "SEAL NO2",
-            "CONTAINER STATUS",
-            "Container Agent Code",
-        ],
-    },
-
-    Item: {
-        label: "BL Item",
-        sp: "inputMblItem",
-        templateColumns: [
-            "BL NO",
-            "CONTAINER NO.",
-            "IMO CODE",
-            "UNO NO.",
-            "HS CODE",
-            "CARGO ITEM DESCRIPTION",
-            "NO OF PACKAGES",
-            "TYPE OF PACKAGES",
-        ],
-    },
 };
 
 export default fieldData;
