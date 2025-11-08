@@ -1,4 +1,5 @@
 import { getNextPrevData } from "@/apis";
+import { auth } from "@/store";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -25,15 +26,16 @@ export function formatFormData(
 ) {
   const formData = new FormData();
   const data = {};
+  const { userData } = auth();
 
   const insertObj = {
-    createdBy: 4,
+    createdBy: userData.data.userId,
     clientId: 1,
     status: 1,
     createdDate: new Date(),
   };
   const updateObj = {
-    updatedBy: 4,
+    updatedBy: userData.data.userId,
     clientId: 1,
     updatedDate: new Date(),
   };

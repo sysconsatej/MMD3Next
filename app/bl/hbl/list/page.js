@@ -103,7 +103,7 @@ export default function BLList() {
           groupBy:
             "group by b.mblNo, m.name, v.name, m1.name, b.hblRequestRemarks",
           orderBy: "order by max(b.createdDate) desc, b.mblNo asc",
-          joins: `left join tblMasterData m on b.cargoTypeId = m.id  left join tblVessel v on b.podVesselId = v.id left join tblMasterData m1 on m1.id = b.hblRequestStatus  left join tblUser u on u.id = ${userData.id} left join tblUser usr1 on usr1.companyId = u.companyId join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1 and b.createdBy = usr1.id`,
+          joins: `left join tblMasterData m on b.cargoTypeId = m.id  left join tblVessel v on b.podVesselId = v.id left join tblMasterData m1 on m1.id = b.hblRequestStatus  left join tblUser u on u.id = ${userData.data.userId} left join tblUser usr1 on usr1.companyId = u.companyId join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1 and b.createdBy = usr1.id`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -113,7 +113,6 @@ export default function BLList() {
         setRowsPerPage(pageSize);
         setTotalRows(totalRows);
         setSelectedIds([]);
-        console.log("userData", userData);
       } catch (err) {
         console.error("Error fetching data:", err);
         setLoadingState("Failed to load data");

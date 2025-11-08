@@ -14,7 +14,7 @@ import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import FormHeading from "@/components/formHeading/formHeading";
-import { formStore } from "@/store";
+import { auth, formStore } from "@/store";
 import {
   formatDataWithForm,
   formatDataWithFormThirdLevel,
@@ -73,6 +73,7 @@ export default function Home() {
   const [blDelete, setBlDelete] = useState([]);
   const [packTypeState, setPackTypeState] = useState(null);
   const [hblStatus, setHblStatus] = useState(null);
+  const { userData } = auth();
 
   const handleChangeTab = (event, newValue) => {
     const form = document.querySelector("form");
@@ -382,14 +383,6 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchFormHandler() {
-      const obj = {
-        columns: "id as Id, name as Name",
-        tableName: "tblMasterData",
-        whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
-      };
-      const { data } = await getDataWithCondition(obj);
-      setPackTypeState(data[0]);
-
       if (!mode.formId) return;
       setFieldsMode(mode.mode);
       const resArray = [];
@@ -428,6 +421,14 @@ export default function Home() {
 
   useEffect(() => {
     async function getHblStatus() {
+      const obj1 = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
+      };
+      const { data: data1 } = await getDataWithCondition(obj1);
+      setPackTypeState(data1[0]);
+
       const obj = {
         columns: "id as Id, name as Name",
         tableName: "tblMasterData",
@@ -435,6 +436,18 @@ export default function Home() {
       };
       const { data } = await getDataWithCondition(obj);
       setHblStatus(data);
+
+      setFormData((prev) => ({
+        ...prev,
+        companyId: {
+          Id: userData.data.companyId,
+          Name: userData.data.companyName,
+        },
+        companyBranchId: {
+          Id: userData.data.branchId,
+          Name: userData.data.branchName,
+        },
+      }));
     }
 
     getHblStatus();

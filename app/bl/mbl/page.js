@@ -8,7 +8,7 @@ import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import FormHeading from "@/components/formHeading/formHeading";
-import { formStore } from "@/store";
+import { auth, formStore } from "@/store";
 import {
   copyHandler,
   formatDataWithForm,
@@ -32,6 +32,7 @@ export default function Home() {
   const [gridStatus, setGridStatus] = useState(null);
   const [totals, setTotals] = useState({});
   const [packTypeState, setPackTypeState] = useState(null);
+  const { userData } = auth();
 
   useTotalGrossAndPack(formData, setTotals);
   const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
@@ -225,14 +226,6 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchFormHandler() {
-      const obj = {
-        columns: "id as Id, name as Name",
-        tableName: "tblMasterData",
-        whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
-      };
-      const { data } = await getDataWithCondition(obj);
-      setPackTypeState(data[0]);
-
       if (!mode.formId) return;
       setFieldsMode(mode.mode);
 
@@ -254,6 +247,30 @@ export default function Home() {
     }
     fetchFormHandler();
   }, [mode.formId]);
+
+  useEffect(() => {
+    async function getMblData() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      setPackTypeState(data[0]);
+      setFormData((prev) => ({
+        ...prev,
+        companyId: {
+          Id: userData.data.companyId,
+          Name: userData.data.companyName,
+        },
+        companyBranchId: {
+          Id: userData.data.branchId,
+          Name: userData.data.branchName,
+        },
+      }));
+    }
+    getMblData();
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -298,7 +315,7 @@ export default function Home() {
 
           <Box>
             <FormHeading text="MBL Details" />
-            <Box className="grid grid-cols-5 items-end gap-2 p-2 ">
+            <Box className="grid grid-cols-4 items-end gap-2 p-2 ">
               <CustomInput
                 fields={jsonData.mblFields}
                 formData={formData}

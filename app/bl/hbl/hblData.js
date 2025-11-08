@@ -7,7 +7,7 @@ export const fieldData = {
   mblFields: [
     {
       label: "Liner",
-      name: "companyId",
+      name: "shippingLineId",
       type: "dropdown",
       tableName: "tblCompany t",
       displayColumn: "t.name",
@@ -18,6 +18,18 @@ export const fieldData = {
       required: true,
     },
     {
+      label: "Company",
+      name: "companyId",
+      type: "dropdown",
+      tableName: "tblCompany t",
+      displayColumn: "t.name",
+      searchColumn: "t.name",
+      orderBy: "t.name",
+      foreignTable: "name,tblCompany",
+      required: true,
+      disabled: true,
+    },
+    {
       label: "Company Branch",
       name: "companyBranchId",
       type: "dropdown",
@@ -26,8 +38,8 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblCompanyBranch",
       selectedConditions: [{ companyId: "companyId" }],
-      isEdit: true,
       required: true,
+      disabled: true,
     },
     {
       label: "MBL No",
