@@ -2,6 +2,7 @@ import { getNextPrevData } from "@/apis";
 import { auth } from "@/store";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { getUserByCookies } from "./userInit";
 
 export function useDebounce(search = "", delay) {
   const [debounceValue, setDebounceValue] = useState(search);
@@ -26,16 +27,16 @@ export function formatFormData(
 ) {
   const formData = new FormData();
   const data = {};
-  const { userData } = auth();
+  const userData = getUserByCookies();
 
   const insertObj = {
-    createdBy: userData.data.userId,
+    createdBy: userData?.userId,
     clientId: 1,
     status: 1,
     createdDate: new Date(),
   };
   const updateObj = {
-    updatedBy: userData.data.userId,
+    updatedBy: userData?.userId,
     clientId: 1,
     updatedDate: new Date(),
   };
@@ -75,6 +76,7 @@ export function formatFormData(
   }
 
   if (formId) {
+    console.log("{ ...data, ...updateObj }", { ...data, ...updateObj });
     formData.append("tableName", tableName);
     formData.append("formId", formId);
     formData.append("submitJson", JSON.stringify({ ...data, ...updateObj }));

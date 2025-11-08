@@ -14,13 +14,14 @@ import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import FormHeading from "@/components/formHeading/formHeading";
-import { auth, formStore } from "@/store";
+import { formStore } from "@/store";
 import {
   formatDataWithForm,
   formatDataWithFormThirdLevel,
   formatFetchForm,
   formatFormData,
   formFormatThirdLevel,
+  getUserByCookies,
   setInputValue,
   useNextPrevData,
 } from "@/utils";
@@ -73,8 +74,7 @@ export default function Home() {
   const [blDelete, setBlDelete] = useState([]);
   const [packTypeState, setPackTypeState] = useState(null);
   const [hblStatus, setHblStatus] = useState(null);
-  const { userData } = auth();
-  console.log("userData in HBL page:", userData);
+  const userData = getUserByCookies();
 
   const handleChangeTab = (event, newValue) => {
     const form = document.querySelector("form");
@@ -110,13 +110,13 @@ export default function Home() {
         formId,
         "blId"
       );
-      const { success, error, message } = await insertUpdateForm(formatItem);
-      if (success) {
-        toast.success(message);
-        setFormData({});
-      } else {
-        toast.error(error || message);
-      }
+      // const { success, error, message } = await insertUpdateForm(formatItem);
+      // if (success) {
+      //   toast.success(message);
+      //   setFormData({});
+      // } else {
+      //   toast.error(error || message);
+      // }
     });
     await Promise.all(promises);
     if (blDelete.length > 0) {
@@ -439,25 +439,23 @@ export default function Home() {
       };
       const { data } = await getDataWithCondition(obj);
       setHblStatus(data);
-
-      
     }
 
     getHblStatus();
     setFormData((prev) => {
-        return {
-          ...prev,
-          companyId: {
-            Id: userData?.data?.companyId,
-            Name: userData?.data?.companyName,
-          },
-          companyBranchId: {
-            Id: userData?.data?.branchId,
-            Name: userData?.data?.branchName,
-          },
-        };
-      });
-  }, [userData]);
+      return {
+        ...prev,
+        companyId: {
+          Id: userData.companyId,
+          Name: userData.companyName,
+        },
+        companyBranchId: {
+          Id: userData.branchId,
+          Name: userData.branchName,
+        },
+      };
+    });
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>

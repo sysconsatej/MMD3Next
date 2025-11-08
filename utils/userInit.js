@@ -12,9 +12,7 @@ export const useInitUser = () => {
       document.cookie.split("; ").map((c) => c.split("="))
     );
 
-    const userCookie = cookies.user
-      ? decodeURIComponent(cookies.user)
-      : null;
+    const userCookie = cookies.user ? decodeURIComponent(cookies.user) : null;
     const tokenCookie = cookies.token ? cookies.token : null;
 
     if (userCookie) {
@@ -30,3 +28,13 @@ export const useInitUser = () => {
     if (tokenCookie) setToken(tokenCookie);
   }, [setUserData, setToken]);
 };
+
+export function getUserByCookies() {
+  const cookies = Object.fromEntries(
+    document.cookie.split("; ").map((c) => c.split("="))
+  );
+
+  const userCookie = cookies.user ? decodeURIComponent(cookies.user) : null;
+  const parsedUser = JSON.parse(userCookie);
+  return parsedUser;
+}

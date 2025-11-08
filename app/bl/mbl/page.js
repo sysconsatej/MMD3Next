@@ -8,12 +8,13 @@ import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import FormHeading from "@/components/formHeading/formHeading";
-import { auth, formStore } from "@/store";
+import { formStore } from "@/store";
 import {
   copyHandler,
   formatDataWithForm,
   formatFetchForm,
   formatFormData,
+  getUserByCookies,
   setInputValue,
   useNextPrevData,
 } from "@/utils";
@@ -32,7 +33,7 @@ export default function Home() {
   const [gridStatus, setGridStatus] = useState(null);
   const [totals, setTotals] = useState({});
   const [packTypeState, setPackTypeState] = useState(null);
-  const { userData } = auth();
+  const userData = getUserByCookies();
 
   useTotalGrossAndPack(formData, setTotals);
   const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
@@ -263,16 +264,16 @@ export default function Home() {
     setFormData((prev) => ({
       ...prev,
       companyId: {
-        Id: userData?.data?.companyId,
-        Name: userData?.data?.companyName,
+        Id: userData.companyId,
+        Name: userData.companyName,
       },
       companyBranchId: {
-        Id: userData?.data?.branchId,
-        Name: userData?.data?.branchName,
+        Id: userData.branchId,
+        Name: userData.branchName,
       },
     }));
     getMblData();
-  }, [userData]);
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
