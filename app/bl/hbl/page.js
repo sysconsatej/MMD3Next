@@ -348,6 +348,28 @@ export default function Home() {
     toast.success("Request updated successfully!");
   }
 
+  async function verifyHandler() {
+    const verifyStatus = hblStatus.filter((item) => item.Name === "Confirm");
+    const rowsPayload = mode.formId.split(",").map((id) => {
+      return {
+        id: id,
+        hblRequestStatus: verifyStatus[0].Id,
+        hblRequestRemarks: null,
+      };
+    });
+    const res = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Request updated successfully!");
+  }
+
   useEffect(() => {
     if (formData?.tblBl?.[tabValue]?.tblBlContainer) {
       let packType =
@@ -469,11 +491,20 @@ export default function Home() {
                 setFormData={setTotals}
                 fieldsMode={"view"}
               />
-              <CustomButton
-                text="Back"
-                href="/bl/hbl/list"
-                onClick={() => setMode({ mode: null, formId: null })}
-              />
+              {userData.roleCode === "customer" && (
+                <CustomButton
+                  text="Back"
+                  href="/bl/hbl/list"
+                  onClick={() => setMode({ mode: null, formId: null })}
+                />
+              )}
+              {userData.roleCode === "shipping" && (
+                <CustomButton
+                  text="Back"
+                  href="/bl/hbl/linerSearch"
+                  onClick={() => setMode({ mode: null, formId: null })}
+                />
+              )}
             </Box>
           </Box>
           {(fieldsMode === "view" || fieldsMode === "edit") && (
@@ -722,9 +753,20 @@ export default function Home() {
             {fieldsMode !== "view" && (
               <CustomButton text={"Submit"} type="submit" />
             )}
-            {fieldsMode === "edit" && (
-              <CustomButton text={"Request"} onClick={requestHandler} />
-            )}
+            {(fieldsMode === "edit" || fieldsMode === "view") &&
+              userData.roleCode === "customer" && (
+                <CustomButton text={"Request"} onClick={requestHandler} />
+              )}
+
+            {(fieldsMode === "edit" || fieldsMode === "view") &&
+              userData.roleCode === "shipping" && (
+                <CustomButton text={"Verify"} onClick={verifyHandler} />
+              )}
+
+            {/* {(fieldsMode === "edit" || fieldsMode === "view") &&
+              userData.roleCode === "shipping" && (
+                <CustomButton text={"Reject"} onClick={rejectHandler} />
+              )} */}
           </Box>
         </section>
       </form>
