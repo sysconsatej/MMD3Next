@@ -74,8 +74,8 @@ export default function Home() {
   const [blDelete, setBlDelete] = useState([]);
   const [packTypeState, setPackTypeState] = useState(null);
   const [hblStatus, setHblStatus] = useState(null);
+  const userData = getUserByCookies();
   const [agreed, setAgreed] = useState(false);
-  const [userData, setUserData] = useState({});
 
   const handleChangeTab = (event, newValue) => {
     const form = document.querySelector("form");
@@ -481,9 +481,6 @@ export default function Home() {
         setHblStatus(data);
       }
 
-      const userData = getUserByCookies();
-      setUserData(userData);
-
       setFormData((prev) => {
         return {
           ...prev,
@@ -515,14 +512,14 @@ export default function Home() {
                 setFormData={setTotals}
                 fieldsMode={"view"}
               />
-              {userData.roleCode === "customer" && (
+              {userData?.roleCode === "customer" && (
                 <CustomButton
                   text="Back"
                   href="/bl/hbl/list"
                   onClick={() => setMode({ mode: null, formId: null })}
                 />
               )}
-              {userData.roleCode === "shipping" && (
+              {userData?.roleCode === "shipping" && (
                 <CustomButton
                   text="Back"
                   href="/bl/hbl/linerSearch"
@@ -774,16 +771,16 @@ export default function Home() {
             </Box>
           </Box>
           <Box className="w-full flex mt-2 gap-3">
-            {fieldsMode !== "view" && userData.roleCode === "customer" && (
+            {fieldsMode !== "view" && userData?.roleCode === "customer" && (
               <CustomButton text={"Submit"} type="submit" />
             )}
             {(fieldsMode === "edit" || fieldsMode === "view") &&
-              userData.roleCode === "customer" && (
+              userData?.roleCode === "customer" && (
                 <CustomButton text={"Request"} onClick={requestHandler} />
               )}
 
             {(fieldsMode === "edit" || fieldsMode === "view") &&
-              userData.roleCode === "shipping" && (
+              userData?.roleCode === "shipping" && (
                 <CustomButton text={"Verify"} onClick={verifyHandler} />
               )}
 
