@@ -74,8 +74,8 @@ export default function Home() {
   const [blDelete, setBlDelete] = useState([]);
   const [packTypeState, setPackTypeState] = useState(null);
   const [hblStatus, setHblStatus] = useState(null);
-  const userData = getUserByCookies();
   const [agreed, setAgreed] = useState(false);
+  const userData = getUserByCookies();
 
   const handleChangeTab = (event, newValue) => {
     const form = document.querySelector("form");
