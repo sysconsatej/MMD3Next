@@ -120,7 +120,7 @@ export const navItems = [
       },
       {
         name: "Invoice Payment",
-        href: "/request/invoicePayment",
+        href: "/request/invoicePayment/list",
         isShow: true,
       },
       { name: "Invoice Upload", href: "/request/invoiceUpload/list" },

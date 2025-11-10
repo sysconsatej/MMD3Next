@@ -1,22 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import {
-  ThemeProvider,
-  Box,
-  Tabs,
-  Tab,
-  Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  IconButton,
-  CircularProgress,
-  Button,
-} from "@mui/material";
+import { useState, useCallback, useEffect } from "react";
+import { ThemeProvider, Box, Tabs, Tab, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { theme } from "@/styles";
 import { ToastContainer, toast } from "react-toastify";
 import { CustomInput } from "@/components/customInput";
@@ -25,18 +12,18 @@ import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
 import data, { cfsGridButtons } from "./invoicePaymentData";
-import { payment } from "@/apis/payment";
-import { getDataWithCondition, insertUpdateForm } from "@/apis";
-import { formatFormData } from "@/utils";
+import { getDataWithCondition, fetchForm, insertUpdateForm } from "@/apis";
+import {
+  formatFormData,
+  formatDataWithForm,
+  formatDataWithFormThirdLevel,
+  formatFetchForm,
+} from "@/utils";
+import { useRouter } from "next/navigation"; // ✅ for redirect
 
 function CustomTabPanel({ children, value, index, ...other }) {
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`inv-tabpanel-${index}`}
-      {...other}
-    >
+    <div role="tabpanel" hidden={value !== index} {...other}>
       {value === index && <Box className="pt-2">{children}</Box>}
     </div>
   );
@@ -48,21 +35,17 @@ const a11yProps = (index) => ({
 });
 
 export default function InvoicePayment() {
+  const { mode } = formStore();
+  const initialMode = mode.mode || ""; // ✅ ensures correct initial state
+
   const [formData, setFormData] = useState({});
-  const [fieldsMode] = useState("");
+  const [fieldsMode, setFieldsMode] = useState(initialMode);
   const [jsonData] = useState(data);
-    const { mode, setMode } = formStore();
+  const router = useRouter();
 
   const [invoiceArray, setInvoiceArray] = useState([0]);
   const [tabValue, setTabValue] = useState(0);
   const [errorState, setErrorState] = useState({});
-
-  // payment modal state
-  const [paying, setPaying] = useState(false);
-  const [payOpen, setPayOpen] = useState(false);
-  const [payUrl, setPayUrl] = useState(null);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-  const [iframeError, setIframeError] = useState(null);
 
   const handleChangeTab = (_e, newValue) => setTabValue(newValue);
 
@@ -80,7 +63,6 @@ export default function InvoicePayment() {
     if (tabValue >= index && tabValue > 0) setTabValue(tabValue - 1);
   };
 
-  /* === helpers for BL/MBL check === */
   const extractId = useCallback((v) => {
     if (v && typeof v === "object") {
       return v.id ?? v.value ?? v.companyId ?? v.Id ?? null;
@@ -91,15 +73,12 @@ export default function InvoicePayment() {
 
   const sqlEscape = useCallback((s = "") => String(s).replace(/'/g, "''"), []);
 
-  /* === BL/MBL exists for Beneficiary (Company) === */
   const checkBlForCompany = useCallback(
     async (event) => {
-      const { value, name } = event.target; // ex: name === "blNo" or "mblNo"
+      const { value, name } = event.target;
       const typed = (value || "").trim();
-
       if (!typed) return;
 
-      // pull companyId (Beneficiary) from current formData
       const companyId =
         extractId(formData?.beneficiaryName) ??
         extractId(formData?.companyId) ??
@@ -113,7 +92,6 @@ export default function InvoicePayment() {
         return;
       }
 
-      // Query: tblBl b with b.mblNo & b.companyId
       const payload = {
         columns: "TOP 1 b.id, b.mblNo",
         tableName: "tblBl b",
@@ -125,32 +103,108 @@ export default function InvoicePayment() {
 
       try {
         const { success, data } = await getDataWithCondition(payload);
-
         if (success && Array.isArray(data) && data.length > 0) {
-          setErrorState((p) => ({ ...p, [errKey]: false }));
           toast.success("BL found for this Beneficiary.");
-
-          // ✅ Store the blId in formData for use in submitHandler
           setFormData((p) => ({ ...p, blId: data[0].id }));
+          setErrorState((p) => ({ ...p, [errKey]: false }));
         } else {
-          setErrorState((p) => ({ ...p, [errKey]: true }));
           toast.error("BL not found for this Beneficiary.");
+          setErrorState((p) => ({ ...p, [errKey]: true }));
         }
       } catch (e) {
         console.error(e);
-        setErrorState((p) => ({ ...p, [errKey]: true }));
-        toast.error("Error checking BL/MBL. Please try again.");
+        toast.error("Error checking BL/MBL.");
       }
     },
     [formData, extractId, sqlEscape]
   );
 
-  // bundle handlers to feed into CustomInput
   const handleBlurEventFunctions = {
     checkBlForCompany,
   };
 
-  /* === Submit Handler === */
+  useEffect(() => {
+    async function fetchInvoiceData() {
+      if (!mode?.formId) return;
+
+      try {
+        const blQuery = {
+          columns: `
+            b.id AS blId,
+            b.mblNo AS blNo,
+            c.name AS beneficiaryName,
+            c.id AS beneficiaryId
+          `,
+          tableName: "tblInvoice i",
+          joins: `
+            LEFT JOIN tblBl b ON b.id = i.blId
+            LEFT JOIN tblCompany c ON c.id = b.companyId
+          `,
+          whereCondition: `i.id = ${mode.formId}`,
+        };
+
+        const { data: blData, success: blSuccess } =
+          await getDataWithCondition(blQuery);
+        if (!blSuccess || !blData?.length) return;
+
+        const blId = blData[0].blId;
+
+        const allInvoicesQuery = {
+          columns: "id",
+          tableName: "tblInvoice",
+          whereCondition: `blId = ${blId} AND ISNULL(status,1)=1`,
+        };
+        const { data: invoiceList, success: invSuccess } =
+          await getDataWithCondition(allInvoicesQuery);
+        if (!invSuccess || !invoiceList?.length) return;
+
+        const invoiceIds = invoiceList.map((r) => r.id);
+        const resArray = [];
+
+        const promises = invoiceIds.map(async (id) => {
+          const format = formatFetchForm(
+            data,
+            "tblInvoice",
+            id,
+            '["tblInvoiceRequestContainer","tblAttachement"]',
+            "invoiceRequestId"
+          );
+          const { success, result } = await fetchForm(format);
+          if (success) resArray.push(formatDataWithForm(result, data));
+        });
+
+        await Promise.allSettled(promises);
+        if (!resArray.length) return;
+
+        const formattedState = formatDataWithFormThirdLevel(
+          resArray,
+          [...data.igmFields],
+          "tblInvoice"
+        );
+
+        setFormData({
+          ...formattedState,
+          blId: blData[0].blId,
+          blNo: blData[0].blNo,
+          beneficiaryName: {
+            Id: blData[0].beneficiaryId,
+            Name: blData[0].beneficiaryName,
+          },
+        });
+
+        setInvoiceArray(
+          Array.from({ length: formattedState.tblInvoice.length }, (_, i) => i)
+        );
+        setFieldsMode(mode.mode || "");
+      } catch (err) {
+        console.error("❌ Error fetching Invoice Payment:", err);
+        toast.error("Error loading invoice data.");
+      }
+    }
+
+    fetchInvoiceData();
+  }, [mode.formId, mode.mode, data]);
+
   const submitHandler = async (e) => {
     e.preventDefault();
 
@@ -162,7 +216,6 @@ export default function InvoicePayment() {
       }
 
       const invoiceTabs = formData?.tblInvoice || [];
-
       if (invoiceTabs.length === 0) {
         toast.warn("Please add at least one invoice before submitting.");
         return;
@@ -170,11 +223,12 @@ export default function InvoicePayment() {
 
       const promises = invoiceTabs.map(async (invoice, index) => {
         const invoiceId = invoice?.id ?? null;
+        const { blNo, beneficiaryName, companyName, ...cleanInvoice } = invoice;
 
         const formatted = formatFormData(
           "tblInvoice",
           {
-            ...invoice,
+            ...cleanInvoice,
             blId,
             tblInvoiceRequestContainer:
               invoice.tblInvoiceRequestContainer || [],
@@ -184,95 +238,55 @@ export default function InvoicePayment() {
         );
 
         const { success, message, error } = await insertUpdateForm(formatted);
-        if (success) {
-          toast.success(`Invoice ${index + 1} saved successfully.`);
-        } else {
-          toast.error(error || message || `Error saving Invoice ${index + 1}.`);
-        }
+        if (success) toast.success(`Invoice ${index + 1} saved successfully.`);
+        else toast.error(error || message);
       });
 
       await Promise.all(promises);
       toast.success("All invoices submitted successfully!");
     } catch (err) {
       console.error(err);
-      toast.error("Error submitting invoices. Please try again.");
+      toast.error("Error submitting invoices.");
     }
   };
 
-  /* === Quick Pay Logic === */
-  const handleClosePay = () => {
-    setPayOpen(false);
-    setPayUrl(null);
-    setIframeLoaded(false);
-    setIframeError(null);
-  };
-
-  const quickPayHandler = async () => {
-    try {
-      setPaying(true);
-      setIframeLoaded(false);
-      setIframeError(null);
-
-      const res = await payment();
-      const link =
-        res?.data?.link || res?.data?.url || res?.link || res?.url || null;
-
-      if (link) {
-        setPayUrl(link);
-        setPayOpen(true);
-      } else {
-        toast.error("Payment link not received.");
-      }
-    } catch (err) {
-      console.error(err);
-      const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Payment initialization failed.";
-      toast.error(msg);
-    } finally {
-      setPaying(false);
+  /* ✅ Quick Pay Redirect */
+  const quickPayHandler = () => {
+    const blId = formData?.blId;
+    if (!blId) {
+      toast.error("Please select a BL first!");
+      return;
     }
+    router.push(`/request/invoicePayment/payment?blId=${blId}`);
   };
 
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
         <section className="py-2 px-4">
-          {/* Header Row */}
           <Box className="flex justify-between items-end mb-2">
             <h1 className="text-left text-base m-0">Payment New Invoice</h1>
             <Box className="flex gap-2">
-              <CustomButton text="Back" href="/request/invoiceRequest/list" />
+              <CustomButton text="Back" href="/request/invoicePayment/list" />
             </Box>
           </Box>
 
-          {/* BL Info */}
-          <FormHeading
-            text="BL Information"
-            variant="body2"
-            style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
-          />
+          <FormHeading text="BL Information" variant="body2" />
           <Box className="grid grid-cols-4 gap-2 p-2">
             <CustomInput
               fields={jsonData.igmFields}
               formData={formData}
               setFormData={setFormData}
               fieldsMode={fieldsMode}
-              handleBlurEventFunctions={handleBlurEventFunctions}
+              handleBlurEventFunctions={{ checkBlForCompany }}
               errorState={errorState}
             />
           </Box>
 
-          {/* Attachments */}
-          <FormHeading
-            text="Invoice Details"
-            variant="body2"
-            style="!mx-3 !mt-2 border-b-2 border-solid border-[#03bafc] flex"
-          />
+          <FormHeading text="Invoice Details" variant="body2" />
           <Box className="border border-gray-300 p-3 mt-2 flex flex-col gap-1">
             <Typography variant="caption" className="text-red-500">
-              Total Attachment size should not exceed 3MB for the Request
+              Total Attachment size should not exceed 3MB.
             </Typography>
             <CustomInput
               fields={jsonData.attachmentFields}
@@ -282,12 +296,11 @@ export default function InvoicePayment() {
             />
           </Box>
 
-          {/* Invoice Tabs */}
+          {/* Tabs */}
           <Box className="px-3">
             <Tabs
               value={tabValue}
               onChange={handleChangeTab}
-              aria-label="Invoice Tabs"
               variant="scrollable"
             >
               {invoiceArray.map((_, index) => (
@@ -308,10 +321,9 @@ export default function InvoicePayment() {
             </Tabs>
           </Box>
 
-          {/* Invoice Tab Panels */}
           {invoiceArray.map((_, index) => (
             <CustomTabPanel key={index} value={tabValue} index={index}>
-              <Box className="border-2 border-solid border-gray-300 p-3 mt-2 ">
+              <Box className="border p-3 mt-2">
                 <Box className="grid grid-cols-4 gap-2 p-2">
                   <CustomInput
                     fields={jsonData.invoiceFieldsTop}
@@ -320,21 +332,17 @@ export default function InvoicePayment() {
                     fieldsMode={fieldsMode}
                     tabName="tblInvoice"
                     tabIndex={index}
-                    handleBlurEventFunctions={handleBlurEventFunctions}
+                    handleBlurEventFunctions={{ checkBlForCompany }}
                     errorState={errorState}
                   />
                 </Box>
 
-                <FormHeading
-                  text="Container Details"
-                  variant="body2"
-                  style="!mx-3 !mt-2 border-b-2 border-solid border-[#03bafc] flex"
-                />
+                <FormHeading text="Container Details" variant="body2" />
                 <TableGrid
                   fields={jsonData.tblInvoiceRequestContainer}
                   formData={formData}
                   setFormData={setFormData}
-                  fieldsMode={mode.mode}
+                  fieldsMode={fieldsMode}
                   gridName="tblInvoiceRequestContainer"
                   buttons={cfsGridButtons}
                   tabName="tblInvoice"
@@ -345,98 +353,14 @@ export default function InvoicePayment() {
           ))}
 
           {/* Footer Buttons */}
-          <Box className="w-full flex justify-center gap-2 mt-4">
-            <CustomButton
-              text={paying ? "Processing…" : "Quick Pay"}
-              onClick={quickPayHandler}
-              disabled={paying}
-            />
-            <CustomButton text="Save" type="submit" />
-          </Box>
-        </section>
-      </form>
-
-      {/* Payment Modal */}
-      <Dialog open={payOpen} onClose={handleClosePay} fullWidth maxWidth="xl">
-        <DialogTitle
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          Payment
-          <IconButton aria-label="close" onClick={handleClosePay} size="small">
-            <CloseRoundedIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent dividers>
-          {!payUrl ? (
-            <Box
-              className="flex items-center justify-center"
-              sx={{ height: "60vh" }}
-            >
-              <Typography variant="body2">
-                No payment link available.
-              </Typography>
-            </Box>
-          ) : (
-            <Box sx={{ position: "relative", height: "80vh", width: "100%" }}>
-              {!iframeLoaded && !iframeError && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    inset: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    zIndex: 1,
-                    background: "rgba(255,255,255,0.6)",
-                  }}
-                >
-                  <CircularProgress size={28} />
-                </Box>
-              )}
-
-              {iframeError && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    inset: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexDirection: "column",
-                    gap: 1.5,
-                  }}
-                >
-                  <Typography variant="body2" align="center">
-                    The payment page refused to load inside a modal
-                    (X-Frame-Options).
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    onClick={() =>
-                      window.open(payUrl, "_blank", "noopener,noreferrer")
-                    }
-                  >
-                    Open in new tab
-                  </Button>
-                </Box>
-              )}
-
-              <iframe
-                src={payUrl}
-                title="Payment"
-                style={{ border: 0, width: "100%", height: "100%" }}
-                onLoad={() => setIframeLoaded(true)}
-                onError={() => setIframeError(true)}
-                allow="payment *; geolocation *; camera *; microphone *;"
-              />
+          {fieldsMode !== "view" && (
+            <Box className="w-full flex justify-center gap-2 mt-4">
+              <CustomButton text="Quick Pay" onClick={quickPayHandler} />
+              <CustomButton text="Save" type="submit" />
             </Box>
           )}
-        </DialogContent>
-      </Dialog>
+        </section>
+      </form>
 
       <ToastContainer />
     </ThemeProvider>

@@ -153,3 +153,9 @@ export const cfsGridButtons = [
   { text: "Add", icon: <AddIcon />, func: "gridAddHandler" },
   { text: "Delete", icon: <CloseIcon />, func: "gridDeleteHandler" },
 ];
+export const invoicePaymentSearchColumns = [
+  { label: "BL No", value: "b.mblNo" },
+  { label: "Beneficiary Name", value: "c.name" },
+  { label: "Invoice No", value: "i.invoiceNo" },
+  { label: "Category", value: "cat.name" },
+];
