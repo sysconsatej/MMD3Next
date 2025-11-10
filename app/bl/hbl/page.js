@@ -21,6 +21,7 @@ import {
   formatFetchForm,
   formatFormData,
   formFormatThirdLevel,
+  getUserByCookies,
   setInputValue,
   useNextPrevData,
 } from "@/utils";
@@ -73,6 +74,7 @@ export default function Home() {
   const [blDelete, setBlDelete] = useState([]);
   const [packTypeState, setPackTypeState] = useState(null);
   const [hblStatus, setHblStatus] = useState(null);
+  const userData = getUserByCookies();
 
   const handleChangeTab = (event, newValue) => {
     const form = document.querySelector("form");
@@ -111,7 +113,6 @@ export default function Home() {
       const { success, error, message } = await insertUpdateForm(formatItem);
       if (success) {
         toast.success(message);
-        setFormData({});
       } else {
         toast.error(error || message);
       }
@@ -382,14 +383,6 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchFormHandler() {
-      const obj = {
-        columns: "id as Id, name as Name",
-        tableName: "tblMasterData",
-        whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
-      };
-      const { data } = await getDataWithCondition(obj);
-      setPackTypeState(data[0]);
-
       if (!mode.formId) return;
       setFieldsMode(mode.mode);
       const resArray = [];
@@ -428,6 +421,16 @@ export default function Home() {
 
   useEffect(() => {
     async function getHblStatus() {
+      const obj1 = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
+      };
+      const { data: data1, success } = await getDataWithCondition(obj1);
+      if (success) {
+        setPackTypeState(data1[0]);
+      }
+
       const obj = {
         columns: "id as Id, name as Name",
         tableName: "tblMasterData",
@@ -438,6 +441,19 @@ export default function Home() {
     }
 
     getHblStatus();
+    setFormData((prev) => {
+      return {
+        ...prev,
+        companyId: {
+          Id: userData.companyId,
+          Name: userData.companyName,
+        },
+        companyBranchId: {
+          Id: userData.branchId,
+          Name: userData.branchName,
+        },
+      };
+    });
   }, []);
 
   return (

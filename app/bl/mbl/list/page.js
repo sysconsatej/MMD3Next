@@ -29,6 +29,7 @@ import TableExportButtons from "@/components/tableExportButtons/tableExportButto
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
 import ReportPickerModal from "@/components/ReportPickerModal/reportPickerModal";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
+import { getUserByCookies } from "@/utils";
 
 const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -90,10 +91,10 @@ export default function BLList() {
   const [idsOnPage, setIdsOnPage] = useState([]);
   const [allChecked, setAllChecked] = useState(false);
   const [someChecked, setSomeChecked] = useState(false);
-
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportModalForRow, setReportModalForRow] = useState(null);
   const { data } = useGetUserAccessUtils("HBL Request");
+  const userData = getUserByCookies();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
@@ -104,8 +105,7 @@ export default function BLList() {
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
-          joins:
-            "left join tblPort p on p.id = b.polId left  join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'MBL' and b1.status = 1",
+          joins: `left join tblPort p on p.id = b.polId left join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId left join tblUser u on u.id = ${userData.userId} left join tblUser usr1 on usr1.companyId = u.companyId join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'MBL' and b1.status = 1 and b1.createdBy = usr1.id`,
           advanceSearch: advanceSearchFilter(advanceSearch),
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);

@@ -16,4 +16,5 @@ export {
   jsonExport,
   exportCSV,
 } from "./dynamicReportUtils";
-export { updateMenuVisibility }  from './showMenuData';
+export { updateMenuVisibility } from "./showMenuData";
+export { useInitUser, getUserByCookies } from "./userInit";

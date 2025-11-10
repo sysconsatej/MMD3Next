@@ -26,6 +26,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { navItems } from "./index";
 import { navTheme } from "@/styles";
 import { useModal, auth } from "@/store";
+import { useInitUser } from "@/utils/userInit";
 
 const norm = (s) => (s ? s.split("?")[0].replace(/\/$/, "") : "");
 const scope = (path, depth) => norm(path).split("/").slice(0, depth).join("/");
@@ -112,21 +113,21 @@ export default function Navbar() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [thirdMenuAnchor, setThirdMenuAnchor] = useState(null);
   const [openThirdMenu, setOpenThirdMenu] = useState(null);
-
+  
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeLink, setActiveLink] = useState("Home");
-  const [activeSubLink, setActiveSubLink] = useState(""); 
+  const [activeSubLink, setActiveSubLink] = useState("");
   const [activeParentSubLink, setActiveParentSubLink] = useState("");
   const [openSubmenus, setOpenSubmenus] = useState({});
-
+  
   const isMobile = useMediaQuery("(max-width:900px)");
   const pathname = usePathname();
   const router = useRouter();
-
+  
   // aakash yadav code
+  useInitUser();
   const { userData } = auth();
   const { setModalOpen } = useModal();
-
 
   const closeMenus = () => {
     setAnchorEl(null);
@@ -148,7 +149,7 @@ export default function Navbar() {
   const toggleSubmenu = (name) =>
     setOpenSubmenus((prev) => ({ ...prev, [name]: !prev[name] }));
 
-  if (pathname === "/login") return <></>;
+  // if (pathname === "/login") return <></>;
 
   return (
     <ThemeProvider theme={navTheme}>
@@ -319,9 +320,13 @@ export default function Navbar() {
                 tabIndex={1}
                 onClick={() => setModalOpen("logout")}
               >
-                <Avatar>{String(userData?.data?.userName).charAt(0).toUpperCase() }</Avatar>
+                <Avatar>
+                  {String(userData?.data?.userName).charAt(0).toUpperCase()}
+                </Avatar>
                 <Box>
-                  <div className="account-name">{userData?.data?.companyName}</div>
+                  <div className="account-name">
+                    {userData?.data?.companyName}
+                  </div>
                   <div className="account-role">
                     {userData.data?.roleName || ""}
                   </div>
@@ -465,13 +470,15 @@ export default function Navbar() {
           </List>
 
           <Box className="nav-mobile-chip">
-            <Avatar>{String(userData?.data?.userName).charAt(0).toUpperCase()}</Avatar>
+            <Avatar>
+              {String(userData?.data?.userName).charAt(0).toUpperCase()}
+            </Avatar>
             <Box>
               <Typography className="account-name">
                 {userData?.data?.companyName || ``}
               </Typography>
               <Typography className="account-role">
-                {userData?.data?.roleName || ''}
+                {userData?.data?.roleName || ""}
               </Typography>
             </Box>
           </Box>
