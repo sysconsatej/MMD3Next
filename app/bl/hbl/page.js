@@ -113,7 +113,6 @@ export default function Home() {
       const { success, error, message } = await insertUpdateForm(formatItem);
       if (success) {
         toast.success(message);
-        setFormData({});
       } else {
         toast.error(error || message);
       }

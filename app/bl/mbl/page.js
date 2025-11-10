@@ -23,14 +23,12 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { useTotalGrossAndPack } from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-// import AgreeTerms from "@/components/agreeTerms/agreeTerms";
 
 export default function Home() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(fieldData);
   const { mode, setMode } = formStore();
-  const [gridStatus, setGridStatus] = useState(null);
   const [totals, setTotals] = useState({});
   const [packTypeState, setPackTypeState] = useState(null);
   const userData = getUserByCookies();
@@ -56,7 +54,6 @@ export default function Home() {
     if (success) {
       toast.success(message);
       setFormData({});
-      setGridStatus("submit");
     } else {
       toast.error(error || message);
     }
@@ -241,7 +238,6 @@ export default function Home() {
       if (success) {
         const getData = formatDataWithForm(result, fieldData);
         setFormData(getData);
-        setGridStatus("fetchGrid");
       } else {
         toast.error(error || message);
       }
@@ -449,7 +445,6 @@ export default function Home() {
                 setFormData={setFormData}
                 fieldsMode={mode.mode}
                 gridName="tblBlContainer"
-                gridStatus={gridStatus}
                 buttons={gridButtons}
                 handleGridEventFunctions={handleGridEventFunctions}
                 handleChangeEventFunctions={handleChangeEventFunctions}
