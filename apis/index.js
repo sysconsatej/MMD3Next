@@ -20,5 +20,5 @@ export {
 } from "./dynamicReport";
 export { uploads } from "./upload";
 export { sendEmail } from "./sendEmail";
-export { login } from "./auth";
+export { login, logout } from "./auth";
 export { insertAccess, getMenuAccessDetails } from "./menuAccess";
