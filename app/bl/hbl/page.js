@@ -336,12 +336,11 @@ export default function Home() {
     const obj1 = {
       columns: "id",
       tableName: "tblBl",
-      whereCondition: `mblNo = '${formData.mblNo}' and status = 1`,
+      whereCondition: `mblNo = '${formData.mblNo}' and mblHblFlag = 'HBL' and status = 1`,
     };
     const { data, success } = await getDataWithCondition(obj1);
     if (success) {
       const hblIds = data.map((item) => item.id).join(",");
-      setMode({ mode: mode.mode, formId: hblIds });
       const requestStatus = hblStatus.filter((item) => item.Name === "Request");
       const rowsPayload = hblIds.split(",").map((id) => {
         return {
