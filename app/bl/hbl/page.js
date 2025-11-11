@@ -75,6 +75,7 @@ export default function Home() {
   const [packTypeState, setPackTypeState] = useState(null);
   const [hblStatus, setHblStatus] = useState(null);
   const userData = getUserByCookies();
+  const [agreed, setAgreed] = useState(false);
 
   const handleChangeTab = (event, newValue) => {
     const form = document.querySelector("form");
@@ -96,10 +97,9 @@ export default function Home() {
       groupBy: "group by mblNo",
     });
 
-  const [agreed, setAgreed] = useState(false);
-
   const submitHandler = async (event) => {
     event.preventDefault();
+    let allSuccess = true;
     const format = formFormatThirdLevel(formData);
     const promises = format.map(async (item) => {
       const formId = item?.id ?? null;
@@ -111,9 +111,8 @@ export default function Home() {
         "blId"
       );
       const { success, error, message } = await insertUpdateForm(formatItem);
-      if (success) {
-        toast.success(message);
-      } else {
+      if (!success) {
+        allSuccess = false;
         toast.error(error || message);
       }
     });
@@ -125,13 +124,20 @@ export default function Home() {
           tableName: "tblBl",
         };
         const { success, message, error } = await deleteRecord(obj);
-        if (success) {
-          toast.success(message);
-        } else {
+        if (!success) {
+          allSuccess = false;
           toast.error(error || message);
         }
       });
       await Promise.all(deletePromises);
+    }
+
+    if (allSuccess) {
+      if (mode.formId) {
+        toast.success("Form updated successfully!");
+      } else {
+        toast.success("Form submit successfully!");
+      }
     }
   };
 
@@ -327,11 +333,43 @@ export default function Home() {
   };
 
   async function requestHandler() {
-    const requestStatus = hblStatus.filter((item) => item.Name === "Request");
+    const obj1 = {
+      columns: "id",
+      tableName: "tblBl",
+      whereCondition: `mblNo = '${formData.mblNo}' and status = 1`,
+    };
+    const { data, success } = await getDataWithCondition(obj1);
+    if (success) {
+      const hblIds = data.map((item) => item.id).join(",");
+      setMode({ mode: mode.mode, formId: hblIds });
+      const requestStatus = hblStatus.filter((item) => item.Name === "Request");
+      const rowsPayload = hblIds.split(",").map((id) => {
+        return {
+          id: id,
+          hblRequestStatus: requestStatus[0].Id,
+          hblRequestRemarks: null,
+        };
+      });
+      const res = await updateStatusRows({
+        tableName: "tblBl",
+        rows: rowsPayload,
+        keyColumn: "id",
+      });
+      const { success, message } = res || {};
+      if (!success) {
+        toast.error(message || "Update failed");
+        return;
+      }
+      toast.success("Request updated successfully!");
+    }
+  }
+
+  async function verifyHandler() {
+    const verifyStatus = hblStatus.filter((item) => item.Name === "Confirm");
     const rowsPayload = mode.formId.split(",").map((id) => {
       return {
         id: id,
-        hblRequestStatus: requestStatus[0].Id,
+        hblRequestStatus: verifyStatus[0].Id,
         hblRequestRemarks: null,
       };
     });
@@ -426,8 +464,10 @@ export default function Home() {
         tableName: "tblMasterData",
         whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
       };
-      const { data: data1, success } = await getDataWithCondition(obj1);
-      if (success) {
+      const { data: data1, success: success1 } = await getDataWithCondition(
+        obj1
+      );
+      if (success1) {
         setPackTypeState(data1[0]);
       }
 
@@ -436,24 +476,27 @@ export default function Home() {
         tableName: "tblMasterData",
         whereCondition: `masterListName = 'tblHblStatus' and status = 1`,
       };
-      const { data } = await getDataWithCondition(obj);
-      setHblStatus(data);
+      const { data, success } = await getDataWithCondition(obj);
+      if (success) {
+        setHblStatus(data);
+      }
+
+      setFormData((prev) => {
+        return {
+          ...prev,
+          companyId: {
+            Id: userData.companyId,
+            Name: userData.companyName,
+          },
+          companyBranchId: {
+            Id: userData.branchId,
+            Name: userData.branchName,
+          },
+        };
+      });
     }
 
     getHblStatus();
-    setFormData((prev) => {
-      return {
-        ...prev,
-        companyId: {
-          Id: userData.companyId,
-          Name: userData.companyName,
-        },
-        companyBranchId: {
-          Id: userData.branchId,
-          Name: userData.branchName,
-        },
-      };
-    });
   }, []);
 
   return (
@@ -469,11 +512,20 @@ export default function Home() {
                 setFormData={setTotals}
                 fieldsMode={"view"}
               />
-              <CustomButton
-                text="Back"
-                href="/bl/hbl/list"
-                onClick={() => setMode({ mode: null, formId: null })}
-              />
+              {userData?.roleCode === "customer" && (
+                <CustomButton
+                  text="Back"
+                  href="/bl/hbl/list"
+                  onClick={() => setMode({ mode: null, formId: null })}
+                />
+              )}
+              {userData?.roleCode === "shipping" && (
+                <CustomButton
+                  text="Back"
+                  href="/bl/hbl/linerSearch"
+                  onClick={() => setMode({ mode: null, formId: null })}
+                />
+              )}
             </Box>
           </Box>
           {(fieldsMode === "view" || fieldsMode === "edit") && (
@@ -719,12 +771,23 @@ export default function Home() {
             </Box>
           </Box>
           <Box className="w-full flex mt-2 gap-3">
-            {fieldsMode !== "view" && (
+            {fieldsMode !== "view" && userData?.roleCode === "customer" && (
               <CustomButton text={"Submit"} type="submit" />
             )}
-            {fieldsMode === "edit" && (
-              <CustomButton text={"Request"} onClick={requestHandler} />
-            )}
+            {(fieldsMode === "edit" || fieldsMode === "view") &&
+              userData?.roleCode === "customer" && (
+                <CustomButton text={"Request"} onClick={requestHandler} />
+              )}
+
+            {(fieldsMode === "edit" || fieldsMode === "view") &&
+              userData?.roleCode === "shipping" && (
+                <CustomButton text={"Verify"} onClick={verifyHandler} />
+              )}
+
+            {/* {(fieldsMode === "edit" || fieldsMode === "view") &&
+              userData.roleCode === "shipping" && (
+                <CustomButton text={"Reject"} onClick={rejectHandler} />
+              )} */}
           </Box>
         </section>
       </form>

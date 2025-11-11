@@ -96,13 +96,12 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "b.mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.id) as hblCount, string_agg(b.id, ',') as hblId, m1.name status, b.hblRequestRemarks remark",
+            "b.mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.id) as hblCount, string_agg(b.id, ',') as hblId, iif(count(distinct coalesce(m1.name, '#null#')) = 1 and max(m1.name) is not null, max(m1.name), '') status, iif(count(distinct coalesce(b.hblRequestRemarks, '#null#')) = 1 and max(b.hblRequestRemarks) is not null,max(b.hblRequestRemarks),'') remark",
           tableName: "tblBl b",
           pageNo,
           pageSize,
           advanceSearch: advanceSearchFilter(advanceSearch),
-          groupBy:
-            "group by b.mblNo, m.name, v.name, m1.name, b.hblRequestRemarks",
+          groupBy: "group by b.mblNo, m.name, v.name",
           orderBy: "order by max(b.createdDate) desc, b.mblNo asc",
           joins: `left join tblMasterData m on b.cargoTypeId = m.id  left join tblVessel v on b.podVesselId = v.id left join tblMasterData m1 on m1.id = b.hblRequestStatus  left join tblUser u on u.id = ${userData.userId} left join tblUser usr1 on usr1.companyId = u.companyId join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1 and b.createdBy = usr1.id`,
         };
