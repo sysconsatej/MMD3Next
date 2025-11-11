@@ -6,7 +6,7 @@ export default function middleware(request) {
 
   const isLoggedIn = Boolean(token?.value);  
 
-  const LOGIN_URL = "https://mmd3.mastergroups.com/";  
+  const LOGIN_URL = process.env.LOGIN_PAGE_URL;  
   const APP_URL = process.env.APP_URL;  
 
   // Redirect to login page if not logged in and trying to access the app
