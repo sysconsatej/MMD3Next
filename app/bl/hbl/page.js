@@ -336,7 +336,7 @@ export default function Home() {
     const obj1 = {
       columns: "id",
       tableName: "tblBl",
-      whereCondition: `mblNo = '${formData.mblNo}' and status = 1`,
+      whereCondition: `mblNo = '${formData.mblNo}' and mblHblFlag = 'HBL' and status = 1`,
     };
     const { data, success } = await getDataWithCondition(obj1);
     if (success) {

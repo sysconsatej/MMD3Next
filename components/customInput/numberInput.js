@@ -27,7 +27,6 @@ const NumberInput = ({
         slotProps={{
           htmlInput: {
             min: 0,
-            step: 1,
           },
         }}
         onBlur={(event) =>
