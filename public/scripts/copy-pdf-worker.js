@@ -8,6 +8,7 @@ async function main() {
   await mkdir(outDir, { recursive: true });
   await copyFile(src, out);
   console.log("Copied -> /public/pdfjs/pdf.worker.min.mjs");
+  // done
 }
 main().catch((e) => {
   console.error(e);
