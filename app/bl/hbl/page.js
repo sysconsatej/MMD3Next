@@ -76,6 +76,7 @@ export default function Home() {
   const [hblStatus, setHblStatus] = useState(null);
   const userData = getUserByCookies();
   const [agreed, setAgreed] = useState(false);
+  const [requestBtn, setRequestBtn] = useState(true);
 
   const handleChangeTab = (event, newValue) => {
     const form = document.querySelector("form");
@@ -101,6 +102,12 @@ export default function Home() {
     event.preventDefault();
     let allSuccess = true;
     const format = formFormatThirdLevel(formData);
+    const checkHblMap = format.map((item) => item.hblNo);
+    const checkSameHbl = new Set(checkHblMap).size === checkHblMap.length;
+    if (!checkSameHbl) {
+      toast.error("HBL No should be unique in all tabs!");
+      return;
+    }
     const promises = format.map(async (item) => {
       const formId = item?.id ?? null;
       const { id, ...resData } = item;
@@ -133,6 +140,7 @@ export default function Home() {
     }
 
     if (allSuccess) {
+      setRequestBtn(false);
       if (mode.formId) {
         toast.success("Form updated successfully!");
       } else {
@@ -773,10 +781,15 @@ export default function Home() {
             {fieldsMode !== "view" && userData?.roleCode === "customer" && (
               <CustomButton text={"Submit"} type="submit" />
             )}
-            {(fieldsMode === "edit" || fieldsMode === "view") &&
-              userData?.roleCode === "customer" && (
-                <CustomButton text={"Request"} onClick={requestHandler} />
-              )}
+            {userData?.roleCode === "customer" && (
+              <CustomButton
+                text={"Request"}
+                onClick={requestHandler}
+                disabled={
+                  fieldsMode !== "view" && fieldsMode !== "edit" && requestBtn
+                }
+              />
+            )}
 
             {(fieldsMode === "edit" || fieldsMode === "view") &&
               userData?.roleCode === "shipping" && (
