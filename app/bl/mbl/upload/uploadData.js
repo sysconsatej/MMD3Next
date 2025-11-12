@@ -1,6 +1,3 @@
-// app/bl/mbl/upload/uploadData.js
-
-// Add Template dropdown from Master Data (tblMblExcel)
 const fieldData = {
     mblFields: [
         {
@@ -18,7 +15,7 @@ const fieldData = {
         },
         {
             label: "Vessel-Voyage No.",
-            name: "podvesselId", // expected by controller/SP
+            name: "podvesselId",
             type: "dropdown",
             tableName: "tblVessel v",
             displayColumn: "ISNULL(v.name,'') + ' - ' + ISNULL(vo.voyageNo,'')",

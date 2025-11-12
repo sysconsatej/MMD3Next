@@ -256,6 +256,19 @@ export const theme = createTheme({
         },
       },
     },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          "&.custom-btn": {
+            fontSize: "11px",
+            color: "white",
+          },
+          "&.custom-btn:not(.Mui-disabled)": {
+            backgroundColor: "#95a9e8",
+          },
+        },
+      },
+    },
   },
 });
 

@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "node scripts/copy-pdf-worker.js"
+    "setup": "node scripts/copy-pdf-worker.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

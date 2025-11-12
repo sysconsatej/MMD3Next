@@ -10,7 +10,7 @@ import { theme } from "@/styles";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import fieldData from "./uploadData";
-import { uploads } from "@/apis"; // no need to fetch master row anymore
+import { uploads } from "@/apis"; // ← functional now
 import { getUserByCookies } from "@/utils";
 
 /* ------------------ fixed ctx (replace with session) ------------------ */
@@ -101,7 +101,7 @@ const formatHeaderForSp = (obj = {}) => {
   return out;
 };
 
-// Minimal parse: first sheet only
+// Replace your current parseFile with this:
 const parseFile = async (file) => {
   const ext = (file?.name?.split(".").pop() || "").toLowerCase();
   if (!["xlsx", "xls", "csv", "json"].includes(ext))
