@@ -9,7 +9,7 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { allChartData } from "./allChartData";
@@ -30,11 +30,27 @@ const LineChart = ({ type }) => {
   return (
     <>
       <Line
-        options={allChartData[`${type}`].options}
+        options={
+          (allChartData[`${type}`].options,
+          {
+            scales: {
+              x: {
+                grid: {
+                  display: false,
+                },
+              },
+              y: {
+                grid: {
+                  display: false,
+                },
+              },
+            },
+            responsive: true,
+          })
+        }
         data={allChartData[`${type}`].data}
-        height={400}
+        height={300}
       />
-
     </>
   );
 };
