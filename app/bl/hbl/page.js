@@ -782,9 +782,7 @@ export default function Home() {
               <CustomButton
                 text={"Submit"}
                 type="submit"
-                disabled={
-                  fieldsMode !== "view" && fieldsMode !== "edit" && !requestBtn
-                }
+                disabled={!requestBtn}
               />
             )}
             {userData?.roleCode === "customer" && (
