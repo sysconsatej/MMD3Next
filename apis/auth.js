@@ -1,17 +1,6 @@
-import axios from "axios";
-const url = process.env.NEXT_PUBLIC_BACKEND_URL;
+import api from "./interceptor";
 
 export const logoutApi = async () => {
-  const res = await axios.post(
-    `${url}api/v1/user/logout`,
-    {},
-    {
-      withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    }
-  );
+  const res = await api.post(`user/logout`);
   return res.data;
 };
