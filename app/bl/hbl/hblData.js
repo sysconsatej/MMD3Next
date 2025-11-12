@@ -80,6 +80,20 @@ export const fieldData = {
       isEdit: true,
     },
     {
+      label: "Port of Loading",
+      name: "polId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      displayColumn: "p.name",
+      joins:
+        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+      where: "m.name IN ('SEA PORT','INLAND PORT')",
+      orderBy: "p.name",
+      foreignTable: "name,tblPort",
+      isEdit: true,
+      required: true,
+    },
+    {
       label: "Port of Acceptance",
       name: "plrId",
       type: "dropdown",
@@ -118,7 +132,6 @@ export const fieldData = {
       orderBy: "p.name",
       foreignTable: "name,tblPort",
       isEdit: true,
-      required: true,
     },
     {
       label: "Container Status",
@@ -454,7 +467,7 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
-    { label: "Code", name: "consigneeIdNo", isEdit: true },
+    { label: "Code", name: "consigneeIdNo", isEdit: true, required: true },
     {
       label: "City",
       name: "consigneeCity",
