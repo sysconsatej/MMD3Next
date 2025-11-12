@@ -266,7 +266,7 @@ export default function Home() {
       const sizeId =
         formData?.tblBl[tabIndex]?.tblBlContainer[containerIndex]?.sizeId?.Id;
       const obj = {
-        columns: `s.id id, s.isocode Name`,
+        columns: `s.id Id, s.isocode Name`,
         tableName: "tblIsocode s",
         joins:
           "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
