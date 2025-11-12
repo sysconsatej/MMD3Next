@@ -229,7 +229,7 @@ export default function Home() {
       const typeId =
         formData?.tblBl[tabIndex]?.tblBlContainer[containerIndex]?.typeId?.Id;
       const obj = {
-        columns: `s.id id, s.isocode Name`,
+        columns: `s.id Id, s.isocode Name`,
         tableName: "tblIsocode s",
         joins:
           "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
@@ -779,7 +779,13 @@ export default function Home() {
           </Box>
           <Box className="w-full flex mt-2 gap-3">
             {fieldsMode !== "view" && userData?.roleCode === "customer" && (
-              <CustomButton text={"Submit"} type="submit" />
+              <CustomButton
+                text={"Submit"}
+                type="submit"
+                disabled={
+                  fieldsMode !== "view" && fieldsMode !== "edit" && !requestBtn
+                }
+              />
             )}
             {userData?.roleCode === "customer" && (
               <CustomButton
