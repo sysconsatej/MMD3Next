@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "node scripts/copy-pdf-worker.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -26,6 +27,7 @@
     "jspdf-autotable": "^5.0.2",
     "next": "15.3.4",
     "pdf-parse": "^2.4.5",
+    "pdfjs-dist": "^3.11.174",
     "pdfreader": "^3.0.8",
     "react": "^19.0.0",
     "react-chartjs-2": "^5.3.1",
