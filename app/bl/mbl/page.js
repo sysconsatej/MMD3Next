@@ -14,6 +14,7 @@ import {
   formatDataWithForm,
   formatFetchForm,
   formatFormData,
+  getUserByCookies,
   setInputValue,
   useNextPrevData,
 } from "@/utils";
@@ -22,16 +23,15 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { useTotalGrossAndPack } from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-// import AgreeTerms from "@/components/agreeTerms/agreeTerms";
 
 export default function Home() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(fieldData);
   const { mode, setMode } = formStore();
-  const [gridStatus, setGridStatus] = useState(null);
   const [totals, setTotals] = useState({});
   const [packTypeState, setPackTypeState] = useState(null);
+  const userData = getUserByCookies();
 
   useTotalGrossAndPack(formData, setTotals);
   const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
@@ -54,7 +54,6 @@ export default function Home() {
     if (success) {
       toast.success(message);
       setFormData({});
-      setGridStatus("submit");
     } else {
       toast.error(error || message);
     }
@@ -225,14 +224,6 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchFormHandler() {
-      const obj = {
-        columns: "id as Id, name as Name",
-        tableName: "tblMasterData",
-        whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
-      };
-      const { data } = await getDataWithCondition(obj);
-      setPackTypeState(data[0]);
-
       if (!mode.formId) return;
       setFieldsMode(mode.mode);
 
@@ -247,13 +238,38 @@ export default function Home() {
       if (success) {
         const getData = formatDataWithForm(result, fieldData);
         setFormData(getData);
-        setGridStatus("fetchGrid");
       } else {
         toast.error(error || message);
       }
     }
     fetchFormHandler();
   }, [mode.formId]);
+
+  useEffect(() => {
+    async function getMblData() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
+      };
+      const { data, success } = await getDataWithCondition(obj);
+      if (success) {
+        setPackTypeState(data[0]);
+      }
+    }
+    setFormData((prev) => ({
+      ...prev,
+      companyId: {
+        Id: userData.companyId,
+        Name: userData.companyName,
+      },
+      companyBranchId: {
+        Id: userData.branchId,
+        Name: userData.branchName,
+      },
+    }));
+    getMblData();
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -298,7 +314,7 @@ export default function Home() {
 
           <Box>
             <FormHeading text="MBL Details" />
-            <Box className="grid grid-cols-5 items-end gap-2 p-2 ">
+            <Box className="grid grid-cols-4 items-end gap-2 p-2 ">
               <CustomInput
                 fields={jsonData.mblFields}
                 formData={formData}
@@ -429,7 +445,6 @@ export default function Home() {
                 setFormData={setFormData}
                 fieldsMode={mode.mode}
                 gridName="tblBlContainer"
-                gridStatus={gridStatus}
                 buttons={gridButtons}
                 handleGridEventFunctions={handleGridEventFunctions}
                 handleChangeEventFunctions={handleChangeEventFunctions}

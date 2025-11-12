@@ -10,21 +10,19 @@ export const fieldData = {
       name: "subLineNo",
       isEdit: true,
     },
-    // {
-    //   label: "Location",
-    //   name: "podId",
-    //   type: "dropdown",
-    //   tableName: "tblPort p",
-    //   displayColumn: "p.name",
-    //   joins:
-    //     "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
-    //   where: "m.name = 'SEA PORT' AND c.name = 'India'",
-    //   orderBy: "p.name",
-    //   isEdit: true,
-    //   required: true,
-    // },
     {
       label: "Liner",
+      name: "shippingLineId",
+      type: "dropdown",
+      tableName: "tblCompany t",
+      displayColumn: "t.name",
+      orderBy: "t.name",
+      foreignTable: "name,tblCompany",
+      required: true,
+      isEdit: true,
+    },
+    {
+      label: "Company",
       name: "companyId",
       type: "dropdown",
       tableName: "tblCompany t",
@@ -33,6 +31,7 @@ export const fieldData = {
       foreignTable: "name,tblCompany",
       required: true,
       isEdit: true,
+      disabled: true,
     },
     {
       label: "Company Branch",
@@ -44,6 +43,7 @@ export const fieldData = {
       foreignTable: "name,tblCompanyBranch",
       isEdit: true,
       required: true,
+      disabled: true,
     },
     {
       label: "MBL No",

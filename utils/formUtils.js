@@ -1,6 +1,8 @@
 import { getNextPrevData } from "@/apis";
+import { auth } from "@/store";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { getUserByCookies } from "./userInit";
 
 export function useDebounce(search = "", delay) {
   const [debounceValue, setDebounceValue] = useState(search);
@@ -25,15 +27,16 @@ export function formatFormData(
 ) {
   const formData = new FormData();
   const data = {};
+  const userData = getUserByCookies();
 
   const insertObj = {
-    createdBy: 4,
+    createdBy: userData?.userId,
     clientId: 1,
     status: 1,
     createdDate: new Date(),
   };
   const updateObj = {
-    updatedBy: 4,
+    updatedBy: userData?.userId,
     clientId: 1,
     updatedDate: new Date(),
   };
