@@ -11,6 +11,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import fieldData from "./uploadData";
 import { uploads } from "@/apis"; // no need to fetch master row anymore
+import { getUserByCookies } from "@/utils";
 
 /* ------------------ fixed ctx (replace with session) ------------------ */
 const FIXED_CTX = Object.freeze({
@@ -168,7 +169,8 @@ export default function MblUpload() {
   const [formData, setFormData] = useState({});
   const [busy, setBusy] = useState(false);
   const [objectToRemove, setObjectsToRemove] = useState(1);
-
+  const userData = getUserByCookies();
+  console.log("userData", userData);
   const getSelectedTemplateName = () =>
     formData?.template?.Name ||
     formData?.template?.name ||
@@ -215,7 +217,7 @@ export default function MblUpload() {
       const rows = await parseFile(file);
       if (!rows?.length) throw new Error("No data rows found");
 
-      const header = { ...formatHeaderForSp(formData), ...FIXED_CTX };
+      const header = { ...formatHeaderForSp(formData), ...userData };
       const spName = getSpFromTemplateName(selectedName);
 
       // Quote-like characters to remove from keys/values
@@ -283,11 +285,33 @@ export default function MblUpload() {
         : cleanRows; // if not an array, leave as-is
 
       // Build payload
+      const mapUserToHeader = (u = {}) => ({
+        userId: u.userId,
+        userName: u.userName,
+        emailId: u.emailId,
+        roleId: u.roleId,
+        roleName: u.roleName,
+        roleCode: u.roleCode,
+        companyId: u.companyId,
+        companyName: u.companyName,
+        companyBranchId: u.branchId, // normalize
+        companyBranchName: u.branchName,
+      });
+      const mergeUserIntoHeader = (header = {}, user = {}) => {
+        const mapped = mapUserToHeader(user);
+        const out = { ...header };
+        for (const [k, v] of Object.entries(mapped)) {
+          const has = out[k] != null && String(out[k]).trim() !== "";
+          if (!has && v != null) out[k] = v;
+        }
+        return out;
+      };
+
       const payload = {
         spName,
         json: {
           template: cleanName,
-          header: cleanHeader,
+          header: mergeUserIntoHeader(cleanHeader, userData),
           data: prunedRows,
         },
       };
