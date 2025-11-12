@@ -143,6 +143,13 @@ export const navItems = [
   },
 
   {
+    name: "Uploads",
+    icon: "file",
+    href: "/upload",
+    isShow: true,
+  },
+
+  {
     name: "Reports",
     icon: "chart",
     href: "/reports",
