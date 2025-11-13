@@ -3,6 +3,10 @@ import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import { getDataWithCondition } from "@/apis";
 import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Paper,
   Table,
   TableBody,
@@ -10,6 +14,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
 } from "@mui/material";
 import FormHeading from "@/components/formHeading/formHeading";
 
@@ -24,7 +29,7 @@ const style = {
   p: 1,
 };
 
-export default function BLModal({ modal, setModal }) {
+export function BLModal({ modal, setModal }) {
   const [modalData, setModalData] = useState([]);
   const url = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -91,3 +96,43 @@ export default function BLModal({ modal, setModal }) {
     </div>
   );
 }
+
+export const RejectModal = ({ rejectState, setRejectState, rejectHandler }) => {
+  return (
+    <Dialog
+      open={rejectState.toggle}
+      onClose={() => setRejectState((prev) => ({ ...prev, toggle: false }))}
+      maxWidth="xs"
+      fullWidth
+    >
+      <DialogTitle>Reject — Add Remarks</DialogTitle>
+      <DialogContent dividers>
+        <TextField
+          fullWidth
+          margin="dense"
+          multiline
+          minRows={3}
+          label="Remarks"
+          value={rejectState.value}
+          onChange={(e) =>
+            setRejectState((prev) => ({ ...prev, value: e.target.value }))
+          }
+        />
+      </DialogContent>
+      <DialogActions>
+        <div
+          className="py-1 px-3 border border-[#B5C4F0] rounded-sm text-xs cursor-pointer hover:bg-[#B5C4F0] hover:text-white"
+          onClick={() => setRejectState((prev) => ({ ...prev, toggle: false }))}
+        >
+          Cancel
+        </div>
+        <div
+          className="py-1 px-3 border border-[#B5C4F0] rounded-sm text-xs cursor-pointer hover:bg-[#B5C4F0] hover:text-white"
+          onClick={rejectHandler}
+        >
+          Save
+        </div>
+      </DialogActions>
+    </Dialog>
+  );
+};

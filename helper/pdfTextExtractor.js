@@ -2,32 +2,27 @@
 "use client";
 /* eslint-disable */
 
-// Lazy, browser-only PDF.js loader with robust worker init
+// ---- CDN-only PDF.js loader (no bundler involvement, so no 'canvas') ----
 let pdfjsLib = null;
 let workerReady = false;
 
+const CDN_BASE = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build";
+const CDN_ESM = `${CDN_BASE}/pdf.mjs`;
+const CDN_WORKER = `${CDN_BASE}/pdf.worker.min.mjs`;
+
 async function ensurePdfjs() {
-  if (typeof window === "undefined") {
-    throw new Error("PDF extraction must run in the browser.");
-  }
+  if (typeof window === "undefined") throw new Error("Browser-only");
+
   if (!pdfjsLib) {
-    pdfjsLib = await import("pdfjs-dist");
+    // Import ESM from CDN; tell bundler to ignore this import
+    pdfjsLib = await import(
+      /* webpackIgnore: true */
+      CDN_ESM
+    );
   }
   if (!workerReady) {
-    try {
-      // Best: use module worker bundled by Next
-      pdfjsLib.GlobalWorkerOptions.workerPort = new Worker(
-        new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url),
-        { type: "module" }
-      );
-      workerReady = true;
-    } catch (e) {
-      // Fallback: external worker (CDN). Useful if module worker URL fails.
-      console.warn("Module worker failed, falling back to CDN worker:", e);
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
-      workerReady = true;
-    }
+    pdfjsLib.GlobalWorkerOptions.workerSrc = CDN_WORKER;
+    workerReady = true;
   }
   return pdfjsLib;
 }
@@ -118,7 +113,7 @@ export async function extractTextFromPdfs(files) {
   return out;
 }
 
-/* ---------------- helpers (unchanged from your latest) ---------------- */
+/* ---------------- helpers (unchanged) ---------------- */
 
 function findAfter(text, markerRe, valueRe) {
   const m = text.match(markerRe);

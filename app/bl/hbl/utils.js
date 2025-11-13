@@ -96,3 +96,12 @@ export const copyHandler = (
   setFormData(updatedFormData);
   toast.success(toastMessage);
 };
+
+export function statusColor(status) {
+  const color = {
+    Reject: "#DC0E0E",
+    Request: "#4E61D3",
+    Confirm: "green",
+  };
+  return color[status];
+}

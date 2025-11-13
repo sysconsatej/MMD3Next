@@ -39,6 +39,7 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import AgreeTerms from "@/components/agreeTerms/agreeTerms";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
+import { RejectModal } from "./modal";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -76,6 +77,11 @@ export default function Home() {
   const [hblStatus, setHblStatus] = useState(null);
   const userData = getUserByCookies();
   const [agreed, setAgreed] = useState(false);
+  const [requestBtn, setRequestBtn] = useState(true);
+  const [rejectState, setRejectState] = useState({
+    toggle: false,
+    value: null,
+  });
 
   const handleChangeTab = (event, newValue) => {
     const form = document.querySelector("form");
@@ -101,6 +107,12 @@ export default function Home() {
     event.preventDefault();
     let allSuccess = true;
     const format = formFormatThirdLevel(formData);
+    const checkHblMap = format.map((item) => item.hblNo);
+    const checkSameHbl = new Set(checkHblMap).size === checkHblMap.length;
+    if (!checkSameHbl) {
+      toast.error("HBL No should be unique in all tabs!");
+      return;
+    }
     const promises = format.map(async (item) => {
       const formId = item?.id ?? null;
       const { id, ...resData } = item;
@@ -133,6 +145,7 @@ export default function Home() {
     }
 
     if (allSuccess) {
+      setRequestBtn(false);
       if (mode.formId) {
         toast.success("Form updated successfully!");
       } else {
@@ -221,7 +234,7 @@ export default function Home() {
       const typeId =
         formData?.tblBl[tabIndex]?.tblBlContainer[containerIndex]?.typeId?.Id;
       const obj = {
-        columns: `s.id id, s.isocode Name`,
+        columns: `s.id Id, s.isocode Name`,
         tableName: "tblIsocode s",
         joins:
           "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
@@ -258,7 +271,7 @@ export default function Home() {
       const sizeId =
         formData?.tblBl[tabIndex]?.tblBlContainer[containerIndex]?.sizeId?.Id;
       const obj = {
-        columns: `s.id id, s.isocode Name`,
+        columns: `s.id Id, s.isocode Name`,
         tableName: "tblIsocode s",
         joins:
           "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
@@ -311,8 +324,12 @@ export default function Home() {
           data[0].id
         );
         const { result } = await fetchForm(format);
+        const excludeFields = ["companyId", "companyBranchId"];
+        const filterMblFields = fieldData.mblFields.filter(
+          (item) => !excludeFields.includes(item.name)
+        );
         const getData = formatDataWithForm(result, {
-          mblFields: fieldData.mblFields,
+          mblFields: filterMblFields,
         });
         setFormData((prev) => ({ ...prev, ...getData }));
         setJsonData((prev) => {
@@ -383,6 +400,29 @@ export default function Home() {
       return;
     }
     toast.success("Request updated successfully!");
+  }
+
+  async function rejectHandler() {
+    const verifyStatus = hblStatus.filter((item) => item.Name === "Reject");
+    const rowsPayload = mode.formId.split(",").map((id) => {
+      return {
+        id: id,
+        hblRequestStatus: verifyStatus[0].Id,
+        hblRequestRemarks: rejectState.value,
+      };
+    });
+    const res = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Rejected updated successfully!");
+    setRejectState((prev) => ({ ...prev, toggle: false, value: null }));
   }
 
   useEffect(() => {
@@ -558,16 +598,6 @@ export default function Home() {
                 handleBlurEventFunctions={handleBlurEventFunctions}
               />
             </Box>
-            {/* <FormHeading text="CSN">
-              <Box className="grid grid-cols-6 gap-2 p-2 ">
-                <CustomInput
-                  fields={jsonData.csnFields}
-                  formData={formData}
-                  setFormData={setFormData}
-                  fieldsMode={fieldsMode}
-                />
-              </Box>
-            </FormHeading> */}
             <FormHeading text="HBL Details" />
             <Box sx={{ width: "100%" }}>
               <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -770,27 +800,49 @@ export default function Home() {
             </Box>
           </Box>
           <Box className="w-full flex mt-2 gap-3">
-            {fieldsMode !== "view" && userData?.roleCode === "customer" && (
-              <CustomButton text={"Submit"} type="submit" />
-            )}
-            {(fieldsMode === "edit" || fieldsMode === "view") &&
-              userData?.roleCode === "customer" && (
-                <CustomButton text={"Request"} onClick={requestHandler} />
+            {fieldsMode !== "view" &&
+              userData?.roleCode === "customer" &&
+              mode.status !== "Request" &&
+              mode.status !== "Confirm" && (
+                <CustomButton
+                  text={"Submit"}
+                  type="submit"
+                  disabled={!requestBtn}
+                />
               )}
+            {userData?.roleCode === "customer" && mode.status !== "Confirm" && (
+              <CustomButton
+                text={"Request"}
+                onClick={requestHandler}
+                disabled={
+                  fieldsMode !== "view" && fieldsMode !== "edit" && requestBtn
+                }
+              />
+            )}
 
             {(fieldsMode === "edit" || fieldsMode === "view") &&
               userData?.roleCode === "shipping" && (
                 <CustomButton text={"Verify"} onClick={verifyHandler} />
               )}
 
-            {/* {(fieldsMode === "edit" || fieldsMode === "view") &&
+            {(fieldsMode === "edit" || fieldsMode === "view") &&
               userData.roleCode === "shipping" && (
-                <CustomButton text={"Reject"} onClick={rejectHandler} />
-              )} */}
+                <CustomButton
+                  text={"Reject"}
+                  onClick={() =>
+                    setRejectState((prev) => ({ ...prev, toggle: true }))
+                  }
+                />
+              )}
           </Box>
         </section>
       </form>
       <ToastContainer />
+      <RejectModal
+        rejectState={rejectState}
+        setRejectState={setRejectState}
+        rejectHandler={rejectHandler}
+      />
     </ThemeProvider>
   );
 }
