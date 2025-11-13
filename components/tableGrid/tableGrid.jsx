@@ -257,7 +257,7 @@ function TableGrid({
                                   `${
                                     item.type == "fileupload"
                                       ? value?.name?.split(/-(.+)/)[1] ??
-                                        value.split(/-(.+)/)[1]
+                                        value?.split(/-(.+)/)[1]
                                       : value || ""
                                   }`}
                               </TableCell>

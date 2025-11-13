@@ -1,9 +1,8 @@
-import axios from "axios";
-const url = process.env.NEXT_PUBLIC_BACKEND_URL;
+import api from "./interceptor";
 
 export const fetchDropDownValues = async (obj) => {
   try {
-    const res = await axios.post(`${url}api/v1/dropDownValues`, obj);
+    const res = await api.post(`dropDownValues`, obj);
     return res.data;
   } catch (error) {
     return {
@@ -14,7 +13,7 @@ export const fetchDropDownValues = async (obj) => {
 
 export const getDataWithCondition = async (obj) => {
   try {
-    const res = await axios.post(`${url}api/v1/getTableValues`, obj);
+    const res = await api.post(`getTableValues`, obj);
     return res.data;
   } catch (error) {
     return error.response.data;
@@ -23,7 +22,7 @@ export const getDataWithCondition = async (obj) => {
 
 export const getNextPrevData = async (obj) => {
   try {
-    const res = await axios.post(`${url}api/v1/nextPrevData`, obj);
+    const res = await api.post(`nextPrevData`, obj);
     return res.data;
   } catch (error) {
     return error.response.data;

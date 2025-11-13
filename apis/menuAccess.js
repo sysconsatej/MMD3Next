@@ -1,9 +1,8 @@
-import axios from "axios";
-const url = process.env.NEXT_PUBLIC_BACKEND_URL;
+import api from "./interceptor";
 
 export const insertAccess = async (obj) => {
   try {
-    const res = await axios.post(`${url}api/v1/access`, obj);
+    const res = await api.post(`access`, obj);
     return res.data;
   } catch (e) {
     return { message: e };
@@ -12,7 +11,7 @@ export const insertAccess = async (obj) => {
 
 export const getMenuAccessDetails = async (obj) => {
   try {
-    const res = await axios.post(`${url}api/v1/access/getByRole`, obj);
+    const res = await api.post(`access/getByRole`, obj);
     return res.data;
   } catch (e) {
     return { message: e };
@@ -21,7 +20,7 @@ export const getMenuAccessDetails = async (obj) => {
 
 export const getRoleAccessByRole = async ({ roleId }) => {
   try {
-    const res = await axios.post(`${url}api/v1/access/getRoleAccess`, {
+    const res = await api.post(`access/getRoleAccess`, {
       roleId: roleId,
     });
     return res.data;
