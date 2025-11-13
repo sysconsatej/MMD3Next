@@ -20,8 +20,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { ToastContainer, toast } from "react-toastify";
 import { theme } from "@/styles";
-import { getDataWithCondition } from "@/apis";
+import { getDataWithCondition, insertUpdateForm } from "@/apis";
 import { payment } from "@/apis/payment";
+import { formatFormData } from "@/utils";
 import { CustomInput } from "@/components/customInput";
 import CustomButton from "@/components/button/button";
 import FormHeading from "@/components/formHeading/formHeading";
@@ -37,15 +38,16 @@ export default function PaymentPage() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("new");
 
-  // 🟢 modal + iframe state
+  // 🟢 Payment Modal States
   const [paying, setPaying] = useState(false);
   const [payOpen, setPayOpen] = useState(false);
   const [payUrl, setPayUrl] = useState(null);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeError, setIframeError] = useState(null);
 
-  const handleChangeTab = (_, newValue) => setTabValue(newValue);
+  const handleChangeTab = (_,newValue) => setTabValue(newValue);
 
+  // 🧭 Fetch all invoices for current BL ID
   useEffect(() => {
     async function fetchInvoices() {
       if (!blId) {
@@ -94,13 +96,13 @@ export default function PaymentPage() {
     fetchInvoices();
   }, [blId]);
 
-  // 🔥 Delete invoice from current payment list
+  // 🔥 Remove invoice from list
   const handleRemoveInvoice = (invoiceId) => {
     setInvoices((prev) => prev.filter((inv) => inv.invoiceId !== invoiceId));
     toast.info(`Invoice ${invoiceId} removed from payment.`);
   };
 
-  // 🟢 SAME Quick Pay Modal Logic (from InvoicePayment)
+  // 🟢 Handle modal close
   const handleClosePay = () => {
     setPayOpen(false);
     setPayUrl(null);
@@ -108,36 +110,68 @@ export default function PaymentPage() {
     setIframeError(null);
   };
 
+  // 🟢 Online payment logic
   const quickPayHandler = async () => {
     try {
       setPaying(true);
       setIframeLoaded(false);
       setIframeError(null);
 
-      const res = await payment({ blId });
-      const link =
+      const totalAmount = invoices.reduce(
+        (sum, inv) => sum + Number(inv.totalInvoiceAmount || 0),
+        0
+      );
+
+      const res = await payment(totalAmount.toFixed(2));
+        const link =
         res?.data?.link || res?.data?.url || res?.link || res?.url || null;
 
       if (link) {
         setPayUrl(link);
         setPayOpen(true);
-        toast.success("Payment link generated successfully!");
       } else {
         toast.error("Payment link not received from server.");
       }
     } catch (err) {
       console.error(err);
-      const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Payment initialization failed.";
-      toast.error(msg);
+      toast.error(err?.message || "Payment initialization failed.");
     } finally {
       setPaying(false);
     }
   };
 
-  // Calculate grand total
+  const handleOfflineSubmit = async (e) => {
+    e.preventDefault();
+
+    if (invoices.length === 0) {
+      toast.warn("No invoices selected for offline payment.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const invoiceIds = invoices.map((inv) => inv.invoiceId).join(",");
+      const normalized = {
+        ...formData,
+        blId: Number(blId),
+        invoiceIds,
+        status: 1,
+      };
+      const payload = formatFormData("tblInvoicePayment", normalized);
+      const { success, message, error } = await insertUpdateForm(payload);
+      if (success) {
+        toast.success(message || "Offline payment submitted successfully!");
+        setFormData({});
+      } else {
+        toast.error(error || message || "Failed to submit offline payment.");
+      }
+    } catch (err) {
+      console.error("Offline Payment Submit Error:", err);
+      toast.error(err?.message || "Unexpected error during submission.");
+    } finally {
+      setLoading(false);
+    }
+  };
   const grandTotal = invoices.reduce(
     (sum, inv) => sum + Number(inv.totalInvoiceAmount || 0),
     0
@@ -161,7 +195,7 @@ export default function PaymentPage() {
           <Typography>No invoices available for this BL.</Typography>
         ) : (
           <>
-            {/* Header Info */}
+            {/* 🔹 Header Info */}
             <Paper className="border rounded-md p-4 mb-4 bg-gray-50">
               <Typography variant="body2" className="mb-1">
                 <b>BL No:</b> {invoices[0].blNo}
@@ -174,7 +208,7 @@ export default function PaymentPage() {
               </Typography>
             </Paper>
 
-            {/* Tabs */}
+            {/* 🔹 Tabs */}
             <Tabs value={tabValue} onChange={handleChangeTab}>
               <Tab label="Pay Online" />
               <Tab label="Pay Offline" />
@@ -185,29 +219,38 @@ export default function PaymentPage() {
               <Box className="mt-4 border rounded-md bg-white shadow-sm p-4">
                 <FormHeading text="Pay Online" variant="body2" />
 
-                {/* Invoice List */}
                 <Box className="overflow-x-auto mt-3">
                   <table className="w-full border text-sm">
                     <thead className="bg-gray-100">
                       <tr>
-                        <th className="border px-3 py-2 text-left">Invoice No</th>
+                        <th className="border px-3 py-2 text-left">
+                          Invoice No
+                        </th>
                         <th className="border px-3 py-2 text-left">Date</th>
                         <th className="border px-3 py-2 text-left">Category</th>
-                        <th className="border px-3 py-2 text-right">Amount (INR)</th>
+                        <th className="border px-3 py-2 text-right">
+                          Amount (INR)
+                        </th>
                         <th className="border px-3 py-2 text-left">Remarks</th>
                         <th className="border px-3 py-2 text-center">Delete</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {invoices.map((inv, idx) => (
+                      {invoices.map((inv) => (
                         <tr key={inv.invoiceId}>
                           <td className="border px-3 py-2">{inv.invoiceNo}</td>
-                          <td className="border px-3 py-2">{inv.invoiceDate}</td>
-                          <td className="border px-3 py-2">{inv.invoiceCategory}</td>
+                          <td className="border px-3 py-2">
+                            {inv.invoiceDate}
+                          </td>
+                          <td className="border px-3 py-2">
+                            {inv.invoiceCategory}
+                          </td>
                           <td className="border px-3 py-2 text-right">
                             ₹{inv.totalInvoiceAmount}
                           </td>
-                          <td className="border px-3 py-2">{inv.remarks || "-"}</td>
+                          <td className="border px-3 py-2">
+                            {inv.remarks || "-"}
+                          </td>
                           <td className="border px-3 py-2 text-center">
                             <IconButton
                               color="error"
@@ -229,7 +272,6 @@ export default function PaymentPage() {
                   Grand Total: ₹{grandTotal.toFixed(2)}
                 </Typography>
 
-                {/* ✅ Same Quick Pay Modal Trigger */}
                 <Box className="mt-6 flex justify-center gap-3">
                   <CustomButton
                     text={paying ? "Processing…" : "Continue to Pay Online"}
@@ -254,24 +296,34 @@ export default function PaymentPage() {
                   <table className="w-full border text-sm">
                     <thead className="bg-gray-100">
                       <tr>
-                        <th className="border px-3 py-2 text-left">Invoice No</th>
+                        <th className="border px-3 py-2 text-left">
+                          Invoice No
+                        </th>
                         <th className="border px-3 py-2 text-left">Date</th>
                         <th className="border px-3 py-2 text-left">Category</th>
-                        <th className="border px-3 py-2 text-right">Amount (INR)</th>
+                        <th className="border px-3 py-2 text-right">
+                          Amount (INR)
+                        </th>
                         <th className="border px-3 py-2 text-left">Remarks</th>
                         <th className="border px-3 py-2 text-center">Delete</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {invoices.map((inv, idx) => (
+                      {invoices.map((inv) => (
                         <tr key={inv.invoiceId}>
                           <td className="border px-3 py-2">{inv.invoiceNo}</td>
-                          <td className="border px-3 py-2">{inv.invoiceDate}</td>
-                          <td className="border px-3 py-2">{inv.invoiceCategory}</td>
+                          <td className="border px-3 py-2">
+                            {inv.invoiceDate}
+                          </td>
+                          <td className="border px-3 py-2">
+                            {inv.invoiceCategory}
+                          </td>
                           <td className="border px-3 py-2 text-right">
                             ₹{inv.totalInvoiceAmount}
                           </td>
-                          <td className="border px-3 py-2">{inv.remarks || "-"}</td>
+                          <td className="border px-3 py-2">
+                            {inv.remarks || "-"}
+                          </td>
                           <td className="border px-3 py-2 text-center">
                             <IconButton
                               color="error"
@@ -293,7 +345,6 @@ export default function PaymentPage() {
                   Grand Total: ₹{grandTotal.toFixed(2)}
                 </Typography>
 
-                {/* Offline Form using CustomInput */}
                 <FormHeading text="Offline Payment Details" variant="body2" />
                 <Box className="grid grid-cols-3 gap-2 p-2 mt-1">
                   <CustomInput
@@ -307,9 +358,7 @@ export default function PaymentPage() {
                 <Box className="mt-6 flex justify-center gap-3">
                   <CustomButton
                     text="Submit Offline Payment"
-                    onClick={() =>
-                      toast.success("Offline payment submitted successfully!")
-                    }
+                    onClick={handleOfflineSubmit}
                   />
                   <CustomButton
                     text="Back"
@@ -321,7 +370,7 @@ export default function PaymentPage() {
           </>
         )}
 
-        {/* 🟢 Payment Modal (SAME as InvoicePayment) */}
+        {/* 🟢 Payment Modal */}
         <Dialog open={payOpen} onClose={handleClosePay} fullWidth maxWidth="xl">
           <DialogTitle
             sx={{
@@ -331,7 +380,11 @@ export default function PaymentPage() {
             }}
           >
             Payment
-            <IconButton aria-label="close" onClick={handleClosePay} size="small">
+            <IconButton
+              aria-label="close"
+              onClick={handleClosePay}
+              size="small"
+            >
               <CloseRoundedIcon />
             </IconButton>
           </DialogTitle>

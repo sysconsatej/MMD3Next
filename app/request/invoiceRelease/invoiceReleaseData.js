@@ -1,67 +1,30 @@
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
+
 const fieldData = {
+  // ✅ BL INFORMATION
   igmFields: [
     {
-      label: "Liner Name",
-      name: "shippingLineId",
-      type: "dropdown",
-      tableName: "tblCompany t",
-      idColumn: "id",
-      displayColumn: "t.name",
-      searchColumn: "t.name",
-      foreignTable: "name,tblCompany",
-      orderBy: "t.name",
-      isEdit: true,
-      required: true,
-    },
-    {
-      label: "BL NO",
+      label: "BL No",
       name: "blNo",
+      isEdit: true,
       required: true,
+    },
+    {
+      label: "Requested By",
+      name: "requestedBy",
       isEdit: true,
     },
-
-    // {
-    //   label: "Type",
-    //   name: "type",
-    //   type: "dropdown",
-    //   tableName: "tblMasterData m",
-    //   idColumn: "id",
-    //   displayColumn: "m.name",
-    //   searchColumn: "m.name",
-    //   orderBy: "m.name",
-    //   where: "m.masterListName = 'tblServiceType'",
-    //   isEdit: true,
-    //   required: true,
-    // },
-    // {
-    //   label: "BL Location",
-    //   name: "blLocation",
-    //   type: "dropdown",
-    //   tableName: "tblPort p",
-    //   idColumn: "id",
-    //   displayColumn: "p.name",
-    //   searchColumn: "p.name",
-    //   joins: "JOIN tblMasterData m ON m.id = p.portTypeId",
-    //   where: "m.name IN ('SEA PORT','INLAND PORT')",
-    //   orderBy: "p.name",
-    //   isEdit: true,
-    //   required: true,
-    // },
     {
-      label: "Type Of Delivery ",
+      label: "Type Of Delivery",
       name: "deliveryTypeId",
       type: "dropdown",
       tableName: "tblMasterData m",
-      idColumn: "id",
       displayColumn: "m.name",
-      searchColumn: "m.name",
       orderBy: "m.name",
-      where: "m.masterListName = 'tblStuffingDestuffingType'",
+      where: "m.masterListName='tblStuffingDestuffingType'",
       foreignTable: "name,tblMasterData",
       isEdit: true,
-      required: true,
     },
     {
       name: "isFreeDays",
@@ -72,58 +35,86 @@ const fieldData = {
       ],
       isEdit: true,
     },
-    // {
-    //   label: "Free Days",
-    //   name: "isFreeDays",
-    //   isEdit: true,
-    //   type: "checkbox",
-    //   defaultValue: true,
-    // },
     {
-      label: " Valid Till",
+      label: "High Sea Sales",
+      name: "isHighSealSale",
+      type: "checkbox",
+      isEdit: true,
+    },
+    {
+      label: "Valid Till",
       name: "validTill",
       type: "date",
       isEdit: true,
     },
-    // {
-    //   label: "Do Extension",
-    //   name: "isFreeDays",
-    //   isEdit: true,
-    //   type: "checkbox",
-    // },
-    {
-      label: "High Sea Sales",
-      name: "isHighSealSale",
-      isEdit: true,
-      type: "checkbox",
-    },
-
+    { label: "Contact No", name: "contactNo", isEdit: true },
     {
       label: "Remarks",
       name: "remarks",
       type: "textarea",
       rows: 2,
-      gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
     },
   ],
+
+  // ✅ INVOICE DETAILS (TOP)
+  invoiceFieldsTop: [
+    { label: "Invoice No", name: "invoiceNo", isEdit: true },
+    {
+      label: "Invoice Date",
+      name: "invoiceDate",
+      type: "date",
+      isEdit: true,
+    },
+    {
+      label: "Invoice Category",
+      name: "invoiceCategoryId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where: "m.masterListName='tblInvoiceCategory'",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+    },
+    { label: "Valid Till", name: "validTill", type: "date", isEdit: true },
+    {
+      label: "Total Inv Amt",
+      name: "totalInvoiceAmount",
+      type: "number",
+      isEdit: true,
+    },
+    {
+      label: "Invoice Type",
+      name: "invoiceTypeId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where: "m.masterListName='tblInvoiceType'",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+    },
+    { label: "Bill To Party", name: "billingParty", isEdit: true },
+    { label: "GSTIN", name: "billingPartyGstinNo", isEdit: true },
+    {
+      label: "Remarks",
+      name: "invoiceRemarks",
+      type: "textarea",
+      rows: 2,
+      gridColumn: "col-span-2",
+      isEdit: true,
+    },
+  ],
+
+  // ✅ INVOICE IN NAME OF
   invoiceFields: [
-    {
-      label: "Name",
-      name: "billingPartyName",
-      isEdit: true,
-    },
-    {
-      label: "GSTIN/Provisional ID",
-      name: "billPartyGSTIN",
-      isEdit: true,
-    },
+    { label: "Name", name: "billingPartyName", isEdit: true },
+    { label: "GSTIN/Provisional ID", name: "billPartyGSTIN", isEdit: true },
     {
       label: "Address",
       name: "billingPartyAddress",
       type: "textarea",
       rows: 2,
-      gridColumn: "col-span-2 row-span-1 ",
+      gridColumn: "col-span-2",
       isEdit: true,
     },
     {
@@ -132,77 +123,52 @@ const fieldData = {
       type: "number",
       isEdit: true,
     },
+    { label: "Email", name: "billingPartyEmailId", isEdit: true },
+  ],
+
+  // ✅ ATTACHMENT GRID (TOP & BOTTOM)
+  attachmentFields: [
     {
-      label: "Email",
-      name: "billingPartyEmailId",
+      label: "Attachment",
+      name: "attachment",
+      type: "fileupload",
       isEdit: true,
+      dragDrop: true,
     },
   ],
   tblAttachement: [
-    // {
-    //   label: "Select",
-    //   name: "select",
-    //   type: "dropdown",
-    //   tableName: "tblMasterData m",
-    //   idColumn: "id",
-    //   displayColumn: "m.name",
-    //   searchColumn: "m.name",
-    //   orderBy: "m.name",
-    //   where: "m.masterListName = 'tblInvoiceAttachmentType'",
-    //   isEdit: true,
-    // },
     {
       label: "Upload",
       name: "path",
       type: "fileupload",
       isEdit: true,
     },
-    // {
-    //   label: "Remarks",
-    //   name: "remark",
-    //   isEdit: true,
-    // },
   ],
+
+  // ✅ CONTAINER GRID
   tblInvoiceRequestContainer: [
-    {
-      label: "Container No",
-      name: "containerNo",
-      isEdit: true,
-    },
+    { label: "Container No", name: "containerNo", isEdit: true },
     {
       label: "Container Size",
       name: "sizeId",
       type: "dropdown",
       tableName: "tblMasterData m",
-      idColumn: "id",
       displayColumn: "m.name",
-      searchColumn: "m.name",
-      orderBy: "m.name",
-      where: "m.masterListName = 'tblSize'",
+      where: "m.masterListName='tblSize'",
+      foreignTable: "name,tblMasterData",
       isEdit: true,
     },
-    {
-      label: " Valid Till",
-      name: "validTill",
-      type: "date",
-      isEdit: true,
-    },
+    { label: "Valid Till", name: "validTill", type: "date", isEdit: true },
   ],
 };
 
 export default fieldData;
+
 export const cfsGridButtons = [
-  {
-    text: "Add ",
-    icon: <AddIcon />,
-    func: "gridAddHandler",
-  },
-  {
-    text: "Delete ",
-    icon: <CloseIcon />,
-    func: "gridDeleteHandler",
-  },
+  { text: "Add", icon: <AddIcon />, func: "gridAddHandler" },
+  { text: "Delete", icon: <CloseIcon />, func: "gridDeleteHandler" },
 ];
+
 export const advanceSearchFields = {
   bl: [
     {

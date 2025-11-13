@@ -2,6 +2,8 @@
 // Parent items can specify an `icon` string: "home" | "cube" | "file" | "inbox" | "chart"
 // Only parent level renders icons; children render text-only.
 
+import { name } from "faker/lib/locales/az";
+
 export const navItems = [
   { name: "Home", href: "/home", icon: "home", isShow: true },
   {
@@ -141,7 +143,19 @@ export const navItems = [
       },
     ],
   },
-
+  {
+    name: "Payment",
+    icon: "wallet",
+    href: "/payment",
+    isShow: true,
+    submenu: [
+      {
+        name: "Payment Confirmation",
+        href: "/payment/paymentConfirmation/list",
+        isShow: true,
+      },
+    ],
+  },
   {
     name: "Reports",
     icon: "chart",

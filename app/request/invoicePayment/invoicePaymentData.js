@@ -103,7 +103,7 @@ const fieldData = {
 
     {
       label: "Bill to Party",
-      name: "billingPartyId",
+      name: "billingParty",
       isEdit: true,
       gridColumn: "col-span-2",
     },

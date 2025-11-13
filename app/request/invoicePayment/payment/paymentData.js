@@ -13,7 +13,7 @@ const paymentOfflineFields = [
   },
   {
     label: "Amount",
-    name: "amount",
+    name: "Amount",
     type: "number",
     required: true,
   },
@@ -24,17 +24,17 @@ const paymentOfflineFields = [
   },
   {
     label: "Branch Name",
-    name: "branchName",
+    name: "bankBranchName",
     type: "text",
   },
   {
     label: "Instrument Number",
-    name: "instrumentNumber",
+    name: "referenceNo",
     type: "text",
   },
   {
     label: "Instrument Date",
-    name: "instrumentDate",
+    name: "referenceDate",
     type: "date",
   },
 ];

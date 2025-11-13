@@ -242,8 +242,6 @@ export default function InvoicePayment() {
         else toast.error(error || message);
       });
 
-      await Promise.all(promises);
-      toast.success("All invoices submitted successfully!");
     } catch (err) {
       console.error(err);
       toast.error("Error submitting invoices.");
