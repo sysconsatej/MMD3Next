@@ -191,7 +191,8 @@ export default function BLList() {
       handleDeleteRecord(formId);
       return;
     }
-    setMode({ mode, formId });
+    const filterData = rows.filter((item) => item.hblId === formId);
+    setMode({ mode, formId, status: filterData[0]?.status });
     router.push("/bl/hbl");
   };
 
