@@ -16,17 +16,7 @@ export default function SealType() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
-  // const submitHandler = async (event) => {
-  //   event.preventDefault();
-  //   const format = formatFormData("tblCountry", formData, mode.formId);
-  //   const { success, error, message } = await insertUpdateForm(format);
-  //   if (success) {
-  //     toast.success(message);
-  //     setFormData({});
-  //   } else {
-  //     toast.error(error || message);
-  //   }
-  // };
+
 
   useEffect(() => {
     async function fetchFormHandler() {
