@@ -31,7 +31,7 @@ import { advanceSearchFields } from "../hblData";
 import { advanceSearchFilter } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
-import BLModal from "../modal";
+import { BLModal } from "../modal";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
