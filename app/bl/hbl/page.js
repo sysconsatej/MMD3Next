@@ -324,8 +324,12 @@ export default function Home() {
           data[0].id
         );
         const { result } = await fetchForm(format);
+        const excludeFields = ["companyId", "companyBranchId"];
+        const filterMblFields = fieldData.mblFields.filter(
+          (item) => !excludeFields.includes(item.name)
+        );
         const getData = formatDataWithForm(result, {
-          mblFields: fieldData.mblFields,
+          mblFields: filterMblFields,
         });
         setFormData((prev) => ({ ...prev, ...getData }));
         setJsonData((prev) => {
