@@ -806,7 +806,7 @@ export default function Home() {
                   disabled={!requestBtn}
                 />
               )}
-            {userData?.roleCode === "customer" && (
+            {userData?.roleCode === "customer" && mode.status !== "Confirm" && (
               <CustomButton
                 text={"Request"}
                 onClick={requestHandler}
