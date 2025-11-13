@@ -796,13 +796,16 @@ export default function Home() {
             </Box>
           </Box>
           <Box className="w-full flex mt-2 gap-3">
-            {fieldsMode !== "view" && userData?.roleCode === "customer" && (
-              <CustomButton
-                text={"Submit"}
-                type="submit"
-                disabled={!requestBtn}
-              />
-            )}
+            {fieldsMode !== "view" &&
+              userData?.roleCode === "customer" &&
+              mode.status !== "Request" &&
+              mode.status !== "Confirm" && (
+                <CustomButton
+                  text={"Submit"}
+                  type="submit"
+                  disabled={!requestBtn}
+                />
+              )}
             {userData?.roleCode === "customer" && (
               <CustomButton
                 text={"Request"}
