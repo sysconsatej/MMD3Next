@@ -28,7 +28,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
 import { advanceSearchFields } from "../hblData";
-import { advanceSearchFilter } from "../utils";
+import { advanceSearchFilter, statusColor } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
 import { BLModal } from "../modal";
@@ -279,7 +279,9 @@ export default function BLList() {
                     <TableCell>{row.cargoTypeId}</TableCell>
                     <TableCell>{row.podVesselId}</TableCell>
                     <TableCell>{row.hblCount}</TableCell>
-                    <TableCell>{row.status}</TableCell>
+                    <TableCell sx={{ color: statusColor(row.status) }}>
+                      {row.status}
+                    </TableCell>
                     <TableCell>{row.remark}</TableCell>
                     <TableCell>
                       <AttachFileIcon
