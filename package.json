@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "setup": "node scripts/copy-pdf-worker.js"
+    "setup": "node scripts/copy-pdf-worker.js",
+    "prepare": "husky"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -42,6 +43,7 @@
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
+    "husky": "^9.1.7",
     "tailwindcss": "^4"
   }
 }

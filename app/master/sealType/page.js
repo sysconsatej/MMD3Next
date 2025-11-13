@@ -16,17 +16,17 @@ export default function SealType() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
-  const submitHandler = async (event) => {
-    event.preventDefault();
-    const format = formatFormData("tblCountry", formData, mode.formId);
-    const { success, error, message } = await insertUpdateForm(format);
-    if (success) {
-      toast.success(message);
-      setFormData({});
-    } else {
-      toast.error(error || message);
-    }
-  };
+  // const submitHandler = async (event) => {
+  //   event.preventDefault();
+  //   const format = formatFormData("tblCountry", formData, mode.formId);
+  //   const { success, error, message } = await insertUpdateForm(format);
+  //   if (success) {
+  //     toast.success(message);
+  //     setFormData({});
+  //   } else {
+  //     toast.error(error || message);
+  //   }
+  // };
 
   useEffect(() => {
     async function fetchFormHandler() {
@@ -48,7 +48,7 @@ export default function SealType() {
 
   return (
     <ThemeProvider theme={theme}>
-      <form onSubmit={submitHandler}>
+      <form>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">Seal Type</h1>
@@ -69,9 +69,9 @@ export default function SealType() {
             </Box>
           </Box>
           <Box className="w-full flex mt-2 ">
-            {fieldsMode !== "view" && (
+            {/* {fieldsMode !== "view" && (
               <CustomButton text={"Submit"} type="submit" />
-            )}
+            )} */}
           </Box>
         </section>
       </form>
