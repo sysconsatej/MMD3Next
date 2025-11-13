@@ -39,6 +39,7 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import AgreeTerms from "@/components/agreeTerms/agreeTerms";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
+import { RejectModal } from "./modal";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -77,6 +78,10 @@ export default function Home() {
   const userData = getUserByCookies();
   const [agreed, setAgreed] = useState(false);
   const [requestBtn, setRequestBtn] = useState(true);
+  const [rejectState, setRejectState] = useState({
+    toggle: false,
+    value: null,
+  });
 
   const handleChangeTab = (event, newValue) => {
     const form = document.querySelector("form");
@@ -393,6 +398,29 @@ export default function Home() {
     toast.success("Request updated successfully!");
   }
 
+  async function rejectHandler() {
+    const verifyStatus = hblStatus.filter((item) => item.Name === "Reject");
+    const rowsPayload = mode.formId.split(",").map((id) => {
+      return {
+        id: id,
+        hblRequestStatus: verifyStatus[0].Id,
+        hblRequestRemarks: rejectState.value,
+      };
+    });
+    const res = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Rejected updated successfully!");
+    setRejectState((prev) => ({ ...prev, toggle: false, value: null }));
+  }
+
   useEffect(() => {
     if (formData?.tblBl?.[tabValue]?.tblBlContainer) {
       let packType =
@@ -566,16 +594,6 @@ export default function Home() {
                 handleBlurEventFunctions={handleBlurEventFunctions}
               />
             </Box>
-            {/* <FormHeading text="CSN">
-              <Box className="grid grid-cols-6 gap-2 p-2 ">
-                <CustomInput
-                  fields={jsonData.csnFields}
-                  formData={formData}
-                  setFormData={setFormData}
-                  fieldsMode={fieldsMode}
-                />
-              </Box>
-            </FormHeading> */}
             <FormHeading text="HBL Details" />
             <Box sx={{ width: "100%" }}>
               <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -800,14 +818,24 @@ export default function Home() {
                 <CustomButton text={"Verify"} onClick={verifyHandler} />
               )}
 
-            {/* {(fieldsMode === "edit" || fieldsMode === "view") &&
+            {(fieldsMode === "edit" || fieldsMode === "view") &&
               userData.roleCode === "shipping" && (
-                <CustomButton text={"Reject"} onClick={rejectHandler} />
-              )} */}
+                <CustomButton
+                  text={"Reject"}
+                  onClick={() =>
+                    setRejectState((prev) => ({ ...prev, toggle: true }))
+                  }
+                />
+              )}
           </Box>
         </section>
       </form>
       <ToastContainer />
+      <RejectModal
+        rejectState={rejectState}
+        setRejectState={setRejectState}
+        rejectHandler={rejectHandler}
+      />
     </ThemeProvider>
   );
 }
