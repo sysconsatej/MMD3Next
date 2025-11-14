@@ -304,6 +304,24 @@ export default function Home() {
         );
       }
     },
+    cargoTypeHandler: async (name, value) => {
+      const isHazardous = value.Name === "HAZ - HAZARDOUS";
+      setJsonData((prev) => {
+        const itemContainer = prev.tblBlPackingList;
+        const requiredUno = itemContainer.map((item) => {
+          if (item.name === "imoId") {
+            return { ...item, required: isHazardous };
+          }
+
+          return item;
+        });
+
+        return {
+          ...prev,
+          tblBlPackingList: requiredUno,
+        };
+      });
+    },
   };
 
   const handleBlurEventFunctions = {
@@ -596,6 +614,7 @@ export default function Home() {
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
                 handleBlurEventFunctions={handleBlurEventFunctions}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
             <FormHeading text="HBL Details" />

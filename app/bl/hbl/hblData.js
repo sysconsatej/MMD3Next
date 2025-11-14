@@ -78,6 +78,7 @@ export const fieldData = {
       where: "m.masterListName = 'tblCargoType'",
       orderBy: "m.name",
       isEdit: true,
+      changeFun: "cargoTypeHandler",
     },
     {
       label: "Port of Loading",
