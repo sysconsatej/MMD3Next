@@ -386,6 +386,22 @@ function ChartIcon() {
     </svg>
   );
 }
+// code for payment icon
+function WalletIcon() {
+  return (
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      fill="none"
+    >
+      <rect x="3" y="6" width="18" height="12" rx="2" strokeWidth="1.8" />
+      <path d="M3 9h18" strokeWidth="1.8" />
+      <circle cx="16.5" cy="12" r="1.25" fill="currentColor" />
+    </svg>
+  );
+}
+
 function DotIcon() {
   return <span className="block w-1.5 h-1.5 rounded-full bg-white/80" />;
 }
@@ -399,6 +415,8 @@ function pickIcon(icon) {
       return <FileIcon />;
     case "inbox":
       return <InboxIcon />;
+    case "wallet":
+      return <WalletIcon />;
     case "chart":
       return <ChartIcon />;
     default:

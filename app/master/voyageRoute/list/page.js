@@ -27,24 +27,22 @@ import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 function createData(
   portOfCall,
-  voyageId,
   vesselNo,
+  voyageNo,
   exportLocking,
   importLocking,
   igmNo,
   terminal,
-  voyageNo,
   id
 ) {
   return {
     portOfCall,
-    voyageId,
     vesselNo,
+    voyageNo,
     exportLocking,
     importLocking,
     igmNo,
     terminal,
-    voyageNo,
     id,
   };
 }
@@ -66,14 +64,14 @@ export default function VoyageRouteList() {
       try {
         const tableObj = {
           columns:
-            "p.name portOfCall, v.voyageId voyageId, ve.name vesselNo, v.exportLocking exportLocking, v.importLocking importLocking,v.igmNo igmNo, p1.name terminal, v.voyageNo voyageNo ,v.id",
+            "p.name portOfCall, v.voyageId voyageId, ve.name vesselNo, v.exportLocking exportLocking, v.importLocking importLocking,v.igmNo igmNo, p1.name terminal, vo.voyageNo voyageNo ,v.id",
           tableName: "tblVoyageRoute v",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins:
-            "left join tblPort p on v.portOfCallId = p.id left join tblPort p1 on v.berthId = p1.id left join tblVessel ve on v.vesselId = ve.id",
+          joins: `left join tblPort p on v.portOfCallId = p.id left join tblPort p1 on v.berthId = p1.id left join tblVessel ve on v.vesselId = ve.id  left join tblVoyage vo on vo.id=v.voyageId
+`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -99,13 +97,12 @@ export default function VoyageRouteList() {
     ? voyageRouteData.map((item) =>
         createData(
           item["portOfCall"],
-          item["voyageId"],
           item["vesselNo"],
+          item["voyageNo"],
           item["exportLocking"],
           item["importLocking"],
           item["igmNo"],
           item["terminal"],
-          item["voyageNo"],
           item["id"]
         )
       )
@@ -167,13 +164,12 @@ export default function VoyageRouteList() {
             <TableHead>
               <TableRow>
                 <TableCell>Port Of Call</TableCell>
-                <TableCell>Voyage No</TableCell>
-                <TableCell>Vessel No</TableCell>
+                <TableCell>Vessel Name</TableCell>
+                <TableCell>Voyage</TableCell>
                 <TableCell>IGM No</TableCell>
                 <TableCell>Export Locking</TableCell>
                 <TableCell>Import Locking</TableCell>
                 <TableCell>Terminal</TableCell>
-                <TableCell>Voyage</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -181,13 +177,12 @@ export default function VoyageRouteList() {
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.portOfCall}</TableCell>
-                    <TableCell>{row.voyageId}</TableCell>
                     <TableCell>{row.vesselNo}</TableCell>
+                    <TableCell>{row.voyageNo}</TableCell>
                     <TableCell>{row.igmNo}</TableCell>
                     <TableCell>{row.exportLocking}</TableCell>
                     <TableCell>{row.importLocking}</TableCell>
                     <TableCell>{row.terminal}</TableCell>
-                    <TableCell>{row.voyageNo}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

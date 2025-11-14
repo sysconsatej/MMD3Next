@@ -1,7 +1,6 @@
 // components/sidebar/menuData.js
 // Parent items can specify an `icon` string: "home" | "cube" | "file" | "inbox" | "chart"
 // Only parent level renders icons; children render text-only.
-
 export const navItems = [
   { name: "Home", href: "/home", icon: "home", isShow: true },
   {
@@ -116,12 +115,12 @@ export const navItems = [
       {
         name: "Invoices Release",
         href: "/request/invoiceRelease/list",
-        isShow: true,
+        isShow: false,
       },
       {
         name: "Invoice Payment",
-        href: "/request/invoicePayment",
-        isShow: true,
+        href: "/request/invoicePayment/list",
+        isShow: false,
       },
       { name: "Invoice Upload", href: "/request/invoiceUpload/list" },
       {
@@ -141,7 +140,19 @@ export const navItems = [
       },
     ],
   },
-
+  {
+    name: "Payment",
+    icon: "wallet",
+    href: "/payment",
+    isShow: false,
+    submenu: [
+      {
+        name: "Payment Confirmation",
+        href: "/payment/paymentConfirmation/list",
+        isShow: false,
+      },
+    ],
+  },
   {
     name: "Uploads",
     icon: "file",

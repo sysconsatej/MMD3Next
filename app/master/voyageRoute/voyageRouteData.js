@@ -5,11 +5,13 @@ const fieldData = {
       name: "portOfCallId",
       type: "dropdown",
       tableName: "tblPort p",
+      idColumn: "id",
       displayColumn: "p.name",
-      foreignTable: "name,tblPort",
-      joins: "JOIN tblMasterData m ON m.id = p.portTypeId",
-      where: "m.name IN ('SEA PORT','INLAND PORT')",
+      searchColumn: "p.name",
       orderBy: "p.name",
+      joins:
+        "LEFT JOIN tblCountry c ON c.id = p.countryId LEFT JOIN tblMasterData m ON m.id = p.portTypeId",
+      where: "m.name = 'SEA PORT' AND c.name = 'India'",
       foreignTable: "name,tblPort",
       isEdit: true,
       required: true,
@@ -319,13 +321,13 @@ const fieldData = {
 
 export const VoyageRoute = [
   { label: "Port of Call", value: "p.name" },
-  { label: "Voyage No", value: "v.voyageId" },
   { label: "Vessel No", value: "ve.name" },
+  { label: "Voyage", value: "vo.voyageNo" },
   { label: "IGM NO", value: "v.igmNo" },
   { label: "Export Locking", value: "v.exportLocking" },
   { label: "Import Locking", value: "v.importLocking" },
   { label: "Terminal", value: "p.name" },
-  { label: "Voyage", value: "v.voyageNo" },
 ];
 
 export default fieldData;
+ 
