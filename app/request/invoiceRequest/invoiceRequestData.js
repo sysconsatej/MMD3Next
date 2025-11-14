@@ -269,3 +269,13 @@ export function advanceSearchFilter(advanceSearch) {
 
   return condition.length > 0 ? condition.join(" and ") : null;
 }
+
+export function statusColor(status) {
+  const map = {
+    Requested: "#4E61D3", // Blue
+    Released: "green", // Green
+    Rejected: "#DC0E0E", // Red
+  };
+
+  return map[status] || "inherit";
+}

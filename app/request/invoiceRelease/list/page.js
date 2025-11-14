@@ -18,29 +18,27 @@ import {
   Typography,
   CssBaseline,
   Checkbox,
-  Link, // ⬅️ added Link
+  Link,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
-import { deleteRecord, fetchTableValues } from "@/apis";
+import { fetchTableValues, getDataWithCondition, updateStatusRows } from "@/apis";
 import { ToastContainer, toast } from "react-toastify";
-import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
 import InvoiceToolbarActions from "@/components/selectionActions/selectionActionBarInvoice";
-import InvoiceMiniToggles from "@/components/selectionActions/selectionActionBarInvoiceProcess";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
-import { advanceSearchFields, advanceSearchFilter } from "../invoiceReleaseData";
+import {
+  advanceSearchFields,
+  advanceSearchFilter,
+  statusColor,
+} from "../invoiceReleaseData";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import { getUserByCookies } from "@/utils";
 
 const LIST_TABLE = "tblInvoiceRequest i";
-const UPDATE_TABLE = LIST_TABLE.trim()
-  .split(/\s+/)[0]
-  .replace(/^dbo\./i, "");
-
-const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
-const CHECKBOX_CELL_SX = { width: 32, minWidth: 32, maxWidth: 32 };
 const CHECKBOX_SX = { p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } };
 
 const toFreeDaysLabel = (v) => (v === "D" ? "Yes" : "No");
@@ -55,7 +53,8 @@ function createData(
   highSealSale,
   remarks,
   date,
-  Requester
+  requester,
+  status
 ) {
   return {
     id,
@@ -66,32 +65,32 @@ function createData(
     highSealSale,
     remarks,
     date,
-    Requester,
+    requester,
+    status,
   };
 }
 
-export default function InvoiceRequestList() {
+export default function InvoiceReleaseList() {
   const router = useRouter();
   const { setMode } = formStore();
+  const userData = getUserByCookies();
 
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
+  const [statusList, setStatusList] = useState([]);
   const [rows, setRows] = useState([]);
   const [advanceSearch, setAdvanceSearch] = useState({});
   const [loadingState, setLoadingState] = useState("Loading...");
   const tableWrapRef = useRef(null);
-  const [filters, setFilters] = useState({
-    reRequest: false,
-    reProcess: false,
-    hblCount: false,
-  });
 
   const [selectedIds, setSelectedIds] = useState([]);
-  const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
+
+  const idsOnPage = useMemo(() => rows.map((x) => x.id), [rows]);
+
   const allChecked =
-    selectedIds.length > 0 && selectedIds.length === idsOnPage.length;
+    selectedIds.length === idsOnPage.length && idsOnPage.length > 0;
   const someChecked =
     selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
 
@@ -101,47 +100,104 @@ export default function InvoiceRequestList() {
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
 
+  useEffect(() => {
+    async function fetchStatus() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: "masterListName = 'tblInvoiceRequest' AND status = 1",
+      };
+
+      const { success, data } = await getDataWithCondition(obj);
+      if (success) setStatusList(data);
+    }
+    fetchStatus();
+  }, []);
+  // 🚀 RELEASE FUNCTION
+  const releaseHandler = async (ids) => {
+    if (!ids?.length) return toast.warn("Please select at least one row");
+    const releaseId = statusList.find((x) => x.Name === "Released")?.Id;
+    const payload = {
+      tableName: "tblInvoiceRequest",
+      keyColumn: "id",
+      rows: ids.map((id) => ({
+        id,
+        invoiceRequestStatusId: releaseId, // RELEASED
+      })),
+    };
+
+    const res = await updateStatusRows(payload);
+    if (res?.success) {
+      toast.success("Invoice Released Successfully");
+      getData(page, rowsPerPage);
+    } else toast.error(res?.message || "Release Failed");
+  };
+
+  // 🚀 SQL LOGIC EXACTLY SAME AS YOU SENT
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns:
-            "i.id id, c.name liner, i.blNo blNo, m.name type, i.isFreeDays freeDays, i.isHighSealSale highSealSale, i.remarks remarks, i.createdDate date,u.name Requester",
+          columns: `
+            i.id,
+            c.name AS liner,
+            i.blNo,
+            m.name AS type,
+            i.isFreeDays AS freeDays,
+            i.isHighSealSale AS highSealSale,
+            i.remarks,
+            i.createdDate AS date,
+            u.name AS requester,
+            st.name AS status
+          `,
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
           advanceSearch: advanceSearchFilter(advanceSearch),
-          joins: `left join tblCompany c on c.id = i.shippingLineId  
-            left join tblMasterData m on m.id = i.deliveryTypeId
-            left join tblUser u ON i.createdBy = u.id`,
-          orderBy:
-            "order by isnull(i.updatedDate, i.createdDate) desc, i.id desc",
+
+          joins: `
+            LEFT JOIN tblCompany c ON c.id = i.shippingLineId
+            LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
+            LEFT JOIN tblUser u ON u.id = i.createdBy
+            JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId and i.invoiceRequestStatusId IS NOT NULL
+          `,
+          orderBy: `
+            ORDER BY 
+              CASE 
+                WHEN st.name = 'Requested' THEN 1
+                WHEN st.name = 'Released' THEN 2
+                WHEN st.name = 'Rejected' THEN 3
+                ELSE 4
+              END,
+              ISNULL(i.updatedDate, i.createdDate) DESC
+          `,
         };
 
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
         const mapped = (data || []).map((item) =>
           createData(
-            item["id"],
-            item["liner"],
-            item["blNo"],
-            item["type"],
-            item["freeDays"],
-            item["highSealSale"],
-            item["remarks"],
-            item["date"],
-            item["Requester"]
+            item.id,
+            item.liner,
+            item.blNo,
+            item.type,
+            item.freeDays,
+            item.highSealSale,
+            item.remarks,
+            item.date,
+            item.requester,
+            item.status
           )
         );
 
         setRows(mapped);
         setTotalPage(totalPage);
+        setTotalRows(totalRows);
         setPage(pageNo);
         setRowsPerPage(pageSize);
-        setTotalRows(totalRows);
         setSelectedIds([]);
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Error fetching:", err);
         setLoadingState("Failed to load data");
       }
     },
@@ -153,123 +209,81 @@ export default function InvoiceRequestList() {
     getData(1, rowsPerPage);
   }, []);
 
-  const handleChangePage = (_e, newPage) => getData(newPage, rowsPerPage);
+  const handleChangePage = (_, newPage) => getData(newPage, rowsPerPage);
   const handleChangeRowsPerPage = (e) => getData(1, +e.target.value);
-
-  const handleDeleteRecord = async (recordId) => {
-    const obj = { recordId, tableName: UPDATE_TABLE };
-    const { success, message, error } = await deleteRecord(obj);
-    if (success) {
-      toast.success(message);
-      getData(page, rowsPerPage);
-    } else {
-      toast.error(error || message);
-    }
-  };
 
   const modeHandler = useCallback(
     (mode, formId = null) => {
-      if (mode === "delete") {
-        if (formId != null) handleDeleteRecord(formId);
-        return;
-      }
-      setMode({ mode: mode || null, formId });
+      setMode({ mode, formId });
       router.push("/request/invoiceRequest");
     },
     [router, setMode]
   );
 
+  // 🚫 Disable Release button for already Released or Rejected
+  const disableRelease = useMemo(() => {
+    const selectedRows = rows.filter((r) => selectedIds.includes(r.id));
+    return selectedRows.some(
+      (r) => r.status === "Released" || r.status === "Rejected"
+    );
+  }, [selectedIds, rows]);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+
       <Box className="sm:px-4 py-1">
-        <Box className="flex flex-col sm:flex-row justify-between pb-1">
-          <Typography variant="body1" className="text-left flex items-center">
-            Invoice Release
-          </Typography>
-          <Box className="flex flex-col sm:flex-row gap-6">
-            <AdvancedSearchBar
-              fields={advanceSearchFields.bl}
-              advanceSearch={advanceSearch}
-              setAdvanceSearch={setAdvanceSearch}
-              getData={getData}
-              rowsPerPage={rowsPerPage}
-            />
-          </Box>
+        <Box className="flex justify-between pb-1">
+          <Typography variant="body1">Invoice Release</Typography>
+
+          <AdvancedSearchBar
+            fields={advanceSearchFields.bl}
+            advanceSearch={advanceSearch}
+            setAdvanceSearch={setAdvanceSearch}
+            getData={getData}
+            rowsPerPage={rowsPerPage}
+          />
         </Box>
-        {/* <SelectionActionsBar
-          selectedIds={selectedIds}
-          tableName={UPDATE_TABLE}
-          keyColumn="id"
-          allowBulkDelete
-          onView={(id) => modeHandler("view", id)}
-          onEdit={(id) => modeHandler("edit", id)}
-          onDelete={(ids) => handleBulkDelete(Array.isArray(ids) ? ids : [ids])}
-          onUpdated={() => getData(page, rowsPerPage)}
-        /> */}
+
+        {/* TOOLBAR - Release only */}
         <InvoiceToolbarActions
           selectedIds={selectedIds}
           onView={(id) => modeHandler("view", id)}
-          onRelease={(idsOrId) => {
-            /* call API */
-          }}
-          onKyc={(ids) => {
-            /* open KYC flow */
-          }}
-          onUpload={(ids) => {
-            /* open upload dialog */
-          }}
-          onInvoiceLookup={(ids) => {
-            /* navigate / fetch invoices */
-          }}
-          onNotify={(ids) => {
-            /* send email/SMS */
-          }}
-          onClose={(ids) => {
-            /* close requests */
-          }}
-          onReprocess={(ids) => {
-            /* re-run process */
-          }}
+          onRelease={(ids) => releaseHandler(ids)}
+          hideReject={true}
+          disableRelease={disableRelease}
         />
-        <InvoiceMiniToggles
-          reRequest={filters.reRequest}
-          reProcess={filters.reProcess}
-          hblCount={filters.hblCount}
-          onToggle={(name, val) => setFilters((p) => ({ ...p, [name]: val }))}
-          onOpenNotifications={() => setNotificationModal(true)}
-        />
+
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
-          <Table size="small" sx={{ minWidth: 900 }}>
+          <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
+                <TableCell padding="checkbox">
                   <Checkbox
-                    size="small"
-                    indeterminate={someChecked}
                     checked={allChecked}
+                    indeterminate={someChecked}
                     onChange={toggleAll}
                     sx={CHECKBOX_SX}
                   />
                 </TableCell>
                 <TableCell>Liner</TableCell>
                 <TableCell>BL No</TableCell>
-                <TableCell>Type of Delivery</TableCell>
+                <TableCell>Type</TableCell>
                 <TableCell>Extension</TableCell>
-                <TableCell>High Sea Sales</TableCell>
+                <TableCell>High Sea Sale</TableCell>
+                <TableCell>Status</TableCell>
                 <TableCell>Remarks</TableCell>
                 <TableCell>Request Date</TableCell>
-                <TableCell>Requested By</TableCell>
+                <TableCell>Attachment</TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
-              {rows.length > 0 ? (
+              {rows.length ? (
                 rows.map((row) => (
-                  <TableRow key={row.id} hover className="relative group">
-                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                  <TableRow key={row.id} hover>
+                    <TableCell padding="checkbox">
                       <Checkbox
-                        size="small"
                         checked={selectedIds.includes(row.id)}
                         onChange={() => toggleOne(row.id)}
                         sx={CHECKBOX_SX}
@@ -278,7 +292,6 @@ export default function InvoiceRequestList() {
 
                     <TableCell>{row.liner}</TableCell>
 
-                    {/* 🔗 Make BL No a hyperlink that opens View */}
                     <TableCell>
                       <Link
                         href="#"
@@ -287,7 +300,6 @@ export default function InvoiceRequestList() {
                           e.preventDefault();
                           modeHandler("view", row.id);
                         }}
-                        sx={{ cursor: "pointer", fontWeight: 500 }}
                       >
                         {row.blNo}
                       </Link>
@@ -295,26 +307,30 @@ export default function InvoiceRequestList() {
 
                     <TableCell>{row.type}</TableCell>
                     <TableCell>{toFreeDaysLabel(row.freeDays)}</TableCell>
-                    <TableCell>{toYesNo(row.highSealSale)}</TableCell>
-                    <TableCell>{row.remarks}</TableCell>
+                    <TableCell>{toYesNo(row.highSeaSale)}</TableCell>
+
+                    <TableCell sx={{ color: statusColor(row.status) }}>
+                      {row.status}
+                    </TableCell>
+
+                    {/* 📌 Only show Release remark when Released */}
+                    <TableCell>
+                      {row.status === "Released" ? row.remarks : ""}
+                    </TableCell>
+
                     <TableCell>{row.date}</TableCell>
-                    <TableCell>{row.Requester}</TableCell>
-                    <TableCell
-                      align="right"
-                      className="table-icons opacity-0 group-hover:opacity-100"
-                    >
-                      <HoverActionIcons
-                        onView={() => modeHandler("view", row.id)}
-                        onEdit={() => modeHandler("edit", row.id)}
-                        onDelete={() => modeHandler("delete", row.id)}
-                        menuAccess={{}}
+
+                    <TableCell>
+                      <AttachFileIcon
+                        sx={{ cursor: "pointer", fontSize: "18px" }}
+                        onClick={() => toast.info("Open attachment modal")}
                       />
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={9} align="center">
+                  <TableCell colSpan={12} align="center">
                     {loadingState}
                   </TableCell>
                 </TableRow>
@@ -322,22 +338,22 @@ export default function InvoiceRequestList() {
             </TableBody>
           </Table>
         </TableContainer>
-        <Box className="flex justify-between items-center">
+
+        <Box className="flex justify-between items-center mt-2">
           <TableExportButtons
             targetRef={tableWrapRef}
-            title="Invoice Request"
-            fileName="invoice-request-list"
+            title="Invoice Release"
+            fileName="invoice-release-list"
           />
-          <Box className="flex justify-end items-center mt-2">
-            <CustomPagination
-              count={totalPage}
-              totalRows={totalRows}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              onPageChange={handleChangePage}
-              handleChangeRowsPerPage={handleChangeRowsPerPage}
-            />
-          </Box>
+
+          <CustomPagination
+            count={totalPage}
+            totalRows={totalRows}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            handleChangeRowsPerPage={handleChangeRowsPerPage}
+          />
         </Box>
       </Box>
       <ToastContainer />

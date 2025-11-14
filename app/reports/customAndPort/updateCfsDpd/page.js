@@ -109,11 +109,11 @@ export default function IGM() {
     const requestBody = {
       spName: "getUpdateNominatedAreaBlDetails",
       jsonData: {
-        clientId: 8,
+        clientId: 1,
         ...transformed,
-        companyId: 7819,
-        branchId: 5594,
-        userId: 235,
+        // companyId: 7819,
+        // branchId: 5594,
+        // userId: 235,
       },
     };
 
