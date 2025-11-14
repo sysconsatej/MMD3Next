@@ -1,162 +1,366 @@
+// app/your-page/PdfInvoiceExtractor.jsx
 "use client";
 /* eslint-disable */
-import React, { useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   Box,
   Button,
   Typography,
   CircularProgress,
-  Grid,
   Paper,
+  Divider,
+  Stack,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
 } from "@mui/material";
 
-export default function PdfHighlightExtractor() {
-  const [pdfFile, setPdfFile] = useState(null);
+import SaveAltIcon from "@mui/icons-material/SaveAlt";
+import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
+
+import MultiSelectFileInput from "@/components/customInput/multiSelectFileInput";
+import { extractTextFromPdfs } from "@/helper/pdfTextExtractor";
+
+export default function PdfInvoiceExtractor() {
+  const [files, setFiles] = useState([]); // selected PDFs from uploader
+  const [rows, setRows] = useState([]); // extracted rows
   const [loading, setLoading] = useState(false);
-  const [fields, setFields] = useState(null); // extracted fields
-  const [engine, setEngine] = useState("");
+  const [uikey, setUikey] = useState(0); // to hard-reset uploader
+
+  // keep only PDFs even if user bypasses accept attribute
+  const handleUploaderChange = (list) => {
+    const pdfs = (Array.isArray(list) ? list : []).filter(
+      (f) =>
+        (f.type || "").toLowerCase() === "application/pdf" ||
+        (f.name || "").toLowerCase().endsWith(".pdf")
+    );
+    setFiles(pdfs);
+    setRows([]); // clear old results when new files chosen
+  };
 
   const onExtract = async () => {
-    if (!pdfFile) return alert("Upload a PDF first");
+    if (!files?.length) return alert("Please select one or more PDF files.");
     setLoading(true);
     try {
-      const fd = new FormData();
-      fd.append("pdf", pdfFile);
-
-      const res = await fetch("/api/extractPdf", { method: "POST", body: fd });
-      const data = await res.json();
-
-      if (!res.ok || !data?.ok) {
-        console.error("Extract error:", data);
-        alert(`Failed: ${data?.error || "unknown_error"}`);
-        return;
-      }
-
-      setEngine(data.engine);
-      setFields(data.fields || {});
-
-      // >>> console the JSON (pretty)
-      // You’ll see this in the browser devtools console
-      console.log(
-        "EXTRACTED_FIELDS_JSON =",
-        JSON.stringify(data.fields, null, 2)
-      );
-    } catch (e) {
-      console.error(e);
-      alert("Extraction failed");
+      const data = await extractTextFromPdfs(files);
+      const normalized = (Array.isArray(data) ? data : []).map((r, i) => ({
+        id: i + 1,
+        fileName: r.fileName || files[i]?.name || `File ${i + 1}`,
+        invoiceNo: r.invoiceNo || "",
+        bookingNo: r.bookingNo || "",
+        issueDate: r.issueDate || "",
+        dueDate: r.dueDate || "",
+        vesselName: r.vesselName || "",
+        voyageCode: r.voyageCode || "",
+        customerMerged: r.customerMerged || "",
+        blNumber: r.blNumber || "",
+        totalFigure: r.totalFigure || "",
+        freight: r.freight || "No",
+      }));
+      setRows(normalized);
+      console.log("EXTRACTED_ROWS =", JSON.stringify(normalized, null, 2));
+    } catch (err) {
+      console.error(err);
+      alert(`Extraction failed: ${err?.message || "unknown_error"}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const FieldBox = ({ label, value }) => (
-    <Paper variant="outlined" sx={{ p: 1.5 }}>
-      <Typography variant="caption" sx={{ color: "text.secondary" }}>
-        {label}
-      </Typography>
-      <Typography variant="subtitle1" sx={{ mt: 0.5, fontWeight: 600 }}>
-        {value ?? "—"}
-      </Typography>
-    </Paper>
-  );
+  const onReset = () => {
+    setFiles([]);
+    setRows([]);
+    setUikey((k) => k + 1); // remounts uploader, clearing its internal state
+  };
+
+  const csvHref = useMemo(() => {
+    if (!rows.length) return "";
+    const headers = [
+      "File Name",
+      "Invoice No",
+      "Booking No",
+      "Issue date",
+      "Due date",
+      "Vessel Name",
+      "Voyage Code",
+      "Customer (Name, Address & PoS)",
+      "B/L Number",
+      "Total Invoice Value (in figure)",
+      "Freight",
+    ];
+    const lines = [headers.join(",")];
+    for (const r of rows) {
+      const vals = [
+        r.fileName,
+        r.invoiceNo,
+        r.bookingNo,
+        r.issueDate,
+        r.dueDate,
+        r.vesselName,
+        r.voyageCode,
+        r.customerMerged,
+        r.blNumber,
+        r.totalFigure,
+        r.freight,
+      ].map((v) => {
+        const s = String(v ?? "");
+        return /[,"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+      });
+      lines.push(vals.join(","));
+    }
+    const blob = new Blob([lines.join("\n")], {
+      type: "text/csv;charset=utf-8",
+    });
+    return URL.createObjectURL(blob);
+  }, [rows]);
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h5" sx={{ mb: 2 }}>
-        Highlighted Fields
+    <Box sx={{ p: 3, maxWidth: 1280, mx: "auto" }}>
+      <Typography
+        variant="subtitle2"
+        className="!text-[14px] !font-semibold !m-0"
+      >
+        Invoice Upload
       </Typography>
 
-      <Box sx={{ display: "flex", gap: 1.5, alignItems: "center", mb: 2 }}>
-        <input
-          type="file"
-          accept="application/pdf"
-          onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
+      {/* Uploader (Tailwind-based component renders the two cards exactly like your mock) */}
+      <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+        <MultiSelectFileInput
+          key={uikey}
+          id="pdfs"
+          name="pdfs"
+          label="Upload Section"
+          accept="application/pdf,.pdf"
+          multiple
+          maxTotalSizeBytes={100 * 1024 * 1024}
+          onChange={handleUploaderChange}
+          className="!text-[12px]"
         />
-        <Button
-          variant="contained"
-          onClick={onExtract}
-          disabled={loading || !pdfFile}
-        >
-          {loading ? <CircularProgress size={20} color="inherit" /> : "Extract"}
-        </Button>
-        {engine ? (
-          <Typography variant="caption" sx={{ ml: 1, color: "text.secondary" }}>
-            Engine: {engine}
-          </Typography>
-        ) : null}
-      </Box>
 
-      <Grid container spacing={1.5}>
-        <Grid item xs={12} sm={6} md={3}>
-          <FieldBox label="Invoice No" value={fields?.invoiceNo} />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <FieldBox label="B/L Number" value={"—"} />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <FieldBox label="Booking No" value={fields?.bookingNo} />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <FieldBox label="Issue date" value={fields?.issueDate} />
-        </Grid>
+        {/* Actions row – same buttons as before */}
+        <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+          <Button
+            variant="contained"
+            onClick={onExtract}
+            disabled={loading || !files.length}
+            startIcon={
+              loading ? (
+                <CircularProgress size={12} color="inherit" />
+              ) : (
+                <SaveAltIcon />
+              )
+            }
+            sx={{ textTransform: "none" }}
+          >
+            {loading ? "Extracting…" : "Extract"}
+          </Button>
+          <Button
+            variant="outlined"
+            color="inherit"
+            startIcon={<CleaningServicesIcon />}
+            onClick={onReset}
+            disabled={loading || (!files.length && !rows.length)}
+            sx={{ textTransform: "none" }}
+          >
+            Reset
+          </Button>
+        </Stack>
+      </Paper>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <FieldBox label="Due date" value={fields?.dueDate} />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <FieldBox label="Vessel Name" value={fields?.vesselName} />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <FieldBox label="Voyage Code" value={fields?.voyageCode} />
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <FieldBox label="Customer PAN" value={fields?.customerPAN} />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <FieldBox label="Customer GST" value={fields?.customerGST} />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <FieldBox label="State Code" value={fields?.stateCode} />
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <FieldBox label="Taxable Value (INR)" value={fields?.taxableValue} />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <FieldBox label="CGST (INR)" value={fields?.cgstValue} />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <FieldBox label="SGST/UGST (INR)" value={fields?.sgstValue} />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <FieldBox label="IGST (INR)" value={fields?.igstValue} />
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <FieldBox label="Total Invoice Value" value={fields?.totalFigure} />
-        </Grid>
-      </Grid>
-
-      {/* Optional: show the JSON on page for a quick copy */}
-      <Box sx={{ mt: 3 }}>
-        <Typography variant="subtitle2" sx={{ mb: 1, color: "text.secondary" }}>
-          Extracted JSON
+      {/* Results table stays as-is */}
+      <Paper variant="outlined" sx={{ p: 2 }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+          Results {rows.length ? `(${rows.length})` : ""}
         </Typography>
-        <pre
-          style={{
-            margin: 0,
-            padding: "12px",
-            border: "1px solid #ddd",
-            borderRadius: 8,
-            background: "#fafafa",
-            whiteSpace: "pre-wrap",
-            wordBreak: "break-word",
+        <Divider sx={{ mb: 1 }} />
+
+        <Box
+          sx={{
+            overflow: "auto",
+            "&::-webkit-scrollbar": { height: 8 },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "divider",
+              borderRadius: 8,
+            },
           }}
         >
-          {JSON.stringify(fields ?? {}, null, 2)}
-        </pre>
-      </Box>
+          <Table className="text-xs" stickyHeader aria-label="extracted table">
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: 700, fontSize: 10, padding: 0 }}>
+                  #
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 700,
+                    minWidth: 240,
+                    fontSize: 11,
+                    padding: 0,
+                  }}
+                >
+                  File Name
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 700,
+                    minWidth: 160,
+                    fontSize: 11,
+                    padding: 0,
+                  }}
+                >
+                  Invoice No
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 700,
+                    minWidth: 160,
+                    fontSize: 11,
+                    padding: 0,
+                  }}
+                >
+                  Booking No
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 700,
+                    minWidth: 140,
+                    fontSize: 11,
+                    padding: 0,
+                  }}
+                >
+                  Issue date
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 700,
+                    minWidth: 140,
+                    fontSize: 11,
+                    padding: 0,
+                  }}
+                >
+                  Due date
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 700,
+                    minWidth: 220,
+                    fontSize: 11,
+                    padding: 0,
+                  }}
+                >
+                  Vessel Name
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 700,
+                    minWidth: 140,
+                    fontSize: 11,
+                    padding: 0,
+                  }}
+                >
+                  Voyage Code
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 700,
+                    minWidth: 420,
+                    fontSize: 11,
+                    padding: 0,
+                  }}
+                >
+                  Customer (Name, Address &amp; PoS)
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 700,
+                    minWidth: 160,
+                    fontSize: 11,
+                    padding: 0,
+                  }}
+                >
+                  B/L Number
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 700,
+                    minWidth: 200,
+                    fontSize: 11,
+                    padding: 0,
+                  }}
+                >
+                  Total Invoice Value (in figure)
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 700,
+                    minWidth: 120,
+                    fontSize: 11,
+                    padding: 0,
+                  }}
+                >
+                  Freight
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows.length ? (
+                rows.map((r, idx) => (
+                  <TableRow sx={{ fontSize: 11 }} key={r.id ?? idx}>
+                    <TableCell sx={{ fontSize: 11 }}>{idx + 1}</TableCell>
+                    <TableCell sx={{ fontSize: 11 }}>
+                      {r.fileName || "—"}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: 11 }}>
+                      {r.invoiceNo || "—"}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: 11 }}>
+                      {r.bookingNo || "—"}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: 11 }}>
+                      {r.issueDate || "—"}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: 11 }}>
+                      {r.dueDate || "—"}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: 11 }}>
+                      {r.vesselName || "—"}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: 11 }}>
+                      {r.voyageCode || "—"}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: 11 }}>
+                      {r.customerMerged || "—"}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: 11 }}>
+                      {r.blNumber || "—"}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: 11 }}>
+                      {r.totalFigure || "—"}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: 11 }}>
+                      {r.freight || "—"}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={11} align="center" sx={{ py: 5 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "text.secondary" }}
+                    >
+                      No data yet. Select PDFs and click <b>Extract</b>.
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </Box>
+      </Paper>
     </Box>
   );
 }
