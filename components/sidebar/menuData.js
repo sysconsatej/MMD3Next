@@ -1,9 +1,6 @@
 // components/sidebar/menuData.js
 // Parent items can specify an `icon` string: "home" | "cube" | "file" | "inbox" | "chart"
 // Only parent level renders icons; children render text-only.
-
-import { name } from "faker/lib/locales/az";
-
 export const navItems = [
   { name: "Home", href: "/home", icon: "home", isShow: true },
   {
