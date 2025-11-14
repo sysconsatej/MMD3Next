@@ -118,12 +118,12 @@ export const navItems = [
       {
         name: "Invoices Release",
         href: "/request/invoiceRelease/list",
-        isShow: true,
+        isShow: false,
       },
       {
         name: "Invoice Payment",
         href: "/request/invoicePayment/list",
-        isShow: true,
+        isShow: false,
       },
       { name: "Invoice Upload", href: "/request/invoiceUpload/list" },
       {
@@ -147,12 +147,12 @@ export const navItems = [
     name: "Payment",
     icon: "wallet",
     href: "/payment",
-    isShow: true,
+    isShow: false,
     submenu: [
       {
         name: "Payment Confirmation",
         href: "/payment/paymentConfirmation/list",
-        isShow: true,
+        isShow: false,
       },
     ],
   },
