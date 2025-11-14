@@ -6,6 +6,8 @@ const TextInput = ({
   fieldValue,
   handleBlurEventFunctions,
   field,
+  containerIndex,
+  tabIndex,
 }) => {
   const { label, ...remainingProps } = commonProps;
   return (
@@ -24,7 +26,7 @@ const TextInput = ({
         variant="standard"
         key={commonProps.key}
         onBlur={(event) =>
-          field.blurFun ? handleBlurEventFunctions[field.blurFun](event) : null
+          field.blurFun ? handleBlurEventFunctions[field.blurFun](event , { containerIndex, tabIndex }) : null
         }
       />
     </Box>

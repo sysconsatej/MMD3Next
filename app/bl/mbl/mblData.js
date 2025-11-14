@@ -764,6 +764,7 @@ export const fieldData = {
       name: "containerNo",
       isEdit: true,
       required: true,
+      blurFun: "containerNumberHandler",
     },
     {
       label: "Size",

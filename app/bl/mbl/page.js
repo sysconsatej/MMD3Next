@@ -20,7 +20,7 @@ import {
 } from "@/utils";
 import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { useTotalGrossAndPack } from "./utils";
+import { checkNoPackages, useTotalGrossAndPack } from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
@@ -44,12 +44,22 @@ export default function Home() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
+    const packageMismatchError = checkNoPackages({
+      formData: formData,
+      hblType: "MBL",
+    });
+    if (packageMismatchError) {
+      toast.error(packageMismatchError);
+      return;
+    }
+
     const format = formatFormData(
       "tblBl",
       { ...formData, mblHblFlag: "MBL" },
       mode.formId,
       "blId"
     );
+
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
@@ -189,6 +199,34 @@ export default function Home() {
           })
         );
       }
+    },
+  };
+
+  const handleBlurEventFunctions = {
+    containerNumberHandler: (event, { containerIndex, tabIndex }) => {
+      const { name, value } = event?.target || {};
+      const pattern = /^[A-Za-z]{4}[0-9]{7}$/;
+      if (!pattern.test(value)) {
+        toast.error(
+          "Invalid Container Number format. It should be 4 letters followed by 7 digits."
+        );
+
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex,
+            containerIndex,
+            name,
+            value: null,
+          })
+        );
+
+        return "";
+      }
+
+      return "";
     },
   };
 
@@ -448,6 +486,7 @@ export default function Home() {
                 buttons={gridButtons}
                 handleGridEventFunctions={handleGridEventFunctions}
                 handleChangeEventFunctions={handleChangeEventFunctions}
+                handleBlurEventFunctions={handleBlurEventFunctions}
               />
               <FormHeading text="Item Details" />
               <TableGrid
