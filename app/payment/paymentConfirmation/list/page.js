@@ -338,8 +338,22 @@ export default function InvoiceRequestList() {
           </Tooltip>
         </Box>
 
-        <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
-          <Table size="small" sx={{ width: "100%", tableLayout: "auto" }}>
+        <TableContainer
+          component={Paper}
+          ref={tableWrapRef}
+          className="!mt-2 !max-w-full !overflow-x-hidden"
+        >
+          <Table
+            size="small"
+            className="
+               w-full table-fixed
+               [&_th]:whitespace-normal [&_td]:whitespace-normal
+               [&_th]:break-words      [&_td]:break-words
+               [&_th]:px-1 [&_td]:px-1
+               [&_th]:py-1 [&_td]:py-1
+               [&_th]:text-[11px] [&_td]:text-[11px]
+             "
+          >
             <TableHead>
               <TableRow>
                 <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
