@@ -46,7 +46,7 @@ const MultiSelectInput = ({
             required={commonProps.required && fieldValue.length === 0}
           />
         )}
-        onFocus={() => getData(field?.labelType, commonProps.name)}
+        onFocus={() => getData(field, commonProps.name)}
         onChange={(event, value) => {
           changeHandler(
             { target: { name: commonProps.name, value } },

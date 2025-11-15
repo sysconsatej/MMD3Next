@@ -32,7 +32,13 @@ import TableExportButtons from "@/components/tableExportButtons/tableExportButto
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
-import { statusColor } from "../invoiceRequestData";
+import {
+  advanceSearchFields,
+  advanceSearchFilter,
+  statusColor,
+} from "../invoiceRequestData";
+import { getUserByCookies } from "@/utils";
+import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 
 const LIST_TABLE = "tblInvoiceRequest i";
 const UPDATE_TABLE = LIST_TABLE.split(" ")[0];
@@ -79,9 +85,10 @@ export default function InvoiceRequestList() {
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
   const [rows, setRows] = useState([]);
-  const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
   const tableWrapRef = useRef(null);
+  const userData = getUserByCookies();
+  const [advanceSearch, setAdvanceSearch] = useState({});
 
   const [selectedIds, setSelectedIds] = useState([]);
   const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
@@ -118,12 +125,13 @@ export default function InvoiceRequestList() {
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
-          searchColumn: search.searchColumn,
-          searchValue: search.searchValue,
+          advanceSearch: advanceSearchFilter(advanceSearch),
           joins: `
             LEFT JOIN tblCompany c ON c.id = i.shippingLineId
             LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
             LEFT JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId
+            Left JOIN tblUser u on u.id = ${userData.userId}
+			      JOIN tblUser u2 on u2.companyId = u.companyId and i.createdBy = u2.id
           `,
           orderBy:
             "ORDER BY isnull(i.updatedDate, i.createdDate) DESC, i.id DESC",
@@ -157,7 +165,7 @@ export default function InvoiceRequestList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, advanceSearch]
   );
 
   /* ---------------------- INITIAL LOAD ---------------------- */
@@ -210,13 +218,19 @@ export default function InvoiceRequestList() {
           </Typography>
 
           <Box className="flex flex-col sm:flex-row gap-6">
-            <SearchBar
+            <AdvancedSearchBar
+              fields={advanceSearchFields.bl}
+              advanceSearch={advanceSearch}
+              setAdvanceSearch={setAdvanceSearch}
               getData={getData}
               rowsPerPage={rowsPerPage}
-              search={search}
-              setSearch={setSearch}
             />
-            <CustomButton text="Add" onClick={() => modeHandler(null, null)} />
+            <Box className="flex flex-col sm:flex-row gap-6">
+              <CustomButton
+                text="Add"
+                onClick={() => modeHandler(null, null)}
+              />
+            </Box>
           </Box>
         </Box>
 

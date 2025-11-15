@@ -23,7 +23,11 @@ import {
 import { ThemeProvider } from "@mui/material/styles";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
-import { fetchTableValues, getDataWithCondition, updateStatusRows } from "@/apis";
+import {
+  fetchTableValues,
+  getDataWithCondition,
+  updateStatusRows,
+} from "@/apis";
 import { ToastContainer, toast } from "react-toastify";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { useRouter } from "next/navigation";
@@ -156,10 +160,10 @@ export default function InvoiceReleaseList() {
           advanceSearch: advanceSearchFilter(advanceSearch),
 
           joins: `
-            LEFT JOIN tblCompany c ON c.id = i.shippingLineId
-            LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
-            LEFT JOIN tblUser u ON u.id = i.createdBy
-            JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId and i.invoiceRequestStatusId IS NOT NULL
+          LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
+          LEFT JOIN tblUser u ON u.id = ${userData.userId}
+			    LEFT JOIN tblCompany c ON c.id = u.companyId
+          JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId and i.invoiceRequestStatusId IS NOT NULL and i.shippingLineId = u.companyId
           `,
           orderBy: `
             ORDER BY 
