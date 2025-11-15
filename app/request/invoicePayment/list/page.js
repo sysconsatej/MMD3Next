@@ -38,6 +38,7 @@ import {
   advanceSearchFilterPayment,
 } from "../invoicePaymentData";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
+import { getUserByCookies } from "@/utils";
 
 const LIST_TABLE = "tblInvoice i";
 const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
@@ -81,6 +82,7 @@ export default function InvoicePaymentList() {
   const [advanceSearch, setAdvanceSearch] = useState({});
   const [loadingState, setLoadingState] = useState("Loading...");
   const [selectedIds, setSelectedIds] = useState([]);
+  const userData = getUserByCookies();
 
   // === CHECKBOX ===
   const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
@@ -116,6 +118,8 @@ export default function InvoicePaymentList() {
             LEFT JOIN tblBl b ON b.id = i.blId
             LEFT JOIN tblCompany c ON c.id = b.companyId
             LEFT JOIN tblMasterData cat ON cat.id = i.invoiceCategoryId
+            LEFT JOIN tblUser u on u.id = ${userData.userId}
+			      JOIN tblUser u2 on u2.companyId = u.companyId and i.createdBy = u2.id
             LEFT JOIN (
               SELECT
                 ip.blId,
