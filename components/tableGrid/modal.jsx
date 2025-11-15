@@ -32,16 +32,19 @@ export default function ExcelModal({
   gridName,
   fields,
 }) {
+  console.log(gridName)
   async function handleExcelUpload() {
     if (excelFile?.excelFile) {
       const formData = new FormData();
       formData.append("excelFile", excelFile?.excelFile);
       const { result } = await uploadExcel(formData);
-      const res = formatExcelDataWithForm(result, fields);
-      setFormData((prev) => ({ ...prev, [gridName]: res }));
+      console.log("Uploaded Excel Data:", result) ;
+      // const res = formatExcelDataWithForm(result, fields);
+      setFormData((prev) => ({ ...prev, [gridName]: result }));
       setExcelFile((prev) => ({ ...prev, open: false, excelFile: null }));
     }
   }
+
 
   return (
     <div>
