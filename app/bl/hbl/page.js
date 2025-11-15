@@ -40,6 +40,7 @@ import AgreeTerms from "@/components/agreeTerms/agreeTerms";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import { RejectModal } from "./modal";
+import { checkNoPackages } from "../mbl/utils";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -105,6 +106,14 @@ export default function Home() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
+    const packageMismatchError = checkNoPackages({
+      formData: formData,
+      hblType: "HBL",
+    });
+    if (packageMismatchError) {
+      packageMismatchError?.map((err) => toast.error(err));
+      return;
+    }
     let allSuccess = true;
     const format = formFormatThirdLevel(formData);
     const checkHblMap = format.map((item) => item.hblNo);
@@ -304,6 +313,24 @@ export default function Home() {
         );
       }
     },
+    cargoTypeHandler: async (name, value) => {
+      const isHazardous = value.Name === "HAZ - HAZARDOUS";
+      setJsonData((prev) => {
+        const itemContainer = prev.tblBlPackingList;
+        const requiredUno = itemContainer.map((item) => {
+          if (item.name === "imoId") {
+            return { ...item, required: isHazardous };
+          }
+
+          return item;
+        });
+
+        return {
+          ...prev,
+          tblBlPackingList: requiredUno,
+        };
+      });
+    },
   };
 
   const handleBlurEventFunctions = {
@@ -324,8 +351,12 @@ export default function Home() {
           data[0].id
         );
         const { result } = await fetchForm(format);
+        const excludeFields = ["companyId", "companyBranchId"];
+        const filterMblFields = fieldData.mblFields.filter(
+          (item) => !excludeFields.includes(item.name)
+        );
         const getData = formatDataWithForm(result, {
-          mblFields: fieldData.mblFields,
+          mblFields: filterMblFields,
         });
         setFormData((prev) => ({ ...prev, ...getData }));
         setJsonData((prev) => {
@@ -342,6 +373,31 @@ export default function Home() {
           };
         });
       }
+    },
+    containerNumberHandler: (event, { containerIndex, tabIndex }) => {
+      const { name, value } = event?.target || {};
+      const pattern = /^[A-Za-z]{4}[0-9]{7}$/;
+      if (!pattern.test(value)) {
+        toast.error(
+          "Invalid Container Number format. It should be 4 letters followed by 7 digits."
+        );
+
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex,
+            containerIndex,
+            name,
+            value: null,
+          })
+        );
+
+        return "";
+      }
+
+      return "";
     },
   };
 
@@ -592,6 +648,7 @@ export default function Home() {
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
                 handleBlurEventFunctions={handleBlurEventFunctions}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
             <FormHeading text="HBL Details" />
@@ -756,6 +813,7 @@ export default function Home() {
                         tabIndex={index}
                         handleGridEventFunctions={handleGridEventFunctions}
                         handleChangeEventFunctions={handleChangeEventFunctions}
+                        handleBlurEventFunctions={handleBlurEventFunctions}
                       />
                       <FormHeading text="Item Details" />
                       <TableGrid

@@ -1,9 +1,8 @@
-import axios from "axios";
-const url = process.env.NEXT_PUBLIC_BACKEND_URL;
+import api from "./interceptor";
 
 export const fetchTableValues = async (obj) => {
   try {
-    const res = await axios.post(`${url}api/v1/dynamicTable`, obj);
+    const res = await api.post(`dynamicTable`, obj);
     return res.data;
   } catch (error) {
     return {

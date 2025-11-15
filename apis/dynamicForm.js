@@ -1,9 +1,8 @@
-import axios from "axios";
-const url = process.env.NEXT_PUBLIC_BACKEND_URL;
+import api from "./interceptor";
 
 export const insertUpdateForm = async (obj) => {
   try {
-    const res = await axios.post(`${url}api/v1/form/insertUpdate`, obj);
+    const res = await api.post(`form/insertUpdate`, obj);
     return res.data;
   } catch (error) {
     return error.response.data;
@@ -12,7 +11,7 @@ export const insertUpdateForm = async (obj) => {
 
 export const fetchForm = async (obj) => {
   try {
-    const res = await axios.post(`${url}api/v1/form/fetchForm`, obj);
+    const res = await api.post(`form/fetchForm`, obj);
     return res.data;
   } catch (error) {
     return error.response.data;
@@ -21,7 +20,7 @@ export const fetchForm = async (obj) => {
 
 export const deleteRecord = async (obj) => {
   try {
-    const res = await axios.post(`${url}api/v1/form/deleteRecord`, obj);
+    const res = await api.post(`form/deleteRecord`, obj);
     return res.data;
   } catch (error) {
     return error.response.data;
@@ -30,7 +29,7 @@ export const deleteRecord = async (obj) => {
 
 export const uploadExcel = async (obj) => {
   try {
-    const res = await axios.post(`${url}api/v1/form/excelUpload`, obj);
+    const res = await api.post(`form/excelUpload`, obj);
     return res.data;
   } catch (error) {
     return error.response.data;

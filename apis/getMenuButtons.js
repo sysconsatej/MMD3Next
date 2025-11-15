@@ -1,9 +1,8 @@
-import axios from "axios";
-const url = process.env.NEXT_PUBLIC_BACKEND_URL;
+import api from "./interceptor";
 
-export const getMenuButtons = async (data) => {
+export const getMenuButtons = async () => {
   try {
-    const res = await axios.get(`${url}api/v1/menuButton`);
+    const res = await api.get(`menuButton`);
     return res.data;
   } catch (e) {
     return { message: e };

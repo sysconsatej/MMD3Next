@@ -48,16 +48,26 @@ export function advanceSearchFilter(advanceSearch) {
 
   if (advanceSearch.hblRequestStatus) {
     condition.push(
-      `b.hblRequestStatus = '${advanceSearch.hblRequestStatus.Id}'`
+      `b.hblRequestStatus in (${advanceSearch.hblRequestStatus
+        .map((item) => item.Id)
+        .join(",")})`
     );
   }
 
   if (advanceSearch.podvesselId) {
-    condition.push(`b.podvesselId = '${advanceSearch.podvesselId.Id}'`);
+    condition.push(
+      `b.podvesselId in (${advanceSearch.podvesselId
+        .map((item) => item.Id)
+        .join(",")})`
+    );
   }
 
   if (advanceSearch.cargoTypeId) {
-    condition.push(`b.cargoTypeId = '${advanceSearch.cargoTypeId.Id}'`);
+    condition.push(
+      `b.cargoTypeId in (${advanceSearch.cargoTypeId
+        .map((item) => item.Id)
+        .join(",")})`
+    );
   }
 
   if (advanceSearch.fromDate && advanceSearch.toDate) {

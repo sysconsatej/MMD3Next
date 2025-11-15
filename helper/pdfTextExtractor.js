@@ -2,33 +2,105 @@
 "use client";
 /* eslint-disable */
 
-// ---- CDN-only PDF.js loader (no bundler involvement, so no 'canvas') ----
+// ---------------------- PDF.js dynamic loader (self-host + CDN fallbacks) ----------------------
 let pdfjsLib = null;
 let workerReady = false;
 
-const CDN_BASE = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build";
-const CDN_ESM = `${CDN_BASE}/pdf.mjs`;
-const CDN_WORKER = `${CDN_BASE}/pdf.worker.min.mjs`;
+const ORIGIN = typeof window !== "undefined" ? window.location.origin : "";
+const SELF = {
+  esm: `${ORIGIN}/pdfjs/pdf.mjs`,
+  workerEsm: `${ORIGIN}/pdfjs/pdf.worker.min.mjs`,
+  umd: `${ORIGIN}/pdfjs/pdf.min.js`,
+  workerUmd: `${ORIGIN}/pdfjs/pdf.worker.min.js`,
+};
+
+const CDN_CANDIDATES = [
+  {
+    esm: "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.mjs",
+    workerEsm:
+      "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.mjs",
+    umd: "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js",
+    workerUmd:
+      "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js",
+  },
+  {
+    esm: "https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.mjs",
+    workerEsm: "https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.mjs",
+    umd: "https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js",
+    workerUmd: "https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js",
+  },
+  {
+    esm: null,
+    workerEsm: null,
+    umd: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
+    workerUmd:
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js",
+  },
+];
+
+async function tryImport(url) {
+  if (!url) throw new Error("no url");
+  return await import(/* webpackIgnore: true */ url);
+}
+
+function injectScript(src) {
+  return new Promise((resolve, reject) => {
+    const el = document.createElement("script");
+    el.src = src;
+    el.async = true;
+    el.onload = () => resolve();
+    el.onerror = () => reject(new Error(`Script load failed for ${src}`));
+    document.head.appendChild(el);
+  });
+}
+
+async function loadEsmPair(primary, list) {
+  const attempts = [{ esm: primary.esm, workerEsm: primary.workerEsm }].concat(
+    list
+      .filter((c) => c.esm && c.workerEsm)
+      .map((c) => ({ esm: c.esm, workerEsm: c.workerEsm }))
+  );
+  for (const cand of attempts) {
+    try {
+      const mod = await tryImport(cand.esm);
+      const lib = mod?.default ?? mod;
+      lib.GlobalWorkerOptions.workerSrc = cand.workerEsm;
+      return lib;
+    } catch (_) {}
+  }
+  throw new Error("ESM load failed for all candidates");
+}
+
+async function loadUmdPair(primary, list) {
+  const attempts = [{ umd: primary.umd, workerUmd: primary.workerUmd }].concat(
+    list.map((c) => ({ umd: c.umd, workerUmd: c.workerUmd }))
+  );
+  for (const cand of attempts) {
+    try {
+      await injectScript(cand.umd);
+      const lib = window.pdfjsLib;
+      if (!lib) throw new Error("window.pdfjsLib missing after UMD load");
+      lib.GlobalWorkerOptions.workerSrc = cand.workerUmd;
+      return lib;
+    } catch (_) {}
+  }
+  throw new Error("UMD load failed for all candidates");
+}
 
 async function ensurePdfjs() {
   if (typeof window === "undefined") throw new Error("Browser-only");
-
-  if (!pdfjsLib) {
-    // Import ESM from CDN; tell bundler to ignore this import
-    pdfjsLib = await import(
-      /* webpackIgnore: true */
-      CDN_ESM
-    );
-  }
-  if (!workerReady) {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = CDN_WORKER;
+  if (pdfjsLib) return pdfjsLib;
+  try {
+    pdfjsLib = await loadEsmPair(SELF, CDN_CANDIDATES);
     workerReady = true;
-  }
+    return pdfjsLib;
+  } catch (_) {}
+  pdfjsLib = await loadUmdPair(SELF, CDN_CANDIDATES);
+  workerReady = true;
   return pdfjsLib;
 }
 
-/* ---------------- core ---------------- */
-
+// ---------------------- Core ----------------------
 function collapse(s) {
   if (!s) return "";
   return s
@@ -60,15 +132,7 @@ async function extractRawPdf(file) {
     pdf.destroy?.();
   } catch {}
 
-  return {
-    name: file.name,
-    size: file.size,
-    type: file.type || "application/pdf",
-    lastModified: file.lastModified || Date.now(),
-    pages: pageTexts.length,
-    pageTexts,
-    text,
-  };
+  return { pages: pageTexts.length, pageTexts, text };
 }
 
 export async function extractTextFromPdfs(files) {
@@ -83,158 +147,365 @@ export async function extractTextFromPdfs(files) {
   const out = [];
   for (const file of pdfFiles) {
     const raw = await extractRawPdf(file);
-
     const p1 = raw.pageTexts[0] || "";
-    const p1U = p1.toUpperCase();
+    const p2 = raw.pageTexts[1] || "";
     const all = raw.text;
-    const allU = all.toUpperCase();
 
-    const record = {
-      fileName: raw.name,
-      exporter:
-        findCompanyName(all) ||
-        findAfter(
-          all,
-          /EXPORTER'?S NAME(?:\s*&\s*ADDRESS)?\s*/i,
-          /[A-Z0-9 .,'&/-]+/i
-        ),
-      portOfDischarge: extractPortOfDischarge(p1, p1U),
-      ...extractSbNoAndDate(p1U),
-      pcinNo: extractPcin(allU),
-      ...extractGrossWeight(p1U),
-      ...extractPackages(p1U, allU),
-      hsCode: extractHsCode(raw.pageTexts),
-    };
+    const invoiceNo = extractInvoiceNo(all, p1, p2);
+    const bookingNo = extractBookingNo(all, p1, p2);
+    const issueDate = extractIssueDate(all, p1, p2);
+    const dueDate = extractDueDate(all, p1, p2);
+    const { vesselName, voyageCode } = extractVesselVoyage(all, p1, p2);
 
-    out.push(record);
+    const customerGST = extractCustomerGST(all, p1, p2);
+    const { customerMerged } = extractCustomerMergedAfterBL(all);
+
+    const blNumber = extractBlNumber(all);
+    const totalFigure = extractTotalInvoiceFigure(all);
+    const freight = detectFreight(all);
+
+    out.push({
+      fileName: file.name,
+      invoiceNo,
+      bookingNo,
+      issueDate,
+      dueDate,
+      vesselName,
+      voyageCode,
+      customerGST,
+      customerMerged,
+      blNumber,
+      totalFigure,
+      freight,
+    });
   }
 
   console.log("Structured PDF JSON:", JSON.stringify(out, null, 2));
   return out;
 }
 
-/* ---------------- helpers (unchanged) ---------------- */
-
-function findAfter(text, markerRe, valueRe) {
-  const m = text.match(markerRe);
+// ---------------------- Helpers ----------------------
+function sliceAround(source, anchorRe, spanBefore = 80, spanAfter = 240) {
+  const m = source?.match(anchorRe);
   if (!m) return "";
-  const start = m.index + m[0].length;
-  const slice = text.slice(start);
-  const v = slice.match(valueRe);
-  return v ? collapse(v[0]) : "";
+  const i = m.index ?? 0;
+  const start = Math.max(0, i - spanBefore);
+  return source.slice(start, i + m[0].length + spanAfter);
 }
 
-function findCompanyName(t) {
-  const re =
-    /\b([A-Z][A-Z0-9 '&.-]+?\s(?:LIMITED|LTD\.?|PVT\.?\s*LTD\.?|PRIVATE\s+LIMITED))\b/;
-  const m = t.toUpperCase().match(re);
-  return m ? tidyCase(t, m[1]) : "";
-}
-function tidyCase(original, upperToken) {
-  const idx = original.toUpperCase().indexOf(upperToken);
-  if (idx === -1) return upperToken;
-  return original.slice(idx, idx + upperToken.length);
-}
-function findAfterUntil(text, markerRe, stopRe, maxSpan = 120) {
-  const m = text.match(markerRe);
-  if (!m) return "";
-  const start = m.index + m[0].length;
-  const tail = text.slice(start, start + maxSpan);
-  const stop = tail.match(stopRe);
-  if (stop) return tail.slice(0, stop.index);
-  return tail;
-}
-function extractSbNoAndDate(p1U) {
-  const cluster = p1U.match(
-    /\bIN[A-Z0-9]+\b\s+(\d{5,})\s+([0-9]{1,2}-[A-Z]{3}-\d{2,4})/
-  );
-  if (cluster) {
-    return { shippingBillNo: cluster[1], sbDate: cluster[2] };
+function firstNonEmpty(...vals) {
+  for (const v of vals) {
+    if (v && collapse(v)) return collapse(v);
   }
-  const sbNo =
-    findAfter(p1U, /SB\s*NO[:\-\s]*/i, /\d{5,}/i) ||
-    findAfter(p1U, /\bSB#?\s*/i, /\d{5,}/i) ||
-    "";
-  const sbDate =
-    findAfter(p1U, /SB\s*DATE[:\-\s]*/i, /[0-9]{1,2}-[A-Z]{3}-\d{2,4}/i) || "";
-  return { shippingBillNo: sbNo, sbDate };
-}
-function extractPortOfDischarge(p1, p1U) {
-  const seg1 = findAfterUntil(
-    p1,
-    /PORT OF DISCHARGE\s*/i,
-    /(?:\b\d{1,2}\.|COUNTRY OF DISCHARGE|TYPE\b|WAREHOUSE|SEALED|PACKAGED)/i,
-    150
-  );
-  const cand1 =
-    seg1.match(/\b([A-Z]{3,6}\s*\([A-Za-z .-]+\))/) ||
-    seg1.match(/\b([A-Z]{3,6})\b(?!\s*\()/);
-  if (cand1 && cand1[1]) return cand1[1].trim();
-
-  const seg2 = findAfterUntil(
-    p1,
-    /COUNTRY OF DISCHARGE\s*/i,
-    /(?:\b\d{1,2}\.|TYPE\b|WAREHOUSE|SEALED|PACKAGED)/i,
-    150
-  );
-  const cand2 =
-    seg2.match(/\b([A-Z]{3,6}\s*\([A-Za-z .-]+\))/) ||
-    seg2.match(/\b([A-Z]{3,6})\b(?!\s*\()/);
-  if (cand2 && cand2[1]) return cand2[1].trim();
-
-  const cand3 = p1.match(/\b([A-Z]{3,6})\s*\(([A-Za-z .-]+)\)/);
-  if (cand3 && !/IN[A-Z]{3}\d?/i.test(cand3[0])) return cand3[0];
-
   return "";
 }
-function extractPcin(allU) {
-  const m1 = allU.match(/\bPCIN\s*NO[#:\-\s]*([A-Z0-9]+)/);
-  if (m1) return m1[1];
-  const m2 = allU.match(/\b\d{2}PCEG[A-Z0-9]{12,20}\b/);
-  if (m2) return m2[0];
-  const m3 = allU.match(/\b\d{2}PC[A-Z0-9]{12,22}\b/);
-  if (m3) return m3[0];
+
+// ---------- Dates ----------
+const MONTHS = {
+  JAN: 1,
+  FEB: 2,
+  MAR: 3,
+  APR: 4,
+  MAY: 5,
+  JUN: 6,
+  JUL: 7,
+  AUG: 8,
+  SEP: 9,
+  OCT: 10,
+  NOV: 11,
+  DEC: 12,
+};
+function toISO(y, m, d) {
+  const yy = String(y).padStart(4, "0");
+  const mm = String(m).padStart(2, "0");
+  const dd = String(d).padStart(2, "0");
+  return `${yy}-${mm}-${dd}`;
+}
+function normYear(y) {
+  const s = String(y);
+  const n = Number(s);
+  if (s.length === 2) return n >= 70 ? 1900 + n : 2000 + n;
+  return n;
+}
+function parseDateFlexible(token) {
+  if (!token) return "";
+  const t = token.trim();
+
+  let m = t.match(/^(\d{4})(\d{2})(\d{2})$/);
+  if (m) {
+    const y = Number(m[1]),
+      mo = Number(m[2]),
+      d = Number(m[3]);
+    if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31) return toISO(y, mo, d);
+  }
+  m = t.match(/^(\d{4})[.\-\/](\d{1,2})[.\-\/](\d{1,2})$/);
+  if (m) {
+    const y = Number(m[1]),
+      mo = Number(m[2]),
+      d = Number(m[3]);
+    if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31) return toISO(y, mo, d);
+  }
+  m = t.match(/^(\d{1,2})[.\-\/](\d{1,2})[.\-\/](\d{2,4})$/);
+  if (m) {
+    const d = Number(m[1]),
+      mo = Number(m[2]),
+      y = normYear(m[3]);
+    if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31) return toISO(y, mo, d);
+  }
+  m = t.match(/^(\d{1,2})[.\-\/\s]([A-Za-z]{3,})[.\-\/\s](\d{2,4})$/);
+  if (m) {
+    const d = Number(m[1]),
+      mo = MONTHS[m[2].slice(0, 3).toUpperCase()];
+    const y = normYear(m[3]);
+    if (mo && d >= 1 && d <= 31) return toISO(y, mo, d);
+  }
+  m = t.match(/^([A-Za-z]{3,})\s+(\d{1,2}),\s*(\d{4})$/);
+  if (m) {
+    const mo = MONTHS[m[1].slice(0, 3).toUpperCase()],
+      d = Number(m[2]),
+      y = Number(m[3]);
+    if (mo && d >= 1 && d <= 31) return toISO(y, mo, d);
+  }
   return "";
 }
-function extractGrossWeight(p1U) {
-  const m = p1U.match(/(\d{1,10})\s+G\.?WT\s+([A-Z]+)/);
-  if (m) return { grossWeight: m[1], weightUnit: m[2] };
-  const m2 = p1U.match(/GROSS\s+WEIGHT[^0-9]*([0-9.]+)\s*([A-Z]+)/);
-  if (m2) return { grossWeight: m2[1], weightUnit: m2[2] };
-  return { grossWeight: "", weightUnit: "" };
+function findDateNear(text, labelRe) {
+  if (!text) return "";
+  const win = sliceAround(text, labelRe, 10, 160);
+  const tokens = []
+    .concat(win.match(/\b\d{8}\b/g) || [])
+    .concat(win.match(/\b\d{4}[.\-\/]\d{1,2}[.\-\/]\d{1,2}\b/g) || [])
+    .concat(win.match(/\b\d{1,2}[.\-\/]\d{1,2}[.\-\/]\d{2,4}\b/g) || [])
+    .concat(
+      win.match(/\b\d{1,2}[.\-\/\s][A-Za-z]{3,}[.\-\/\s]\d{2,4}\b/g) || []
+    )
+    .concat(win.match(/\b[A-Za-z]{3,}\s+\d{1,2},\s*\d{4}\b/g) || []);
+  for (const t of tokens) {
+    const iso = parseDateFlexible(t);
+    if (iso) return iso;
+  }
+  return "";
 }
-function extractPackages(p1U, allU) {
-  const TYPE = /(UNT|NOS|BAGS?|CTN|PKG|PCS|BOX|PKTS?)/i;
-  const ctx =
-    sliceAfter(allU, /(NO\.?\s+OF\s+(PACKETS|PACKAGES)|NOS\s+PKG)/i, 80) ||
-    sliceAfter(p1U, /(NO\.?\s+OF\s+(PACKETS|PACKAGES)|NOS\s+PKG)/i, 80);
-  const m1 = ctx && ctx.match(new RegExp(`\\b(\\d{1,6})\\s+${TYPE.source}`));
-  if (m1) return { noOfPackages: m1[1], typeOfPackages: m1[2].toUpperCase() };
-  const m2 = p1U.match(new RegExp(`\\b(\\d{1,6})\\s+${TYPE.source}`));
-  if (m2) return { noOfPackages: m2[1], typeOfPackages: m2[2].toUpperCase() };
-  const m3 =
-    allU.match(
-      /\bQUANTITY\s*\d*\s*([0-9]+)\s*(UNT|NOS|PCS|BAG|CTN|PKG|BOX)\b/i
-    ) || allU.match(new RegExp(`\\b(\\d{1,6})\\s+${TYPE.source}\\b`));
-  if (m3) return { noOfPackages: m3[1], typeOfPackages: m3[2].toUpperCase() };
-  return { noOfPackages: "", typeOfPackages: "" };
+
+// ---------- Vessel / Voyage ----------
+const NEXT_FIELD_GUARD =
+  /\s+(INVOICE|BOOKING|CUSTOMER|VESSEL\s*&|VOYAGE|ISSUE|COMMODITY|B\/L|BL\s+NUMBER|PAN|GST|STATE|DUE|CHARGE|AMOUNT|TOTAL)\b/i;
+
+function extractVesselVoyage(all, p1, p2) {
+  let win =
+    sliceAround(p1, /VESSEL\s*\/\s*VOYAGE/i) ||
+    sliceAround(p2, /VESSEL\s*\/\s*VOYAGE/i) ||
+    sliceAround(all, /VESSEL\s*\/\s*VOYAGE/i);
+
+  if (win) {
+    const m = win.match(
+      /VESSEL\s*\/\s*VOYAGE\s*[:#\-]?\s*([A-Z0-9 .,'&\-\/]+?)(?=\s+[;,\-\/]*|$)/i
+    );
+    if (m) {
+      let vessel = collapse(m[1] || "");
+      let voyage = "";
+      if (vessel.includes("/")) {
+        const parts = vessel.split("/").map(collapse).filter(Boolean);
+        vessel = parts[0] || vessel;
+        voyage = parts[1] || "";
+      }
+      return { vesselName: vessel, voyageCode: voyage };
+    }
+  }
+
+  const vWin = firstNonEmpty(
+    sliceAround(p1, /\b(VESSEL\s*NAME|VSL\s*NAME|VESSEL)\b/i),
+    sliceAround(p2, /\b(VESSEL\s*NAME|VSL\s*NAME|VESSEL)\b/i),
+    sliceAround(all, /\b(VESSEL\s*NAME|VSL\s*NAME|VESSEL)\b/i)
+  );
+  const vMatch =
+    vWin.match(
+      new RegExp(
+        String.raw`(?:VESSEL\s*NAME|VSL\s*NAME|VESSEL)\s*[:#\-]?\s*([A-Z0-9 .,'&\-]+?)(?=${NEXT_FIELD_GUARD.source}|$)`,
+        "i"
+      )
+    ) ||
+    all.match(
+      new RegExp(
+        String.raw`(?:VESSEL\s*NAME|VSL\s*NAME|VESSEL)\s*[:#\-]?\s*([A-Z0-9 .,'&\-]+?)(?=${NEXT_FIELD_GUARD.source}|$)`,
+        "i"
+      )
+    );
+  const vesselName = vMatch ? collapse(vMatch[1]) : "";
+
+  const yWin = firstNonEmpty(
+    sliceAround(
+      p1,
+      /\b(VESSEL\s*&\s*VOYAGE\s*CODE|VOYAGE\s*CODE|VOYAGE|VOY|VYG)\b/i
+    ),
+    sliceAround(
+      p2,
+      /\b(VESSEL\s*&\s*VOYAGE\s*CODE|VOYAGE\s*CODE|VOYAGE|VOY|VYG)\b/i
+    ),
+    sliceAround(
+      all,
+      /\b(VESSEL\s*&\s*VOYAGE\s*CODE|VOYAGE\s*CODE|VOYAGE|VOY|VYG)\b/i
+    )
+  );
+  const voyageMatch =
+    yWin.match(
+      /(?:VESSEL\s*&\s*VOYAGE\s*CODE|VOYAGE\s*CODE|VOYAGE|VOY|VYG)\s*[:#\-]?\s*([A-Z0-9\-\/]+)/i
+    ) ||
+    all.match(
+      /(?:VESSEL\s*&\s*VOYAGE\s*CODE|VOYAGE\s*CODE|VOYAGE|VOY|VYG)\s*[:#\-]?\s*([A-Z0-9\-\/]+)/i
+    );
+  const voyageCode = voyageMatch ? collapse(voyageMatch[1]) : "";
+
+  return { vesselName, voyageCode };
 }
-function sliceAfter(text, markerRe, span) {
-  const m = text.match(markerRe);
-  if (!m) return "";
-  const start = m.index + m[0].length;
-  return text.slice(start, start + span);
+
+// ---------- Invoice / Booking ----------
+function extractInvoiceNo(all, p1, p2) {
+  const ANCH = /(INVOICE\s*NO\.?|INV\.?\s*NO\.?|INVOICE\s*#|INVOICE\s*NUMBER)/i;
+  const win = firstNonEmpty(
+    sliceAround(p1, ANCH),
+    sliceAround(p2, ANCH),
+    sliceAround(all, ANCH)
+  );
+  const m =
+    win.match(
+      /(?:INVOICE\s*NO\.?|INV\.?\s*NO\.?|INVOICE\s*#|INVOICE\s*NUMBER)\s*[:#\-]?\s*([A-Z0-9\/.\-_]+)/i
+    ) ||
+    all.match(
+      /(?:INVOICE\s*NO\.?|INV\.?\s*NO\.?|INVOICE\s*#|INVOICE\s*NUMBER)\s*[:#\-]?\s*([A-Z0-9\/.\-_]+)/i
+    );
+  return m ? collapse(m[1]) : "";
 }
-function extractHsCode(pageTexts) {
-  const p2 = (pageTexts[1] || "").toUpperCase();
-  const p3 = (pageTexts[2] || "").toUpperCase();
+function extractBookingNo(all, p1, p2) {
+  const ANCH = /(BOOKING\s*NO\.?|BKG\s*NO\.?|BKG\s*#|RESERVATION\s*NO\.?)/i;
+  const win = firstNonEmpty(
+    sliceAround(p1, ANCH),
+    sliceAround(p2, ANCH),
+    sliceAround(all, ANCH)
+  );
+  const m =
+    win.match(
+      /(?:BOOKING\s*NO\.?|BKG\s*NO\.?|BKG\s*#|RESERVATION\s*NO\.?)\s*[:#\-]?\s*([A-Z0-9\/.\-_]+)/i
+    ) ||
+    all.match(
+      /(?:BOOKING\s*NO\.?|BKG\s*NO\.?|BKG\s*#|RESERVATION\s*NO\.?)\s*[:#\-]?\s*([A-Z0-9\/.\-_]+)/i
+    );
+  return m ? collapse(m[1]) : "";
+}
+function detectFreight(txt) {
+  return /\bfreight\b/i.test(txt || "") ? "Yes" : "No";
+}
+// ---------- Dates ----------
+function extractIssueDate(all, p1, p2) {
+  const labels = [
+    /(ISSUE\s*DATE|DATE\s*OF\s*ISSUE)/i,
+    /(INVOICE\s*DATE|INV\s*DATE)/i,
+    /\bDATE\b/i,
+  ];
+  for (const L of labels) {
+    const iso =
+      findDateNear(p1, L) || findDateNear(p2, L) || findDateNear(all, L);
+    if (iso) return iso;
+  }
+  const any =
+    (p1.match(/\b\d{8}\b/) ||
+      p1.match(/\b\d{4}[.\-\/]\d{1,2}[.\-\/]\d{1,2}\b/) ||
+      p1.match(/\b\d{1,2}[.\-\/]\d{1,2}[.\-\/]\d{2,4}\b/) ||
+      p1.match(/\b\d{1,2}[.\-\/\s][A-Za-z]{3,}[.\-\/\s]\d{2,4}\b/) ||
+      p1.match(/\b[A-Za-z]{3,}\s+\d{1,2},\s*\d{4}\b/))?.[0] || "";
+  return parseDateFlexible(any) || "";
+}
+function extractDueDate(all, p1, p2) {
+  const labels = [
+    /(DUE\s*DATE|PAYMENT\s*DUE|DUE\s*DT\.?)/i,
+    /(LAST\s*DATE\s*OF\s*PAYMENT|PAY\s*BY)/i,
+  ];
+  for (const L of labels) {
+    const iso =
+      findDateNear(p1, L) || findDateNear(p2, L) || findDateNear(all, L);
+    if (iso) return iso;
+  }
+  return "";
+}
+
+// ---------- Customer GST ----------
+function extractCustomerGST(all, p1, p2) {
+  const win = firstNonEmpty(
+    sliceAround(p1, /\bCUSTOMER\s+GST\b/i),
+    sliceAround(p2, /\bCUSTOMER\s+GST\b/i),
+    sliceAround(all, /\bCUSTOMER\s+GST\b/i)
+  );
   let m =
-    p2.match(/HS\s*CD[^0-9]*\b(\d{8})\b/) ||
-    p3.match(/HS\s*CD[^0-9]*\b(\d{8})\b/);
-  if (m) return m[1];
-  m = p3.match(/\b(\d{8})\b/);
-  if (m) return m[1];
-  const all = pageTexts.join(" ").toUpperCase();
-  m = all.match(/\b(\d{8})\b/);
-  return m ? m[1] : "";
+    win.match(/\bCUSTOMER\s+GST\b\s*[:#\-]?\s*([A-Z0-9]{15})/i) ||
+    all.match(/\bCUSTOMER\s+GST\b\s*[:#\-]?\s*([A-Z0-9]{15})/i);
+  if (m) return collapse(m[1]);
+
+  const near = sliceAround(all, /\bCUSTOMER\b/i);
+  m = near.match(/\b([0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z])\b/i);
+  return m ? collapse(m[1]) : "";
+}
+
+// ---------- B/L Number ----------
+function extractBlNumber(all) {
+  const m =
+    all.match(/\bB\/L\s+Number\s+([A-Z0-9\-\/]+)\b/i) ||
+    all.match(/\bBL\s+Number\s+([A-Z0-9\-\/]+)\b/i);
+  return m ? collapse(m[1]) : "";
+}
+
+// ---------- Total Invoice Value (in figure) ----------
+function extractTotalInvoiceFigure(all) {
+  const m = all.match(
+    /Total\s+Invoice\s+Value\s*\(in\s*figure\)\s*([0-9,]+\.\d{2})/i
+  );
+  return m ? collapse(m[1]) : "";
+}
+
+// ---------- Customer merged (Name + Address & PoS) ----------
+// ONE invoice layout prints:  [Customer Name, Address & PoS] then a short “SEZ N / Sailing ... B/L Number XXXX”
+// then the real name and address lines. We jump to AFTER “B/L Number <code>” and read until ports/next section.
+function extractCustomerMergedAfterBL(all) {
+  const ANCH = /CUSTOMER\s+NAME,\s*ADDRESS\s*&\s*POS\b/i;
+  const anchor = all.match(ANCH);
+  if (!anchor) return { customerMerged: "" };
+
+  // Start window at anchor…
+  const startIdx = anchor.index ?? 0;
+  const rest = all.slice(startIdx);
+
+  // …and jump to AFTER “B/L Number <code>”
+  const blMatch = rest.match(/B\/L\s+Number\s+[A-Z0-9\-\/]+/i);
+  if (!blMatch) return { customerMerged: "" };
+  const afterBL = rest.slice((blMatch.index ?? 0) + blMatch[0].length);
+
+  // Cut off when we hit ports/next section / totals / sequence table
+  const STOP =
+    /(HAI\s+PHONG|NHAVA\s+SHEVA|VNHPH|INNSA|SEQ\s+CONTAINER|TOTAL\s+INVOICE\s+VALUE|CGST|SGST|IGST|For\s+Payment)/i;
+  const block = (afterBL.split(STOP)[0] || afterBL).trim();
+
+  // First uppercase-ish run = name; remainder = addressPoS
+  // Then trim address up to “Chembur West,” if present.
+  let name = "";
+  let addr = "";
+  const clean = collapse(block);
+  if (clean) {
+    const nameMatch = clean.match(/\b([A-Z][A-Z0-9 '&.,\-()]{6,})\b/);
+    if (nameMatch) {
+      name = collapse(nameMatch[1]);
+      addr = collapse(
+        clean.slice(clean.indexOf(nameMatch[0]) + nameMatch[0].length)
+      );
+    } else {
+      // Fallback: first 6–10 words as name
+      const words = clean.split(/\s+/);
+      name = collapse(words.slice(0, Math.min(10, words.length)).join(" "));
+      addr = collapse(words.slice(Math.min(10, words.length)).join(" "));
+    }
+  }
+
+  // Keep address only up to “Chembur West,” if present
+  const stopAddr = addr.match(/(.+?Chembur\s+West,)/i);
+  if (stopAddr) addr = collapse(stopAddr[1]);
+
+  const customerMerged = collapse([name, addr].filter(Boolean).join(" — "));
+  return { customerMerged };
 }
