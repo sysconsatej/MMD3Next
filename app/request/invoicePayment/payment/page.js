@@ -37,6 +37,7 @@ export default function PaymentPage() {
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("new");
+  const [statusList, setStatusList] = useState([]);
 
   // 🟢 Payment Modal States
   const [paying, setPaying] = useState(false);
@@ -45,7 +46,21 @@ export default function PaymentPage() {
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeError, setIframeError] = useState(null);
 
-  const handleChangeTab = (_,newValue) => setTabValue(newValue);
+  const handleChangeTab = (_, newValue) => setTabValue(newValue);
+  // fetch payment status id
+  useEffect(() => {
+    async function fetchStatus() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: "masterListName = 'tblPaymentStatus' AND status = 1",
+      };
+
+      const { success, data } = await getDataWithCondition(obj);
+      if (success) setStatusList(data);
+    }
+    fetchStatus();
+  }, []);
 
   // 🧭 Fetch all invoices for current BL ID
   useEffect(() => {
@@ -95,6 +110,18 @@ export default function PaymentPage() {
 
     fetchInvoices();
   }, [blId]);
+  //
+  const getRequestedStatusId = () => {
+    if (!statusList || statusList.length === 0) return null;
+
+    const row = statusList.find(
+      (s) =>
+        s.Name?.toLowerCase().trim() ===
+        "Payment Confirmation Requested".toLowerCase()
+    );
+
+    return row?.Id || null;
+  };
 
   // 🔥 Remove invoice from list
   const handleRemoveInvoice = (invoiceId) => {
@@ -123,7 +150,7 @@ export default function PaymentPage() {
       );
 
       const res = await payment(totalAmount.toFixed(2));
-        const link =
+      const link =
         res?.data?.link || res?.data?.url || res?.link || res?.url || null;
 
       if (link) {
@@ -148,19 +175,44 @@ export default function PaymentPage() {
       return;
     }
 
+    // Validate required offline payment fields
+    const requiredFields = data.paymentOfflineFields.filter((f) => f.required);
+    const emptyFields = requiredFields.filter((f) => {
+      const val = formData[f.name];
+      return val === undefined || val === null || val === "";
+    });
+
+    if (emptyFields.length > 0) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    // 🔥 Get Payment Confirmation Requested Status ID
+    const paymentStatusId = getRequestedStatusId();
+
+    if (!paymentStatusId) {
+      toast.error("Payment status not found in master data.");
+      return;
+    }
+
     try {
       setLoading(true);
+
       const invoiceIds = invoices.map((inv) => inv.invoiceId).join(",");
+
       const normalized = {
         ...formData,
         blId: Number(blId),
         invoiceIds,
-        status: 1,
+        paymentStatusId, // 🔥 status = Payment Confirmation Requested
       };
+
       const payload = formatFormData("tblInvoicePayment", normalized);
+
       const { success, message, error } = await insertUpdateForm(payload);
+
       if (success) {
-        toast.success(message || "Offline payment submitted successfully!");
+        toast.success(message || "Offline payment submitted!");
         setFormData({});
       } else {
         toast.error(error || message || "Failed to submit offline payment.");
@@ -172,6 +224,7 @@ export default function PaymentPage() {
       setLoading(false);
     }
   };
+
   const grandTotal = invoices.reduce(
     (sum, inv) => sum + Number(inv.totalInvoiceAmount || 0),
     0
