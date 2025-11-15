@@ -102,8 +102,15 @@ export function formatFetchForm(
     for (let key1 in data[key]) {
       if (data[key][key1].foreignTable) {
         const splitData = data[key][key1].foreignTable.split(",");
+        let columnName = null;
+        if (splitData[0].includes("-")) {
+          const splitColumn = splitData[0].split("-");
+          columnName = `concat(${splitColumn[0]}, ' - ', ${splitColumn[1]})`;
+        } else {
+          columnName = splitData[0];
+        }
         const obj = {
-          referenceColumn: splitData[0],
+          referenceColumn: columnName,
           referenceTable: splitData[1],
           fieldname: data[key][key1].name,
         };

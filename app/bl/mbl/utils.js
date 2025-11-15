@@ -55,3 +55,42 @@ export function advanceSearchFilter(advanceSearch) {
 
   return condition.length > 0 ? condition.join(" and ") : null;
 }
+
+export const checkNoPackages = ({ formData, hblType }) => {
+
+  if (hblType === "HBL") {
+    if (!Array.isArray(formData?.tblBl)) return "";
+
+    const errors = [];
+
+    formData.tblBl.forEach((row, idx) => {
+      const parentPackages = Number(row?.noOfPackages || 0);
+
+      const childTotal = Array.isArray(row?.tblBlPackingList)
+        ? row.tblBlPackingList.reduce(
+            (sum, cur) => sum + Number(cur?.noOfPackages || 0),
+            0
+          )
+        : 0;
+
+      if (parentPackages !== childTotal) {
+        errors.push(
+          `${row?.hblNo} Total No of Packages (${childTotal}) in Item Details does not match  No of Packages (${parentPackages})`
+        );
+      }
+    });
+
+    return errors.length > 0 ? errors : "";
+  }
+
+  const totalPackages = Array.isArray(formData?.tblBlPackingList)
+    ? formData.tblBlPackingList.reduce(
+        (sum, cur) => sum + Number(cur?.noOfPackages || 0),
+        0
+      )
+    : 0;
+
+  return totalPackages === Number(formData?.noOfPackages)
+    ? ""
+    : `Total No of Packages does not match with  No of Packages (${formData?.noOfPackages})`;
+};
