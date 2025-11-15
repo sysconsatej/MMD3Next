@@ -38,7 +38,7 @@ const fieldData = {
             isEdit: true,
             required: true,
         },
-        { label: "Submitter Code", name: "consigneeIdNo" },
+        { label: "Submitter Code", name: "shipperIdNo" },
         {
             label: "Template",
             name: "template",
