@@ -172,39 +172,17 @@ export const cfsGridButtons = [
 export const advanceSearchFields = {
   bl: [
     {
-      label: "Location",
-      name: "podId",
-      type: "dropdown",
-      tableName: "tblPort t",
-      displayColumn: "t.name",
-      orderBy: "t.name",
-      foreignTable: "name,tblPort",
-      isEdit: true,
-    },
-    {
       label: "BL No",
-      name: "mblNo",
-      isEdit: true,
-    },
-    {
-      label: "From Date",
-      name: "fromDate",
-      type: "date",
-      isEdit: true,
-    },
-    {
-      label: "To Date",
-      name: "toDate",
-      type: "date",
+      name: "blNo",
       isEdit: true,
     },
     {
       label: "Status",
       name: "statusId",
-      type: "dropdown",
+      type: "multiselect",
       tableName: "tblMasterData m",
       displayColumn: "m.name",
-      where: "m.masterListName = 'tblContainerStatus'",
+      where: "m.masterListName = 'tblInvoiceRequest'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       isEdit: true,
@@ -215,23 +193,27 @@ export function advanceSearchFilter(advanceSearch) {
   if (Object.keys(advanceSearch).length <= 0) return null;
   const condition = [];
 
-  if (advanceSearch.mblNo) {
-    condition.push(`i.blNo = '${advanceSearch.mblNo}'`);
+  if (advanceSearch.blNo) {
+    condition.push(`i.blNo = '${advanceSearch.blNo}'`);
   }
 
-  if (advanceSearch.hblNo) {
-    condition.push(`i.hblNo = '${advanceSearch.hblNo}'`);
-  }
-
-  if (advanceSearch.podId) {
-    condition.push(`i.podId = '${advanceSearch.podId.Id}'`);
-  }
-
-  if (advanceSearch.fromDate && advanceSearch.toDate) {
+  if (advanceSearch.statusId) {
     condition.push(
-      `i.createdDate between '${advanceSearch.fromDate}' and '${advanceSearch.toDate}'`
+      `i.invoiceRequestStatusId in (${advanceSearch.statusId
+        .map((item) => item.Id)
+        .join(",")})`
     );
   }
 
   return condition.length > 0 ? condition.join(" and ") : null;
+}
+
+export function statusColor(status) {
+  const map = {
+    Requested: "#4E61D3", // Blue
+    Released: "green", // Green
+    Rejected: "#DC0E0E", // Red
+  };
+
+  return map[status] || "inherit";
 }
