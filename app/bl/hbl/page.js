@@ -590,7 +590,8 @@ export default function Home() {
     getHblStatus();
   }, []);
 
-  console.log("formData:", formData);
+  console.log("formData", formData);
+
 
   return (
     <ThemeProvider theme={theme}>

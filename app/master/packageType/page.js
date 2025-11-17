@@ -19,7 +19,9 @@ export default function Package() {
   const [errorState, setErrorState] = useState({});
 
   const submitHandler = async (event) => {
+    console.log("Submitting form data:", formData);
     event.preventDefault();
+    return ''
     const format = formatFormData("tblMasterData", formData, mode.formId);
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {

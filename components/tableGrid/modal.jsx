@@ -32,19 +32,40 @@ export default function ExcelModal({
   gridName,
   fields,
 }) {
-  console.log(gridName)
   async function handleExcelUpload() {
     if (excelFile?.excelFile) {
       const formData = new FormData();
       formData.append("excelFile", excelFile?.excelFile);
       const { result } = await uploadExcel(formData);
-      console.log("Uploaded Excel Data:", result) ;
+
+      // if(Array.isArray(result)) {
+      //   const formddata =  result.forEach((row ,rowIndex) =>  {
+      //     const newRow =  row;
+      //     setInputValue({
+      //       tabName: "tblBl",
+      //       gridName: "tblBlContainer",
+      //       tabIndex,
+      //       containerIndex,
+      //       name: "isoCode",
+      //       value: row?.,
+      //     })
+      //   })
+      // }
       // const res = formatExcelDataWithForm(result, fields);
-      setFormData((prev) => ({ ...prev, [gridName]: result }));
+      setFormData((prev) => {
+        return {
+          ...prev,
+          tblBl: prev?.tblBl?.map((info) => {
+            return {
+              ...info,
+              [gridName]: result,
+            };
+          }),
+        };
+      });
       setExcelFile((prev) => ({ ...prev, open: false, excelFile: null }));
     }
   }
-
 
   return (
     <div>
