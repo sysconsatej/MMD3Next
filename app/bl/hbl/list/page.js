@@ -33,10 +33,11 @@ import { advanceSearchFields } from "../hblData";
 import { advanceSearchFilter, statusColor } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
-import { BLModal } from "../modal";
+import { BLHistoryModal, BLModal } from "../modal";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
+import HistoryIcon from "@mui/icons-material/History";
 
 const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -88,6 +89,10 @@ export default function BLList() {
   const [allChecked, setAllChecked] = useState(false);
   const [someChecked, setSomeChecked] = useState(false);
   const [modal, setModal] = useState({ toggle: false, value: null });
+  const [historyModal, setHistoryModal] = useState({
+    toggle: false,
+    value: null,
+  });
   const { data } = useGetUserAccessUtils("HBL Request");
   const userData = getUserByCookies();
 
@@ -240,6 +245,7 @@ export default function BLList() {
           onUpdated={() => getData(page, rowsPerPage)}
           isDelete={true}
           isRequest={true}
+          isEdit={true}
         />
 
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
@@ -263,6 +269,7 @@ export default function BLList() {
                 <TableCell>Status</TableCell>
                 <TableCell>Remark</TableCell>
                 <TableCell>Attachment</TableCell>
+                <TableCell>History</TableCell>
               </TableRow>
             </TableHead>
 
@@ -295,6 +302,18 @@ export default function BLList() {
                             ...prev,
                             toggle: true,
                             value: row.hblId,
+                          }))
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <HistoryIcon
+                        sx={{ cursor: "pointer", fontSize: "16px" }}
+                        onClick={() =>
+                          setHistoryModal((prev) => ({
+                            ...prev,
+                            toggle: true,
+                            value: row.mblNo,
                           }))
                         }
                       />
@@ -339,6 +358,10 @@ export default function BLList() {
         </Box>
       </Box>
       <BLModal modal={modal} setModal={setModal} />
+      <BLHistoryModal
+        historyModal={historyModal}
+        setHistoryModal={setHistoryModal}
+      />
       <ToastContainer />
     </ThemeProvider>
   );
