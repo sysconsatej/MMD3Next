@@ -18,7 +18,7 @@ import {
   Typography,
   CssBaseline,
   Checkbox,
-  Link, // ⬅️ added Link
+  Link,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import CustomButton from "@/components/button/button";
@@ -32,11 +32,16 @@ import TableExportButtons from "@/components/tableExportButtons/tableExportButto
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
+import {
+  advanceSearchFields,
+  advanceSearchFilter,
+  statusColor,
+} from "../invoiceRequestData";
+import { getUserByCookies } from "@/utils";
+import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 
 const LIST_TABLE = "tblInvoiceRequest i";
-const UPDATE_TABLE = LIST_TABLE.trim()
-  .split(/\s+/)[0]
-  .replace(/^dbo\./i, "");
+const UPDATE_TABLE = LIST_TABLE.split(" ")[0];
 
 const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
 const CHECKBOX_CELL_SX = { width: 32, minWidth: 32, maxWidth: 32 };
@@ -53,7 +58,9 @@ function createData(
   freeDays,
   highSealSale,
   remarks,
-  date
+  date,
+  status,
+  remarkStatus
 ) {
   return {
     id,
@@ -64,6 +71,8 @@ function createData(
     highSealSale,
     remarks,
     date,
+    status,
+    remarkStatus,
   };
 }
 
@@ -76,12 +85,14 @@ export default function InvoiceRequestList() {
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
   const [rows, setRows] = useState([]);
-  const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
   const tableWrapRef = useRef(null);
+  const userData = getUserByCookies();
+  const [advanceSearch, setAdvanceSearch] = useState({});
 
   const [selectedIds, setSelectedIds] = useState([]);
   const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
+
   const allChecked =
     selectedIds.length > 0 && selectedIds.length === idsOnPage.length;
   const someChecked =
@@ -93,21 +104,37 @@ export default function InvoiceRequestList() {
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
 
+  /* ---------------------- DATA FETCH LOGIC ---------------------- */
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns:
-            "i.id id, c.name liner, i.blNo blNo, m.name type, i.isFreeDays freeDays, i.isHighSealSale highSealSale, i.remarks remarks, i.createdDate date",
+          columns: `
+            i.id id,
+            c.name liner,
+            i.blNo blNo,
+            m.name type,
+            i.isFreeDays freeDays,
+            i.isHighSealSale highSealSale,
+            i.remarks remarks,
+            i.createdDate date,
+            st.name AS status,
+            i.rejectRemarks AS remarkStatus
+           
+          `,
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
-          searchColumn: search.searchColumn,
-          searchValue: search.searchValue,
-          joins: `left join tblCompany c on c.id = i.shippingLineId  
-            left join tblMasterData m on m.id = i.deliveryTypeId`,
+          advanceSearch: advanceSearchFilter(advanceSearch),
+          joins: `
+            LEFT JOIN tblCompany c ON c.id = i.shippingLineId
+            LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
+            LEFT JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId
+            Left JOIN tblUser u on u.id = ${userData.userId}
+			      JOIN tblUser u2 on u2.companyId = u.companyId and i.createdBy = u2.id
+          `,
           orderBy:
-            "order by isnull(i.updatedDate, i.createdDate) desc, i.id desc",
+            "ORDER BY isnull(i.updatedDate, i.createdDate) DESC, i.id DESC",
         };
 
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
@@ -121,7 +148,9 @@ export default function InvoiceRequestList() {
             item["freeDays"],
             item["highSealSale"],
             item["remarks"],
-            item["date"]
+            item["date"],
+            item["status"],
+            item["status"] === "Rejected" ? item["remarkStatus"] : ""
           )
         );
 
@@ -132,41 +161,43 @@ export default function InvoiceRequestList() {
         setTotalRows(totalRows);
         setSelectedIds([]);
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Fetch Error:", err);
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, advanceSearch]
   );
 
+  /* ---------------------- INITIAL LOAD ---------------------- */
   useEffect(() => {
     setMode({ mode: null, formId: null });
     getData(1, rowsPerPage);
   }, []);
 
+  /* ---------------------- PAGINATION ---------------------- */
   const handleChangePage = (_e, newPage) => getData(newPage, rowsPerPage);
   const handleChangeRowsPerPage = (e) => getData(1, +e.target.value);
 
+  /* ---------------------- DELETE ---------------------- */
   const handleDeleteRecord = async (recordId) => {
     const obj = { recordId, tableName: UPDATE_TABLE };
     const { success, message, error } = await deleteRecord(obj);
     if (success) {
       toast.success(message);
       getData(page, rowsPerPage);
-    } else {
-      toast.error(error || message);
-    }
+    } else toast.error(error || message);
   };
 
-  const handleBulkDelete = async (ids = []) => {
+  const handleBulkDelete = async (ids) => {
     if (!ids?.length) return;
     await Promise.all(ids.map((rid) => handleDeleteRecord(rid)));
   };
 
+  /* ---------------------- VIEW / EDIT HANDLER ---------------------- */
   const modeHandler = useCallback(
     (mode, formId = null) => {
       if (mode === "delete") {
-        if (formId != null) handleDeleteRecord(formId);
+        handleDeleteRecord(formId);
         return;
       }
       setMode({ mode: mode || null, formId });
@@ -175,24 +206,35 @@ export default function InvoiceRequestList() {
     [router, setMode]
   );
 
+  /* ---------------------- RENDER ---------------------- */
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box className="sm:px-4 py-1">
+        {/* HEADER */}
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
-          <Typography variant="body1" className="text-left flex items-center">
+          <Typography variant="body1" className="text-left">
             Invoice Request
           </Typography>
+
           <Box className="flex flex-col sm:flex-row gap-6">
-            <SearchBar
+            <AdvancedSearchBar
+              fields={advanceSearchFields.bl}
+              advanceSearch={advanceSearch}
+              setAdvanceSearch={setAdvanceSearch}
               getData={getData}
               rowsPerPage={rowsPerPage}
-              search={search}
-              setSearch={setSearch}
             />
-            <CustomButton text="Add" onClick={() => modeHandler(null, null)} />
+            <Box className="flex flex-col sm:flex-row gap-6">
+              <CustomButton
+                text="Add"
+                onClick={() => modeHandler(null, null)}
+              />
+            </Box>
           </Box>
         </Box>
+
+        {/* BULK ACTION BAR */}
         <SelectionActionsBar
           selectedIds={selectedIds}
           tableName={UPDATE_TABLE}
@@ -200,10 +242,11 @@ export default function InvoiceRequestList() {
           allowBulkDelete
           onView={(id) => modeHandler("view", id)}
           onEdit={(id) => modeHandler("edit", id)}
-          onDelete={(ids) => handleBulkDelete(Array.isArray(ids) ? ids : [ids])}
+          onDelete={(ids) => handleBulkDelete(ids)}
           onUpdated={() => getData(page, rowsPerPage)}
         />
 
+        {/* TABLE */}
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small" sx={{ minWidth: 900 }}>
             <TableHead>
@@ -217,12 +260,14 @@ export default function InvoiceRequestList() {
                     sx={CHECKBOX_SX}
                   />
                 </TableCell>
+
                 <TableCell>Liner</TableCell>
                 <TableCell>BL No</TableCell>
                 <TableCell>Type of Delivery</TableCell>
                 <TableCell>Extension</TableCell>
                 <TableCell>High Sea Sales</TableCell>
-                <TableCell>Remarks</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Rejected Remark</TableCell>
                 <TableCell>Request Date</TableCell>
               </TableRow>
             </TableHead>
@@ -242,7 +287,7 @@ export default function InvoiceRequestList() {
 
                     <TableCell>{row.liner}</TableCell>
 
-                    {/* 🔗 Make BL No a hyperlink that opens View */}
+                    {/* BL No Clickable */}
                     <TableCell>
                       <Link
                         href="#"
@@ -260,12 +305,19 @@ export default function InvoiceRequestList() {
                     <TableCell>{row.type}</TableCell>
                     <TableCell>{toFreeDaysLabel(row.freeDays)}</TableCell>
                     <TableCell>{toYesNo(row.highSealSale)}</TableCell>
-                    <TableCell>{row.remarks}</TableCell>
+
+                    {/* STATUS (Colored same as HBL) */}
+                    <TableCell sx={{ color: statusColor(row.status) }}>
+                      {row.status}
+                    </TableCell>
+
+                    {/* REMARK */}
+                    <TableCell>{row.remarkStatus}</TableCell>
+
                     <TableCell>{row.date}</TableCell>
-                    <TableCell
-                      align="right"
-                      className="table-icons opacity-0 group-hover:opacity-100"
-                    >
+
+                    {/* ACTION ICONS */}
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}
                         onEdit={() => modeHandler("edit", row.id)}
@@ -277,7 +329,7 @@ export default function InvoiceRequestList() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={9} align="center">
+                  <TableCell colSpan={10} align="center">
                     {loadingState}
                   </TableCell>
                 </TableRow>
@@ -285,12 +337,15 @@ export default function InvoiceRequestList() {
             </TableBody>
           </Table>
         </TableContainer>
+
+        {/* EXPORT + PAGINATION */}
         <Box className="flex justify-between items-center">
           <TableExportButtons
             targetRef={tableWrapRef}
             title="Invoice Request"
             fileName="invoice-request-list"
           />
+
           <Box className="flex justify-end items-center mt-2">
             <CustomPagination
               count={totalPage}
@@ -303,6 +358,7 @@ export default function InvoiceRequestList() {
           </Box>
         </Box>
       </Box>
+
       <ToastContainer />
     </ThemeProvider>
   );

@@ -1,5 +1,11 @@
 "use client";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Box,
   Table,
@@ -18,7 +24,12 @@ import {
 import { ThemeProvider } from "@mui/material/styles";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
-import { deleteRecord, fetchTableValues } from "@/apis";
+import {
+  deleteRecord,
+  fetchTableValues,
+  getDataWithCondition,
+  updateStatusRows,
+} from "@/apis";
 import { ToastContainer, toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
@@ -26,6 +37,8 @@ import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import {
   advanceSearchFields,
   advanceSearchFilter,
+  paymentStatusColor,
+  RejectModal,
 } from "../paymentConfirmationData";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { TopActionIcons } from "@/components/tableHoverIcons/tableHoverIconsPayment";
@@ -102,6 +115,12 @@ export default function InvoiceRequestList() {
     reProcess: false,
     hblCount: false,
   });
+  const [statusList, setStatusList] = useState([]);
+  const [rejectState, setRejectState] = useState({
+    toggle: false,
+    value: "",
+    paymentId: null,
+  });
 
   const [selectedIds, setSelectedIds] = useState([]);
   const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
@@ -115,6 +134,64 @@ export default function InvoiceRequestList() {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
+
+  useEffect(() => {
+    async function fetchStatus() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: "masterListName = 'tblPaymentStatus' AND status = 1",
+      };
+
+      const { success, data } = await getDataWithCondition(obj);
+      if (success) setStatusList(data);
+    }
+    fetchStatus();
+  }, []);
+
+  const approveHandler = async (paymentId) => {
+    const id = statusList.find((x) => x.Name === "Payment Confirmed")?.Id;
+    if (!id) return toast.error("Payment Confirmed status missing");
+
+    const payload = {
+      tableName: "tblInvoicePayment",
+      keyColumn: "id",
+      rows: [{ id: paymentId, paymentStatusId: id }],
+    };
+
+    const res = await updateStatusRows(payload);
+
+    res?.success
+      ? toast.success("Payment Confirmed")
+      : toast.error(res?.message);
+
+    getData(page, rowsPerPage);
+  };
+
+  const rejectHandlerFinal = async () => {
+    const id = statusList.find((x) => x.Name === "Payment Rejected")?.Id;
+    if (!id) return toast.error("Payment Rejected status missing");
+
+    const payload = {
+      tableName: "tblInvoicePayment",
+      keyColumn: "id",
+      rows: [
+        {
+          id: rejectState.paymentId,
+          paymentStatusId: id,
+          remarks: rejectState.value,
+        },
+      ],
+    };
+
+    const res = await updateStatusRows(payload);
+
+    if (res?.success) {
+      toast.success("Payment Rejected");
+      setRejectState({ toggle: false, value: "", paymentId: null });
+      getData(page, rowsPerPage);
+    } else toast.error(res?.message);
+  };
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
@@ -131,7 +208,7 @@ export default function InvoiceRequestList() {
             p.bankName BankName,
             p.referenceNo PaymentRefNo,
             p.Amount Amount,
-            p.paymentStatusId status
+            ms.name status
           `,
           tableName: LIST_TABLE,
           pageNo,
@@ -140,7 +217,8 @@ export default function InvoiceRequestList() {
           joins: `left join tblBl b on b.id=p.blId
             left join tblInvoiceRequest r on r.blNo=b.mblNo
             left join tblUser u on u.id=p.createdBy
-            left join tblMasterData m on m.id=p.paymentTypeId`,
+            left join tblMasterData m on m.id=p.paymentTypeId
+            left join tblMasterData ms on ms.id=p.paymentStatusId`,
           orderBy: "order by p.createdDate desc",
         };
 
@@ -260,8 +338,22 @@ export default function InvoiceRequestList() {
           </Tooltip>
         </Box>
 
-        <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
-          <Table size="small" sx={{ width: "100%", tableLayout: "auto" }}>
+        <TableContainer
+          component={Paper}
+          ref={tableWrapRef}
+          className="!mt-2 !max-w-full !overflow-x-hidden"
+        >
+          <Table
+            size="small"
+            className="
+               w-full table-fixed
+               [&_th]:whitespace-normal [&_td]:whitespace-normal
+               [&_th]:break-words      [&_td]:break-words
+               [&_th]:px-1 [&_td]:px-1
+               [&_th]:py-1 [&_td]:py-1
+               [&_th]:text-[11px] [&_td]:text-[11px]
+             "
+          >
             <TableHead>
               <TableRow>
                 <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
@@ -309,7 +401,9 @@ export default function InvoiceRequestList() {
                         onClick={(e) => {
                           e.preventDefault();
                           // open Invoice Release in view mode for this BL
-                          formStore.getState().setMode({ mode: "view", formId: row.blId });
+                          formStore
+                            .getState()
+                            .setMode({ mode: "view", formId: row.blId });
                           // navigate with blId as query for robustness
                           window.location.href = `/request/invoiceRelease?blId=${row.blId}`;
                         }}
@@ -325,8 +419,9 @@ export default function InvoiceRequestList() {
                     <TableCell>{row.BankName}</TableCell>
                     <TableCell>{row.PaymentRefNo}</TableCell>
                     <TableCell>{row.Amount}</TableCell>
-                    <TableCell>{row.status}</TableCell>
-
+                    <TableCell sx={{ color: paymentStatusColor(row.status) }}>
+                      {row.status}
+                    </TableCell>
                     <TableCell sx={ACTIONS_CELL_SX}>
                       <TopActionIcons
                         show={{
@@ -339,8 +434,14 @@ export default function InvoiceRequestList() {
                         }}
                         onAddUser={() => {}}
                         onUndo={() => {}}
-                        onApprove={() => {}}
-                        onReject={() => {}}
+                        onApprove={() => approveHandler(row.id)}
+                        onReject={() =>
+                          setRejectState({
+                            toggle: true,
+                            value: "",
+                            paymentId: row.id,
+                          })
+                        }
                         onNotify={() => {}}
                         onSearch={() => {}}
                       />
@@ -376,6 +477,11 @@ export default function InvoiceRequestList() {
           </Box>
         </Box>
       </Box>
+      <RejectModal
+        rejectState={rejectState}
+        setRejectState={setRejectState}
+        rejectHandler={rejectHandlerFinal}
+      />
       <ToastContainer />
     </ThemeProvider>
   );

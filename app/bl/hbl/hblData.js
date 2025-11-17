@@ -47,8 +47,6 @@ export const fieldData = {
       isEdit: true,
       required: true,
       blurFun: "getMblHandler",
-
-      
     },
     {
       label: "MBL Date",
@@ -774,7 +772,7 @@ export const advanceSearchFields = {
     {
       label: "Vessel-Voyage No.",
       name: "podvesselId",
-      type: "dropdown",
+      type: "multiselect",
       tableName: "tblVessel v",
       displayColumn: "ISNULL(v.name,'') + ' - ' + ISNULL(vo.voyageNo,'')",
       joins: "left JOIN tblVoyage vo ON vo.vesselId = v.id",
@@ -796,7 +794,7 @@ export const advanceSearchFields = {
     {
       label: "Status",
       name: "hblRequestStatus",
-      type: "dropdown",
+      type: "multiselect",
       tableName: "tblMasterData m",
       displayColumn: "m.name",
       where: "m.masterListName = 'tblHblStatus'",
@@ -806,7 +804,7 @@ export const advanceSearchFields = {
     {
       label: "Type of Cargo",
       name: "cargoTypeId",
-      type: "dropdown",
+      type: "multiselect",
       tableName: "tblMasterData m",
       displayColumn: "m.name",
       where: "m.masterListName = 'tblCargoType'",
