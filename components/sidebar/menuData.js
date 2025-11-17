@@ -167,65 +167,71 @@ export const navItems = [
     isShow: false,
     submenu: [
       {
-        name: "Import Advance List(Excel)",
-        href: "/reports/customAndPort/importAdvanceListExcel",
+        name: "Customs And Port",
+        href: "/reports/customsAndPort",
         isShow: false,
-      },
-      {
-        name: "Import Advance List(Text)",
-        href: "/reports/customAndPort/importAdvanceListText",
-        isShow: false,
-      },
-      {
-        name: "IGM EDI 1.5",
-        href: "/reports/customAndPort/igmEdi",
-        isShow: false,
-      },
-      {
-        name: "IGM REPORT FORM III",
-        href: "/reports/customAndPort/igmReportForm",
-        isShow: false,
-      },
-      {
-        name: "SCMTR-SAM",
-        href: "/reports/customAndPort/scmtrSam",
-        isShow: false,
-      },
-      {
-        name: "SCMTR-SEI",
-        href: "/reports/customAndPort/scmtrSei",
-        isShow: false,
-      },
-      {
-        name: "SCMTR-CSN",
-        href: "/reports/customAndPort/scmtrCsn",
-        isShow: false,
-      },
-      {
-        name: "Cargo Arrival Notice",
-        href: "/reports/customAndPort/cargoArrivalNotice",
-        isShow: false,
-      },
-      {
-        name: "Update CFS DPD",
-        href: "/reports/customAndPort/updateCfsDpd",
-        isShow: false,
-      },
-      {
-        name: "Update Line No",
-        href: "/reports/customAndPort/updateLineNumber",
-        isShow: false,
-      },
-      // for now it is commmented out
-      // {
-      //   name: "Update Vessel/Voyage",
-      //   href: "/reports/customAndPort/updateVesselVoyage",
-      //   isShow: false,
-      // },
-      {
-        name: "Shipping Bill",
-        href: "/reports/customAndPort/shippingBill",
-        isShow: false,
+        children: [
+          {
+            name: "Import Advance List(Excel)",
+            href: "/reports/customAndPort/importAdvanceListExcel",
+            isShow: false,
+          },
+          {
+            name: "Import Advance List(Text)",
+            href: "/reports/customAndPort/importAdvanceListText",
+            isShow: false,
+          },
+          {
+            name: "IGM EDI 1.5",
+            href: "/reports/customAndPort/igmEdi",
+            isShow: false,
+          },
+          {
+            name: "IGM REPORT FORM III",
+            href: "/reports/customAndPort/igmReportForm",
+            isShow: false,
+          },
+          {
+            name: "SCMTR-SAM",
+            href: "/reports/customAndPort/scmtrSam",
+            isShow: false,
+          },
+          {
+            name: "SCMTR-SEI",
+            href: "/reports/customAndPort/scmtrSei",
+            isShow: false,
+          },
+          {
+            name: "SCMTR-CSN",
+            href: "/reports/customAndPort/scmtrCsn",
+            isShow: false,
+          },
+          {
+            name: "Cargo Arrival Notice",
+            href: "/reports/customAndPort/cargoArrivalNotice",
+            isShow: false,
+          },
+          {
+            name: "Update CFS DPD",
+            href: "/reports/customAndPort/updateCfsDpd",
+            isShow: false,
+          },
+          {
+            name: "Update Line No",
+            href: "/reports/customAndPort/updateLineNumber",
+            isShow: false,
+          },
+          {
+            name: "Update Vessel/Voyage",
+            href: "/reports/customAndPort/updateVesselVoyage",
+            isShow: false,
+          },
+          {
+            name: "Shipping Bill",
+            href: "/reports/customAndPort/shippingBill",
+            isShow: false,
+          },
+        ],
       },
     ],
   },
