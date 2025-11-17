@@ -103,39 +103,46 @@ export default function InvoicePaymentList() {
       try {
         const tableObj = {
           columns: `
-            MAX(i.id) AS id,
-            b.mblNo AS blNo,
-            STRING_AGG(i.invoiceNo, ', ') AS invoiceNos,
-            CONVERT(VARCHAR, MAX(i.invoiceDate), 103) AS latestInvoiceDate,
-            SUM(i.totalInvoiceAmount) AS totalInvoiceAmount,
-            c.name AS beneficiary,
-            MAX(cat.name) AS category,
-            MAX(ipAgg.remarks) AS remark,
-            MAX(ipAgg.statusName) AS status
-          `,
+    MAX(i.id) AS id,
+    b.mblNo AS blNo,
+    STRING_AGG(i.invoiceNo, ', ') AS invoiceNos,
+    CONVERT(VARCHAR, MAX(i.invoiceDate), 103) AS latestInvoiceDate,
+    SUM(i.totalInvoiceAmount) AS totalInvoiceAmount,
+    c.name AS beneficiary,
+    MAX(cat.name) AS category,
+    MAX(ipAgg.remarks) AS remark,
+    MAX(ipAgg.statusName) AS status
+  `,
           tableName: "tblInvoice i",
           joins: `
-            LEFT JOIN tblBl b ON b.id = i.blId
-            LEFT JOIN tblCompany c ON c.id = b.companyId
-            LEFT JOIN tblMasterData cat ON cat.id = i.invoiceCategoryId
-            LEFT JOIN tblUser u on u.id = ${userData.userId}
-			      JOIN tblUser u2 on u2.companyId = u.companyId and i.createdBy = u2.id
-            LEFT JOIN (
-              SELECT
-                ip.blId,
-                MAX(ip.remarks)           AS remarks,
-                MAX(m.name)               AS statusName,
-                MAX(ip.paymentStatusId)   AS statusId
-              FROM tblInvoicePayment ip
-              LEFT JOIN tblMasterData m ON m.id = ip.paymentStatusId
-              GROUP BY ip.blId
-            ) AS ipAgg ON ipAgg.blId = i.blId
-          `,
+    LEFT JOIN tblBl b ON b.id = i.blId
+    LEFT JOIN tblCompany c ON c.id = b.companyId
+    LEFT JOIN tblMasterData cat ON cat.id = i.invoiceCategoryId
+    LEFT JOIN tblUser u ON u.id = ${userData.userId}
+    JOIN tblUser u2 ON u2.companyId = u.companyId AND i.createdBy = u2.id
+    LEFT JOIN (
+      SELECT *
+      FROM (
+        SELECT
+          ip.blId,
+          ip.remarks,
+          m.name AS statusName,
+          ip.paymentStatusId AS statusId,
+          ip.id AS ids,
+          ROW_NUMBER() OVER (
+            PARTITION BY ip.blId
+            ORDER BY ip.id DESC          -- or ip.createdDate DESC
+          ) AS rn
+        FROM tblInvoicePayment ip
+        LEFT JOIN tblMasterData m ON m.id = ip.paymentStatusId
+      ) x
+      WHERE x.rn = 1                     -- latest payment per BL
+    ) AS ipAgg ON ipAgg.blId = i.blId
+  `,
           groupBy: "GROUP BY b.mblNo, c.name",
           orderBy: "ORDER BY MAX(i.createdDate) DESC",
           pageNo,
           pageSize,
-          // 🔍 BL + Status advance search
           advanceSearch: advanceSearchFilterPayment(advanceSearch),
         };
 

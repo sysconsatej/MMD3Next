@@ -20,6 +20,8 @@ import {
   formatFetchForm,
 } from "@/utils";
 import { useRouter } from "next/navigation"; // ✅ for redirect
+import MultiFileUpload from "@/components/customInput/multiFileUpload";
+import { extractTextFromPdfs } from "@/helper/pdfTextExtractor";
 
 function CustomTabPanel({ children, value, index, ...other }) {
   return (
@@ -46,8 +48,9 @@ export default function InvoicePayment() {
   const [invoiceArray, setInvoiceArray] = useState([0]);
   const [tabValue, setTabValue] = useState(0);
   const [errorState, setErrorState] = useState({});
-
+  const [files, setFiles] = useState([]);
   const handleChangeTab = (_e, newValue) => setTabValue(newValue);
+  const [attachData, setAttachData] = useState([]);
 
   const handleAddInvoice = () => {
     setInvoiceArray((prev) => {
@@ -143,8 +146,9 @@ export default function InvoicePayment() {
           whereCondition: `i.id = ${mode.formId}`,
         };
 
-        const { data: blData, success: blSuccess } =
-          await getDataWithCondition(blQuery);
+        const { data: blData, success: blSuccess } = await getDataWithCondition(
+          blQuery
+        );
         if (!blSuccess || !blData?.length) return;
 
         const blId = blData[0].blId;
@@ -241,7 +245,6 @@ export default function InvoicePayment() {
         if (success) toast.success(`Invoice ${index + 1} saved successfully.`);
         else toast.error(error || message);
       });
-
     } catch (err) {
       console.error(err);
       toast.error("Error submitting invoices.");
@@ -256,6 +259,34 @@ export default function InvoicePayment() {
       return;
     }
     router.push(`/request/invoicePayment/payment?blId=${blId}`);
+  };
+
+  const handleFilesChange = async (fileList) => {
+    try {
+      // 1) Keep original files in state (if you still need them)
+      setFiles(fileList || []);
+
+      // 2) Hard-code or derive userId (change this as per your login/user context)
+      const userId = 181; // e.g. from cookies / store / props
+
+      // 3) Get structured JSON payload from PDFs
+      const payload = await extractTextFromPdfs(fileList, userId);
+      // payload = { userId, data: [ { id, fileName, invoiceNo, ... } ] }
+
+      console.log("PDF → JSON payload for SP:", payload);
+      setAttachData(payload);
+
+      // 4) (Optional) Trigger backend upload to your SP
+      // await uploads({
+      //   spName: "spInsertData",
+      //   json: payload,
+      // });
+
+      // toast.success("PDFs processed successfully.");
+    } catch (err) {
+      console.error("Error processing uploaded PDFs:", err);
+      toast.error("Error processing PDF files.");
+    }
   };
 
   return (
@@ -283,7 +314,7 @@ export default function InvoicePayment() {
 
           <FormHeading text="Invoice Details" variant="body2" />
           <Box className="border border-gray-300 p-3 mt-2 flex flex-col gap-1">
-            <Typography variant="caption" className="text-red-500">
+            {/* <Typography variant="caption" className="text-red-500">
               Total Attachment size should not exceed 3MB.
             </Typography>
             <CustomInput
@@ -291,7 +322,15 @@ export default function InvoicePayment() {
               formData={formData}
               setFormData={setFormData}
               fieldsMode={fieldsMode}
-            />
+            /> */}
+            <Box sx={{ p: 2 }}>
+              <MultiFileUpload
+                label="Attach documents"
+                helperText="You can select multiple PDFs/images."
+                accept="image/*,.pdf"
+                onChange={handleFilesChange}
+              />
+            </Box>
           </Box>
 
           {/* Tabs */}
@@ -357,6 +396,15 @@ export default function InvoicePayment() {
               <CustomButton text="Save" type="submit" />
             </Box>
           )}
+
+          <Box sx={{ p: 2 }}>
+            <MultiFileUpload
+              label="Attach documents"
+              helperText="You can select multiple PDFs/images."
+              accept="image/*,.pdf"
+              onChange={handleFilesChange}
+            />
+          </Box>
         </section>
       </form>
 
