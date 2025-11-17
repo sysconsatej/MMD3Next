@@ -153,6 +153,7 @@ export default function InvoiceRequest() {
 
       if (success) {
         toast.success(message || "Saved");
+        setFormData({});
         setRequestBtn(false);
         setMode({ mode: "edit", formId: mode?.formId || normalized?.id });
       } else {

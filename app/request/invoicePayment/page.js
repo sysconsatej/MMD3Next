@@ -12,7 +12,12 @@ import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
 import data, { cfsGridButtons } from "./invoicePaymentData";
-import { getDataWithCondition, fetchForm, insertUpdateForm } from "@/apis";
+import {
+  getDataWithCondition,
+  fetchForm,
+  insertUpdateForm,
+  updateStatusRows, // ✅ used for soft delete
+} from "@/apis";
 import {
   formatFormData,
   formatDataWithForm,
@@ -49,8 +54,12 @@ export default function InvoicePayment() {
   const [tabValue, setTabValue] = useState(0);
   const [errorState, setErrorState] = useState({});
   const [files, setFiles] = useState([]);
-  const handleChangeTab = (_e, newValue) => setTabValue(newValue);
   const [attachData, setAttachData] = useState([]);
+
+  // ✅ store IDs of invoices as they originally came from DB
+  const [initialInvoiceIds, setInitialInvoiceIds] = useState([]);
+
+  const handleChangeTab = (_e, newValue) => setTabValue(newValue);
 
   const handleAddInvoice = () => {
     setInvoiceArray((prev) => {
@@ -61,9 +70,27 @@ export default function InvoicePayment() {
     });
   };
 
+  // ✅ remove tab + its data; deleted IDs will be detected at submit
   const handleRemove = (index) => {
-    setInvoiceArray((prev) => prev.filter((_, i) => i !== index));
-    if (tabValue >= index && tabValue > 0) setTabValue(tabValue - 1);
+    setInvoiceArray((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+
+      // fix active tab index
+      if (next.length === 0) {
+        setTabValue(0);
+      } else if (tabValue >= next.length) {
+        setTabValue(next.length - 1);
+      } else if (tabValue > index) {
+        setTabValue((old) => old - 1);
+      }
+
+      return next;
+    });
+
+    setFormData((prev) => ({
+      ...prev,
+      tblInvoice: (prev.tblInvoice || []).filter((_, i) => i !== index),
+    }));
   };
 
   const extractId = useCallback((v) => {
@@ -99,8 +126,8 @@ export default function InvoicePayment() {
         columns: "TOP 1 b.id, b.mblNo",
         tableName: "tblBl b",
         whereCondition: `
-          LOWER(b.mblNo) = LOWER('${sqlEscape(typed)}')
-          AND b.companyId = ${companyId}
+          b.mblNo = '${sqlEscape(typed)}'
+          AND b.shippingLineId = ${companyId}
           AND ISNULL(b.status, 1) = 1`,
       };
 
@@ -163,6 +190,8 @@ export default function InvoicePayment() {
         if (!invSuccess || !invoiceList?.length) return;
 
         const invoiceIds = invoiceList.map((r) => r.id);
+        setInitialInvoiceIds(invoiceIds); // ✅ keep original ids
+
         const resArray = [];
 
         const promises = invoiceIds.map(async (id) => {
@@ -220,12 +249,17 @@ export default function InvoicePayment() {
       }
 
       const invoiceTabs = formData?.tblInvoice || [];
-      if (invoiceTabs.length === 0) {
+
+      // for ADD mode: must have at least one invoice
+      if (invoiceTabs.length === 0 && !mode.formId) {
         toast.warn("Please add at least one invoice before submitting.");
         return;
       }
 
-      const promises = invoiceTabs.map(async (invoice, index) => {
+      let allSuccess = true;
+
+      // ✅ 1) Save current (visible) invoices
+      const savePromises = invoiceTabs.map(async (invoice, index) => {
         const invoiceId = invoice?.id ?? null;
         const { blNo, beneficiaryName, companyName, ...cleanInvoice } = invoice;
 
@@ -242,9 +276,46 @@ export default function InvoicePayment() {
         );
 
         const { success, message, error } = await insertUpdateForm(formatted);
-        if (success) toast.success(`Invoice ${index + 1} saved successfully.`);
-        else toast.error(error || message);
+        if (success) {
+          toast.success(`Invoice ${index + 1} saved successfully.`);
+        } else {
+          allSuccess = false;
+          toast.error(error || message);
+        }
       });
+
+      await Promise.allSettled(savePromises);
+
+      // ✅ 2) Soft delete invoices that were removed (status = 0)
+      const currentIds = (formData.tblInvoice || [])
+        .map((inv) => inv?.id)
+        .filter(Boolean);
+
+      const deletedIds = initialInvoiceIds.filter(
+        (id) => !currentIds.includes(id)
+      );
+
+      if (deletedIds.length > 0) {
+        const rowsPayload = deletedIds.map((id) => ({
+          id,
+          status: 0,
+        }));
+
+        const { success, message, error } = await updateStatusRows({
+          tableName: "tblInvoice",
+          rows: rowsPayload,
+          keyColumn: "id",
+        });
+
+        if (!success) {
+          allSuccess = false;
+          toast.error(error || message || "Failed to delete removed invoices.");
+        }
+      }
+
+      if (allSuccess) {
+        toast.success("Payment invoice(s) saved successfully.");
+      }
     } catch (err) {
       console.error(err);
       toast.error("Error submitting invoices.");
@@ -263,26 +334,11 @@ export default function InvoicePayment() {
 
   const handleFilesChange = async (fileList) => {
     try {
-      // 1) Keep original files in state (if you still need them)
       setFiles(fileList || []);
-
-      // 2) Hard-code or derive userId (change this as per your login/user context)
       const userId = 181; // e.g. from cookies / store / props
-
-      // 3) Get structured JSON payload from PDFs
       const payload = await extractTextFromPdfs(fileList, userId);
-      // payload = { userId, data: [ { id, fileName, invoiceNo, ... } ] }
-
       console.log("PDF → JSON payload for SP:", payload);
       setAttachData(payload);
-
-      // 4) (Optional) Trigger backend upload to your SP
-      // await uploads({
-      //   spName: "spInsertData",
-      //   json: payload,
-      // });
-
-      // toast.success("PDFs processed successfully.");
     } catch (err) {
       console.error("Error processing uploaded PDFs:", err);
       toast.error("Error processing PDF files.");
@@ -314,15 +370,6 @@ export default function InvoicePayment() {
 
           <FormHeading text="Invoice Details" variant="body2" />
           <Box className="border border-gray-300 p-3 mt-2 flex flex-col gap-1">
-            {/* <Typography variant="caption" className="text-red-500">
-              Total Attachment size should not exceed 3MB.
-            </Typography>
-            <CustomInput
-              fields={jsonData.attachmentFields}
-              formData={formData}
-              setFormData={setFormData}
-              fieldsMode={fieldsMode}
-            /> */}
             <Box sx={{ p: 2 }}>
               <MultiFileUpload
                 label="Attach documents"
@@ -396,15 +443,6 @@ export default function InvoicePayment() {
               <CustomButton text="Save" type="submit" />
             </Box>
           )}
-
-          <Box sx={{ p: 2 }}>
-            <MultiFileUpload
-              label="Attach documents"
-              helperText="You can select multiple PDFs/images."
-              accept="image/*,.pdf"
-              onChange={handleFilesChange}
-            />
-          </Box>
         </section>
       </form>
 
