@@ -265,7 +265,7 @@ export default function InvoiceRequest() {
           <Box className="flex justify-between">
             <h1>Invoice Request</h1>
 
-            {userData.roleCode === "customer" && (
+            {userData?.roleCode === "customer" && (
               <CustomButton
                 text="Back"
                 href="/request/invoiceRequest/list"
@@ -273,7 +273,7 @@ export default function InvoiceRequest() {
               />
             )}
 
-            {userData.roleCode === "shipping" && (
+            {userData?.roleCode === "shipping" && (
               <CustomButton
                 text="Back"
                 href="/request/invoiceRelease/list"
