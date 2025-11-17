@@ -265,11 +265,21 @@ export default function InvoiceRequest() {
           <Box className="flex justify-between">
             <h1>Invoice Request</h1>
 
-            <CustomButton
-              text="Back"
-              href="/request/invoiceRequest/list"
-              onClick={() => setMode({ mode: null, formId: null })}
-            />
+            {userData.roleCode === "customer" && (
+              <CustomButton
+                text="Back"
+                href="/request/invoiceRequest/list"
+                onClick={() => setMode({ mode: null, formId: null })}
+              />
+            )}
+
+            {userData.roleCode === "shipping" && (
+              <CustomButton
+                text="Back"
+                href="/request/invoiceRelease/list"
+                onClick={() => setMode({ mode: null, formId: null })}
+              />
+            )}
           </Box>
 
           <FormHeading text="BL Information" />
