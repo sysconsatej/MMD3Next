@@ -416,6 +416,8 @@ export default function Home() {
           id: id,
           hblRequestStatus: requestStatus[0].Id,
           hblRequestRemarks: null,
+          requestedBy: userData.userId,
+          requestDate: new Date(),
         };
       });
       const res = await updateStatusRows({
@@ -439,6 +441,8 @@ export default function Home() {
         id: id,
         hblRequestStatus: verifyStatus[0].Id,
         hblRequestRemarks: null,
+        verifiedBy: userData.userId,
+        verifyDate: new Date(),
       };
     });
     const res = await updateStatusRows({
@@ -461,6 +465,8 @@ export default function Home() {
         id: id,
         hblRequestStatus: verifyStatus[0].Id,
         hblRequestRemarks: rejectState.value,
+        rejectedBy: userData.userId,
+        rejectDate: new Date(),
       };
     });
     const res = await updateStatusRows({
