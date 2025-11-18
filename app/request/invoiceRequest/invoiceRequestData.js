@@ -20,6 +20,7 @@ const fieldData = {
       name: "blNo",
       required: true,
       isEdit: true,
+      blurFunction:"duplicateHandler",
     },
 
     // {
@@ -138,30 +139,30 @@ const fieldData = {
       isEdit: true,
     },
   ],
-  tblAttachement: [
-    // {
-    //   label: "Select",
-    //   name: "select",
-    //   type: "dropdown",
-    //   tableName: "tblMasterData m",
-    //   idColumn: "id",
-    //   displayColumn: "m.name",
-    //   searchColumn: "m.name",
-    //   orderBy: "m.name",
-    //   where: "m.masterListName = 'tblInvoiceAttachmentType'",
-    //   isEdit: true,
-    // },
+  tblAttachment: [
+    {
+      label: "Select",
+      name: "attachmentTypeId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      idColumn: "id",
+      displayColumn: "m.name",
+      searchColumn: "m.name",
+      orderBy: "m.name",
+      where: "m.masterListName = 'tblInvoiceAttachmentType'",
+      isEdit: true,
+    },
     {
       label: "Upload",
       name: "path",
       type: "fileupload",
       isEdit: true,
     },
-    // {
-    //   label: "Remarks",
-    //   name: "remark",
-    //   isEdit: true,
-    // },
+    {
+      label: "Remarks",
+      name: "remarks",
+      isEdit: true,
+    },
   ],
   tblInvoiceRequestContainer: [
     {

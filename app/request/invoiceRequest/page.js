@@ -153,6 +153,7 @@ export default function InvoiceRequest() {
 
       if (success) {
         toast.success(message || "Saved");
+        setFormData({});
         setRequestBtn(false);
         setMode({ mode: "edit", formId: mode?.formId || normalized?.id });
       } else {
@@ -174,7 +175,7 @@ export default function InvoiceRequest() {
         data,
         "tblInvoiceRequest",
         mode.formId,
-        '["tblInvoiceRequestContainer","tblAttachement"]',
+        '["tblInvoiceRequestContainer","tblAttachment"]',
         "invoiceRequestId"
       );
 
@@ -264,11 +265,21 @@ export default function InvoiceRequest() {
           <Box className="flex justify-between">
             <h1>Invoice Request</h1>
 
-            <CustomButton
-              text="Back"
-              href="/request/invoiceRequest/list"
-              onClick={() => setMode({ mode: null, formId: null })}
-            />
+            {userData?.roleCode === "customer" && (
+              <CustomButton
+                text="Back"
+                href="/request/invoiceRequest/list"
+                onClick={() => setMode({ mode: null, formId: null })}
+              />
+            )}
+
+            {userData?.roleCode === "shipping" && (
+              <CustomButton
+                text="Back"
+                href="/request/invoiceRelease/list"
+                onClick={() => setMode({ mode: null, formId: null })}
+              />
+            )}
           </Box>
 
           <FormHeading text="BL Information" />
@@ -299,11 +310,11 @@ export default function InvoiceRequest() {
             <Box>
               <FormHeading text="Attachment Details" />
               <TableGrid
-                fields={jsonData.tblAttachement}
+                fields={jsonData.tblAttachment}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
-                gridName="tblAttachement"
+                gridName="tblAttachment"
                 buttons={cfsGridButtons}
               />
             </Box>

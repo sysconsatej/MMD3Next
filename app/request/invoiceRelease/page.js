@@ -108,7 +108,7 @@ export default function InvoiceReleasePage() {
                 fieldData,
                 "tblInvoice",
                 invoiceId,
-                '["tblInvoiceRequestContainer","tblAttachement"]',
+                '["tblInvoiceRequestContainer","tblAttachment"]',
                 "invoiceRequestId"
               );
               const { success, result } = await fetchForm(fmt);
@@ -160,7 +160,7 @@ export default function InvoiceReleasePage() {
             invoiceRequestData,
             "tblInvoiceRequest",
             reqId,
-            '["tblInvoiceRequestContainer","tblAttachement"]',
+            '["tblInvoiceRequestContainer","tblAttachment"]',
             "invoiceRequestId"
           );
 
@@ -326,11 +326,11 @@ export default function InvoiceReleasePage() {
             <Box>
               <FormHeading text="Attachment Details" variant="body2" />
               <TableGrid
-                fields={invoiceRequestData.tblAttachement}
+                fields={invoiceRequestData.tblAttachment}
                 formData={formDataRequest}
                 setFormData={setFormDataRequest}
                 fieldsMode="view"
-                gridName="tblAttachement"
+                gridName="tblAttachment"
                 buttons={cfsGridButtons}
               />
             </Box>

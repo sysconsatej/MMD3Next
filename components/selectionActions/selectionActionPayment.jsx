@@ -7,7 +7,7 @@ export default function SelectionActionsBar({
   keyColumn = "id",
   onView,
   onEdit,
-  /* Pay action (default false) */
+  disablePay =false, // ⬅ added
   isPay = false,
   onPay, // optional callback
 }) {
@@ -59,7 +59,7 @@ export default function SelectionActionsBar({
             <Segment
               label="Pay"
               onClick={handlePay}
-              disabled={!hasAny || !onPay}
+              disabled={disablePay}
               isLast
             />
           )}

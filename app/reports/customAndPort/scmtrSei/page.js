@@ -11,7 +11,7 @@ import { formStore } from "@/store";
 import { fetchDynamicReportData, updateDynamicReportData } from "@/apis";
 import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable";
 import { useRouter } from "next/navigation";
-import { jsonExport } from "@/utils";
+import { getUserByCookies, jsonExport } from "@/utils";
 export default function SEI() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
@@ -23,6 +23,7 @@ export default function SEI() {
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
   const router = useRouter();
+  const userData = getUserByCookies();
 
   const transformToIds = (data) => {
     return Object.fromEntries(
@@ -49,9 +50,8 @@ export default function SEI() {
         spName: "scmtSei",
         jsonData: {
           ...transformed,
-          terminal: null,
-          clientId: 8,
-          userId: 4,
+          clientId: 1,
+          userId: userData.userId,
           data: rows,
         },
       }),

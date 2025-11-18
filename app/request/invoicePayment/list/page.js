@@ -27,18 +27,20 @@ import { theme } from "@/styles/globalCss";
 
 import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
-import SearchBar from "@/components/searchBar/searchBar";
+import SearchBar from "@/components/searchBar/searchBar"; // ok even if unused
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
-import SelectionActionsBar from "@/components/selectionActions/selectionActionPayment"; // ✅ your simplified component
-import { fetchTableValues, deleteRecord, getDataWithCondition } from "@/apis";
+import SelectionActionsBar from "@/components/selectionActions/selectionActionPayment";
+import { fetchTableValues, getDataWithCondition } from "@/apis";
 import { formStore } from "@/store";
-import { invoicePaymentSearchColumns } from "../invoicePaymentData";
+import {
+  paymentStatusColor,
+  advanceSearchFieldsPayment,
+  advanceSearchFilterPayment,
+} from "../invoicePaymentData";
+import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
+import { getUserByCookies } from "@/utils";
 
 const LIST_TABLE = "tblInvoice i";
-const UPDATE_TABLE = LIST_TABLE.trim()
-  .split(/\s+/)[0]
-  .replace(/^dbo\./i, "");
-
 const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
 const CHECKBOX_CELL_SX = { width: 32, minWidth: 32, maxWidth: 32 };
 const CHECKBOX_SX = { p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } };
@@ -51,7 +53,8 @@ function createData(
   totalInvoiceAmount,
   beneficiary,
   category,
-  remark
+  remark,
+  status
 ) {
   return {
     id,
@@ -62,6 +65,7 @@ function createData(
     beneficiary,
     category,
     remark,
+    status,
   };
 }
 
@@ -75,11 +79,12 @@ export default function InvoicePaymentList() {
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
   const [rows, setRows] = useState([]);
-  const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
+  const [advanceSearch, setAdvanceSearch] = useState({});
   const [loadingState, setLoadingState] = useState("Loading...");
   const [selectedIds, setSelectedIds] = useState([]);
+  const userData = getUserByCookies();
 
-  // === Checkbox logic ===
+  // === CHECKBOX ===
   const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
   const allChecked =
     selectedIds.length > 0 && selectedIds.length === idsOnPage.length;
@@ -92,34 +97,53 @@ export default function InvoicePaymentList() {
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
 
-  // === Fetch data ===
+  // === FETCH DATA ===
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
           columns: `
-            MAX(i.id) AS id,
-            b.mblNo AS blNo,
-            STRING_AGG(i.invoiceNo, ', ') AS invoiceNos,
-            CONVERT(VARCHAR, MAX(i.invoiceDate), 103) AS latestInvoiceDate,
-            SUM(i.totalInvoiceAmount) AS totalInvoiceAmount,
-            c.name AS beneficiary,
-            cat.name AS category,
-            MAX(i.remarks) AS remark
-          `,
+    MAX(i.id) AS id,
+    b.mblNo AS blNo,
+    STRING_AGG(i.invoiceNo, ', ') AS invoiceNos,
+    CONVERT(VARCHAR, MAX(i.invoiceDate), 103) AS latestInvoiceDate,
+    SUM(i.totalInvoiceAmount) AS totalInvoiceAmount,
+    c.name AS beneficiary,
+    MAX(cat.name) AS category,
+    MAX(ipAgg.remarks) AS remark,
+    MAX(ipAgg.statusName) AS status
+  `,
           tableName: "tblInvoice i",
           joins: `
-            LEFT JOIN tblBl b ON b.id = i.blId
-            LEFT JOIN tblCompany c ON c.id = b.companyId
-            LEFT JOIN tblMasterData cat ON cat.id = i.invoiceCategoryId
-          `,
-          whereCondition: "ISNULL(i.status, 1) = 1",
-          groupBy: "GROUP BY b.mblNo, c.name, cat.name",
+    LEFT JOIN tblBl b ON b.id = i.blId
+    LEFT JOIN tblCompany c ON c.id = b.companyId
+    LEFT JOIN tblMasterData cat ON cat.id = i.invoiceCategoryId
+    LEFT JOIN tblUser u ON u.id = ${userData.userId}
+    JOIN tblUser u2 ON u2.companyId = u.companyId AND i.createdBy = u2.id
+    LEFT JOIN (
+      SELECT *
+      FROM (
+        SELECT
+          ip.blId,
+          ip.remarks,
+          m.name AS statusName,
+          ip.paymentStatusId AS statusId,
+          ip.id AS ids,
+          ROW_NUMBER() OVER (
+            PARTITION BY ip.blId
+            ORDER BY ip.id DESC          -- or ip.createdDate DESC
+          ) AS rn
+        FROM tblInvoicePayment ip
+        LEFT JOIN tblMasterData m ON m.id = ip.paymentStatusId
+      ) x
+      WHERE x.rn = 1                     -- latest payment per BL
+    ) AS ipAgg ON ipAgg.blId = i.blId
+  `,
+          groupBy: "GROUP BY b.mblNo, c.name",
           orderBy: "ORDER BY MAX(i.createdDate) DESC",
           pageNo,
           pageSize,
-          searchColumn: search.searchColumn,
-          searchValue: search.searchValue,
+          advanceSearch: advanceSearchFilterPayment(advanceSearch),
         };
 
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
@@ -133,28 +157,29 @@ export default function InvoicePaymentList() {
             item["totalInvoiceAmount"],
             item["beneficiary"],
             item["category"],
-            item["remark"]
+            item["remark"],
+            item["status"]
           )
         );
 
         setRows(mapped);
         setTotalPage(totalPage);
+        setTotalRows(totalRows);
         setPage(pageNo);
         setRowsPerPage(pageSize);
-        setTotalRows(totalRows);
         setSelectedIds([]);
       } catch (err) {
-        console.error("Error fetching invoice payment list:", err);
+        console.error("Error fetching Invoice Payment list:", err);
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, advanceSearch]
   );
 
   useEffect(() => {
     setMode({ mode: null, formId: null });
     getData(1, rowsPerPage);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleChangePage = (_e, newPage) => getData(newPage, rowsPerPage);
   const handleChangeRowsPerPage = (e) => getData(1, +e.target.value);
@@ -167,7 +192,22 @@ export default function InvoicePaymentList() {
     [router, setMode]
   );
 
-  // ✅ Pay handler
+  // === PAY DISABLE LOGIC ===
+  const isSingleSelect = selectedIds.length === 1;
+  let disablePay = false;
+
+  if (!isSingleSelect) {
+    disablePay = true;
+  } else {
+    const row = rows.find((r) => r.id === selectedIds[0]);
+    const st = row?.status?.toLowerCase()?.trim();
+
+    if (st === "payment confirmed" || st === "payment confirmation requested") {
+      disablePay = true;
+    }
+  }
+
+  // === PAY HANDLER ===
   const handlePay = async (recordId) => {
     try {
       const query = {
@@ -194,27 +234,25 @@ export default function InvoicePaymentList() {
       <CssBaseline />
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
-          <Typography variant="body1" className="text-left flex items-center">
-            Invoice Payment
-          </Typography>
+          <Typography variant="body1">Invoice Payment</Typography>
+
           <Box className="flex flex-col sm:flex-row gap-6">
-            <SearchBar
+            <AdvancedSearchBar
+              fields={advanceSearchFieldsPayment.bl}
+              advanceSearch={advanceSearch}
+              setAdvanceSearch={setAdvanceSearch}
               getData={getData}
               rowsPerPage={rowsPerPage}
-              search={search}
-              setSearch={setSearch}
-              options={invoicePaymentSearchColumns}
             />
-
             <CustomButton text="Add" onClick={() => modeHandler(null, null)} />
           </Box>
         </Box>
 
-        {/* ✅ Use simplified SelectionActionsBar */}
         <SelectionActionsBar
           selectedIds={selectedIds}
           keyColumn="id"
           isPay
+          disablePay={disablePay}
           onView={(id) => modeHandler("view", id)}
           onEdit={(id) => modeHandler("edit", id)}
           onPay={(ids) => handlePay(Array.isArray(ids) ? ids[0] : ids)}
@@ -240,13 +278,14 @@ export default function InvoicePaymentList() {
                 <TableCell>Beneficiary</TableCell>
                 <TableCell>Category</TableCell>
                 <TableCell>Remarks</TableCell>
+                <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
               {rows.length > 0 ? (
                 rows.map((row) => (
-                  <TableRow key={row.id} hover className="relative group">
+                  <TableRow key={row.id} hover>
                     <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <Checkbox
                         size="small"
@@ -276,6 +315,9 @@ export default function InvoicePaymentList() {
                     <TableCell>{row.beneficiary}</TableCell>
                     <TableCell>{row.category}</TableCell>
                     <TableCell>{row.remark}</TableCell>
+                    <TableCell sx={{ color: paymentStatusColor(row.status) }}>
+                      {row.status}
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -295,6 +337,7 @@ export default function InvoicePaymentList() {
             title="Invoice Payment"
             fileName="invoice-payment-list"
           />
+
           <Box className="flex justify-end items-center mt-2">
             <CustomPagination
               count={totalPage}
@@ -307,6 +350,7 @@ export default function InvoicePaymentList() {
           </Box>
         </Box>
       </Box>
+
       <ToastContainer />
     </ThemeProvider>
   );

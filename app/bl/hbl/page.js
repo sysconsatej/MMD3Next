@@ -416,6 +416,8 @@ export default function Home() {
           id: id,
           hblRequestStatus: requestStatus[0].Id,
           hblRequestRemarks: null,
+          requestedBy: userData.userId,
+          requestDate: new Date(),
         };
       });
       const res = await updateStatusRows({
@@ -439,6 +441,8 @@ export default function Home() {
         id: id,
         hblRequestStatus: verifyStatus[0].Id,
         hblRequestRemarks: null,
+        verifiedBy: userData.userId,
+        verifyDate: new Date(),
       };
     });
     const res = await updateStatusRows({
@@ -461,6 +465,8 @@ export default function Home() {
         id: id,
         hblRequestStatus: verifyStatus[0].Id,
         hblRequestRemarks: rejectState.value,
+        rejectedBy: userData.userId,
+        rejectDate: new Date(),
       };
     });
     const res = await updateStatusRows({
@@ -521,7 +527,7 @@ export default function Home() {
           fieldData,
           "tblBl",
           id,
-          '["tblBlContainer", "tblBlPackingList", "tblAttachement"]',
+          '["tblBlContainer", "tblBlPackingList", "tblAttachment"]',
           "blId"
         );
         const { success, result, message, error } = await fetchForm(format);
@@ -828,11 +834,11 @@ export default function Home() {
                       />
                       <FormHeading text="Attachment Details" />
                       <TableGrid
-                        fields={jsonData.tblAttachement}
+                        fields={jsonData.tblAttachment}
                         formData={formData}
                         setFormData={setFormData}
                         fieldsMode={mode.mode}
-                        gridName="tblAttachement"
+                        gridName="tblAttachment"
                         buttons={gridButtonsWithoutExcel}
                         tabName={"tblBl"}
                         tabIndex={index}
