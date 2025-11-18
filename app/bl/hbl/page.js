@@ -527,7 +527,7 @@ export default function Home() {
           fieldData,
           "tblBl",
           id,
-          '["tblBlContainer", "tblBlPackingList", "tblAttachement"]',
+          '["tblBlContainer", "tblBlPackingList", "tblAttachment"]',
           "blId"
         );
         const { success, result, message, error } = await fetchForm(format);
@@ -834,11 +834,11 @@ export default function Home() {
                       />
                       <FormHeading text="Attachment Details" />
                       <TableGrid
-                        fields={jsonData.tblAttachement}
+                        fields={jsonData.tblAttachment}
                         formData={formData}
                         setFormData={setFormData}
                         fieldsMode={mode.mode}
-                        gridName="tblAttachement"
+                        gridName="tblAttachment"
                         buttons={gridButtonsWithoutExcel}
                         tabName={"tblBl"}
                         tabIndex={index}
