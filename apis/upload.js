@@ -30,12 +30,4 @@ export const uploads = async (obj) => {
   }
 };
 
-export const invoiceUploadApi = async (obj) => {
-  try {
-    const res = await api.post("invoice-upload", obj);
-    return res.data;
-  } catch (err) {
-    console.error("❌ invoice uploads() error:", err);
-    throw err;
-  }
-};
+
