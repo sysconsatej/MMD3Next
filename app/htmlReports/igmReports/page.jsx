@@ -296,7 +296,7 @@ function RptIGMContent() {
             </div>
             <div className="flex mb-2">
               <div className="text-[9px]" style={{ width: "40%" }}>
-                <p className="text-black font-bold text-[9px]">3. Nationality of Ship :</p>
+                <p className="text-black font-bold text-[9px]">3. IMO Code of Vessel :</p>
               </div>
               <div className="text-[9px]" style={{ width: "60%" }}></div>
             </div>
@@ -348,6 +348,8 @@ function RptIGMContent() {
               <div style={{ width: "60%" }}>{formatDateToYMD(data[0]?.igmDate)}</div>
             </div>
           </div>
+
+
         </div>
       </>
     );
@@ -494,11 +496,11 @@ function RptIGMContent() {
                   className="flex"
                   style={{ fontSize: "8px", color: "black", width: "30%" }}
                 >
-                  <div style={{ width: "18%" }}>{containerItem.containerNo || ""}</div>
-                  <div style={{ width: "6%" }}>{containerItem.containerSize || ""}</div>
-                  <div style={{ width: "13%" }}>{containerItem.containerStatusName || ""}</div>
+                  <div style={{ width: "20%" }}>{containerItem.containerNo || ""}</div>
+                  <div style={{ width: "15%" }}>{containerItem.containerSealNo || ""}</div>
+                  <div style={{ width: "20%" }}>{containerItem.containerSize || ""}{" / "}{containerItem.ContainerType || ""}</div>
                   <div style={{ width: "10%" }}>{containerItem.containerGrossWT || ""}</div>
-                  <div style={{ width: "25%" }}>{containerItem.containerGrossWTUnit || ""}</div>
+                  <div style={{ width: "35%" }}>{containerItem.containerGrossWTUnit || ""}</div>
                 </div>
               ))}
           </React.Fragment>
