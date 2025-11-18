@@ -15,6 +15,7 @@ import {
 } from "@/apis/dynamicReport";
 import { useRouter } from "next/navigation";
 import { exportExcel } from "@/utils/dynamicReportUtils";
+import { getUserByCookies } from "@/utils";
 
 export default function ImportAdvanceList() {
   const [formData, setFormData] = useState({});
@@ -26,6 +27,7 @@ export default function ImportAdvanceList() {
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
   const router = useRouter();
+  const userData = getUserByCookies();
 
   const transformToIds = (data) => {
     return Object.fromEntries(
@@ -52,8 +54,8 @@ export default function ImportAdvanceList() {
         spName: "ialExcel",
         jsonData: {
           ...transformed,
-          clientId: 8,
-          userId: 4,
+          clientId: 1,
+          userId: userData.userId,
           data: rows,
         },
       }),
