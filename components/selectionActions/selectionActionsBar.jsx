@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { getDataWithCondition, updateStatusRows } from "@/apis";
+import { getUserByCookies } from "@/utils";
 
 export default function SelectionActionsBar({
   selectedIds = [],
@@ -25,6 +26,7 @@ export default function SelectionActionsBar({
   isRequest = false,
   isReject = false,
   isVerify = false,
+  isEdit = false,
 }) {
   const ids = useMemo(
     () =>
@@ -42,6 +44,7 @@ export default function SelectionActionsBar({
   const [rejectOpen, setRejectOpen] = useState(false);
   const [remarks, setRemarks] = useState("");
   const [hblStatus, setHblStatus] = useState(null);
+  const userData = getUserByCookies();
 
   const openReject = () => {
     setRemarks("");
@@ -74,6 +77,8 @@ export default function SelectionActionsBar({
           [keyColumn]: id,
           hblRequestStatus: requestStatus[0].Id,
           hblRequestRemarks: null,
+          requestedBy: userData.userId,
+          requestDate: new Date(),
         };
       })
     );
@@ -89,6 +94,8 @@ export default function SelectionActionsBar({
           [keyColumn]: id,
           hblRequestStatus: veriFyStatus[0].Id,
           hblRequestRemarks: null,
+          verifiedBy: userData.userId,
+          verifyDate: new Date(),
         };
       })
     );
@@ -104,6 +111,8 @@ export default function SelectionActionsBar({
           [keyColumn]: id,
           hblRequestStatus: rejectStatus[0].Id,
           hblRequestRemarks: (remarks || "").trim() || null,
+          rejectedBy: userData.userId,
+          rejectDate: new Date(),
         };
       })
     );
@@ -146,11 +155,13 @@ export default function SelectionActionsBar({
             onClick={() => isSingle && onView && onView(ids[0])}
             disabled={!isSingle}
           />
-          <Segment
-            label="Edit"
-            onClick={() => isSingle && onEdit && onEdit(ids[0])}
-            disabled={!isSingle}
-          />
+          {isEdit && (
+            <Segment
+              label="Edit"
+              onClick={() => isSingle && onEdit && onEdit(ids[0])}
+              disabled={!isSingle}
+            />
+          )}
           {isDelete && (
             <Segment
               label="Delete"

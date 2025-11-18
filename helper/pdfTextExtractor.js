@@ -135,7 +135,8 @@ async function extractRawPdf(file) {
   return { pages: pageTexts.length, pageTexts, text };
 }
 
-export async function extractTextFromPdfs(files) {
+// ✅ UPDATED FUNCTION: returns { userId, data: [ ... ] } with id, etc.
+export async function extractTextFromPdfs(files, userId) {
   await ensurePdfjs();
 
   const pdfFiles = Array.from(files || []).filter(
@@ -144,7 +145,8 @@ export async function extractTextFromPdfs(files) {
       (f.name || "").toLowerCase().endsWith(".pdf")
   );
 
-  const out = [];
+  const rows = [];
+
   for (const file of pdfFiles) {
     const raw = await extractRawPdf(file);
     const p1 = raw.pageTexts[0] || "";
@@ -157,6 +159,7 @@ export async function extractTextFromPdfs(files) {
     const dueDate = extractDueDate(all, p1, p2);
     const { vesselName, voyageCode } = extractVesselVoyage(all, p1, p2);
 
+    // still extracted in case you want to use it later
     const customerGST = extractCustomerGST(all, p1, p2);
     const { customerMerged } = extractCustomerMergedAfterBL(all);
 
@@ -164,7 +167,8 @@ export async function extractTextFromPdfs(files) {
     const totalFigure = extractTotalInvoiceFigure(all);
     const freight = detectFreight(all);
 
-    out.push({
+    rows.push({
+      id: rows.length + 1,
       fileName: file.name,
       invoiceNo,
       bookingNo,
@@ -172,16 +176,22 @@ export async function extractTextFromPdfs(files) {
       dueDate,
       vesselName,
       voyageCode,
-      customerGST,
       customerMerged,
       blNumber,
       totalFigure,
       freight,
+      // if later you want GST, just uncomment:
+      // customerGST,
     });
   }
 
-  console.log("Structured PDF JSON:", JSON.stringify(out, null, 2));
-  return out;
+  const payload = {
+    userId: userId ?? null,
+    data: rows,
+  };
+
+  console.log("Structured PDF JSON payload:", JSON.stringify(payload, null, 2));
+  return payload;
 }
 
 // ---------------------- Helpers ----------------------

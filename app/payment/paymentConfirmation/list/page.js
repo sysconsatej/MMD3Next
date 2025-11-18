@@ -42,6 +42,7 @@ import {
 } from "../paymentConfirmationData";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { TopActionIcons } from "@/components/tableHoverIcons/tableHoverIconsPayment";
+import { getUserByCookies } from "@/utils";
 
 const LIST_TABLE = "tblInvoicePayment p";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -121,6 +122,7 @@ export default function InvoiceRequestList() {
     value: "",
     paymentId: null,
   });
+  const userData = getUserByCookies();
 
   const [selectedIds, setSelectedIds] = useState([]);
   const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
@@ -180,6 +182,7 @@ export default function InvoiceRequestList() {
           id: rejectState.paymentId,
           paymentStatusId: id,
           remarks: rejectState.value,
+          invoiceIds: null, 
         },
       ],
     };
@@ -203,7 +206,7 @@ export default function InvoiceRequestList() {
             p.createdDate paymentDate,
             b.mblNo blNo,
             r.isFreeDays DoExtension,
-            u.name PayorName,
+            u1.name PayorName,
             m.name paymentType,
             p.bankName BankName,
             p.referenceNo PaymentRefNo,
@@ -214,9 +217,10 @@ export default function InvoiceRequestList() {
           pageNo,
           pageSize,
           advanceSearch: advanceSearchFilter(advanceSearch),
-          joins: `left join tblBl b on b.id=p.blId
+          joins: `left join tblUser u on u.id = ${userData.userId}
+            left join tblUser u1 on u1.id=p.createdBy
+            join tblBl b on b.id = p.blId and b.shippingLineId = u.companyId
             left join tblInvoiceRequest r on r.blNo=b.mblNo
-            left join tblUser u on u.id=p.createdBy
             left join tblMasterData m on m.id=p.paymentTypeId
             left join tblMasterData ms on ms.id=p.paymentStatusId`,
           orderBy: "order by p.createdDate desc",

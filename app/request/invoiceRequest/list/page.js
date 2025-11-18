@@ -39,6 +39,8 @@ import {
 } from "../invoiceRequestData";
 import { getUserByCookies } from "@/utils";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
+import { InvoiceModal } from "../utils";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 
 const LIST_TABLE = "tblInvoiceRequest i";
 const UPDATE_TABLE = LIST_TABLE.split(" ")[0];
@@ -89,6 +91,7 @@ export default function InvoiceRequestList() {
   const tableWrapRef = useRef(null);
   const userData = getUserByCookies();
   const [advanceSearch, setAdvanceSearch] = useState({});
+  const [modal, setModal] = useState({ toggle: false, value: null });
 
   const [selectedIds, setSelectedIds] = useState([]);
   const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
@@ -119,8 +122,7 @@ export default function InvoiceRequestList() {
             i.remarks remarks,
             i.createdDate date,
             st.name AS status,
-            i.rejectRemarks AS remarkStatus
-           
+            i.rejectRemarks AS remarkStatus   
           `,
           tableName: LIST_TABLE,
           pageNo,
@@ -269,6 +271,7 @@ export default function InvoiceRequestList() {
                 <TableCell>Status</TableCell>
                 <TableCell>Rejected Remark</TableCell>
                 <TableCell>Request Date</TableCell>
+                <TableCell>Attachment</TableCell>
               </TableRow>
             </TableHead>
 
@@ -316,6 +319,19 @@ export default function InvoiceRequestList() {
 
                     <TableCell>{row.date}</TableCell>
 
+                    <TableCell>
+                      <AttachFileIcon
+                        sx={{ cursor: "pointer", fontSize: "16px" }}
+                        onClick={() =>
+                          setModal((prev) => ({
+                            ...prev,
+                            toggle: true,
+                            value: row.id,
+                          }))
+                        }
+                      />
+                    </TableCell>
+
                     {/* ACTION ICONS */}
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
@@ -358,8 +374,8 @@ export default function InvoiceRequestList() {
           </Box>
         </Box>
       </Box>
-
       <ToastContainer />
+      <InvoiceModal modal={modal} setModal={setModal} />
     </ThemeProvider>
   );
 }

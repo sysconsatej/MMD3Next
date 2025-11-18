@@ -41,6 +41,7 @@ import {
 } from "../invoiceReleaseData";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { getUserByCookies } from "@/utils";
+import { InvoiceModal } from "../../invoiceRequest/utils";
 
 const LIST_TABLE = "tblInvoiceRequest i";
 const CHECKBOX_SX = { p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } };
@@ -88,6 +89,7 @@ export default function InvoiceReleaseList() {
   const [advanceSearch, setAdvanceSearch] = useState({});
   const [loadingState, setLoadingState] = useState("Loading...");
   const tableWrapRef = useRef(null);
+  const [modal, setModal] = useState({ toggle: false, value: null });
 
   const [selectedIds, setSelectedIds] = useState([]);
 
@@ -327,7 +329,13 @@ export default function InvoiceReleaseList() {
                     <TableCell>
                       <AttachFileIcon
                         sx={{ cursor: "pointer", fontSize: "18px" }}
-                        onClick={() => toast.info("Open attachment modal")}
+                        onClick={() =>
+                          setModal((prev) => ({
+                            ...prev,
+                            toggle: true,
+                            value: row.id,
+                          }))
+                        }
                       />
                     </TableCell>
                   </TableRow>
@@ -361,6 +369,7 @@ export default function InvoiceReleaseList() {
         </Box>
       </Box>
       <ToastContainer />
+      <InvoiceModal modal={modal} setModal={setModal} />
     </ThemeProvider>
   );
 }
