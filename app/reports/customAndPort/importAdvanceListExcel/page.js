@@ -15,6 +15,7 @@ import {
 } from "@/apis/dynamicReport";
 import { useRouter } from "next/navigation";
 import { exportExcel } from "@/utils/dynamicReportUtils";
+import { getUserByCookies } from "@/utils";
 
 export default function ImportAdvanceList() {
   const [formData, setFormData] = useState({});
