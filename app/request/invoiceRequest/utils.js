@@ -32,7 +32,7 @@ export function InvoiceModal({ modal, setModal }) {
     async function getModalData() {
       const obj = {
         columns: "path, (select hblNo from tblBl b where b.id = a.blId) hblNo",
-        tableName: "tblAttachement a",
+        tableName: "tblAttachment a",
         whereCondition: `invoiceRequestId in (${modal.value}) and status = 1`,
       };
       const { data } = await getDataWithCondition(obj);

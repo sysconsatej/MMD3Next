@@ -175,7 +175,7 @@ export default function InvoiceRequest() {
         data,
         "tblInvoiceRequest",
         mode.formId,
-        '["tblInvoiceRequestContainer","tblAttachement"]',
+        '["tblInvoiceRequestContainer","tblAttachment"]',
         "invoiceRequestId"
       );
 
@@ -310,11 +310,11 @@ export default function InvoiceRequest() {
             <Box>
               <FormHeading text="Attachment Details" />
               <TableGrid
-                fields={jsonData.tblAttachement}
+                fields={jsonData.tblAttachment}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
-                gridName="tblAttachement"
+                gridName="tblAttachment"
                 buttons={cfsGridButtons}
               />
             </Box>

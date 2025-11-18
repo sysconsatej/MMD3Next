@@ -199,7 +199,7 @@ export default function InvoicePayment() {
             data,
             "tblInvoice",
             id,
-            '["tblInvoiceRequestContainer","tblAttachement"]',
+            '["tblInvoiceRequestContainer","tblAttachment"]',
             "invoiceRequestId"
           );
           const { success, result } = await fetchForm(format);

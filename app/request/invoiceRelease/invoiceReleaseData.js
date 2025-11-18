@@ -136,7 +136,7 @@ const fieldData = {
       dragDrop: true,
     },
   ],
-  tblAttachement: [
+  tblAttachment: [
     {
       label: "Upload",
       name: "path",
