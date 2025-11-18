@@ -138,7 +138,7 @@ const fieldData = {
       isEdit: true,
     },
   ],
-  tblAttachement: [
+  tblAttachment: [
     // {
     //   label: "Select",
     //   name: "select",

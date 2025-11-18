@@ -246,6 +246,7 @@ export default function InvoiceRequestList() {
           onEdit={(id) => modeHandler("edit", id)}
           onDelete={(ids) => handleBulkDelete(ids)}
           onUpdated={() => getData(page, rowsPerPage)}
+          isEdit={true}
         />
 
         {/* TABLE */}

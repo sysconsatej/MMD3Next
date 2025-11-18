@@ -740,7 +740,7 @@ export const fieldData = {
       required: true,
     },
   ],
-  tblAttachement: [
+  tblAttachment: [
     {
       label: "Upload File",
       name: "path",
