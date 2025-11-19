@@ -46,6 +46,7 @@ function RptIGMContent() {
         const res = await getIgmBlData({ json: recordIds.join(",") });
         const rows = Array.isArray(res?.data) ? res.data : [];
         if (alive) setData(rows);
+        console.log("getIgmBlData res:", res);
       } catch (err) {
         console.error("getIgmBlData error:", err);
         if (alive) setData([]);
@@ -75,7 +76,9 @@ function RptIGMContent() {
 
   function groupSortedBlData(rows) {
     const carrierRank = (v) => {
-      const s = String(v ?? "").trim().toUpperCase();
+      const s = String(v ?? "")
+        .trim()
+        .toUpperCase();
       if (s === "LOCAL") return 0;
       if (s === "SMTP") return 1;
       if (s === "TP") return 2;
@@ -92,10 +95,15 @@ function RptIGMContent() {
     const getFPD = (o) => o.fpdName ?? o.fpd ?? "";
 
     const arr = [...(rows || [])].sort((a, b) => {
-      const r1 = carrierRank(a.movementCarrier) - carrierRank(b.movementCarrier);
+      const r1 =
+        carrierRank(a.movementCarrier) - carrierRank(b.movementCarrier);
       const rLn = toNum(a.lineNo) - toNum(b.lineNo);
-      const r2 = text(getPLR(a)).localeCompare(text(getPLR(b)), undefined, { sensitivity: "base" });
-      const r3 = text(getFPD(a)).localeCompare(text(getFPD(b)), undefined, { sensitivity: "base" });
+      const r2 = text(getPLR(a)).localeCompare(text(getPLR(b)), undefined, {
+        sensitivity: "base",
+      });
+      const r3 = text(getFPD(a)).localeCompare(text(getFPD(b)), undefined, {
+        sensitivity: "base",
+      });
       return r1 || rLn || r2 || r3;
     });
 
@@ -104,7 +112,9 @@ function RptIGMContent() {
     let bucket = [];
 
     for (const item of arr) {
-      const key = [item.movementCarrier || "", getPLR(item), getFPD(item)].join("|||");
+      const key = [item.movementCarrier || "", getPLR(item), getFPD(item)].join(
+        "|||"
+      );
       if (key !== currentKey) {
         if (bucket.length) {
           groups.push({
@@ -145,9 +155,12 @@ function RptIGMContent() {
     const goodsDescLines = Math.ceil((record.goodsDesc?.length || 0) / 40);
     const marksLines = Math.ceil((record.marksNos?.length || 0) / 50);
     const consigneeLines = Math.ceil(
-      ((record.consigneeText?.length || 0) + (record.consigneeAddress || "").length) / 60
+      ((record.consigneeText?.length || 0) +
+        (record.consigneeAddress || "").length) /
+        60
     );
-    const containerLines = (record.tblBlContainer?.length || 0) * CONTAINER_ROW_HEIGHT;
+    const containerLines =
+      (record.tblBlContainer?.length || 0) * CONTAINER_ROW_HEIGHT;
 
     const textHeight = (goodsDescLines + marksLines + consigneeLines) * 15;
     return DEFAULT_ROW_HEIGHT + textHeight + containerLines;
@@ -164,7 +177,9 @@ function RptIGMContent() {
     let currentHeight = 0;
 
     const calcBodyHeight = (isLastChunk = false) =>
-      PAGE_HEIGHT - HEADER_HEIGHT - (isLastChunk && showFooterOnLastChunk ? FOOTER_HEIGHT : 0);
+      PAGE_HEIGHT -
+      HEADER_HEIGHT -
+      (isLastChunk && showFooterOnLastChunk ? FOOTER_HEIGHT : 0);
 
     const estimatedHeights = records.map(estimateRecordHeight);
     let index = 0;
@@ -182,7 +197,9 @@ function RptIGMContent() {
         const maxContainersPerPage = Math.floor(
           (pageBodyHeight - DEFAULT_ROW_HEIGHT - 30) / CONTAINER_ROW_HEIGHT
         );
-        const totalChunks = Math.ceil(containerCount / Math.max(1, maxContainersPerPage));
+        const totalChunks = Math.ceil(
+          containerCount / Math.max(1, maxContainersPerPage)
+        );
 
         for (let i = 0; i < totalChunks; i++) {
           const slicedContainers = record.tblBlContainer.slice(
@@ -240,8 +257,17 @@ function RptIGMContent() {
     if (sortedData.length > 0) {
       const newChunks = [];
       sortedData.forEach((group) => {
-        const groupKey = [group.movementCarrier, group.plrName, group.fpdName].join("|||");
-        const recordChunks = chunkRecordsByHeight(group.records, rowRefsByGroup, groupKey, true);
+        const groupKey = [
+          group.movementCarrier,
+          group.plrName,
+          group.fpdName,
+        ].join("|||");
+        const recordChunks = chunkRecordsByHeight(
+          group.records,
+          rowRefsByGroup,
+          groupKey,
+          true
+        );
 
         recordChunks.forEach((chunk, index) => {
           const isLastChunkOfGroup = index === recordChunks.length - 1;
@@ -267,36 +293,55 @@ function RptIGMContent() {
     return (
       <>
         <div>
-          <h1 className="text-center text-black font-bold text-sm">IMPORT GENERAL MANIFEST</h1>
-          <h2 className="text-center text-black font-bold text-sm ">CARGO DECLARATION</h2>
+          <h1 className="text-center text-black font-bold text-sm">
+            IMPORT GENERAL MANIFEST
+          </h1>
+          <h2 className="text-center text-black font-bold text-sm ">
+            CARGO DECLARATION
+          </h2>
           <div className="flex w-full">
             <div style={{ width: "52%" }}>
-              <h2 className="text-black font-bold text-sm text-right">FORM III</h2>
+              <h2 className="text-black font-bold text-sm text-right">
+                FORM III
+              </h2>
             </div>
             <div style={{ width: "48%" }}>
-              <p className="text-black text-xs text-right pr-5">Page {index + 1}</p>
+              <p className="text-black text-xs text-right pr-5">
+                Page {index + 1}
+              </p>
             </div>
           </div>
-          <p className="text-center text-black text-xs mt-2">See Regulation 3 and 4</p>
+          <p className="text-center text-black text-xs mt-2">
+            See Regulation 3 and 4
+          </p>
         </div>
 
-        <div className="flex mt-2" style={{ width: "100%", color: "black", fontSize: "9px" }}>
+        <div
+          className="flex mt-2"
+          style={{ width: "100%", color: "black", fontSize: "9px" }}
+        >
           <div style={{ width: "32%" }}>
             <div className="flex mb-2">
               <div style={{ width: "40%" }}>
-                <p className="text-black font-bold ">Name of the Shipping Line:</p>
+                <p className="text-black font-bold ">
+                  Name of the Shipping Line:
+                </p>
               </div>
               <div style={{ width: "60%" }}>{data[0]?.shippingLine || ""}</div>
             </div>
             <div className="flex mb-2">
               <div style={{ width: "40%" }}>
-                <p className="text-black font-bold text-[9px]">1. Name of the Ship :</p>
+                <p className="text-black font-bold text-[9px]">
+                  1. Name of the Ship :
+                </p>
               </div>
-              <div style={{ width: "60%" }}>{data[0]?.VesselVoyageName || ""}</div>
+              <div style={{ width: "60%" }}>{data[0]?.podVessel || ""}</div>
             </div>
             <div className="flex mb-2">
               <div className="text-[9px]" style={{ width: "40%" }}>
-                <p className="text-black font-bold text-[9px]">3. IMO Code of Vessel :</p>
+                <p className="text-black font-bold text-[9px]">
+                  3. IMO Code of Vessel :
+                </p>
               </div>
               <div className="text-[9px]" style={{ width: "60%" }}></div>
             </div>
@@ -311,7 +356,9 @@ function RptIGMContent() {
             </div>
             <div className="flex mb-2">
               <div style={{ width: "40%" }}>
-                <p className="text-black font-bold ">2. Port where report is made :</p>
+                <p className="text-black font-bold ">
+                  2. Port where report is made :
+                </p>
               </div>
               <div style={{ width: "60%" }}>{data[0]?.pod || ""}</div>
             </div>
@@ -324,12 +371,22 @@ function RptIGMContent() {
           </div>
 
           <div style={{ width: "19%" }}>
-            <div className="flex mt-6">
+            <div className="flex mt-2">
               <div style={{ width: "40%" }}>
                 <p className="text-black font-bold">5 Port of Loading :</p>
               </div>
               <div style={{ width: "60%" }}>
                 <p className="text-black">{data[0]?.pol || ""}</p>
+              </div>
+            </div>
+            <div className="flex mt-2">
+              <div style={{ width: "40%" }}>
+                <p className="text-black font-bold">
+                  6 Authorised Sea Carrier Code :
+                </p>
+              </div>
+              <div style={{ width: "60%" }}>
+                <p className="text-black">{data[0]?.carrierCode || ""}</p>
               </div>
             </div>
           </div>
@@ -345,11 +402,17 @@ function RptIGMContent() {
               <div style={{ width: "40%" }}>
                 <p className="text-black font-bold ">IGM Date:</p>
               </div>
-              <div style={{ width: "60%" }}>{formatDateToYMD(data[0]?.igmDate)}</div>
+              <div style={{ width: "60%" }}>
+                {formatDateToYMD(data[0]?.igmDate)}
+              </div>
+            </div>
+            <div className="flex mb-2">
+              <div style={{ width: "40%" }}>
+                <p className="text-black font-bold ">Voyage No:</p>
+              </div>
+              <div style={{ width: "60%" }}>{data[0]?.podVoyage || ""}</div>
             </div>
           </div>
-
-
         </div>
       </>
     );
@@ -416,14 +479,19 @@ function RptIGMContent() {
 
         {groupedHeaderName && (
           <>
-            <div className="text-center mt-1 mb-1 font-bold" style={{ fontSize: "8px" }}>
+            <div
+              className="text-center mt-1 mb-1 font-bold"
+              style={{ fontSize: "8px" }}
+            >
               <p className="text-black">
-                {groupedHeaderName.movementCarrier} CARGO FROM {groupedHeaderName.plrName} TO{" "}
-                {groupedHeaderName.fpdName} VIA {groupedHeaderName.fpdName}
+                {groupedHeaderName.movementCarrier} CARGO FROM{" "}
+                {groupedHeaderName.plrName} TO {groupedHeaderName.fpdName} VIA{" "}
+                {groupedHeaderName.fpdName}
               </p>
               {(headerData?.polVessel || headerData?.polVoyage) && (
                 <p className="text-black">
-                  EX VESSEL {headerData?.polVessel || ""} VOYAGE {headerData?.polVoyage || ""}
+                  EX VESSEL {headerData?.polVessel || ""} VOYAGE{" "}
+                  {headerData?.polVoyage || ""}
                 </p>
               )}
             </div>
@@ -457,34 +525,43 @@ function RptIGMContent() {
                 </div>
                 <div className="p-1 wordBreak" style={{ width: "5%" }}>
                   <p className="wordBreak" style={{ fontSize: "8px" }}>
-                    {item.noOfPackages || ""} <br /> {item.commodityTypeName || ""}
+                    {item.noOfPackages || ""} <br />{" "}
+                    {item.commodityTypeName || ""}
                   </p>
                 </div>
                 <div className="p-1 wordBreak" style={{ width: "15%" }}>
-                  <p className="wordBreak" style={{ fontSize: "8px" }}>{item.marksNos || ""}</p>
+                  <p className="wordBreak" style={{ fontSize: "8px" }}>
+                    {item.marksNos || ""}
+                  </p>
                 </div>
                 <div className="p-1" style={{ width: "5%" }}>
                   {item.grossWt || ""}
                 </div>
                 <div className="p-1" style={{ width: "25%" }}>
-                  <p className="wordBreak" style={{ fontSize: "8px" }}>{item.goodsDesc || ""}</p>
+                  <p className="wordBreak" style={{ fontSize: "8px" }}>
+                    {item.goodsDesc || ""}
+                  </p>
                 </div>
                 <div className="p-1" style={{ width: "35%" }}>
-                  <div className="wordBreak">
+                  <div className="wordBreak flex">
                     <p className="wordBreak" style={{ fontSize: "8px" }}>
+                      <span className="font-bold">Consignee : </span>
                       {item.consigneeText || ""}
                       {item.consigneeAddress || ""}
                     </p>
                   </div>
-                  <div className="mt-2 wordBreak">
+                  <div className="mt-2 wordBreak flex">
                     <p className="wordBreak" style={{ fontSize: "8px" }}>
+                      <span className="font-bold">Notify Party :</span>
                       {item.notifyPartyName || ""}
                       {item.notifyPartyAddress || ""}
                     </p>
                   </div>
                 </div>
                 <div className="p-1" style={{ width: "5%" }}>
-                  <p className="wordBreak" style={{ fontSize: "8px" }}>{item.remarks || ""}</p>
+                  <p className="wordBreak" style={{ fontSize: "8px" }}>
+                    {item.remarks || ""}
+                  </p>
                 </div>
               </div>
             )}
@@ -492,15 +569,29 @@ function RptIGMContent() {
             {item.tblBlContainer?.length > 0 &&
               item.tblBlContainer.map((containerItem, containerIndex) => (
                 <div
-                  key={`${containerItem.containerNo || "cont"}-${containerIndex}`}
+                  key={`${
+                    containerItem.containerNo || "cont"
+                  }-${containerIndex}`}
                   className="flex"
                   style={{ fontSize: "8px", color: "black", width: "30%" }}
                 >
-                  <div style={{ width: "20%" }}>{containerItem.containerNo || ""}</div>
-                  <div style={{ width: "15%" }}>{containerItem.containerSealNo || ""}</div>
-                  <div style={{ width: "20%" }}>{containerItem.containerSize || ""}{" / "}{containerItem.ContainerType || ""}</div>
-                  <div style={{ width: "10%" }}>{containerItem.containerGrossWT || ""}</div>
-                  <div style={{ width: "35%" }}>{containerItem.containerGrossWTUnit || ""}</div>
+                  <div style={{ width: "20%" }}>
+                    {containerItem.containerNo || ""}
+                  </div>
+                  <div style={{ width: "15%" }}>
+                    {containerItem.containerSealNo || ""}
+                  </div>
+                  <div style={{ width: "20%" }}>
+                    {containerItem.containerSize || ""}
+                    {" / "}
+                    {containerItem.ContainerType || ""}
+                  </div>
+                  <div style={{ width: "10%" }}>
+                    {containerItem.containerGrossWT || ""}
+                  </div>
+                  <div style={{ width: "35%" }}>
+                    {containerItem.containerGrossWTUnit || ""}
+                  </div>
                 </div>
               ))}
           </React.Fragment>
@@ -514,32 +605,40 @@ function RptIGMContent() {
       <>
         <div className="mt-6 mb-2" style={{ fontSize: "9px", width: "70%" }}>
           <p className="text-black" style={{ fontSize: "9px" }}>
-            We hereby ceritify that Item List are on account of our principals. We, as agents are
-            responsible for the cargo manifested under the above items and will be liable for any
-            penalty or other dues in case of any shortland / survey shortages. We ceritify that all
-            items indicated on this hard copy of IGM have been fully represented in the magnetic
-            medium.
+            We hereby certify that Item List are on account of our principals.
+            We, as agents are responsible for the cargo manifested under the
+            above items and will be liable for any penalty or other dues in case
+            of any shortland / survey shortages. We certify that all items
+            indicated on this hard copy of IGM have been fully represented in
+            the magnetic medium.
           </p>
         </div>
         <div className="flex mt-4">
-          <p className="text-black" style={{ fontSize: "9px" }}>To be filled by Customs house</p>
+          <p className="text-black" style={{ fontSize: "9px" }}>
+            To be filled by Customs house
+          </p>
           <p className="text-black ml-8" style={{ fontSize: "9px" }}>
             Date and Signature by the Master, authorized agent
           </p>
         </div>
         <div>
-          <p className="text-black mt-4" style={{ fontSize: "9px" }}>For </p>
+          <p className="text-black mt-4" style={{ fontSize: "9px" }}>
+            For{" "}
+          </p>
         </div>
         <div>
-          <p className="text-black mt-15" style={{ fontSize: "9px" }}>As Agents</p>
+          <p className="text-black mt-15" style={{ fontSize: "9px" }}>
+            As Agents
+          </p>
         </div>
       </>
     );
   };
 
   const headerRow0 = data?.[0] || {};
-  const pdfNameBase = `IGM_${headerRow0?.igmNo || "Report"}_${headerRow0?.VesselVoyageName || ""}`
-    .replace(/[\\/:*?"<>|]+/g, "_");
+  const pdfNameBase = `IGM_${headerRow0?.igmNo || "Report"}_${
+    headerRow0?.VesselVoyageName || ""
+  }`.replace(/[\\/:*?"<>|]+/g, "_");
 
   return (
     <main className="bg-gray-300 min-h-screen p-4">
@@ -565,23 +664,35 @@ function RptIGMContent() {
                   const CONTAINER_ROW_HEIGHT_PAGE = 20;
 
                   function estimateRecordHeightPage(record) {
-                    const goodsDescLines = Math.ceil((record.goodsDesc?.length || 0) / 40);
-                    const marksLines = Math.ceil((record.marksNos?.length || 0) / 50);
+                    const goodsDescLines = Math.ceil(
+                      (record.goodsDesc?.length || 0) / 40
+                    );
+                    const marksLines = Math.ceil(
+                      (record.marksNos?.length || 0) / 50
+                    );
                     const consigneeLines = Math.ceil(
                       ((record.consigneeText?.length || 0) +
-                        (record.consigneeAddress?.length || 0)) / 60
+                        (record.consigneeAddress?.length || 0)) /
+                        60
                     );
                     const containerLines =
-                      (record.tblBlContainer?.length || 0) * CONTAINER_ROW_HEIGHT_PAGE;
-                    const textHeight = (goodsDescLines + marksLines + consigneeLines) * 15;
+                      (record.tblBlContainer?.length || 0) *
+                      CONTAINER_ROW_HEIGHT_PAGE;
+                    const textHeight =
+                      (goodsDescLines + marksLines + consigneeLines) * 15;
                     return DEFAULT_ROW_HEIGHT + textHeight + containerLines;
                   }
 
                   const chunks = [];
 
                   sortedData.forEach((groupItem) => {
-                    const { movementCarrier, plrName, fpdName, records } = groupItem;
-                    const groupKey = [movementCarrier || "", plrName || "", fpdName || ""].join("|||");
+                    const { movementCarrier, plrName, fpdName, records } =
+                      groupItem;
+                    const groupKey = [
+                      movementCarrier || "",
+                      plrName || "",
+                      fpdName || "",
+                    ].join("|||");
 
                     if (!Array.isArray(records)) return;
 
@@ -592,10 +703,16 @@ function RptIGMContent() {
                       const containerCount = record.tblBlContainer?.length || 0;
                       const totalRowHeight = estimateRecordHeightPage(record);
 
-                      if (totalRowHeight > PAGE_HEIGHT_PX - headerHeight - footerHeight) {
+                      if (
+                        totalRowHeight >
+                        PAGE_HEIGHT_PX - headerHeight - footerHeight
+                      ) {
                         const maxContainersPerPage = Math.floor(
-                          (PAGE_HEIGHT_PX - headerHeight - footerHeight - rowBaseHeight) /
-                          CONTAINER_ROW_HEIGHT_PAGE
+                          (PAGE_HEIGHT_PX -
+                            headerHeight -
+                            footerHeight -
+                            rowBaseHeight) /
+                            CONTAINER_ROW_HEIGHT_PAGE
                         );
                         const totalChunks = Math.ceil(
                           containerCount / Math.max(1, maxContainersPerPage)
@@ -627,7 +744,10 @@ function RptIGMContent() {
                           });
                         }
                       } else {
-                        if (currentHeight + totalRowHeight > PAGE_HEIGHT_PX - headerHeight - footerHeight) {
+                        if (
+                          currentHeight + totalRowHeight >
+                          PAGE_HEIGHT_PX - headerHeight - footerHeight
+                        ) {
                           chunks.push({
                             groupKey,
                             movementCarrier,
@@ -661,14 +781,19 @@ function RptIGMContent() {
                         const isLastChunkOfGroup =
                           chunkIndex ===
                           chunks.reduce(
-                            (lastIdx, g, idx) => (g.groupKey === group.groupKey ? idx : lastIdx),
+                            (lastIdx, g, idx) =>
+                              g.groupKey === group.groupKey ? idx : lastIdx,
                             -1
                           );
 
                         return (
-                          <React.Fragment key={`${group.groupKey}-page-${chunkIndex}`}>
+                          <React.Fragment
+                            key={`${group.groupKey}-page-${chunkIndex}`}
+                          >
                             <div
-                              ref={(el) => (enquiryModuleRefs.current[chunkIndex] = el)}
+                              ref={(el) =>
+                                (enquiryModuleRefs.current[chunkIndex] = el)
+                              }
                               className="bg-white shadow-md p-4 border border-gray-300 print:break-after-page relative mb-8"
                               style={{
                                 width: "297mm",
@@ -681,21 +806,28 @@ function RptIGMContent() {
                                 pageBreakAfter: "always",
                               }}
                             >
-                              <ImportGeneralManifest data={group.records} index={chunkIndex} />
+                              <ImportGeneralManifest
+                                data={group.records}
+                                index={chunkIndex}
+                              />
 
                               <ImportGeneralManifestGrid
                                 sortedData={group.records}
                                 groupedHeaderName={group}
                                 groupKey={group.groupKey}
                                 rowRefsByGroup={rowRefsByGroup}
-                                hideHeaderData={group.records[0]?.hideHeaderData}
+                                hideHeaderData={
+                                  group.records[0]?.hideHeaderData
+                                }
                                 headerData={{
                                   polVessel: headerRow0?.polVessel,
                                   polVoyage: headerRow0?.polVoyage,
                                 }}
                               />
 
-                              {isLastChunkOfGroup && <ImportGeneralManifestFooter />}
+                              {isLastChunkOfGroup && (
+                                <ImportGeneralManifestFooter />
+                              )}
                             </div>
 
                             <div className="bg-gray-300 h-2 no-print" />
