@@ -70,7 +70,7 @@ export const fieldData = {
     },
     {
       label: "BL Type",
-      name: "blTypeId",
+      // name: "blTypeId",
       type: "dropdown",
       tableName: "tblMasterData m",
       displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
