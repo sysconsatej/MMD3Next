@@ -11,7 +11,7 @@ import CustomButton from "@/components/button/button";
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
-import data, { cfsGridButtons } from "./invoicePaymentData";
+import data, { cfsGridButtons, containerObj } from "./invoicePaymentData";
 import {
   getDataWithCondition,
   fetchForm,
@@ -53,8 +53,7 @@ export default function InvoicePayment() {
   const [invoiceArray, setInvoiceArray] = useState([0]);
   const [tabValue, setTabValue] = useState(0);
   const [errorState, setErrorState] = useState({});
-  const [files, setFiles] = useState([]);
-  const [attachData, setAttachData] = useState([]);
+  const [containerData, setContainerData] = useState([]);
 
   // ✅ store IDs of invoices as they originally came from DB
   const [initialInvoiceIds, setInitialInvoiceIds] = useState([]);
@@ -68,6 +67,13 @@ export default function InvoicePayment() {
       setTabValue(next.length - 1);
       return next;
     });
+    setFormData((prev) => ({
+      ...prev,
+      tblInvoice: [
+        ...(prev?.tblInvoice || []),
+        { tblInvoiceRequestContainer: containerData },
+      ],
+    }));
   };
 
   // ✅ remove tab + its data; deleted IDs will be detected at submit
@@ -103,6 +109,37 @@ export default function InvoicePayment() {
 
   const sqlEscape = useCallback((s = "") => String(s).replace(/'/g, "''"), []);
 
+  async function setBlContainer(blId) {
+    const format = formatFetchForm(
+      containerObj,
+      "tblBl",
+      blId,
+      '["tblBlContainer"]',
+      "blId"
+    );
+    const { success, result, message, error } = await fetchForm(format);
+    if (success) {
+      const getData = formatDataWithForm(result, {
+        tblBlContainer: jsonData.tblInvoiceRequestContainer,
+      });
+      const filterContainer = getData.tblBlContainer.map((item) => {
+        return { containerNo: item.containerNo, sizeId: item.sizeId };
+      });
+      setContainerData(filterContainer);
+      setFormData((prev) => ({
+        ...prev,
+        tblInvoice: [
+          ...(prev?.tblInvoice || []),
+          {
+            tblInvoiceRequestContainer: filterContainer,
+          },
+        ],
+      }));
+    } else {
+      toast.error(error || message);
+    }
+  }
+
   const checkBlForCompany = useCallback(
     async (event) => {
       const { value, name } = event.target;
@@ -137,6 +174,7 @@ export default function InvoicePayment() {
           toast.success("BL found for this Beneficiary.");
           setFormData((p) => ({ ...p, blId: data[0].id }));
           setErrorState((p) => ({ ...p, [errKey]: false }));
+          await setBlContainer(data[0].id);
         } else {
           toast.error("BL not found for this Beneficiary.");
           setErrorState((p) => ({ ...p, [errKey]: true }));

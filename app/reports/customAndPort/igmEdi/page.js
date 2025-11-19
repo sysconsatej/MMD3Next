@@ -14,7 +14,7 @@ import {
   fetchDynamicReportData,
   updateDynamicReportData,
 } from "@/apis/dynamicReport";
-import { exportText } from "@/utils";
+import { exportText, getUserByCookies } from "@/utils";
 
 export default function IGMEDI() {
   const [formData, setFormData] = useState({});
@@ -27,6 +27,7 @@ export default function IGMEDI() {
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
   const router = useRouter();
+  const userData = getUserByCookies();
 
   const transformToIds = (data) => {
     return Object.fromEntries(
@@ -55,8 +56,8 @@ export default function IGMEDI() {
         jsonData: {
           ...transformed,
           data: rows,
-          clientId: 8,
-          userId: 4,
+          clientId: 1,
+          userId: userData.userId,
         },
       }),
     });
