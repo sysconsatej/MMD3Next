@@ -31,6 +31,7 @@ export default function Home() {
   const { mode, setMode } = formStore();
   const [totals, setTotals] = useState({});
   const [packTypeState, setPackTypeState] = useState(null);
+  const [submitBtn, setSubmitBtn] = useState(false);
   const userData = getUserByCookies();
 
   useTotalGrossAndPack(formData, setTotals);
@@ -63,7 +64,9 @@ export default function Home() {
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
-      setFormData({});
+      if (mode.mode !== "edit") {
+        setSubmitBtn(true);
+      }
     } else {
       toast.error(error || message);
     }
@@ -504,7 +507,11 @@ export default function Home() {
           </Box>
           <Box className="w-full flex mt-2">
             {fieldsMode !== "view" && (
-              <CustomButton text={"Submit"} type="submit" />
+              <CustomButton
+                text={"Submit"}
+                type="submit"
+                disabled={submitBtn}
+              />
             )}
           </Box>
         </section>
