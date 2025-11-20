@@ -29,7 +29,9 @@ export const deleteRecord = async (obj) => {
 
 export const uploadExcel = async (obj) => {
   try {
-    const res = await api.post(`form/excelUpload`, obj);
+    const res = await api.post(`form/excelUpload`, obj, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }); 
     return res.data;
   } catch (error) {
     return error.response.data;

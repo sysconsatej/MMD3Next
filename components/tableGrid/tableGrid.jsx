@@ -288,6 +288,8 @@ function TableGrid({
         setFormData={setFormData}
         gridName={gridName}
         fields={fields}
+        tabIndex={tabIndex}
+        tabName={tabName}
       />
     </Box>
   );
