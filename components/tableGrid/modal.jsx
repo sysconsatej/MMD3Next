@@ -31,6 +31,8 @@ export default function ExcelModal({
   setFormData,
   gridName,
   fields,
+  tabIndex,
+  tabName,
 }) {
   async function handleExcelUpload() {
     if (excelFile?.excelFile) {
@@ -38,31 +40,43 @@ export default function ExcelModal({
       formData.append("excelFile", excelFile?.excelFile);
       const { result } = await uploadExcel(formData);
 
-      // if(Array.isArray(result)) {
-      //   const formddata =  result.forEach((row ,rowIndex) =>  {
-      //     const newRow =  row;
-      //     setInputValue({
-      //       tabName: "tblBl",
-      //       gridName: "tblBlContainer",
-      //       tabIndex,
-      //       containerIndex,
-      //       name: "isoCode",
-      //       value: row?.,
-      //     })
-      //   })
-      // }
-      // const res = formatExcelDataWithForm(result, fields);
       setFormData((prev) => {
+        // If a tabName exists → update nested tab/grid
+        if (tabName !== null && tabIndex !== null) {
+          const updatedTabs = [...prev[tabName]];
+          const selectedTab = { ...updatedTabs[tabIndex] };
+
+          selectedTab[gridName] = [...(selectedTab[gridName] || []), ...result];
+
+          updatedTabs[tabIndex] = selectedTab;
+
+          return {
+            ...prev,
+            [tabName]: updatedTabs,
+          };
+        }
+
+        // If no tabName → update top-level grid
         return {
           ...prev,
-          tblBl: prev?.tblBl?.map((info) => {
-            return {
-              ...info,
-              [gridName]: result,
-            };
-          }),
+          [gridName]: [...(prev[gridName] || []), ...result],
         };
       });
+
+      // setFormData((prev) => {
+      //   console.log(prev);
+
+      //   return {
+      //     ...prev,
+      //     tblBl: prev.tblBl?.map((info, i) => {
+      //       return {
+      //         ...info,
+      //         [gridName]: [...(info[gridName] || []), ...result],
+      //       };
+      //     }),
+      //   };
+      // });
+
       setExcelFile((prev) => ({ ...prev, open: false, excelFile: null }));
     }
   }
