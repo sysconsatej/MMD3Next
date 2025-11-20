@@ -130,21 +130,21 @@ export default function BLList() {
 
   const rows = blData
     ? blData.map((item) =>
-        createData(
-          item["mblNo"],
-          item["mblDate"],
-          item["consigneeText"],
-          item["pol"],
-          item["pod"],
-          item["fpd"],
-          item["cargoMovement"],
-          item["arrivalVessel"],
-          item["arrivalVoyage"],
-          item["line"],
-          item["id"],
-          item["clientId"]
-        )
+      createData(
+        item["mblNo"],
+        item["mblDate"],
+        item["consigneeText"],
+        item["pol"],
+        item["pod"],
+        item["fpd"],
+        item["cargoMovement"],
+        item["arrivalVessel"],
+        item["arrivalVoyage"],
+        item["line"],
+        item["id"],
+        item["clientId"]
       )
+    )
     : [];
 
   useEffect(() => {
@@ -211,7 +211,7 @@ export default function BLList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center">
-            MBL Request
+            MBL
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <AdvancedSearchBar
