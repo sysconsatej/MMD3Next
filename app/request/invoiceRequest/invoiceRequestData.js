@@ -20,7 +20,7 @@ const fieldData = {
       name: "blNo",
       required: true,
       isEdit: true,
-      blurFunction:"duplicateHandler",
+      blurFun: "duplicateHandler",
     },
 
     // {
@@ -72,6 +72,7 @@ const fieldData = {
         { label: "Do Extension", value: "D" },
       ],
       isEdit: true,
+      blurFun: "duplicateHandler",
     },
     // {
     //   label: "Free Days",
@@ -150,6 +151,7 @@ const fieldData = {
       searchColumn: "m.name",
       orderBy: "m.name",
       where: "m.masterListName = 'tblInvoiceAttachmentType'",
+      foreignTable: "name,tblMasterData",
       isEdit: true,
     },
     {
@@ -180,6 +182,7 @@ const fieldData = {
       searchColumn: "m.name",
       orderBy: "m.name",
       where: "m.masterListName = 'tblSize'",
+      foreignTable: "name,tblMasterData",
       isEdit: true,
     },
     {

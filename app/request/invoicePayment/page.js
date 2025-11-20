@@ -54,6 +54,7 @@ export default function InvoicePayment() {
   const [tabValue, setTabValue] = useState(0);
   const [errorState, setErrorState] = useState({});
   const [containerData, setContainerData] = useState([]);
+  const [invoiceReqId, setInvoiceReqId] = useState(null);
 
   // ✅ store IDs of invoices as they originally came from DB
   const [initialInvoiceIds, setInitialInvoiceIds] = useState([]);
@@ -129,14 +130,31 @@ export default function InvoicePayment() {
       setFormData((prev) => ({
         ...prev,
         tblInvoice: [
-          ...(prev?.tblInvoice || []),
           {
+            ...(prev?.tblInvoice?.[0] || []),
             tblInvoiceRequestContainer: filterContainer,
           },
         ],
       }));
     } else {
       toast.error(error || message);
+    }
+  }
+
+  async function setInvoiceRequestId(blNo) {
+    const payload = {
+      columns: "id",
+      tableName: "tblInvoiceRequest",
+      whereCondition: `blNo = '${blNo}'`,
+    };
+
+    try {
+      const { success, data } = await getDataWithCondition(payload);
+      if (success) {
+        setInvoiceReqId(data[0].id);
+      }
+    } catch (e) {
+      toast.error(e);
     }
   }
 
@@ -175,6 +193,7 @@ export default function InvoicePayment() {
           setFormData((p) => ({ ...p, blId: data[0].id }));
           setErrorState((p) => ({ ...p, [errKey]: false }));
           await setBlContainer(data[0].id);
+          await setInvoiceRequestId(typed);
         } else {
           toast.error("BL not found for this Beneficiary.");
           setErrorState((p) => ({ ...p, [errKey]: true }));
@@ -305,6 +324,7 @@ export default function InvoicePayment() {
           "tblInvoice",
           {
             ...cleanInvoice,
+            invoiceRequestId: invoiceReqId,
             blId,
             tblInvoiceRequestContainer:
               invoice.tblInvoiceRequestContainer || [],
@@ -372,11 +392,17 @@ export default function InvoicePayment() {
 
   const handleFilesChange = async (fileList) => {
     try {
-      setFiles(fileList || []);
-      const userId = 181; // e.g. from cookies / store / props
-      const payload = await extractTextFromPdfs(fileList, userId);
-      console.log("PDF → JSON payload for SP:", payload);
-      setAttachData(payload);
+      const data = await extractTextFromPdfs(fileList);
+      let distractData = { ...data[0] };
+      distractData = {
+        ...distractData,
+        tblInvoiceRequestContainer: containerData,
+      };
+      setFormData((prev) => ({
+        ...prev,
+        tblInvoice: [...(prev?.tblInvoice || []), distractData],
+      }));
+      setInvoiceArray((prev) => [...prev, new Array(data.length).fill(null)]);
     } catch (err) {
       console.error("Error processing uploaded PDFs:", err);
       toast.error("Error processing PDF files.");
@@ -467,6 +493,18 @@ export default function InvoicePayment() {
                   fieldsMode={fieldsMode}
                   gridName="tblInvoiceRequestContainer"
                   buttons={cfsGridButtons}
+                  tabName="tblInvoice"
+                  tabIndex={index}
+                />
+
+                <FormHeading text="Attachment Details" variant="body2" />
+                <TableGrid
+                  fields={jsonData.tblAttachment}
+                  formData={formData}
+                  setFormData={setFormData}
+                  fieldsMode={fieldsMode}
+                  gridName="tblAttachment"
+                  buttons={[]}
                   tabName="tblInvoice"
                   tabIndex={index}
                 />

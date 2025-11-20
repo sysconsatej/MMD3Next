@@ -136,7 +136,7 @@ async function extractRawPdf(file) {
 }
 
 // ✅ UPDATED FUNCTION: returns { userId, data: [ ... ] } with id, etc.
-export async function extractTextFromPdfs(files, userId) {
+export async function extractTextFromPdfs(files) {
   await ensurePdfjs();
 
   const pdfFiles = Array.from(files || []).filter(
@@ -168,30 +168,25 @@ export async function extractTextFromPdfs(files, userId) {
     const freight = detectFreight(all);
 
     rows.push({
-      id: rows.length + 1,
-      fileName: file.name,
       invoiceNo,
-      bookingNo,
-      issueDate,
-      dueDate,
-      vesselName,
-      voyageCode,
-      customerMerged,
-      blNumber,
-      totalFigure,
-      freight,
+      invoiceDate: dueDate,
+      billingParty: customerMerged,
+      totalInvoiceAmount: totalFigure.replace(",", ""),
+      tblAttachment: [{ path: file }],
+      // id: rows.length + 1,
+      // fileName: file.name,
+      // bookingNo,
+      // issueDate,
+      // vesselName,
+      // voyageCode,
+      // blNumber,
+      // freight,
       // if later you want GST, just uncomment:
       // customerGST,
     });
   }
 
-  const payload = {
-    userId: userId ?? null,
-    data: rows,
-  };
-
-  console.log("Structured PDF JSON payload:", JSON.stringify(payload, null, 2));
-  return payload;
+  return rows;
 }
 
 // ---------------------- Helpers ----------------------
@@ -516,6 +511,8 @@ function extractCustomerMergedAfterBL(all) {
   const stopAddr = addr.match(/(.+?Chembur\s+West,)/i);
   if (stopAddr) addr = collapse(stopAddr[1]);
 
-  const customerMerged = collapse([name, addr].filter(Boolean).join(" — "));
+  // const customerMerged = collapse([name, addr].filter(Boolean).join(" — "));
+  const customerMerged = collapse([name].filter(Boolean).join(" — "));
+
   return { customerMerged };
 }

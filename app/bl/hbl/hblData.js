@@ -684,7 +684,7 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblMasterData m",
       displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
-      where: "m.masterListName = 'tblPackage'",
+      where: "m.masterListName = 'tblPackage' and m.principalCode IS  NULL",
       orderBy: "m.name",
       foreignTable: "code-name,tblMasterData",
       required: true,

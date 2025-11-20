@@ -31,14 +31,52 @@ export default function ExcelModal({
   setFormData,
   gridName,
   fields,
+  tabIndex,
+  tabName,
 }) {
   async function handleExcelUpload() {
     if (excelFile?.excelFile) {
       const formData = new FormData();
       formData.append("excelFile", excelFile?.excelFile);
       const { result } = await uploadExcel(formData);
-      const res = formatExcelDataWithForm(result, fields);
-      setFormData((prev) => ({ ...prev, [gridName]: res }));
+
+      setFormData((prev) => {
+        // If a tabName exists → update nested tab/grid
+        if (tabName !== null && tabIndex !== null) {
+          const updatedTabs = [...prev[tabName]];
+          const selectedTab = { ...updatedTabs[tabIndex] };
+
+          selectedTab[gridName] = [...(selectedTab[gridName] || []), ...result];
+
+          updatedTabs[tabIndex] = selectedTab;
+
+          return {
+            ...prev,
+            [tabName]: updatedTabs,
+          };
+        }
+
+        // If no tabName → update top-level grid
+        return {
+          ...prev,
+          [gridName]: [...(prev[gridName] || []), ...result],
+        };
+      });
+
+      // setFormData((prev) => {
+      //   console.log(prev);
+
+      //   return {
+      //     ...prev,
+      //     tblBl: prev.tblBl?.map((info, i) => {
+      //       return {
+      //         ...info,
+      //         [gridName]: [...(info[gridName] || []), ...result],
+      //       };
+      //     }),
+      //   };
+      // });
+
       setExcelFile((prev) => ({ ...prev, open: false, excelFile: null }));
     }
   }

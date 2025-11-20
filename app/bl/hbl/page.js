@@ -596,6 +596,8 @@ export default function Home() {
     getHblStatus();
   }, []);
 
+
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>

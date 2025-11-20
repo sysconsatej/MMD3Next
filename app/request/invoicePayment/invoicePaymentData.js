@@ -145,6 +145,15 @@ const fieldData = {
     },
     { label: "Valid Till", name: "validTill", type: "date", isEdit: true },
   ],
+  tblAttachment: [
+    {
+      label: "Upload Invoice",
+      name: "path",
+      type: "fileupload",
+      isEdit: true,
+      required: true,
+    },
+  ],
 };
 
 export default fieldData;

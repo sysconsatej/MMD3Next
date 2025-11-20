@@ -1,5 +1,11 @@
 "use client";
-import { useMemo, useState, useEffect } from "react";
+import {
+  useMemo,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { cfsGridButtons } from "./invoiceRequestData";
 import { CustomInput } from "@/components/customInput";
@@ -14,9 +20,13 @@ import {
   getDataWithCondition,
   updateStatusRows,
 } from "@/apis";
-import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
+import {
+  formatDataWithForm,
+  formatFetchForm,
+  formatFormData,
+  getUserByCookies,
+} from "@/utils";
 import { formStore } from "@/store";
-import { getUserByCookies } from "@/utils";
 import {
   Dialog,
   DialogTitle,
@@ -76,18 +86,21 @@ export default function InvoiceRequest() {
 
   const { mode, setMode } = formStore();
   const [loading, setLoading] = useState(false);
+  const [errorState, setErrorState] = useState({});
 
   const [statusList, setStatusList] = useState([]);
-  const [requestBtn, setRequestBtn] = useState(true);
+
+  // separate flags
+  const [canSubmit, setCanSubmit] = useState(true); // controls Submit
+  const [canRequest, setCanRequest] = useState(false); // controls Request
 
   const [rejectState, setRejectState] = useState({
     toggle: false,
     value: null,
   });
 
-  // USER DATA & ROLE
   const userData = getUserByCookies();
-  const isLiner = userData?.roleCode === "shipping"; // only liner
+  const isLiner = userData?.roleCode === "shipping"; // liner vs customer
 
   /* ------------------------ FREE DAYS ------------------------ */
   const normalizeFD = (v) => {
@@ -111,7 +124,7 @@ export default function InvoiceRequest() {
       : fields;
   }, [jsonData?.igmFields, radioFD]);
 
-  /* ------------------------ FETCH STATUS ------------------------ */
+  /* ------------------------ FETCH STATUS LIST ------------------------ */
   useEffect(() => {
     async function fetchStatus() {
       const obj = {
@@ -149,22 +162,170 @@ export default function InvoiceRequest() {
         "invoiceRequestId"
       );
 
-      const { success, message, error } = await insertUpdateForm(payload);
+      const res = await insertUpdateForm(payload);
+      const { success, message, error } = res || {};
 
       if (success) {
-        toast.success(message || "Saved");
-        setFormData({});
-        setRequestBtn(false);
-        setMode({ mode: "edit", formId: mode?.formId || normalized?.id });
+        if (mode?.formId) {
+          // EDIT MODE: submit should stay enabled
+          setCanSubmit(true);
+          toast.success(message || "Form updated successfully!");
+        } else {
+          // ADD MODE: after first save → disable Submit, enable Request
+          setCanSubmit(false);
+          setCanRequest(true);
+          toast.success(message || "Form submit successfully!");
+        }
       } else {
-        toast.error(error || message);
+        toast.error(error || message || "Error while saving");
       }
     } finally {
       setLoading(false);
     }
   };
 
-  /* ------------------------ FETCH FORM ------------------------ */
+  /* ------------------------ BL → FETCH CONTAINERS ------------------------ */
+  // uses mblNo in tblBl, blNo in this screen
+  const loadBlContainers = useCallback(
+    async (normalizedBlNo) => {
+      if (!normalizedBlNo) return;
+
+      const literal = normalizedBlNo.replace(/'/g, "''");
+
+      // find BL by MBL No
+      const blObj = {
+        columns: "b.id",
+        tableName: "tblBl b",
+        whereCondition: `b.mblNo = '${literal}' AND ISNULL(b.status,1) = 1`,
+      };
+
+      const {
+        data: blRows,
+        success: blSuccess,
+        message: blMsg,
+        error: blErr,
+      } = await getDataWithCondition(blObj);
+
+      if (!blSuccess || !Array.isArray(blRows) || blRows.length === 0) {
+        // 🔕 no toast in view mode
+        if (fieldsMode !== "view") {
+          toast.warn("BL not found.");
+        }
+        console.error("BL lookup error:", blErr || blMsg);
+        return;
+      }
+
+      const blId = blRows[0].id;
+
+      // fetch all containers for this BL
+      const contObj = {
+        columns:
+          "c.containerNo, c.sizeId, (SELECT name FROM tblMasterData m WHERE m.id = c.sizeId) AS sizeName",
+        tableName: "tblBlContainer c",
+        whereCondition: `c.blId = ${blId} AND ISNULL(c.status,1) = 1`,
+      };
+
+      const {
+        data: contRows,
+        success: contSuccess,
+        message: contMsg,
+        error: contErr,
+      } = await getDataWithCondition(contObj);
+
+      if (!contSuccess) {
+        if (fieldsMode !== "view") {
+          toast.error(contErr || contMsg || "Failed to fetch BL containers.");
+        }
+        console.error("Container fetch error:", contErr || contMsg);
+        return;
+      }
+
+      const containers = (contRows || []).map((row) => ({
+        containerNo: row.containerNo,
+        sizeId: row.sizeId
+          ? { Id: row.sizeId, Name: row.sizeName || String(row.sizeId) }
+          : null,
+        // validTill left empty
+      }));
+
+      setFormData((prev) => ({
+        ...prev,
+        tblInvoiceRequestContainer: containers,
+      }));
+    },
+    [fieldsMode]
+  );
+
+  /* ✅ auto-load containers when radio changes to "Do Extension" (D)
+     and BL No is already entered */
+  const prevRadioRef = useRef(radioFD);
+  useEffect(() => {
+    const prev = prevRadioRef.current;
+    prevRadioRef.current = radioFD;
+
+    // don't auto-load in view mode
+    if (fieldsMode === "view") return;
+
+    if (radioFD === "D" && prev !== "D") {
+      const currentBl = (formData?.blNo || "").trim();
+      if (currentBl) {
+        loadBlContainers(currentBl);
+      }
+    }
+  }, [radioFD, formData?.blNo, loadBlContainers, fieldsMode]);
+
+  /* ------------------------ BLUR HANDLERS ------------------------ */
+  const handleBlurEventFunctions = {
+    duplicateHandler: async (event) => {
+      const { name, value } = event.target;
+      const normalized = String(value ?? "").trim();
+      if (!normalized) return true;
+
+      const literal = normalized.replace(/'/g, "''");
+
+      // Duplicate check – ignore same record when editing
+      let whereDup = `blNo = '${literal}' AND status = 1`;
+      if (mode?.formId) {
+        whereDup += ` AND id <> ${mode.formId}`;
+      }
+
+      const obj = {
+        columns: "id",
+        tableName: "tblInvoiceRequest",
+        whereCondition: whereDup,
+      };
+
+      const resp = await getDataWithCondition(obj);
+
+      const isDuplicate =
+        resp?.success && Array.isArray(resp?.data) && resp.data.length > 0;
+
+      if (isDuplicate) {
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        setFormData((prev) => ({ ...prev, [name]: "" }));
+        toast.error(`Invoice Request already exists for BL No ${normalized}.`);
+        return false;
+      }
+
+      // Not duplicate → store value
+      setFormData((prev) => ({ ...prev, [name]: normalized }));
+      setErrorState((prev) => ({ ...prev, [name]: false }));
+
+      // fetch containers only when radio is "Do Extension"
+      if (radioFD === "D" && fieldsMode !== "view") {
+        try {
+          await loadBlContainers(normalized);
+        } catch (e) {
+          console.error("Error loading containers:", e);
+          toast.error("Error loading containers for this BL.");
+        }
+      }
+
+      return true;
+    },
+  };
+
+  /* ------------------------ FETCH FORM (EDIT/VIEW) ------------------------ */
   useEffect(() => {
     async function fetchFormHandler() {
       if (!mode.formId) return;
@@ -179,7 +340,7 @@ export default function InvoiceRequest() {
         "invoiceRequestId"
       );
 
-      const { success, result } = await fetchForm(format);
+      const { success, result, message, error } = await fetchForm(format);
 
       if (success) {
         const getData = formatDataWithForm(result, data);
@@ -187,48 +348,102 @@ export default function InvoiceRequest() {
         getData.isFreeDays = normalizeFD(getData?.isFreeDays);
         getData.isHighSealSale = getData?.isHighSealSale === "Y";
 
-        setRequestBtn(false);
         setFormData(getData);
+
+        // EDIT mode: always allow Submit
+        setCanSubmit(true);
+
+        // Request-button state on EDIT based on status:
+        // Requested / Released → Request disabled
+        // Rejected / null/else → Request enabled
+        if (mode.status === "Requested" || mode.status === "Released") {
+          setCanRequest(false);
+        } else {
+          setCanRequest(true);
+        }
+      } else {
+        toast.error(error || message || "Failed to fetch form");
       }
     }
 
     fetchFormHandler();
-  }, [mode.formId]);
+  }, [mode.formId, mode.mode, mode.status]);
 
-  /* ------------------------ REQUEST ------------------------ */
+  /* ------------------------ REQUEST (Customer) ------------------------ */
   async function requestHandler() {
-    const id = statusList.find((x) => x.Name === "Requested")?.Id;
-    if (!id) return toast.error("Requested status missing");
+    const requestStatusId = statusList.find((x) => x.Name === "Requested")?.Id;
 
-    const payload = {
+    if (!requestStatusId) {
+      toast.error("Requested status missing in master");
+      return;
+    }
+
+    if (!formData?.blNo) {
+      toast.error("BL No is required before sending Request");
+      return;
+    }
+
+    const obj = {
+      columns: "id",
       tableName: "tblInvoiceRequest",
-      keyColumn: "id",
-      rows: [{ id: mode.formId, invoiceRequestStatusId: id }],
+      whereCondition: `blNo = '${formData.blNo}' and status = 1`,
     };
 
-    const res = await updateStatusRows(payload);
-    res?.success ? toast.success("Request sent") : toast.error(res?.message);
+    const { data, success, message, error } = await getDataWithCondition(obj);
+    if (!success || !Array.isArray(data) || data.length === 0) {
+      toast.error(
+        message ||
+          error ||
+          "Invoice Request record not found. Please save first."
+      );
+      return;
+    }
+
+    const rowsPayload = data.map((row) => ({
+      id: row.id,
+      invoiceRequestStatusId: requestStatusId,
+    }));
+
+    const res = await updateStatusRows({
+      tableName: "tblInvoiceRequest",
+      keyColumn: "id",
+      rows: rowsPayload,
+    });
+
+    if (res?.success) {
+      toast.success("Request updated successfully!");
+      // after Request → disable Request button
+      setCanRequest(false);
+      setMode((prev) => ({ ...prev, status: "Requested" }));
+    } else {
+      toast.error(res?.message || "Error executing request update");
+    }
   }
 
-  /* ------------------------ RELEASE ------------------------ */
+  /* ------------------------ RELEASE (Liner) ------------------------ */
   async function releaseHandler() {
-    const id = statusList.find((x) => x.Name === "Released")?.Id;
-    if (!id) return toast.error("Released status missing");
+    const releasedStatusId = statusList.find((x) => x.Name === "Released")?.Id;
+    if (!releasedStatusId) return toast.error("Released status missing");
 
     const payload = {
       tableName: "tblInvoiceRequest",
       keyColumn: "id",
-      rows: [{ id: mode.formId, invoiceRequestStatusId: id }],
+      rows: [{ id: mode.formId, invoiceRequestStatusId: releasedStatusId }],
     };
 
     const res = await updateStatusRows(payload);
-    res?.success ? toast.success("Released") : toast.error(res?.message);
+    if (res?.success) {
+      toast.success("Released");
+      setMode((prev) => ({ ...prev, status: "Released" }));
+    } else {
+      toast.error(res?.message || "Error while releasing");
+    }
   }
 
-  /* ------------------------ REJECT ------------------------ */
+  /* ------------------------ REJECT (Liner) ------------------------ */
   async function rejectHandler() {
-    const id = statusList.find((x) => x.Name === "Rejected")?.Id;
-    if (!id) return toast.error("Rejected status missing");
+    const rejectedStatusId = statusList.find((x) => x.Name === "Rejected")?.Id;
+    if (!rejectedStatusId) return toast.error("Rejected status missing");
 
     const payload = {
       tableName: "tblInvoiceRequest",
@@ -236,7 +451,7 @@ export default function InvoiceRequest() {
       rows: [
         {
           id: mode.formId,
-          invoiceRequestStatusId: id,
+          invoiceRequestStatusId: rejectedStatusId,
           rejectRemarks: rejectState.value,
         },
       ],
@@ -247,17 +462,17 @@ export default function InvoiceRequest() {
     if (res?.success) {
       toast.success("Rejected");
       setRejectState({ toggle: false, value: null });
-    } else toast.error(res?.message);
+      // when Rejected → customer can Request again on next open
+      setMode((prev) => ({ ...prev, status: "Rejected" }));
+      setCanRequest(true);
+    } else {
+      toast.error(res?.message || "Error while rejecting");
+    }
   }
-
-  /* ------------------------ BUTTON LOGIC ------------------------ */
-
-  const showRequestBtn = !isLiner && mode.formId;
 
   const showRejectBtn = isLiner;
   const showReleaseBtn = isLiner;
 
-  /* ------------------------ RENDER ------------------------ */
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
@@ -282,6 +497,7 @@ export default function InvoiceRequest() {
             )}
           </Box>
 
+          {/* BL Info */}
           <FormHeading text="BL Information" />
           <Box className="grid grid-cols-3 gap-2 p-2">
             <CustomInput
@@ -289,9 +505,12 @@ export default function InvoiceRequest() {
               formData={formData}
               setFormData={setFormData}
               fieldsMode={fieldsMode}
+              handleBlurEventFunctions={handleBlurEventFunctions}
+              errorState={errorState}
             />
           </Box>
 
+          {/* Invoice In Name Of */}
           <FormHeading text="Invoice In Name Of" />
           <Box className="grid grid-cols-4 gap-2 p-2">
             <CustomInput
@@ -302,6 +521,7 @@ export default function InvoiceRequest() {
             />
           </Box>
 
+          {/* Attachment + Containers */}
           <Box
             className={`grid grid-cols-1 ${
               hideContainers ? "" : "lg:grid-cols-2"
@@ -336,21 +556,23 @@ export default function InvoiceRequest() {
 
           {/* -------- BUTTONS -------- */}
           <Box className="w-full flex mt-4 gap-3">
-            {/* Customer Save */}
-            {fieldsMode !== "view" && !isLiner && (
-              <CustomButton
-                text={loading ? "Saving..." : "Submit"}
-                type="submit"
-                disabled={loading}
-              />
-            )}
+            {/* Submit */}
+            {fieldsMode !== "view" &&
+              userData?.roleCode === "customer" &&
+              mode.status !== "Confirm" && (
+                <CustomButton
+                  text={loading ? "Saving..." : "Submit"}
+                  type="submit"
+                  disabled={!canSubmit || loading}
+                />
+              )}
 
-            {/* Customer Request */}
-            {showRequestBtn && (
+            {/* Request */}
+            {userData?.roleCode === "customer" && mode.status !== "Confirm" && (
               <CustomButton
                 text="Request"
                 onClick={requestHandler}
-                disabled={requestBtn}
+                disabled={!canRequest || loading}
               />
             )}
 
