@@ -58,6 +58,11 @@ export const navItems = [
         href: "/master/movementType/list",
         isShow: false,
       },
+      {
+        name  :  "Berth Agent",
+        href: "/master/berthAgent/list",
+        isShow: true,
+      }
     ],
   },
 
