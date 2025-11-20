@@ -44,6 +44,10 @@ import { getUserByCookies } from "@/utils";
 import { InvoiceModal } from "../../invoiceRequest/utils";
 
 const LIST_TABLE = "tblInvoiceRequest i";
+
+const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
+const CHECKBOX_CELL_SX = { width: 32, minWidth: 32, maxWidth: 32 };
+
 const CHECKBOX_SX = { p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } };
 
 const toFreeDaysLabel = (v) => (v === "D" ? "Yes" : "No");
@@ -119,7 +123,7 @@ export default function InvoiceReleaseList() {
     }
     fetchStatus();
   }, []);
-  // 🚀 RELEASE FUNCTION
+
   const releaseHandler = async (ids) => {
     if (!ids?.length) return toast.warn("Please select at least one row");
     const releaseId = statusList.find((x) => x.Name === "Released")?.Id;
@@ -128,7 +132,7 @@ export default function InvoiceReleaseList() {
       keyColumn: "id",
       rows: ids.map((id) => ({
         id,
-        invoiceRequestStatusId: releaseId, // RELEASED
+        invoiceRequestStatusId: releaseId,
       })),
     };
 
@@ -139,7 +143,6 @@ export default function InvoiceReleaseList() {
     } else toast.error(res?.message || "Release Failed");
   };
 
-  // 🚀 SQL LOGIC EXACTLY SAME AS YOU SENT
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
@@ -164,7 +167,7 @@ export default function InvoiceReleaseList() {
           joins: `
           LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
           LEFT JOIN tblUser u ON u.id = ${userData.userId}
-			    LEFT JOIN tblCompany c ON c.id = u.companyId
+          LEFT JOIN tblCompany c ON c.id = u.companyId
           JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId and i.invoiceRequestStatusId IS NOT NULL and i.shippingLineId = u.companyId
           `,
           orderBy: `
@@ -226,7 +229,6 @@ export default function InvoiceReleaseList() {
     [router, setMode]
   );
 
-  // 🚫 Disable Release button for already Released or Rejected
   const disableRelease = useMemo(() => {
     const selectedRows = rows.filter((r) => selectedIds.includes(r.id));
     return selectedRows.some(
@@ -251,7 +253,6 @@ export default function InvoiceReleaseList() {
           />
         </Box>
 
-        {/* TOOLBAR - Release only */}
         <InvoiceToolbarActions
           selectedIds={selectedIds}
           onView={(id) => modeHandler("view", id)}
@@ -264,7 +265,7 @@ export default function InvoiceReleaseList() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell padding="checkbox">
+                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
                   <Checkbox
                     checked={allChecked}
                     indeterminate={someChecked}
@@ -272,6 +273,7 @@ export default function InvoiceReleaseList() {
                     sx={CHECKBOX_SX}
                   />
                 </TableCell>
+
                 <TableCell>Liner</TableCell>
                 <TableCell>BL No</TableCell>
                 <TableCell>Type</TableCell>
@@ -288,7 +290,7 @@ export default function InvoiceReleaseList() {
               {rows.length ? (
                 rows.map((row) => (
                   <TableRow key={row.id} hover>
-                    <TableCell padding="checkbox">
+                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <Checkbox
                         checked={selectedIds.includes(row.id)}
                         onChange={() => toggleOne(row.id)}
@@ -319,10 +321,7 @@ export default function InvoiceReleaseList() {
                       {row.status}
                     </TableCell>
 
-                    {/* 📌 Only show Release remark when Released */}
-                    <TableCell>
-                      {row.status === "Released" ? row.remarks : ""}
-                    </TableCell>
+                    <TableCell>{row.remarks}</TableCell>
 
                     <TableCell>{row.date}</TableCell>
 
@@ -368,6 +367,7 @@ export default function InvoiceReleaseList() {
           />
         </Box>
       </Box>
+
       <ToastContainer />
       <InvoiceModal modal={modal} setModal={setModal} />
     </ThemeProvider>
