@@ -1,0 +1,305 @@
+"use client";
+import { useEffect, useState } from "react";
+import { ThemeProvider, Box, Typography } from "@mui/material";
+import { fieldData } from "./doData";
+import { CustomInput } from "@/components/customInput";
+import { theme } from "@/styles";
+import { toast, ToastContainer } from "react-toastify";
+import CustomButton from "@/components/button/button";
+import TableGrid from "@/components/tableGrid/tableGrid";
+import FormHeading from "@/components/formHeading/formHeading";
+import { formStore } from "@/store";
+import {
+    copyHandler,
+    formatDataWithForm,
+    formatFetchForm,
+    formatFormData,
+    getUserByCookies,
+    setInputValue,
+    useNextPrevData,
+} from "@/utils";
+import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+
+export default function Home() {
+    const [formData, setFormData] = useState({});
+    const [fieldsMode, setFieldsMode] = useState("");
+    const [jsonData, setJsonData] = useState(fieldData);
+    const { mode, setMode } = formStore();
+    const [totals, setTotals] = useState({});
+    const [packTypeState, setPackTypeState] = useState(null);
+    const userData = getUserByCookies();
+
+
+
+    const submitHandler = async (event) => {
+        event.preventDefault();
+        const packageMismatchError = checkNoPackages({
+            formData: formData,
+            hblType: "MBL",
+        });
+        if (packageMismatchError) {
+            toast.error(packageMismatchError);
+            return;
+        }
+
+        const format = formatFormData(
+            "tblBl",
+            { ...formData, mblHblFlag: "MBL" },
+            mode.formId,
+            "blId"
+        );
+
+        const { success, error, message } = await insertUpdateForm(format);
+        if (success) {
+            toast.success(message);
+            setFormData({});
+        } else {
+            toast.error(error || message);
+        }
+    };
+
+    const handleGridEventFunctions = {
+        addGrid: async ({ tabIndex, gridIndex }) => {
+            const obj = {
+                columns: "id as Id, name as Name",
+                tableName: "tblMasterData",
+                whereCondition: `masterListName = 'tblSealType' and name = 'BTSL' and status = 1`,
+            };
+            const { data } = await getDataWithCondition(obj);
+            setFormData((prevData) =>
+                setInputValue({
+                    prevData,
+                    tabName: null,
+                    gridName: "tblBlContainer",
+                    tabIndex: null,
+                    containerIndex: gridIndex,
+                    name: "sealTypeId",
+                    value: data[0],
+                })
+            );
+        },
+    };
+
+    const handleChangeEventFunctions = {
+        setCountryAndState: async (name, value) => {
+            const setName = name.replace("City", "");
+
+            const obj = {
+                columns: `(select id from tblState s where s.id = ci.stateId and s.status = 1) stateId,
+                  (select name from tblState s where s.id = ci.stateId and s.status = 1) stateName,
+                  (select id from tblCountry c where c.id = ci.countryId and c.status = 1) countyId,
+                  (select name from tblCountry c where c.id = ci.countryId and c.status = 1) countryName`,
+                tableName: "tblCity ci",
+                whereCondition: `ci.id = ${value.Id} and ci.status = 1`,
+            };
+            const { data } = await getDataWithCondition(obj);
+            setFormData((prev) => {
+                if (setName === "shipper") {
+                    return {
+                        ...prev,
+                        [`${setName}Country`]: {
+                            Id: data[0].countyId,
+                            Name: data[0].countryName,
+                        },
+                    };
+                } else {
+                    return {
+                        ...prev,
+                        [`${setName}State`]: {
+                            Id: data[0].stateId,
+                            Name: data[0].stateName,
+                        },
+                        [`${setName}Country`]: {
+                            Id: data[0].countyId,
+                            Name: data[0].countryName,
+                        },
+                    };
+                }
+            });
+        },
+        setISOBySize: async (name, value, { containerIndex, tabIndex }) => {
+            const typeId = formData?.tblBlContainer[containerIndex]?.typeId?.Id;
+            const obj = {
+                columns: `s.id id, s.isocode Name`,
+                tableName: "tblIsocode s",
+                joins:
+                    "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
+                whereCondition: `d.id = ${value.Id} and d1.id = ${typeId}`,
+            };
+            const { data, success } = await getDataWithCondition(obj);
+            if (success) {
+                setFormData((prevData) =>
+                    setInputValue({
+                        prevData,
+                        tabName: null,
+                        gridName: "tblBlContainer",
+                        tabIndex: null,
+                        containerIndex,
+                        name: "isoCode",
+                        value: data[0],
+                    })
+                );
+            } else {
+                setFormData((prevData) =>
+                    setInputValue({
+                        prevData,
+                        tabName: null,
+                        gridName: "tblBlContainer",
+                        tabIndex: null,
+                        containerIndex,
+                        name: "isoCode",
+                        value: null,
+                    })
+                );
+            }
+        },
+        setISOByType: async (name, value, { containerIndex, tabIndex }) => {
+            const sizeId = formData?.tblBlContainer[containerIndex]?.sizeId?.Id;
+            const obj = {
+                columns: `s.id id, s.isocode Name`,
+                tableName: "tblIsocode s",
+                joins:
+                    "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
+                whereCondition: `d.id = ${sizeId} and d1.id = ${value.Id}`,
+            };
+            const { data, success } = await getDataWithCondition(obj);
+            if (success) {
+                setFormData((prevData) =>
+                    setInputValue({
+                        prevData,
+                        tabName: null,
+                        gridName: "tblBlContainer",
+                        tabIndex: null,
+                        containerIndex,
+                        name: "isoCode",
+                        value: data[0],
+                    })
+                );
+            } else {
+                setFormData((prevData) =>
+                    setInputValue({
+                        prevData,
+                        tabName: null,
+                        gridName: "tblBlContainer",
+                        tabIndex: null,
+                        containerIndex,
+                        name: "isoCode",
+                        value: null,
+                    })
+                );
+            }
+        },
+    };
+
+    const handleBlurEventFunctions = {
+        containerNumberHandler: (event, { containerIndex, tabIndex }) => {
+            const { name, value } = event?.target || {};
+            const pattern = /^[A-Za-z]{4}[0-9]{7}$/;
+            if (!pattern.test(value)) {
+                toast.error(
+                    "Invalid Container Number format. It should be 4 letters followed by 7 digits."
+                );
+
+                setFormData((prevData) =>
+                    setInputValue({
+                        prevData,
+                        tabName: "tblBl",
+                        gridName: "tblBlContainer",
+                        tabIndex,
+                        containerIndex,
+                        name,
+                        value: null,
+                    })
+                );
+
+                return "";
+            }
+
+            return "";
+        },
+    };
+
+
+    return (
+        <ThemeProvider theme={theme}>
+            <form onSubmit={submitHandler}>
+                <section className="py-2 px-4">
+                    <Box className="flex justify-between items-center mb-2">
+                        <h1 className="text-left text-base m-0">Do Request</h1>
+                        <Box className="flex items-center gap-4">
+
+                            <CustomButton
+                                text="Back"
+                                href="/request/doRequest/list"
+                                onClick={() => setMode({ mode: null, formId: null })}
+                            />
+                        </Box>
+                    </Box>
+
+                    <Box>
+                        <FormHeading text="Do Request" />
+                        <Box className="grid grid-cols-4 items-end gap-2 p-2 ">
+                            <CustomInput
+                                fields={jsonData.doRequestFields}
+                                formData={formData}
+                                setFormData={setFormData}
+                                fieldsMode={fieldsMode}
+                            />
+                        </Box>
+                        <FormHeading text="Transport Details">
+                            <Box className="grid grid-cols-4 gap-2 p-2 ">
+                                <CustomInput
+                                    fields={jsonData.transportDetails}
+                                    formData={formData}
+                                    setFormData={setFormData}
+                                    fieldsMode={fieldsMode}
+                                />
+                            </Box>
+                        </FormHeading>
+                        <FormHeading text="Shipment Details">
+                            <Box className="grid grid-cols-4 gap-2 p-2 ">
+                                <CustomInput
+                                    fields={jsonData.ShipmentDetails}
+                                    formData={formData}
+                                    setFormData={setFormData}
+                                    fieldsMode={fieldsMode}
+                                />
+                            </Box>
+                        </FormHeading>
+                        <FormHeading text="Container New">
+                            <Box className="grid grid-cols-4 gap-2 p-2 ">
+                                <CustomInput
+                                    fields={jsonData.ContainerNew}
+                                    formData={formData}
+                                    setFormData={setFormData}
+                                    fieldsMode={fieldsMode}
+                                />
+                            </Box>
+                        </FormHeading>
+
+                        <FormHeading text="Attachment">
+                            <Box className="grid grid-cols-1 gap-2 p-2 ">
+                                <CustomInput
+                                    fields={jsonData.attachmentFields}
+                                    formData={formData}
+                                    setFormData={setFormData}
+                                    fieldsMode={fieldsMode}
+                                />
+                            </Box>
+                        </FormHeading>
+
+                    </Box>
+                    <Box className="w-full flex mt-2">
+                        {fieldsMode !== "view" && (
+                            <CustomButton text={"Print"} type="submit" />
+                        )}
+                    </Box>
+                </section>
+            </form>
+            <ToastContainer />
+        </ThemeProvider>
+    );
+}

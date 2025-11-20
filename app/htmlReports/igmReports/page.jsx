@@ -157,7 +157,7 @@ function RptIGMContent() {
     const consigneeLines = Math.ceil(
       ((record.consigneeText?.length || 0) +
         (record.consigneeAddress || "").length) /
-        60
+      60
     );
     const containerLines =
       (record.tblBlContainer?.length || 0) * CONTAINER_ROW_HEIGHT;
@@ -535,7 +535,7 @@ function RptIGMContent() {
                   </p>
                 </div>
                 <div className="p-1" style={{ width: "5%" }}>
-                  {item.grossWt || ""}
+                  {item.grossWt || ""}KGS.
                 </div>
                 <div className="p-1" style={{ width: "25%" }}>
                   <p className="wordBreak" style={{ fontSize: "8px" }}>
@@ -546,14 +546,14 @@ function RptIGMContent() {
                   <div className="wordBreak flex">
                     <p className="wordBreak" style={{ fontSize: "8px" }}>
                       <span className="font-bold">Consignee : </span>
-                      {item.consigneeText || ""}
+                      {item.consigneeText || ""}<br />
                       {item.consigneeAddress || ""}
                     </p>
                   </div>
                   <div className="mt-2 wordBreak flex">
                     <p className="wordBreak" style={{ fontSize: "8px" }}>
                       <span className="font-bold">Notify Party :</span>
-                      {item.notifyPartyName || ""}
+                      {item.notifyPartyName || ""}<br />
                       {item.notifyPartyAddress || ""}
                     </p>
                   </div>
@@ -569,27 +569,32 @@ function RptIGMContent() {
             {item.tblBlContainer?.length > 0 &&
               item.tblBlContainer.map((containerItem, containerIndex) => (
                 <div
-                  key={`${
-                    containerItem.containerNo || "cont"
-                  }-${containerIndex}`}
+                  key={`${containerItem.containerNo || "cont"
+                    }-${containerIndex}`}
                   className="flex"
                   style={{ fontSize: "8px", color: "black", width: "30%" }}
                 >
                   <div style={{ width: "20%" }}>
                     {containerItem.containerNo || ""}
                   </div>
-                  <div style={{ width: "15%" }}>
-                    {containerItem.containerSealNo || ""}
+                  <div style={{ width: "10%" }}>
+                    {item.containerStatusName || ""}
                   </div>
                   <div style={{ width: "20%" }}>
+                    {containerItem.containerSealNo || ""}
+                  </div>
+                  <div style={{ width: "10%" }}>
                     {containerItem.containerSize || ""}
                     {" / "}
                     {containerItem.ContainerType || ""}
                   </div>
                   <div style={{ width: "10%" }}>
-                    {containerItem.containerGrossWT || ""}
+                    {containerItem.noOfPackages || ""}
+                  </div >
+                  <div style={{ width: "25%" }}>
+                    {containerItem.containerGrossWT || ""}KGS.
                   </div>
-                  <div style={{ width: "35%" }}>
+                  <div style={{ width: "5%" }}>
                     {containerItem.containerGrossWTUnit || ""}
                   </div>
                 </div>
@@ -636,9 +641,8 @@ function RptIGMContent() {
   };
 
   const headerRow0 = data?.[0] || {};
-  const pdfNameBase = `IGM_${headerRow0?.igmNo || "Report"}_${
-    headerRow0?.VesselVoyageName || ""
-  }`.replace(/[\\/:*?"<>|]+/g, "_");
+  const pdfNameBase = `IGM_${headerRow0?.igmNo || "Report"}_${headerRow0?.VesselVoyageName || ""
+    }`.replace(/[\\/:*?"<>|]+/g, "_");
 
   return (
     <main className="bg-gray-300 min-h-screen p-4">
@@ -673,7 +677,7 @@ function RptIGMContent() {
                     const consigneeLines = Math.ceil(
                       ((record.consigneeText?.length || 0) +
                         (record.consigneeAddress?.length || 0)) /
-                        60
+                      60
                     );
                     const containerLines =
                       (record.tblBlContainer?.length || 0) *
@@ -712,7 +716,7 @@ function RptIGMContent() {
                             headerHeight -
                             footerHeight -
                             rowBaseHeight) /
-                            CONTAINER_ROW_HEIGHT_PAGE
+                          CONTAINER_ROW_HEIGHT_PAGE
                         );
                         const totalChunks = Math.ceil(
                           containerCount / Math.max(1, maxContainersPerPage)

@@ -949,7 +949,7 @@ export const advanceSearchFields = {
     },
     {
       label: "Status",
-      name: "statusId",
+      name: "containerStatusId",
       type: "dropdown",
       tableName: "tblMasterData m",
       displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",

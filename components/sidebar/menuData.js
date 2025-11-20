@@ -138,6 +138,11 @@ export const navItems = [
         href: "/blPartyHold",
         isShow: false,
       },
+      {
+        name: "Do Request",
+        href: "/request/doRequest/list",
+        isShow: false,
+      }
     ],
   },
   {
