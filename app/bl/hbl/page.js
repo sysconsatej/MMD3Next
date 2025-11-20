@@ -596,7 +596,6 @@ export default function Home() {
     getHblStatus();
   }, []);
 
-  console.log("formData", formData);
 
 
   return (
