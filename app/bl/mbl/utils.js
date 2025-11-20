@@ -35,24 +35,10 @@ export function advanceSearchFilter(advanceSearch) {
     condition.push(`b.mblNo = '${advanceSearch.mblNo}'`);
   }
 
-  if (advanceSearch.hblNo) {
-    condition.push(`b.hblNo = '${advanceSearch.hblNo}'`);
+  if (advanceSearch.mblDate) {
+    condition.push(`b.mblDate = '${advanceSearch.mblDate}'`);
   }
-
-  if (advanceSearch.podId) {
-    condition.push(`b.podId = '${advanceSearch.podId.Id}'`);
-  }
-
-  if (advanceSearch.cargoTypeId) {
-    condition.push(`b.cargoTypeId = '${advanceSearch.cargoTypeId.Id}'`);
-  }
-
-  if (advanceSearch.fromDate && advanceSearch.toDate) {
-    condition.push(
-      `b.mblDate between '${advanceSearch.fromDate}' and '${advanceSearch.toDate}'`
-    );
-  }
-
+  
   return condition.length > 0 ? condition.join(" and ") : null;
 }
 
