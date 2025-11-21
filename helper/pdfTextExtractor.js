@@ -167,12 +167,15 @@ export async function extractTextFromPdfs(files) {
     const totalFigure = extractTotalInvoiceFigure(all);
     const freight = detectFreight(all);
 
+    const newFileName = Date.now() + "-" + file.name;
+    const modifiedFile = new File([file], newFileName, { type: file.type });
+
     rows.push({
       invoiceNo,
       invoiceDate: dueDate,
       billingParty: customerMerged,
       totalInvoiceAmount: totalFigure.replace(",", ""),
-      tblAttachment: [{ path: file }],
+      tblAttachment: [{ path: modifiedFile }],
       // id: rows.length + 1,
       // fileName: file.name,
       // bookingNo,
