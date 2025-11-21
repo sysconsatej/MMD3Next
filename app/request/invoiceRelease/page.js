@@ -268,7 +268,7 @@ export default function InvoiceReleasePage() {
                 <Box>
                   <FormHeading text="Attachment Details" variant="body2" />
                   <TableGrid
-                    fields={fieldData.attachmentFields}
+                    fields={fieldData.tblAttachment}
                     formData={formData}
                     setFormData={setFormData}
                     fieldsMode={fieldsMode}

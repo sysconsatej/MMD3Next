@@ -7,9 +7,10 @@ export default function SelectionActionsBar({
   keyColumn = "id",
   onView,
   onEdit,
-  disablePay =false, // ⬅ added
+  disablePay = false, // ⬅ already there
   isPay = false,
   onPay, // optional callback
+  showEdit = true, // ⬅ NEW PROP (default: show Edit)
 }) {
   const ids = useMemo(
     () =>
@@ -49,12 +50,18 @@ export default function SelectionActionsBar({
             label="View"
             onClick={() => isSingle && onView && onView(ids[0])}
             disabled={!isSingle}
+            // not last, we keep as-is
           />
-          <Segment
-            label="Edit"
-            onClick={() => isSingle && onEdit && onEdit(ids[0])}
-            disabled={!isSingle}
-          />
+
+          {showEdit && (
+            <Segment
+              label="Edit"
+              onClick={() => isSingle && onEdit && onEdit(ids[0])}
+              disabled={!isSingle}
+              // not last, same as before
+            />
+          )}
+
           {isPay && (
             <Segment
               label="Pay"
