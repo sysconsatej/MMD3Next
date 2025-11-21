@@ -142,7 +142,7 @@ export const navItems = [
         name: "Do Request",
         href: "/request/doRequest/list",
         isShow: false,
-      }
+      },
     ],
   },
   {
@@ -155,6 +155,11 @@ export const navItems = [
         name: "Payment Confirmation",
         href: "/payment/paymentConfirmation/list",
         isShow: false,
+      },
+      {
+        name: "Liner Invoice Payment ",
+        href: "/payment/linerInvoice/list",
+        isShow: true,
       },
     ],
   },
