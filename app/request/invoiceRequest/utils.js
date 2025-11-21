@@ -31,10 +31,12 @@ export function InvoiceModal({ modal, setModal }) {
   useEffect(() => {
     async function getModalData() {
       const obj = {
-        columns: "path, (select hblNo from tblBl b where b.id = a.blId) hblNo",
+        columns: "a.path, m.name",
         tableName: "tblAttachment a",
-        whereCondition: `invoiceRequestId in (${modal.value}) and status = 1`,
+        joins: "LEFT JOIN tblMasterData m ON m.id = a.attachmentTypeId",
+        whereCondition: `a.invoiceRequestId = ${modal.value} AND a.status = 1`,
       };
+
       const { data } = await getDataWithCondition(obj);
       setModalData(data);
     }
@@ -56,7 +58,7 @@ export function InvoiceModal({ modal, setModal }) {
               <TableHead>
                 <TableRow>
                   <TableCell>SrNo.</TableCell>
-                  <TableCell>HBLNo.</TableCell>
+                  <TableCell>select</TableCell>
                   <TableCell>Attachment</TableCell>
                 </TableRow>
               </TableHead>
@@ -70,7 +72,7 @@ export function InvoiceModal({ modal, setModal }) {
                       <TableCell component="th" scope="row">
                         {index + 1}
                       </TableCell>
-                      <TableCell>{item.hblNo}</TableCell>
+                      <TableCell>{item.name}</TableCell>
                       <TableCell>
                         <a
                           target="_black"

@@ -126,21 +126,32 @@ export default function InvoiceReleaseList() {
 
   const releaseHandler = async (ids) => {
     if (!ids?.length) return toast.warn("Please select at least one row");
-    const releaseId = statusList.find((x) => x.Name === "Released")?.Id;
-    const payload = {
-      tableName: "tblInvoiceRequest",
-      keyColumn: "id",
-      rows: ids.map((id) => ({
-        id,
-        invoiceRequestStatusId: releaseId,
-      })),
+
+    // Get selected row (first one only)
+    const selected = rows.find((r) => r.id === ids[0]);
+    if (!selected) return toast.error("Invalid selection");
+
+    const blNo = selected.blNo;
+
+    // Find BL Id
+    const q = {
+      columns: "TOP 1 id",
+      tableName: "tblBl",
+      whereCondition: `mblNo = '${blNo}' AND ISNULL(status,1)=1`,
     };
 
-    const res = await updateStatusRows(payload);
-    if (res?.success) {
-      toast.success("Invoice Released Successfully");
-      getData(page, rowsPerPage);
-    } else toast.error(res?.message || "Release Failed");
+    const { success, data } = await getDataWithCondition(q);
+
+    if (!success || !data?.length)
+      return toast.error("BL not found in tblBl table");
+
+    const blId = data[0].id;
+
+    // Set ADD MODE for invoice creation
+    setMode({ mode: "add", formId: null });
+
+    // Redirect to InvoicePayment (NEW invoice creation)
+    router.push(`/request/invoiceRelease/invoiceUpload?blId=${blId}`);
   };
 
   const getData = useCallback(
@@ -229,11 +240,17 @@ export default function InvoiceReleaseList() {
     [router, setMode]
   );
 
+  // - no row selected, OR
+  // - any selected row is NOT "Requested"
   const disableRelease = useMemo(() => {
     const selectedRows = rows.filter((r) => selectedIds.includes(r.id));
-    return selectedRows.some(
-      (r) => r.status === "Released" || r.status === "Rejected"
-    );
+
+    if (!selectedRows.length) return true;
+
+    return selectedRows.some((r) => {
+      const status = String(r.status || "").trim().toLowerCase();
+      return status !== "requested";
+    });
   }, [selectedIds, rows]);
 
   return (

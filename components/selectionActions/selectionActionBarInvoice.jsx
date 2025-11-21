@@ -28,6 +28,7 @@ export default function InvoiceToolbarActions({
   allowBulkNotify = true,
   allowBulkClose = true,
   allowBulkReprocess = true,
+  disableRelease = false, // 👈 NEW PROP
 }) {
   const ids = useMemo(
     () =>
@@ -82,7 +83,12 @@ export default function InvoiceToolbarActions({
           label="Release"
           icon={<VpnKeyIcon />}
           onClick={() => call(onRelease, allowBulkRelease)}
-          disabled={!hasAny || !onRelease || (!allowBulkRelease && !isSingle)}
+          disabled={
+            !hasAny ||
+            !onRelease ||
+            (!allowBulkRelease && !isSingle) ||
+            disableRelease // 👈 USE FLAG FROM PARENT
+          }
         />
         <Segment
           label="KYC"
@@ -100,7 +106,9 @@ export default function InvoiceToolbarActions({
           label="Invoice Lookup"
           icon={<LocalShippingIcon />}
           onClick={() => call(onInvoiceLookup, allowBulkInvoiceLookup)}
-          disabled={!hasAny || !onInvoiceLookup || (!allowBulkInvoiceLookup && !isSingle)}
+          disabled={
+            !hasAny || !onInvoiceLookup || (!allowBulkInvoiceLookup && !isSingle)
+          }
         />
         <Segment
           label="Notify"
@@ -118,7 +126,9 @@ export default function InvoiceToolbarActions({
           label="Reprocess"
           icon={<AutorenewIcon />}
           onClick={() => call(onReprocess, allowBulkReprocess)}
-          disabled={!hasAny || !onReprocess || (!allowBulkReprocess && !isSingle)}
+          disabled={
+            !hasAny || !onReprocess || (!allowBulkReprocess && !isSingle)
+          }
         />
       </div>
 
