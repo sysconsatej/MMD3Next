@@ -176,6 +176,8 @@ export default function InvoiceRequest() {
 
       const normalized = {
         ...formData,
+        companyId: userData?.companyId,
+        companyBranchId: userData?.branchId,
         isFreeDays: radioFD,
         isHighSealSale:
           formData?.isHighSealSale === true || formData?.isHighSealSale === "Y"
