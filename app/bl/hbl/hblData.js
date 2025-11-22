@@ -265,7 +265,7 @@ export const fieldData = {
     },
     {
       label: "Item Type",
-      name: "itemNo",
+      name: "blTypeId",
       type: "dropdown",
       tableName: "tblMasterData m",
       displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
