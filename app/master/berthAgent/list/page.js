@@ -1,16 +1,16 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    Box,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Typography,
-    CssBaseline,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  CssBaseline,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import CustomButton from "@/components/button/button";
@@ -23,196 +23,198 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
-import { fieldData } from '../agentData'
+import { fieldData, searchDataAray } from "../agentData";
 
 function createData(
+  agentId,
+  berthId,
+  agentCode,
+  lineCode,
+  senderId,
+  portEdiAgentCode,
+  id
+) {
+  return {
     agentId,
     berthId,
     agentCode,
     lineCode,
     senderId,
     portEdiAgentCode,
-    id
-) {
-    return {
-        agentId,
-        berthId,
-        agentCode,
-        lineCode,
-        senderId,
-        portEdiAgentCode,
-        id,
-    };
+    id,
+  };
 }
 
-
 export default function CompanyList() {
-    const [page, setPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(25);
-    const [totalPage, setTotalPage] = useState(1);
-    const [totalRows, setTotalRows] = useState(1);
-    const [berthData, setBerthData] = useState([]);
-    const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
-    const [loadingState, setLoadingState] = useState("Loading...");
-    const { setMode } = formStore();
-    const router = useRouter();
-    const { data } = useGetUserAccessUtils("Company");
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [totalPage, setTotalPage] = useState(1);
+  const [totalRows, setTotalRows] = useState(1);
+  const [berthData, setBerthData] = useState([]);
+  const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
+  const [loadingState, setLoadingState] = useState("Loading...");
+  const { setMode } = formStore();
+  const router = useRouter();
+  const { data } = useGetUserAccessUtils("Company");
 
-    const getData = useCallback(
-        async (pageNo = page, pageSize = rowsPerPage) => {
-            try {
-                const tableObj = {
-                    columns:
-                        "c.name as agentId,p.name  as berthId,b.agentCode as agentCode,b.lineCode as lineCode,b.portEdiAgentCode as portEdiAgentCode,b.senderId as senderId, b.id as id",
-                    tableName: "tblBerthAgentCode b",
-                    pageNo,
-                    pageSize,
-                    searchColumn: search.searchColumn,
-                    searchValue: search.searchValue,
-                    joins:
-                        "left join tblCompany c on c.id=b.agentId left join tblPort p on p.id=b.berthId",
-
-                };
-                const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-                setBerthData(data ?? []);
-                setTotalPage(totalPage);
-                setPage(pageNo);
-                setRowsPerPage(pageSize);
-                setTotalRows(totalRows);
-            } catch (err) {
-                console.error("Error fetching city data:", err);
-                setLoadingState("Failed to load data");
-            }
-        },
-        [page, rowsPerPage, search]
-    );
-
-    useEffect(() => {
-        getData(1, rowsPerPage);
-        setMode({ mode: null, formId: null });
-    }, []);
-
-    const rows = berthData
-        ? berthData.map((item) =>
-            createData(
-                item["agentId"],
-                item["berthId"],
-                item["agentCode"],
-                item["lineCode"],
-                item["senderId"],
-                item["portEdiAgentCode"],
-                item["id"],
-            )
-        )
-        : [];
-
-    const handleChangePage = (event, newPage) => {
-        getData(newPage, rowsPerPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        getData(1, +event.target.value);
-    };
-
-    const handleDeleteRecord = async (formId) => {
-        const obj = {
-            recordId: formId,
-            tableName: "tbltblBerthAgentCode",
+  const getData = useCallback(
+    async (pageNo = page, pageSize = rowsPerPage) => {
+      try {
+        const tableObj = {
+          columns:
+            "c.name as agentId,p.name  as berthId,b.agentCode as agentCode,b.lineCode as lineCode,b.portEdiAgentCode as portEdiAgentCode,b.senderId as senderId, b.id as id",
+          tableName: "tblBerthAgentCode b",
+          pageNo,
+          pageSize,
+          searchColumn: search.searchColumn,
+          searchValue: search.searchValue,
+          joins:
+            "left join tblCompany c on c.id=b.agentId left join tblPort p on p.id=b.berthId",
         };
-        const { success, message, error } = await deleteRecord(obj);
-        if (success) {
-            toast.success(message);
-            getData(page, rowsPerPage);
-        } else {
-            toast.error(error || message);
-        }
+        const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
+        setBerthData(data ?? []);
+        setTotalPage(totalPage);
+        setPage(pageNo);
+        setRowsPerPage(pageSize);
+        setTotalRows(totalRows);
+      } catch (err) {
+        setLoadingState("Failed to load data");
+      } finally  {
+        setLoadingState("Loading ...")
+      }
+    },
+    [page, rowsPerPage, search]
+  );
+
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
+  }, []);
+
+  const rows = berthData
+    ? berthData.map((item) =>
+        createData(
+          item["agentId"],
+          item["berthId"],
+          item["agentCode"],
+          item["lineCode"],
+          item["senderId"],
+          item["portEdiAgentCode"],
+          item["id"]
+        )
+      )
+    : [];
+
+  const handleChangePage = (event, newPage) => {
+    getData(newPage, rowsPerPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    getData(1, +event.target.value);
+  };
+
+  // delete
+  const handleDeleteRecord = async (formId) => {
+    const obj = {
+      recordId: formId,
+      tableName: "tbltblBerthAgentCode",
     };
+    const { success, message, error } = await deleteRecord(obj);
+    if (success) {
+      toast.success(message);
+      getData(page, rowsPerPage);
+    } else {
+      toast.error(error || message);
+    }
+  };
 
-    const modeHandler = (mode, formId = null) => {
-        if (mode === "delete") {
-            handleDeleteRecord(formId);
-            return;
-        }
-        setMode({ mode, formId });
-        router.push("/master/berthAgent");
-    };
+  const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") {
+      handleDeleteRecord(formId);
+      return;
+    }
+    setMode({ mode, formId });
+    router.push("/master/berthAgent");
+  };
 
 
-    console.log(rows, 'rows ');
+  
 
 
-    return (
-        <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Box className="sm:px-4 py-1">
-                <Box className="flex flex-col sm:flex-row justify-between pb-1">
-                    <Typography variant="body1" className="text-left flex items-center">
-                        Berth Agent List
-                    </Typography>
-                    <Box className="flex flex-col sm:flex-row gap-6">
-                        <SearchBar
-                            getData={getData}
-                            rowsPerPage={rowsPerPage}
-                            search={search}
-                            setSearch={setSearch}
-                            options={{}}
-                        />
-                        <CustomButton text="Add" href="/master/berthAgent" />
-                    </Box>
-                </Box>
-                {/* Table */}
-                <TableContainer component={Paper}>
-                    <Table size="small" sx={{ minWidth: 650 }}>
-                        <TableHead>
-                            <TableRow>
-                                {fieldData.berthAgentFields.map((item) => (
-                                    <TableCell key={item.name}>{item.label}</TableCell>
-                                ))}
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {rows.length > 0 ? (
-                                rows.map((row, index) => (
-                                    <TableRow key={index} hover className="relative group">
-                                        <TableCell>{row?.agentId}</TableCell>
-                                        <TableCell>{row?.berthId}</TableCell>
-                                        <TableCell>{row?.agentCode}</TableCell>
-                                        <TableCell>{row?.lineCode}</TableCell>
-                                        <TableCell>{row?.senderId}</TableCell>
-                                        <TableCell>{row?.portEdiAgentCode}</TableCell>
-                                        <TableCell className="table-icons opacity-0 group-hover:opacity-100">
-                                            <HoverActionIcons
-                                                onView={() => modeHandler("view", row.id)}
-                                                onEdit={() => modeHandler("edit", row.id)}
-                                                onDelete={() => modeHandler("delete", row.id)}
-                                                menuAccess={data ?? {}}
-                                            />
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell colSpan={5} align="center">
-                                        {'No Data Found'}
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
 
-                <Box className="flex justify-end items-center mt-2">
-                    <CustomPagination
-                        count={totalPage}
-                        totalRows={totalRows}
-                        page={page}
-                        rowsPerPage={rowsPerPage}
-                        onPageChange={handleChangePage}
-                        handleChangeRowsPerPage={handleChangeRowsPerPage}
-                    />
-                </Box>
-            </Box>
-            <ToastContainer />
-        </ThemeProvider>
-    );
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box className="sm:px-4 py-1">
+        <Box className="flex flex-col sm:flex-row justify-between pb-1">
+          <Typography variant="body1" className="text-left flex items-center">
+            Berth Agent List
+          </Typography>
+          <Box className="flex flex-col sm:flex-row gap-6">
+            <SearchBar
+              getData={getData}
+              rowsPerPage={rowsPerPage}
+              search={search}
+              setSearch={setSearch}
+              options={searchDataAray}
+            />
+            <CustomButton text="Add" href="/master/berthAgent" />
+          </Box>
+        </Box>
+        {/* Table */}
+        <TableContainer component={Paper}>
+          <Table size="small" sx={{ minWidth: 650 }}>
+            <TableHead>
+              <TableRow>
+                {fieldData.berthAgentFields.map((item) => (
+                  <TableCell key={item.name}>{item.label}</TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows.length > 0 ? (
+                rows.map((row, index) => (
+                  <TableRow key={index} hover className="relative group">
+                    <TableCell>{row?.agentId}</TableCell>
+                    <TableCell>{row?.berthId}</TableCell>
+                    <TableCell>{row?.agentCode}</TableCell>
+                    <TableCell>{row?.lineCode}</TableCell>
+                    <TableCell>{row?.senderId}</TableCell>
+                    <TableCell>{row?.portEdiAgentCode}</TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
+                        menuAccess={data ?? {}}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} align="center">
+                    {"No Data Found"}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        <Box className="flex justify-end items-center mt-2">
+          <CustomPagination
+            count={totalPage}
+            totalRows={totalRows}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            handleChangeRowsPerPage={handleChangeRowsPerPage}
+          />
+        </Box>
+      </Box>
+      <ToastContainer />
+    </ThemeProvider>
+  );
 }

@@ -161,6 +161,7 @@ function TableGrid({
       });
     },
     excelUpload: () => {
+      if (!formData?.mblNo) return toast.error("Please Provide the Ml Bl No");
       setExcelFile((prev) => ({ ...prev, open: true }));
     },
   };
