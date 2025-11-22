@@ -1,11 +1,5 @@
 "use client";
-import {
-  useMemo,
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-} from "react";
+import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { cfsGridButtons } from "./invoiceRequestData";
 import { CustomInput } from "@/components/customInput";
@@ -143,6 +137,40 @@ export default function InvoiceRequest() {
   const submitHandler = async (e) => {
     e.preventDefault();
 
+    // 🔴 VALIDATE ATTACHMENT UPLOAD (required on Add & Edit)
+    const attachments = Array.isArray(formData?.tblAttachment)
+      ? formData.tblAttachment
+      : [];
+
+    let hasAnyRow = false;
+
+    for (const att of attachments) {
+      const obj = att || {};
+      const values = Object.values(obj).map((v) =>
+        v === null || v === undefined ? "" : String(v).trim()
+      );
+
+      const anyValue = values.some((v) => v !== "");
+      if (!anyValue) continue; // completely blank row -> ignore
+
+      hasAnyRow = true;
+
+      const hasPath =
+        obj.path !== undefined &&
+        obj.path !== null &&
+        String(obj.path).trim() !== "";
+
+      if (!hasPath) {
+        toast.error("Upload is required for all attachment rows.");
+        return;
+      }
+    }
+
+    if (!hasAnyRow) {
+      toast.error("Please add and upload at least one attachment.");
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -166,14 +194,14 @@ export default function InvoiceRequest() {
       const { success, message, error } = res || {};
 
       if (success) {
+        // ✅ SAME BEHAVIOUR FOR ADD & EDIT:
+        // after first save → disable Submit, enable Request
+        setCanSubmit(false);
+        setCanRequest(true);
+
         if (mode?.formId) {
-          // EDIT MODE: submit should stay enabled
-          setCanSubmit(true);
           toast.success(message || "Form updated successfully!");
         } else {
-          // ADD MODE: after first save → disable Submit, enable Request
-          setCanSubmit(false);
-          setCanRequest(true);
           toast.success(message || "Form submit successfully!");
         }
       } else {
@@ -196,7 +224,14 @@ export default function InvoiceRequest() {
       const blObj = {
         columns: "b.id",
         tableName: "tblBl b",
-        whereCondition: `b.mblNo = '${literal}' AND ISNULL(b.status,1) = 1`,
+        whereCondition: `
+    (
+      (b.hblNo IS NOT NULL AND b.hblNo = '${literal}')
+      OR
+      (b.mblNo IS NOT NULL AND b.mblNo = '${literal}')
+    )
+    AND ISNULL(b.status, 1) = 1
+  `,
       };
 
       const {
@@ -350,16 +385,47 @@ export default function InvoiceRequest() {
 
         setFormData(getData);
 
-        // EDIT mode: always allow Submit
-        setCanSubmit(true);
+        // 🔵 Get current status name from DB for this record
+        let currentStatusName = "";
+        try {
+          const statusQuery = {
+            columns: "m.name AS StatusName",
+            tableName: "tblInvoiceRequest i",
+            joins:
+              "LEFT JOIN tblMasterData m ON m.id = i.invoiceRequestStatusId",
+            whereCondition: `i.id = ${mode.formId}`,
+          };
 
-        // Request-button state on EDIT based on status:
-        // Requested / Released → Request disabled
-        // Rejected / null/else → Request enabled
-        if (mode.status === "Requested" || mode.status === "Released") {
-          setCanRequest(false);
+          const { success: stSuccess, data: stData } =
+            await getDataWithCondition(statusQuery);
+
+          if (stSuccess && Array.isArray(stData) && stData.length > 0) {
+            currentStatusName = String(stData[0].StatusName || "")
+              .toLowerCase()
+              .trim();
+          }
+        } catch (e) {
+          console.error("Error fetching current status:", e);
+        }
+
+        // ✅ Behaviour:
+        // - ADD / EDIT → Submit enabled, Request disabled
+        // - VIEW (customer):
+        //     if status NOT Requested / Released → Request enabled
+        //     else → Request disabled
+        if (mode.mode === "view" && userData?.roleCode === "customer") {
+          setCanSubmit(false);
+          if (
+            currentStatusName !== "requested" &&
+            currentStatusName !== "released"
+          ) {
+            setCanRequest(true);
+          } else {
+            setCanRequest(false);
+          }
         } else {
-          setCanRequest(true);
+          setCanSubmit(true);
+          setCanRequest(false);
         }
       } else {
         toast.error(error || message || "Failed to fetch form");
@@ -367,7 +433,7 @@ export default function InvoiceRequest() {
     }
 
     fetchFormHandler();
-  }, [mode.formId, mode.mode, mode.status]);
+  }, [mode.formId, mode.mode, userData?.roleCode]);
 
   /* ------------------------ REQUEST (Customer) ------------------------ */
   async function requestHandler() {

@@ -159,6 +159,7 @@ const fieldData = {
       name: "path",
       type: "fileupload",
       isEdit: true,
+      required: true,
     },
     {
       label: "Remarks",
