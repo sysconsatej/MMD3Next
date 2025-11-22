@@ -7,7 +7,7 @@ export const fieldData = {
   mblFields: [
     {
       label: "Line No/Sub Line No",
-      name: "subLineNo",
+      name: "itemNo",
       isEdit: true,
     },
     {
@@ -808,11 +808,6 @@ export const fieldData = {
     {
       label: "OGG Back",
       name: "oogBack",
-      isEdit: true,
-    },
-    {
-      label: "OGG Front",
-      name: "oogFront",
       isEdit: true,
     },
     {

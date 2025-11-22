@@ -92,7 +92,7 @@ export const navItems = [
         isShow: false,
         children: [
           {
-            name: "MBL Request",
+            name: "MBL",
             href: "/bl/mbl/list",
             isShow: false,
           },
