@@ -120,8 +120,9 @@ export default function InvoicePaymentList() {
     LEFT JOIN tblBl b ON b.id = i.blId
     LEFT JOIN tblCompany c ON c.id = b.companyId
     LEFT JOIN tblMasterData cat ON cat.id = i.invoiceCategoryId
+    LEFT JOIN tblInvoiceRequest ir on ir.id = i.invoiceRequestId
     LEFT JOIN tblUser u ON u.id = ${userData.userId}
-    JOIN tblUser u2 ON u2.companyId = u.companyId AND i.createdBy = u2.id
+    JOIN tblUser u2 ON u2.companyId = u.companyId AND i.createdBy = u2.id and ir.companyId = u.companyId and ir.companyBranchId = u.branchId
     LEFT JOIN (
       SELECT *
       FROM (
