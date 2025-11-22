@@ -115,3 +115,11 @@ export function statusColor(status) {
   };
   return color[status];
 }
+
+export function checkAttachment(formData) {
+  const isAttachment = formData.tblBl.map((item) => {
+    return Boolean(item.tblAttachment?.[0]?.path);
+  });
+
+  return isAttachment.some((item) => item === false);
+}
