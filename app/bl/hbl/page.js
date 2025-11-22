@@ -33,7 +33,7 @@ import {
   updateStatusRows,
 } from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { copyHandler, useTotalGrossAndPack } from "./utils";
+import { checkAttachment, copyHandler, useTotalGrossAndPack } from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import AgreeTerms from "@/components/agreeTerms/agreeTerms";
@@ -112,6 +112,11 @@ export default function Home() {
     });
     if (packageMismatchError) {
       packageMismatchError?.map((err) => toast.error(err));
+      return;
+    }
+    const isAttachment = checkAttachment(formData);
+    if (isAttachment) {
+      toast.error("Please upload attachment in all HBL tabs!");
       return;
     }
     let allSuccess = true;
@@ -595,8 +600,6 @@ export default function Home() {
 
     getHblStatus();
   }, []);
-
-
 
   return (
     <ThemeProvider theme={theme}>
