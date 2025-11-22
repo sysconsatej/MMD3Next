@@ -148,6 +148,30 @@ const fieldData = {
       isEdit: true,
     },
     {
+      label: "Company",
+      name: "companyId",
+      type: "dropdown",
+      tableName: "tblCompany t",
+      displayColumn: "t.name",
+      searchColumn: "t.name",
+      orderBy: "t.name",
+      foreignTable: "name,tblCompany",
+      required: true,
+      isEdit: true,
+    },
+    {
+      label: "Company Branch",
+      name: "companyBranchId",
+      type: "dropdown",
+      tableName: "tblCompanyBranch t",
+      displayColumn: "t.name",
+      orderBy: "t.name",
+      foreignTable: "name,tblCompanyBranch",
+      selectedConditions: [{ companyId: "companyId" }],
+      required: true,
+      isEdit: true,
+    },
+    {
       label: "Prior To Prior Port",
       name: "priorToPriorPortId",
       type: "dropdown",
@@ -330,4 +354,3 @@ export const VoyageRoute = [
 ];
 
 export default fieldData;
- 
