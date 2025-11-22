@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { ThemeProvider, Box, Tabs, Tab, Typography } from "@mui/material";
+import { ThemeProvider, Box, Tabs, Tab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import { theme } from "@/styles";
@@ -11,7 +11,7 @@ import CustomButton from "@/components/button/button";
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
-import data, { cfsGridButtons, containerObj } from "./invoicePaymentData";
+import data, { cfsGridButtons } from "./invoicePaymentData";
 import {
   getDataWithCondition,
   fetchForm,
@@ -110,34 +110,34 @@ export default function InvoicePayment() {
 
   const sqlEscape = useCallback((s = "") => String(s).replace(/'/g, "''"), []);
 
-  async function setBlContainer(blId) {
-    const format = formatFetchForm(
-      containerObj,
-      "tblBl",
-      blId,
-      '["tblBlContainer"]',
-      "blId"
-    );
-    const { success, result, message, error } = await fetchForm(format);
-    if (success) {
-      const getData = formatDataWithForm(result, {
-        tblBlContainer: jsonData.tblInvoiceRequestContainer,
-      });
-      const filterContainer = getData.tblBlContainer.map((item) => {
-        return { containerNo: item.containerNo, sizeId: item.sizeId };
-      });
-      setContainerData(filterContainer);
-      setFormData((prev) => ({
-        ...prev,
-        tblInvoice: [
-          {
-            ...(prev?.tblInvoice?.[0] || []),
-            tblInvoiceRequestContainer: filterContainer,
-          },
-        ],
-      }));
-    } else {
-      toast.error(error || message);
+  async function setBlContainer(mblNo) {
+    const payload = {
+      columns:
+        "c.containerNo as containerNo, json_query((select c.sizeId as Id, m.name as Name for json path, without_array_wrapper)) as sizeId",
+      tableName: "tblBl b",
+      joins:
+        "left join tblBlContainer c on c.blId = b.id left join tblMasterData m on m.id = c.sizeId",
+      whereCondition: `b.mblNo = '${mblNo}' and b.status = 1`,
+    };
+
+    try {
+      const { success, data, error } = await getDataWithCondition(payload);
+      if (success) {
+        setContainerData(data);
+        setFormData((prev) => ({
+          ...prev,
+          tblInvoice: [
+            {
+              ...(prev?.tblInvoice?.[0] || []),
+              tblInvoiceRequestContainer: data,
+            },
+          ],
+        }));
+      } else {
+        toast.error(error);
+      }
+    } catch (e) {
+      toast.error(e);
     }
   }
 
@@ -192,7 +192,7 @@ export default function InvoicePayment() {
           toast.success("BL found for this Beneficiary.");
           setFormData((p) => ({ ...p, blId: data[0].id }));
           setErrorState((p) => ({ ...p, [errKey]: false }));
-          await setBlContainer(data[0].id);
+          await setBlContainer(typed);
           await setInvoiceRequestId(typed);
         } else {
           toast.error("BL not found for this Beneficiary.");

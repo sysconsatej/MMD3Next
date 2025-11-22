@@ -138,10 +138,11 @@ const fieldData = {
   ],
   tblAttachment: [
     {
-      label: "Upload",
+      label: "Upload Invoice",
       name: "path",
       type: "fileupload",
       isEdit: true,
+      required: true,
     },
   ],
 

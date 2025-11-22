@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import {
   Card,
+  Link,
   Paper,
   Table,
   TableBody,
@@ -33,6 +34,7 @@ function TableGrid({
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [gridId, setGridId] = useState(null);
   const [excelFile, setExcelFile] = useState({ open: false, excelFile: null });
+  const url = process.env.NEXT_PUBLIC_BACKEND_URL;
   const targetGrid = tabName
     ? formData?.[tabName]?.[tabIndex || 0]?.[gridName]
     : formData[gridName];
@@ -253,13 +255,27 @@ function TableGrid({
                               </TableCell>
                             ) : (
                               <TableCell>
-                                {value?.Name ??
-                                  `${
-                                    item.type == "fileupload"
-                                      ? value?.name?.split(/-(.+)/)[1] ??
-                                        value?.split(/-(.+)/)[1]
-                                      : value || ""
-                                  }`}
+                                {value?.Name ? (
+                                  value.Name
+                                ) : item.type == "fileupload" ? (
+                                  value?.name ? (
+                                    <Link
+                                      href={`${URL.createObjectURL(value)}`}
+                                      target="_blank"
+                                    >
+                                      {value?.name?.split(/-(.+)/)[1]}
+                                    </Link>
+                                  ) : (
+                                    <Link
+                                      href={`${url}uploads/${value}`}
+                                      target="_blank"
+                                    >
+                                      {value?.split(/-(.+)/)[1]}
+                                    </Link>
+                                  )
+                                ) : (
+                                  value || ""
+                                )}
                               </TableCell>
                             )}
                           </>

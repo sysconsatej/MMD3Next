@@ -1,11 +1,5 @@
 "use client";
-import {
-  useMemo,
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-} from "react";
+import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { cfsGridButtons } from "./invoiceRequestData";
 import { CustomInput } from "@/components/customInput";
@@ -148,6 +142,8 @@ export default function InvoiceRequest() {
 
       const normalized = {
         ...formData,
+        companyId: userData?.companyId,
+        companyBranchId: userData?.branchId,
         isFreeDays: radioFD,
         isHighSealSale:
           formData?.isHighSealSale === true || formData?.isHighSealSale === "Y"
