@@ -317,7 +317,7 @@ export default function Home() {
       <form onSubmit={submitHandler}>
         <section className="py-2 px-4">
           <Box className="flex justify-between items-center mb-2">
-            <h1 className="text-left text-base m-0">MBL Request</h1>
+            <h1 className="text-left text-base m-0">MBL</h1>
             <Box className="flex items-center gap-4">
               <CustomInput
                 fields={totalFieldData.totalFields}
