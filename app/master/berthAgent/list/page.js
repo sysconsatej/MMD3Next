@@ -124,7 +124,7 @@ export default function CompanyList() {
     };
     const obj = {
       recordId: formId,
-      tableName: "tbltblBerthAgentCode",
+      tableName: "tblBerthAgentCode",
       ...updateObj,
     };
     const { success, message, error } = await deleteRecord(obj);
