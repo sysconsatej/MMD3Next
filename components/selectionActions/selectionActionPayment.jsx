@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { Box, Typography } from "@mui/material";
 
 export default function SelectionActionsBar({
@@ -7,10 +7,11 @@ export default function SelectionActionsBar({
   keyColumn = "id",
   onView,
   onEdit,
-  disablePay = false, // ⬅ already there
+  disablePay = false,
   isPay = false,
   onPay, // optional callback
-  showEdit = true, // ⬅ NEW PROP (default: show Edit)
+  showEdit = true, // ⬅ control visibility of Edit
+  disableEdit = false, // ⬅ extra disable condition for Edit
 }) {
   const ids = useMemo(
     () =>
@@ -43,40 +44,41 @@ export default function SelectionActionsBar({
   };
 
   return (
-    <>
-      <Box className="flex items-center justify-between">
-        <div className="flex border text-black border-[#B5C4F0] mt-2 text-xs rounded-sm overflow-hidden">
+    <Box className="flex items-center justify-between">
+      <div className="flex border text-black border-[#B5C4F0] mt-2 text-xs rounded-sm overflow-hidden">
+        {/* VIEW */}
+        <Segment
+          label="View"
+          onClick={() => isSingle && onView && onView(ids[0])}
+          disabled={!isSingle}
+        />
+
+        {/* EDIT (can be hidden + disabled separately) */}
+        {showEdit && (
           <Segment
-            label="View"
-            onClick={() => isSingle && onView && onView(ids[0])}
-            disabled={!isSingle}
-            // not last, we keep as-is
+            label="Edit"
+            onClick={() =>
+              isSingle && !disableEdit && onEdit && onEdit(ids[0])
+            }
+            disabled={!isSingle || disableEdit}
           />
+        )}
 
-          {showEdit && (
-            <Segment
-              label="Edit"
-              onClick={() => isSingle && onEdit && onEdit(ids[0])}
-              disabled={!isSingle}
-              // not last, same as before
-            />
-          )}
+        {/* PAY */}
+        {isPay && (
+          <Segment
+            label="Pay"
+            onClick={handlePay}
+            disabled={disablePay}
+            isLast
+          />
+        )}
+        {!isPay && <div className="hidden" />} {/* keep layout stable */}
+      </div>
 
-          {isPay && (
-            <Segment
-              label="Pay"
-              onClick={handlePay}
-              disabled={disablePay}
-              isLast
-            />
-          )}
-          {!isPay && <div className="hidden" />} {/* keep layout stable */}
-        </div>
-
-        <Typography variant="caption" className="mt-2 ml-2">
-          Selected: {count}
-        </Typography>
-      </Box>
-    </>
+      <Typography variant="caption" className="mt-2 ml-2">
+        Selected: {count}
+      </Typography>
+    </Box>
   );
 }
