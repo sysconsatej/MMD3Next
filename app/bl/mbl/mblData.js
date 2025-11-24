@@ -361,6 +361,11 @@ export const fieldData = {
       label: "MLO Code",
       name: "mloId",
       type: "dropdown",
+      displayColumn: "c.panNo",
+      tableName: "tblCompany c",
+      where: "c.panNo is not null and ltrim(rtrim(c.panNo)) <> ''",
+      orderBy: "c.panNo",
+      foreignTable: "panNo,tblCompany",
       isEdit: true,
     },
     {
