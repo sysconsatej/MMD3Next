@@ -784,6 +784,7 @@ export const fieldData = {
       displayColumn: "ISNULL(m.unNo,'') + ' - ' + ISNULL(m.class,'')",
       searchColumn: "m.unNo, m.class",
       orderBy: "m.unNo, m.class",
+      foreignTable: "unNo-class,tblImo",
       isEdit: true,
     },
     {
