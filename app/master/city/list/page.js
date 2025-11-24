@@ -24,7 +24,7 @@ import { formStore } from "@/store";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { city } from "../cityData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
-
+import { getUserByCookies } from "@/utils";
 function createData(countryName, stateName, cityName, id) {
   return { countryName, stateName, cityName, id };
 }
@@ -39,7 +39,7 @@ export default function CityList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const router = useRouter();
   const { data } = useGetUserAccessUtils("City");
-
+  const userData = getUserByCookies();
   const { setMode } = formStore();
 
   const getData = useCallback(
@@ -95,9 +95,15 @@ export default function CityList() {
   };
 
   const handleDeleteRecord = async (formId) => {
+    const updateObj = {
+      updatedBy: userData?.userId,
+      clientId: 1,
+      updatedDate: new Date(),
+    };
     const obj = {
       recordId: formId,
       tableName: "tblCity",
+      ...updateObj,
     };
     const { success, message, error } = await deleteRecord(obj);
     if (success) {

@@ -24,7 +24,7 @@ import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { vessel } from "../vesselData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
-
+import { getUserByCookies } from "@/utils";
 function createData(code, name, nationality, callSign, imoCode, id) {
   return { code, name, nationality, callSign, imoCode, id };
 }
@@ -39,7 +39,7 @@ export default function VesselList() {
   const { setMode } = formStore();
   const router = useRouter();
   const { data } = useGetUserAccessUtils("Vessel");
-
+  const userData = getUserByCookies();
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
@@ -93,9 +93,15 @@ export default function VesselList() {
   };
 
   const handleDeleteRecord = async (formId) => {
+    const updateObj = {
+      updatedBy: userData?.userId,
+      clientId: 1,
+      updatedDate: new Date(),
+    };
     const obj = {
       recordId: formId,
       tableName: "tblVessel",
+      ...updateObj,
     };
     const { success, message, error } = await deleteRecord(obj);
     if (success) {

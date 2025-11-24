@@ -24,7 +24,7 @@ import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { SmtpCarrier } from "../smtpCarrierData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
-
+import { getUserByCookies } from "@/utils";
 function createData(
   code,
   name,
@@ -62,7 +62,7 @@ export default function SmtpCarrierList() {
   const { setMode } = formStore();
   const router = useRouter();
   const { data } = useGetUserAccessUtils("SMTP");
-
+  const userData = getUserByCookies();
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
@@ -123,9 +123,15 @@ export default function SmtpCarrierList() {
   };
 
   const handleDeleteRecord = async (formId) => {
+    const updateObj = {
+      updatedBy: userData?.userId,
+      clientId: 1,
+      updatedDate: new Date(),
+    };
     const obj = {
       recordId: formId,
       tableName: "tblCompany",
+      ...updateObj,
     };
     const { success, message, error } = await deleteRecord(obj);
     if (success) {
