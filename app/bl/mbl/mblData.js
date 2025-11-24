@@ -335,18 +335,6 @@ export const fieldData = {
   ],
   hblBottomFields: [
     {
-      label: "Nature of Cargo",
-      name: "natureOfCargoId",
-      type: "dropdown",
-      tableName: "tblMasterData m",
-      displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
-      where: "m.masterListName = 'tblTypeOfShipment'",
-      orderBy: "m.name",
-      foreignTable: "code-name,tblMasterData",
-      isEdit: true,
-      required: true,
-    },
-    {
       label: "Item Type",
       name: "blTypeId",
       type: "dropdown",
