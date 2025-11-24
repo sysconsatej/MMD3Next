@@ -8,7 +8,7 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { fetchForm, insertUpdateForm } from "@/apis";
-import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
+import { formatDataWithForm, formatFetchForm, formatFormData,getUserByCookies } from "@/utils";
 import { formStore } from "@/store";
 
 export default function VoyageRoute() {
@@ -16,9 +16,15 @@ export default function VoyageRoute() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
+  const userData = getUserByCookies();
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData("tblVoyageRoute ", formData, mode.formId);
+    const updatedFormdData = {
+      ...formData,
+      companyid : userData?.companyId,
+      companyBranchid  : userData?.branchId,
+    }
+    const format = formatFormData("tblVoyageRoute ", updatedFormdData, mode.formId);
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
