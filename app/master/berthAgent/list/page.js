@@ -80,8 +80,8 @@ export default function CompanyList() {
         setTotalRows(totalRows);
       } catch (err) {
         setLoadingState("Failed to load data");
-      } finally  {
-        setLoadingState("Loading ...")
+      } finally {
+        setLoadingState("Loading ...");
       }
     },
     [page, rowsPerPage, search]
@@ -116,8 +116,7 @@ export default function CompanyList() {
 
   // delete
   const handleDeleteRecord = async (formId) => {
-    
-     const updateObj = {
+    const updateObj = {
       updatedBy: userData?.userId,
       clientId: 1,
       updatedDate: new Date(),
@@ -144,12 +143,6 @@ export default function CompanyList() {
     setMode({ mode, formId });
     router.push("/master/berthAgent");
   };
-
-
-  
-
-
-
 
   return (
     <ThemeProvider theme={theme}>

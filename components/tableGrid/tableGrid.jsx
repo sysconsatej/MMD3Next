@@ -307,6 +307,7 @@ function TableGrid({
         fields={fields}
         tabIndex={tabIndex}
         tabName={tabName}
+        mblNo={formData && formData?.mblNo}
       />
     </Box>
   );
