@@ -59,10 +59,10 @@ export const navItems = [
         isShow: false,
       },
       {
-        name  :  "Berth Agent",
+        name: "Berth Agent",
         href: "/master/berthAgent/list",
         isShow: false,
-      }
+      },
     ],
   },
 
@@ -73,40 +73,28 @@ export const navItems = [
     submenu: [
       {
         name: "HBL",
+        href: "/bl/hbl/list",
         isShow: false,
-        children: [
-          {
-            name: "HBL Request",
-            href: "/bl/hbl/list",
-            isShow: false,
-          },
-          {
-            name: "HBL Upload",
-            href: "/bl/hbl/upload",
-            isShow: false,
-          },
-          {
-            name: "HBL Track",
-            href: "/bl/hbl/linerSearch",
-            isShow: false,
-          },
-        ],
+      },
+      {
+        name: "HBL Upload",
+        href: "/bl/hbl/upload",
+        isShow: false,
+      },
+      {
+        name: "HBL Track",
+        href: "/bl/hbl/linerSearch",
+        isShow: false,
       },
       {
         name: "MBL",
+        href: "/bl/mbl/list",
         isShow: false,
-        children: [
-          {
-            name: "MBL",
-            href: "/bl/mbl/list",
-            isShow: false,
-          },
-          {
-            name: "MBL Upload",
-            href: "/bl/mbl/upload",
-            isShow: false,
-          },
-        ],
+      },
+      {
+        name: "MBL Upload",
+        href: "/bl/mbl/upload",
+        isShow: false,
       },
     ],
   },
