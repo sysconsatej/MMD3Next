@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 const roleAccessPaths = {
   "/menu-access": ["admin"],
   "/master": ["admin"],
-
-
   "/reports": ["admin", "shipping" , "customer", "cfs"],
   "/bl-status": ["admin", "shipping" , "customer", "cfs"],
   "/bl": ["admin", "shipping" , "customer", "cfs"],
@@ -12,9 +10,8 @@ const roleAccessPaths = {
   "/upload" : ["admin", "shipping" , "customer", "cfs"],
   "/blPartyHold": ["admin", "shipping" , "customer", "cfs"],
   "/home": ["admin", "shipping", "customer", "cfs"],
-
-  
-
+  "/request/doRequest/list": ["shipping" , "customer"],
+  "/master/berthAgent/list": ["admin"],
 };
 
 export default function middleware(request) {

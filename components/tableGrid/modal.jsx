@@ -5,6 +5,7 @@ import { CustomInput } from "../customInput";
 import CustomButton from "../button/button";
 import { uploadExcel } from "@/apis";
 import { formatExcelDataWithForm } from "@/utils";
+import { toast } from "react-toastify";
 
 const style = {
   position: "absolute",
@@ -39,15 +40,31 @@ export default function ExcelModal({
       const formData = new FormData();
       formData.append("excelFile", excelFile?.excelFile);
       const { result } = await uploadExcel(formData);
+      const excelData = Array.isArray(result) ? result : [];
 
       setFormData((prev) => {
+        const applyUpdate = (existingList = [], newList = []) => {
+          const map = new Map();
+
+          existingList.forEach((item) => {
+            map.set(item?.containerNo, item);
+          });
+
+          newList.forEach((item) => {
+            map.set(item?.containerNo, item);
+          });
+
+          return Array.from(map.values());
+        };
+
         // If a tabName exists → update nested tab/grid
         if (tabName !== null && tabIndex !== null) {
           const updatedTabs = [...prev[tabName]];
           const selectedTab = { ...updatedTabs[tabIndex] };
 
-          selectedTab[gridName] = [...(selectedTab[gridName] || []), ...result];
+          const updateGrid = applyUpdate(selectedTab[gridName], excelData);
 
+          selectedTab[gridName] = updateGrid;
           updatedTabs[tabIndex] = selectedTab;
 
           return {
@@ -59,26 +76,12 @@ export default function ExcelModal({
         // If no tabName → update top-level grid
         return {
           ...prev,
-          [gridName]: [...(prev[gridName] || []), ...result],
+          [gridName]: applyUpdate(prev[gridName] , excelData),
         };
       });
-
-      // setFormData((prev) => {
-      //   console.log(prev);
-
-      //   return {
-      //     ...prev,
-      //     tblBl: prev.tblBl?.map((info, i) => {
-      //       return {
-      //         ...info,
-      //         [gridName]: [...(info[gridName] || []), ...result],
-      //       };
-      //     }),
-      //   };
-      // });
-
-      setExcelFile((prev) => ({ ...prev, open: false, excelFile: null }));
     }
+
+    setExcelFile((prev) => ({ ...prev, open: false, excelFile: null }));
   }
 
   return (

@@ -58,6 +58,11 @@ export const navItems = [
         href: "/master/movementType/list",
         isShow: false,
       },
+      {
+        name  :  "Berth Agent",
+        href: "/master/berthAgent/list",
+        isShow: false,
+      }
     ],
   },
 
@@ -122,7 +127,7 @@ export const navItems = [
         href: "/request/invoicePayment/list",
         isShow: false,
       },
-      { name: "Invoice Upload", href: "/request/invoiceUpload/list" },
+      // { name: "Invoice Upload", href: "/request/invoiceUpload/list" },
       {
         name: "Invoice Request",
         href: "/request/invoiceRequest/list",
@@ -130,7 +135,7 @@ export const navItems = [
       },
       {
         name: "Invoice Upload",
-        href: "/request/invoiceUpload/list",
+        href: "/upload",
         isShow: false,
       },
       {
@@ -157,18 +162,18 @@ export const navItems = [
         isShow: false,
       },
       {
-        name: "Liner Invoice Payment ",
+        name: "Liner Invoice Payment",
         href: "/payment/linerInvoice/list",
-        isShow: true,
+        isShow: false,
       },
     ],
   },
-  {
-    name: "Uploads",
-    icon: "file",
-    href: "/upload",
-    isShow: true,
-  },
+  // {
+  //   name: "Uploads",
+  //   icon: "file",
+  //   href: "/upload",
+  //   isShow: true,
+  // },
 
   {
     name: "Reports",
