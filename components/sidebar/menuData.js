@@ -61,7 +61,7 @@ export const navItems = [
       {
         name: "Berth Agent",
         href: "/master/berthAgent/list",
-        isShow: true,
+        isShow: false,
       },
     ],
   },
