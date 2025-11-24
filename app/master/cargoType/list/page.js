@@ -24,6 +24,7 @@ import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { cargoType } from "../cargoData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
+import { getUserByCookies } from "@/utils";
 
 function createData(code, name, id) {
   return { code, name, id };
@@ -39,7 +40,7 @@ export default function CargoTypeList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
-
+  const userData = getUserByCookies();
   const { data } = useGetUserAccessUtils("Cargo Type");
 
   const getData = useCallback(
@@ -87,9 +88,15 @@ export default function CargoTypeList() {
   };
 
   const handleDeleteRecord = async (formId) => {
+    const updateObj = {
+      updatedBy: userData?.userId,
+      clientId: 1,
+      updatedDate: new Date(),
+    };
     const obj = {
       recordId: formId,
       tableName: "tblMasterData",
+      ...updateObj,
     };
     const { success, message, error } = await deleteRecord(obj);
     if (success) {

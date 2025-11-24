@@ -24,7 +24,7 @@ import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { depot } from "../depotData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
-
+import { getUserByCookies } from "@/utils";
 function createData(depotName, location, code, address, id) {
   return { depotName, location, code, address, id };
 }
@@ -40,7 +40,7 @@ export default function DepotList() {
   const { setMode } = formStore();
   const router = useRouter();
   const { data } = useGetUserAccessUtils("Empty Depot");
-
+  const userData = getUserByCookies();
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
@@ -93,9 +93,15 @@ export default function DepotList() {
   };
 
   const handleDeleteRecord = async (formId) => {
+    const updateObj = {
+      updatedBy: userData?.userId,
+      clientId: 1,
+      updatedDate: new Date(),
+    };
     const obj = {
       recordId: formId,
       tableName: "tblPort",
+      ...updateObj,
     };
     const { success, message, error } = await deleteRecord(obj);
     if (success) {

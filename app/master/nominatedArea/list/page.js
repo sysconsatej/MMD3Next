@@ -23,7 +23,7 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { nominatedArea } from "../nominatedAreaData";
-
+import { getUserByCookies } from "@/utils";
 function createData(
   code,
   description,
@@ -58,7 +58,7 @@ export default function NominatedAreaList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
-
+  const userData = getUserByCookies();
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
@@ -117,9 +117,15 @@ export default function NominatedAreaList() {
   };
 
   const handleDeleteRecord = async (formId) => {
+    const updateObj = {
+      updatedBy: userData?.userId,
+      clientId: 1,
+      updatedDate: new Date(),
+    };
     const obj = {
       recordId: formId,
       tableName: "tblPort",
+      ...updateObj,
     };
     const { success, message, error } = await deleteRecord(obj);
     if (success) {

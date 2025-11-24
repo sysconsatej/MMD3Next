@@ -23,6 +23,7 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { unit } from "../unitData";
+import { getUserByCookies } from "@/utils";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 function createData(code, name, id) {
   return { code, name, id };
@@ -39,7 +40,7 @@ export default function UnitList() {
   const { setMode } = formStore();
   const router = useRouter();
   const { data } = useGetUserAccessUtils("Unit");
-
+  const userData = getUserByCookies();
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
@@ -82,9 +83,15 @@ export default function UnitList() {
   };
 
   const handleDeleteRecord = async (formId) => {
+    const updateObj = {
+      updatedBy: userData?.userId,
+      clientId: 1,
+      updatedDate: new Date(),
+    };
     const obj = {
       recordId: formId,
       tableName: "tblMasterData",
+      ...updateObj,
     };
     const { success, message, error } = await deleteRecord(obj);
     if (success) {
