@@ -25,11 +25,10 @@ import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
-import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer, toast } from "react-toastify";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
-import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
+import SelectionActionsBar from "@/components/selectionActions/selectionActionPayment";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
 import {
@@ -107,6 +106,15 @@ export default function InvoiceRequestList() {
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
 
+  /* -------- Disable Edit when status is Requested or Released -------- */
+  const disableEdit = useMemo(() => {
+    if (selectedIds.length !== 1) return false; // multi-select already disabled by bar
+    const row = rows.find((r) => r.id === selectedIds[0]);
+    if (!row) return false;
+    const st = (row.status || "").toLowerCase();
+    return st === "requested" || st === "released";
+  }, [selectedIds, rows]);
+
   /* ---------------------- DATA FETCH LOGIC ---------------------- */
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
@@ -132,8 +140,8 @@ export default function InvoiceRequestList() {
             LEFT JOIN tblCompany c ON c.id = i.shippingLineId
             LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
             LEFT JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId
-            Left JOIN tblUser u on u.id = ${userData.userId}
-			      JOIN tblUser u2 on u2.companyId = u.companyId and i.createdBy = u2.id
+            LEFT JOIN tblUser u on u.id = ${userData.userId}
+            JOIN tblUser u2 on u2.companyId = u.companyId and i.createdBy = u2.id
           `,
           orderBy:
             "ORDER BY isnull(i.updatedDate, i.createdDate) DESC, i.id DESC",
@@ -174,7 +182,7 @@ export default function InvoiceRequestList() {
   useEffect(() => {
     setMode({ mode: null, formId: null });
     getData(1, rowsPerPage);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ---------------------- PAGINATION ---------------------- */
   const handleChangePage = (_e, newPage) => getData(newPage, rowsPerPage);
@@ -239,14 +247,10 @@ export default function InvoiceRequestList() {
         {/* BULK ACTION BAR */}
         <SelectionActionsBar
           selectedIds={selectedIds}
-          tableName={UPDATE_TABLE}
           keyColumn="id"
-          allowBulkDelete
           onView={(id) => modeHandler("view", id)}
           onEdit={(id) => modeHandler("edit", id)}
-          onDelete={(ids) => handleBulkDelete(ids)}
-          onUpdated={() => getData(page, rowsPerPage)}
-          isEdit={true}
+          disableEdit={disableEdit} // ⬅ disable Edit when status is Requested/Released
         />
 
         {/* TABLE */}
@@ -278,72 +282,87 @@ export default function InvoiceRequestList() {
 
             <TableBody>
               {rows.length > 0 ? (
-                rows.map((row) => (
-                  <TableRow key={row.id} hover className="relative group">
-                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
-                      <Checkbox
-                        size="small"
-                        checked={selectedIds.includes(row.id)}
-                        onChange={() => toggleOne(row.id)}
-                        sx={CHECKBOX_SX}
-                      />
-                    </TableCell>
+                rows.map((row) => {
+                  const statusLower = (row.status || "").toLowerCase();
+                  const canModify =
+                    statusLower !== "requested" &&
+                    statusLower !== "released"; // ⬅ control row-level edit/delete
 
-                    <TableCell>{row.liner}</TableCell>
+                  return (
+                    <TableRow key={row.id} hover className="relative group">
+                      <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                        <Checkbox
+                          size="small"
+                          checked={selectedIds.includes(row.id)}
+                          onChange={() => toggleOne(row.id)}
+                          sx={CHECKBOX_SX}
+                        />
+                      </TableCell>
 
-                    {/* BL No Clickable */}
-                    <TableCell>
-                      <Link
-                        href="#"
-                        underline="hover"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          modeHandler("view", row.id);
-                        }}
-                        sx={{ cursor: "pointer", fontWeight: 500 }}
-                      >
-                        {row.blNo}
-                      </Link>
-                    </TableCell>
+                      <TableCell>{row.liner}</TableCell>
 
-                    <TableCell>{row.type}</TableCell>
-                    <TableCell>{toFreeDaysLabel(row.freeDays)}</TableCell>
-                    <TableCell>{toYesNo(row.highSealSale)}</TableCell>
+                      {/* BL No Clickable */}
+                      <TableCell>
+                        <Link
+                          href="#"
+                          underline="hover"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            modeHandler("view", row.id);
+                          }}
+                          sx={{ cursor: "pointer", fontWeight: 500 }}
+                        >
+                          {row.blNo}
+                        </Link>
+                      </TableCell>
 
-                    {/* STATUS (Colored same as HBL) */}
-                    <TableCell sx={{ color: statusColor(row.status) }}>
-                      {row.status}
-                    </TableCell>
+                      <TableCell>{row.type}</TableCell>
+                      <TableCell>{toFreeDaysLabel(row.freeDays)}</TableCell>
+                      <TableCell>{toYesNo(row.highSealSale)}</TableCell>
 
-                    {/* REMARK */}
-                    <TableCell>{row.remarkStatus}</TableCell>
+                      {/* STATUS (Colored) */}
+                      <TableCell sx={{ color: statusColor(row.status) }}>
+                        {row.status}
+                      </TableCell>
 
-                    <TableCell>{row.date}</TableCell>
+                      {/* REMARK */}
+                      <TableCell>{row.remarkStatus}</TableCell>
 
-                    <TableCell>
-                      <AttachFileIcon
-                        sx={{ cursor: "pointer", fontSize: "16px" }}
-                        onClick={() =>
-                          setModal((prev) => ({
-                            ...prev,
-                            toggle: true,
-                            value: row.id,
-                          }))
-                        }
-                      />
-                    </TableCell>
+                      <TableCell>{row.date}</TableCell>
 
-                    {/* ACTION ICONS */}
-                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
-                      <HoverActionIcons
-                        onView={() => modeHandler("view", row.id)}
-                        onEdit={() => modeHandler("edit", row.id)}
-                        onDelete={() => modeHandler("delete", row.id)}
-                        menuAccess={{}}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))
+                      <TableCell>
+                        <AttachFileIcon
+                          sx={{ cursor: "pointer", fontSize: "16px" }}
+                          onClick={() =>
+                            setModal((prev) => ({
+                              ...prev,
+                              toggle: true,
+                              value: row.id,
+                            }))
+                          }
+                        />
+                      </TableCell>
+
+                      {/* ACTION ICONS */}
+                      <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                        <HoverActionIcons
+                          onView={() => modeHandler("view", row.id)}
+                          onEdit={
+                            canModify
+                              ? () => modeHandler("edit", row.id)
+                              : undefined
+                          }
+                          onDelete={
+                            canModify
+                              ? () => modeHandler("delete", row.id)
+                              : undefined
+                          }
+                          menuAccess={{}}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               ) : (
                 <TableRow>
                   <TableCell colSpan={10} align="center">

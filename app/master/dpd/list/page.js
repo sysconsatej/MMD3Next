@@ -24,7 +24,7 @@ import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { dpd } from "../dpdData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
-
+import { getUserByCookies } from "@/utils";
 function createData(
   code,
   name,
@@ -54,7 +54,7 @@ export default function DpdList() {
   const { setMode } = formStore();
   const router = useRouter();
   const { data } = useGetUserAccessUtils("Dpd");
-
+  const userData = getUserByCookies();
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
@@ -110,9 +110,15 @@ export default function DpdList() {
   };
 
   const handleDeleteRecord = async (formId) => {
+    const updateObj = {
+      updatedBy: userData?.userId,
+      clientId: 1,
+      updatedDate: new Date(),
+    };
     const obj = {
       recordId: formId,
       tableName: "tblPort",
+      ...updateObj,
     };
     const { success, message, error } = await deleteRecord(obj);
     if (success) {

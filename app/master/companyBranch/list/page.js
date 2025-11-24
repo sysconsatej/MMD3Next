@@ -24,7 +24,7 @@ import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { companyBranch } from "../companyBranchData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
-
+import { getUserByCookies } from "@/utils";
 function createData(
   code,
   name,
@@ -62,7 +62,7 @@ export default function CompanyBranchList() {
   const { setMode } = formStore();
   const router = useRouter();
   const { data } = useGetUserAccessUtils("Company Branch");
-
+  const userData = getUserByCookies();
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
@@ -123,9 +123,15 @@ export default function CompanyBranchList() {
   };
 
   const handleDeleteRecord = async (formId) => {
+    const updateObj = {
+      updatedBy: userData?.userId,
+      clientId: 1,
+      updatedDate: new Date(),
+    };
     const obj = {
       recordId: formId,
       tableName: "tblCompanyBranch",
+      ...updateObj,
     };
     const { success, message, error } = await deleteRecord(obj);
     if (success) {

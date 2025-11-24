@@ -24,7 +24,7 @@ import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { country } from "../countryData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
-
+import { getUserByCookies } from "@/utils";
 function createData(code, name, id) {
   return { code, name, id };
 }
@@ -39,7 +39,7 @@ export default function CountryList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
-
+  const userData = getUserByCookies();
   const { data } = useGetUserAccessUtils("Country");
 
   const getData = useCallback(
@@ -86,9 +86,15 @@ export default function CountryList() {
   };
 
   const handleDeleteRecord = async (formId) => {
+    const updateObj = {
+      updatedBy: userData?.userId,
+      clientId: 1,
+      updatedDate: new Date(),
+    };
     const obj = {
       recordId: formId,
       tableName: "tblCountry",
+      ...updateObj,
     };
     const { success, message, error } = await deleteRecord(obj);
     if (success) {

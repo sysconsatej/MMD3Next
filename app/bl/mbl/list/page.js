@@ -93,7 +93,7 @@ export default function BLList() {
   const [someChecked, setSomeChecked] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportModalForRow, setReportModalForRow] = useState(null);
-  const { data } = useGetUserAccessUtils("HBL Request");
+  const { data } = useGetUserAccessUtils("MBL");
   const userData = getUserByCookies();
 
   const getData = useCallback(
