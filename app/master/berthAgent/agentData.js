@@ -2,7 +2,7 @@
 export const fieldData = {
   berthAgentFields: [
     {
-      label: "Agent Name",
+      label: "Shipping Line",
       name: "agentId",
       type: "dropdown",
       isEdit: true,
