@@ -26,7 +26,6 @@ export default function Sidebar({ className = "" }) {
 
   const formattedData = data?.filter((r) => r.buttons !== undefined);
   const renderMenuBasedonAccess = updateMenuVisibility(navItems, formattedData);
-  console.log(navItems.filter(i  =>  i.name  ===  'Master').map(r => r.submenu.map(x => x.href)).flat(Infinity))
 
   // Auto-expand groups that contain the current route
   const initialExpanded = useMemo(() => {

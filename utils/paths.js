@@ -38,4 +38,5 @@ export const roleAccessPaths = {
   "/master/modeOfTransport/list": ["admin"],
   "/master/movementType/list": ["admin"],
   "/master/berthAgent/list": ["admin" , "shipping"],
+  "/master/carrierPort/list": ["admin" , "shipping"]
 };
