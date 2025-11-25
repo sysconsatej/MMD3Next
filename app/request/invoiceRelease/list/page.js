@@ -137,7 +137,7 @@ export default function InvoiceReleaseList() {
     const q = {
       columns: "TOP 1 id",
       tableName: "tblBl",
-      whereCondition: `mblNo = '${blNo}' AND ISNULL(status,1)=1`,
+      whereCondition: `isnull(hblNo,mblNo) = '${blNo}' AND ISNULL(status,1)=1`,
     };
 
     const { success, data } = await getDataWithCondition(q);

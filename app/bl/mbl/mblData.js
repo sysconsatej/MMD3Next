@@ -715,6 +715,17 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
+      {
+      label: "Status",
+      name: "containerStatusId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
+      where: "m.masterListName = 'tblContainerStatus'",
+      orderBy: "m.name",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+    },
     {
       label: "Seal Type",
       name: "sealTypeId",
@@ -784,6 +795,7 @@ export const fieldData = {
       displayColumn: "ISNULL(m.unNo,'') + ' - ' + ISNULL(m.class,'')",
       searchColumn: "m.unNo, m.class",
       orderBy: "m.unNo, m.class",
+      foreignTable: "unNo-class,tblImo",
       isEdit: true,
     },
     {

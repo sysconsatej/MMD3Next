@@ -24,6 +24,7 @@ import {
   getUserByCookies,
   setInputValue,
   useNextPrevData,
+  validateContainerForMBL,
 } from "@/utils";
 import {
   deleteRecord,
@@ -379,7 +380,7 @@ export default function Home() {
         });
       }
     },
-    containerNumberHandler: (event, { containerIndex, tabIndex }) => {
+    containerNumberHandler: async (event, { containerIndex, tabIndex }) => {
       const { name, value } = event?.target || {};
       const pattern = /^[A-Za-z]{4}[0-9]{7}$/;
       if (!pattern.test(value)) {
@@ -399,6 +400,17 @@ export default function Home() {
           })
         );
 
+        return "";
+      }
+
+      // validation for containers
+      const result = await validateContainerForMBL(
+        value,
+        formData?.mblNo,
+      );
+
+      if (!result.valid) {
+        toast.error(result.message);
         return "";
       }
 

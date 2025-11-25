@@ -37,7 +37,6 @@ export default function BerthAgent() {
         }
     };
 
-    console.log(mode.formId);
 
 
     useEffect(() => {
@@ -74,10 +73,10 @@ export default function BerthAgent() {
             <form onSubmit={submitHandler}>
                 <section className="py-1 px-4">
                     <Box className="flex justify-between items-end py-1">
-                        <h1 className="text-left text-base flex items-end m-0 ">Company</h1>
+                        <h1 className="text-left text-base flex items-end m-0 ">Berth Agent</h1>
                         <CustomButton
                             text="Back"
-                            href="/master/company/list"
+                            href="/master/berthAgent/list"
                             onClick={() => setMode({ mode: null, formId: null })}
                         />
                     </Box>

@@ -10,8 +10,10 @@ const useRoleStore = create((set) => ({
         data: res?.data?.map((r) => {
           return {
             ...r,
-            buttons: r.buttons?.filter((i) => i?.buttonName === "showMenu")[0]
-              ?.accessFlag,
+            buttons: r.buttons?.filter(
+              (i) =>
+                i?.buttonName === "showMenu" || i?.buttonName === "ShowMenu"
+            )[0]?.accessFlag,
           };
         }),
       });

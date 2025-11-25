@@ -80,8 +80,8 @@ export default function CompanyList() {
         setTotalRows(totalRows);
       } catch (err) {
         setLoadingState("Failed to load data");
-      } finally  {
-        setLoadingState("Loading ...")
+      } finally {
+        setLoadingState("Loading ...");
       }
     },
     [page, rowsPerPage, search]
@@ -116,15 +116,14 @@ export default function CompanyList() {
 
   // delete
   const handleDeleteRecord = async (formId) => {
-    
-     const updateObj = {
+    const updateObj = {
       updatedBy: userData?.userId,
       clientId: 1,
       updatedDate: new Date(),
     };
     const obj = {
       recordId: formId,
-      tableName: "tbltblBerthAgentCode",
+      tableName: "tblBerthAgentCode",
       ...updateObj,
     };
     const { success, message, error } = await deleteRecord(obj);
@@ -145,19 +144,13 @@ export default function CompanyList() {
     router.push("/master/berthAgent");
   };
 
-
-  
-
-
-
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center">
-            Berth Agent List
+            Berth Agent 
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar

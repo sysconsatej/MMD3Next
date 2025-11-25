@@ -4,7 +4,7 @@ import Modal from "@mui/material/Modal";
 import { CustomInput } from "../customInput";
 import CustomButton from "../button/button";
 import { uploadExcel } from "@/apis";
-import { formatExcelDataWithForm } from "@/utils";
+import { formatExcelDataWithForm, validateContainerForMBL } from "@/utils";
 import { toast } from "react-toastify";
 
 const style = {
@@ -26,6 +26,20 @@ const fileUpload = [
   },
 ];
 
+const applyUpdate = (existingList = [], newList = []) => {
+  const map = new Map();
+
+  existingList.forEach((item) => {
+    map.set(item?.containerNo, item);
+  });
+
+  newList.forEach((item) => {
+    map.set(item?.containerNo, item);
+  });
+
+  return Array.from(map.values());
+};
+
 export default function ExcelModal({
   excelFile,
   setExcelFile,
@@ -34,6 +48,7 @@ export default function ExcelModal({
   fields,
   tabIndex,
   tabName,
+  mblNo,
 }) {
   async function handleExcelUpload() {
     if (excelFile?.excelFile) {
@@ -41,46 +56,54 @@ export default function ExcelModal({
       formData.append("excelFile", excelFile?.excelFile);
       const { result } = await uploadExcel(formData);
       const excelData = Array.isArray(result) ? result : [];
+      const validRows = [];
+      const invalidRows = [];
+      for (const row of excelData) {
+        const containerNo = row?.containerNo;
 
-      setFormData((prev) => {
-        const applyUpdate = (existingList = [], newList = []) => {
-          const map = new Map();
+        const validation = await validateContainerForMBL(containerNo, mblNo);
 
-          existingList.forEach((item) => {
-            map.set(item?.containerNo, item);
-          });
+        if (validation.valid) {
+          validRows.push(row);
+        } else {
+          invalidRows.push(containerNo);
+        }
+      }
 
-          newList.forEach((item) => {
-            map.set(item?.containerNo, item);
-          });
+      if (invalidRows.length > 0) {
+        toast.error(
+          `Invalid Containers: ${invalidRows.join(
+            ", "
+          )} — Not found under this MBL No`
+        );
+      }
 
-          return Array.from(map.values());
-        };
+      if (validRows.length > 0) {
+        setFormData((prev) => {
+          // If a tabName exists → update nested tab/grid
+          if (tabName !== null && tabIndex !== null) {
+            const updatedTabs = [...prev[tabName]];
+            const selectedTab = { ...updatedTabs[tabIndex] };
 
-        // If a tabName exists → update nested tab/grid
-        if (tabName !== null && tabIndex !== null) {
-          const updatedTabs = [...prev[tabName]];
-          const selectedTab = { ...updatedTabs[tabIndex] };
+            const updateGrid = applyUpdate(selectedTab[gridName], validRows);
 
-          const updateGrid = applyUpdate(selectedTab[gridName], excelData);
+            selectedTab[gridName] = updateGrid;
+            updatedTabs[tabIndex] = selectedTab;
 
-          selectedTab[gridName] = updateGrid;
-          updatedTabs[tabIndex] = selectedTab;
+            return {
+              ...prev,
+              [tabName]: updatedTabs,
+            };
+          }
 
+          // If no tabName → update top-level grid
           return {
             ...prev,
-            [tabName]: updatedTabs,
+            [gridName]: applyUpdate(prev[gridName], validRows),
           };
-        }
-
-        // If no tabName → update top-level grid
-        return {
-          ...prev,
-          [gridName]: applyUpdate(prev[gridName] , excelData),
-        };
-      });
+        });
+      }
     }
-
     setExcelFile((prev) => ({ ...prev, open: false, excelFile: null }));
   }
 

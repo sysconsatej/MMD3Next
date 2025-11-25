@@ -23,6 +23,7 @@ import {
   formatDataWithForm,
   formatDataWithFormThirdLevel,
   formatFetchForm,
+  getUserByCookies,
 } from "@/utils";
 import { useSearchParams } from "next/navigation";
 import MultiFileUpload from "@/components/customInput/multiFileUpload";
@@ -34,17 +35,17 @@ function CustomTabPanel({ children, value, index }) {
 
 export default function InvoiceUpload() {
   const searchParams = useSearchParams();
-  const blIdFromQS = searchParams.get("blId"); // BL ID from release page
+  const blIdFromQS = searchParams.get("blId");
+  const userData = getUserByCookies();
 
   const { mode } = formStore();
   const initialMode = mode.mode || "";
 
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState(initialMode);
-  const [blNo, setBlNo] = useState(""); // show BL no
+  const [blNo, setBlNo] = useState("");
 
   const [tabValue, setTabValue] = useState(0);
-
   const [containerData, setContainerData] = useState([]);
   const [statusList, setStatusList] = useState([]);
   const [invoiceReqId, setInvoiceReqId] = useState(null);
@@ -52,10 +53,8 @@ export default function InvoiceUpload() {
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const containerFields = data?.tblInvoiceRequestContainer || [];
-  const tblAttachment =
-    data?.tblAttachment || data?.tblAttachmentDetails || [];
+  const tblAttachment = data?.tblAttachment || data?.tblAttachmentDetails || [];
 
-  // ---------- helpers ----------
   const invoices = formData.tblInvoice || [];
 
   const handleTabChange = (_e, v) => setTabValue(v);
@@ -80,7 +79,6 @@ export default function InvoiceUpload() {
     }
   };
 
-  // --------- CONTAINER FETCH ----------
   const loadBlContainersByBlId = useCallback(async (blId) => {
     if (!blId) return;
 
@@ -113,7 +111,6 @@ export default function InvoiceUpload() {
     setContainerData(containers);
   }, []);
 
-  // --------- fetch invoiceRequestId from BL No ----------
   const fetchInvoiceRequestIdByBlNo = useCallback(async (currentBlNo) => {
     if (!currentBlNo) return null;
 
@@ -136,33 +133,28 @@ export default function InvoiceUpload() {
     }
   }, []);
 
-  // --------- LOAD FROM QS (Release → Upload) ----------
+  /* ⭐ CHANGE 1 — Load BL No using ISNULL(hblNo, mblNo) */
   useEffect(() => {
     async function loadBL() {
       if (!blIdFromQS) return;
 
       const blIdNum = Number(blIdFromQS);
 
-      // Fetch BL No
       const q = {
-        columns: "mblNo",
+        columns: "ISNULL(hblNo, mblNo) AS blNo",
         tableName: "tblBl",
         whereCondition: `id=${blIdNum}`,
       };
 
       const { success, data: blData } = await getDataWithCondition(q);
       if (success && blData.length) {
-        const currentBlNo = blData[0].mblNo;
+        const currentBlNo = blData[0].blNo; // ← correct field now
         setBlNo(currentBlNo);
-
-        // invoiceRequestId for this BL
         await fetchInvoiceRequestIdByBlNo(currentBlNo);
       }
 
-      // Load container details
       await loadBlContainersByBlId(blIdNum);
 
-      // Set BL ID in form for saving
       setFormData((p) => ({
         ...p,
         blId: blIdNum,
@@ -172,7 +164,7 @@ export default function InvoiceUpload() {
     loadBL();
   }, [blIdFromQS, fetchInvoiceRequestIdByBlNo, loadBlContainersByBlId]);
 
-  // --------- EDIT MODE — LOAD EXISTING INVOICES ----------
+  /* ⭐ CHANGE 2 — Edit mode BL No using ISNULL(hblNo, mblNo) */
   useEffect(() => {
     async function loadExisting() {
       if (!mode?.formId) return;
@@ -180,7 +172,7 @@ export default function InvoiceUpload() {
       const invoiceId = mode.formId;
 
       const q = {
-        columns: `b.id AS blId, b.mblNo AS blNo`,
+        columns: `b.id AS blId, ISNULL(b.hblNo, b.mblNo) AS blNo`,
         tableName: "tblInvoice i",
         joins: "LEFT JOIN tblBl b ON b.id=i.blId",
         whereCondition: `i.id=${invoiceId}`,
@@ -190,7 +182,7 @@ export default function InvoiceUpload() {
       if (!success || !blData?.length) return;
 
       const blId = blData[0].blId;
-      const currentBlNo = blData[0].blNo;
+      const currentBlNo = blData[0].blNo; // ← changed from mblNo to blNo
 
       setBlNo(currentBlNo);
       await fetchInvoiceRequestIdByBlNo(currentBlNo);
@@ -246,14 +238,12 @@ export default function InvoiceUpload() {
     loadBlContainersByBlId,
   ]);
 
-  // --------- FETCH STATUS LIST (tblInvoiceRequest) ----------
   useEffect(() => {
     async function fetchStatus() {
       const obj = {
         columns: "id as Id, name as Name",
         tableName: "tblMasterData",
-        whereCondition:
-          "masterListName = 'tblInvoiceRequest' AND status = 1",
+        whereCondition: "masterListName = 'tblInvoiceRequest' AND status = 1",
       };
 
       const { success, data } = await getDataWithCondition(obj);
@@ -262,13 +252,11 @@ export default function InvoiceUpload() {
     fetchStatus();
   }, []);
 
-  // --------- UPLOAD & AUTO-TAB CREATION FROM PDFs ----------
   const handleFilesChange = async (fileList) => {
     try {
       const filesArr = Array.from(fileList || []);
       if (!filesArr.length) return;
 
-      // Parse ALL current files (1 file = 1 invoice)
       const parsed = await extractTextFromPdfs(filesArr);
 
       if (!Array.isArray(parsed) || parsed.length === 0) {
@@ -287,7 +275,7 @@ export default function InvoiceUpload() {
             : file
             ? [
                 {
-                  uploadInvoice: file.name, // column caption "Upload Invoice"
+                  uploadInvoice: file.name,
                   path: file.name,
                 },
               ]
@@ -300,13 +288,11 @@ export default function InvoiceUpload() {
         };
       });
 
-      // Replace current invoices with the ones from PDFs
       setFormData((prev) => ({
         ...prev,
         tblInvoice: fromPdf,
       }));
 
-      // Focus on last tab
       setTabValue(fromPdf.length - 1);
 
       toast.success("Invoices created from PDF(s).");
@@ -316,7 +302,6 @@ export default function InvoiceUpload() {
     }
   };
 
-  // --------- SUBMIT ----------
   const submitHandler = async (e) => {
     e.preventDefault();
 
@@ -326,7 +311,6 @@ export default function InvoiceUpload() {
     if (!invoices.length)
       return toast.error("Please add at least one invoice.");
 
-    // Ensure we have invoiceReqId before saving
     let currentInvoiceReqId = invoiceReqId;
     if (!currentInvoiceReqId && blNo) {
       currentInvoiceReqId = await fetchInvoiceRequestIdByBlNo(blNo);
@@ -341,7 +325,6 @@ export default function InvoiceUpload() {
 
     let ok = true;
 
-    // 1. SAVE ALL INVOICES (with invoiceRequestId)
     await Promise.allSettled(
       invoices.map(async (row, idx) => {
         const id = row.id ?? null;
@@ -352,6 +335,8 @@ export default function InvoiceUpload() {
             ...row,
             blId,
             invoiceRequestId: currentInvoiceReqId,
+            companyId: userData?.companyId,
+            companyBranchId: userData?.companyBranchId,
             tblInvoiceRequestContainer: row.tblInvoiceRequestContainer || [],
             tblAttachment: row.tblAttachment || [],
           },
@@ -369,7 +354,6 @@ export default function InvoiceUpload() {
 
     if (!ok) return;
 
-    // 2. UPDATE tblInvoiceRequest.invoiceRequestStatusId (Released)
     try {
       const releasedStatusId = statusList.find(
         (x) => x.Name === "Released"
@@ -403,32 +387,24 @@ export default function InvoiceUpload() {
       return;
     }
 
-    // ✅ mark as submitted (Released) → disable button
     setIsSubmitted(true);
 
     toast.success("Invoices uploaded & status updated successfully!");
   };
 
-  // ---------- RENDER ----------
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
         <section className="py-2 px-4">
-          {/* Header + Back button */}
           <Box className="flex justify-between items-end mb-2">
             <Typography variant="h6">Invoice Upload</Typography>
-            <CustomButton
-              text="Back"
-              href="/request/invoiceRelease/list"
-            />
+            <CustomButton text="Back" href="/request/invoiceRelease/list" />
           </Box>
 
-          {/* BL No */}
           <Typography sx={{ fontWeight: 600, mb: 1 }}>
             BL No: <b>{blNo || "—"}</b>
           </Typography>
 
-          {/* Upload PDFs -> Auto Tabs */}
           <FormHeading text="Upload Invoice PDF(s)" />
           <Box className="border border-gray-300 p-3 mt-2 flex flex-col gap-1">
             <Box sx={{ p: 2 }}>
@@ -441,7 +417,6 @@ export default function InvoiceUpload() {
             </Box>
           </Box>
 
-          {/* TABS */}
           <Box sx={{ mt: 2 }}>
             <Tabs
               value={tabValue}
@@ -508,7 +483,6 @@ export default function InvoiceUpload() {
 
           {fieldsMode !== "view" && (
             <Box className="flex justify-center mt-3">
-              {/* renamed to Submit + disabled after first success */}
               <CustomButton
                 text="Submit"
                 type="submit"

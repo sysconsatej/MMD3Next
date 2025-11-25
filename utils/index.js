@@ -18,3 +18,4 @@ export {
 } from "./dynamicReportUtils";
 export { updateMenuVisibility } from "./showMenuData";
 export { useInitUser, getUserByCookies } from "./userInit";
+export { validateContainerForMBL } from "./validateContainerForMBL";

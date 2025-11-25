@@ -146,7 +146,6 @@ export const navItems = [
   {
     name: "Payment",
     icon: "wallet",
-    href: "/payment",
     isShow: false,
     submenu: [
       {
