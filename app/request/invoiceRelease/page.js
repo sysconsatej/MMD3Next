@@ -66,19 +66,17 @@ export default function InvoiceReleasePage() {
       try {
         setLoading(true);
 
-        // 1️⃣ BL Info
+        // ⭐ CHANGE 1 → ISNULL(hblNo, mblNo) AS blNo
         const blQ = {
           columns: `
             b.id AS blId,
-            b.mblNo AS blNo,
+            ISNULL(b.hblNo, b.mblNo) AS blNo,
             c.id AS beneficiaryId,
             c.name AS beneficiaryName
           `,
           tableName: "tblBl b",
           joins: "LEFT JOIN tblCompany c ON c.id = b.companyId",
-          whereCondition: `b.id = ${Number(
-            blIdResolved
-          )} AND ISNULL(b.status,1)=1`,
+          whereCondition: `b.id = ${Number(blIdResolved)} AND ISNULL(b.status,1)=1`,
         };
         const { success: blOk, data: blRes } = await getDataWithCondition(blQ);
         if (!blOk || !blRes?.length) {
@@ -88,15 +86,13 @@ export default function InvoiceReleasePage() {
 
         const { blId, blNo, beneficiaryId, beneficiaryName } = blRes[0];
 
-        // 2️⃣ Invoices for BL
+        // 2️⃣ Invoices
         const invQ = {
           columns: "id",
           tableName: "tblInvoice",
           whereCondition: `blId = ${Number(blId)} AND ISNULL(status,1)=1`,
         };
-        const { success: invOk, data: invRows } = await getDataWithCondition(
-          invQ
-        );
+        const { success: invOk, data: invRows } = await getDataWithCondition(invQ);
         const collected = [];
 
         if (invOk && invRows?.length) {
@@ -112,8 +108,7 @@ export default function InvoiceReleasePage() {
                 "invoiceRequestId"
               );
               const { success, result } = await fetchForm(fmt);
-              if (success)
-                collected.push(formatDataWithForm(result, fieldData));
+              if (success) collected.push(formatDataWithForm(result, fieldData));
             })
           );
         }
@@ -143,17 +138,15 @@ export default function InvoiceReleasePage() {
         setFieldsMode("view");
         setTabValue(0);
 
-        // 3️⃣ Fetch related Invoice Request
+        // ⭐ CHANGE 2 → Match BL using ISNULL(hblNo, mblNo)
         const reqQ = {
           columns: "r.id",
           tableName: "tblInvoiceRequest r",
-          joins: "JOIN tblBl b ON b.mblNo = r.blNo",
+          joins: "JOIN tblBl b ON ISNULL(b.hblNo, b.mblNo) = r.blNo",
           whereCondition: `b.id = ${blId}`,
         };
 
-        const { success: reqOk, data: reqRes } = await getDataWithCondition(
-          reqQ
-        );
+        const { success: reqOk, data: reqRes } = await getDataWithCondition(reqQ);
         if (reqOk && reqRes?.length > 0) {
           const reqId = reqRes[0].id;
           const format = formatFetchForm(
@@ -188,7 +181,6 @@ export default function InvoiceReleasePage() {
   return (
     <ThemeProvider theme={theme}>
       <Box className="p-4">
-        {/* Title */}
         <Typography
           variant="h6"
           sx={{
@@ -201,7 +193,7 @@ export default function InvoiceReleasePage() {
         >
           Release Invoices
         </Typography>
-        {/* Header Row: BL Info + Back Button */}
+
         <Box className="flex items-center justify-between mb-2">
           <Typography
             variant="body2"
@@ -216,7 +208,6 @@ export default function InvoiceReleasePage() {
           <CustomButton text="Back" href="/request/invoiceRelease/list" />
         </Box>
 
-        {/* Tabs */}
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs
             value={tabValue}
@@ -248,7 +239,6 @@ export default function InvoiceReleasePage() {
           </Tabs>
         </Box>
 
-        {/* Invoice Tabs */}
         {invoiceArray.map((_, index) => (
           <CustomTabPanel key={index} value={tabValue} index={index}>
             <Box className="border p-3 mt-2">
@@ -296,7 +286,7 @@ export default function InvoiceReleasePage() {
           </CustomTabPanel>
         ))}
 
-        {/* 🔹 Lower Section: Invoice Request (BL Information) */}
+        {/* Invoice Request Details */}
         <Box className="border p-3 mt-3">
           <FormHeading
             text="BL Information (from Invoice Request)"
@@ -347,8 +337,6 @@ export default function InvoiceReleasePage() {
             </Box>
           </Box>
         </Box>
-
-        {/* Back Button */}
 
         <ToastContainer />
       </Box>

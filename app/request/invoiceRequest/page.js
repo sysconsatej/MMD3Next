@@ -226,14 +226,7 @@ export default function InvoiceRequest() {
       const blObj = {
         columns: "b.id",
         tableName: "tblBl b",
-        whereCondition: `
-    (
-      (b.hblNo IS NOT NULL AND b.hblNo = '${literal}')
-      OR
-      (b.mblNo IS NOT NULL AND b.mblNo = '${literal}')
-    )
-    AND ISNULL(b.status, 1) = 1
-  `,
+        whereCondition: `isnull(hblNo,mblNo) = '${literal}' AND ISNULL(status,1)=1`,
       };
 
       const {
