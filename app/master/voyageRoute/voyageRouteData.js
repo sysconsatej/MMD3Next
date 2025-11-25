@@ -340,6 +340,11 @@ const fieldData = {
       name: "personDetailsIrn",
       isEdit: true,
     },
+    {
+      label: "Custom Vcn No",
+      name: "customVcnNo",
+      isEdit: true,
+    },
   ],
 };
 
