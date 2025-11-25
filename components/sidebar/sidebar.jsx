@@ -7,7 +7,6 @@ import clsx from "clsx";
 import { navItems } from "./menuData";
 import "./sidebar-scrollbar.css";
 import { auth, useRoleStore } from "@/store";
-import { getRoleAccessByRole } from "@/apis/menuAccess";
 import { updateMenuVisibility } from "@/utils";
 
 export default function Sidebar({ className = "" }) {
@@ -27,8 +26,6 @@ export default function Sidebar({ className = "" }) {
 
   const formattedData = data?.filter((r) => r.buttons !== undefined);
   const renderMenuBasedonAccess = updateMenuVisibility(navItems, formattedData);
-  console.log(data)
-  console.log(renderMenuBasedonAccess)
 
   // Auto-expand groups that contain the current route
   const initialExpanded = useMemo(() => {

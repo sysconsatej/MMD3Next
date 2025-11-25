@@ -15,6 +15,7 @@ import {
   updateDynamicReportData,
 } from "@/apis/dynamicReport";
 import { exportText, getUserByCookies } from "@/utils";
+import { company } from "faker/lib/locales/az";
 
 export default function IGMEDI() {
   const [formData, setFormData] = useState({});
@@ -23,7 +24,7 @@ export default function IGMEDI() {
   const { mode, setMode } = formStore();
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const[goLoading,setGoLoading]=useState(false);
+  const [goLoading, setGoLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
   const router = useRouter();
@@ -40,7 +41,7 @@ export default function IGMEDI() {
     );
   };
 
-  const transformed  = transformToIds(formData);
+  const transformed = transformToIds(formData);
 
   const handleUpdate = () =>
     exportText({
@@ -58,6 +59,7 @@ export default function IGMEDI() {
           data: rows,
           clientId: 1,
           userId: userData.userId,
+          companyId: userData.companyId,
         },
       }),
     });
@@ -149,7 +151,7 @@ export default function IGMEDI() {
               disabled={loading}
             />
             <CustomButton
-              text={loading ? "Loading..." :"GENERATE FILE"}
+              text={loading ? "Loading..." : "GENERATE FILE"}
               onClick={handleUpdate}
               disabled={loading || !tableFormData.length}
               title={
