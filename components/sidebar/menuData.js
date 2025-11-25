@@ -63,6 +63,11 @@ export const navItems = [
         href: "/master/berthAgent/list",
         isShow: false,
       },
+      {
+        name: "Carrier Port",
+        href: "/master/carrierPort/list",
+        isShow: false,
+      },
     ],
   },
 
