@@ -1,18 +1,5 @@
 import { NextResponse } from "next/server";
-const roleAccessPaths = {
-  "/menu-access": ["admin"],
-  "/master": ["admin"],
-  "/reports": ["admin", "shipping" , "customer", "cfs"],
-  "/bl-status": ["admin", "shipping" , "customer", "cfs"],
-  "/bl": ["admin", "shipping" , "customer", "cfs"],
-  "/request": ["admin", "shipping" , "customer", "cfs"],
-  "/htmlReports/igmReports": ["admin", "shipping", "customer", "cfs"],
-  "/upload" : ["admin", "shipping" , "customer", "cfs"],
-  "/blPartyHold": ["admin", "shipping" , "customer", "cfs"],
-  "/home": ["admin", "shipping", "customer", "cfs"],
-  "/request/doRequest/list": ["shipping" , "customer"],
-  "/master/berthAgent/list": ["admin"],
-};
+import { roleAccessPaths } from "./utils";
 
 export default function middleware(request) {
   const token = request.cookies.get("token");

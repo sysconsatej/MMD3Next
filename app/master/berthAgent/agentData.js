@@ -1,4 +1,10 @@
 // input fields data
+
+import { getUserByCookies } from "@/utils";
+
+const userData = getUserByCookies();
+const { roleCode } = userData;
+
 export const fieldData = {
   berthAgentFields: [
     {
@@ -11,6 +17,7 @@ export const fieldData = {
       displayColumn: "c.name",
       orderBy: "c.name",
       foreignTable: "name,tblCompany",
+      where: roleCode === "shipping" ? `c.id  = '${userData?.companyId}'` : "",
     },
     {
       label: "Berth Name",

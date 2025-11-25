@@ -26,6 +26,7 @@ export default function Sidebar({ className = "" }) {
 
   const formattedData = data?.filter((r) => r.buttons !== undefined);
   const renderMenuBasedonAccess = updateMenuVisibility(navItems, formattedData);
+  console.log(navItems.filter(i  =>  i.name  ===  'Master').map(r => r.submenu.map(x => x.href)).flat(Infinity))
 
   // Auto-expand groups that contain the current route
   const initialExpanded = useMemo(() => {
@@ -96,19 +97,20 @@ export default function Sidebar({ className = "" }) {
         {/* Nav */}
         <nav className="mt-1 flex-1 overflow-y-auto sidebar-scroll">
           <ul className="space-y-[2px] px-1 pb-2">
-            {renderMenuBasedonAccess
-              ?.filter((i) => i?.isShow)
-              .map((node, i) => (
-                <MenuNode
-                  key={node.href || node.name || i}
-                  node={node}
-                  level={0}
-                  openSidebar={open}
-                  expanded={expanded}
-                  onToggle={toggleExpand}
-                  pathname={pathname}
-                />
-              ))}
+            {Array.isArray(renderMenuBasedonAccess) &&
+              renderMenuBasedonAccess
+                ?.filter((i) => i?.isShow)
+                .map((node, i) => (
+                  <MenuNode
+                    key={node.href || node.name || i}
+                    node={node}
+                    level={0}
+                    openSidebar={open}
+                    expanded={expanded}
+                    onToggle={toggleExpand}
+                    pathname={pathname}
+                  />
+                ))}
           </ul>
         </nav>
       </div>
@@ -207,7 +209,7 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
       {/* Dynamic-height collapsible so ALL children show */}
       <Collapsible id={`menu-${key}`} isOpen={isOpen}>
         <ul className="ml-3 mt-1 space-y-[2px] border-l border-white/10 pl-2">
-          {(node.submenu || node.children || [])
+          {(node?.submenu || node?.children || [])
             .filter((i) => i.isShow)
             .map((child, i) => (
               <MenuNode

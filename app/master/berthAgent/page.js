@@ -7,7 +7,12 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { fetchForm, insertUpdateForm } from "@/apis";
-import { formatDataWithForm, formatFetchForm, formatFormData, getUserByCookies } from "@/utils";
+import {
+  formatDataWithForm,
+  formatFetchForm,
+  formatFormData,
+  getUserByCookies,
+} from "@/utils";
 import { formStore } from "@/store";
 
 export default function BerthAgent() {
@@ -16,7 +21,8 @@ export default function BerthAgent() {
   const [jsonData, setJsonData] = useState(fieldData);
   const [errorState, setErrorState] = useState({});
   const { mode, setMode } = formStore();
-  const userData =  getUserByCookies();
+  const userData = getUserByCookies();
+  console.log(userData);
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -32,6 +38,7 @@ export default function BerthAgent() {
 
   useEffect(() => {
     async function fetchFormHandler() {
+      let newData = {};
       if (mode.formId) {
         setFieldsMode(mode.mode);
         const format = formatFetchForm(
@@ -42,18 +49,24 @@ export default function BerthAgent() {
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
           const getData = formatDataWithForm(result, fieldData);
-          setFormData(getData);
+          newData = getData;
         } else {
           toast.error(error || message);
         }
       }
-    }
 
+      newData = {
+        ...newData,
+        agentId: {
+          Id: userData?.companyId,
+          Name: userData?.companyName,
+        },
+      };
+
+      setFormData(newData);
+    }
     fetchFormHandler();
   }, [mode.formId]);
-
-
-
 
   const handleChangeEventFunctions = {};
 
