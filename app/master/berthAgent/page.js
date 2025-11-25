@@ -22,7 +22,6 @@ export default function BerthAgent() {
   const [errorState, setErrorState] = useState({});
   const { mode, setMode } = formStore();
   const userData = getUserByCookies();
-  console.log(userData);
 
   const submitHandler = async (event) => {
     event.preventDefault();
