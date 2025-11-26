@@ -659,6 +659,14 @@ export const fieldData = {
       isEdit: true,
       type: "checkbox",
     },
+     {
+      label: "Container Agent Code",
+      name: "containerAgentCode",
+      isEdit: true,
+      required: true,
+      type : "text",
+    },
+ 
     // {
     //   label: "Container Agent Code",
     //   name: "Agent",
@@ -720,9 +728,20 @@ export const fieldData = {
     //   isEdit: true,
     // },
     {
-      label: "UNO/IMO Code",
+      label: "UNO Code",
       name: "imoId",
-      type: "dropdown",
+      type: "text",
+      tableName: "tblImo m",
+      displayColumn: "ISNULL(m.unNo,'') + ' - ' + ISNULL(m.class,'')",
+      searchColumn: "m.unNo",
+      orderBy: "m.unNo, m.class",
+      foreignTable: "unNo-class,tblImo",
+      isEdit: true,
+    },
+    {
+      label: "IMO Code",
+      name: "imoId",
+      type: "text",
       tableName: "tblImo m",
       displayColumn: "ISNULL(m.unNo,'') + ' - ' + ISNULL(m.class,'')",
       searchColumn: "m.unNo",
