@@ -460,7 +460,7 @@ export default function Home() {
                   />
                 </Box>
               </FormHeading> */}
-              <FormHeading text="TG Bond Details">
+              <FormHeading text="Bond Details">
                 <Box className="grid grid-cols-3 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.tgBondDetails}

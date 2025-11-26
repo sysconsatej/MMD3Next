@@ -16,15 +16,16 @@ import {
   getDataWithCondition,
   fetchForm,
   insertUpdateForm,
-  updateStatusRows, // ✅ used for soft delete
+  updateStatusRows,
 } from "@/apis";
 import {
   formatFormData,
   formatDataWithForm,
   formatDataWithFormThirdLevel,
   formatFetchForm,
+  getUserByCookies,
 } from "@/utils";
-import { useRouter } from "next/navigation"; // ✅ for redirect
+import { useRouter } from "next/navigation";
 import MultiFileUpload from "@/components/customInput/multiFileUpload";
 import { extractTextFromPdfs } from "@/helper/pdfTextExtractor";
 
@@ -43,61 +44,57 @@ const a11yProps = (index) => ({
 
 export default function InvoicePayment() {
   const { mode } = formStore();
-  const initialMode = mode.mode || ""; // ✅ ensures correct initial state
+  const initialMode = mode.mode || "";
 
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState(initialMode);
   const [jsonData] = useState(data);
   const router = useRouter();
 
-  const [invoiceArray, setInvoiceArray] = useState([0]);
   const [tabValue, setTabValue] = useState(0);
   const [errorState, setErrorState] = useState({});
   const [containerData, setContainerData] = useState([]);
   const [invoiceReqId, setInvoiceReqId] = useState(null);
 
-  // ✅ store IDs of invoices as they originally came from DB
+  // original invoice IDs (info only)
   const [initialInvoiceIds, setInitialInvoiceIds] = useState([]);
+  // ids of tabs user removed → soft delete
+  const [deletedInvoiceIds, setDeletedInvoiceIds] = useState([]);
+
+  const userData = getUserByCookies();
+  const invoices = formData.tblInvoice || [];
 
   const handleChangeTab = (_e, newValue) => setTabValue(newValue);
 
   const handleAddInvoice = () => {
-    setInvoiceArray((prev) => {
-      const nextIndex = (prev.at(-1) ?? -1) + 1;
-      const next = [...prev, nextIndex];
-      setTabValue(next.length - 1);
-      return next;
-    });
-    setFormData((prev) => ({
-      ...prev,
-      tblInvoice: [
-        ...(prev?.tblInvoice || []),
-        { tblInvoiceRequestContainer: containerData },
-      ],
-    }));
+    const nextInvoices = [
+      ...invoices,
+      { tblInvoiceRequestContainer: containerData, tblAttachment: [] },
+    ];
+    setFormData((prev) => ({ ...prev, tblInvoice: nextInvoices }));
+    setTabValue(nextInvoices.length - 1);
   };
 
-  // ✅ remove tab + its data; deleted IDs will be detected at submit
   const handleRemove = (index) => {
-    setInvoiceArray((prev) => {
-      const next = prev.filter((_, i) => i !== index);
+    const toRemove = invoices[index];
 
-      // fix active tab index
-      if (next.length === 0) {
-        setTabValue(0);
-      } else if (tabValue >= next.length) {
-        setTabValue(next.length - 1);
-      } else if (tabValue > index) {
-        setTabValue((old) => old - 1);
-      }
+    // if exists in DB, remember for soft delete
+    if (toRemove?.id) {
+      setDeletedInvoiceIds((prev) =>
+        prev.includes(toRemove.id) ? prev : [...prev, toRemove.id]
+      );
+    }
 
-      return next;
-    });
+    const nextInvoices = invoices.filter((_, i) => i !== index);
+    setFormData((prev) => ({ ...prev, tblInvoice: nextInvoices }));
 
-    setFormData((prev) => ({
-      ...prev,
-      tblInvoice: (prev.tblInvoice || []).filter((_, i) => i !== index),
-    }));
+    if (nextInvoices.length === 0) {
+      setTabValue(0);
+    } else if (tabValue >= nextInvoices.length) {
+      setTabValue(nextInvoices.length - 1);
+    } else if (tabValue > index) {
+      setTabValue((old) => old - 1);
+    }
   };
 
   const extractId = useCallback((v) => {
@@ -108,36 +105,59 @@ export default function InvoicePayment() {
     return Number.isFinite(n) ? n : null;
   }, []);
 
-  const sqlEscape = useCallback((s = "") => String(s).replace(/'/g, "''"), []);
+  const sqlEscape = useCallback(
+    (s = "") => String(s).replace(/'/g, "''"),
+    []
+  );
 
-  async function setBlContainer(mblNo) {
+  async function setBlContainer(blNo) {
     const payload = {
       columns:
         "c.containerNo as containerNo, json_query((select c.sizeId as Id, m.name as Name for json path, without_array_wrapper)) as sizeId",
       tableName: "tblBl b",
       joins:
         "left join tblBlContainer c on c.blId = b.id left join tblMasterData m on m.id = c.sizeId",
-      whereCondition: `b.mblNo = '${mblNo}' and b.status = 1`,
+      whereCondition: `isnull(b.hblNo,b.mblNo) = '${blNo}' and b.status = 1`,
     };
 
     try {
       const { success, data, error } = await getDataWithCondition(payload);
       if (success) {
-        setContainerData(data);
-        setFormData((prev) => ({
-          ...prev,
-          tblInvoice: [
-            {
-              ...(prev?.tblInvoice?.[0] || []),
-              tblInvoiceRequestContainer: data,
-            },
-          ],
-        }));
+        const rows = data || [];
+        setContainerData(rows);
+
+        // If no invoices yet, create first one with container data
+        setFormData((prev) => {
+          const existing = prev.tblInvoice || [];
+          if (!existing.length) {
+            return {
+              ...prev,
+              tblInvoice: [
+                {
+                  ...existing[0],
+                  tblInvoiceRequestContainer: rows,
+                  tblAttachment: [],
+                },
+              ],
+            };
+          }
+
+          // else update first invoice's container set
+          const updated = existing.map((inv, idx) =>
+            idx === 0
+              ? {
+                  ...inv,
+                  tblInvoiceRequestContainer: rows,
+                }
+              : inv
+          );
+          return { ...prev, tblInvoice: updated };
+        });
       } else {
         toast.error(error);
       }
     } catch (e) {
-      toast.error(e);
+      toast.error(e?.message || String(e));
     }
   }
 
@@ -145,16 +165,18 @@ export default function InvoicePayment() {
     const payload = {
       columns: "id",
       tableName: "tblInvoiceRequest",
-      whereCondition: `blNo = '${blNo}'`,
+      whereCondition: `blNo = '${blNo}' and status = 1 and createdDate = (select max(createdDate) from tblInvoiceRequest where blNo = '${blNo}')`,
     };
 
     try {
       const { success, data } = await getDataWithCondition(payload);
-      if (success) {
+      if (success && Array.isArray(data) && data.length) {
         setInvoiceReqId(data[0].id);
+      } else {
+        setInvoiceReqId(null);
       }
     } catch (e) {
-      toast.error(e);
+      toast.error(e?.message || String(e));
     }
   }
 
@@ -178,10 +200,17 @@ export default function InvoicePayment() {
       }
 
       const payload = {
-        columns: "TOP 1 b.id, b.mblNo",
+        columns: `
+          TOP 1 
+            b.id, 
+            ISNULL(b.hblNo, b.mblNo) AS blNo,
+            b.fpdId,
+            p.name AS fpdName
+        `,
         tableName: "tblBl b",
+        joins: "LEFT JOIN tblPort p ON p.id = b.fpdId",
         whereCondition: `
-          b.mblNo = '${sqlEscape(typed)}'
+          ISNULL(b.hblNo,b.mblNo) = '${sqlEscape(typed)}'
           AND b.shippingLineId = ${companyId}
           AND ISNULL(b.status, 1) = 1`,
       };
@@ -189,8 +218,16 @@ export default function InvoicePayment() {
       try {
         const { success, data } = await getDataWithCondition(payload);
         if (success && Array.isArray(data) && data.length > 0) {
+          const row = data[0];
+
           toast.success("BL found for this Beneficiary.");
-          setFormData((p) => ({ ...p, blId: data[0].id }));
+          setFormData((p) => ({
+            ...p,
+            blId: row.id,
+            location: row.fpdId
+              ? { Id: row.fpdId, Name: row.fpdName || "" }
+              : null,
+          }));
           setErrorState((p) => ({ ...p, [errKey]: false }));
           await setBlContainer(typed);
           await setInvoiceRequestId(typed);
@@ -210,6 +247,7 @@ export default function InvoicePayment() {
     checkBlForCompany,
   };
 
+  // Load existing invoices (EDIT mode)
   useEffect(() => {
     async function fetchInvoiceData() {
       if (!mode?.formId) return;
@@ -218,21 +256,23 @@ export default function InvoicePayment() {
         const blQuery = {
           columns: `
             b.id AS blId,
-            b.mblNo AS blNo,
+            ISNULL(b.hblNo,b.mblNo) AS blNo,
             c.name AS beneficiaryName,
-            c.id AS beneficiaryId
+            c.id AS beneficiaryId,
+            b.fpdId,
+            p.name AS fpdName
           `,
           tableName: "tblInvoice i",
           joins: `
             LEFT JOIN tblBl b ON b.id = i.blId
             LEFT JOIN tblCompany c ON c.id = b.companyId
+            LEFT JOIN tblPort p ON p.id = b.fpdId
           `,
           whereCondition: `i.id = ${mode.formId}`,
         };
 
-        const { data: blData, success: blSuccess } = await getDataWithCondition(
-          blQuery
-        );
+        const { data: blData, success: blSuccess } =
+          await getDataWithCondition(blQuery);
         if (!blSuccess || !blData?.length) return;
 
         const blId = blData[0].blId;
@@ -247,20 +287,24 @@ export default function InvoicePayment() {
         if (!invSuccess || !invoiceList?.length) return;
 
         const invoiceIds = invoiceList.map((r) => r.id);
-        setInitialInvoiceIds(invoiceIds); // ✅ keep original ids
+        setInitialInvoiceIds(invoiceIds);
 
         const resArray = [];
 
         const promises = invoiceIds.map(async (id) => {
-          const format = formatFetchForm(
+          const fmt = formatFetchForm(
             data,
             "tblInvoice",
             id,
             '["tblInvoiceRequestContainer","tblAttachment"]',
             "invoiceRequestId"
           );
-          const { success, result } = await fetchForm(format);
-          if (success) resArray.push(formatDataWithForm(result, data));
+          const { success, result } = await fetchForm(fmt);
+          if (success) {
+            const parsed = formatDataWithForm(result, data);
+            // keep id so we know which record to update
+            resArray.push({ ...parsed, id });
+          }
         });
 
         await Promise.allSettled(promises);
@@ -280,12 +324,13 @@ export default function InvoicePayment() {
             Id: blData[0].beneficiaryId,
             Name: blData[0].beneficiaryName,
           },
+          location: blData[0].fpdId
+            ? { Id: blData[0].fpdId, Name: blData[0].fpdName || "" }
+            : null,
         });
 
-        setInvoiceArray(
-          Array.from({ length: formattedState.tblInvoice.length }, (_, i) => i)
-        );
         setFieldsMode(mode.mode || "");
+        setTabValue(0);
       } catch (err) {
         console.error("❌ Error fetching Invoice Payment:", err);
         toast.error("Error loading invoice data.");
@@ -307,7 +352,6 @@ export default function InvoicePayment() {
 
       const invoiceTabs = formData?.tblInvoice || [];
 
-      // for ADD mode: must have at least one invoice
       if (invoiceTabs.length === 0 && !mode.formId) {
         toast.warn("Please add at least one invoice before submitting.");
         return;
@@ -315,10 +359,20 @@ export default function InvoicePayment() {
 
       let allSuccess = true;
 
-      // ✅ 1) Save current (visible) invoices
+      // 1) Save current invoices (insert/update)
       const savePromises = invoiceTabs.map(async (invoice, index) => {
         const invoiceId = invoice?.id ?? null;
-        const { blNo, beneficiaryName, companyName, ...cleanInvoice } = invoice;
+
+        // remove id so SP doesn't try to update identity column
+        const {
+          blNo,
+          beneficiaryName,
+          companyName,
+          id: _ignoreId,
+          tblInvoiceRequestContainer,
+          tblAttachment,
+          ...cleanInvoice
+        } = invoice || {};
 
         const formatted = formatFormData(
           "tblInvoice",
@@ -326,8 +380,10 @@ export default function InvoicePayment() {
             ...cleanInvoice,
             invoiceRequestId: invoiceReqId,
             blId,
-            tblInvoiceRequestContainer:
-              invoice.tblInvoiceRequestContainer || [],
+            companyId: userData?.companyId,
+            companyBranchId: userData?.companyBranchId,
+            tblInvoiceRequestContainer: tblInvoiceRequestContainer || [],
+            tblAttachment: tblAttachment || [],
           },
           invoiceId,
           "invoiceRequestId"
@@ -344,17 +400,9 @@ export default function InvoicePayment() {
 
       await Promise.allSettled(savePromises);
 
-      // ✅ 2) Soft delete invoices that were removed (status = 0)
-      const currentIds = (formData.tblInvoice || [])
-        .map((inv) => inv?.id)
-        .filter(Boolean);
-
-      const deletedIds = initialInvoiceIds.filter(
-        (id) => !currentIds.includes(id)
-      );
-
-      if (deletedIds.length > 0) {
-        const rowsPayload = deletedIds.map((id) => ({
+      // 2) Soft delete ONLY invoices explicitly removed via handleRemove
+      if (deletedInvoiceIds.length > 0) {
+        const rowsPayload = deletedInvoiceIds.map((id) => ({
           id,
           status: 0,
         }));
@@ -380,7 +428,6 @@ export default function InvoicePayment() {
     }
   };
 
-  /* ✅ Quick Pay Redirect */
   const quickPayHandler = () => {
     const blId = formData?.blId;
     if (!blId) {
@@ -390,24 +437,70 @@ export default function InvoicePayment() {
     router.push(`/request/invoicePayment/payment?blId=${blId}`);
   };
 
+  // ⬇⬇⬇ ONLY PLACE CHANGED FOR UPLOAD BEHAVIOUR ⬇⬇⬇
   const handleFilesChange = async (fileList) => {
     try {
-      const data = await extractTextFromPdfs(fileList);
-      let distractData = { ...data[0] };
-      distractData = {
-        ...distractData,
-        tblInvoiceRequestContainer: containerData,
-      };
-      setFormData((prev) => ({
-        ...prev,
-        tblInvoice: [...(prev?.tblInvoice || []), distractData],
-      }));
-      setInvoiceArray((prev) => [...prev, new Array(data.length).fill(null)]);
+      const filesArr = Array.from(fileList || []);
+      if (!filesArr.length) return;
+
+      const parsed = await extractTextFromPdfs(filesArr);
+
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        toast.warn("No invoice data found in uploaded file(s).");
+        return;
+      }
+
+      const containers = containerData || [];
+
+      const fromPdf = parsed.map((row, idx) => {
+        const file = filesArr[idx] || filesArr[0];
+
+        const defaultAttachment =
+          row.tblAttachment && row.tblAttachment.length
+            ? row.tblAttachment
+            : file
+            ? [
+                {
+                  uploadInvoice: file.name,
+                  path: file.name,
+                },
+              ]
+            : [];
+
+        const { id: _ignoreId, ...restRow } = row || {};
+
+        return {
+          ...restRow,
+          tblInvoiceRequestContainer: containers,
+          tblAttachment: defaultAttachment,
+        };
+      });
+
+      const existingLen = invoices.length;
+
+      setFormData((prev) => {
+        const existing = Array.isArray(prev.tblInvoice) ? prev.tblInvoice : [];
+        const hasExisting = existing.length > 0;
+
+        return {
+          ...prev,
+          // ADD new tabs if edit mode, else just create
+          tblInvoice: hasExisting ? [...existing, ...fromPdf] : fromPdf,
+        };
+      });
+
+      const newTotal = existingLen + fromPdf.length;
+      if (newTotal > 0) {
+        setTabValue(newTotal - 1); // move to last new tab
+      }
+
+      toast.success("Invoices created from PDF(s).");
     } catch (err) {
       console.error("Error processing uploaded PDFs:", err);
       toast.error("Error processing PDF files.");
     }
   };
+  // ⬆⬆⬆ ONLY PLACE CHANGED FOR UPLOAD BEHAVIOUR ⬆⬆⬆
 
   return (
     <ThemeProvider theme={theme}>
@@ -421,13 +514,13 @@ export default function InvoicePayment() {
           </Box>
 
           <FormHeading text="BL Information" variant="body2" />
-          <Box className="grid grid-cols-4 gap-2 p-2">
+          <Box className="grid grid-cols-3 gap-2 p-2">
             <CustomInput
               fields={jsonData.igmFields}
               formData={formData}
               setFormData={setFormData}
               fieldsMode={fieldsMode}
-              handleBlurEventFunctions={{ checkBlForCompany }}
+              handleBlurEventFunctions={handleBlurEventFunctions}
               errorState={errorState}
             />
           </Box>
@@ -444,14 +537,13 @@ export default function InvoicePayment() {
             </Box>
           </Box>
 
-          {/* Tabs */}
           <Box className="px-3">
             <Tabs
               value={tabValue}
               onChange={handleChangeTab}
               variant="scrollable"
             >
-              {invoiceArray.map((_, index) => (
+              {invoices.map((_, index) => (
                 <Tab
                   key={index}
                   label={`Invoice ${index + 1}`}
@@ -469,7 +561,7 @@ export default function InvoicePayment() {
             </Tabs>
           </Box>
 
-          {invoiceArray.map((_, index) => (
+          {invoices.map((_, index) => (
             <CustomTabPanel key={index} value={tabValue} index={index}>
               <Box className="border p-3 mt-2">
                 <Box className="grid grid-cols-4 gap-2 p-2">
@@ -480,7 +572,7 @@ export default function InvoicePayment() {
                     fieldsMode={fieldsMode}
                     tabName="tblInvoice"
                     tabIndex={index}
-                    handleBlurEventFunctions={{ checkBlForCompany }}
+                    handleBlurEventFunctions={handleBlurEventFunctions}
                     errorState={errorState}
                   />
                 </Box>
@@ -512,7 +604,6 @@ export default function InvoicePayment() {
             </CustomTabPanel>
           ))}
 
-          {/* Footer Buttons */}
           {fieldsMode !== "view" && (
             <Box className="w-full flex justify-center gap-2 mt-4">
               <CustomButton text="Quick Pay" onClick={quickPayHandler} />
