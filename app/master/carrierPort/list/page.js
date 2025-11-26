@@ -33,7 +33,7 @@ function createData(
   fpdId,
   modeId,
   panNo,
-  bondNO,
+  bondNo,
   id
 ) {
   return {
@@ -43,7 +43,7 @@ function createData(
     fpdId,
     modeId,
     panNo,
-    bondNO,
+    bondNo,
     id,
   };
 }
@@ -103,7 +103,7 @@ export default function CompanyList() {
           item["fpdId"],
           item["modeId"],
           item["panNo"],
-          item["bondNO"],
+          item["bondNo"],
           item["id"]
         )
       )
@@ -193,7 +193,7 @@ export default function CompanyList() {
                     <TableCell>{row?.fpdId}</TableCell>
                     <TableCell>{row?.modeId}</TableCell>
                     <TableCell>{row?.panNo}</TableCell>
-                    <TableCell>{row?.bondNO}</TableCell>
+                    <TableCell>{row?.bondNo}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

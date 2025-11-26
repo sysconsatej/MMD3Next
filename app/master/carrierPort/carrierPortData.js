@@ -66,7 +66,7 @@ export const fieldData = {
     },
     {
       label: "Bond No",
-      name: "bondNO",
+      name: "bondNo",
       type: "text",
       isEdit: true,
     },
