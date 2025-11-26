@@ -66,7 +66,7 @@ export const navItems = [
       {
         name: "Carrier Port",
         href: "/master/carrierPort/list",
-        isShow: true,
+        isShow: false,
       },
     ],
   },
