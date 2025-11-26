@@ -143,7 +143,7 @@ export default function InvoicePayment() {
     const payload = {
       columns: "id",
       tableName: "tblInvoiceRequest",
-      whereCondition: `blNo = '${blNo}'`,
+      whereCondition: `blNo = '${blNo}' and status = 1 and createdDate = (select max(createdDate) from tblInvoiceRequest where blNo = '${blNo}')`,
     };
 
     try {

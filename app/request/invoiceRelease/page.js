@@ -1,13 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {
-  ThemeProvider,
-  Box,
-  Typography,
-  Tabs,
-  Tab,
-  Paper,
-} from "@mui/material";
+import { ThemeProvider, Box, Typography, Tabs, Tab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import { theme } from "@/styles";
@@ -76,7 +69,9 @@ export default function InvoiceReleasePage() {
           `,
           tableName: "tblBl b",
           joins: "LEFT JOIN tblCompany c ON c.id = b.companyId",
-          whereCondition: `b.id = ${Number(blIdResolved)} AND ISNULL(b.status,1)=1`,
+          whereCondition: `b.id = ${Number(
+            blIdResolved
+          )} AND ISNULL(b.status,1)=1`,
         };
         const { success: blOk, data: blRes } = await getDataWithCondition(blQ);
         if (!blOk || !blRes?.length) {
@@ -92,7 +87,9 @@ export default function InvoiceReleasePage() {
           tableName: "tblInvoice",
           whereCondition: `blId = ${Number(blId)} AND ISNULL(status,1)=1`,
         };
-        const { success: invOk, data: invRows } = await getDataWithCondition(invQ);
+        const { success: invOk, data: invRows } = await getDataWithCondition(
+          invQ
+        );
         const collected = [];
 
         if (invOk && invRows?.length) {
@@ -108,7 +105,8 @@ export default function InvoiceReleasePage() {
                 "invoiceRequestId"
               );
               const { success, result } = await fetchForm(fmt);
-              if (success) collected.push(formatDataWithForm(result, fieldData));
+              if (success)
+                collected.push(formatDataWithForm(result, fieldData));
             })
           );
         }
@@ -146,7 +144,9 @@ export default function InvoiceReleasePage() {
           whereCondition: `b.id = ${blId}`,
         };
 
-        const { success: reqOk, data: reqRes } = await getDataWithCondition(reqQ);
+        const { success: reqOk, data: reqRes } = await getDataWithCondition(
+          reqQ
+        );
         if (reqOk && reqRes?.length > 0) {
           const reqId = reqRes[0].id;
           const format = formatFetchForm(
