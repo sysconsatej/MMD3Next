@@ -526,6 +526,12 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
+    // {
+    //   label: "Post Code",
+    //   name: "consigneePinCode",
+    //   type: "number",
+    //   isEdit: true,
+    // },
     {
       label: "Address",
       name: "consigneeAddress",
@@ -543,7 +549,7 @@ export const fieldData = {
       gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
       required: true,
-      blurFun  : "checkPinCode"
+      blurFun: "checkPinCode",
     },
   ],
   notifyFields: [
@@ -586,6 +592,12 @@ export const fieldData = {
       foreignTable: "name,tblCountry",
       isEdit: true,
       required: true,
+    },
+    {
+      label: "Post Code",
+      name: "notifyParty1PinCode",
+      type: "number",
+      isEdit: true,
     },
     {
       label: "Address",
@@ -706,7 +718,9 @@ export const fieldData = {
       isEdit: true,
       required: true,
       blurFun: "panCardValid",
+      type: "text",
     },
+
     {
       label: "Cargo Gross Wt(Kgs)",
       name: "grossWt",
@@ -762,9 +776,20 @@ export const fieldData = {
     //   isEdit: true,
     // },
     {
-      label: "UNO/IMO Code",
+      label: "UNO Code",
       name: "imoId",
-      type: "dropdown",
+      type: "text",
+      tableName: "tblImo m",
+      displayColumn: "ISNULL(m.unNo,'') + ' - ' + ISNULL(m.class,'')",
+      searchColumn: "m.unNo",
+      orderBy: "m.unNo, m.class",
+      foreignTable: "unNo-class,tblImo",
+      isEdit: true,
+    },
+    {
+      label: "IMO Code",
+      name: "imoId",
+      type: "text",
       tableName: "tblImo m",
       displayColumn: "ISNULL(m.unNo,'') + ' - ' + ISNULL(m.class,'')",
       searchColumn: "m.unNo",

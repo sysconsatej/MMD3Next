@@ -54,7 +54,8 @@ function createData(
   beneficiary,
   category,
   remark,
-  status
+  status,
+  isEdit
 ) {
   return {
     id,
@@ -66,6 +67,7 @@ function createData(
     category,
     remark,
     status,
+    isEdit,
   };
 }
 
@@ -104,14 +106,15 @@ export default function InvoicePaymentList() {
         const tableObj = {
           columns: `
     MAX(i.id) AS id,
-    b.mblNo AS blNo,
+    ir.blNo AS blNo,
     STRING_AGG(i.invoiceNo, ', ') AS invoiceNos,
     CONVERT(VARCHAR, MAX(i.invoiceDate), 103) AS latestInvoiceDate,
     SUM(i.totalInvoiceAmount) AS totalInvoiceAmount,
     c.name AS beneficiary,
     MAX(cat.name) AS category,
     MAX(ipAgg.remarks) AS remark,
-    MAX(ipAgg.statusName) AS status
+    MAX(ipAgg.statusName) AS status,
+    case when max(u3.roleCode) = 'shipping' then cast(0 as bit) else cast(1 as bit) end as isEdit
   `,
           tableName: "tblInvoice i",
           joins: `
@@ -119,7 +122,10 @@ export default function InvoicePaymentList() {
     LEFT JOIN tblCompany c ON c.id = b.companyId
     LEFT JOIN tblMasterData cat ON cat.id = i.invoiceCategoryId
     LEFT JOIN tblUser u ON u.id = ${userData.userId}
-    JOIN tblUser u2 ON u2.companyId = u.companyId AND i.createdBy = u2.id
+    JOIN tblInvoiceRequest ir on  ir.id = i.invoiceRequestId and ir.companyId = u.companyId and ir.companyBranchId = u.branchId
+    left join tblUser u2 on u2.id = i.createdBy
+	  left join tblUserRoleMapping ur on ur.userId = u2.id
+	  left join tblUser u3 on u3.id = ur.roleId
     LEFT JOIN (
       SELECT *
       FROM (
@@ -139,7 +145,7 @@ export default function InvoicePaymentList() {
       WHERE x.rn = 1                     -- latest payment per BL
     ) AS ipAgg ON ipAgg.blId = i.blId
   `,
-          groupBy: "GROUP BY b.mblNo, c.name",
+          groupBy: "GROUP BY ir.blNo, c.name",
           orderBy: "ORDER BY MAX(i.createdDate) DESC",
           pageNo,
           pageSize,
@@ -158,7 +164,8 @@ export default function InvoicePaymentList() {
             item["beneficiary"],
             item["category"],
             item["remark"],
-            item["status"]
+            item["status"],
+            item["isEdit"]
           )
         );
 
@@ -186,10 +193,15 @@ export default function InvoicePaymentList() {
 
   const modeHandler = useCallback(
     (mode, formId = null) => {
+      const filterRow = rows.filter((item) => item.id === formId);
+      if (!filterRow?.[0]?.isEdit && mode === "edit") {
+        toast.error("You can't edit shipping liner created invoices!");
+        return;
+      }
       setMode({ mode: mode || null, formId });
       router.push("/request/invoicePayment");
     },
-    [router, setMode]
+    [router, setMode, rows]
   );
 
   // === PAY DISABLE LOGIC ===

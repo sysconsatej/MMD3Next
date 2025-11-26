@@ -119,7 +119,7 @@ export default function InvoiceUpload() {
     const obj = {
       columns: "id",
       tableName: "tblInvoiceRequest",
-      whereCondition: `blNo = '${literal}' AND ISNULL(status,1)=1`,
+      whereCondition: `blNo = '${literal}' AND ISNULL(status,1)=1 and createdDate = (select max(createdDate) from tblInvoiceRequest where blNo = '${literal}')`,
     };
 
     const { success, data } = await getDataWithCondition(obj);
@@ -391,6 +391,8 @@ export default function InvoiceUpload() {
 
     toast.success("Invoices uploaded & status updated successfully!");
   };
+
+  console.log('invoiceReqId', invoiceReqId);
 
   return (
     <ThemeProvider theme={theme}>
