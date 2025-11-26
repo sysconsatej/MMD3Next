@@ -69,8 +69,7 @@ export default function CompanyList() {
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins:
-            "left join tblCompany c on c.id=b.agentId left join tblPort p on p.id=b.berthId",
+          joins: `left join tblCompany c on c.id='${userData?.companyId}' left join tblPort p on p.id=b.berthId`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setBerthData(data ?? []);
@@ -150,7 +149,7 @@ export default function CompanyList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center">
-            Berth Agent 
+            Berth Agent
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar

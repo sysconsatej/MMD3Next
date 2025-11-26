@@ -1,3 +1,5 @@
+'use client'
+
 import { getNextPrevData } from "@/apis";
 import { auth } from "@/store";
 import { useCallback, useEffect, useState } from "react";
