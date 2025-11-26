@@ -25,6 +25,8 @@ import {
   setInputValue,
   useNextPrevData,
   validateContainerForMBL,
+  validatePanCard,
+  validPinCode,
 } from "@/utils";
 import {
   deleteRecord,
@@ -184,22 +186,46 @@ export default function Home() {
   const handleGridEventFunctions = {
     addGrid: async ({ tabIndex, gridIndex }) => {
       const obj = {
-        columns: "id as Id, name as Name",
+        columns: "id as Id, name as Name , code as code , masterListName",
         tableName: "tblMasterData",
-        whereCondition: `masterListName = 'tblSealType' and name = 'BTSL' and status = 1`,
+        whereCondition: `masterListName = 'tblSealType' and name = 'BTSL' and status = 1 OR  masterListName  =  'tblCINType' and name = 'PCIN'  OR masterListName =  'tblTypeOfShipment' and code  =  'C'  OR masterListName  =  'tblItemType' and code = 'OT' and status  = 1`,
+        orderBy: "id asc",
       };
       const { data } = await getDataWithCondition(obj);
-      setFormData((prevData) =>
-        setInputValue({
-          prevData,
-          tabName: "tblBl",
-          gridName: "tblBlContainer",
-          tabIndex,
-          containerIndex: gridIndex,
-          name: "sealTypeId",
-          value: data[0],
-        })
-      );
+
+      const setValuesBasedOnColName = (colName, value) => {
+        switch (colName) {
+          case "tblSealType":
+            return "sealTypeId";
+          case "tblCINType":
+            return "cinType";
+          case "tblItemType":
+            return "blTypeId";
+          case "tblTypeOfShipment":
+            return "natureOfCargoId";
+          default:
+            return "";
+        }
+      };
+
+      if (Array.isArray(data)) {
+        data.map((info) => {
+          setFormData((prevData) =>
+            setInputValue({
+              prevData,
+              tabName: "tblBl",
+              gridName:
+                info?.masterListName === "tblSealType" ? "tblBlContainer" : "",
+              tabIndex,
+              containerIndex: gridIndex,
+              name: setValuesBasedOnColName(info?.masterListName),
+              value: { Id: info?.Id, Name: info?.code + "-" + info?.Name },
+            })
+          );
+        });
+      } else {
+        return [];
+      }
     },
   };
 
@@ -337,6 +363,35 @@ export default function Home() {
         };
       });
     },
+    setTelePhoneNoBasedOnLinerId: async (value) => {
+      const obj = {
+        columns: "c.telephoneNo",
+        tableName: "tblCompany c",
+        whereCondition: `c.id = ${value?.Id}`,
+      };
+      const getTelePhone = await getDataWithCondition(obj);
+
+      if (!getTelePhone?.data[0]?.telephoneNo && getTelePhone.length > 0) {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            name: "telephoneNo",
+            value: "",
+          })
+        );
+        return toast.error("For this Shipper PhoneNo do not exist pls add");
+      }
+
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          name: "telephoneNo",
+          value: getTelePhone?.data[0]?.telephoneNo || "",
+        })
+      );
+
+      return "";
+    },
   };
 
   const handleBlurEventFunctions = {
@@ -404,10 +459,7 @@ export default function Home() {
       }
 
       // validation for containers
-      const result = await validateContainerForMBL(
-        value,
-        formData?.mblNo,
-      );
+      const result = await validateContainerForMBL(value, formData?.mblNo);
 
       if (!result.valid) {
         toast.error(result.message);
@@ -415,6 +467,41 @@ export default function Home() {
       }
 
       return "";
+    },
+    panCardValid: (event, { containerIndex, tabIndex }) => {
+      const { value, name } = event.target;
+      const result = validatePanCard(value);
+
+      if (result?.error) {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex,
+            containerIndex,
+            name,
+            value: null,
+          })
+        );
+        return toast.error(result.error);
+      }
+    },
+    checkPinCode: (event) => {
+      const { name, value } = event.target;
+      console.log(name, value);
+      const result = validPinCode(value);
+      if (result.error) {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            name,
+            value: null,
+          })
+        );
+        return toast.error(result.error);
+      }
     },
   };
 
@@ -767,6 +854,7 @@ export default function Home() {
                             handleChangeEventFunctions={
                               handleChangeEventFunctions
                             }
+                            handleBlurEventFunctions={handleBlurEventFunctions}
                           />
                         </Box>
                       </FormHeading>
@@ -799,6 +887,7 @@ export default function Home() {
                             handleChangeEventFunctions={
                               handleChangeEventFunctions
                             }
+                            handleBlurEventFunctions={handleBlurEventFunctions}
                           />
                         </Box>
                       </FormHeading>
