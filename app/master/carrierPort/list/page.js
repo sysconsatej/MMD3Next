@@ -33,7 +33,7 @@ function createData(
   fpdId,
   modeId,
   panNo,
-  bondNO,
+  bondNo,
   id
 ) {
   return {
@@ -43,7 +43,7 @@ function createData(
     fpdId,
     modeId,
     panNo,
-    bondNO,
+    bondNo,
     id,
   };
 }
@@ -72,7 +72,7 @@ export default function CompanyList() {
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
           joins:
-            "left join tblCompany s on s.id=c.companyId left join tblPort p on p.id=c.podId left join tblPort p1 on p1.id=c.fpdId left join tblMasterData m on m.id=c.modeId",
+            `left join tblCompany s on s.id='${userData?.companyId}' left join tblPort p on p.id=c.podId left join tblPort p1 on p1.id=c.fpdId left join tblMasterData m on m.id=c.modeId`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setBerthData(data ?? []);
@@ -103,7 +103,7 @@ export default function CompanyList() {
           item["fpdId"],
           item["modeId"],
           item["panNo"],
-          item["bondNO"],
+          item["bondNo"],
           item["id"]
         )
       )
@@ -127,7 +127,7 @@ export default function CompanyList() {
     };
     const obj = {
       recordId: formId,
-      tableName: "tbltblBerthAgentCode",
+      tableName: "tblCarrierPort",
       ...updateObj,
     };
     const { success, message, error } = await deleteRecord(obj);
@@ -193,7 +193,7 @@ export default function CompanyList() {
                     <TableCell>{row?.fpdId}</TableCell>
                     <TableCell>{row?.modeId}</TableCell>
                     <TableCell>{row?.panNo}</TableCell>
-                    <TableCell>{row?.bondNO}</TableCell>
+                    <TableCell>{row?.bondNo}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}
