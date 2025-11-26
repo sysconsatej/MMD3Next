@@ -56,9 +56,7 @@ export default function InvoicePayment() {
   const [containerData, setContainerData] = useState([]);
   const [invoiceReqId, setInvoiceReqId] = useState(null);
 
-  // original invoice IDs (info only)
   const [initialInvoiceIds, setInitialInvoiceIds] = useState([]);
-  // ids of tabs user removed → soft delete
   const [deletedInvoiceIds, setDeletedInvoiceIds] = useState([]);
 
   const userData = getUserByCookies();
@@ -78,7 +76,6 @@ export default function InvoicePayment() {
   const handleRemove = (index) => {
     const toRemove = invoices[index];
 
-    // if exists in DB, remember for soft delete
     if (toRemove?.id) {
       setDeletedInvoiceIds((prev) =>
         prev.includes(toRemove.id) ? prev : [...prev, toRemove.id]
@@ -110,56 +107,37 @@ export default function InvoicePayment() {
     []
   );
 
-  async function setBlContainer(blNo) {
+  // 🔹 Load containers by BL ID (used in BL check + edit mode)
+  const loadBlContainersByBlId = useCallback(async (blId) => {
+    if (!blId) return;
+
     const payload = {
       columns:
-        "c.containerNo as containerNo, json_query((select c.sizeId as Id, m.name as Name for json path, without_array_wrapper)) as sizeId",
-      tableName: "tblBl b",
-      joins:
-        "left join tblBlContainer c on c.blId = b.id left join tblMasterData m on m.id = c.sizeId",
-      whereCondition: `isnull(b.hblNo,b.mblNo) = '${blNo}' and b.status = 1`,
+        "c.containerNo, c.sizeId, (SELECT name FROM tblMasterData m WHERE m.id = c.sizeId) AS sizeName",
+      tableName: "tblBlContainer c",
+      whereCondition: `c.blId = ${blId} AND ISNULL(c.status,1) = 1`,
     };
 
     try {
-      const { success, data, error } = await getDataWithCondition(payload);
-      if (success) {
-        const rows = data || [];
-        setContainerData(rows);
-
-        // If no invoices yet, create first one with container data
-        setFormData((prev) => {
-          const existing = prev.tblInvoice || [];
-          if (!existing.length) {
-            return {
-              ...prev,
-              tblInvoice: [
-                {
-                  ...existing[0],
-                  tblInvoiceRequestContainer: rows,
-                  tblAttachment: [],
-                },
-              ],
-            };
-          }
-
-          // else update first invoice's container set
-          const updated = existing.map((inv, idx) =>
-            idx === 0
-              ? {
-                  ...inv,
-                  tblInvoiceRequestContainer: rows,
-                }
-              : inv
-          );
-          return { ...prev, tblInvoice: updated };
-        });
-      } else {
-        toast.error(error);
+      const { success, data, message, error } =
+        await getDataWithCondition(payload);
+      if (!success) {
+        toast.error(error || message || "Failed to fetch BL containers.");
+        return;
       }
+
+      const rows = (data || []).map((row) => ({
+        containerNo: row.containerNo,
+        sizeId: row.sizeId
+          ? { Id: row.sizeId, Name: row.sizeName || String(row.sizeId) }
+          : null,
+      }));
+
+      setContainerData(rows);
     } catch (e) {
       toast.error(e?.message || String(e));
     }
-  }
+  }, []);
 
   async function setInvoiceRequestId(blNo) {
     const payload = {
@@ -229,7 +207,9 @@ export default function InvoicePayment() {
               : null,
           }));
           setErrorState((p) => ({ ...p, [errKey]: false }));
-          await setBlContainer(typed);
+
+          // 👉 Only set containerData, DON'T create invoice tab here
+          await loadBlContainersByBlId(row.id);
           await setInvoiceRequestId(typed);
         } else {
           toast.error("BL not found for this Beneficiary.");
@@ -240,14 +220,14 @@ export default function InvoicePayment() {
         toast.error("Error checking BL/MBL.");
       }
     },
-    [formData, extractId, sqlEscape]
+    [formData, extractId, sqlEscape, loadBlContainersByBlId]
   );
 
   const handleBlurEventFunctions = {
     checkBlForCompany,
   };
 
-  // Load existing invoices (EDIT mode)
+  // 🔹 Load existing invoices (EDIT mode)
   useEffect(() => {
     async function fetchInvoiceData() {
       if (!mode?.formId) return;
@@ -277,6 +257,9 @@ export default function InvoicePayment() {
 
         const blId = blData[0].blId;
 
+        // 👉 initialise containerData in edit mode
+        await loadBlContainersByBlId(blId);
+
         const allInvoicesQuery = {
           columns: "id",
           tableName: "tblInvoice",
@@ -302,7 +285,6 @@ export default function InvoicePayment() {
           const { success, result } = await fetchForm(fmt);
           if (success) {
             const parsed = formatDataWithForm(result, data);
-            // keep id so we know which record to update
             resArray.push({ ...parsed, id });
           }
         });
@@ -338,7 +320,7 @@ export default function InvoicePayment() {
     }
 
     fetchInvoiceData();
-  }, [mode.formId, mode.mode, data]);
+  }, [mode.formId, mode.mode, data, loadBlContainersByBlId]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -359,11 +341,9 @@ export default function InvoicePayment() {
 
       let allSuccess = true;
 
-      // 1) Save current invoices (insert/update)
       const savePromises = invoiceTabs.map(async (invoice, index) => {
         const invoiceId = invoice?.id ?? null;
 
-        // remove id so SP doesn't try to update identity column
         const {
           blNo,
           beneficiaryName,
@@ -400,7 +380,6 @@ export default function InvoicePayment() {
 
       await Promise.allSettled(savePromises);
 
-      // 2) Soft delete ONLY invoices explicitly removed via handleRemove
       if (deletedInvoiceIds.length > 0) {
         const rowsPayload = deletedInvoiceIds.map((id) => ({
           id,
@@ -437,7 +416,7 @@ export default function InvoicePayment() {
     router.push(`/request/invoicePayment/payment?blId=${blId}`);
   };
 
-  // ⬇⬇⬇ ONLY PLACE CHANGED FOR UPLOAD BEHAVIOUR ⬇⬇⬇
+  // 🔹 FIXED: do not double tabs in ADD mode
   const handleFilesChange = async (fileList) => {
     try {
       const filesArr = Array.from(fileList || []);
@@ -476,22 +455,32 @@ export default function InvoicePayment() {
         };
       });
 
-      const existingLen = invoices.length;
+      const isEditMode = !!mode?.formId;
 
-      setFormData((prev) => {
-        const existing = Array.isArray(prev.tblInvoice) ? prev.tblInvoice : [];
-        const hasExisting = existing.length > 0;
+      if (isEditMode) {
+        // EDIT → keep existing invoices and append new ones
+        const existingLen = invoices.length;
 
-        return {
+        setFormData((prev) => {
+          const existing = Array.isArray(prev.tblInvoice)
+            ? prev.tblInvoice
+            : [];
+          return {
+            ...prev,
+            tblInvoice: [...existing, ...fromPdf],
+          };
+        });
+
+        const newTotal = existingLen + fromPdf.length;
+        if (newTotal > 0) setTabValue(newTotal - 1);
+      } else {
+        // ADD → always REPLACE with current upload
+        setFormData((prev) => ({
           ...prev,
-          // ADD new tabs if edit mode, else just create
-          tblInvoice: hasExisting ? [...existing, ...fromPdf] : fromPdf,
-        };
-      });
+          tblInvoice: fromPdf,
+        }));
 
-      const newTotal = existingLen + fromPdf.length;
-      if (newTotal > 0) {
-        setTabValue(newTotal - 1); // move to last new tab
+        if (fromPdf.length > 0) setTabValue(fromPdf.length - 1);
       }
 
       toast.success("Invoices created from PDF(s).");
@@ -500,7 +489,6 @@ export default function InvoicePayment() {
       toast.error("Error processing PDF files.");
     }
   };
-  // ⬆⬆⬆ ONLY PLACE CHANGED FOR UPLOAD BEHAVIOUR ⬆⬆⬆
 
   return (
     <ThemeProvider theme={theme}>
