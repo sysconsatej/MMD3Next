@@ -233,6 +233,16 @@ export default function Home() {
 
       return "";
     },
+    validUnoCode: (event) => {
+      const { value } = event;
+      const val = (value ?? "").trim();
+
+      if (!val) return;
+
+      if (val.length !== 5) {
+        toast.error("UNO Code must be exactly 5 characters.");
+      }
+    },
   };
 
   useEffect(() => {
@@ -618,6 +628,7 @@ export default function Home() {
                 fieldsMode={mode.mode}
                 gridName="tblBlPackingList"
                 buttons={gridButtons}
+                handleBlurEventFunctions={handleBlurEventFunctions}
               />
             </Box>
             {/* <Box display="flex" justifyContent="center" mt={2}>
