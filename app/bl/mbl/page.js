@@ -443,6 +443,10 @@ export default function Home() {
 
 
 
+
+
+
+
   const handleCopyConsigneeToNotify = () => {
     const typeObj = formData?.consigneeTypeId;
 
@@ -464,6 +468,7 @@ export default function Home() {
         : "Consignee details copied to Notify!"
     );
   };
+
 
   return (
     <ThemeProvider theme={theme}>

@@ -785,6 +785,7 @@ export const fieldData = {
       orderBy: "m.unNo, m.class",
       foreignTable: "unNo-class,tblImo",
       isEdit: true,
+      blurFun: "validUnoImoCode",
     },
     {
       label: "IMO Code",
@@ -796,6 +797,8 @@ export const fieldData = {
       orderBy: "m.unNo, m.class",
       foreignTable: "unNo-class,tblImo",
       isEdit: true,
+      blurFun: "validUnoImoCode",
+
     },
     {
       label: "No of Packages",
