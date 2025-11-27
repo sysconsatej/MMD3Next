@@ -1,7 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ThemeProvider, Box, Typography } from "@mui/material";
-import { mappingConsigneeToNotify, mappingConsigneeToNotifyNoPan, totalFieldData, gridButtons, fieldData } from "./mblData";
+import {
+  mappingConsigneeToNotify,
+  mappingConsigneeToNotifyNoPan,
+  totalFieldData,
+  gridButtons,
+  fieldData,
+} from "./mblData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -25,7 +31,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
 export default function Home() {
-  const [formData, setFormData] = useState({ blStatus: "D", });
+  const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(fieldData);
   const { mode, setMode } = formStore();
@@ -45,8 +51,6 @@ export default function Home() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    if (submitBtn) return;
-    setSubmitBtn(true);
     const packageMismatchError = checkNoPackages({
       formData: formData,
       hblType: "MBL",
@@ -233,15 +237,26 @@ export default function Home() {
 
       return "";
     },
-    validUnoCode: (event) => {
-      const { value } = event;
-      const val = (value ?? "").trim();
+    validUnoImoCode: (event) => {
+      const { value, name } = event.target;
+      const v = String(value).trim();
 
-      if (!val) return;
+      if (!v) return true;
 
-      if (val.length !== 5) {
-        toast.error("UNO Code must be exactly 5 characters.");
+      if (name === "unNo") {
+        if (v.length !== 5) {
+          toast.error("UNO Code must be exactly 5 characters.");
+          return false;
+        }
       }
+
+      if (name === "imoCode") {
+        if (v.length !== 3) {
+          toast.error("IMO Code must be exactly 3 characters.");
+          return false;
+        }
+      }
+      return true;
     },
   };
 
@@ -560,7 +575,7 @@ export default function Home() {
                         formData,
                         setFormData,
                         "left",
-                        mappingConsigneeToNotify,
+                        mapping,
                         "Notify details copied to Consignee!"
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
@@ -582,13 +597,19 @@ export default function Home() {
                 buttons={[
                   {
                     text: "Copy Consignee Details",
-                    onClick: handleCopyConsigneeToNotify,
+                    onClick: () =>
+                      copyHandler(
+                        formData,
+                        setFormData,
+                        "right",
+                        mapping,
+                        "Consignee details copied to Notify!"
+                      ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
                 ]}
               //
               >
-
                 <Box className="grid grid-cols-4 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.notifyFields}
@@ -606,6 +627,7 @@ export default function Home() {
                   formData={formData}
                   setFormData={setFormData}
                   fieldsMode={fieldsMode}
+                  handleBlurEventFunctions={handleBlurEventFunctions}
                 />
               </Box>
               <FormHeading text="Container Details" />

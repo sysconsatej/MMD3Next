@@ -439,12 +439,14 @@ export const fieldData = {
       name: "unNo",
       type: "text",
       isEdit: true,
+      blurFun: "validUnoImoCode",
     },
     {
       label: "IMO Code",
       name: "imoCode",
       type: "text",
       isEdit: true,
+      blurFun: "validUnoImoCode",
     },
 
     {
@@ -834,14 +836,15 @@ export const fieldData = {
       label: "UNO Code",
       name: "unNo",
       type: "text",
-      
       isEdit: true,
+      blurFun: "validUnoImoCode",
     },
     {
       label: "IMO Code",
       name: "imoCode",
       type: "text",
       isEdit: true,
+      blurFun: "validUnoImoCode",
     },
     {
       label: "Reefer Temp",
@@ -915,13 +918,14 @@ export const fieldData = {
       name: "unNo",
       type: "text",
       isEdit: true,
-      blurFun:"validUnoCode"
+      blurFun: "validUnoImoCode",
     },
     {
       label: "IMO Code",
       name: "imoCode",
       type: "text",
       isEdit: true,
+      blurFun: "validUnoImoCode",
     },
     {
       label: "No of Packages",
