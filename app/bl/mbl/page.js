@@ -136,7 +136,7 @@ export default function Home() {
     setISOBySize: async (name, value, { containerIndex, tabIndex }) => {
       const typeId = formData?.tblBlContainer[containerIndex]?.typeId?.Id;
       const obj = {
-        columns: `s.id id, s.isocode Name`,
+        columns: `s.id Id, s.isocode Name`,
         tableName: "tblIsocode s",
         joins:
           "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
@@ -172,7 +172,7 @@ export default function Home() {
     setISOByType: async (name, value, { containerIndex, tabIndex }) => {
       const sizeId = formData?.tblBlContainer[containerIndex]?.sizeId?.Id;
       const obj = {
-        columns: `s.id id, s.isocode Name`,
+        columns: `s.id Id, s.isocode Name`,
         tableName: "tblIsocode s",
         joins:
           "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
@@ -291,7 +291,6 @@ export default function Home() {
   useEffect(() => {
     async function getMblData() {
       try {
-        // 1️⃣ PACKAGES default for package type (existing logic but safe)
         const pkgObj = {
           columns: "id as Id, name as Name",
           tableName: "tblMasterData",
@@ -307,8 +306,6 @@ export default function Home() {
           setPackTypeState(pkgRes.data[0]);
         }
 
-        // 2️⃣ Default Item Type = "OT - Other Cargo" (NO hard-coded Id)
-        //    Only for NEW records (no formId)
         if (!mode?.formId) {
           const itemTypeObj = {
             columns:
@@ -327,7 +324,6 @@ export default function Home() {
             itemTypeRes.data.length > 0
           ) {
             setFormData((prev) =>
-              // don’t override if already set (e.g. in edit mode)
               prev?.blTypeId ? prev : { ...prev, blTypeId: itemTypeRes.data[0] }
             );
           }
@@ -337,7 +333,6 @@ export default function Home() {
       }
     }
 
-    // 3️⃣ Company / branch defaults (keep as-is)
     setFormData((prev) => ({
       ...prev,
       companyId: {
@@ -348,17 +343,80 @@ export default function Home() {
         Id: userData.branchId,
         Name: userData.branchName,
       },
+      shippingLineId: prev?.shippingLineId ?? {
+        Id: userData.companyId,
+        Name: userData.companyName,
+      },
+      mloId: prev?.mloId ?? {
+        Id: userData.companyId,
+        Name: userData.companyName,
+      },
     }));
-
     getMblData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const vesselId = formData?.podVesselId?.Id;
+
+    // 🔹 If vessel is cleared → also clear voyage and exit
+    if (!vesselId) {
+      if (formData?.podVoyageId) {
+        setFormData((prev) => ({
+          ...prev,
+          podVoyageId: null,
+        }));
+      }
+      return;
+    }
+
+    // 🔹 If voyage already set → do nothing
+    if (formData?.podVoyageId) return;
+
+    let cancelled = false;
+
+    async function autoSetVoyageIfSingle() {
+      try {
+        const obj = {
+          columns: "t.id as Id, t.voyageNo as Name",
+          tableName: "tblVoyage t",
+          whereCondition: `t.vesselId = ${vesselId} and t.status = 1`,
+          orderBy: "t.voyageNo",
+        };
+
+        const { data, success } = await getDataWithCondition(obj);
+
+        if (
+          !cancelled &&
+          success &&
+          Array.isArray(data) &&
+          data.length === 1 // ✅ only when exactly ONE row
+        ) {
+          setFormData((prev) =>
+            prev?.podVoyageId
+              ? prev
+              : {
+                ...prev,
+                podVoyageId: data[0],
+              }
+          );
+        }
+      } catch (e) {
+        console.error("autoSetVoyageIfSingle error:", e);
+      }
+    }
+
+    autoSetVoyageIfSingle();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [formData?.podVesselId?.Id]);
+
 
 
   const handleCopyConsigneeToNotify = () => {
     const typeObj = formData?.consigneeTypeId;
 
-    // Label from dropdown
     const label = String(typeObj?.Name || typeObj?.name || "").toUpperCase();
 
     const isIEC = label.includes("IEC");
