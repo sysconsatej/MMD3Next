@@ -16,6 +16,7 @@ const paymentOfflineFields = [
     name: "Amount",
     type: "number",
     required: true,
+    disabled: true,     // 🔹 read-only amount
   },
   {
     label: "Bank Name",

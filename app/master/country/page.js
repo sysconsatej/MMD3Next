@@ -43,6 +43,7 @@ export default function Country() {
         setFormData((prev) => ({ ...prev, [name]: val }));
       const setErr = (flag) =>
         setErrorState?.((prev) => ({ ...prev, [name]: flag }));
+
       const normalized = norm(name, value);
       setField(normalized);
       if (name === "code") {
@@ -59,17 +60,20 @@ export default function Country() {
         return false;
       }
       const literal = toSql(normalized.toUpperCase());
-      const whereCondition = `UPPER(${name}) = '${literal}' AND status = 1`;
+      let whereCondition = `
+      UPPER(${name}) = '${literal}'
+      AND status = 1
+    `;
+      if (mode?.formId) {
+        whereCondition += ` AND id <> ${mode.formId}`;
+      }
 
       const resp = await getDataWithCondition({
-        columns: name,
+        columns: "id",
         tableName: "tblCountry",
         whereCondition,
       });
-
-      const isDuplicate =
-        resp?.success === true ||
-        (Array.isArray(resp?.data) && resp.data.length > 0);
+      const isDuplicate = Array.isArray(resp?.data) && resp.data.length > 0;
 
       if (isDuplicate) {
         setField("");

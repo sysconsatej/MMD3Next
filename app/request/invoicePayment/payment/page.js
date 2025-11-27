@@ -15,8 +15,8 @@ import {
   DialogContent,
   CircularProgress,
   Button,
+  Checkbox,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { ToastContainer, toast } from "react-toastify";
 import { theme } from "@/styles";
@@ -39,14 +39,18 @@ export default function PaymentPage() {
   const [fieldsMode, setFieldsMode] = useState("new");
   const [statusList, setStatusList] = useState([]);
 
+  // ✅ selected invoices for payment
+  const [selectedInvoiceIds, setSelectedInvoiceIds] = useState([]);
+
   // 🟢 Payment Modal States
   const [paying, setPaying] = useState(false);
   const [payOpen, setPayOpen] = useState(false);
   const [payUrl, setPayUrl] = useState(null);
   const [iframeLoaded, setIframeLoaded] = useState(false);
-  const [iframeError, setIframeError] = useState(null);
+  const [iframeError, setIframeError] = useState(false);
 
   const handleChangeTab = (_, newValue) => setTabValue(newValue);
+
   // fetch payment status id
   useEffect(() => {
     async function fetchStatus() {
@@ -60,6 +64,47 @@ export default function PaymentPage() {
       if (success) setStatusList(data);
     }
     fetchStatus();
+  }, []);
+
+  // 🔹 NEW: set default Instrument Date = today on first load
+  useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
+    setFormData((prev) =>
+      prev.referenceDate ? prev : { ...prev, referenceDate: today }
+    );
+  }, []);
+
+  // 🔹 NEW: set default Payment Type = NEFT
+  useEffect(() => {
+    async function setDefaultPaymentType() {
+      try {
+        const obj = {
+          columns: "id as Id, name as Name",
+          tableName: "tblMasterData",
+          whereCondition: "masterListName = 'tblPaymentType' AND status = 1",
+        };
+
+        const { success, data } = await getDataWithCondition(obj);
+        if (success && Array.isArray(data)) {
+          const neftRow = data.find(
+            (x) => String(x.Name || "").toLowerCase() === "neft"
+          );
+          if (neftRow) {
+            setFormData((prev) =>
+              prev.paymentTypeId
+                ? prev
+                : {
+                    ...prev,
+                    paymentTypeId: { Id: neftRow.Id, Name: neftRow.Name },
+                  }
+            );
+          }
+        }
+      } catch (err) {
+        console.error("Error setting default payment type:", err);
+      }
+    }
+    setDefaultPaymentType();
   }, []);
 
   // 🧭 Fetch all invoices for current BL ID
@@ -80,7 +125,7 @@ export default function PaymentPage() {
             i.totalInvoiceAmount,
             i.remarks,
             cat.name AS invoiceCategory,
-            b.mblNo AS blNo,
+            ISNULL(hblNo, mblNo) AS blNo,
             c.name AS beneficiaryName
           `,
           tableName: "tblInvoice i",
@@ -89,7 +134,13 @@ export default function PaymentPage() {
             LEFT JOIN tblCompany c ON c.id = b.companyId
             LEFT JOIN tblMasterData cat ON cat.id = i.invoiceCategoryId
           `,
-          whereCondition: `i.blId = ${blId} AND ISNULL(i.status,1)=1`,
+          whereCondition: `i.blId = ${blId} AND ISNULL(i.status,1)=1 AND i.invoiceRequestId = (
+              SELECT TOP 1 invoiceRequestId
+              FROM tblInvoice
+              WHERE blId = ${blId}
+                AND ISNULL(status,1)=1
+              ORDER BY id DESC
+            )`,
         };
 
         const { data, success } = await getDataWithCondition(query);
@@ -97,6 +148,8 @@ export default function PaymentPage() {
         if (success && Array.isArray(data) && data.length > 0) {
           const sorted = data.sort((a, b) => b.invoiceId - a.invoiceId);
           setInvoices(sorted);
+          // ✅ by default select all invoices
+          setSelectedInvoiceIds(sorted.map((inv) => inv.invoiceId));
         } else {
           toast.warn("No invoices found for this BL.");
         }
@@ -110,7 +163,7 @@ export default function PaymentPage() {
 
     fetchInvoices();
   }, [blId]);
-  //
+
   const getRequestedStatusId = () => {
     if (!statusList || statusList.length === 0) return null;
 
@@ -123,28 +176,68 @@ export default function PaymentPage() {
     return row?.Id || null;
   };
 
-  // 🔥 Remove invoice from list
-  const handleRemoveInvoice = (invoiceId) => {
-    setInvoices((prev) => prev.filter((inv) => inv.invoiceId !== invoiceId));
-    toast.info(`Invoice ${invoiceId} removed from payment.`);
+  // ✅ Checkbox helpers
+  const toggleInvoice = (invoiceId) => {
+    setSelectedInvoiceIds((prev) =>
+      prev.includes(invoiceId)
+        ? prev.filter((id) => id !== invoiceId)
+        : [...prev, invoiceId]
+    );
   };
+
+  const allSelectedOnPage =
+    invoices.length > 0 &&
+    selectedInvoiceIds.length === invoices.length &&
+    invoices.every((inv) => selectedInvoiceIds.includes(inv.invoiceId));
+
+  const someSelectedOnPage =
+    selectedInvoiceIds.length > 0 && !allSelectedOnPage;
+
+  const toggleAllOnPage = () => {
+    if (allSelectedOnPage) {
+      setSelectedInvoiceIds([]);
+    } else {
+      setSelectedInvoiceIds(invoices.map((inv) => inv.invoiceId));
+    }
+  };
+
+  // 🔹 NEW: keep Amount in formData = total of selected invoices
+  useEffect(() => {
+    const total = invoices
+      .filter((inv) => selectedInvoiceIds.includes(inv.invoiceId))
+      .reduce((sum, inv) => sum + Number(inv.totalInvoiceAmount || 0), 0);
+
+    setFormData((prev) => ({
+      ...prev,
+      Amount: total.toFixed(2),
+    }));
+  }, [invoices, selectedInvoiceIds]);
 
   // 🟢 Handle modal close
   const handleClosePay = () => {
     setPayOpen(false);
     setPayUrl(null);
     setIframeLoaded(false);
-    setIframeError(null);
+    setIframeError(false);
   };
 
   // 🟢 Online payment logic
   const quickPayHandler = async () => {
     try {
+      const selectedInvoices = invoices.filter((inv) =>
+        selectedInvoiceIds.includes(inv.invoiceId)
+      );
+
+      if (!selectedInvoices.length) {
+        toast.warn("Please select at least one invoice for payment.");
+        return;
+      }
+
       setPaying(true);
       setIframeLoaded(false);
-      setIframeError(null);
+      setIframeError(false);
 
-      const totalAmount = invoices.reduce(
+      const totalAmount = selectedInvoices.reduce(
         (sum, inv) => sum + Number(inv.totalInvoiceAmount || 0),
         0
       );
@@ -170,13 +263,19 @@ export default function PaymentPage() {
   const handleOfflineSubmit = async (e) => {
     e.preventDefault();
 
-    if (invoices.length === 0) {
-      toast.warn("No invoices selected for offline payment.");
+    const selectedInvoices = invoices.filter((inv) =>
+      selectedInvoiceIds.includes(inv.invoiceId)
+    );
+
+    if (selectedInvoices.length === 0) {
+      toast.warn("Please select at least one invoice for offline payment.");
       return;
     }
 
     // Validate required offline payment fields
-    const requiredFields = data.paymentOfflineFields.filter((f) => f.required);
+    const requiredFields = data.paymentOfflineFields.filter(
+      (f) => f.required
+    );
     const emptyFields = requiredFields.filter((f) => {
       const val = formData[f.name];
       return val === undefined || val === null || val === "";
@@ -198,7 +297,9 @@ export default function PaymentPage() {
     try {
       setLoading(true);
 
-      const invoiceIds = invoices.map((inv) => inv.invoiceId).join(",");
+      const invoiceIds = selectedInvoices
+        .map((inv) => inv.invoiceId)
+        .join(",");
 
       const normalized = {
         ...formData,
@@ -225,10 +326,10 @@ export default function PaymentPage() {
     }
   };
 
-  const grandTotal = invoices.reduce(
-    (sum, inv) => sum + Number(inv.totalInvoiceAmount || 0),
-    0
-  );
+  // ✅ Total only from selected invoices
+  const grandTotal = invoices
+    .filter((inv) => selectedInvoiceIds.includes(inv.invoiceId))
+    .reduce((sum, inv) => sum + Number(inv.totalInvoiceAmount || 0), 0);
 
   return (
     <ThemeProvider theme={theme}>
@@ -276,6 +377,14 @@ export default function PaymentPage() {
                   <table className="w-full border text-sm">
                     <thead className="bg-gray-100">
                       <tr>
+                        <th className="border px-3 py-2 text-center">
+                          <Checkbox
+                            size="small"
+                            checked={allSelectedOnPage}
+                            indeterminate={someSelectedOnPage}
+                            onChange={toggleAllOnPage}
+                          />
+                        </th>
                         <th className="border px-3 py-2 text-left">
                           Invoice No
                         </th>
@@ -285,12 +394,20 @@ export default function PaymentPage() {
                           Amount (INR)
                         </th>
                         <th className="border px-3 py-2 text-left">Remarks</th>
-                        <th className="border px-3 py-2 text-center">Delete</th>
                       </tr>
                     </thead>
                     <tbody>
                       {invoices.map((inv) => (
                         <tr key={inv.invoiceId}>
+                          <td className="border px-3 py-2 text-center">
+                            <Checkbox
+                              size="small"
+                              checked={selectedInvoiceIds.includes(
+                                inv.invoiceId
+                              )}
+                              onChange={() => toggleInvoice(inv.invoiceId)}
+                            />
+                          </td>
                           <td className="border px-3 py-2">{inv.invoiceNo}</td>
                           <td className="border px-3 py-2">
                             {inv.invoiceDate}
@@ -303,14 +420,6 @@ export default function PaymentPage() {
                           </td>
                           <td className="border px-3 py-2">
                             {inv.remarks || "-"}
-                          </td>
-                          <td className="border px-3 py-2 text-center">
-                            <IconButton
-                              color="error"
-                              onClick={() => handleRemoveInvoice(inv.invoiceId)}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
                           </td>
                         </tr>
                       ))}
@@ -349,6 +458,14 @@ export default function PaymentPage() {
                   <table className="w-full border text-sm">
                     <thead className="bg-gray-100">
                       <tr>
+                        <th className="border px-3 py-2 text-center">
+                          <Checkbox
+                            size="small"
+                            checked={allSelectedOnPage}
+                            indeterminate={someSelectedOnPage}
+                            onChange={toggleAllOnPage}
+                          />
+                        </th>
                         <th className="border px-3 py-2 text-left">
                           Invoice No
                         </th>
@@ -358,12 +475,20 @@ export default function PaymentPage() {
                           Amount (INR)
                         </th>
                         <th className="border px-3 py-2 text-left">Remarks</th>
-                        <th className="border px-3 py-2 text-center">Delete</th>
                       </tr>
                     </thead>
                     <tbody>
                       {invoices.map((inv) => (
                         <tr key={inv.invoiceId}>
+                          <td className="border px-3 py-2 text-center">
+                            <Checkbox
+                              size="small"
+                              checked={selectedInvoiceIds.includes(
+                                inv.invoiceId
+                              )}
+                              onChange={() => toggleInvoice(inv.invoiceId)}
+                            />
+                          </td>
                           <td className="border px-3 py-2">{inv.invoiceNo}</td>
                           <td className="border px-3 py-2">
                             {inv.invoiceDate}
@@ -376,14 +501,6 @@ export default function PaymentPage() {
                           </td>
                           <td className="border px-3 py-2">
                             {inv.remarks || "-"}
-                          </td>
-                          <td className="border px-3 py-2 text-center">
-                            <IconButton
-                              color="error"
-                              onClick={() => handleRemoveInvoice(inv.invoiceId)}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
                           </td>
                         </tr>
                       ))}
