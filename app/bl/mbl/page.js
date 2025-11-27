@@ -574,14 +574,7 @@ export default function Home() {
                 buttons={[
                   {
                     text: "Copy Notify Details",
-                    onClick: () =>
-                      copyHandler(
-                        formData,
-                        setFormData,
-                        "left",
-                        mapping,
-                        "Notify details copied to Consignee!"
-                      ),
+                    onClick: handleCopyConsigneeToNotify,
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
                 ]}
