@@ -167,6 +167,9 @@ function TableGrid({
   };
 
   function doubleClickHandler(index) {
+    if (gridId === null) {
+      setGridId(index);
+    }
     const checkRequired = gridRequiredHandler();
     if (!checkRequired) return;
 
