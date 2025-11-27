@@ -119,7 +119,7 @@ export default function InvoiceUpload() {
     const obj = {
       columns: "id",
       tableName: "tblInvoiceRequest",
-      whereCondition: `blNo = '${literal}' AND ISNULL(status,1)=1`,
+      whereCondition: `blNo = '${literal}' AND ISNULL(status,1)=1 and createdDate = (select max(createdDate) from tblInvoiceRequest where blNo = '${literal}')`,
     };
 
     const { success, data } = await getDataWithCondition(obj);
@@ -426,7 +426,9 @@ export default function InvoiceUpload() {
               {invoices.map((_, index) => (
                 <Tab
                   key={index}
-                  label={`Invoice ${index + 1}`}
+                  label={`Invoice No (${
+                    formData?.tblInvoice?.[index]?.invoiceNo ?? index + 1
+                  })`}
                   icon={<CloseIcon onClick={() => handleRemove(index)} />}
                   iconPosition="end"
                 />

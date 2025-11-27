@@ -19,4 +19,6 @@ export {
 export { updateMenuVisibility } from "./showMenuData";
 export { useInitUser, getUserByCookies } from "./userInit";
 export { validateContainerForMBL } from "./validateContainerForMBL";
-export  { roleAccessPaths }  from  './paths'
+export { roleAccessPaths } from "./paths";
+export { validatePanCard } from "./validatePanCard";
+export  { validPinCode }  from  './validPinCode'
