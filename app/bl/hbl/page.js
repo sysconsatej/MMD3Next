@@ -363,7 +363,7 @@ export default function Home() {
         };
       });
     },
-    setTelePhoneNoBasedOnLinerId: async (value) => {
+    setTelePhoneNoBasedOnLinerId: async (name, value) => {
       const obj = {
         columns: "c.telephoneNo",
         tableName: "tblCompany c",
@@ -371,7 +371,7 @@ export default function Home() {
       };
       const getTelePhone = await getDataWithCondition(obj);
 
-      if (!getTelePhone?.data[0]?.telephoneNo && getTelePhone.length > 0) {
+      if (getTelePhone.length > 0 && getTelePhone?.data[0]?.telephoneNo  ===  '') {
         setFormData((prevData) =>
           setInputValue({
             prevData,
