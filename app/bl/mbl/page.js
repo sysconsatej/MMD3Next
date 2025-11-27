@@ -1,7 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ThemeProvider, Box, Typography } from "@mui/material";
-import { mappingConsigneeToNotify, mappingConsigneeToNotifyNoPan, totalFieldData, gridButtons, fieldData } from "./mblData";
+import {
+  mappingConsigneeToNotify,
+  mappingConsigneeToNotifyNoPan,
+  totalFieldData,
+  gridButtons,
+  fieldData,
+} from "./mblData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -25,7 +31,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
 export default function Home() {
-  const [formData, setFormData] = useState({ blStatus: "D", });
+  const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(fieldData);
   const { mode, setMode } = formStore();
@@ -45,8 +51,6 @@ export default function Home() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    if (submitBtn) return;
-    setSubmitBtn(true);
     const packageMismatchError = checkNoPackages({
       formData: formData,
       hblType: "MBL",
@@ -233,15 +237,26 @@ export default function Home() {
 
       return "";
     },
-    validUnoCode: (event) => {
-      const { value } = event;
-      const val = (value ?? "").trim();
+    validUnoImoCode: (event) => {
+      const { value, name } = event.target;
+      const v = String(value).trim();
 
-      if (!val) return;
+      if (!v) return true;
 
-      if (val.length !== 5) {
-        toast.error("UNO Code must be exactly 5 characters.");
+      if (name === "unNo") {
+        if (v.length !== 5) {
+          toast.error("UNO Code must be exactly 5 characters.");
+          return false;
+        }
       }
+
+      if (name === "imoCode") {
+        if (v.length !== 3) {
+          toast.error("IMO Code must be exactly 3 characters.");
+          return false;
+        }
+      }
+      return true;
     },
   };
 
@@ -300,54 +315,16 @@ export default function Home() {
 
   useEffect(() => {
     async function getMblData() {
-      try {
-        // 1️⃣ PACKAGES default for package type (existing logic but safe)
-        const pkgObj = {
-          columns: "id as Id, name as Name",
-          tableName: "tblMasterData",
-          whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
-        };
-
-        const pkgRes = await getDataWithCondition(pkgObj);
-        if (
-          pkgRes?.success &&
-          Array.isArray(pkgRes.data) &&
-          pkgRes.data.length > 0
-        ) {
-          setPackTypeState(pkgRes.data[0]);
-        }
-
-        // 2️⃣ Default Item Type = "OT - Other Cargo" (NO hard-coded Id)
-        //    Only for NEW records (no formId)
-        if (!mode?.formId) {
-          const itemTypeObj = {
-            columns:
-              "m.id as Id, ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'') as Name",
-            tableName: "tblMasterData m",
-            whereCondition: `
-            m.masterListName = 'tblItemType'
-            AND ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'') = 'OT - Other Cargo'
-          `,
-          };
-
-          const itemTypeRes = await getDataWithCondition(itemTypeObj);
-          if (
-            itemTypeRes?.success &&
-            Array.isArray(itemTypeRes.data) &&
-            itemTypeRes.data.length > 0
-          ) {
-            setFormData((prev) =>
-              // don’t override if already set (e.g. in edit mode)
-              prev?.blTypeId ? prev : { ...prev, blTypeId: itemTypeRes.data[0] }
-            );
-          }
-        }
-      } catch (e) {
-        console.error("Error in getMblData:", e);
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
+      };
+      const { data, success } = await getDataWithCondition(obj);
+      if (success) {
+        setPackTypeState(data[0]);
       }
     }
-
-    // 3️⃣ Company / branch defaults (keep as-is)
     setFormData((prev) => ({
       ...prev,
       companyId: {
@@ -359,34 +336,8 @@ export default function Home() {
         Name: userData.branchName,
       },
     }));
-
     getMblData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-
-  const handleCopyConsigneeToNotify = () => {
-    const typeObj = formData?.consigneeTypeId;
-
-    // Label from dropdown
-    const label = String(typeObj?.Name || typeObj?.name || "").toUpperCase();
-
-    const isIEC = label.includes("IEC");
-
-    const selectedMapping = isIEC
-      ? mappingConsigneeToNotifyNoPan
-      : mappingConsigneeToNotify;
-
-    copyHandler(
-      formData,
-      setFormData,
-      "right",
-      selectedMapping,
-      isIEC
-        ? "Consignee details copied to Notify !"
-        : "Consignee details copied to Notify!"
-    );
-  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -502,7 +453,7 @@ export default function Home() {
                         formData,
                         setFormData,
                         "left",
-                        mappingConsigneeToNotify,
+                        mapping,
                         "Notify details copied to Consignee!"
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
@@ -524,12 +475,18 @@ export default function Home() {
                 buttons={[
                   {
                     text: "Copy Consignee Details",
-                    onClick: handleCopyConsigneeToNotify,
+                    onClick: () =>
+                      copyHandler(
+                        formData,
+                        setFormData,
+                        "right",
+                        mapping,
+                        "Consignee details copied to Notify!"
+                      ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
                 ]}
               >
-
                 <Box className="grid grid-cols-4 gap-2 p-2 ">
                   <CustomInput
                     fields={jsonData.notifyFields}
@@ -547,6 +504,7 @@ export default function Home() {
                   formData={formData}
                   setFormData={setFormData}
                   fieldsMode={fieldsMode}
+                  handleBlurEventFunctions={handleBlurEventFunctions}
                 />
               </Box>
               <FormHeading text="Container Details" />
