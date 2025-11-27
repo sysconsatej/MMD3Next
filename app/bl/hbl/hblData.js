@@ -506,6 +506,12 @@ export const fieldData = {
       required: true,
     },
     {
+      label: "Post Code",
+      name: "consigneePinCode",
+      type: "number",
+      isEdit: true,
+    },
+    {
       label: "Address",
       name: "consigneeAddress",
       type: "textarea",
@@ -555,6 +561,12 @@ export const fieldData = {
       foreignTable: "name,tblCountry",
       isEdit: true,
       required: true,
+    },
+    {
+      label: "Post Code",
+      name: "notifyParty1PinCode",
+      type: "number",
+      isEdit: true,
     },
     {
       label: "Address",
