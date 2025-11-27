@@ -290,7 +290,7 @@ export default function InvoiceUpload() {
 
       setFormData((prev) => ({
         ...prev,
-        tblInvoice: fromPdf,
+        tblInvoice: [...(prev?.tblInvoice || []), ...fromPdf],
       }));
 
       setTabValue(fromPdf.length - 1);

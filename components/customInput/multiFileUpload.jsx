@@ -50,7 +50,7 @@ const CompactMultiFileUpload = ({
         : null,
     }));
 
-    const next = [...files, ...mapped];
+    const next = [...mapped];
     setFiles(next);
     onChange?.(next.map((f) => f.file));
   };
