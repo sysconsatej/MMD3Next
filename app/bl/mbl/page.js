@@ -260,6 +260,8 @@ export default function Home() {
     },
   };
 
+
+  // package total
   useEffect(() => {
     if (formData?.tblBlContainer) {
       let packType = formData?.tblBlContainer?.[0]?.packageId;
@@ -290,6 +292,8 @@ export default function Home() {
     }
   }, [formData?.tblBlContainer]);
 
+
+  //  in edit and view mode form fetch
   useEffect(() => {
     async function fetchFormHandler() {
       if (!mode.formId) return;

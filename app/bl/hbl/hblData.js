@@ -609,8 +609,8 @@ export const fieldData = {
       required: true,
     },
     {
-      label: "Post Code",
-      name: "notifyParty1PinCode",
+      label: "Zip Code",
+      name: "notifyParty1PinCode,",
       type: "number",
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",

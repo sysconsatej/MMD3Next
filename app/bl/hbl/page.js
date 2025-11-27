@@ -489,7 +489,6 @@ export default function Home() {
     },
     checkPinCode: (event) => {
       const { name, value } = event.target;
-      console.log(name, value);
       const result = validPinCode(value);
       if (result.error) {
         setFormData((prevData) =>
