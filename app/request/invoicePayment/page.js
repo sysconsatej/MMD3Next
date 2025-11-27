@@ -102,10 +102,7 @@ export default function InvoicePayment() {
     return Number.isFinite(n) ? n : null;
   }, []);
 
-  const sqlEscape = useCallback(
-    (s = "") => String(s).replace(/'/g, "''"),
-    []
-  );
+  const sqlEscape = useCallback((s = "") => String(s).replace(/'/g, "''"), []);
 
   // 🔹 Load containers by BL ID (used in BL check + edit mode)
   const loadBlContainersByBlId = useCallback(async (blId) => {
@@ -119,8 +116,9 @@ export default function InvoicePayment() {
     };
 
     try {
-      const { success, data, message, error } =
-        await getDataWithCondition(payload);
+      const { success, data, message, error } = await getDataWithCondition(
+        payload
+      );
       if (!success) {
         toast.error(error || message || "Failed to fetch BL containers.");
         return;
@@ -251,8 +249,9 @@ export default function InvoicePayment() {
           whereCondition: `i.id = ${mode.formId}`,
         };
 
-        const { data: blData, success: blSuccess } =
-          await getDataWithCondition(blQuery);
+        const { data: blData, success: blSuccess } = await getDataWithCondition(
+          blQuery
+        );
         if (!blSuccess || !blData?.length) return;
 
         const blId = blData[0].blId;
@@ -477,7 +476,7 @@ export default function InvoicePayment() {
         // ADD → always REPLACE with current upload
         setFormData((prev) => ({
           ...prev,
-          tblInvoice: fromPdf,
+          tblInvoice: [...(prev?.tblInvoice || []), ...fromPdf],
         }));
 
         if (fromPdf.length > 0) setTabValue(fromPdf.length - 1);
@@ -534,7 +533,9 @@ export default function InvoicePayment() {
               {invoices.map((_, index) => (
                 <Tab
                   key={index}
-                  label={`Invoice No (${formData?.tblInvoice?.[index]?.invoiceNo ?? index + 1})`}
+                  label={`Invoice No (${
+                    formData?.tblInvoice?.[index]?.invoiceNo ?? index + 1
+                  })`}
                   icon={<CloseIcon onClick={() => handleRemove(index)} />}
                   iconPosition="end"
                   {...a11yProps(index)}
