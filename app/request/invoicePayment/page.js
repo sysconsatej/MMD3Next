@@ -490,8 +490,6 @@ export default function InvoicePayment() {
     }
   };
 
-  console.log('formData', formData?.tblInvoice?.[0]?.invoiceNo);
-
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>

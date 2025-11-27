@@ -392,8 +392,6 @@ export default function InvoiceUpload() {
     toast.success("Invoices uploaded & status updated successfully!");
   };
 
-  console.log('invoiceReqId', invoiceReqId);
-
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
@@ -428,7 +426,9 @@ export default function InvoiceUpload() {
               {invoices.map((_, index) => (
                 <Tab
                   key={index}
-                  label={`Invoice ${index + 1}`}
+                  label={`Invoice No (${
+                    formData?.tblInvoice?.[index]?.invoiceNo ?? index + 1
+                  })`}
                   icon={<CloseIcon onClick={() => handleRemove(index)} />}
                   iconPosition="end"
                 />
