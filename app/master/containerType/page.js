@@ -32,19 +32,40 @@ export default function ContainerType() {
 
   const handleBlurEventFunctions = {
     duplicateHandler: async (event) => {
-      const { value, name } = event.target;
-      const obj = {
-        columns: name,
-        tableName: "tblMasterData",
-        whereCondition: ` ${name} = '${value}' and masterListName = 'tblType'  and status = 1`,
-      };
-      const { success } = await getDataWithCondition(obj);
-      if (success) {
-        setErrorState((prev) => ({ ...prev, [name]: true }));
-        toast.error(`Duplicate ${name}!`);
-      } else {
+      const { name } = event.target;
+      const raw = String(event.target.value ?? "").trim();
+      if (!raw) {
+        setFormData((prev) => ({ ...prev, [name]: "" }));
         setErrorState((prev) => ({ ...prev, [name]: false }));
+        return true;
       }
+      setFormData((prev) => ({ ...prev, [name]: raw }));
+      const literal = raw.replace(/'/g, "''");
+      let where = `
+      ${name} = '${literal}'
+      AND masterListName = 'tblType'
+      AND status = 1
+    `;
+      if (mode?.formId) {
+        where += ` AND id <> ${mode.formId}`;
+      }
+
+      const resp = await getDataWithCondition({
+        columns: "id",
+        tableName: "tblMasterData",
+        whereCondition: where,
+      });
+      const isDuplicate = Array.isArray(resp?.data) && resp.data.length > 0;
+
+      if (isDuplicate) {
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        setFormData((prev) => ({ ...prev, [name]: "" })); 
+        toast.error(`Duplicate ${name}!`);
+        return false;
+      }
+
+      setErrorState((prev) => ({ ...prev, [name]: false }));
+      return true;
     },
   };
 

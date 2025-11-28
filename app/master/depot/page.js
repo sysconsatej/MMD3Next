@@ -28,35 +28,53 @@ export default function Depot() {
       toast.error(error || message);
     }
   };
-  const handleBlurEventFunctions = {
-    duplicateHandler: async (event) => {
-      const { name, value } = event.target;
-      const normalized = String(value ?? "").trim();
-      const literal = normalized.replace(/'/g, "''");
-      const obj = {
-        columns: name,
-        tableName: "tblPort",
-        whereCondition: `
-        UPPER(${name}) = '${literal.toUpperCase()}'
-        AND portTypeId IN (SELECT id FROM tblMasterData WHERE name = 'DEPOT')
-        AND status = 1
-      `,
-      };
-      const resp = await getDataWithCondition(obj);
-      const isDuplicate =
-        resp?.success === true ||
-        (Array.isArray(resp?.data) && resp.data.length > 0);
-      if (isDuplicate) {
-        setErrorState((prev) => ({ ...prev, [name]: true }));
-        setFormData((prev) => ({ ...prev, [name]: "" }));
-        toast.error(`Duplicate ${name}!`);
-        return false;
-      }
-      setFormData((prev) => ({ ...prev, [name]: normalized }));
+ const handleBlurEventFunctions = {
+  duplicateHandler: async (event) => {
+    const { name, value } = event.target;
+    const normalized = String(value ?? "").trim();
+
+    if (!normalized) {
+      setFormData((prev) => ({ ...prev, [name]: "" }));
       setErrorState((prev) => ({ ...prev, [name]: false }));
       return true;
-    },
-  };
+    }
+
+    const literal = normalized.replace(/'/g, "''");
+
+    let where = `
+      UPPER(${name}) = '${literal.toUpperCase()}'
+      AND portTypeId IN (
+        SELECT id FROM tblMasterData WHERE name = 'DEPOT'
+      )
+      AND status = 1
+    `;
+
+    if (mode?.formId) {
+      where += ` AND id <> ${mode.formId}`;
+    }
+
+    const obj = {
+      columns: "id",
+      tableName: "tblPort",
+      whereCondition: where,
+    };
+
+    const resp = await getDataWithCondition(obj);
+
+    const isDuplicate = Array.isArray(resp?.data) && resp.data.length > 0;
+
+    if (isDuplicate) {
+      setErrorState((prev) => ({ ...prev, [name]: true }));
+      setFormData((prev) => ({ ...prev, [name]: "" }));
+      toast.error(`Duplicate ${name}!`);
+      return false;
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: normalized }));
+    setErrorState((prev) => ({ ...prev, [name]: false }));
+    return true;
+  },
+};
 
   useEffect(() => {
     async function fetchFormHandler() {
