@@ -260,7 +260,6 @@ export default function Home() {
     },
   };
 
-
   // package total
   useEffect(() => {
     if (formData?.tblBlContainer) {
@@ -291,7 +290,6 @@ export default function Home() {
       setFormData(updateForm);
     }
   }, [formData?.tblBlContainer]);
-
 
   //  in edit and view mode form fetch
   useEffect(() => {
@@ -424,9 +422,9 @@ export default function Home() {
             prev?.podVoyageId
               ? prev
               : {
-                ...prev,
-                podVoyageId: data[0],
-              }
+                  ...prev,
+                  podVoyageId: data[0],
+                }
           );
         }
       } catch (e) {
@@ -440,12 +438,6 @@ export default function Home() {
       cancelled = true;
     };
   }, [formData?.podVesselId?.Id]);
-
-
-
-
-
-
 
   const handleCopyConsigneeToNotify = () => {
     const typeObj = formData?.consigneeTypeId;
@@ -468,7 +460,6 @@ export default function Home() {
         : "Consignee details copied to Notify!"
     );
   };
-
 
   return (
     <ThemeProvider theme={theme}>
@@ -579,7 +570,14 @@ export default function Home() {
                 buttons={[
                   {
                     text: "Copy Notify Details",
-                    onClick: handleCopyConsigneeToNotify,
+                    onClick: () =>
+                      copyHandler(
+                        formData,
+                        setFormData,
+                        "left",
+                        mappingConsigneeToNotify,
+                        "Notify details copied to Consignee!"
+                      ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
                 ]}
@@ -599,18 +597,11 @@ export default function Home() {
                 buttons={[
                   {
                     text: "Copy Consignee Details",
-                    onClick: () =>
-                      copyHandler(
-                        formData,
-                        setFormData,
-                        "right",
-                        mapping,
-                        "Consignee details copied to Notify!"
-                      ),
+                    onClick: handleCopyConsigneeToNotify,
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
                 ]}
-              //
+                //
               >
                 <Box className="grid grid-cols-4 gap-2 p-2 ">
                   <CustomInput
