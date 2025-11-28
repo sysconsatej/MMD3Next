@@ -205,7 +205,7 @@ export default function InvoiceReleasePage() {
             Invoice Details - <b>BL No. {formData?.blNo || "—"}</b>
           </Typography>
 
-          <CustomButton text="Back" href="/request/invoiceRelease/list" />
+          <CustomButton text="Back" href="/payment/paymentConfirmation/list" />
         </Box>
 
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
