@@ -726,6 +726,19 @@ export const fieldData = {
     //   isEdit: true,
     //   // required: true,
     // },
+     {
+      label: "Custom Seal",
+      name: "customSealNo",
+      isEdit: true,
+      // required: true,
+    },
+    {
+      label: "Agent Seal",
+      name: "agentSealNo",
+      isEdit: true,
+      // required: true,
+    },
+ 
     {
       label: "Container Agent Code",
       name: "containerAgentCode",
