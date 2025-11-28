@@ -615,7 +615,7 @@ export const fieldData = {
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
-      required: true,
+      // required: true,
       blurFun: "checkPinCode",
     },
   ],
