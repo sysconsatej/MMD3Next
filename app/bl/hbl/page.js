@@ -961,6 +961,7 @@ export default function Home() {
                         buttons={gridButtonsWithoutExcel}
                         tabName={"tblBl"}
                         tabIndex={index}
+                        handleBlurEventFunctions={handleBlurEventFunctions}
                       />
                       <FormHeading text="Attachment Details" />
                       <TableGrid
