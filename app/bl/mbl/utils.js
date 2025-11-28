@@ -31,19 +31,20 @@ export function advanceSearchFilter(advanceSearch) {
   if (Object.keys(advanceSearch).length <= 0) return null;
   const condition = [];
 
-  if (advanceSearch.mblNo) {
-    condition.push(`b.mblNo = '${advanceSearch.mblNo}'`);
+  if (advanceSearch.blNo) {
+    condition.push(
+      `(b.mblNo = '${advanceSearch.blNo}') or (b.hblNo = '${advanceSearch.blNo}')`
+    );
   }
 
   if (advanceSearch.mblDate) {
     condition.push(`b.mblDate = '${advanceSearch.mblDate}'`);
   }
-  
+
   return condition.length > 0 ? condition.join(" and ") : null;
 }
 
 export const checkNoPackages = ({ formData, hblType }) => {
-
   if (hblType === "HBL") {
     if (!Array.isArray(formData?.tblBl)) return "";
 

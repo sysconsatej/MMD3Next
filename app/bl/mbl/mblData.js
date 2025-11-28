@@ -988,8 +988,8 @@ export const mappingConsigneeToNotifyNoPan = {
 export const advanceSearchFields = {
   bl: [
     {
-      label: "MBL No",
-      name: "mblNo",
+      label: "BL No",
+      name: "blNo",
       isEdit: true,
     },
     {
