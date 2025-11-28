@@ -33,26 +33,42 @@ export default function Cfs() {
     duplicateHandler: async (event) => {
       const { name, value } = event.target;
       const normalized = String(value ?? "").trim();
+
+      if (!normalized) return true;
+
       const literal = normalized.replace(/'/g, "''");
+
+      let whereDup = `
+      UPPER(${name}) = '${literal.toUpperCase()}'
+      AND portTypeId IN (
+        SELECT id FROM tblMasterData WHERE name = 'CONTAINER FREIGHT STATION'
+      )
+      AND status = 1
+    `;
+
+      if (mode?.formId) {
+        whereDup += ` AND id <> ${mode.formId}`;
+      }
+
       const obj = {
-        columns: name,
+        columns: "id",
         tableName: "tblPort",
-        whereCondition: `
-          UPPER(${name}) = '${literal.toUpperCase()}'
-          AND portTypeId IN (SELECT id FROM tblMasterData WHERE name ='CONTAINER FREIGHT STATION')
-          AND status = 1
-        `,
+        whereCondition: whereDup,
       };
+
       const resp = await getDataWithCondition(obj);
+
       const isDuplicate =
         resp?.success === true ||
         (Array.isArray(resp?.data) && resp.data.length > 0);
+
       if (isDuplicate) {
         setErrorState((prev) => ({ ...prev, [name]: true }));
         setFormData((prev) => ({ ...prev, [name]: "" }));
         toast.error(`Duplicate ${name}!`);
         return false;
       }
+
       setFormData((prev) => ({ ...prev, [name]: normalized }));
       setErrorState((prev) => ({ ...prev, [name]: false }));
       return true;

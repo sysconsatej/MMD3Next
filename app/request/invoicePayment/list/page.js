@@ -265,6 +265,7 @@ export default function InvoicePaymentList() {
           keyColumn="id"
           isPay
           disablePay={disablePay}
+          disableEdit={disablePay}
           onView={(id) => modeHandler("view", id)}
           onEdit={(id) => modeHandler("edit", id)}
           onPay={(ids) => handlePay(Array.isArray(ids) ? ids[0] : ids)}

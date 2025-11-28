@@ -34,22 +34,33 @@ export default function ContainerSize() {
     duplicateHandler: async (event) => {
       const { name, value } = event.target;
       const raw = String(value ?? "").trim();
+
       if (!/^\d{2}$/.test(raw)) {
         setFormData((prev) => ({ ...prev, [name]: "" }));
         setErrorState((prev) => ({ ...prev, [name]: true }));
         toast.error("Value must be exactly two digits (e.g., 20).");
         return false;
       }
+
+      let where = `
+      ${name} = '${raw}'
+      AND masterListName = 'tblSize'
+      AND status = 1
+    `;
+
+      if (mode?.formId) {
+        where += ` AND id <> ${mode.formId}`;
+      }
+
       const obj = {
-        columns: name,
+        columns: "id",
         tableName: "tblMasterData",
-        whereCondition: ` ${name} = '${raw}' AND masterListName = 'tblSize' AND status = 1`,
+        whereCondition: where,
       };
 
       const resp = await getDataWithCondition(obj);
-      const isDuplicate =
-        resp?.success === true ||
-        (Array.isArray(resp?.data) && resp.data.length > 0);
+
+      const isDuplicate = Array.isArray(resp?.data) && resp.data.length > 0;
 
       if (isDuplicate) {
         setFormData((prev) => ({ ...prev, [name]: "" }));
@@ -57,6 +68,7 @@ export default function ContainerSize() {
         toast.error(`Duplicate ${name}!`);
         return false;
       }
+
       setFormData((prev) => ({ ...prev, [name]: raw }));
       setErrorState((prev) => ({ ...prev, [name]: false }));
       return true;
