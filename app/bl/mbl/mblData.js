@@ -809,6 +809,7 @@ export const fieldData = {
       name: "containerAgentCode",
       isEdit: true,
       required: true,
+      blurFun: "panCardValid"
     },
     {
       label: "Cargo Gross Wt(Kgs)",
