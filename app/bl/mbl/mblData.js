@@ -609,6 +609,7 @@ export const fieldData = {
       name: "consigneePinCode",
       type: "number",
       isEdit: true,
+      blurFun:"checkPinCode",
     },
     {
       label: "Email Id",
@@ -632,7 +633,7 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
-    { label: "PAN Number", name: "notifyParty1IdNo", isEdit: true },
+    { label: "PAN Number", name: "notifyParty1IdNo", isEdit: true ,blurFun: "panCardValid"},
     {
       label: "City",
       name: "notifyParty1City",
@@ -671,6 +672,7 @@ export const fieldData = {
       name: "notifyParty1PinCode",
       type: "number",
       isEdit: true,
+      blurFun : "checkPinCode"
     },
     {
       label: "Email Id",
@@ -775,6 +777,18 @@ export const fieldData = {
       name: "soc",
       isEdit: true,
       type: "checkbox",
+      // required: true,
+    },
+    {
+      label: "Custom Seal",
+      // name: "containerAgentCode",
+      isEdit: true,
+      // required: true,
+    },
+    {
+      label: "Agent Seal",
+      // name: "containerAgentCode",
+      isEdit: true,
       // required: true,
     },
     {

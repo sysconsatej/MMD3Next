@@ -23,6 +23,8 @@ import {
   getUserByCookies,
   setInputValue,
   useNextPrevData,
+  validatePanCard,
+  validPinCode,
 } from "@/utils";
 import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -237,6 +239,52 @@ export default function Home() {
 
       return "";
     },
+    panCardValid: (event, { containerIndex, tabIndex }) => {
+      const { value, name } = event.target;
+      const result = validatePanCard(value);
+
+      if (result?.error) {
+        // setFormData((prevData) =>
+        //   setInputValue({
+        //     prevData,
+        //     tabName: "tblBl",
+        //     gridName: "tblBlContainer",
+        //     tabIndex,
+        //     containerIndex,
+        //     name,
+        //     value: null,
+        //   })
+        // );
+        return toast.error(result.error);
+      }
+    },checkPinCode: (event) => {
+  const { name, value } = event.target;
+  const v = (value ?? "").toString().trim();
+
+  // Optional: allow empty value
+  if (!v) return true;
+
+  const result = validPinCode(v);
+
+  if (result?.error) {
+    // if you want to clear the field, uncomment this block:
+    // setFormData((prevData) =>
+    //   setInputValue({
+    //     prevData,
+    //     tabName: "tblBl",
+    //     name,
+    //     value: null,
+    //   })
+    // );
+
+    toast.error("Invalid Post Code");
+    return false;
+  }
+
+  return true;
+},
+
+
     validUnoImoCode: (event) => {
       const { value, name } = event.target;
       const v = String(value).trim();
@@ -467,6 +515,7 @@ export default function Home() {
                     setFormData={setFormData}
                     fieldsMode={fieldsMode}
                     handleChangeEventFunctions={handleChangeEventFunctions}
+                    handleBlurEventFunctions={handleBlurEventFunctions}
                   />
                 </Box>
               </FormHeading>
@@ -494,6 +543,7 @@ export default function Home() {
                     setFormData={setFormData}
                     fieldsMode={fieldsMode}
                     handleChangeEventFunctions={handleChangeEventFunctions}
+                    handleBlurEventFunctions={handleBlurEventFunctions}
                   />
                 </Box>
               </FormHeading>
