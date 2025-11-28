@@ -792,18 +792,18 @@ export const fieldData = {
       type: "checkbox",
       // required: true,
     },
-    {
-      label: "Custom Seal",
-      // name: "containerAgentCode",
-      isEdit: true,
-      // required: true,
-    },
-    {
-      label: "Agent Seal",
-      // name: "containerAgentCode",
-      isEdit: true,
-      // required: true,
-    },
+    // {
+    //   label: "Custom Seal",
+    //   // name: "containerAgentCode",
+    //   isEdit: true,
+    //   // required: true,
+    // },
+    // {
+    //   label: "Agent Seal",
+    //   // name: "containerAgentCode",
+    //   isEdit: true,
+    //   // required: true,
+    // },
     {
       label: "Container Agent Code",
       name: "containerAgentCode",
