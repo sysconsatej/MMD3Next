@@ -74,7 +74,7 @@ export const RejectModal = ({ rejectState, setRejectState, rejectHandler }) => {
 };
 
 export default function InvoiceRequest() {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({isFreeDays: "F"});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData] = useState(data);
 

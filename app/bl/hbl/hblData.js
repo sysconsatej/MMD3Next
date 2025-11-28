@@ -798,7 +798,6 @@ export const fieldData = {
       foreignTable: "unNo-class,tblImo",
       isEdit: true,
       blurFun: "validUnoImoCode",
-
     },
     {
       label: "No of Packages",
@@ -821,6 +820,19 @@ export const fieldData = {
     },
   ],
   tblAttachment: [
+    {
+      label: "Select",
+      name: "attachmentTypeId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      idColumn: "id",
+      displayColumn: "m.name",
+      searchColumn: "m.name",
+      orderBy: "m.name",
+      where: "m.masterListName = 'tblBlTypeAttachment'",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+    },
     {
       label: "Upload File",
       name: "path",

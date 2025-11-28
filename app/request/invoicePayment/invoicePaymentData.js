@@ -16,6 +16,13 @@ const fieldData = {
       required: true,
     },
     {
+      label: "BL No",
+      name: "blNo",
+      isEdit: true,
+      required: true,
+      blurFun: "checkBlForCompany",
+    },
+    {
       label: "Location",
       name: "location",
       type: "dropdown",
@@ -25,13 +32,7 @@ const fieldData = {
       foreignTable: "name,tblPort",
       isEdit: true,
     },
-    {
-      label: "BL No",
-      name: "blNo",
-      isEdit: true,
-      required: true,
-      blurFun: "checkBlForCompany",
-    },
+
     // {
     //   label: "Type",
     //   name: "typeId",
