@@ -23,6 +23,8 @@ import {
   getUserByCookies,
   setInputValue,
   useNextPrevData,
+  validatePanCard,
+  validPinCode,
 } from "@/utils";
 import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -237,6 +239,42 @@ export default function Home() {
 
       return "";
     },
+    panCardValid: (event, { containerIndex, tabIndex }) => {
+      const { value, name } = event.target;
+      const result = validatePanCard(value);
+
+      if (result?.error) {
+        // setFormData((prevData) =>
+        //   setInputValue({
+        //     prevData,
+        //     tabName: "tblBl",
+        //     gridName: "tblBlContainer",
+        //     tabIndex,
+        //     containerIndex,
+        //     name,
+        //     value: null,
+        //   })
+        // );
+        return toast.error(result.error);
+      }
+    },
+    checkPinCode: (event) => {
+      const { name, value } = event.target;
+      console.log(name, value);
+      const result = validPinCode(value);
+      if (result.error) {
+        // setFormData((prevData) =>
+        //   setInputValue({
+        //     prevData,
+        //     tabName: "tblBl",
+        //     name,
+        //     value: null,
+        //   })
+        // );
+        return toast.error(result.error);
+      }
+    },
+
     validUnoImoCode: (event) => {
       const { value, name } = event.target;
       const v = String(value).trim();
@@ -260,7 +298,6 @@ export default function Home() {
     },
   };
 
-  // package total
   useEffect(() => {
     if (formData?.tblBlContainer) {
       let packType = formData?.tblBlContainer?.[0]?.packageId;
@@ -291,7 +328,6 @@ export default function Home() {
     }
   }, [formData?.tblBlContainer]);
 
-  //  in edit and view mode form fetch
   useEffect(() => {
     async function fetchFormHandler() {
       if (!mode.formId) return;
@@ -317,49 +353,16 @@ export default function Home() {
 
   useEffect(() => {
     async function getMblData() {
-      try {
-        const pkgObj = {
-          columns: "id as Id, name as Name",
-          tableName: "tblMasterData",
-          whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
-        };
-
-        const pkgRes = await getDataWithCondition(pkgObj);
-        if (
-          pkgRes?.success &&
-          Array.isArray(pkgRes.data) &&
-          pkgRes.data.length > 0
-        ) {
-          setPackTypeState(pkgRes.data[0]);
-        }
-
-        if (!mode?.formId) {
-          const itemTypeObj = {
-            columns:
-              "m.id as Id, ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'') as Name",
-            tableName: "tblMasterData m",
-            whereCondition: `
-            m.masterListName = 'tblItemType'
-            AND ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'') = 'OT - Other Cargo'
-          `,
-          };
-
-          const itemTypeRes = await getDataWithCondition(itemTypeObj);
-          if (
-            itemTypeRes?.success &&
-            Array.isArray(itemTypeRes.data) &&
-            itemTypeRes.data.length > 0
-          ) {
-            setFormData((prev) =>
-              prev?.blTypeId ? prev : { ...prev, blTypeId: itemTypeRes.data[0] }
-            );
-          }
-        }
-      } catch (e) {
-        console.error("Error in getMblData:", e);
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
+      };
+      const { data, success } = await getDataWithCondition(obj);
+      if (success) {
+        setPackTypeState(data[0]);
       }
     }
-
     setFormData((prev) => ({
       ...prev,
       companyId: {
@@ -370,96 +373,9 @@ export default function Home() {
         Id: userData.branchId,
         Name: userData.branchName,
       },
-      shippingLineId: prev?.shippingLineId ?? {
-        Id: userData.companyId,
-        Name: userData.companyName,
-      },
-      mloId: prev?.mloId ?? {
-        Id: userData.companyId,
-        Name: userData.companyName,
-      },
     }));
     getMblData();
   }, []);
-
-  useEffect(() => {
-    const vesselId = formData?.podVesselId?.Id;
-
-    // 🔹 If vessel is cleared → also clear voyage and exit
-    if (!vesselId) {
-      if (formData?.podVoyageId) {
-        setFormData((prev) => ({
-          ...prev,
-          podVoyageId: null,
-        }));
-      }
-      return;
-    }
-
-    // 🔹 If voyage already set → do nothing
-    if (formData?.podVoyageId) return;
-
-    let cancelled = false;
-
-    async function autoSetVoyageIfSingle() {
-      try {
-        const obj = {
-          columns: "t.id as Id, t.voyageNo as Name",
-          tableName: "tblVoyage t",
-          whereCondition: `t.vesselId = ${vesselId} and t.status = 1`,
-          orderBy: "t.voyageNo",
-        };
-
-        const { data, success } = await getDataWithCondition(obj);
-
-        if (
-          !cancelled &&
-          success &&
-          Array.isArray(data) &&
-          data.length === 1 // ✅ only when exactly ONE row
-        ) {
-          setFormData((prev) =>
-            prev?.podVoyageId
-              ? prev
-              : {
-                  ...prev,
-                  podVoyageId: data[0],
-                }
-          );
-        }
-      } catch (e) {
-        console.error("autoSetVoyageIfSingle error:", e);
-      }
-    }
-
-    autoSetVoyageIfSingle();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [formData?.podVesselId?.Id]);
-
-  const handleCopyConsigneeToNotify = () => {
-    const typeObj = formData?.consigneeTypeId;
-
-    const label = String(typeObj?.Name || typeObj?.name || "").toUpperCase();
-
-    const isIEC = label.includes("IEC");
-
-    const selectedMapping = isIEC
-      ? mappingConsigneeToNotifyNoPan
-      : mappingConsigneeToNotify;
-
-    copyHandler(
-      formData,
-      setFormData,
-      "right",
-      selectedMapping,
-      isIEC
-        ? "Consignee details copied to Notify !"
-        : "Consignee details copied to Notify!"
-    );
-  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -575,7 +491,7 @@ export default function Home() {
                         formData,
                         setFormData,
                         "left",
-                        mappingConsigneeToNotify,
+                        mapping,
                         "Notify details copied to Consignee!"
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
@@ -589,6 +505,7 @@ export default function Home() {
                     setFormData={setFormData}
                     fieldsMode={fieldsMode}
                     handleChangeEventFunctions={handleChangeEventFunctions}
+                    handleBlurEventFunctions={handleBlurEventFunctions}
                   />
                 </Box>
               </FormHeading>
@@ -597,11 +514,17 @@ export default function Home() {
                 buttons={[
                   {
                     text: "Copy Consignee Details",
-                    onClick: handleCopyConsigneeToNotify,
+                    onClick: () =>
+                      copyHandler(
+                        formData,
+                        setFormData,
+                        "right",
+                        mapping,
+                        "Consignee details copied to Notify!"
+                      ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
                 ]}
-                //
               >
                 <Box className="grid grid-cols-4 gap-2 p-2 ">
                   <CustomInput
@@ -610,6 +533,7 @@ export default function Home() {
                     setFormData={setFormData}
                     fieldsMode={fieldsMode}
                     handleChangeEventFunctions={handleChangeEventFunctions}
+                    handleBlurEventFunctions={handleBlurEventFunctions}
                   />
                 </Box>
               </FormHeading>

@@ -11,7 +11,7 @@ import {
   Paper,
   Typography,
   CssBaseline,
-  Checkbox,
+  Link,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import CustomButton from "@/components/button/button";
@@ -26,7 +26,6 @@ import { formStore } from "@/store";
 import { advanceSearchFields } from "../mblData";
 import { advanceSearchFilter } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
-import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
 import ReportPickerModal from "@/components/ReportPickerModal/reportPickerModal";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
@@ -35,9 +34,6 @@ const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
   .split(/\s+/)[0]
   .replace(/^dbo\./i, "");
-const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
-const CHECKBOX_CELL_SX = { width: 32, minWidth: 32, maxWidth: 32 };
-const CHECKBOX_SX = { p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } };
 
 const REPORTS = [
   { key: "Survey Letter", label: "Survey Letter" },
@@ -47,7 +43,8 @@ const REPORTS = [
 const REPORT_ROUTE = "/htmlReports/rptDoLetter";
 
 function createData(
-  mblNo,
+  blNo,
+  hblNo,
   mblDate,
   consigneeText,
   pol,
@@ -58,10 +55,12 @@ function createData(
   arrivalVoyage,
   line,
   id,
-  clientId
+  clientId,
+  mblHblFlag
 ) {
   return {
-    mblNo,
+    blNo,
+    hblNo,
     mblDate,
     consigneeText,
     pol,
@@ -73,6 +72,7 @@ function createData(
     line,
     id,
     clientId,
+    mblHblFlag,
   };
 }
 
@@ -101,11 +101,11 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "b.mblNo mblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId",
+            "coalesce(b.hblNo, b.mblNo)  blNo, iif(b.hblNo is null, (select id, hblNo from tblBl where mblNo =  b.mblNo and status = 1 and mblHblFlag = 'HBL' and shippingLineId = u.companyId for json path), null) hblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId, b.mblHblFlag mblHblFlag",
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
-          joins: `left join tblPort p on p.id = b.polId left join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId left join tblUser u on u.id = ${userData.userId} left join tblUser usr1 on usr1.companyId = u.companyId join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'MBL' and b1.status = 1 and b1.createdBy = usr1.id`,
+          joins: `left join tblPort p on p.id = b.polId left join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId left join tblUser u on u.id = ${userData.userId} left join tblUser usr1 on usr1.companyId = u.companyId join tblBl b1 on (b1.id = b.id and b1.status = 1 and  b1.mblHblFlag = 'MBL' and b1.createdBy = usr1.id) or (b1.id = b.id and b1.shippingLineId = u.companyId and b1.status = 1 and b1.mblHblFlag = 'HBL')`,
           advanceSearch: advanceSearchFilter(advanceSearch),
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
@@ -130,21 +130,23 @@ export default function BLList() {
 
   const rows = blData
     ? blData.map((item) =>
-      createData(
-        item["mblNo"],
-        item["mblDate"],
-        item["consigneeText"],
-        item["pol"],
-        item["pod"],
-        item["fpd"],
-        item["cargoMovement"],
-        item["arrivalVessel"],
-        item["arrivalVoyage"],
-        item["line"],
-        item["id"],
-        item["clientId"]
+        createData(
+          item["blNo"],
+          item["hblNo"],
+          item["mblDate"],
+          item["consigneeText"],
+          item["pol"],
+          item["pod"],
+          item["fpd"],
+          item["cargoMovement"],
+          item["arrivalVessel"],
+          item["arrivalVoyage"],
+          item["line"],
+          item["id"],
+          item["clientId"],
+          item["mblHblFlag"]
+        )
       )
-    )
     : [];
 
   useEffect(() => {
@@ -186,13 +188,18 @@ export default function BLList() {
     }
   };
 
-  const modeHandler = (mode, formId = null) => {
+  const modeHandler = (mode, formId = null, flag) => {
     if (mode === "delete") {
       handleDeleteRecord(formId);
       return;
     }
-    setMode({ mode, formId });
-    router.push("/bl/mbl");
+    if (flag === "MBL") {
+      setMode({ mode, formId });
+      router.push("/bl/mbl");
+    } else if (flag === "HBL") {
+      setMode({ mode, formId: `${formId}` });
+      router.push("/bl/hbl");
+    }
   };
 
   const handlePrint = (id, clientId) => {
@@ -248,7 +255,8 @@ export default function BLList() {
                     sx={CHECKBOX_SX}
                   />
                 </TableCell> */}
-                <TableCell>MBL NO</TableCell>
+                <TableCell>BL NO</TableCell>
+                <TableCell>Reference BL NO</TableCell>
                 <TableCell>MBL date</TableCell>
                 <TableCell>Consignee Name</TableCell>
                 <TableCell>POL</TableCell>
@@ -263,15 +271,21 @@ export default function BLList() {
               {rows.length > 0 ? (
                 rows.map((row) => (
                   <TableRow key={row.id} hover className="relative group ">
-                    {/* <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
-                      <Checkbox
-                        size="small"
-                        checked={selectedIds.includes(row.id)}
-                        onChange={() => toggleOne(row.id)}
-                        sx={CHECKBOX_SX}
-                      />
-                    </TableCell> */}
-                    <TableCell>{row.mblNo}</TableCell>
+                    <TableCell>{row.blNo}</TableCell>
+                    <TableCell>
+                      {row?.hblNo &&
+                        JSON.parse(row?.hblNo)?.map((item, idx) => (
+                          <Link
+                            key={idx}
+                            href="#"
+                            underline="hover"
+                            onClick={() => modeHandler("view", item?.id, "HBL")}
+                          >
+                            {item?.hblNo}
+                            {idx < JSON.parse(row?.hblNo).length - 1 && ", "}
+                          </Link>
+                        ))}
+                    </TableCell>
                     <TableCell>{row.mblDate}</TableCell>
                     <TableCell>{row.consigneeText}</TableCell>
                     <TableCell>{row.pol}</TableCell>
@@ -284,8 +298,12 @@ export default function BLList() {
                         <span>{row.arrivalVoyage}</span>
                         <span className="opacity-0 group-hover:opacity-100 transition-opacity">
                           <HoverActionIcons
-                            onView={() => modeHandler("view", row.id)}
-                            onEdit={() => modeHandler("edit", row.id)}
+                            onView={() =>
+                              modeHandler("view", row.id, row.mblHblFlag)
+                            }
+                            onEdit={() =>
+                              modeHandler("edit", row.id, row.mblHblFlag)
+                            }
                             onDelete={() => modeHandler("delete", row.id)}
                             onPrint={() => handlePrint(row.id, row.clientId)}
                             menuAccess={data ?? {}}

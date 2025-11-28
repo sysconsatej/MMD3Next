@@ -23,6 +23,7 @@ import {
   formFormatThirdLevel,
   getUserByCookies,
   setInputValue,
+  setVoyageBasedonVessel,
   useNextPrevData,
   validateContainerForMBL,
   validatePanCard,
@@ -364,6 +365,19 @@ export default function Home() {
       });
     },
     setTelePhoneNoBasedOnLinerId: async (name, value) => {
+      // console.log(!val)
+
+      //  if (!value?.Id) {
+      //   console.log("hell")
+      //   setFormData((prev) =>
+      //     setInputValue({
+      //       prev,
+      //       name: "podVesselId",
+      //       value: {},
+      //     })
+      //   );
+      // }
+
       const obj = {
         columns: "c.telephoneNo",
         tableName: "tblCompany c",
@@ -394,6 +408,60 @@ export default function Home() {
       );
 
       return "";
+    },
+    selectVoyageNoBasedOnVessel: async (name, value) => {
+      const linerId =
+        (userData?.roleCode === "shipper" &&
+          formData?.shippingLineId === userData?.companyId) ||
+        (userData?.roleCode === "customer" && formData?.shippingLineId);
+
+      if (!linerId) {
+        return toast.error("Pls Select Liner");
+      }
+
+      if (!value?.Id) {
+        const clearValues = ["shippingLineId", "podVoyageId"];
+        clearValues.map((info) => {
+          setFormData((prev) =>
+            setInputValue({
+              prev,
+              name: info,
+              value: {},
+            })
+          );
+        });
+
+        return "";
+      }
+
+      // cha is there then selected and shipper is their then login
+
+      const { data } = await setVoyageBasedonVessel({
+        vesselId: value?.Id,
+        companyId: formData?.shippingLineId?.Id,
+      });
+
+      if (Array.isArray(data)) {
+        if (data.length === 1) {
+          setFormData((prevData) =>
+            setInputValue({
+              prevData,
+              name: "podVoyageId",
+              value: data[0] || {},
+            })
+          );
+        }
+
+        if (data.length > 1) {
+          setFormData((prevData) =>
+            setInputValue({
+              prevData,
+              name: "podVoyageId",
+              value: {},
+            })
+          );
+        }
+      }
     },
   };
 
@@ -724,6 +792,8 @@ export default function Home() {
     getHblStatus();
   }, []);
 
+  console.log(formData, "{}}");
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
@@ -961,6 +1031,7 @@ export default function Home() {
                         buttons={gridButtonsWithoutExcel}
                         tabName={"tblBl"}
                         tabIndex={index}
+                        handleBlurEventFunctions={handleBlurEventFunctions}
                       />
                       <FormHeading text="Attachment Details" />
                       <TableGrid

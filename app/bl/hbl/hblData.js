@@ -67,6 +67,7 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblVessel",
       isEdit: true,
+      changeFun : "selectVoyageNoBasedOnVessel",
     },
     {
       label: "Voyage",
@@ -80,6 +81,7 @@ export const fieldData = {
       orderBy: "t.voyageNo",
       foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
+      // changeFun  : "checkVesselId"
     },
     {
       label: "Type of Cargo",
@@ -609,8 +611,8 @@ export const fieldData = {
       required: true,
     },
     {
-      label: "Zip Code",
-      name: "notifyParty1PinCode,",
+      label: "Post Code",
+      name: "notifyParty1PinCode",
       type: "number",
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
@@ -711,6 +713,18 @@ export const fieldData = {
       name: "soc",
       isEdit: true,
       type: "checkbox",
+    },
+    {
+      label: "Custom Seal",
+      // name: "containerAgentCode",
+      isEdit: true,
+      // required: true,
+    },
+    {
+      label: "Agent Seal",
+      // name: "containerAgentCode",
+      isEdit: true,
+      // required: true,
     },
     {
       label: "Container Agent Code",
