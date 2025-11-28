@@ -371,7 +371,10 @@ export default function Home() {
       };
       const getTelePhone = await getDataWithCondition(obj);
 
-      if (getTelePhone.length > 0 && getTelePhone?.data[0]?.telephoneNo  ===  '') {
+      if (
+        getTelePhone.length > 0 &&
+        getTelePhone?.data[0]?.telephoneNo === ""
+      ) {
         setFormData((prevData) =>
           setInputValue({
             prevData,
@@ -470,6 +473,7 @@ export default function Home() {
     },
     panCardValid: (event, { containerIndex, tabIndex }) => {
       const { value, name } = event.target;
+      if (value?.length === 0) return "";
       const result = validatePanCard(value);
 
       if (result?.error) {
@@ -489,7 +493,6 @@ export default function Home() {
     },
     checkPinCode: (event) => {
       const { name, value } = event.target;
-      console.log(name, value);
       const result = validPinCode(value);
       if (result.error) {
         setFormData((prevData) =>
@@ -502,6 +505,27 @@ export default function Home() {
         );
         return toast.error(result.error);
       }
+    },
+    validUnoImoCode: (event) => {
+      const { value, name } = event.target;
+      const v = String(value).trim();
+
+      if (!v) return true;
+
+      if (name === "unNo") {
+        if (v.length !== 5) {
+          toast.error("UNO Code must be exactly 5 characters.");
+          return false;
+        }
+      }
+
+      if (name === "imoCode") {
+        if (v.length !== 3) {
+          toast.error("IMO Code must be exactly 3 characters.");
+          return false;
+        }
+      }
+      return true;
     },
   };
 
@@ -937,6 +961,7 @@ export default function Home() {
                         buttons={gridButtonsWithoutExcel}
                         tabName={"tblBl"}
                         tabIndex={index}
+                        handleBlurEventFunctions={handleBlurEventFunctions}
                       />
                       <FormHeading text="Attachment Details" />
                       <TableGrid

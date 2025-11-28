@@ -542,13 +542,13 @@ export const fieldData = {
       required: true,
     },
     {
-      label: "Zip Code",
+      label: "Post Code",
       name: "consigneePinCode",
       type: "number",
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
-      required: true,
+      // required: true,
       blurFun: "checkPinCode",
     },
   ],
@@ -615,7 +615,7 @@ export const fieldData = {
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
-      required: true,
+      // required: true,
       blurFun: "checkPinCode",
     },
   ],
@@ -797,6 +797,7 @@ export const fieldData = {
       orderBy: "m.unNo, m.class",
       foreignTable: "unNo-class,tblImo",
       isEdit: true,
+      blurFun: "validUnoImoCode",
     },
     {
       label: "IMO Code",
@@ -808,6 +809,8 @@ export const fieldData = {
       orderBy: "m.unNo, m.class",
       foreignTable: "unNo-class,tblImo",
       isEdit: true,
+      blurFun: "validUnoImoCode",
+
     },
     {
       label: "No of Packages",

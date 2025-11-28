@@ -44,15 +44,27 @@ export default function Cargo() {
 
       const cleaned = raw.replace(/'/g, "''");
 
+      let where = `
+      ${name} = '${cleaned}'
+      AND masterListName = 'tblCargoType'
+      AND status = 1
+    `;
+
+      if (mode?.formId) {
+        where += ` AND id <> ${mode.formId}`;
+      }
+
       const obj = {
-        columns: name,
+        columns: "id", 
         tableName: "tblMasterData",
-        whereCondition: ` ${name} = '${cleaned}' AND masterListName = 'tblCargoType' AND status = 1`,
+        whereCondition: where,
       };
 
-      const { success } = await getDataWithCondition(obj);
+      const resp = await getDataWithCondition(obj);
 
-      if (success) {
+      const isDuplicate = Array.isArray(resp?.data) && resp.data.length > 0;
+
+      if (isDuplicate) {
         setErrorState((prev) => ({ ...prev, [name]: true }));
         return toast.error(`Duplicate ${name}!`);
       } else {

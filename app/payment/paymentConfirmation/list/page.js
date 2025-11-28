@@ -204,7 +204,7 @@ export default function InvoiceRequestList() {
             p.id id,
             p.blId blId,
             p.createdDate paymentDate,
-            b.mblNo blNo,
+            ISNULL(hblNo, mblNo) blNo,
             r.isFreeDays DoExtension,
             u1.name PayorName,
             m.name paymentType,

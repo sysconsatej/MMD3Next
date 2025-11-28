@@ -42,13 +42,9 @@ export default function UnitType() {
         setFormData((prev) => ({ ...prev, [name]: val }));
       const setErr = (flag) =>
         setErrorState?.((prev) => ({ ...prev, [name]: flag }));
+
       const normalized = norm(name, value);
       setField(normalized);
-      // if (!normalized) {
-      //   setErr(true);
-      //   toast.error("Value cannot be empty.");
-      //   return false;
-      // }
       if (name === "code") {
         if (!/^[A-Z]{2}$/.test(normalized)) {
           setField("");
@@ -64,17 +60,21 @@ export default function UnitType() {
       }
 
       const literal = toSql(normalized.toUpperCase());
-      const whereCondition = `UPPER(${name}) = '${literal}' AND masterListName = 'tblItemType' AND status = 1`;
+      let whereCondition = `
+      UPPER(${name}) = '${literal}'
+      AND masterListName = 'tblItemType'
+      AND status = 1
+    `;
+      if (mode?.formId) {
+        whereCondition += ` AND id <> ${mode.formId}`;
+      }
 
       const resp = await getDataWithCondition({
-        columns: name,
+        columns: "id",
         tableName: "tblMasterData",
         whereCondition,
       });
-
-      const isDuplicate =
-        resp?.success === true ||
-        (Array.isArray(resp?.data) && resp.data.length > 0);
+      const isDuplicate = Array.isArray(resp?.data) && resp.data.length > 0;
 
       if (isDuplicate) {
         setField("");
@@ -87,6 +87,7 @@ export default function UnitType() {
       return true;
     },
   };
+
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {

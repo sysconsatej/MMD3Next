@@ -20,6 +20,7 @@ export const fieldData = {
       foreignTable: "name,tblCompany",
       required: true,
       isEdit: true,
+      disabled: true,
     },
     // {
     //   label: "Company",
@@ -374,14 +375,26 @@ export const fieldData = {
       isEdit: true,
     },
     {
+      label: "Nature of Cargo",
+      name: "natureOfCargoId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
+      searchColumn: "m.name",
+      orderBy: "m.name",
+      foreignTable: "code-name,tblMasterData",
+      where: "m.masterListName = 'tblTypeOfShipment'",
+      isEdit: true,
+    },
+    {
       label: "MLO Code",
       name: "mloId",
       type: "dropdown",
-      displayColumn: "c.panNo",
-      tableName: "tblCompany c",
-      where: "c.panNo is not null and ltrim(rtrim(c.panNo)) <> ''",
-      orderBy: "c.panNo",
-      foreignTable: "panNo,tblCompany",
+      tableName: "tblCompany t",
+      displayColumn: "t.name",
+      orderBy: "t.name",
+      foreignTable: "name,tblCompany",
+      required: true,
       isEdit: true,
     },
     {
@@ -990,8 +1003,8 @@ export const mappingConsigneeToNotifyNoPan = {
 export const advanceSearchFields = {
   bl: [
     {
-      label: "MBL No",
-      name: "mblNo",
+      label: "BL No",
+      name: "blNo",
       isEdit: true,
     },
     {

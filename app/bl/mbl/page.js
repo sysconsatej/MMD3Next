@@ -142,7 +142,7 @@ export default function Home() {
     setISOBySize: async (name, value, { containerIndex, tabIndex }) => {
       const typeId = formData?.tblBlContainer[containerIndex]?.typeId?.Id;
       const obj = {
-        columns: `s.id id, s.isocode Name`,
+        columns: `s.id Id, s.isocode Name`,
         tableName: "tblIsocode s",
         joins:
           "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
@@ -178,7 +178,7 @@ export default function Home() {
     setISOByType: async (name, value, { containerIndex, tabIndex }) => {
       const sizeId = formData?.tblBlContainer[containerIndex]?.sizeId?.Id;
       const obj = {
-        columns: `s.id id, s.isocode Name`,
+        columns: `s.id Id, s.isocode Name`,
         tableName: "tblIsocode s",
         joins:
           "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
@@ -257,33 +257,23 @@ export default function Home() {
         // );
         return toast.error(result.error);
       }
-    },checkPinCode: (event) => {
-  const { name, value } = event.target;
-  const v = (value ?? "").toString().trim();
-
-  // Optional: allow empty value
-  if (!v) return true;
-
-  const result = validPinCode(v);
-
-  if (result?.error) {
-    // if you want to clear the field, uncomment this block:
-    // setFormData((prevData) =>
-    //   setInputValue({
-    //     prevData,
-    //     tabName: "tblBl",
-    //     name,
-    //     value: null,
-    //   })
-    // );
-
-    toast.error("Invalid Post Code");
-    return false;
-  }
-
-  return true;
-},
-
+    },
+    checkPinCode: (event) => {
+      const { name, value } = event.target;
+      console.log(name, value);
+      const result = validPinCode(value);
+      if (result.error) {
+        // setFormData((prevData) =>
+        //   setInputValue({
+        //     prevData,
+        //     tabName: "tblBl",
+        //     name,
+        //     value: null,
+        //   })
+        // );
+        return toast.error(result.error);
+      }
+    },
 
     validUnoImoCode: (event) => {
       const { value, name } = event.target;
