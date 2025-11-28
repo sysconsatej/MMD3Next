@@ -11,7 +11,7 @@ import {
   Paper,
   Typography,
   CssBaseline,
-  Checkbox,
+  Link,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import CustomButton from "@/components/button/button";
@@ -26,7 +26,6 @@ import { formStore } from "@/store";
 import { advanceSearchFields } from "../mblData";
 import { advanceSearchFilter } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
-import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
 import ReportPickerModal from "@/components/ReportPickerModal/reportPickerModal";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
@@ -35,9 +34,6 @@ const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
   .split(/\s+/)[0]
   .replace(/^dbo\./i, "");
-const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
-const CHECKBOX_CELL_SX = { width: 32, minWidth: 32, maxWidth: 32 };
-const CHECKBOX_SX = { p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } };
 
 const REPORTS = [
   { key: "Survey Letter", label: "Survey Letter" },
@@ -105,7 +101,7 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "coalesce(b.hblNo, b.mblNo)  blNo, iif(b.hblNo is null, (select string_agg(hblNo, ',') from tblBl where mblNo =  b.mblNo and status = 1 and mblHblFlag = 'HBL' and shippingLineId = u.companyId), null) hblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId, b.mblHblFlag mblHblFlag",
+            "coalesce(b.hblNo, b.mblNo)  blNo, iif(b.hblNo is null, (select id, hblNo from tblBl where mblNo =  b.mblNo and status = 1 and mblHblFlag = 'HBL' and shippingLineId = u.companyId for json path), null) hblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId, b.mblHblFlag mblHblFlag",
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
@@ -275,16 +271,21 @@ export default function BLList() {
               {rows.length > 0 ? (
                 rows.map((row) => (
                   <TableRow key={row.id} hover className="relative group ">
-                    {/* <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
-                      <Checkbox
-                        size="small"
-                        checked={selectedIds.includes(row.id)}
-                        onChange={() => toggleOne(row.id)}
-                        sx={CHECKBOX_SX}
-                      />
-                    </TableCell> */}
                     <TableCell>{row.blNo}</TableCell>
-                    <TableCell>{row.hblNo}</TableCell>
+                    <TableCell>
+                      {row?.hblNo &&
+                        JSON.parse(row?.hblNo)?.map((item, idx) => (
+                          <Link
+                            key={idx}
+                            href="#"
+                            underline="hover"
+                            onClick={() => modeHandler("view", item?.id, "HBL")}
+                          >
+                            {item?.hblNo}
+                            {idx < JSON.parse(row?.hblNo).length - 1 && ", "}
+                          </Link>
+                        ))}
+                    </TableCell>
                     <TableCell>{row.mblDate}</TableCell>
                     <TableCell>{row.consigneeText}</TableCell>
                     <TableCell>{row.pol}</TableCell>
