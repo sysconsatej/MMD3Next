@@ -198,10 +198,11 @@ export const fieldData = {
       name: "cinType",
       type: "dropdown",
       tableName: "tblMasterData m",
-      displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
-      where: "m.masterListName = 'tblSubmitterType'",
+      displayColumn: "m.name",
+      searchColumn: "m.name",
       orderBy: "m.name",
-      foreignTable: "code-name,tblMasterData",
+      foreignTable: "name,tblMasterData",
+      where: "m.masterListName = 'tblCINType'",
       isEdit: true,
     },
     {
@@ -621,6 +622,7 @@ export const fieldData = {
       name: "consigneePinCode",
       type: "number",
       isEdit: true,
+      blurFun:"checkPinCode",
     },
     {
       label: "Email Id",
@@ -644,7 +646,7 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
-    { label: "PAN Number", name: "notifyParty1IdNo", isEdit: true },
+    { label: "PAN Number", name: "notifyParty1IdNo", isEdit: true ,blurFun: "panCardValid"},
     {
       label: "City",
       name: "notifyParty1City",
@@ -683,6 +685,7 @@ export const fieldData = {
       name: "notifyParty1PinCode",
       type: "number",
       isEdit: true,
+      blurFun : "checkPinCode"
     },
     {
       label: "Email Id",
@@ -790,10 +793,23 @@ export const fieldData = {
       // required: true,
     },
     {
+      label: "Custom Seal",
+      // name: "containerAgentCode",
+      isEdit: true,
+      // required: true,
+    },
+    {
+      label: "Agent Seal",
+      // name: "containerAgentCode",
+      isEdit: true,
+      // required: true,
+    },
+    {
       label: "Container Agent Code",
       name: "containerAgentCode",
       isEdit: true,
       required: true,
+      blurFun: "panCardValid"
     },
     {
       label: "Cargo Gross Wt(Kgs)",
