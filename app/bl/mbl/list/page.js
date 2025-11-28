@@ -276,6 +276,7 @@ export default function BLList() {
                       {row?.hblNo &&
                         JSON.parse(row?.hblNo)?.map((item, idx) => (
                           <Link
+                            key={idx}
                             href="#"
                             underline="hover"
                             onClick={() => modeHandler("view", item?.id, "HBL")}
