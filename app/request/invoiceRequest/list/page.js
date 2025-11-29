@@ -112,7 +112,7 @@ export default function InvoiceRequestList() {
     const row = rows.find((r) => r.id === selectedIds[0]);
     if (!row) return false;
     const st = (row.status || "").toLowerCase();
-    return st === "requested" || st === "released";
+    return st === "requested";
   }, [selectedIds, rows]);
 
   /* ---------------------- DATA FETCH LOGIC ---------------------- */
