@@ -43,6 +43,8 @@ const ErrorList = ({ errorGrid, fileName }) => {
   useEffect(() => {
     setErrorData(errorGrid);
     setTotalRows(errorGrid.length);
+    setTotalPage(Math.ceil(errorGrid.length / e.target.value));
+    setPage(1);
   }, [errorGrid]);
 
   return (
