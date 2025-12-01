@@ -426,7 +426,7 @@ export default function InvoicePayment() {
       if (!filesArr.length) return;
 
       const parsed = await extractTextFromPdfs(filesArr);
-
+      console.log("Extracted invoice data from PDFs:", parsed);
       if (!Array.isArray(parsed) || parsed.length === 0) {
         toast.warn("No invoice data found in uploaded file(s).");
         return;
