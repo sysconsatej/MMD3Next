@@ -43,6 +43,8 @@ import {
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { TopActionIcons } from "@/components/tableHoverIcons/tableHoverIconsPayment";
 import { getUserByCookies } from "@/utils";
+import AttachFileIcon from "@mui/icons-material/AttachFile"; // 🔹 NEW
+import { InvoiceModal } from "../utils"; // 🔹 adjust path as per your file
 
 const LIST_TABLE = "tblInvoicePayment p";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -131,6 +133,12 @@ export default function InvoiceRequestList() {
   const someChecked =
     selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
 
+  // 🔹 NEW: modal state for attachments
+  const [modal, setModal] = useState({
+    toggle: false,
+    value: null, // will hold paymentId
+  });
+
   const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
   const toggleOne = (id) =>
     setSelectedIds((prev) =>
@@ -182,7 +190,7 @@ export default function InvoiceRequestList() {
           id: rejectState.paymentId,
           paymentStatusId: id,
           remarks: rejectState.value,
-          // invoiceIds: null, 
+          // invoiceIds: null,
         },
       ],
     };
@@ -199,30 +207,50 @@ export default function InvoiceRequestList() {
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
+        // 🔹 Build advanced search WHERE from UI
+        const advWhere = advanceSearchFilter(advanceSearch);
+
+        // 🔹 Default: hide "Payment Rejected" when NO status filter is selected
+        let finalWhere = advWhere;
+        if (!advanceSearch.statusId || advanceSearch.statusId.length === 0) {
+          const hideRejected = `
+          p.paymentStatusId <> (
+            SELECT TOP 1 id
+            FROM tblMasterData
+            WHERE masterListName = 'tblPaymentStatus'
+              AND name = 'Payment Rejected'
+          )
+        `;
+          finalWhere = finalWhere
+            ? `${finalWhere} AND ${hideRejected}`
+            : hideRejected;
+        }
+
         const tableObj = {
           columns: `
-            p.id id,
-            p.blId blId,
-            p.createdDate paymentDate,
-            ISNULL(hblNo, mblNo) blNo,
-            r.isFreeDays DoExtension,
-            u1.name PayorName,
-            m.name paymentType,
-            p.bankName BankName,
-            p.referenceNo PaymentRefNo,
-            p.Amount Amount,
-            ms.name status
-          `,
+          p.id id,
+          p.blId blId,
+          p.createdDate paymentDate,
+          ISNULL(hblNo, mblNo) blNo,
+          r.isFreeDays DoExtension,
+          u1.name PayorName,
+          m.name paymentType,
+          p.bankName BankName,
+          p.referenceNo PaymentRefNo,
+          p.Amount Amount,
+          ms.name status
+        `,
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
-          advanceSearch: advanceSearchFilter(advanceSearch),
+          // 🔹 pass combined WHERE (advanced + default hide rejected)
+          advanceSearch: finalWhere,
           joins: `left join tblUser u on u.id = ${userData.userId}
-            left join tblUser u1 on u1.id=p.createdBy
-            join tblBl b on b.id = p.blId and b.shippingLineId = u.companyId
-            left join tblInvoiceRequest r on r.blNo=b.mblNo
-            left join tblMasterData m on m.id=p.paymentTypeId
-            left join tblMasterData ms on ms.id=p.paymentStatusId`,
+          left join tblUser u1 on u1.id=p.createdBy
+          join tblBl b on b.id = p.blId and b.shippingLineId = u.companyId
+          left join tblInvoiceRequest r on r.blNo=b.mblNo
+          left join tblMasterData m on m.id=p.paymentTypeId
+          left join tblMasterData ms on ms.id=p.paymentStatusId`,
           orderBy: "order by p.createdDate desc",
         };
 
@@ -265,29 +293,6 @@ export default function InvoiceRequestList() {
 
   const handleChangePage = (_e, newPage) => getData(newPage, rowsPerPage);
   const handleChangeRowsPerPage = (e) => getData(1, +e.target.value);
-
-  const handleDeleteRecord = async (recordId) => {
-    const obj = { recordId, tableName: UPDATE_TABLE };
-    const { success, message, error } = await deleteRecord(obj);
-    if (success) {
-      toast.success(message);
-      getData(page, rowsPerPage);
-    } else {
-      toast.error(error || message);
-    }
-  };
-
-  const modeHandler = useCallback(
-    (mode, formId = null) => {
-      if (mode === "delete") {
-        if (formId != null) handleDeleteRecord(formId);
-        return;
-      }
-      setMode({ mode: mode || null, formId });
-      router.push("/request/invoiceRequest");
-    },
-    [router, setMode]
-  );
 
   return (
     <ThemeProvider theme={theme}>
@@ -378,15 +383,16 @@ export default function InvoiceRequestList() {
                 <TableCell>Reference No</TableCell>
                 <TableCell>Amount</TableCell>
                 <TableCell>Status</TableCell>
-
+                {/* 🔹 NEW column header */}
+                <TableCell>Attachments</TableCell>
                 <TableCell sx={ACTIONS_HEAD_SX}>Actions</TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
               {rows.length > 0 ? (
-                rows.map((row) => (
-                  <TableRow key={row.id} hover>
+                rows.map((row, _index) => (
+                  <TableRow key={_index} hover>
                     <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <Checkbox
                         size="small"
@@ -404,11 +410,9 @@ export default function InvoiceRequestList() {
                         underline="hover"
                         onClick={(e) => {
                           e.preventDefault();
-                          // open Invoice Release in view mode for this BL
                           formStore
                             .getState()
                             .setMode({ mode: "view", formId: row.blId });
-                          // navigate with blId as query for robustness
                           window.location.href = `/request/invoiceRelease?blId=${row.blId}`;
                         }}
                         sx={{ cursor: "pointer", fontWeight: 500 }}
@@ -426,6 +430,21 @@ export default function InvoiceRequestList() {
                     <TableCell sx={{ color: paymentStatusColor(row.status) }}>
                       {row.status}
                     </TableCell>
+
+                    {/* 🔹 NEW Attachments icon cell */}
+                    <TableCell>
+                      <AttachFileIcon
+                        sx={{ cursor: "pointer", fontSize: 16 }}
+                        onClick={() =>
+                          setModal((prev) => ({
+                            ...prev,
+                            toggle: true,
+                            value: row.id, // paymentId
+                          }))
+                        }
+                      />
+                    </TableCell>
+
                     <TableCell sx={ACTIONS_CELL_SX}>
                       <TopActionIcons
                         show={{
@@ -454,7 +473,8 @@ export default function InvoiceRequestList() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={10} align="center">
+                  {/* now 12 columns total */}
+                  <TableCell colSpan={12} align="center">
                     {loadingState}
                   </TableCell>
                 </TableRow>
@@ -481,11 +501,16 @@ export default function InvoiceRequestList() {
           </Box>
         </Box>
       </Box>
+
       <RejectModal
         rejectState={rejectState}
         setRejectState={setRejectState}
         rejectHandler={rejectHandlerFinal}
       />
+
+      {/* 🔹 Attachments modal */}
+      <InvoiceModal modal={modal} setModal={setModal} />
+
       <ToastContainer />
     </ThemeProvider>
   );

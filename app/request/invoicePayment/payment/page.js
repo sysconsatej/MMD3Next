@@ -27,6 +27,8 @@ import { CustomInput } from "@/components/customInput";
 import CustomButton from "@/components/button/button";
 import FormHeading from "@/components/formHeading/formHeading";
 import data from "./paymentData";
+import TableGrid from "@/components/tableGrid/tableGrid";
+import { cfsGridButtons } from "@/app/master/user/userData";
 
 export default function PaymentPage() {
   const searchParams = useSearchParams();
@@ -273,9 +275,7 @@ export default function PaymentPage() {
     }
 
     // Validate required offline payment fields
-    const requiredFields = data.paymentOfflineFields.filter(
-      (f) => f.required
-    );
+    const requiredFields = data.paymentOfflineFields.filter((f) => f.required);
     const emptyFields = requiredFields.filter((f) => {
       const val = formData[f.name];
       return val === undefined || val === null || val === "";
@@ -297,9 +297,7 @@ export default function PaymentPage() {
     try {
       setLoading(true);
 
-      const invoiceIds = selectedInvoices
-        .map((inv) => inv.invoiceId)
-        .join(",");
+      const invoiceIds = selectedInvoices.map((inv) => inv.invoiceId).join(",");
 
       const normalized = {
         ...formData,
@@ -308,7 +306,7 @@ export default function PaymentPage() {
         paymentStatusId, // 🔥 status = Payment Confirmation Requested
       };
 
-      const payload = formatFormData("tblInvoicePayment", normalized);
+      const payload = formatFormData("tblInvoicePayment",  normalized, null, 'invoicePaymentId');
 
       const { success, message, error } = await insertUpdateForm(payload);
 
@@ -522,6 +520,16 @@ export default function PaymentPage() {
                     formData={formData}
                     setFormData={setFormData}
                     fieldsMode={fieldsMode}
+                  />
+                </Box>
+                <Box className="mt-2">
+                  <TableGrid
+                    fields={data.tblAttachment}
+                    formData={formData}
+                    setFormData={setFormData}
+                    fieldsMode={fieldsMode}
+                    gridName="tblAttachment"
+                    buttons={cfsGridButtons}
                   />
                 </Box>
 

@@ -74,7 +74,7 @@ export const RejectModal = ({ rejectState, setRejectState, rejectHandler }) => {
 };
 
 export default function InvoiceRequest() {
-  const [formData, setFormData] = useState({isFreeDays: "F"});
+  const [formData, setFormData] = useState({ isFreeDays: "F" });
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData] = useState(data);
 
@@ -311,6 +311,31 @@ export default function InvoiceRequest() {
       const normalized = String(value ?? "").trim();
       if (!normalized) return true;
 
+      const literal = normalized.replace(/'/g, "''");
+      // Duplicate check â€“ ignore same record when editing
+      let whereDup = `blNo = '${literal}' AND status = 1 and companyId='${userData.companyId}'`;
+      if (mode?.formId) {
+        whereDup += ` AND id <> ${mode.formId}`;
+      }
+
+      const obj = {
+        columns: "id",
+        tableName: "tblInvoiceRequest",
+        whereCondition: whereDup,
+      };
+
+      const resp = await getDataWithCondition(obj);
+
+      const isDuplicate =
+        resp?.success && Array.isArray(resp?.data) && resp.data.length > 0;
+
+      if (isDuplicate) {
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        setFormData((prev) => ({ ...prev, [name]: "" }));
+        toast.error(`Invoice Request already exists for BL No ${normalized}.`);
+        return false;
+      }
+
       // Not duplicate → store value
       setFormData((prev) => ({ ...prev, [name]: normalized }));
       setErrorState((prev) => ({ ...prev, [name]: false }));
@@ -411,16 +436,35 @@ export default function InvoiceRequest() {
       toast.error("Requested status missing in master");
       return;
     }
+    if (!formData?.blNo) {
+      toast.error("BL No is required before sending Request");
+      return;
+    }
 
+    const obj = {
+      columns: "id",
+      tableName: "tblInvoiceRequest",
+      whereCondition: `blNo = '${formData.blNo}' and status = 1 and companyId='${userData.companyId}'`,
+    };
+
+    const { data, success, message, error } = await getDataWithCondition(obj);
+    if (!success || !Array.isArray(data) || data.length === 0) {
+      toast.error(
+        message ||
+          error ||
+          "Invoice Request record not found. Please save first."
+      );
+      return;
+    }
+
+    const rowsPayload = data.map((row) => ({
+      id: row.id,
+      invoiceRequestStatusId: requestStatusId,
+    }));
     const res = await updateStatusRows({
       tableName: "tblInvoiceRequest",
       keyColumn: "id",
-      rows: [
-        {
-          id: mode.formId,
-          invoiceRequestStatusId: requestStatusId,
-        },
-      ],
+      rows: rowsPayload,
     });
 
     if (res?.success) {
@@ -582,14 +626,13 @@ export default function InvoiceRequest() {
 
             {/* Request */}
             {userData?.roleCode === "customer" &&
-              mode.status !== "Confirm" &&
-              (mode.mode === "view" || mode.mode === "edit") && (
-                <CustomButton
-                  text="Request"
-                  onClick={requestHandler}
-                  disabled={!canRequest || loading}
-                />
-              )}
+              mode.status !=="Confirm" &&(
+                  <CustomButton
+                    text="Request"
+                    onClick={requestHandler}
+                    disabled={!canRequest || loading}
+                  />
+                )}
 
             {/* Liner Release */}
             {/* {showReleaseBtn && (

@@ -784,7 +784,7 @@ export const fieldData = {
       foreignTable: "code-name,tblMasterData",
       isEdit: true,
     },
-    { label: "Seal No.", name: "agentSealNo", isEdit: true },
+    // { label: "Seal No.", name: "agentSealNo", isEdit: true },
     {
       label: "SOC Flag",
       name: "soc",
@@ -792,18 +792,31 @@ export const fieldData = {
       type: "checkbox",
       // required: true,
     },
-    {
+    // {
+    //   label: "Custom Seal",
+    //   // name: "containerAgentCode",
+    //   isEdit: true,
+    //   // required: true,
+    // },
+    // {
+    //   label: "Agent Seal",
+    //   // name: "containerAgentCode",
+    //   isEdit: true,
+    //   // required: true,
+    // },
+     {
       label: "Custom Seal",
-      // name: "containerAgentCode",
+      name: "customSealNo",
       isEdit: true,
       // required: true,
     },
     {
       label: "Agent Seal",
-      // name: "containerAgentCode",
+      name: "agentSealNo",
       isEdit: true,
       // required: true,
     },
+ 
     {
       label: "Container Agent Code",
       name: "containerAgentCode",
