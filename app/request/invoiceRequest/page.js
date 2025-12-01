@@ -592,9 +592,9 @@ export default function InvoiceRequest() {
               )}
 
             {/* Liner Release */}
-            {showReleaseBtn && (
+            {/* {showReleaseBtn && (
               <CustomButton text="Release" onClick={releaseHandler} />
-            )}
+            )} */}
 
             {/* Liner Reject */}
             {showRejectBtn && (
