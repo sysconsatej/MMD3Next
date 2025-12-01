@@ -260,7 +260,7 @@ export default function InvoicePayment() {
         await loadBlContainersByBlId(blId);
 
         const allInvoicesQuery = {
-          columns: "id",
+          columns: "id,invoiceRequestId",
           tableName: "tblInvoice",
           whereCondition: `blId = ${blId} AND ISNULL(status,1)=1`,
         };
@@ -313,7 +313,7 @@ export default function InvoicePayment() {
         setFieldsMode(mode.mode || "");
         setTabValue(0);
       } catch (err) {
-        console.error("❌ Error fetching Invoice Payment:", err);
+        console.error("Error fetching Invoice Payment:", err);
         toast.error("Error loading invoice data.");
       }
     }
@@ -324,6 +324,10 @@ export default function InvoicePayment() {
   const submitHandler = async (e) => {
     e.preventDefault();
 
+    if (!invoiceReqId) {
+      toast.error("Against this BL No, no Invoice Request exists.");
+      return;
+    }
     try {
       const blId = formData?.blId;
       if (!blId) {
