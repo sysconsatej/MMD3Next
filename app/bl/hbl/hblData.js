@@ -152,7 +152,7 @@ export const fieldData = {
 
     {
       label: "Mobile No",
-      name: "telephoneNo",
+      name: "shippingLineTelNo",
       isEdit: true,
       type: "number",
     },
@@ -707,7 +707,7 @@ export const fieldData = {
       foreignTable: "code-name,tblMasterData",
       isEdit: true,
     },
-    { label: "Seal No.", name: "agentSealNo", isEdit: true },
+    // { label: "Seal No.", name: "agentSealNo", isEdit: true },
     {
       label: "SOC Flag",
       name: "soc",
