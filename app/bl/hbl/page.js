@@ -392,7 +392,7 @@ export default function Home() {
         setFormData((prevData) =>
           setInputValue({
             prevData,
-            name: "telephoneNo",
+            name: "shippingLineTelNo",
             value: "",
           })
         );
@@ -402,7 +402,7 @@ export default function Home() {
       setFormData((prevData) =>
         setInputValue({
           prevData,
-          name: "telephoneNo",
+          name: "shippingLineTelNo",
           value: getTelePhone?.data[0]?.telephoneNo || "",
         })
       );
