@@ -113,7 +113,7 @@ export default function InvoicePaymentList() {
     c.name AS beneficiary,
     MAX(cat.name) AS category,
     MAX(ipAgg.remarks) AS remark,
-    MAX(ipAgg.statusName) AS status,
+    iif(min(i.invoicePaymentId) = max(i.invoicePaymentId), max(ipAgg.statusName), null) AS status,
     case when max(u3.roleCode) = 'shipping' then cast(0 as bit) else cast(1 as bit) end as isEdit
   `,
           tableName: "tblInvoice i",
@@ -130,22 +130,22 @@ export default function InvoicePaymentList() {
       SELECT *
       FROM (
         SELECT
-          ip.blId,
+          ip.invoiceIds,
           ip.remarks,
           m.name AS statusName,
           ip.paymentStatusId AS statusId,
           ip.id AS ids,
           ROW_NUMBER() OVER (
-            PARTITION BY ip.blId
+            PARTITION BY ip.invoiceIds
             ORDER BY ip.id DESC          -- or ip.createdDate DESC
           ) AS rn
         FROM tblInvoicePayment ip
         LEFT JOIN tblMasterData m ON m.id = ip.paymentStatusId
       ) x
       WHERE x.rn = 1                     -- latest payment per BL
-    ) AS ipAgg ON ipAgg.blId = i.blId
+    ) AS ipAgg ON i.id in (select try_cast(value as int) from string_split(ipAgg.invoiceIds, ','))
   `,
-          groupBy: "GROUP BY ir.blNo, c.name",
+          groupBy: "GROUP BY ir.blNo, c.name, i.invoicePaymentId",
           orderBy: "ORDER BY MAX(i.createdDate) DESC",
           pageNo,
           pageSize,
