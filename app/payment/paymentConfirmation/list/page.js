@@ -190,7 +190,7 @@ export default function InvoiceRequestList() {
           id: rejectState.paymentId,
           paymentStatusId: id,
           remarks: rejectState.value,
-          invoiceIds: null,
+          // invoiceIds: null,
         },
       ],
     };
