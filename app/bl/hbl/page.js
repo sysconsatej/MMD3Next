@@ -752,6 +752,7 @@ export default function Home() {
 
   useEffect(() => {
     async function getHblStatus() {
+      // 1) Default PACKAGES for package type
       const obj1 = {
         columns: "id as Id, name as Name",
         tableName: "tblMasterData",
@@ -764,6 +765,7 @@ export default function Home() {
         setPackTypeState(data1[0]);
       }
 
+      // 2) HBL status master
       const obj = {
         columns: "id as Id, name as Name",
         tableName: "tblMasterData",
@@ -774,6 +776,7 @@ export default function Home() {
         setHblStatus(data);
       }
 
+      // 3) Company + branch from logged-in user
       setFormData((prev) => {
         return {
           ...prev,
@@ -787,10 +790,37 @@ export default function Home() {
           },
         };
       });
+
+      // 4) 🔹 Default CIN Type = "PCIN" for NEW requests only
+      if (!mode.formId) {
+        const cinObj = {
+          columns: "m.id as Id, m.name as Name",
+          tableName: "tblMasterData m",
+          whereCondition: `
+            m.masterListName = 'tblCINType'
+            AND m.name = 'PCIN'
+          `,
+        };
+
+        const { data: cinData, success: cinSuccess } =
+          await getDataWithCondition(cinObj);
+
+        if (
+          cinSuccess &&
+          Array.isArray(cinData) &&
+          cinData.length > 0
+        ) {
+          setFormData((prev) =>
+            // don't override if already set (edit mode / user changed)
+            prev?.cinType ? prev : { ...prev, cinType: cinData[0] }
+          );
+        }
+      }
     }
 
     getHblStatus();
   }, []);
+
 
   console.log(formData, "{}}");
 

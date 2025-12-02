@@ -33,7 +33,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
 export default function Home() {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({ blStatus: "D", });
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(fieldData);
   const { mode, setMode } = formStore();
@@ -373,9 +373,158 @@ export default function Home() {
         Id: userData.branchId,
         Name: userData.branchName,
       },
+      ...(!mode?.formId
+        ? {
+          // set only if empty, for safety
+          ...(!prev?.shippingLineId && {
+            shippingLineId: {
+              Id: userData.companyId,
+              Name: userData.companyName,
+            },
+          }),
+          ...(!prev?.mloId && {
+            mloId: {
+              Id: userData.companyId,
+              Name: userData.companyName,
+            },
+          }),
+        }
+        : {}),
     }));
+    if (mode?.formId) return;
+
+    let cancelled = false;
+
+    async function getMblData() {
+      try {
+        const itemTypeObj = {
+          columns:
+            "m.id as Id, ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'') as Name",
+          tableName: "tblMasterData m",
+          whereCondition: `
+          m.masterListName = 'tblItemType'
+          AND ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'') = 'OT - Other Cargo'
+        `,
+        };
+
+        const itemTypeRes = await getDataWithCondition(itemTypeObj);
+        if (
+          !cancelled &&
+          itemTypeRes?.success &&
+          Array.isArray(itemTypeRes.data) &&
+          itemTypeRes.data.length > 0
+        ) {
+          setFormData((prev) =>
+            // don't override if something already set later by user/fetch
+            prev?.blTypeId ? prev : { ...prev, blTypeId: itemTypeRes.data[0] }
+          );
+        }
+        const natureObj = {
+          columns:
+            "m.id as Id, ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'') as Name",
+          tableName: "tblMasterData m",
+          whereCondition: `
+          m.masterListName = 'tblTypeOfShipment'
+          AND ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'') = 'C - Containerised Cargo'
+        `,
+        };
+        const natureRes = await getDataWithCondition(natureObj);
+        if (
+          !cancelled &&
+          natureRes?.success &&
+          Array.isArray(natureRes.data) &&
+          natureRes.data.length > 0
+        ) {
+          setFormData((prev) =>
+            prev?.natureOfCargoId
+              ? prev
+              : { ...prev, natureOfCargoId: natureRes.data[0] }
+          );
+        }
+        const cinObj = {
+          columns: "m.id as Id, m.name as Name",
+          tableName: "tblMasterData m",
+          whereCondition: `
+          m.masterListName = 'tblCINType'
+          AND m.name = 'PCIN'
+        `,
+        };
+
+        const cinRes = await getDataWithCondition(cinObj);
+        if (
+          !cancelled &&
+          cinRes?.success &&
+          Array.isArray(cinRes.data) &&
+          cinRes.data.length > 0
+        ) {
+          setFormData((prev) =>
+            // don't override if user / fetch already set
+            prev?.cinType ? prev : { ...prev, cinType: cinRes.data[0] }
+          );
+        }
+      } catch (e) {
+        if (!cancelled) {
+          console.error("Error in getMblData:", e);
+        }
+      }
+    }
     getMblData();
   }, []);
+
+  useEffect(() => {
+    const vesselId = formData?.podVesselId?.Id;
+
+    // ðŸ”¹ If vessel is cleared â†’ also clear voyage and exit
+    if (!vesselId) {
+      if (formData?.podVoyageId) {
+        setFormData((prev) => ({
+          ...prev,
+          podVoyageId: null,
+        }));
+      }
+      return;
+    }
+
+    if (formData?.podVoyageId) return;
+
+    let cancelled = false;
+
+    async function autoSetVoyageIfSingle() {
+      try {
+        const obj = {
+          columns: "t.id as Id, t.voyageNo as Name",
+          tableName: "tblVoyage t",
+          whereCondition: `t.vesselId = ${vesselId} and t.status = 1`,
+          orderBy: "t.voyageNo",
+        };
+
+        const { data, success } = await getDataWithCondition(obj);
+        if (
+          !cancelled &&
+          success &&
+          Array.isArray(data) &&
+          data.length === 1 // âœ… only when exactly ONE row
+        ) {
+          setFormData((prev) =>
+            prev?.podVoyageId
+              ? prev
+              : {
+                ...prev,
+                podVoyageId: data[0],
+              }
+          );
+        }
+      } catch (e) {
+        console.error("autoSetVoyageIfSingle error:", e);
+      }
+    }
+
+    autoSetVoyageIfSingle();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [formData?.podVesselId?.Id]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -491,7 +640,7 @@ export default function Home() {
                         formData,
                         setFormData,
                         "left",
-                        mapping,
+                        mappingConsigneeToNotify,
                         "Notify details copied to Consignee!"
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
@@ -514,14 +663,22 @@ export default function Home() {
                 buttons={[
                   {
                     text: "Copy Consignee Details",
-                    onClick: () =>
+                    onClick: () => {
+                      const consigneeTypeName = formData?.consigneeTypeId?.Name;
+
+                      const mapping =
+                        consigneeTypeName === "PAN"
+                          ? mappingConsigneeToNotify
+                          : mappingConsigneeToNotifyNoPan;
+
                       copyHandler(
                         formData,
                         setFormData,
                         "right",
                         mapping,
                         "Consignee details copied to Notify!"
-                      ),
+                      );
+                    },
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
                 ]}
