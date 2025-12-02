@@ -231,12 +231,12 @@ export const navItems = [
       {
         name: "DO Confirm Report",
         href: "/reports/customAndPort/doConfirmReport",
-        isShow: false,
+        isShow: true,
       },
       {
         name: "Invoice Conversion Report",
         href: "/reports/customAndPort/invoiceConversionReport",
-        isShow: false,
+        isShow: true,
       },
       {
         name: "Invoice Request",

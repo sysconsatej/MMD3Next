@@ -11,7 +11,7 @@ export const roleAccessPaths = {
   "/request/doRequest/list": ["shipping", "customer"],
 
   "/reports/customAndPort/shippingBill": ["shipping", "customer"],
-  "/reports/customAndPort/doConfirmReport": ["shipping"],
+  "/reports/customAndPort/doConfirmReport": ["shipping","customer"],
   "/reports/customAndPort/invoiceConversionReport": ["shipping"],
   "/reports/customAndPort/invoiceRequest": ["shipping"],
   "/reports/customAndPort/receipt": ["shipping"],
@@ -21,7 +21,6 @@ export const roleAccessPaths = {
   "/reports/customAndPort/vesselSummaryReport": ["shipping"],
   "/reports/customAndPort/igmGenerationAuditReport": ["shipping"],
   "/reports/customAndPort/allPayments": ["customer"],
-  "/reports/customAndPort/doConfirmReport": ["customer"],
   "/reports/customAndPort/invoiceReport": ["customer"],
   "/reports/customAndPort/pendingInvoice": ["customer"],
   "/reports/customAndPort/releasedDo": ["customer"],

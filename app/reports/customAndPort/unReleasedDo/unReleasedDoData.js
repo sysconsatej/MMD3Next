@@ -1,5 +1,5 @@
 const fieldData = {
-  cargoFields: [
+  unReleasedDoFields: [
     {
       label: "Vessel",
       name: "vessel",
