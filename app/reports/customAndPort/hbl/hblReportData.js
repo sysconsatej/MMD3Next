@@ -1,7 +1,7 @@
 const fieldData = {
-  unReleasedDoFields: [
+  hblReportsFields: [
     {
-      label: "Location",
+      label: "Freight Forwarder",
       name: "podId",
       type: "dropdown",
       tableName: "tblPort p",
@@ -11,15 +11,21 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "From Date",
-      name: "fromDate",
-      type: "date",
+      label: "MBL NO",
+      name: "mblno",
+      type: "text",
       isEdit: true,
     },
     {
-      label: " Date ",
-      name: "toDate",
-      type: "date",
+      label: "HBL NO",
+      name: "hblno",
+      type: "text",
+      isEdit: true,
+    },
+    {
+      label: "Status",
+      name: "status",
+      type: "text",
       isEdit: true,
     },
     {
@@ -46,14 +52,24 @@ const fieldData = {
       orderBy: "t.voyageNo",
       isEdit: true,
     },
-    
     {
-      label: "Bl No",
-      name: "status",
-      type: "text",
+      label: "From Date",
+      name: "fromDate",
+      type: "date",
       isEdit: true,
     },
-  
+    {
+      label: " To Date ",
+      name: "toDate",
+      type: "date",
+      isEdit: true,
+    },
+    {
+      label: "Pod",
+      name: "podId",
+      type: "dropdown",
+      isEdit: true,
+    },
     
   ],
 };

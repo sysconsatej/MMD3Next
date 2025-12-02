@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data, { metaData } from "./doConfirmReportData";
+import data, { metaData } from "./releasedDoShipperData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 import { exportExcel } from "@/utils/dynamicReportUtils";
 import { getUserByCookies } from "@/utils";
 
-export default function DoConfirmReport() {
+export default function ReleasedDoShipper() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
@@ -131,13 +131,13 @@ export default function DoConfirmReport() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              Do Confirm Report
+              Released Do Shipper
             </h1>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
-                fields={jsonData.doConfirmReportFields}
+                fields={jsonData.releaseddoshipperFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
