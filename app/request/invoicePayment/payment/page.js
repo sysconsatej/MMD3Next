@@ -136,7 +136,7 @@ export default function PaymentPage() {
             LEFT JOIN tblCompany c ON c.id = b.companyId
             LEFT JOIN tblMasterData cat ON cat.id = i.invoiceCategoryId
           `,
-          whereCondition: `i.blId = ${blId} AND ISNULL(i.status,1)=1 AND i.invoiceRequestId = (
+          whereCondition: `i.blId = ${blId} AND i.invoicePaymentId is null AND ISNULL(i.status,1)=1 AND i.invoiceRequestId = (
               SELECT TOP 1 invoiceRequestId
               FROM tblInvoice
               WHERE blId = ${blId}
