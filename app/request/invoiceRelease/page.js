@@ -85,7 +85,7 @@ export default function InvoiceReleasePage() {
         const invQ = {
           columns: "id",
           tableName: "tblInvoice",
-          whereCondition: `blId = ${Number(blId)} AND ISNULL(status,1)=1`,
+          whereCondition: `invoicePaymentId = ${mode.formId} AND status = 1`,
         };
         const { success: invOk, data: invRows } = await getDataWithCondition(
           invQ

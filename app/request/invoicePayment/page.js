@@ -141,7 +141,7 @@ export default function InvoicePayment() {
     const payload = {
       columns: "id",
       tableName: "tblInvoiceRequest",
-      whereCondition: `blNo = '${blNo}' and status = 1 and createdDate = (select max(createdDate) from tblInvoiceRequest where blNo = '${blNo}')`,
+      whereCondition: `blNo = '${blNo}' and companyId = ${userData.companyId} and status = 1 and createdDate = (select max(createdDate) from tblInvoiceRequest where blNo = '${blNo}' and companyId = ${userData.companyId} and status = 1 )`,
     };
 
     try {
@@ -238,7 +238,8 @@ export default function InvoicePayment() {
             c.name AS beneficiaryName,
             c.id AS beneficiaryId,
             b.fpdId,
-            p.name AS fpdName
+            p.name AS fpdName,
+            i.invoicePaymentId as invoicePaymentId
           `,
           tableName: "tblInvoice i",
           joins: `
@@ -258,11 +259,16 @@ export default function InvoicePayment() {
 
         // 👉 initialise containerData in edit mode
         await loadBlContainersByBlId(blId);
+        await setInvoiceRequestId(blData?.[0]?.blNo)
 
         const allInvoicesQuery = {
           columns: "id",
           tableName: "tblInvoice",
-          whereCondition: `blId = ${blId} AND ISNULL(status,1)=1`,
+          whereCondition: `blId = ${blId} and invoicePaymentId  ${
+            blData?.[0]?.invoicePaymentId
+              ? "= " + blData?.[0]?.invoicePaymentId
+              : "is null"
+          } AND status=1`,
         };
         const { data: invoiceList, success: invSuccess } =
           await getDataWithCondition(allInvoicesQuery);
