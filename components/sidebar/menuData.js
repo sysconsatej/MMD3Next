@@ -226,7 +226,77 @@ export const navItems = [
       {
         name: "Shipping Bill",
         href: "/reports/customAndPort/shippingBill",
-        isShow: false,
+        isShow: true,
+      },
+      {
+        name: "DO Confirm Report",
+        href: "/reports/customAndPort/doConfirmReport",
+        isShow: true,
+      },
+      {
+        name: "Invoice Conversion Report",
+        href: "/reports/customAndPort/invoiceConversionReport",
+        isShow: true,
+      },
+      {
+        name: "Invoice Request",
+        href: "/reports/customAndPort/invoiceRequest",
+        isShow: true,
+      },
+      {
+        name: "Receipt",
+        href: "/reports/customAndPort/receipt",
+        isShow: true,
+      },
+      {
+        name: "Released DO",
+        href: "/reports/customAndPort/releasedDo",
+        isShow: true,
+      },
+      {
+        name: "CFS/DPD/ICD",
+        href: "/reports/customAndPort/cfsDpdIcd",
+        isShow: true,
+      },
+      {
+        name: "HBL",
+        href: "/reports/customAndPort/hbl",
+        isShow: true,
+      },
+      {
+        name: "Vessel Summary Report",
+        href: "/reports/customAndPort/vesselSummaryReport",
+        isShow: true,
+      },
+      {
+        name: "Igm Generation Audit Report",
+        href: "/reports/customAndPort/igmGenerationAuditReport",
+        isShow: true,
+      },
+      {
+        name: "All Payments",
+        href: "/reports/customAndPort/shippingBill",
+        isShow: true,
+      },
+      {
+        name: "DO Confirm Report",
+        href: "/reports/customAndPort/doConfirmReport",
+        isShow: true,
+      },
+      {
+        name: "Invoice Report",
+        href: "/reports/customAndPort/invoiceReport",
+        isShow: true,
+      },
+      {
+        name: "Pending Invoice",
+        href: "/reports/customAndPort/pendingInvoice",
+        isShow: true,
+      },
+      {
+        name: "Released DO",
+        href: "/reports/customAndPort/releasedDo",
+        isShow: true,
       },
     ],
   },

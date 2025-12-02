@@ -105,7 +105,7 @@ function collapse(s) {
   if (!s) return "";
   return s
     .normalize("NFKC")
-    .replace(/\u00AD/g, "")
+    .replace(/\u00AD/g, "") // soft hyphen
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -135,7 +135,9 @@ async function extractRawPdf(file) {
   return { pages: pageTexts.length, pageTexts, text };
 }
 
-// ✅ UPDATED FUNCTION: returns { userId, data: [ ... ] } with id, etc.
+// ===================================================================
+// ✅ MAIN BULK FUNCTION – returns API-ready rows
+// ===================================================================
 export async function extractTextFromPdfs(files) {
   await ensurePdfjs();
 
@@ -151,41 +153,56 @@ export async function extractTextFromPdfs(files) {
     const raw = await extractRawPdf(file);
     const p1 = raw.pageTexts[0] || "";
     const p2 = raw.pageTexts[1] || "";
-    const all = raw.text;
+    const all = raw.text || "";
 
-    const invoiceNo = extractInvoiceNo(all, p1, p2);
-    const bookingNo = extractBookingNo(all, p1, p2);
-    const issueDate = extractIssueDate(all, p1, p2);
-    const dueDate = extractDueDate(all, p1, p2);
+    // -------- Robust multi-pattern extraction --------
+    const invoiceNo =
+      extractInvoiceNoMulti(all, p1, p2) || extractInvoiceNo(all, p1, p2);
+    const issueDateISO = extractIssueDate(all, p1, p2);
+    const dueDateISO = extractDueDate(all, p1, p2);
+
+    // Prefer dedicated invoice-date extractor, then fallbacks
+    const invoiceDateISO =
+      extractInvoiceDateMulti(all, p1, p2) || issueDateISO || dueDateISO || "";
+
     const { vesselName, voyageCode } = extractVesselVoyage(all, p1, p2);
-
-    // still extracted in case you want to use it later
     const customerGST = extractCustomerGST(all, p1, p2);
     const { customerMerged } = extractCustomerMergedAfterBL(all);
 
     const blNumber = extractBlNumber(all);
-    const totalFigure = extractTotalInvoiceFigure(all);
+
+    const totalFromMulti = extractTotalInvoiceAmountMulti(all);
+    const totalFromSimple = extractTotalInvoiceFigure(all);
+    const totalInvoiceAmount =
+      typeof totalFromMulti === "number" && !Number.isNaN(totalFromMulti)
+        ? totalFromMulti
+        : totalFromSimple
+        ? Number(String(totalFromSimple).replace(/,/g, ""))
+        : 0;
+
     const freight = detectFreight(all);
+
+    const invoiceTypeId = detectInvoiceType(all);
+    const invoiceCategoryId = extractInvoiceCategoryMulti(all);
+
+    const billingParty =
+      extractBillingPartyMulti(all, p1, p2) || customerMerged || "";
+
+    const remarks = detectRemarks(all);
 
     const newFileName = Date.now() + "-" + file.name;
     const modifiedFile = new File([file], newFileName, { type: file.type });
 
     rows.push({
       invoiceNo,
-      invoiceDate: dueDate,
-      billingParty: customerMerged,
-      totalInvoiceAmount: totalFigure.replace(",", ""),
+      invoiceTypeId, // ✅ Now it will be populated correctly
+      totalInvoiceAmount,
+      invoiceDate: invoiceDateISO,
+      invoiceCategoryId,
+      billingParty,
+      billingPartyGstinNo: customerGST,
+      remarks,
       tblAttachment: [{ path: modifiedFile }],
-      // id: rows.length + 1,
-      // fileName: file.name,
-      // bookingNo,
-      // issueDate,
-      // vesselName,
-      // voyageCode,
-      // blNumber,
-      // freight,
-      // if later you want GST, just uncomment:
-      // customerGST,
     });
   }
 
@@ -224,11 +241,11 @@ const MONTHS = {
   DEC: 12,
 };
 function toISO(y, m, d) {
-  const yy = String(y).padStart(4, "0");
-  const mm = String(m).padStart(2, "0");
-  const dd = String(d).padStart(2, "0");
-  return `${yy}-${mm}-${dd}`;
+  return `${String(y).padStart(4, "0")}-${String(m).padStart(2, "0")}-${String(
+    d
+  ).padStart(2, "0")}`;
 }
+
 function normYear(y) {
   const s = String(y);
   const n = Number(s);
@@ -239,41 +256,15 @@ function parseDateFlexible(token) {
   if (!token) return "";
   const t = token.trim();
 
-  let m = t.match(/^(\d{4})(\d{2})(\d{2})$/);
-  if (m) {
-    const y = Number(m[1]),
-      mo = Number(m[2]),
-      d = Number(m[3]);
-    if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31) return toISO(y, mo, d);
-  }
+  let m = t.match(/^(\d{1,2})([A-Za-z]{3})(\d{4})$/);
+  if (m) return toISO(m[3], MONTHS[m[2].toUpperCase()], m[1]);
+
   m = t.match(/^(\d{4})[.\-\/](\d{1,2})[.\-\/](\d{1,2})$/);
-  if (m) {
-    const y = Number(m[1]),
-      mo = Number(m[2]),
-      d = Number(m[3]);
-    if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31) return toISO(y, mo, d);
-  }
+  if (m) return toISO(m[1], m[2], m[3]);
+
   m = t.match(/^(\d{1,2})[.\-\/](\d{1,2})[.\-\/](\d{2,4})$/);
-  if (m) {
-    const d = Number(m[1]),
-      mo = Number(m[2]),
-      y = normYear(m[3]);
-    if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31) return toISO(y, mo, d);
-  }
-  m = t.match(/^(\d{1,2})[.\-\/\s]([A-Za-z]{3,})[.\-\/\s](\d{2,4})$/);
-  if (m) {
-    const d = Number(m[1]),
-      mo = MONTHS[m[2].slice(0, 3).toUpperCase()];
-    const y = normYear(m[3]);
-    if (mo && d >= 1 && d <= 31) return toISO(y, mo, d);
-  }
-  m = t.match(/^([A-Za-z]{3,})\s+(\d{1,2}),\s*(\d{4})$/);
-  if (m) {
-    const mo = MONTHS[m[1].slice(0, 3).toUpperCase()],
-      d = Number(m[2]),
-      y = Number(m[3]);
-    if (mo && d >= 1 && d <= 31) return toISO(y, mo, d);
-  }
+  if (m) return toISO(normYear(m[3]), m[2], m[1]);
+
   return "";
 }
 function findDateNear(text, labelRe) {
@@ -366,7 +357,7 @@ function extractVesselVoyage(all, p1, p2) {
   return { vesselName, voyageCode };
 }
 
-// ---------- Invoice / Booking ----------
+// ---------- Invoice / Booking (original simple versions) ----------
 function extractInvoiceNo(all, p1, p2) {
   const ANCH = /(INVOICE\s*NO\.?|INV\.?\s*NO\.?|INVOICE\s*#|INVOICE\s*NUMBER)/i;
   const win = firstNonEmpty(
@@ -402,7 +393,7 @@ function extractBookingNo(all, p1, p2) {
 function detectFreight(txt) {
   return /\bfreight\b/i.test(txt || "") ? "Yes" : "No";
 }
-// ---------- Dates ----------
+// ---------- Dates (original issue/due) ----------
 function extractIssueDate(all, p1, p2) {
   const labels = [
     /(ISSUE\s*DATE|DATE\s*OF\s*ISSUE)/i,
@@ -460,38 +451,31 @@ function extractBlNumber(all) {
   return m ? collapse(m[1]) : "";
 }
 
-// ---------- Total Invoice Value (in figure) ----------
+// ---------- Total Invoice Value (simple figure) ----------
 function extractTotalInvoiceFigure(all) {
   const m = all.match(
-    /Total\s+Invoice\s+Value\s*\(in\s*figure\)\s*([0-9,]+\.\d{2})/i
+    /Total\s+Invoice\s+Value\s*\(in\s*figure\)\s*([-0-9,]+\.\d{2})/i
   );
   return m ? collapse(m[1]) : "";
 }
 
 // ---------- Customer merged (Name + Address & PoS) ----------
-// ONE invoice layout prints:  [Customer Name, Address & PoS] then a short “SEZ N / Sailing ... B/L Number XXXX”
-// then the real name and address lines. We jump to AFTER “B/L Number <code>” and read until ports/next section.
 function extractCustomerMergedAfterBL(all) {
   const ANCH = /CUSTOMER\s+NAME,\s*ADDRESS\s*&\s*POS\b/i;
   const anchor = all.match(ANCH);
   if (!anchor) return { customerMerged: "" };
 
-  // Start window at anchor…
   const startIdx = anchor.index ?? 0;
   const rest = all.slice(startIdx);
 
-  // …and jump to AFTER “B/L Number <code>”
   const blMatch = rest.match(/B\/L\s+Number\s+[A-Z0-9\-\/]+/i);
   if (!blMatch) return { customerMerged: "" };
   const afterBL = rest.slice((blMatch.index ?? 0) + blMatch[0].length);
 
-  // Cut off when we hit ports/next section / totals / sequence table
   const STOP =
     /(HAI\s+PHONG|NHAVA\s+SHEVA|VNHPH|INNSA|SEQ\s+CONTAINER|TOTAL\s+INVOICE\s+VALUE|CGST|SGST|IGST|For\s+Payment)/i;
   const block = (afterBL.split(STOP)[0] || afterBL).trim();
 
-  // First uppercase-ish run = name; remainder = addressPoS
-  // Then trim address up to “Chembur West,” if present.
   let name = "";
   let addr = "";
   const clean = collapse(block);
@@ -503,19 +487,178 @@ function extractCustomerMergedAfterBL(all) {
         clean.slice(clean.indexOf(nameMatch[0]) + nameMatch[0].length)
       );
     } else {
-      // Fallback: first 6–10 words as name
       const words = clean.split(/\s+/);
       name = collapse(words.slice(0, Math.min(10, words.length)).join(" "));
       addr = collapse(words.slice(Math.min(10, words.length)).join(" "));
     }
   }
 
-  // Keep address only up to “Chembur West,” if present
   const stopAddr = addr.match(/(.+?Chembur\s+West,)/i);
   if (stopAddr) addr = collapse(stopAddr[1]);
 
-  // const customerMerged = collapse([name, addr].filter(Boolean).join(" — "));
   const customerMerged = collapse([name].filter(Boolean).join(" — "));
 
   return { customerMerged };
+}
+
+// ===================================================================
+// ✅ NEW: MULTI-PATTERN / ROBUST FIELD EXTRACTORS
+// ===================================================================
+
+// Invoice number (Invoice / Bill of Supply / Credit Note)
+function extractInvoiceNoMulti(all, p1, p2) {
+  const patterns = [
+    /(INVOICE\s*NO\.?|INV\.?\s*NO\.?|INVOICE\s*NUMBER|INVOICE\s*#)\s*[:#\-]?\s*([A-Z0-9\/.\-_]+)/i,
+    /(BILL\s*OF\s*SUPPLY\s*NO\.?)\s*[:#\-]?\s*([A-Z0-9\/.\-_]+)/i,
+    /(CREDIT\s*NOTE\s*NO\.?)\s*[:#\-]?\s*([A-Z0-9\/.\-_]+)/i,
+  ];
+  const sources = [p1, p2, all];
+  for (const src of sources) {
+    for (const re of patterns) {
+      const m = src.match(re);
+      if (m) return collapse(m[2]);
+    }
+  }
+  return "";
+}
+
+// Multi-pattern invoice date (prefers near labels)
+function extractInvoiceDateMulti(all, p1, p2) {
+  if (!all) return "";
+  const text = all.toUpperCase().replace(/\s+/g, " ");
+
+  let m = text.match(/APPLICATION\s*DATE\s*[:\-]?\s*(\d{1,2}[A-Z]{3}\d{4})/);
+  if (m) return parseDateFlexible(m[1]);
+
+  m = text.match(/ACKDATE\s*[:\-]?\s*(\d{1,2}[A-Z]{3}\d{4})/);
+  if (m) return parseDateFlexible(m[1]);
+
+  m =
+    text.match(/INVOICE\s*DATE\s*[:\-]?\s*([0-9A-Z\/.\-]+)/) ||
+    text.match(/ISSUE\s*DATE\s*[:\-]?\s*([0-9A-Z\/.\-]+)/);
+  if (m) return parseDateFlexible(m[1]);
+
+  const any =
+    text.match(/\b\d{1,2}[A-Z]{3}\d{4}\b/) ||
+    text.match(/\b\d{4}[.\-\/]\d{2}[.\-\/]\d{2}\b/);
+
+  return any ? parseDateFlexible(any[0]) : "";
+}
+
+// Total invoice amount with multiple patterns, positive/negative
+function extractTotalInvoiceAmountMulti(all) {
+  const patterns = [
+    /Total\s+Invoice\s+Value\s*\(in\s*figure\)\s*([-0-9,]+\.\d{2})/i,
+    /Grand\s+Total\s*[:#\-]?\s*([-0-9,]+\.\d{2})/i,
+    /Total\s+Amount\s*[:#\-]?\s*([-0-9,]+\.\d{2})/i,
+  ];
+
+  for (const re of patterns) {
+    const m = all.match(re);
+    if (m) {
+      const num = Number(m[1].replace(/,/g, ""));
+      if (!Number.isNaN(num)) return num;
+    }
+  }
+  return 0;
+}
+
+// ✅ FINAL INVOICE CATEGORY DETECTION (BUSINESS RULE BASED)
+function extractInvoiceCategoryMulti(all) {
+  if (!all) return "LOCAL CHARGES";
+
+  const text = all.toUpperCase();
+
+  // ✅ Highest priority: DETENTION
+  if (text.includes("DETENTION")) {
+    return "DETENTION";
+  }
+
+  // ✅ Next priority: FREIGHT
+  if (text.includes("FREIGHT")) {
+    return "FREIGHT";
+  }
+
+  // ✅ Default
+  return "LOCAL CHARGES";
+}
+
+// Billing party multi-pattern
+// ✅ FINAL & STRICT BILLING PARTY + ADDRESS EXTRACTOR
+function extractBillingPartyMulti(all, p1, p2) {
+  if (!all) return "";
+
+  // 🔹 1️⃣ Strongest Anchor: "Customer Name, Address & PoS"
+  let block =
+    all.match(
+      /Customer\s+Name,\s*Address\s*&\s*PoS\s*([\s\S]+?)\s*(BKG|Booking|Sailing|Arrival|Due\s+Date|TAX\s+INVOICE|BILL\s+OF\s+SUPPLY)/i
+    )?.[1] || "";
+
+  // 🔹 2️⃣ Fallback: "Billed To"
+  if (!block) {
+    block =
+      all.match(
+        /Billed\s+To\s*[:\-]?\s*([\s\S]+?)\s*(BKG|Booking|Sailing|Arrival|Due\s+Date|TAX\s+INVOICE|BILL\s+OF\s+SUPPLY)/i
+      )?.[1] || "";
+  }
+
+  // 🔹 3️⃣ Cleanup garbage text if still long
+  block = collapse(block);
+
+  if (!block) return "";
+
+  // 🔹 4️⃣ Remove PAN/GST if they sneak in
+  block = block
+    .replace(/\bPAN\b.*$/i, "")
+    .replace(/\bGST\b.*$/i, "")
+    .replace(/\bBKG\b.*$/i, "")
+    .replace(/\bSAILING\b.*$/i, "")
+    .replace(/\bDUE\s+DATE\b.*$/i, "")
+    .trim();
+
+  // 🔹 5️⃣ Final format normalization
+  block = block.replace(/\s*\(\s*/g, " (");
+  block = block.replace(/\s*\)\s*/g, ") ");
+
+  return collapse(block);
+}
+
+// Invoice type detection
+// ---------- Invoice type detection (from PDF HEADER only)
+// ---------- ✅ FINAL Invoice Type Detection (Header + Body + Amount Safe)
+// ---------- ✅ FINAL Invoice Type Detection (With Default = TAX INVOICE)
+function detectInvoiceType(all) {
+  if (!all) return "TAX INVOICE"; // ✅ default safeguard
+
+  const text = all.toUpperCase();
+
+  // ✅ Highest Priority: CREDIT NOTE
+  if (
+    text.includes("CREDIT NOTE") ||
+    text.includes("BILL OF SUPPLY(CREDIT NOTE)") ||
+    text.includes("BILL OF SUPPLY (CREDIT NOTE)")
+  ) {
+    return "Credit Note";
+  }
+
+  // ✅ PROFORMA
+  if (text.includes("PROFORMA")) {
+    return "Proforma";
+  }
+
+  // ✅ TAX INVOICE (explicit)
+  if (text.includes("TAX INVOICE")) {
+    return "TAX INVOICE";
+  }
+
+  // ✅ ✅ DEFAULT: if NOTHING matches → TAX INVOICE
+  return "TAX INVOICE";
+}
+
+// Remarks detection based on content
+function detectRemarks(all) {
+  if (/ADDITIONAL\s+STORAGE/i.test(all)) return "ADDITIONAL STORAGE CHARGES";
+  if (/CREDIT\s+NOTE/i.test(all)) return "CREDIT NOTE";
+  if (/FREIGHT/i.test(all)) return "FREIGHT";
+  return "";
 }
