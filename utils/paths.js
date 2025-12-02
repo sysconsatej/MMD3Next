@@ -11,19 +11,20 @@ export const roleAccessPaths = {
   "/request/doRequest/list": ["shipping", "customer"],
 
   "/reports/customAndPort/shippingBill": ["shipping", "customer"],
-  "/reports/customAndPort/doConfirmReport": ["shipping","customer"],
+  "/reports/customAndPort/doConfirmReport": ["shipping", "customer"],
   "/reports/customAndPort/invoiceConversionReport": ["shipping"],
   "/reports/customAndPort/invoiceRequest": ["shipping"],
   "/reports/customAndPort/receipt": ["shipping"],
-  "/reports/customAndPort/releasedDo": ["shipping"],
+
   "/reports/customAndPort/cfsDpdIcd": ["shipping"],
-  "/reports/customAndPort/hbl": ["shipping"],
+  "/reports/customAndPort/hbl": ["shipping", "customer"],
   "/reports/customAndPort/vesselSummaryReport": ["shipping"],
   "/reports/customAndPort/igmGenerationAuditReport": ["shipping"],
   "/reports/customAndPort/allPayments": ["customer"],
+
   "/reports/customAndPort/invoiceReport": ["customer"],
   "/reports/customAndPort/pendingInvoice": ["customer"],
-  "/reports/customAndPort/releasedDo": ["customer"],
+  "/reports/customAndPort/releasedDo": ["shipping", "customer"],
 
   // Added master routes with only admin access
   "/master/company/list": ["admin"],
