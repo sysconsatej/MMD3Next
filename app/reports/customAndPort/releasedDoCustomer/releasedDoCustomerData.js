@@ -1,5 +1,5 @@
 const fieldData = {
-  paymentsFields: [
+  releasedDoFields: [
     {
       label: "Company Type",
       name: "companyType",
@@ -31,7 +31,7 @@ const fieldData = {
 
     { label: "Item No", name: "itemNo", type: "text", isEdit: true },
     {
-      label: "From Date",
+      label: "DoRelease",
       name: "fromDate",
       type: "date",
       isEdit: true,
@@ -40,12 +40,6 @@ const fieldData = {
       label: "To Date ",
       name: "toDate",
       type: "date",
-      isEdit: true,
-    },
-    {
-      label: "Status",
-      name: "status",
-      type: "dropdown",
       isEdit: true,
     },
   ],

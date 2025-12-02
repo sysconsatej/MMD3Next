@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data, { metaData } from "./allPaymentsData";
+import data, { metaData } from "./releasedDoCustomerData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -131,13 +131,13 @@ export default function DoConfirmReport() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              Payment Report
+              Released DO
             </h1>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
-                fields={jsonData.paymentsFields}
+                fields={jsonData.releasedDoFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
