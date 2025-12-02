@@ -46,30 +46,30 @@ export default function InvoiceConversionReport() {
     exportExcel({
       tableFormData,
       updateFn: updateDynamicReportData,
-      filenamePrefix: "INVOICE CONVERSION(Excel)",
+      filenamePrefix: "Advance List(Excel)",
       toast,
       setLoading,
       filterDirty: false,
-      
-    });
-    console.log('userData',userData);
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setGoLoading(true);
-    setError(null);
-    buildBody: (rows) => ({
-        spName: "KANHAIYA",
+      buildBody: (rows) => ({
+        spName: "ialExcel",
         jsonData: {
           ...transformed,
           clientId: 1,
           companyId: userData.companyId,
           data: rows,
         },
-      })
+      }),
+    });
+    console.log('userData',userData);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setGoLoading(true);
+    setError(null);
 
     const requestBody = {
       spName: "importBlSelection",
       jsonData: transformed,
+      companyId: userData.companyId,
     };
 
     const getErr = (src) =>
