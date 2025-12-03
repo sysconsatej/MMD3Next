@@ -243,6 +243,7 @@ export const fieldData = {
       foreignTable: "code-name,tblPort",
       isEdit: true,
       required: true,
+      changeFun :  "handleChangeOnPOL"
     },
     {
       label: "Transhipment Port 1",

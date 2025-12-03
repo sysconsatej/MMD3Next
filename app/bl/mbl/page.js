@@ -33,10 +33,10 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
 export default function Home() {
-  const [formData, setFormData] = useState({ blStatus: "D", });
+  const { mode, setMode } = formStore();
+  const [formData, setFormData] = useState({ blStatus: mode?.mode === null ? "D" : "" });
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(fieldData);
-  const { mode, setMode } = formStore();
   const [totals, setTotals] = useState({});
   const [packTypeState, setPackTypeState] = useState(null);
   const [submitBtn, setSubmitBtn] = useState(false);
@@ -211,7 +211,17 @@ export default function Home() {
         );
       }
     },
+    handleChangeOnPOL: (name, value) => {
+      setFormData((prev) => {
+        return {
+          ...prev,
+          plrId: value || {},
+        }
+      })
+    }
+
   };
+
 
   const handleBlurEventFunctions = {
     containerNumberHandler: (event, { containerIndex, tabIndex }) => {
@@ -351,18 +361,24 @@ export default function Home() {
     fetchFormHandler();
   }, [mode.formId]);
 
+  //  this useEffect is used for Auto set values
   useEffect(() => {
     async function getMblData() {
       const obj = {
-        columns: "id as Id, name as Name",
+        columns: "id as Id, name as Name , masterListName as masterListName , code as code",
         tableName: "tblMasterData",
         whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
       };
       const { data, success } = await getDataWithCondition(obj);
+      // console.log(data?.filter(i => i?.masterListName === 'tblTypeOfShipment' && i?.masterListName === 'tblItemType'), ' [][][]]');
       if (success) {
         setPackTypeState(data[0]);
       }
     }
+
+
+
+
     setFormData((prev) => ({
       ...prev,
       companyId: {
@@ -595,6 +611,7 @@ export default function Home() {
                     formData={formData}
                     setFormData={setFormData}
                     fieldsMode={fieldsMode}
+                    handleChangeEventFunctions={handleChangeEventFunctions}
                   />
                 </Box>
               </FormHeading>
