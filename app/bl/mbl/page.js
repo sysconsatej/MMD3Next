@@ -211,7 +211,17 @@ export default function Home() {
         );
       }
     },
+    handleChangeOnPOL: (name, value) => {
+      setFormData((prev) => {
+        return {
+          ...prev,
+          plrId: value || {},
+        }
+      })
+    }
+
   };
+
 
   const handleBlurEventFunctions = {
     containerNumberHandler: (event, { containerIndex, tabIndex }) => {
@@ -601,6 +611,7 @@ export default function Home() {
                     formData={formData}
                     setFormData={setFormData}
                     fieldsMode={fieldsMode}
+                    handleChangeEventFunctions={handleChangeEventFunctions}
                   />
                 </Box>
               </FormHeading>
