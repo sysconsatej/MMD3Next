@@ -25,6 +25,7 @@ export const roleAccessPaths = {
   "/reports/customAndPort/invoiceReport": ["customer"],
   "/reports/customAndPort/pendingInvoice": ["customer"],
   "/reports/customAndPort/releasedDo": ["shipping", "customer"],
+  "/reports/customAndPort/pendingDo": ["customer"],
 
   // Added master routes with only admin access
   "/master/company/list": ["admin"],

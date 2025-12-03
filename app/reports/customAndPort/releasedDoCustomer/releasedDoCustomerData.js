@@ -9,7 +9,7 @@ const fieldData = {
       // searchColumn: "t.name",
       // orderBy: "t.name",
       // foreignTable: "name,tblCompany",
-      // isEdit: true,
+      isEdit: true,
     },
     {
       label: "Company Name",
