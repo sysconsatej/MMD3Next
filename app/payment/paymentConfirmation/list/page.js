@@ -413,7 +413,9 @@ export default function InvoiceRequestList() {
                           formStore
                             .getState()
                             .setMode({ mode: "view", formId: row.id });
-                          window.location.href = `/request/invoiceRelease?blId=${row.blId}`;
+                          router.push(
+                            `/invoice/invoiceRelease?blId=${row.blId}`
+                          );
                         }}
                         sx={{ cursor: "pointer", fontWeight: 500 }}
                       >

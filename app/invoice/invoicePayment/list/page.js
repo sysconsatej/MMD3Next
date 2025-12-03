@@ -199,7 +199,7 @@ export default function InvoicePaymentList() {
         return;
       }
       setMode({ mode: mode || null, formId });
-      router.push("/request/invoicePayment");
+      router.push("/invoice/invoicePayment");
     },
     [router, setMode, rows]
   );
@@ -231,7 +231,7 @@ export default function InvoicePaymentList() {
       const { success, data } = await getDataWithCondition(query);
       if (success && data?.length > 0) {
         const blId = data[0].blId;
-        router.push(`/request/invoicePayment/payment?blId=${blId}`);
+        router.push(`/invoice/invoicePayment/payment?blId=${blId}`);
       } else {
         toast.error("BL ID not found for this invoice.");
       }

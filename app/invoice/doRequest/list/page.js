@@ -218,7 +218,7 @@ export default function BLList() {
                             getData={getData}
                             rowsPerPage={rowsPerPage}
                         /> */}
-                        <CustomButton text="Add" href="/request/doRequest" />
+                        <CustomButton text="Add" href="/invoice/doRequest" />
                     </Box>
                 </Box>
 

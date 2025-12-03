@@ -540,7 +540,7 @@ export default function InvoiceRequest() {
             {userData?.roleCode === "customer" && (
               <CustomButton
                 text="Back"
-                href="/request/invoiceRequest/list"
+                href="/invoice/invoiceRequest/list"
                 onClick={() => setMode({ mode: null, formId: null })}
               />
             )}
@@ -548,7 +548,7 @@ export default function InvoiceRequest() {
             {userData?.roleCode === "shipping" && (
               <CustomButton
                 text="Back"
-                href="/request/invoiceRelease/list"
+                href="/invoice/invoiceRelease/list"
                 onClick={() => setMode({ mode: null, formId: null })}
               />
             )}

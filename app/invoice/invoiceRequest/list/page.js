@@ -211,7 +211,7 @@ export default function InvoiceRequestList() {
         return;
       }
       setMode({ mode: mode || null, formId });
-      router.push("/request/invoiceRequest");
+      router.push("/invoice/invoiceRequest");
     },
     [router, setMode]
   );
