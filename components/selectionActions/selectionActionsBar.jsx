@@ -44,6 +44,7 @@ export default function SelectionActionsBar({
   const [rejectOpen, setRejectOpen] = useState(false);
   const [remarks, setRemarks] = useState("");
   const [hblStatus, setHblStatus] = useState(null);
+  const [isRequestDisable, setIsRequestDisable] = useState(false);
   const userData = getUserByCookies();
 
   const openReject = () => {
@@ -133,6 +134,23 @@ export default function SelectionActionsBar({
   };
 
   useEffect(() => {
+    async function checkStatus() {
+      const obj = {
+        columns: "hblRequestStatus",
+        tableName: "tblBl",
+        whereCondition: `id in (${ids.join(",")}) and status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      const filterStatus = hblStatus.filter((item) => item.Name !== "Reject");
+      const filterCheck = data?.some((item) =>
+        filterStatus.some((status) => status.Id === item.hblRequestStatus)
+      );
+      setIsRequestDisable(filterCheck);
+    }
+    checkStatus();
+  }, [ids, isRequestDisable]);
+
+  useEffect(() => {
     async function getHblStatus() {
       const obj = {
         columns: "id as Id, name as Name",
@@ -159,7 +177,7 @@ export default function SelectionActionsBar({
             <Segment
               label="Edit"
               onClick={() => isSingle && onEdit && onEdit(ids[0])}
-              disabled={!isSingle}
+              disabled={!isSingle || isRequestDisable}
             />
           )}
           {isDelete && (
@@ -180,7 +198,7 @@ export default function SelectionActionsBar({
             <Segment
               label="Request"
               onClick={handleRequest}
-              disabled={!hasAny}
+              disabled={!hasAny || isRequestDisable}
             />
           )}
           {isReject && (

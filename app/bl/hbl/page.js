@@ -1071,15 +1071,17 @@ export default function Home() {
                   disabled={!requestBtn}
                 />
               )}
-            {userData?.roleCode === "customer" && mode.status !== "Confirm" && (
-              <CustomButton
-                text={"Request"}
-                onClick={requestHandler}
-                disabled={
-                  fieldsMode !== "view" && fieldsMode !== "edit" && requestBtn
-                }
-              />
-            )}
+            {userData?.roleCode === "customer" &&
+              mode.status !== "Confirm" &&
+              mode.status !== "Request" && (
+                <CustomButton
+                  text={"Request"}
+                  onClick={requestHandler}
+                  disabled={
+                    fieldsMode !== "view" && fieldsMode !== "edit" && requestBtn
+                  }
+                />
+              )}
 
             {(fieldsMode === "edit" || fieldsMode === "view") &&
               userData?.roleCode === "shipping" && (
