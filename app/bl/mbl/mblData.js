@@ -284,6 +284,7 @@ export const fieldData = {
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
       isEdit: true,
+      changeFun :  "handleChangeOnPOL"
     },
     {
       label: "Port of Destination",
@@ -295,6 +296,8 @@ export const fieldData = {
       foreignTable: "code-name,tblPort",
       isEdit: true,
       required: true,
+      changeFun :  "handleChangeOnPOL"
+
     },
     {
       label: "Nominated Area (CFS)",

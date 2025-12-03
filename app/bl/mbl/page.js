@@ -28,9 +28,10 @@ import {
 } from "@/utils";
 import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { checkNoPackages, useTotalGrossAndPack } from "./utils";
+import { checkNoPackages, getPortBasedOnCountry, removePrevInputName, storeApiResult, useTotalGrossAndPack } from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+
 
 export default function Home() {
   const { mode, setMode } = formStore();
@@ -211,16 +212,43 @@ export default function Home() {
         );
       }
     },
-    handleChangeOnPOL: (name, value) => {
+    handleChangeOnPOL: async (name, value) => {
       setFormData((prev) => {
         return {
           ...prev,
           plrId: value || {},
         }
       })
-    }
 
+      const res = await getPortBasedOnCountry({ portId: value?.Id, inputName: name })
+      // Convert storeApiResult to an object with all three IDs
+      const mappedObj = storeApiResult.reduce((acc, item) => {
+        acc[item.inputName] = item.countryCategory;
+        return acc;
+      }, {});
+
+      console.log(mappedObj);
+
+      const polId = mappedObj.polId;
+      const podId = mappedObj.podId;
+      const fpdId = mappedObj.fpdId;
+
+      if (polId === 'F' && podId === 'F' && fpdId === 'F') {
+        console.log('hello');
+      } else if (polId === 'IN' && podId === 'IN' && fpdId === 'IN') {
+        console.log('hello two');
+      } else if (polId === 'F' && podId === 'IN' && fpdId === 'IN') {
+        console.log('hello three');
+      } else if (polId === 'F' && podId === 'IN' && fpdId === 'IN' && formData?.nominatedAreaId) {
+        console.log('hello four');
+      } else {
+        console.log('hello else');
+      }
+
+    },
   };
+
+
 
 
   const handleBlurEventFunctions = {
