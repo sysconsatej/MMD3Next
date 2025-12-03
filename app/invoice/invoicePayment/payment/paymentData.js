@@ -62,7 +62,7 @@ const fieldData = {
       displayColumn: "m.name",
       searchColumn: "m.name",
       orderBy: "m.name",
-      where: "m.masterListName = 'tblInvoiceAttachmentType'",
+      where: "m.masterListName = 'tblPaymentType'",
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },

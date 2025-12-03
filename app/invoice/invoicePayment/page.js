@@ -36,6 +36,34 @@ function CustomTabPanel({ children, value, index, ...other }) {
     </div>
   );
 }
+/* 🔥 SINGLE FUNCTION: match PDF → dropdown value */
+async function matchDropdownValue(masterListName, rawValue) {
+  if (!rawValue) return null;
+
+  const payload = {
+    columns: "id, name",
+    tableName: "tblMasterData m",
+    whereCondition: `m.masterListName='${masterListName}'`,
+  };
+
+  const { success, data } = await getDataWithCondition(payload);
+  if (!success || !Array.isArray(data)) return null;
+
+  const clean = String(rawValue).trim().toLowerCase();
+
+  const list = data.map((r) => ({
+    Id: r.id,
+    Name: r.name,
+    clean: r.name.toLowerCase().trim(),
+  }));
+  let f = list.find((x) => x.clean === clean);
+  if (f) return { Id: f.Id, Name: f.Name };
+  f = list.find((x) => clean.includes(x.clean));
+  if (f) return { Id: f.Id, Name: f.Name };
+  f = list.find((x) => x.clean.includes(clean));
+  if (f) return { Id: f.Id, Name: f.Name };
+  return null;
+}
 
 const a11yProps = (index) => ({
   id: `inv-tab-${index}`,
@@ -262,7 +290,7 @@ export default function InvoicePayment() {
         await setInvoiceRequestId(blData?.[0]?.blNo)
 
         const allInvoicesQuery = {
-          columns: "id",
+          columns: "id,invoiceRequestId",
           tableName: "tblInvoice",
           whereCondition: `blId = ${blId} and invoicePaymentId  ${
             blData?.[0]?.invoicePaymentId
@@ -319,7 +347,7 @@ export default function InvoicePayment() {
         setFieldsMode(mode.mode || "");
         setTabValue(0);
       } catch (err) {
-        console.error("❌ Error fetching Invoice Payment:", err);
+        console.error("Error fetching Invoice Payment:", err);
         toast.error("Error loading invoice data.");
       }
     }
@@ -330,6 +358,10 @@ export default function InvoicePayment() {
   const submitHandler = async (e) => {
     e.preventDefault();
 
+    if (!invoiceReqId) {
+      toast.error("Against this BL No, no Invoice Request exists.");
+      return;
+    }
     try {
       const blId = formData?.blId;
       if (!blId) {
@@ -418,52 +450,58 @@ export default function InvoicePayment() {
       toast.error("Please select a BL first!");
       return;
     }
-    router.push(`/request/invoicePayment/payment?blId=${blId}`);
+    router.push(`/invoice/invoicePayment/payment?blId=${blId}`);
   };
 
-  // 🔹 FIXED: do not double tabs in ADD mode
   const handleFilesChange = async (fileList) => {
     try {
       const filesArr = Array.from(fileList || []);
       if (!filesArr.length) return;
 
       const parsed = await extractTextFromPdfs(filesArr);
-      console.log("Extracted invoice data from PDFs:", parsed);
       if (!Array.isArray(parsed) || parsed.length === 0) {
-        toast.warn("No invoice data found in uploaded file(s).");
+        toast.warn("No invoice data found in uploaded PDFs.");
         return;
       }
 
       const containers = containerData || [];
 
-      const fromPdf = parsed.map((row, idx) => {
-        const file = filesArr[idx] || filesArr[0];
+      const fromPdf = await Promise.all(
+        parsed.map(async (row, idx) => {
+          const file = filesArr[idx] || filesArr[0];
+          const invoiceTypeRaw = row.invoiceTypeId || "";
 
-        const defaultAttachment =
-          row.tblAttachment && row.tblAttachment.length
+          const invoiceCategoryRaw = row.invoiceCategoryId || "";
+          const invoiceTypeObj = await matchDropdownValue(
+            "tblInvoiceType",
+            invoiceTypeRaw
+          );
+
+          const invoiceCategoryObj = await matchDropdownValue(
+            "tblInvoiceCategory",
+            invoiceCategoryRaw
+          );
+          const defaultAttachment = row.tblAttachment?.length
             ? row.tblAttachment
             : file
-            ? [
-                {
-                  uploadInvoice: file.name,
-                  path: file.name,
-                },
-              ]
+            ? [{ uploadInvoice: file.name, path: file.name }]
             : [];
 
-        const { id: _ignoreId, ...restRow } = row || {};
+          const { id: _throwId, ...restRow } = row;
 
-        return {
-          ...restRow,
-          tblInvoiceRequestContainer: containers,
-          tblAttachment: defaultAttachment,
-        };
-      });
+          return {
+            ...restRow,
+            invoiceTypeId: invoiceTypeObj,
+            invoiceCategoryId: invoiceCategoryObj,
+            tblInvoiceRequestContainer: containers,
+            tblAttachment: defaultAttachment,
+          };
+        })
+      );
 
       const isEditMode = !!mode?.formId;
 
       if (isEditMode) {
-        // EDIT → keep existing invoices and append new ones
         const existingLen = invoices.length;
 
         setFormData((prev) => {
@@ -479,7 +517,6 @@ export default function InvoicePayment() {
         const newTotal = existingLen + fromPdf.length;
         if (newTotal > 0) setTabValue(newTotal - 1);
       } else {
-        // ADD → always REPLACE with current upload
         setFormData((prev) => ({
           ...prev,
           tblInvoice: [...(prev?.tblInvoice || []), ...fromPdf],
@@ -502,7 +539,7 @@ export default function InvoicePayment() {
           <Box className="flex justify-between items-end mb-2">
             <h1 className="text-left text-base m-0">Payment New Invoice</h1>
             <Box className="flex gap-2">
-              <CustomButton text="Back" href="/request/invoicePayment/list" />
+              <CustomButton text="Back" href="/invoice/invoicePayment/list" />
             </Box>
           </Box>
 

@@ -440,7 +440,7 @@ export default function PaymentPage() {
                   />
                   <CustomButton
                     text="Back"
-                    href="/request/invoicePayment/list"
+                    href="/invoice/invoicePayment/list"
                   />
                 </Box>
               </Box>
@@ -540,7 +540,7 @@ export default function PaymentPage() {
                   />
                   <CustomButton
                     text="Back"
-                    href="/request/invoicePayment/list"
+                    href="/invoice/invoicePayment/list"
                   />
                 </Box>
               </Box>

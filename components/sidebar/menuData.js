@@ -109,21 +109,21 @@ export const navItems = [
     icon: "inbox",
     isShow: false,
     submenu: [
-      // { name: "Invoice Request", href: "/request/invoiceRequest/list" },
+      // { name: "Invoice Request", href: "/invoice/invoiceRequest/list" },
       {
         name: "Invoices Release",
-        href: "/request/invoiceRelease/list",
+        href: "/invoice/invoiceRelease/list",
         isShow: false,
       },
       {
         name: "Invoice Payment",
-        href: "/request/invoicePayment/list",
+        href: "/invoice/invoicePayment/list",
         isShow: false,
       },
-      // { name: "Invoice Upload", href: "/request/invoiceUpload/list" },
+      // { name: "Invoice Upload", href: "/invoice/invoiceUpload/list" },
       {
         name: "Invoice Request",
-        href: "/request/invoiceRequest/list",
+        href: "/invoice/invoiceRequest/list",
         isShow: false,
       },
       {
@@ -138,7 +138,7 @@ export const navItems = [
       },
       {
         name: "Do Request",
-        href: "/request/doRequest/list",
+        href: "/invoice/doRequest/list",
         isShow: false,
       },
     ],

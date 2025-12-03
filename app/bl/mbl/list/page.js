@@ -29,6 +29,8 @@ import TableExportButtons from "@/components/tableExportButtons/tableExportButto
 import ReportPickerModal from "@/components/ReportPickerModal/reportPickerModal";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
+import HistoryIcon from "@mui/icons-material/History"; // ⬅️ NEW
+import HistoryModal from "@/components/customModal/historyModal"; // ⬅️ NEW
 
 const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -95,6 +97,12 @@ export default function BLList() {
   const [reportModalForRow, setReportModalForRow] = useState(null);
   const { data } = useGetUserAccessUtils("MBL");
   const userData = getUserByCookies();
+
+  // ⬇️ NEW: history modal state
+  const [historyModal, setHistoryModal] = useState({
+    open: false,
+    recordId: null,
+  });
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
@@ -265,6 +273,7 @@ export default function BLList() {
                 <TableCell>Cargo Movement</TableCell>
                 <TableCell>Arrival Vessel</TableCell>
                 <TableCell>Arrival Voyage</TableCell>
+                <TableCell>History</TableCell> {/* ⬅️ NEW */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -311,11 +320,26 @@ export default function BLList() {
                         </span>
                       </Box>
                     </TableCell>
+
+                    {/* ⬇️ NEW History cell */}
+                    <TableCell>
+                      <HistoryIcon
+                        sx={{ cursor: "pointer", fontSize: "16px" }}
+                        onClick={() => {
+                          console.log("MBL History clicked, row.id =", row.id);
+                          setHistoryModal({
+                            open: true,
+                            recordId: row.id ? Number(row.id) : null,
+                          });
+                        }}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={10} align="center">
+                  <TableCell colSpan={11} align="center">
+                    {/* ⬆️ colSpan updated to 11 to match columns */}
                     {loadingState}
                   </TableCell>
                 </TableRow>
@@ -356,6 +380,15 @@ export default function BLList() {
         recordId={reportModalForRow?.id}
         clientId={reportModalForRow?.clientId}
         reportRoute={REPORT_ROUTE}
+      />
+
+      {/* ⬇️ Common History Modal for tblBl */}
+      <HistoryModal
+        open={historyModal.open}
+        onClose={() => setHistoryModal({ open: false, recordId: null })}
+        tableName="tblBl"
+        recordId={historyModal.recordId}
+        title="BL History"
       />
 
       <ToastContainer />
