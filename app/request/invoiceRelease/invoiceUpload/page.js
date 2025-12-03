@@ -32,6 +32,33 @@ import { extractTextFromPdfs } from "@/helper/pdfTextExtractor";
 function CustomTabPanel({ children, value, index }) {
   return value === index ? <Box className="pt-2">{children}</Box> : null;
 }
+async function matchDropdownValue(masterListName, rawValue) {
+  if (!rawValue) return null;
+  const payload = {
+    columns: "id, name",
+    tableName: "tblMasterData m",
+    whereCondition: `m.masterListName='${masterListName}'`,
+  };
+
+  const { success, data } = await getDataWithCondition(payload);
+  if (!success || !Array.isArray(data)) return null;
+
+  const clean = String(rawValue).trim().toLowerCase();
+
+  const list = data.map((row) => ({
+    Id: row.id,
+    Name: row.name,
+    clean: row.name.toLowerCase().trim(),
+  }));
+  let found = list.find((x) => x.clean === clean);
+  if (found) return { Id: found.Id, Name: found.Name };
+  found = list.find((x) => clean.includes(x.clean));
+  if (found) return { Id: found.Id, Name: found.Name };
+  found = list.find((x) => x.clean.includes(clean));
+  if (found) return { Id: found.Id, Name: found.Name };
+
+  return null;
+}
 
 export default function InvoiceUpload() {
   const searchParams = useSearchParams();
@@ -182,7 +209,7 @@ export default function InvoiceUpload() {
       if (!success || !blData?.length) return;
 
       const blId = blData[0].blId;
-      const currentBlNo = blData[0].blNo; // ← changed from mblNo to blNo
+      const currentBlNo = blData[0].blNo;
 
       setBlNo(currentBlNo);
       await fetchInvoiceRequestIdByBlNo(currentBlNo);
@@ -258,7 +285,6 @@ export default function InvoiceUpload() {
       if (!filesArr.length) return;
 
       const parsed = await extractTextFromPdfs(filesArr);
-
       if (!Array.isArray(parsed) || parsed.length === 0) {
         toast.warn("No invoice data found in uploaded file(s).");
         return;
@@ -266,27 +292,40 @@ export default function InvoiceUpload() {
 
       const containers = containerData || [];
 
-      const fromPdf = parsed.map((row, idx) => {
-        const file = filesArr[idx] || filesArr[0];
+      const fromPdf = await Promise.all(
+        parsed.map(async (row, idx) => {
+          const file = filesArr[idx] || filesArr[0];
 
-        const defaultAttachment =
-          row.tblAttachment && row.tblAttachment.length
+          const invoiceTypeRaw = row.invoiceTypeId || "";
+
+          const invoiceCategoryRaw = row.invoiceCategoryId || "";
+
+          const invoiceTypeObj = await matchDropdownValue(
+            "tblInvoiceType",
+            invoiceTypeRaw
+          );
+
+          const invoiceCategoryObj = await matchDropdownValue(
+            "tblInvoiceCategory",
+            invoiceCategoryRaw
+          );
+          const defaultAttachment = row.tblAttachment?.length
             ? row.tblAttachment
             : file
-            ? [
-                {
-                  uploadInvoice: file.name,
-                  path: file.name,
-                },
-              ]
+            ? [{ uploadInvoice: file.name, path: file.name }]
             : [];
 
-        return {
-          ...row,
-          tblInvoiceRequestContainer: containers,
-          tblAttachment: defaultAttachment,
-        };
-      });
+          const { id: _ignore, ...restRow } = row;
+
+          return {
+            ...restRow,
+            invoiceTypeId: invoiceTypeObj,
+            invoiceCategoryId: invoiceCategoryObj,
+            tblInvoiceRequestContainer: containers,
+            tblAttachment: defaultAttachment,
+          };
+        })
+      );
 
       setFormData((prev) => ({
         ...prev,
