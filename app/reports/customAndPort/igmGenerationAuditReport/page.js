@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { getUserByCookies } from "@/utils";
 import { jsonToExcelFile } from "@/utils/helper";
 
-export default function DoConfirmReport() {
+export default function IgmGenerationAuditReport() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [tableData, setTableData] = useState([]);
