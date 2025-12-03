@@ -379,16 +379,13 @@ export default function Home() {
       // }
 
       const obj = {
-        columns: "c.telephoneNo",
+        columns: "c.telephoneNo , c.panNo",
         tableName: "tblCompany c",
         whereCondition: `c.id = ${value?.Id}`,
       };
-      const getTelePhone = await getDataWithCondition(obj);
+      const result = await getDataWithCondition(obj);
 
-      if (
-        getTelePhone.length > 0 &&
-        getTelePhone?.data[0]?.telephoneNo === ""
-      ) {
+      if (result.length > 0 && result?.data[0]?.telephoneNo === "") {
         setFormData((prevData) =>
           setInputValue({
             prevData,
@@ -403,9 +400,40 @@ export default function Home() {
         setInputValue({
           prevData,
           name: "shippingLineTelNo",
-          value: getTelePhone?.data[0]?.telephoneNo || "",
+          value: result?.data[0]?.telephoneNo || "",
         })
       );
+
+      // if (result?.data[0]?.panNo) {
+      //   const formatArray = formData?.tblBl
+      //     ?.map((_, idx) =>
+      //       _.tblBlContainer?.map((r) => {
+      //         return { ...r, tabIndex: idx };
+      //       })
+      //     )
+      //     ?.flat();
+
+      //   const updatedArray =
+      //     Array.isArray(formatArray) && formatArray.length > 0
+      //       ? formatArray?.map((i) => {
+      //           return { ...i, containerAgentCode: result?.data[0]?.panNo };
+      //         })
+      //       : [];
+
+      //   setFormData((prev) => {
+      //     return {
+      //       ...prev,
+      //       tblBl: prev.tblBl?.map((i, index) => {
+      //         return {
+      //           ...i,
+      //           tblBlContainer: updatedArray?.filter(
+      //             (r) => r?.tabIndex === index
+      //           ),
+      //         };
+      //       }),
+      //     };
+      //   });
+      // }
 
       return "";
     },
@@ -752,6 +780,7 @@ export default function Home() {
 
   useEffect(() => {
     async function getHblStatus() {
+      // 1) Default PACKAGES for package type
       const obj1 = {
         columns: "id as Id, name as Name",
         tableName: "tblMasterData",
@@ -764,6 +793,7 @@ export default function Home() {
         setPackTypeState(data1[0]);
       }
 
+      // 2) HBL status master
       const obj = {
         columns: "id as Id, name as Name",
         tableName: "tblMasterData",
@@ -774,6 +804,7 @@ export default function Home() {
         setHblStatus(data);
       }
 
+      // 3) Company + branch from logged-in user
       setFormData((prev) => {
         return {
           ...prev,
@@ -787,10 +818,37 @@ export default function Home() {
           },
         };
       });
+
+      // 4) 🔹 Default CIN Type = "PCIN" for NEW requests only
+      if (!mode.formId) {
+        const cinObj = {
+          columns: "m.id as Id, m.name as Name",
+          tableName: "tblMasterData m",
+          whereCondition: `
+            m.masterListName = 'tblCINType'
+            AND m.name = 'PCIN'
+          `,
+        };
+
+        const { data: cinData, success: cinSuccess } =
+          await getDataWithCondition(cinObj);
+
+        if (
+          cinSuccess &&
+          Array.isArray(cinData) &&
+          cinData.length > 0
+        ) {
+          setFormData((prev) =>
+            // don't override if already set (edit mode / user changed)
+            prev?.cinType ? prev : { ...prev, cinType: cinData[0] }
+          );
+        }
+      }
     }
 
     getHblStatus();
   }, []);
+
 
   console.log(formData, "{}}");
 
@@ -1071,15 +1129,17 @@ export default function Home() {
                   disabled={!requestBtn}
                 />
               )}
-            {userData?.roleCode === "customer" && mode.status !== "Confirm" && (
-              <CustomButton
-                text={"Request"}
-                onClick={requestHandler}
-                disabled={
-                  fieldsMode !== "view" && fieldsMode !== "edit" && requestBtn
-                }
-              />
-            )}
+            {userData?.roleCode === "customer" &&
+              mode.status !== "Confirm" &&
+              mode.status !== "Request" && (
+                <CustomButton
+                  text={"Request"}
+                  onClick={requestHandler}
+                  disabled={
+                    fieldsMode !== "view" && fieldsMode !== "edit" && requestBtn
+                  }
+                />
+              )}
 
             {(fieldsMode === "edit" || fieldsMode === "view") &&
               userData?.roleCode === "shipping" && (
