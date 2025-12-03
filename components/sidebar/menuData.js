@@ -250,8 +250,13 @@ export const navItems = [
       },
       {
         name: "Released DO",
-        href: "/reports/customAndPort/releasedDo",
-        isShow: true,
+        href: "/reports/customAndPort/releasedDoShipper",
+        isShow: false,
+      },
+      {
+        name: "Un Released DO",
+        href: "/reports/customAndPort/unReleasedDo",
+        isShow: false,
       },
       {
         name: "CFS/DPD/ICD",
