@@ -450,7 +450,7 @@ export default function InvoicePayment() {
       toast.error("Please select a BL first!");
       return;
     }
-    router.push(`/request/invoicePayment/payment?blId=${blId}`);
+    router.push(`/invoice/invoicePayment/payment?blId=${blId}`);
   };
 
   const handleFilesChange = async (fileList) => {
@@ -539,7 +539,7 @@ export default function InvoicePayment() {
           <Box className="flex justify-between items-end mb-2">
             <h1 className="text-left text-base m-0">Payment New Invoice</h1>
             <Box className="flex gap-2">
-              <CustomButton text="Back" href="/request/invoicePayment/list" />
+              <CustomButton text="Back" href="/invoice/invoicePayment/list" />
             </Box>
           </Box>
 

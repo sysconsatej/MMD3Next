@@ -233,7 +233,7 @@ export default function Home() {
 
                             <CustomButton
                                 text="Back"
-                                href="/request/doRequest/list"
+                                href="/invoice/doRequest/list"
                                 onClick={() => setMode({ mode: null, formId: null })}
                             />
                         </Box>

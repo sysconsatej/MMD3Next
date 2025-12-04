@@ -437,7 +437,7 @@ export default function InvoiceUpload() {
         <section className="py-2 px-4">
           <Box className="flex justify-between items-end mb-2">
             <Typography variant="h6">Invoice Upload</Typography>
-            <CustomButton text="Back" href="/request/invoiceRelease/list" />
+            <CustomButton text="Back" href="/invoice/invoiceRelease/list" />
           </Box>
 
           <Typography sx={{ fontWeight: 600, mb: 1 }}>

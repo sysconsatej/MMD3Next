@@ -28,13 +28,23 @@ import {
 } from "@/utils";
 import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { checkNoPackages, useTotalGrossAndPack } from "./utils";
+import {
+  checkNoPackages,
+  craeateHandleChangeEventFunction,
+  createdHandleBlurEventFunctions,
+  getPortBasedOnCountry,
+  removePrevInputName,
+  storeApiResult,
+  useTotalGrossAndPack,
+} from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
 export default function Home() {
   const { mode, setMode } = formStore();
-  const [formData, setFormData] = useState({ blStatus: mode?.mode === null ? "D" : "" });
+  const [formData, setFormData] = useState({
+    blStatus: mode?.mode === null ? "D" : "",
+  });
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(fieldData);
   const [totals, setTotals] = useState({});
@@ -102,211 +112,15 @@ export default function Home() {
     },
   };
 
-  const handleChangeEventFunctions = {
-    setCountryAndState: async (name, value) => {
-      const setName = name.replace("City", "");
+  const handleChangeEventFunctions = craeateHandleChangeEventFunction({
+    setFormData,
+    formData,
+  });
 
-      const obj = {
-        columns: `(select id from tblState s where s.id = ci.stateId and s.status = 1) stateId,
-                  (select name from tblState s where s.id = ci.stateId and s.status = 1) stateName,
-                  (select id from tblCountry c where c.id = ci.countryId and c.status = 1) countyId,
-                  (select name from tblCountry c where c.id = ci.countryId and c.status = 1) countryName`,
-        tableName: "tblCity ci",
-        whereCondition: `ci.id = ${value.Id} and ci.status = 1`,
-      };
-      const { data } = await getDataWithCondition(obj);
-      setFormData((prev) => {
-        if (setName === "shipper") {
-          return {
-            ...prev,
-            [`${setName}Country`]: {
-              Id: data[0].countyId,
-              Name: data[0].countryName,
-            },
-          };
-        } else {
-          return {
-            ...prev,
-            [`${setName}State`]: {
-              Id: data[0].stateId,
-              Name: data[0].stateName,
-            },
-            [`${setName}Country`]: {
-              Id: data[0].countyId,
-              Name: data[0].countryName,
-            },
-          };
-        }
-      });
-    },
-    setISOBySize: async (name, value, { containerIndex, tabIndex }) => {
-      const typeId = formData?.tblBlContainer[containerIndex]?.typeId?.Id;
-      const obj = {
-        columns: `s.id Id, s.isocode Name`,
-        tableName: "tblIsocode s",
-        joins:
-          "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
-        whereCondition: `d.id = ${value.Id} and d1.id = ${typeId}`,
-      };
-      const { data, success } = await getDataWithCondition(obj);
-      if (success) {
-        setFormData((prevData) =>
-          setInputValue({
-            prevData,
-            tabName: null,
-            gridName: "tblBlContainer",
-            tabIndex: null,
-            containerIndex,
-            name: "isoCode",
-            value: data[0],
-          })
-        );
-      } else {
-        setFormData((prevData) =>
-          setInputValue({
-            prevData,
-            tabName: null,
-            gridName: "tblBlContainer",
-            tabIndex: null,
-            containerIndex,
-            name: "isoCode",
-            value: null,
-          })
-        );
-      }
-    },
-    setISOByType: async (name, value, { containerIndex, tabIndex }) => {
-      const sizeId = formData?.tblBlContainer[containerIndex]?.sizeId?.Id;
-      const obj = {
-        columns: `s.id Id, s.isocode Name`,
-        tableName: "tblIsocode s",
-        joins:
-          "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
-        whereCondition: `d.id = ${sizeId} and d1.id = ${value.Id}`,
-      };
-      const { data, success } = await getDataWithCondition(obj);
-      if (success) {
-        setFormData((prevData) =>
-          setInputValue({
-            prevData,
-            tabName: null,
-            gridName: "tblBlContainer",
-            tabIndex: null,
-            containerIndex,
-            name: "isoCode",
-            value: data[0],
-          })
-        );
-      } else {
-        setFormData((prevData) =>
-          setInputValue({
-            prevData,
-            tabName: null,
-            gridName: "tblBlContainer",
-            tabIndex: null,
-            containerIndex,
-            name: "isoCode",
-            value: null,
-          })
-        );
-      }
-    },
-    handleChangeOnPOL: (name, value) => {
-      setFormData((prev) => {
-        return {
-          ...prev,
-          plrId: value || {},
-        }
-      })
-    }
-
-  };
-
-
-  const handleBlurEventFunctions = {
-    containerNumberHandler: (event, { containerIndex, tabIndex }) => {
-      const { name, value } = event?.target || {};
-      const pattern = /^[A-Za-z]{4}[0-9]{7}$/;
-      if (!pattern.test(value)) {
-        toast.error(
-          "Invalid Container Number format. It should be 4 letters followed by 7 digits."
-        );
-
-        setFormData((prevData) =>
-          setInputValue({
-            prevData,
-            tabName: "tblBl",
-            gridName: "tblBlContainer",
-            tabIndex,
-            containerIndex,
-            name,
-            value: null,
-          })
-        );
-
-        return "";
-      }
-
-      return "";
-    },
-    panCardValid: (event, { containerIndex, tabIndex }) => {
-      const { value, name } = event.target;
-      const result = validatePanCard(value);
-
-      if (result?.error) {
-        // setFormData((prevData) =>
-        //   setInputValue({
-        //     prevData,
-        //     tabName: "tblBl",
-        //     gridName: "tblBlContainer",
-        //     tabIndex,
-        //     containerIndex,
-        //     name,
-        //     value: null,
-        //   })
-        // );
-        return toast.error(result.error);
-      }
-    },
-    checkPinCode: (event) => {
-      const { name, value } = event.target;
-      console.log(name, value);
-      const result = validPinCode(value);
-      if (result.error) {
-        // setFormData((prevData) =>
-        //   setInputValue({
-        //     prevData,
-        //     tabName: "tblBl",
-        //     name,
-        //     value: null,
-        //   })
-        // );
-        return toast.error(result.error);
-      }
-    },
-
-    validUnoImoCode: (event) => {
-      const { value, name } = event.target;
-      const v = String(value).trim();
-
-      if (!v) return true;
-
-      if (name === "unNo") {
-        if (v.length !== 5) {
-          toast.error("UNO Code must be exactly 5 characters.");
-          return false;
-        }
-      }
-
-      if (name === "imoCode") {
-        if (v.length !== 3) {
-          toast.error("IMO Code must be exactly 3 characters.");
-          return false;
-        }
-      }
-      return true;
-    },
-  };
+  const handleBlurEventFunctions = createdHandleBlurEventFunctions({
+    setFormData,
+    formData,
+  });
 
   useEffect(() => {
     if (formData?.tblBlContainer) {
@@ -365,7 +179,8 @@ export default function Home() {
   useEffect(() => {
     async function getMblData() {
       const obj = {
-        columns: "id as Id, name as Name , masterListName as masterListName , code as code",
+        columns:
+          "id as Id, name as Name , masterListName as masterListName , code as code",
         tableName: "tblMasterData",
         whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
       };
@@ -375,9 +190,6 @@ export default function Home() {
         setPackTypeState(data[0]);
       }
     }
-
-
-
 
     setFormData((prev) => ({
       ...prev,
@@ -391,20 +203,20 @@ export default function Home() {
       },
       ...(!mode?.formId
         ? {
-          // set only if empty, for safety
-          ...(!prev?.shippingLineId && {
-            shippingLineId: {
-              Id: userData.companyId,
-              Name: userData.companyName,
-            },
-          }),
-          ...(!prev?.mloId && {
-            mloId: {
-              Id: userData.companyId,
-              Name: userData.companyName,
-            },
-          }),
-        }
+            // set only if empty, for safety
+            ...(!prev?.shippingLineId && {
+              shippingLineId: {
+                Id: userData.companyId,
+                Name: userData.companyName,
+              },
+            }),
+            ...(!prev?.mloId && {
+              mloId: {
+                Id: userData.companyId,
+                Name: userData.companyName,
+              },
+            }),
+          }
         : {}),
     }));
     if (mode?.formId) return;
@@ -525,9 +337,9 @@ export default function Home() {
             prev?.podVoyageId
               ? prev
               : {
-                ...prev,
-                podVoyageId: data[0],
-              }
+                  ...prev,
+                  podVoyageId: data[0],
+                }
           );
         }
       } catch (e) {
