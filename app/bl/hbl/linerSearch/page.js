@@ -101,8 +101,8 @@ export default function BLList() {
           groupBy:
             "group by b.mblNo, m.name, v.name, m1.name, b.hblRequestRemarks",
           orderBy:
-            "order by case m1.name when 'Request' then 1 when 'Reject' then 2 when 'Confirm' then 3 end,  max(b.createdDate) asc, b.mblNo asc",
-          joins: `left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id  left join tblMasterData m1 on m1.id = b.hblRequestStatus left join tblUser u on  u.id = ${userData.userId} join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1 and m1.name in ('Request', 'Reject', 'Confirm') and b1.shippingLineId = u.companyId`,
+            "order by case m1.name when 'Request' then 1 when 'Request for Amendment' then 2 when 'Reject' then 3 when 'Reject for Amendment' then 4 when 'Confirm' then 5 when 'Approved for Amendment' then 6 end, max(b.createdDate) asc, b.mblNo asc",
+          joins: `left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id  left join tblMasterData m1 on m1.id = b.hblRequestStatus left join tblUser u on  u.id = ${userData.userId} join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1 and m1.name in ('Request', 'Reject', 'Confirm', 'Request for Amendment', 'Reject for Amendment', 'Approved for Amendment') and b1.shippingLineId = u.companyId`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -190,7 +190,8 @@ export default function BLList() {
       handleDeleteRecord(formId);
       return;
     }
-    setMode({ mode, formId });
+    const filterData = rows.filter((item) => item.hblId === formId);
+    setMode({ mode, formId, status: filterData[0]?.status });
     router.push("/bl/hbl");
   };
 
@@ -236,6 +237,8 @@ export default function BLList() {
           onUpdated={() => getData(page, rowsPerPage)}
           isReject={true}
           isVerify={true}
+          isRejectAmendment={true}
+          isVerifyAmendment={true}
         />
 
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
@@ -279,7 +282,11 @@ export default function BLList() {
                     <TableCell>{row.cargoTypeId}</TableCell>
                     <TableCell>{row.podVesselId}</TableCell>
                     <TableCell>{row.hblCount}</TableCell>
-                    <TableCell sx={{ color: statusColor(row.status) }}>
+                    <TableCell
+                      sx={{
+                        color: statusColor(row.status.replace(/\s+/g, "")),
+                      }}
+                    >
                       {row.status}
                     </TableCell>
                     <TableCell>{row.remark}</TableCell>
@@ -295,14 +302,6 @@ export default function BLList() {
                         }
                       />
                     </TableCell>
-                    {/* <TableCell className="table-icons opacity-0 group-hover:opacity-100 !min-w-fit">
-                      <HoverActionIcons
-                        onView={() => modeHandler("view", row.hblId)}
-                        onEdit={() => modeHandler("edit", row.hblId)}
-                        onDelete={() => modeHandler("delete", row.hblId)}
-                        menuAccess={data ?? {}}
-                      />
-                    </TableCell> */}
                   </TableRow>
                 ))
               ) : (

@@ -1,3 +1,5 @@
+import { getDataWithCondition, updateStatusRows } from "@/apis";
+import { getUserByCookies } from "@/utils";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 
@@ -112,6 +114,9 @@ export function statusColor(status) {
     Reject: "#DC0E0E",
     Request: "#4E61D3",
     Confirm: "green",
+    RejectforAmendment: "#BF124D",
+    RequestforAmendment: "#393D7E",
+    ApprovedforAmendment: "#007E6E",
   };
   return color[status];
 }
@@ -123,3 +128,172 @@ export function checkAttachment(formData) {
 
   return isAttachment.some((item) => item === false);
 }
+
+export const requestStatusFun = {
+  requestHandler: async (mblNo, hblStatus) => {
+    const userData = getUserByCookies();
+    const obj1 = {
+      columns: "id",
+      tableName: "tblBl",
+      whereCondition: `mblNo = '${mblNo}' and mblHblFlag = 'HBL' and status = 1`,
+    };
+    const { data, success } = await getDataWithCondition(obj1);
+    if (success) {
+      const hblIds = data.map((item) => item.id).join(",");
+      const requestStatus = hblStatus.filter((item) => item.Name === "Request");
+      const rowsPayload = hblIds.split(",").map((id) => {
+        return {
+          id: id,
+          hblRequestStatus: requestStatus[0].Id,
+          hblRequestRemarks: null,
+          updatedBy: userData.userId,
+          updatedDate: new Date(),
+        };
+      });
+      const res = await updateStatusRows({
+        tableName: "tblBl",
+        rows: rowsPayload,
+        keyColumn: "id",
+      });
+      const { success, message } = res || {};
+      if (!success) {
+        toast.error(message || "Update failed");
+        return;
+      }
+      toast.success("Request updated successfully!");
+    }
+  },
+  verifyHandler: async (mode, hblStatus) => {
+    const userData = getUserByCookies();
+    const verifyStatus = hblStatus.filter((item) => item.Name === "Confirm");
+    const rowsPayload = mode.formId.split(",").map((id) => {
+      return {
+        id: id,
+        hblRequestStatus: verifyStatus[0].Id,
+        hblRequestRemarks: null,
+        updatedBy: userData.userId,
+        updatedDate: new Date(),
+      };
+    });
+    const res = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Request updated successfully!");
+  },
+  rejectHandler: async (mode, hblStatus, rejectState, setRejectState) => {
+    const userData = getUserByCookies();
+    const verifyStatus = hblStatus.filter((item) => item.Name === "Reject");
+    const rowsPayload = mode.formId.split(",").map((id) => {
+      return {
+        id: id,
+        hblRequestStatus: verifyStatus[0].Id,
+        hblRequestRemarks: rejectState.value,
+        updatedBy: userData.userId,
+        updatedDate: new Date(),
+      };
+    });
+    const res = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Rejected updated successfully!");
+    setRejectState((prev) => ({ ...prev, toggle: false, value: null }));
+  },
+  requestForAmendmentHandler: async (mode, hblStatus) => {
+    const userData = getUserByCookies();
+    const verifyStatus = hblStatus.filter(
+      (item) => item.Name === "Request for Amendment"
+    );
+    const rowsPayload = mode.formId.split(",").map((id) => {
+      return {
+        id: id,
+        hblRequestStatus: verifyStatus[0].Id,
+        hblRequestRemarks: null,
+        updatedBy: userData.userId,
+        updatedDate: new Date(),
+      };
+    });
+    const res = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Request updated successfully!");
+  },
+  confirmForAmendmentHandler: async (mode, hblStatus) => {
+    const userData = getUserByCookies();
+    const verifyStatus = hblStatus.filter(
+      (item) => item.Name === "Approved for Amendment"
+    );
+    const rowsPayload = mode.formId.split(",").map((id) => {
+      return {
+        id: id,
+        hblRequestStatus: verifyStatus[0].Id,
+        hblRequestRemarks: null,
+        updatedBy: userData.userId,
+        updatedDate: new Date(),
+      };
+    });
+    const res = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Request updated successfully!");
+  },
+  rejectForAmendmentHandler: async (
+    mode,
+    hblStatus,
+    rejectState,
+    setRejectState
+  ) => {
+    const userData = getUserByCookies();
+    const verifyStatus = hblStatus.filter(
+      (item) => item.Name === "Reject for Amendment"
+    );
+    const rowsPayload = mode.formId.split(",").map((id) => {
+      return {
+        id: id,
+        hblRequestStatus: verifyStatus[0].Id,
+        hblRequestRemarks: rejectState.value,
+        updatedBy: userData.userId,
+        updatedDate: new Date(),
+      };
+    });
+    const res = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Rejected updated successfully!");
+    setRejectState((prev) => ({ ...prev, toggle: false, value: null }));
+  },
+};

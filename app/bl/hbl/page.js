@@ -34,10 +34,14 @@ import {
   fetchForm,
   getDataWithCondition,
   insertUpdateForm,
-  updateStatusRows,
 } from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { checkAttachment, copyHandler, useTotalGrossAndPack } from "./utils";
+import {
+  checkAttachment,
+  copyHandler,
+  requestStatusFun,
+  useTotalGrossAndPack,
+} from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import AgreeTerms from "@/components/agreeTerms/agreeTerms";
@@ -86,6 +90,7 @@ export default function Home() {
   const [rejectState, setRejectState] = useState({
     toggle: false,
     value: null,
+    amendment: false,
   });
 
   const handleChangeTab = (event, newValue) => {
@@ -625,88 +630,6 @@ export default function Home() {
     },
   };
 
-  async function requestHandler() {
-    const obj1 = {
-      columns: "id",
-      tableName: "tblBl",
-      whereCondition: `mblNo = '${formData.mblNo}' and mblHblFlag = 'HBL' and status = 1`,
-    };
-    const { data, success } = await getDataWithCondition(obj1);
-    if (success) {
-      const hblIds = data.map((item) => item.id).join(",");
-      const requestStatus = hblStatus.filter((item) => item.Name === "Request");
-      const rowsPayload = hblIds.split(",").map((id) => {
-        return {
-          id: id,
-          hblRequestStatus: requestStatus[0].Id,
-          hblRequestRemarks: null,
-          requestedBy: userData.userId,
-          requestDate: new Date(),
-        };
-      });
-      const res = await updateStatusRows({
-        tableName: "tblBl",
-        rows: rowsPayload,
-        keyColumn: "id",
-      });
-      const { success, message } = res || {};
-      if (!success) {
-        toast.error(message || "Update failed");
-        return;
-      }
-      toast.success("Request updated successfully!");
-    }
-  }
-
-  async function verifyHandler() {
-    const verifyStatus = hblStatus.filter((item) => item.Name === "Confirm");
-    const rowsPayload = mode.formId.split(",").map((id) => {
-      return {
-        id: id,
-        hblRequestStatus: verifyStatus[0].Id,
-        hblRequestRemarks: null,
-        verifiedBy: userData.userId,
-        verifyDate: new Date(),
-      };
-    });
-    const res = await updateStatusRows({
-      tableName: "tblBl",
-      rows: rowsPayload,
-      keyColumn: "id",
-    });
-    const { success, message } = res || {};
-    if (!success) {
-      toast.error(message || "Update failed");
-      return;
-    }
-    toast.success("Request updated successfully!");
-  }
-
-  async function rejectHandler() {
-    const verifyStatus = hblStatus.filter((item) => item.Name === "Reject");
-    const rowsPayload = mode.formId.split(",").map((id) => {
-      return {
-        id: id,
-        hblRequestStatus: verifyStatus[0].Id,
-        hblRequestRemarks: rejectState.value,
-        rejectedBy: userData.userId,
-        rejectDate: new Date(),
-      };
-    });
-    const res = await updateStatusRows({
-      tableName: "tblBl",
-      rows: rowsPayload,
-      keyColumn: "id",
-    });
-    const { success, message } = res || {};
-    if (!success) {
-      toast.error(message || "Update failed");
-      return;
-    }
-    toast.success("Rejected updated successfully!");
-    setRejectState((prev) => ({ ...prev, toggle: false, value: null }));
-  }
-
   useEffect(() => {
     if (formData?.tblBl?.[tabValue]?.tblBlContainer) {
       let packType =
@@ -833,11 +756,7 @@ export default function Home() {
         const { data: cinData, success: cinSuccess } =
           await getDataWithCondition(cinObj);
 
-        if (
-          cinSuccess &&
-          Array.isArray(cinData) &&
-          cinData.length > 0
-        ) {
+        if (cinSuccess && Array.isArray(cinData) && cinData.length > 0) {
           setFormData((prev) =>
             // don't override if already set (edit mode / user changed)
             prev?.cinType ? prev : { ...prev, cinType: cinData[0] }
@@ -848,9 +767,6 @@ export default function Home() {
 
     getHblStatus();
   }, []);
-
-
-  console.log(formData, "{}}");
 
   return (
     <ThemeProvider theme={theme}>
@@ -1131,10 +1047,13 @@ export default function Home() {
               )}
             {userData?.roleCode === "customer" &&
               mode.status !== "Confirm" &&
-              mode.status !== "Request" && (
+              mode.status !== "Request" &&
+              mode.status !== "Reject for Amendment" && (
                 <CustomButton
                   text={"Request"}
-                  onClick={requestHandler}
+                  onClick={() =>
+                    requestStatusFun.requestHandler(formData.mblNo, hblStatus)
+                  }
                   disabled={
                     fieldsMode !== "view" && fieldsMode !== "edit" && requestBtn
                   }
@@ -1142,16 +1061,58 @@ export default function Home() {
               )}
 
             {(fieldsMode === "edit" || fieldsMode === "view") &&
+              mode.status === "Request" &&
               userData?.roleCode === "shipping" && (
-                <CustomButton text={"Verify"} onClick={verifyHandler} />
+                <CustomButton
+                  text={"Verify"}
+                  onClick={() =>
+                    requestStatusFun.verifyHandler(mode, hblStatus)
+                  }
+                />
               )}
 
             {(fieldsMode === "edit" || fieldsMode === "view") &&
+              mode.status === "Request" &&
               userData.roleCode === "shipping" && (
                 <CustomButton
                   text={"Reject"}
                   onClick={() =>
                     setRejectState((prev) => ({ ...prev, toggle: true }))
+                  }
+                />
+              )}
+
+            {userData?.roleCode === "customer" && mode.status === "Confirm" && (
+              <CustomButton
+                text={"Request for Amendment"}
+                onClick={() =>
+                  requestStatusFun.requestForAmendmentHandler(mode, hblStatus)
+                }
+              />
+            )}
+
+            {(fieldsMode === "edit" || fieldsMode === "view") &&
+              mode.status === "Request for Amendment" &&
+              userData?.roleCode === "shipping" && (
+                <CustomButton
+                  text={"Approved for Amendment"}
+                  onClick={() =>
+                    requestStatusFun.confirmForAmendmentHandler(mode, hblStatus)
+                  }
+                />
+              )}
+
+            {(fieldsMode === "edit" || fieldsMode === "view") &&
+              mode.status === "Request for Amendment" &&
+              userData?.roleCode === "shipping" && (
+                <CustomButton
+                  text={"Reject for Amendment"}
+                  onClick={() =>
+                    setRejectState((prev) => ({
+                      ...prev,
+                      toggle: true,
+                      amendment: true,
+                    }))
                   }
                 />
               )}
@@ -1162,7 +1123,21 @@ export default function Home() {
       <RejectModal
         rejectState={rejectState}
         setRejectState={setRejectState}
-        rejectHandler={rejectHandler}
+        rejectHandler={() =>
+          rejectState?.amendment
+            ? requestStatusFun.rejectForAmendmentHandler(
+                mode,
+                hblStatus,
+                rejectState,
+                setRejectState
+              )
+            : requestStatusFun.rejectHandler(
+                mode,
+                hblStatus,
+                rejectState,
+                setRejectState
+              )
+        }
       />
     </ThemeProvider>
   );

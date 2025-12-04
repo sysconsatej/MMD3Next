@@ -246,6 +246,7 @@ export default function BLList() {
           isDelete={true}
           isRequest={true}
           isEdit={true}
+          isRequestAmendment={true}
         />
 
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
@@ -290,7 +291,7 @@ export default function BLList() {
                     <TableCell>{row.cargoTypeId}</TableCell>
                     <TableCell>{row.podVesselId}</TableCell>
                     <TableCell>{row.hblCount}</TableCell>
-                    <TableCell sx={{ color: statusColor(row.status) }}>
+                    <TableCell sx={{ color: statusColor(row.status.replace(/\s+/g, "")) }}>
                       {row.status}
                     </TableCell>
                     <TableCell>{row.remark}</TableCell>
