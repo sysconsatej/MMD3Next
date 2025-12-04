@@ -1,4 +1,7 @@
+import { getDataWithCondition } from "@/apis";
 import { useEffect } from "react";
+export const storeApiResult = [];
+
 
 export function useTotalGrossAndPack(formData, setTotals) {
   useEffect(() => {
@@ -55,9 +58,9 @@ export const checkNoPackages = ({ formData, hblType }) => {
 
       const childTotal = Array.isArray(row?.tblBlPackingList)
         ? row.tblBlPackingList.reduce(
-            (sum, cur) => sum + Number(cur?.noOfPackages || 0),
-            0
-          )
+          (sum, cur) => sum + Number(cur?.noOfPackages || 0),
+          0
+        )
         : 0;
 
       if (parentPackages !== childTotal) {
@@ -72,12 +75,45 @@ export const checkNoPackages = ({ formData, hblType }) => {
 
   const totalPackages = Array.isArray(formData?.tblBlPackingList)
     ? formData.tblBlPackingList.reduce(
-        (sum, cur) => sum + Number(cur?.noOfPackages || 0),
-        0
-      )
+      (sum, cur) => sum + Number(cur?.noOfPackages || 0),
+      0
+    )
     : 0;
 
   return totalPackages === Number(formData?.noOfPackages)
     ? ""
     : `Total No of Packages does not match with  No of Packages (${formData?.noOfPackages})`;
 };
+
+
+export const getPortBasedOnCountry = async ({ portId, inputName }) => {
+  const obj = {
+    columns: `
+    p.id AS Id,
+    p.name AS PortName,
+    CASE 
+      WHEN c.name = 'India' THEN 'IN'
+      ELSE 'F'
+    END AS countryCategory
+  `,
+    tableName: `
+    tblPort p 
+    LEFT JOIN tblCountry c ON c.id = p.countryId
+  `,
+    whereCondition: `p.id = ${portId}`
+  };
+  const result = await getDataWithCondition(obj)
+  const newEntry = {
+    ...result?.data[0], inputName: inputName
+  }
+  const existingIndex = storeApiResult.findIndex(item => item.inputName === inputName);
+  if (existingIndex > -1) {
+    storeApiResult[existingIndex] = newEntry;
+  } else {
+    storeApiResult.push(newEntry);
+  }
+
+  return result?.data[0]
+}
+
+

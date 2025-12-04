@@ -151,7 +151,7 @@ export default function InvoiceReleaseList() {
     setMode({ mode: "add", formId: null });
 
     // Redirect to InvoicePayment (NEW invoice creation)
-    router.push(`/request/invoiceRelease/invoiceUpload?blId=${blId}`);
+    router.push(`/invoice/invoiceRelease/invoiceUpload?blId=${blId}`);
   };
 
   const getData = useCallback(
@@ -235,7 +235,7 @@ export default function InvoiceReleaseList() {
   const modeHandler = useCallback(
     (mode, formId = null) => {
       setMode({ mode, formId });
-      router.push("/request/invoiceRequest");
+      router.push("/invoice/invoiceRequest");
     },
     [router, setMode]
   );
