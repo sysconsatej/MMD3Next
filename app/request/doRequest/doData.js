@@ -101,7 +101,7 @@ export const fieldData = {
             type: "dropdown",
             tableName: "tblDepot d",
         },
-       {
+        {
             label: "Vessel",
             name: "podVesselId",
             type: "dropdown",
@@ -174,12 +174,11 @@ export const fieldData = {
             name: "sizeId",
             type: "dropdown",
             tableName: "tblMasterData m",
-            displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
+            displayColumn: "m.name",
             where: "m.masterListName = 'tblSize'",
             orderBy: "m.name",
-            foreignTable: "code-name,tblMasterData",
+            foreignTable: "name,tblMasterData",
             isEdit: true,
-            changeFun: "setISOBySize",
         },
         {
             label: "Type",
