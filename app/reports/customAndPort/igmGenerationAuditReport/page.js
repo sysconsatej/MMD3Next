@@ -39,7 +39,7 @@ export default function IgmGenerationAuditReport() {
     const transformed = transformToIds(formData);
 
     const requestBody = {
-      spName: "importBlSelection",
+      spName: "",
       jsonData: transformed,
       companyId: userData.companyId,
     };
