@@ -1,5 +1,5 @@
 const fieldData = {
-  pendingInvoiceFields: [
+  releasedDoFields: [
     {
       label: "Company Type",
       name: "companyType",
@@ -9,7 +9,7 @@ const fieldData = {
       // searchColumn: "t.name",
       // orderBy: "t.name",
       // foreignTable: "name,tblCompany",
-      // isEdit: true,
+      isEdit: true,
     },
     {
       label: "Company Name",
@@ -31,7 +31,7 @@ const fieldData = {
 
     { label: "Item No", name: "itemNo", type: "text", isEdit: true },
     {
-      label: "From Date",
+      label: "DoRelease",
       name: "fromDate",
       type: "date",
       isEdit: true,

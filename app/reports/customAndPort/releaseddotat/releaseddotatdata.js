@@ -1,5 +1,5 @@
 const fieldData = {
-  invoiceRequestFields: [
+  releaseddotatfields: [
     {
       label: "Location",
       name: "pod",
@@ -11,20 +11,8 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Party Name",
-      name: "party",
-      type: "text",
-      isEdit: true,
-    },
-    {
-      label: "Status",
-      name: "status",
-      type: "dropdown",
-      isEdit: true,
-    },
-    {
-      label: "Bl No/Via NO-Cust Code",
-      name: "status",
+      label: "CHA/FF Name",
+      name: "",
       type: "text",
       isEdit: true,
     },

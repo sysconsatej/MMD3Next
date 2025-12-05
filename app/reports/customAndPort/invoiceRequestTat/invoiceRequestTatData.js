@@ -1,5 +1,5 @@
 const fieldData = {
-  vesselSummaryReportFields: [
+  invoiceRequestTatFields: [
     {
       label: "Location",
       name: "pod",
@@ -10,6 +10,18 @@ const fieldData = {
       foreignTable: "code-name,tblPort",
       isEdit: true,
     },
+    {
+      label: "Bl No/Via NO-Cust Code",
+      name: "status",
+      type: "text",
+      isEdit: true,
+    },
+    {
+      label: "IGM/ItemNo",
+      name: "itemNo",
+      isEdit: true,
+    },
+    
     {
       label: "From Date",
       name: "fromDate",
@@ -23,29 +35,21 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Vessel",
-      name: "vesselId",
-      type: "dropdown",
-      tableName: "tblVessel t",
-      idColumn: "id",
-      displayColumn: "t.name",
-      searchColumn: "t.name",
-      orderBy: "t.name",
+      label: "BLStatus",
+      name: "blStatus",
+      type: "radio",
+      radioData: [
+        { label: "Requested", value: "RT" },
+        { label: "Released", value: "RD" },
+      ],
       isEdit: true,
     },
-    
     {
-      label: "Voyage",
-      name: "voyageId",
-      type: "dropdown",
-      tableName: "tblVoyage t",
-      idColumn: "id",
-      displayColumn: "t.voyageNo",
-      searchColumn: "t.voyageNo",
-      selectedConditions: [{ vessel: "vesselId" }],
-      orderBy: "t.voyageNo",
-      isEdit: true,
-    },
+       label: "All Invoices",
+       name: "",
+       type: "checkbox",
+       isEdit: true,
+     },
   ],
 };
 export default fieldData;

@@ -186,11 +186,12 @@ const fieldData = {
       name: "scrNo",
       isEdit: true,
     },
-    {
-      label: "Empty Depot",
-      name: "depotId",
-      isEdit: true,
-    },
+    // {
+    //   label: "Empty Depot",
+    //   name: "depotId",
+    //   isEdit: true,
+    //   type :
+    // },
 
     { label: "IGM No", name: "igmNo", type: "text", isEdit: true },
     {

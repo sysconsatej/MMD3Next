@@ -250,7 +250,12 @@ export const navItems = [
       },
       {
         name: "Released DO",
-        href: "/reports/customAndPort/releasedDo",
+        href: "/reports/customAndPort/releasedDoShipper",
+        isShow: false,
+      },
+      {
+        name: "Un Released DO",
+        href: "/reports/customAndPort/unReleasedDo",
         isShow: false,
       },
       {
@@ -290,12 +295,17 @@ export const navItems = [
       },
       {
         name: "Pending Invoice",
-        href: "/reports/customAndPort/pendingInvoice",
+        href: "/reports/customAndPort/pendingInvoices",
         isShow: false,
       },
       {
         name: "Released DO",
         href: "/reports/customAndPort/releasedDo",
+        isShow: false,
+      },
+      {
+        name: "Pending DO",
+        href: "/reports/customAndPort/pendingDo",
         isShow: false,
       },
     ],
