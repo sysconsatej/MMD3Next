@@ -44,25 +44,27 @@ const RequestCard = ({ item }) => {
         {item?.cardType}
       </Box>
 
-      <Box sx={{ display : "flex" , flexDirection :  "column" }}>
+      <Box sx={{ display: "flex", flexDirection: "column" }}>
         <CardContent sx={{ flex: 1, p: 2 }}>
           <Box>
-            <Typography
-              variant="body2"
-              sx={{
-                color: "primary.main",
-                fontWeight: "bold",
-                cursor: "pointer",
-                wordBreak: "break-word",
-                fontSize: 12,
-              }}
-            >
-              BL2022110203435(02 Nov)
-            </Typography>
-
+            <Link href={""} >
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "primary.main",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  wordBreak: "break-word",
+                  fontSize: 12,
+                }}
+              >
+                MASONTKD17126
+              </Typography>
+            </Link>
+{/* 
             <Typography variant="body2" sx={{ mt: 1, fontSize: 12 }}>
               Released
-            </Typography>
+            </Typography> */}
           </Box>
         </CardContent>
 
