@@ -15,7 +15,7 @@ const fieldData = {
     },
     {
       label: "Line",
-      name: "companyId",
+      name: "shippingLineId",
       type: "dropdown",
       tableName: "tblCompany t",
       displayColumn: "t.name",
