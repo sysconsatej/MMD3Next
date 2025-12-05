@@ -50,7 +50,7 @@ const fieldData = {
     },
     {
       label: "Mobile (Requester)",
-      name: "name",
+      name: "shippingLineTelNo",
       isEdit: true,
       required: true,
     },
