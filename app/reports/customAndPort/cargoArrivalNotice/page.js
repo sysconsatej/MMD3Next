@@ -136,8 +136,11 @@ export default function CargoArrivalNotice() {
         },
       };
 
+      console.log(requestBody, '[][][]')
+
       const fetchedData = await fetchDynamicReportData(requestBody);
-      const data = fetchedData?.data?.data;
+      const data = fetchedData?.data;
+      console.log(fetchedData?.data ,'[][][][')
 
       if (!Array.isArray(data) || data.length === 0) {
         toast.info("No data returned to email");
@@ -155,7 +158,7 @@ export default function CargoArrivalNotice() {
           const html = generatedHtmlReport(item); // assumes this never throws
           const emailPayload = {
             tailwindLocalPath: "./assets/css/tailwind.min.css", // optional
-            to: "rohitanabhavane26@gmail.com", // TODO: replace with item-specific email if needed
+            to: "productmgr@mastergroups.com", // TODO: replace with item-specific email if needed
             htmlContent: html,
           };
 
