@@ -1,8 +1,30 @@
 const fieldData = {
   unReleasedDoFields: [
     {
+      label: "Location",
+      name: "podId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      orderBy: "p.name",
+      foreignTable: "code-name,tblPort",
+      isEdit: true,
+    },
+    {
+      label: "From Date",
+      name: "fromDate",
+      type: "date",
+      isEdit: true,
+    },
+    {
+      label: " Date ",
+      name: "toDate",
+      type: "date",
+      isEdit: true,
+    },
+    {
       label: "Vessel",
-      name: "vessel",
+      name: "vesselId",
       type: "dropdown",
       tableName: "tblVessel t",
       idColumn: "id",
@@ -11,9 +33,10 @@ const fieldData = {
       orderBy: "t.name",
       isEdit: true,
     },
+    
     {
       label: "Voyage",
-      name: "voyage",
+      name: "voyageId",
       type: "dropdown",
       tableName: "tblVoyage t",
       idColumn: "id",
@@ -23,29 +46,15 @@ const fieldData = {
       orderBy: "t.voyageNo",
       isEdit: true,
     },
+    
     {
-      label: "POD",
-      name: "pod",
-      type: "dropdown",
-      tableName: "tblPort p",
-      displayColumn: "p.name",
-      joins: `join tblMasterData d on p.portTypeId = d.id and d.name = 'SEA PORT' join tblVoyageRoute v on v.portOfCallId = p.id`,
-      selectedConditions: [{ voyage: "v.voyageId" }],
-      searchColumn: "p.name",
-      orderBy: "p.name",
+      label: "Bl No",
+      name: "status",
+      type: "text",
       isEdit: true,
     },
-    {
-      label: "FPD",
-      name: "terminal",
-      type: "dropdown",
-      tableName: "tblPort t",
-      idColumn: "id",
-      displayColumn: "t.name",
-      searchColumn: "t.name",
-      orderBy: "t.name",
-      isEdit: true,
-    },
+  
+    
   ],
 };
 export default fieldData;

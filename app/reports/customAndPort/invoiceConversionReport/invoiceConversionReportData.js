@@ -2,7 +2,7 @@ const fieldData = {
   invoiceConversionFields: [
     {
       label: "Location",
-      name: "port",
+      name: "podId",
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
@@ -12,7 +12,7 @@ const fieldData = {
     },
     {
       label: "Vessel",
-      name: "vessel",
+      name: "vesselId",
       type: "dropdown",
       tableName: "tblVessel t",
       idColumn: "id",
@@ -21,9 +21,10 @@ const fieldData = {
       orderBy: "t.name",
       isEdit: true,
     },
+    
     {
       label: "Voyage",
-      name: "voyage",
+      name: "voyageId",
       type: "dropdown",
       tableName: "tblVoyage t",
       idColumn: "id",
@@ -46,16 +47,15 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "CFS/ICD",
-      name: "nominatedAreaId",
+      label: "Requested status",
+      name: "statusId",
       type: "dropdown",
-      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
-      tableName: "tblPort p",
-      joins: "left join tblMasterData m on m.id = p.portTypeId",
-      where: "m.code = 'CFS'",
-      orderBy: "p.name",
-      foreignTable: "code-name,tblPort",
-      style: "col-span-3 row-span-1",
+      isEdit: true,
+    },
+    {
+      label: "CFS/ICD",
+      name: "cfsId",
+      type: "dropdown",
       isEdit: true,
     },
     

@@ -1,5 +1,5 @@
 const fieldData = {
-  pendingInvoiceFields: [
+  pendingDoFields: [
     {
       label: "Company Type",
       name: "companyType",
@@ -40,6 +40,12 @@ const fieldData = {
       label: "To Date ",
       name: "toDate",
       type: "date",
+      isEdit: true,
+    },
+    {
+      label: "DO Extention",
+      name: "doExtention",
+      type: "dropdown",
       isEdit: true,
     },
   ],

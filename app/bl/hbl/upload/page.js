@@ -94,8 +94,8 @@ const parseFile = async (file) => {
     const arr = Array.isArray(obj)
       ? obj
       : Array.isArray(obj?.data)
-      ? obj.data
-      : [];
+        ? obj.data
+        : [];
     return arr.filter((r) => !isEmptyRow(r));
   }
 
