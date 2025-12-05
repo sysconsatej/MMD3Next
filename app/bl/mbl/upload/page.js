@@ -1,6 +1,6 @@
 "use client";
 /* eslint-disable */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import CustomButton from "@/components/button/button";
 import { CustomInput } from "@/components/customInput";
@@ -96,8 +96,8 @@ const parseFile = async (file) => {
     const arr = Array.isArray(obj)
       ? obj
       : Array.isArray(obj?.data)
-      ? obj.data
-      : [];
+        ? obj.data
+        : [];
     return arr.filter((r) => !isEmptyRow(r));
   }
 
@@ -295,8 +295,10 @@ export default function MblUpload() {
       };
 
       const resp = await uploads(payload);
-      const jsonVal = "[" + Object.values(resp?.data?.[0])[0] + "]";
-      setErrorGrid(JSON.parse(jsonVal));
+      if (resp?.data?.length > 0) {
+        const jsonVal = "[" + Object.values(resp?.data?.[0])[0] + "]";
+        setErrorGrid(JSON.parse(jsonVal));
+      }
       if (resp?.success)
         toast.success(resp?.message || "Uploaded successfully");
       else toast.warn(resp?.message || "No data returned from SP");
@@ -306,6 +308,14 @@ export default function MblUpload() {
       setBusy(false);
     }
   };
+
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      upload: null,
+    }));
+    setErrorGrid([]);
+  }, [formData?.template]);
 
   return (
     <ThemeProvider theme={theme}>

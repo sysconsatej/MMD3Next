@@ -45,7 +45,7 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: " Date ",
+      label: "To Date ",
       name: "toDate",
       type: "date",
       isEdit: true,
