@@ -1,3 +1,14 @@
+import { fetchForm, getDataWithCondition, updateStatusRows } from "@/apis";
+import {
+  formatDataWithForm,
+  formatFetchForm,
+  getUserByCookies,
+  setInputValue,
+  setVoyageBasedonVessel,
+  validateContainerForMBL,
+  validatePanCard,
+  validPinCode,
+} from "@/utils";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 
@@ -112,6 +123,9 @@ export function statusColor(status) {
     Reject: "#DC0E0E",
     Request: "#4E61D3",
     Confirm: "green",
+    RejectforAmendment: "#BF124D",
+    RequestforAmendment: "#393D7E",
+    ApprovedforAmendment: "#007E6E",
   };
   return color[status];
 }
@@ -123,3 +137,571 @@ export function checkAttachment(formData) {
 
   return isAttachment.some((item) => item === false);
 }
+
+export const requestStatusFun = {
+  requestHandler: async (mblNo, hblStatus) => {
+    const userData = getUserByCookies();
+    const obj1 = {
+      columns: "id",
+      tableName: "tblBl",
+      whereCondition: `mblNo = '${mblNo}' and mblHblFlag = 'HBL' and status = 1`,
+    };
+    const { data, success } = await getDataWithCondition(obj1);
+    if (success) {
+      const hblIds = data.map((item) => item.id).join(",");
+      const requestStatus = hblStatus.filter((item) => item.Name === "Request");
+      const rowsPayload = hblIds.split(",").map((id) => {
+        return {
+          id: id,
+          hblRequestStatus: requestStatus[0].Id,
+          hblRequestRemarks: null,
+          updatedBy: userData.userId,
+          updatedDate: new Date(),
+        };
+      });
+      const res = await updateStatusRows({
+        tableName: "tblBl",
+        rows: rowsPayload,
+        keyColumn: "id",
+      });
+      const { success, message } = res || {};
+      if (!success) {
+        toast.error(message || "Update failed");
+        return;
+      }
+      toast.success("Request updated successfully!");
+    }
+  },
+  verifyHandler: async (mode, hblStatus) => {
+    const userData = getUserByCookies();
+    const verifyStatus = hblStatus.filter((item) => item.Name === "Confirm");
+    const rowsPayload = mode.formId.split(",").map((id) => {
+      return {
+        id: id,
+        hblRequestStatus: verifyStatus[0].Id,
+        hblRequestRemarks: null,
+        updatedBy: userData.userId,
+        updatedDate: new Date(),
+      };
+    });
+    const res = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Request updated successfully!");
+  },
+  rejectHandler: async (mode, hblStatus, rejectState, setRejectState) => {
+    const userData = getUserByCookies();
+    const verifyStatus = hblStatus.filter((item) => item.Name === "Reject");
+    const rowsPayload = mode.formId.split(",").map((id) => {
+      return {
+        id: id,
+        hblRequestStatus: verifyStatus[0].Id,
+        hblRequestRemarks: rejectState.value,
+        updatedBy: userData.userId,
+        updatedDate: new Date(),
+      };
+    });
+    const res = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Rejected updated successfully!");
+    setRejectState((prev) => ({ ...prev, toggle: false, value: null }));
+  },
+  requestForAmendmentHandler: async (mode, hblStatus) => {
+    const userData = getUserByCookies();
+    const verifyStatus = hblStatus.filter(
+      (item) => item.Name === "Request for Amendment"
+    );
+    const rowsPayload = mode.formId.split(",").map((id) => {
+      return {
+        id: id,
+        hblRequestStatus: verifyStatus[0].Id,
+        hblRequestRemarks: null,
+        updatedBy: userData.userId,
+        updatedDate: new Date(),
+      };
+    });
+    const res = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Request updated successfully!");
+  },
+  confirmForAmendmentHandler: async (mode, hblStatus) => {
+    const userData = getUserByCookies();
+    const verifyStatus = hblStatus.filter(
+      (item) => item.Name === "Approved for Amendment"
+    );
+    const rowsPayload = mode.formId.split(",").map((id) => {
+      return {
+        id: id,
+        hblRequestStatus: verifyStatus[0].Id,
+        hblRequestRemarks: null,
+        updatedBy: userData.userId,
+        updatedDate: new Date(),
+      };
+    });
+    const res = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Request updated successfully!");
+  },
+  rejectForAmendmentHandler: async (
+    mode,
+    hblStatus,
+    rejectState,
+    setRejectState
+  ) => {
+    const userData = getUserByCookies();
+    const verifyStatus = hblStatus.filter(
+      (item) => item.Name === "Reject for Amendment"
+    );
+    const rowsPayload = mode.formId.split(",").map((id) => {
+      return {
+        id: id,
+        hblRequestStatus: verifyStatus[0].Id,
+        hblRequestRemarks: rejectState.value,
+        updatedBy: userData.userId,
+        updatedDate: new Date(),
+      };
+    });
+    const res = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Rejected updated successfully!");
+    setRejectState((prev) => ({ ...prev, toggle: false, value: null }));
+  },
+};
+
+export const createBlurFunc = ({ setFormData, formData, setJsonData  , fieldData}) => {
+  return {
+    getMblHandler: async (event) => {
+      const { value, name } = event.target;
+      const obj = {
+        columns: "id",
+        tableName: "tblBl",
+        whereCondition: `mblNo = '${value}' and mblHblFlag = 'MBL' and status = 1`,
+      };
+      const { success, data } = await getDataWithCondition(obj);
+      if (success) {
+        const format = formatFetchForm(
+          {
+            mblFields: fieldData.mblFields,
+          },
+          "tblBl",
+          data[0].id
+        );
+        const { result } = await fetchForm(format);
+        const excludeFields = ["companyId", "companyBranchId"];
+        const filterMblFields = fieldData.mblFields.filter(
+          (item) => !excludeFields.includes(item.name)
+        );
+        const getData = formatDataWithForm(result, {
+          mblFields: filterMblFields,
+        });
+        setFormData((prev) => ({ ...prev, ...getData }));
+        setJsonData((prev) => {
+          const prevMblFields = prev.mblFields;
+          const disableMbl = prevMblFields.map((item) => {
+            if (item.name === "mblNo") {
+              return { ...item, disabled: true };
+            }
+            return item;
+          });
+          return {
+            ...prev,
+            mblFields: disableMbl,
+          };
+        });
+      }
+    },
+    containerNumberHandler: async (event, { containerIndex, tabIndex }) => {
+      const { name, value } = event?.target || {};
+      const pattern = /^[A-Za-z]{4}[0-9]{7}$/;
+      if (!pattern.test(value)) {
+        toast.error(
+          "Invalid Container Number format. It should be 4 letters followed by 7 digits."
+        );
+
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex,
+            containerIndex,
+            name,
+            value: null,
+          })
+        );
+
+        return "";
+      }
+
+      // validation for containers
+      const result = await validateContainerForMBL(value, formData?.mblNo);
+
+      if (!result.valid) {
+        toast.error(result.message);
+        return "";
+      }
+
+      return "";
+    },
+    panCardValid: (event, { containerIndex, tabIndex }) => {
+      const { value, name } = event.target;
+      if (value?.length === 0) return "";
+      const result = validatePanCard(value);
+
+      if (result?.error) {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex,
+            containerIndex,
+            name,
+            value: null,
+          })
+        );
+        return toast.error(result.error);
+      }
+    },
+    checkPinCode: (event) => {
+      const { name, value } = event.target;
+      const result = validPinCode(value);
+      if (result.error) {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            name,
+            value: null,
+          })
+        );
+        return toast.error(result.error);
+      }
+    },
+    validUnoImoCode: (event) => {
+      const { value, name } = event.target;
+      const v = String(value).trim();
+
+      if (!v) return true;
+
+      if (name === "unNo") {
+        if (v.length !== 5) {
+          toast.error("UNO Code must be exactly 5 characters.");
+          return false;
+        }
+      }
+
+      if (name === "imoCode") {
+        if (v.length !== 3) {
+          toast.error("IMO Code must be exactly 3 characters.");
+          return false;
+        }
+      }
+      return true;
+    },
+  };
+};
+
+export const createHandleChangeFunc = ({ setFormData, formData }) => {
+  return {
+    setCountryAndState: async (name, value, { containerIndex, tabIndex }) => {
+      const setName = name.replace("City", "");
+      const obj = {
+        columns: `(select id from tblState s where s.id = ci.stateId and s.status = 1) stateId,
+                    (select name from tblState s where s.id = ci.stateId and s.status = 1) stateName,
+                    (select id from tblCountry c where c.id = ci.countryId and c.status = 1) countyId,
+                    (select name from tblCountry c where c.id = ci.countryId and c.status = 1) countryName`,
+        tableName: "tblCity ci",
+        whereCondition: `ci.id = ${value.Id} and ci.status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      setFormData((prev) => {
+        const prevTblBl = [...(prev.tblBl || [])];
+        if (setName === "shipper") {
+          prevTblBl[tabIndex] = {
+            ...prevTblBl[tabIndex],
+            [`${setName}Country`]: {
+              Id: data[0].countyId,
+              Name: data[0].countryName,
+            },
+          };
+        } else {
+          prevTblBl[tabIndex] = {
+            ...prevTblBl[tabIndex],
+            [`${setName}State`]: {
+              Id: data[0].stateId,
+              Name: data[0].stateName,
+            },
+            [`${setName}Country`]: {
+              Id: data[0].countyId,
+              Name: data[0].countryName,
+            },
+          };
+        }
+
+        return {
+          ...prev,
+          tblBl: prevTblBl,
+        };
+      });
+    },
+    setISOBySize: async (name, value, { containerIndex, tabIndex }) => {
+      const typeId =
+        formData?.tblBl[tabIndex]?.tblBlContainer[containerIndex]?.typeId?.Id;
+      const obj = {
+        columns: `s.id Id, s.isocode Name`,
+        tableName: "tblIsocode s",
+        joins:
+          "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
+        whereCondition: `d.id = ${value.Id} and d1.id = ${typeId}`,
+      };
+      const { data, success } = await getDataWithCondition(obj);
+      if (success) {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex,
+            containerIndex,
+            name: "isoCode",
+            value: data[0],
+          })
+        );
+      } else {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex,
+            containerIndex,
+            name: "isoCode",
+            value: null,
+          })
+        );
+      }
+    },
+    setISOByType: async (name, value, { containerIndex, tabIndex }) => {
+      const sizeId =
+        formData?.tblBl[tabIndex]?.tblBlContainer[containerIndex]?.sizeId?.Id;
+      const obj = {
+        columns: `s.id Id, s.isocode Name`,
+        tableName: "tblIsocode s",
+        joins:
+          "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
+        whereCondition: `d.id = ${sizeId} and d1.id = ${value.Id}`,
+      };
+      const { data, success } = await getDataWithCondition(obj);
+      if (success) {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex,
+            containerIndex,
+            name: "isoCode",
+            value: data[0],
+          })
+        );
+      } else {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex,
+            containerIndex,
+            name: "isoCode",
+            value: null,
+          })
+        );
+      }
+    },
+    cargoTypeHandler: async (name, value) => {
+      const isHazardous = value.Name === "HAZ - HAZARDOUS";
+      setJsonData((prev) => {
+        const itemContainer = prev.tblBlPackingList;
+        const requiredUno = itemContainer.map((item) => {
+          if (item.name === "imoId") {
+            return { ...item, required: isHazardous };
+          }
+
+          return item;
+        });
+
+        return {
+          ...prev,
+          tblBlPackingList: requiredUno,
+        };
+      });
+    },
+    setTelePhoneNoBasedOnLinerId: async (name, value) => {
+      // console.log(!val)
+
+      //  if (!value?.Id) {
+      //   console.log("hell")
+      //   setFormData((prev) =>
+      //     setInputValue({
+      //       prev,
+      //       name: "podVesselId",
+      //       value: {},
+      //     })
+      //   );
+      // }
+
+      const obj = {
+        columns: "c.telephoneNo , c.panNo",
+        tableName: "tblCompany c",
+        whereCondition: `c.id = ${value?.Id}`,
+      };
+      const result = await getDataWithCondition(obj);
+
+      if (result.length > 0 && result?.data[0]?.telephoneNo === "") {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            name: "shippingLineTelNo",
+            value: "",
+          })
+        );
+        return toast.error("For this Shipper PhoneNo do not exist pls add");
+      }
+
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          name: "shippingLineTelNo",
+          value: result?.data[0]?.telephoneNo || "",
+        })
+      );
+
+      // if (result?.data[0]?.panNo) {
+      //   const formatArray = formData?.tblBl
+      //     ?.map((_, idx) =>
+      //       _.tblBlContainer?.map((r) => {
+      //         return { ...r, tabIndex: idx };
+      //       })
+      //     )
+      //     ?.flat();
+
+      //   const updatedArray =
+      //     Array.isArray(formatArray) && formatArray.length > 0
+      //       ? formatArray?.map((i) => {
+      //           return { ...i, containerAgentCode: result?.data[0]?.panNo };
+      //         })
+      //       : [];
+
+      //   setFormData((prev) => {
+      //     return {
+      //       ...prev,
+      //       tblBl: prev.tblBl?.map((i, index) => {
+      //         return {
+      //           ...i,
+      //           tblBlContainer: updatedArray?.filter(
+      //             (r) => r?.tabIndex === index
+      //           ),
+      //         };
+      //       }),
+      //     };
+      //   });
+      // }
+
+      return "";
+    },
+    selectVoyageNoBasedOnVessel: async (name, value) => {
+      const linerId =
+        (userData?.roleCode === "shipper" &&
+          formData?.shippingLineId === userData?.companyId) ||
+        (userData?.roleCode === "customer" && formData?.shippingLineId);
+
+      if (!linerId) {
+        return toast.error("Pls Select Liner");
+      }
+
+      if (!value?.Id) {
+        const clearValues = ["shippingLineId", "podVoyageId"];
+        clearValues.map((info) => {
+          setFormData((prev) =>
+            setInputValue({
+              prev,
+              name: info,
+              value: {},
+            })
+          );
+        });
+
+        return "";
+      }
+
+      // cha is there then selected and shipper is their then login
+
+      const { data } = await setVoyageBasedonVessel({
+        vesselId: value?.Id,
+        companyId: formData?.shippingLineId?.Id,
+      });
+
+      if (Array.isArray(data)) {
+        if (data.length === 1) {
+          setFormData((prevData) =>
+            setInputValue({
+              prevData,
+              name: "podVoyageId",
+              value: data[0] || {},
+            })
+          );
+        }
+
+        if (data.length > 1) {
+          setFormData((prevData) =>
+            setInputValue({
+              prevData,
+              name: "podVoyageId",
+              value: {},
+            })
+          );
+        }
+      }
+    },
+  };
+};
