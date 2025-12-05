@@ -55,7 +55,9 @@ function createData(
   hblCount,
   hblId,
   status,
-  remark
+  remark,
+  emailId,
+  userName
 ) {
   return {
     id,
@@ -67,6 +69,8 @@ function createData(
     hblId,
     status,
     remark,
+    emailId,
+    userName,
   };
 }
 
@@ -93,7 +97,7 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "b.mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.id) as hblCount, string_agg(b.id, ',') as hblId, m1.name status, b.hblRequestRemarks remark",
+            "b.mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.id) as hblCount, string_agg(b.id, ',') as hblId, m1.name status, b.hblRequestRemarks remark, max(u3.emailId) emailId, max(u3.name) userName",
           tableName: "tblBl b",
           pageNo,
           pageSize,
@@ -102,7 +106,7 @@ export default function BLList() {
             "group by b.mblNo, m.name, v.name, m1.name, b.hblRequestRemarks",
           orderBy:
             "order by case m1.name when 'Request' then 1 when 'Request for Amendment' then 2 when 'Reject' then 3 when 'Reject for Amendment' then 4 when 'Confirm' then 5 when 'Approved for Amendment' then 6 end, max(b.createdDate) asc, b.mblNo asc",
-          joins: `left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id  left join tblMasterData m1 on m1.id = b.hblRequestStatus left join tblUser u on  u.id = ${userData.userId} join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1 and m1.name in ('Request', 'Reject', 'Confirm', 'Request for Amendment', 'Reject for Amendment', 'Approved for Amendment') and b1.shippingLineId = u.companyId`,
+          joins: `left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id  left join tblMasterData m1 on m1.id = b.hblRequestStatus left join tblUser u3 on u3.id = b.createdBy left join tblUser u on  u.id = ${userData.userId} join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1 and m1.name in ('Request', 'Reject', 'Confirm', 'Request for Amendment', 'Reject for Amendment', 'Approved for Amendment') and b1.shippingLineId = u.companyId`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -136,7 +140,9 @@ export default function BLList() {
           item["hblCount"],
           item["hblId"],
           item["status"],
-          item["remark"]
+          item["remark"],
+          item["emailId"],
+          item["userName"]
         )
       )
     : [];
@@ -261,7 +267,9 @@ export default function BLList() {
                 <TableCell>HBL Count</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Remark</TableCell>
-                <TableCell>Attachment</TableCell>
+                <TableCell>Email Id</TableCell>
+                <TableCell>User Name</TableCell>
+                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell>
               </TableRow>
             </TableHead>
 
@@ -290,7 +298,9 @@ export default function BLList() {
                       {row.status}
                     </TableCell>
                     <TableCell>{row.remark}</TableCell>
-                    <TableCell>
+                    <TableCell>{row.emailId}</TableCell>
+                    <TableCell>{row.userName}</TableCell>
+                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <AttachFileIcon
                         sx={{ cursor: "pointer", fontSize: "16px" }}
                         onClick={() =>

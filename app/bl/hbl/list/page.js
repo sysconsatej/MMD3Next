@@ -58,7 +58,9 @@ function createData(
   hblCount,
   hblId,
   status,
-  remark
+  remark,
+  emailId,
+  userName
 ) {
   return {
     id,
@@ -70,6 +72,8 @@ function createData(
     hblId,
     status,
     remark,
+    emailId,
+    userName,
   };
 }
 
@@ -101,14 +105,14 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "b.mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.id) as hblCount, string_agg(b.id, ',') as hblId, iif(count(distinct coalesce(m1.name, '#null#')) = 1 and max(m1.name) is not null, max(m1.name), '') status, iif(count(distinct coalesce(b.hblRequestRemarks, '#null#')) = 1 and max(b.hblRequestRemarks) is not null,max(b.hblRequestRemarks),'') remark",
+            "b.mblNo, string_agg(b.hblNo, ',') as hblNo, m.name cargoTypeId, v.name podVesselId, count(b.id) as hblCount, string_agg(b.id, ',') as hblId, iif(count(distinct coalesce(m1.name, '#null#')) = 1 and max(m1.name) is not null, max(m1.name), '') status, iif(count(distinct coalesce(b.hblRequestRemarks, '#null#')) = 1 and max(b.hblRequestRemarks) is not null,max(b.hblRequestRemarks),'') remark, max(u3.emailId) emailId, max(u3.name) userName",
           tableName: "tblBl b",
           pageNo,
           pageSize,
           advanceSearch: advanceSearchFilter(advanceSearch),
           groupBy: "group by b.mblNo, m.name, v.name",
           orderBy: "order by max(b.createdDate) desc, b.mblNo asc",
-          joins: `left join tblMasterData m on b.cargoTypeId = m.id  left join tblVessel v on b.podVesselId = v.id left join tblMasterData m1 on m1.id = b.hblRequestStatus  left join tblUser u on u.id = ${userData.userId} left join tblUser usr1 on usr1.companyId = u.companyId join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1 and b.createdBy = usr1.id`,
+          joins: `left join tblMasterData m on b.cargoTypeId = m.id  left join tblVessel v on b.podVesselId = v.id left join tblMasterData m1 on m1.id = b.hblRequestStatus left join tblUser u3 on u3.id = b.createdBy left join tblUser u on u.id = ${userData.userId} left join tblUser usr1 on usr1.companyId = u.companyId join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1 and b.createdBy = usr1.id`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -142,7 +146,9 @@ export default function BLList() {
           item["hblCount"],
           item["hblId"],
           item["status"],
-          item["remark"]
+          item["remark"],
+          item["emailId"],
+          item["userName"]
         )
       )
     : [];
@@ -269,8 +275,10 @@ export default function BLList() {
                 <TableCell>HBL Count</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Remark</TableCell>
-                <TableCell>Attachment</TableCell>
-                <TableCell>History</TableCell>
+                <TableCell>Email Id</TableCell>
+                <TableCell>User Name</TableCell>
+                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell>
+                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell>
               </TableRow>
             </TableHead>
 
@@ -291,11 +299,17 @@ export default function BLList() {
                     <TableCell>{row.cargoTypeId}</TableCell>
                     <TableCell>{row.podVesselId}</TableCell>
                     <TableCell>{row.hblCount}</TableCell>
-                    <TableCell sx={{ color: statusColor(row.status.replace(/\s+/g, "")) }}>
+                    <TableCell
+                      sx={{
+                        color: statusColor(row.status.replace(/\s+/g, "")),
+                      }}
+                    >
                       {row.status}
                     </TableCell>
                     <TableCell>{row.remark}</TableCell>
-                    <TableCell>
+                    <TableCell>{row.emailId}</TableCell>
+                    <TableCell>{row.userName}</TableCell>
+                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <AttachFileIcon
                         sx={{ cursor: "pointer", fontSize: "16px" }}
                         onClick={() =>
@@ -307,7 +321,7 @@ export default function BLList() {
                         }
                       />
                     </TableCell>
-                    <TableCell>
+                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <HistoryIcon
                         sx={{ cursor: "pointer", fontSize: "16px" }}
                         onClick={() =>
@@ -317,14 +331,6 @@ export default function BLList() {
                             value: row.mblNo,
                           }))
                         }
-                      />
-                    </TableCell>
-                    <TableCell className="table-icons opacity-0 group-hover:opacity-100 !min-w-fit">
-                      <HoverActionIcons
-                        onView={() => modeHandler("view", row.hblId)}
-                        onEdit={() => modeHandler("edit", row.hblId)}
-                        onDelete={() => modeHandler("delete", row.hblId)}
-                        menuAccess={data ?? {}}
                       />
                     </TableCell>
                   </TableRow>

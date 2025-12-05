@@ -36,6 +36,8 @@ const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
   .split(/\s+/)[0]
   .replace(/^dbo\./i, "");
+const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
+const CHECKBOX_CELL_SX = { width: 32, minWidth: 32, maxWidth: 32 };
 
 const REPORTS = [
   { key: "Survey Letter", label: "Survey Letter" },
@@ -239,30 +241,10 @@ export default function BLList() {
             <CustomButton text="Add" href="/bl/mbl" />
           </Box>
         </Box>
-
-        {/* <SelectionActionsBar
-          selectedIds={selectedIds}
-          tableName={UPDATE_TABLE}
-          keyColumn="id"
-          onView={(id) => modeHandler("view", id)}
-          onEdit={(id) => modeHandler("edit", id)}
-          onDelete={(id) => handleDeleteRecord(id)}
-          onUpdated={() => getData(page, rowsPerPage)}
-        /> */}
-
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                {/* <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
-                  <Checkbox
-                    size="small"
-                    indeterminate={someChecked}
-                    checked={allChecked}
-                    onChange={toggleAll}
-                    sx={CHECKBOX_SX}
-                  />
-                </TableCell> */}
                 <TableCell>BL NO</TableCell>
                 <TableCell>Reference BL NO</TableCell>
                 <TableCell>MBL date</TableCell>
@@ -273,7 +255,7 @@ export default function BLList() {
                 <TableCell>Cargo Movement</TableCell>
                 <TableCell>Arrival Vessel</TableCell>
                 <TableCell>Arrival Voyage</TableCell>
-                <TableCell>History</TableCell> {/* ⬅️ NEW */}
+                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -320,9 +302,7 @@ export default function BLList() {
                         </span>
                       </Box>
                     </TableCell>
-
-                    {/* ⬇️ NEW History cell */}
-                    <TableCell>
+                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <HistoryIcon
                         sx={{ cursor: "pointer", fontSize: "16px" }}
                         onClick={() => {
