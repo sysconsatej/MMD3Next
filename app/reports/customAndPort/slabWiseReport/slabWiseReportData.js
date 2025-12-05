@@ -2,7 +2,7 @@ const fieldData = {
     slabWiseReportFields: [
         {
             label: "Vessel",
-            name: "vessel",
+            name: "vesselId",
             type: "dropdown",
             tableName: "tblVessel t",
             idColumn: "id",
@@ -13,7 +13,7 @@ const fieldData = {
         },
         {
             label: "Voyage",
-            name: "voyage",
+            name: "voyageId",
             type: "dropdown",
             tableName: "tblVoyage t",
             idColumn: "id",
@@ -35,7 +35,7 @@ const fieldData = {
         },
         {
             label: "POD",
-            name: "pod",
+            name: "podId",
             type: "dropdown",
             tableName: "tblPort p",
             displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
