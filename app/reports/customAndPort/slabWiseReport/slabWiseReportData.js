@@ -1,5 +1,5 @@
 const fieldData = {
-    releasedDoTatFields: [
+    slabWiseReportFields: [
         {
             label: "Vessel",
             name: "vessel",
