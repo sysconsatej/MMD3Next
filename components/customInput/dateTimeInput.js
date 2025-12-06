@@ -11,10 +11,11 @@ const DateTimeInput = ({
   fieldValue,
   changeHandler,
   containerIndex,
+  fieldHighLight
 }) => {
   return (
     <Box className="flex items-end gap-2">
-      <InputLabel>
+      <InputLabel className={`${fieldHighLight && "bg-[#FDACAC]"}`}>
         {commonProps.required && (
           <span className="text-red-600 font-bold ">┃</span>
         )}

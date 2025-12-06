@@ -22,3 +22,23 @@ export const fetchHistory = async ({ tableName, recordId }) => {
     };
   }
 };
+export const fetchHblColumnsChanges = async ({ ids }) => {
+  try {
+    const res = await api.post("getHblColumnChanges", {
+      ids: ids,
+    });
+
+    return res.data;
+  } catch (error) {
+    console.error("getHblColumnChanges error:", error);
+
+    return {
+      success: false,
+      message:
+        error?.response?.data?.message ||
+        error.message ||
+        "Failed to fetch history",
+      data: [],
+    };
+  }
+};

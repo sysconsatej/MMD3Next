@@ -11,7 +11,7 @@ const VisuallyHiddenInput = (props) => (
   />
 );
 
-const BrowserButton = ({ onChange, commonProps, handleDrop }) => {
+const BrowserButton = ({ onChange, commonProps, handleDrop, fieldHighLight }) => {
   return (
     <Box
       onDrop={handleDrop}
@@ -107,7 +107,7 @@ const FileInput = ({
       } `}
     >
       {label && (
-        <InputLabel>
+        <InputLabel  className={`${fieldHighLight && "bg-[#FDACAC]"}`} >
           {remainingProps.required && (
             <span className="text-red-600 font-bold ">┃</span>
           )}

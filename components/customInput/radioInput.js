@@ -13,13 +13,14 @@ const RadioInput = ({
   field,
   changeHandler,
   containerIndex,
+  fieldHighLight
 }) => {
   return (
     <FormControl
       className={`flex items-end !flex-row gap-2 ${commonProps.className}`}
     >
       {commonProps.label && (
-        <FormLabel className="radioLabel">
+        <FormLabel className={`radioLabel ${fieldHighLight && "bg-[#FDACAC]"}`} >
           {commonProps.required && (
             <span className="text-red-600 font-bold ">┃</span>
           )}
