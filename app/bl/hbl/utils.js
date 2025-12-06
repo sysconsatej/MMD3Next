@@ -307,7 +307,12 @@ export const requestStatusFun = {
   },
 };
 
-export const createBlurFunc = ({ setFormData, formData, setJsonData  , fieldData}) => {
+export const createBlurFunc = ({
+  setFormData,
+  formData,
+  setJsonData,
+  fieldData,
+}) => {
   return {
     getMblHandler: async (event) => {
       const { value, name } = event.target;
@@ -467,14 +472,18 @@ export const createHandleChangeFunc = ({ setFormData, formData }) => {
         } else {
           prevTblBl[tabIndex] = {
             ...prevTblBl[tabIndex],
-            [`${setName}State`]: {
-              Id: data[0].stateId,
-              Name: data[0].stateName,
-            },
-            [`${setName}Country`]: {
-              Id: data[0].countyId,
-              Name: data[0].countryName,
-            },
+            [`${setName}State`]: data?.[0]?.stateId
+              ? {
+                  Id: data[0].stateId,
+                  Name: data[0].stateName,
+                }
+              : null,
+            [`${setName}Country`]: data?.[0]?.countyId
+              ? {
+                  Id: data[0].countyId,
+                  Name: data[0].countryName,
+                }
+              : null,
           };
         }
 
