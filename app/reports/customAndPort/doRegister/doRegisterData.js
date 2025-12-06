@@ -2,7 +2,7 @@ const fieldData = {
     doRegisterFields: [
         {
             label: "Vessel",
-            name: "vessel",
+            name: "vesselId",
             type: "dropdown",
             tableName: "tblVessel t",
             idColumn: "id",
@@ -13,13 +13,13 @@ const fieldData = {
         },
         {
             label: "Voyage",
-            name: "voyage",
+            name: "voyageId",
             type: "dropdown",
             tableName: "tblVoyage t",
             idColumn: "id",
             displayColumn: "t.voyageNo",
             searchColumn: "t.voyageNo",
-            selectedConditions: [{ vessel: "vesselId" }],
+            selectedConditions: [{ vesselId: "vesselId" }],
             orderBy: "t.voyageNo",
             isEdit: true,
         },
@@ -35,7 +35,7 @@ const fieldData = {
         },
         {
             label: "POD",
-            name: "pod",
+            name: "podId",
             type: "dropdown",
             tableName: "tblPort p",
             displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
@@ -116,7 +116,7 @@ const fieldData = {
         },
         {
             label: "Select Report ",
-            name: "",
+            name: "selectedReportId",
             type: "dropdown",
             isEdit: true,
         },
