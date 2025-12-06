@@ -29,8 +29,8 @@ import TableExportButtons from "@/components/tableExportButtons/tableExportButto
 import ReportPickerModal from "@/components/ReportPickerModal/reportPickerModal";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-import HistoryIcon from "@mui/icons-material/History"; // ⬅️ NEW
-import HistoryModal from "@/components/customModal/historyModal"; // ⬅️ NEW
+import HistoryIcon from "@mui/icons-material/History"; 
+import BLHistoryModal from "../modal";
 
 const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -304,7 +304,7 @@ export default function BLList() {
                     </TableCell>
                     <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <HistoryIcon
-                        sx={{ cursor: "pointer", fontSize: "16px" }}
+                        sx={{ cursor: "pointer", fontSize: "16px",color: "#1976d2" }}
                         onClick={() => {
                           console.log("MBL History clicked, row.id =", row.id);
                           setHistoryModal({
@@ -362,13 +362,11 @@ export default function BLList() {
         reportRoute={REPORT_ROUTE}
       />
 
-      {/* ⬇️ Common History Modal for tblBl */}
-      <HistoryModal
+      <BLHistoryModal
         open={historyModal.open}
         onClose={() => setHistoryModal({ open: false, recordId: null })}
-        tableName="tblBl"
         recordId={historyModal.recordId}
-        title="BL History"
+        blNumber={rows.find((x) => x.id === historyModal.recordId)?.blNo || ""}
       />
 
       <ToastContainer />

@@ -30,6 +30,7 @@ const CustomInput = ({
   popUp = true,
   fieldsMode,
   errorState = {},
+  hightLightForm = {},
 }) => {
   const [dropdowns, setDropdowns] = useState({});
   const [dropdownTotalPage, setDropdownTotalPage] = useState({});
@@ -95,7 +96,9 @@ const CustomInput = ({
               name: key1,
             };
             const fieldValue = getInputValue(obj).Id;
-            return fieldValue != null ? { col: val, op: "=", val: fieldValue } : null;
+            return fieldValue != null
+              ? { col: val, op: "=", val: fieldValue }
+              : null;
           })
           .filter(Boolean);
         if (filters.length <= 0) {
@@ -169,6 +172,16 @@ const CustomInput = ({
     };
     const fieldValue = getInputValue(obj);
 
+    const highLightObj = {
+      gridName,
+      tabName,
+      containerIndex,
+      tabIndex,
+      formData: hightLightForm,
+      name: field.name,
+    };
+    const fieldHighLight = getInputValue(highLightObj);
+
     const isDisabled =
       fieldsMode === "view" ||
       (fieldsMode === "edit" && !field.isEdit) ||
@@ -198,6 +211,7 @@ const CustomInput = ({
       tabIndex,
       handleBlurEventFunctions,
       changeHandler,
+      fieldHighLight: fieldHighLight,
     };
 
     switch (field.type) {

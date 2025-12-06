@@ -42,6 +42,8 @@ import {
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { getUserByCookies } from "@/utils";
 import { InvoiceModal } from "../../invoiceRequest/utils";
+import InvoiceHistoryModal from "../modal";
+import HistoryIcon from "@mui/icons-material/History"; // ⬅️ NEW
 
 const LIST_TABLE = "tblInvoiceRequest i";
 
@@ -96,6 +98,11 @@ export default function InvoiceReleaseList() {
   const [modal, setModal] = useState({ toggle: false, value: null });
 
   const [selectedIds, setSelectedIds] = useState([]);
+  const [historyModal, setHistoryModal] = useState({
+    open: false,
+    id: null,
+    invoiceNo: "",
+  });
 
   const idsOnPage = useMemo(() => rows.map((x) => x.id), [rows]);
 
@@ -240,15 +247,16 @@ export default function InvoiceReleaseList() {
     [router, setMode]
   );
 
-  // - no row selected, OR
-  // - any selected row is NOT "Requested"
+
   const disableRelease = useMemo(() => {
     const selectedRows = rows.filter((r) => selectedIds.includes(r.id));
 
     if (!selectedRows.length) return true;
 
     return selectedRows.some((r) => {
-      const status = String(r.status || "").trim().toLowerCase();
+      const status = String(r.status || "")
+        .trim()
+        .toLowerCase();
       return status !== "requested";
     });
   }, [selectedIds, rows]);
@@ -300,6 +308,7 @@ export default function InvoiceReleaseList() {
                 <TableCell>Remarks</TableCell>
                 <TableCell>Request Date</TableCell>
                 <TableCell>Attachment</TableCell>
+                <TableCell>History</TableCell>
               </TableRow>
             </TableHead>
 
@@ -354,6 +363,22 @@ export default function InvoiceReleaseList() {
                         }
                       />
                     </TableCell>
+                    <TableCell>
+                      <HistoryIcon
+                        sx={{
+                          cursor: "pointer",
+                          fontSize: "20px",
+                          color: "#1976d2",
+                        }}
+                        onClick={() =>
+                          setHistoryModal({
+                            open: true,
+                            id: row.id,
+                            invoiceNo: row.blNo, 
+                          })
+                        }
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -387,6 +412,14 @@ export default function InvoiceReleaseList() {
 
       <ToastContainer />
       <InvoiceModal modal={modal} setModal={setModal} />
+      <InvoiceHistoryModal
+        open={historyModal.open}
+        onClose={() =>
+          setHistoryModal({ open: false, id: null, invoiceNo: "" })
+        }
+        invoiceId={historyModal.id}
+        invoiceNo={historyModal.invoiceNo}
+      />
     </ThemeProvider>
   );
 }

@@ -714,3 +714,14 @@ export const createHandleChangeFunc = ({ setFormData, formData }) => {
     },
   };
 };
+
+export const filterColumnsUpdate = (arr) => {
+  const result = arr.reduce((acc, cur) => {
+    const obj = {};
+    cur.columnName.forEach(({ columnName }) => (obj[columnName] = true));
+    acc.push({ ...obj, id: cur.blId });
+    return acc;
+  }, []);
+
+  return result;
+};
