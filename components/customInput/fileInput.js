@@ -11,7 +11,7 @@ const VisuallyHiddenInput = (props) => (
   />
 );
 
-const BrowserButton = ({ onChange, commonProps, handleDrop, fieldHighLight }) => {
+const BrowserButton = ({ onChange, commonProps, handleDrop }) => {
   return (
     <Box
       onDrop={handleDrop}
@@ -69,6 +69,7 @@ const FileInput = ({
   containerIndex,
   fieldValue,
   field,
+  fieldHighLight
 }) => {
   const { label, ...remainingProps } = commonProps;
 
