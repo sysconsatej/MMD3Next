@@ -119,7 +119,7 @@ export const getPortBasedOnCountry = async ({ portId, inputName }) => {
   return result?.data[0];
 };
 
-export const craeateHandleChangeEventFunction = ({  setFormData , formData}) => {
+export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
   return {
     setCountryAndState: async (name, value) => {
       const setName = name.replace("City", "");
@@ -271,9 +271,8 @@ export const craeateHandleChangeEventFunction = ({  setFormData , formData}) => 
   };
 };
 
-
-export const createdHandleBlurEventFunctions =  ({ setFormData , formData })  =>  {
-    return {
+export const createdHandleBlurEventFunctions = ({ setFormData, formData }) => {
+  return {
     containerNumberHandler: (event, { containerIndex, tabIndex }) => {
       const { name, value } = event?.target || {};
       const pattern = /^[A-Za-z]{4}[0-9]{7}$/;
@@ -356,5 +355,17 @@ export const createdHandleBlurEventFunctions =  ({ setFormData , formData })  =>
       }
       return true;
     },
-  }
   };
+};
+
+export function statusColor(status) {
+  const color = {
+    Reject: "#DC0E0E",
+    Request: "#4E61D3",
+    Confirm: "green",
+    RejectforAmendment: "#BF124D",
+    RequestforAmendment: "#393D7E",
+    ApprovedforAmendment: "#007E6E",
+  };
+  return color[status];
+}

@@ -18,6 +18,7 @@ const DropdownInput = ({
   containerIndex,
   tabIndex,
   handleChangeEventFunctions,
+  fieldHighLight,
 }) => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -57,7 +58,7 @@ const DropdownInput = ({
   return (
     <Box className={`flex items-end gap-2 ${field.style}`}>
       {field.label && (
-        <InputLabel>
+        <InputLabel className={`${fieldHighLight && 'bg-[#FDACAC]'}`}>
           {commonProps.required && (
             <span className="text-red-600 font-bold">┃</span>
           )}
