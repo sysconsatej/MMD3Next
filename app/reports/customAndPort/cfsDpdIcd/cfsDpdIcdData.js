@@ -24,8 +24,19 @@ const fieldData = {
       isEdit: true,
     },
     {
+      label: "POD",
+      name: "podId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      orderBy: "p.name",
+      foreignTable: "code-name,tblPort",
+      selectedConditions: [{ voyageId: "voyageId" }],
+      isEdit: true,
+    },
+    {
       label: "Payor Name",
-      name: "status",
+      name: "payorName",
       type: "text",
       isEdit: true,
     },
@@ -34,12 +45,6 @@ const fieldData = {
       name: "mblNo",
       type: "text",
       isEdit: true,  
-    },
-    {
-      label: "Status",
-      name: "status",
-      type: "dropdown",
-      isEdit: true,
     },
     {
       label: "From Date",
@@ -53,16 +58,7 @@ const fieldData = {
       type: "date",
       isEdit: true,
     },
-    {
-      label: "POD",
-      name: "podId",
-      type: "dropdown",
-      tableName: "tblPort p",
-      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
-      orderBy: "p.name",
-      foreignTable: "code-name,tblPort",
-      isEdit: true,
-    },
+    
   ],
 };
 export default fieldData;

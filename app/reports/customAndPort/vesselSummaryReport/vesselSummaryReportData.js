@@ -1,27 +1,6 @@
 const fieldData = {
   vesselSummaryReportFields: [
-    {
-      label: "Location",
-      name: "pod",
-      type: "dropdown",
-      tableName: "tblPort p",
-      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
-      orderBy: "p.name",
-      foreignTable: "code-name,tblPort",
-      isEdit: true,
-    },
-    {
-      label: "From Date",
-      name: "fromDate",
-      type: "date",
-      isEdit: true,
-    },
-    {
-      label: "To Date ",
-      name: "toDate",
-      type: "date",
-      isEdit: true,
-    },
+    
     {
       label: "Vessel",
       name: "vesselId",
@@ -42,10 +21,34 @@ const fieldData = {
       idColumn: "id",
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
-      selectedConditions: [{ vessel: "vesselId" }],
+      selectedConditions: [{ vesselId: "vesselId" }],
       orderBy: "t.voyageNo",
       isEdit: true,
     },
+    {
+      label: "Location",
+      name: "podId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      selectedConditions: [{ voyageId: "v.voyageId" }],
+      orderBy: "p.name",
+      foreignTable: "code-name,tblPort",
+      isEdit: true,
+    },
+    {
+      label: "From Date",
+      name: "fromDate",
+      type: "date",
+      isEdit: true,
+    },
+    {
+      label: "To Date ",
+      name: "toDate",
+      type: "date",
+      isEdit: true,
+    },
+    
   ],
 };
 export default fieldData;
