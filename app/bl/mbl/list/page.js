@@ -29,8 +29,7 @@ import TableExportButtons from "@/components/tableExportButtons/tableExportButto
 import ReportPickerModal from "@/components/ReportPickerModal/reportPickerModal";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-import HistoryIcon from "@mui/icons-material/History"; // ⬅️ NEW
-import HistoryModal from "@/components/customModal/historyModal"; // ⬅️ NEW
+import HistoryIcon from "@mui/icons-material/History"; 
 import BLHistoryModal from "../modal";
 
 const LIST_TABLE = "tblBl b";
