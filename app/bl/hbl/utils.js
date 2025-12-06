@@ -456,7 +456,7 @@ export const createHandleChangeFunc = ({ setFormData, formData }) => {
                     (select id from tblCountry c where c.id = ci.countryId and c.status = 1) countyId,
                     (select name from tblCountry c where c.id = ci.countryId and c.status = 1) countryName`,
         tableName: "tblCity ci",
-        whereCondition: `ci.id = ${value.Id} and ci.status = 1`,
+        whereCondition: `ci.id = ${value?.Id} and ci.status = 1`,
       };
       const { data } = await getDataWithCondition(obj);
       setFormData((prev) => {
