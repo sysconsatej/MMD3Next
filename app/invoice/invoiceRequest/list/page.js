@@ -40,6 +40,8 @@ import { getUserByCookies } from "@/utils";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import { InvoiceModal } from "../utils";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
+import CustomerHistoryModal from "../modal"; // ⬅ history modal
+import HistoryIcon from "@mui/icons-material/History";
 
 const LIST_TABLE = "tblInvoiceRequest i";
 const UPDATE_TABLE = LIST_TABLE.split(" ")[0];
@@ -93,6 +95,14 @@ export default function InvoiceRequestList() {
   const [modal, setModal] = useState({ toggle: false, value: null });
 
   const [selectedIds, setSelectedIds] = useState([]);
+
+  // ⬅ state for history modal
+  const [historyModal, setHistoryModal] = useState({
+    open: false,
+    id: null,
+    invoiceNo: "",
+  });
+
   const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
 
   const allChecked =
@@ -106,16 +116,14 @@ export default function InvoiceRequestList() {
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
 
-  /* -------- Disable Edit when status is Requested or Released -------- */
   const disableEdit = useMemo(() => {
-    if (selectedIds.length !== 1) return false; // multi-select already disabled by bar
+    if (selectedIds.length !== 1) return false;
     const row = rows.find((r) => r.id === selectedIds[0]);
     if (!row) return false;
     const st = (row.status || "").toLowerCase();
     return st === "requested";
   }, [selectedIds, rows]);
 
-  /* ---------------------- DATA FETCH LOGIC ---------------------- */
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
@@ -178,17 +186,14 @@ export default function InvoiceRequestList() {
     [page, rowsPerPage, advanceSearch]
   );
 
-  /* ---------------------- INITIAL LOAD ---------------------- */
   useEffect(() => {
     setMode({ mode: null, formId: null });
     getData(1, rowsPerPage);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* ---------------------- PAGINATION ---------------------- */
   const handleChangePage = (_e, newPage) => getData(newPage, rowsPerPage);
   const handleChangeRowsPerPage = (e) => getData(1, +e.target.value);
 
-  /* ---------------------- DELETE ---------------------- */
   const handleDeleteRecord = async (recordId) => {
     const obj = { recordId, tableName: UPDATE_TABLE };
     const { success, message, error } = await deleteRecord(obj);
@@ -203,7 +208,6 @@ export default function InvoiceRequestList() {
     await Promise.all(ids.map((rid) => handleDeleteRecord(rid)));
   };
 
-  /* ---------------------- VIEW / EDIT HANDLER ---------------------- */
   const modeHandler = useCallback(
     (mode, formId = null) => {
       if (mode === "delete") {
@@ -216,7 +220,6 @@ export default function InvoiceRequestList() {
     [router, setMode]
   );
 
-  /* ---------------------- RENDER ---------------------- */
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -250,7 +253,7 @@ export default function InvoiceRequestList() {
           keyColumn="id"
           onView={(id) => modeHandler("view", id)}
           onEdit={(id) => modeHandler("edit", id)}
-          disableEdit={disableEdit} // ⬅ disable Edit when status is Requested/Released
+          disableEdit={disableEdit}
         />
 
         {/* TABLE */}
@@ -277,6 +280,7 @@ export default function InvoiceRequestList() {
                 <TableCell>Rejected Remark</TableCell>
                 <TableCell>Request Date</TableCell>
                 <TableCell>Attachment</TableCell>
+                <TableCell>History</TableCell>
               </TableRow>
             </TableHead>
 
@@ -285,8 +289,7 @@ export default function InvoiceRequestList() {
                 rows.map((row) => {
                   const statusLower = (row.status || "").toLowerCase();
                   const canModify =
-                    statusLower !== "requested" &&
-                    statusLower !== "released"; // ⬅ control row-level edit/delete
+                    statusLower !== "requested" && statusLower !== "released";
 
                   return (
                     <TableRow key={row.id} hover className="relative group">
@@ -301,7 +304,6 @@ export default function InvoiceRequestList() {
 
                       <TableCell>{row.liner}</TableCell>
 
-                      {/* BL No Clickable */}
                       <TableCell>
                         <Link
                           href="#"
@@ -320,12 +322,10 @@ export default function InvoiceRequestList() {
                       <TableCell>{toFreeDaysLabel(row.freeDays)}</TableCell>
                       <TableCell>{toYesNo(row.highSealSale)}</TableCell>
 
-                      {/* STATUS (Colored) */}
                       <TableCell sx={{ color: statusColor(row.status) }}>
                         {row.status}
                       </TableCell>
 
-                      {/* REMARK */}
                       <TableCell>{row.remarkStatus}</TableCell>
 
                       <TableCell>{row.date}</TableCell>
@@ -343,21 +343,20 @@ export default function InvoiceRequestList() {
                         />
                       </TableCell>
 
-                      {/* ACTION ICONS */}
-                      <TableCell className="table-icons opacity-0 group-hover:opacity-100">
-                        <HoverActionIcons
-                          onView={() => modeHandler("view", row.id)}
-                          onEdit={
-                            canModify
-                              ? () => modeHandler("edit", row.id)
-                              : undefined
+                      <TableCell>
+                        <HistoryIcon
+                          sx={{
+                            cursor: "pointer",
+                            fontSize: "20px",
+                            color: "#1976d2",
+                          }}
+                          onClick={() =>
+                            setHistoryModal({
+                              open: true,
+                              id: row.id,
+                              invoiceNo: row.blNo,
+                            })
                           }
-                          onDelete={
-                            canModify
-                              ? () => modeHandler("delete", row.id)
-                              : undefined
-                          }
-                          menuAccess={{}}
                         />
                       </TableCell>
                     </TableRow>
@@ -365,7 +364,7 @@ export default function InvoiceRequestList() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={10} align="center">
+                  <TableCell colSpan={11} align="center">
                     {loadingState}
                   </TableCell>
                 </TableRow>
@@ -374,7 +373,6 @@ export default function InvoiceRequestList() {
           </Table>
         </TableContainer>
 
-        {/* EXPORT + PAGINATION */}
         <Box className="flex justify-between items-center">
           <TableExportButtons
             targetRef={tableWrapRef}
@@ -394,8 +392,21 @@ export default function InvoiceRequestList() {
           </Box>
         </Box>
       </Box>
+
       <ToastContainer />
       <InvoiceModal modal={modal} setModal={setModal} />
+
+      <CustomerHistoryModal
+        open={historyModal.open}
+        onClose={() =>
+          setHistoryModal((prev) => ({
+            ...prev,
+            open: false,
+          }))
+        }
+        requestId={historyModal.id}
+        customer={historyModal.invoiceNo}
+      />
     </ThemeProvider>
   );
 }
