@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { getNextPrevData } from "@/apis";
 import { auth } from "@/store";
@@ -36,6 +36,8 @@ export function formatFormData(
     clientId: 1,
     status: 1,
     createdDate: new Date(),
+    updatedBy: userData?.userId,
+    updatedDate: new Date(),
   };
   const updateObj = {
     updatedBy: userData?.userId,
