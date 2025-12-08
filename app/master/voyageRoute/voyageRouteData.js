@@ -56,12 +56,12 @@ const fieldData = {
       isEdit: true,
       required: true,
     },
-    {
-      label: "Export Voyage No",
-      name: "exportExchangeRate",
-      type: "number",
-      isEdit: true,
-    },
+    // {
+    //   label: "Export Voyage No",
+    //   name: "exportExchangeRate",
+    //   type: "number",
+    //   isEdit: true,
+    // },
     {
       label: "Import Voyage No",
       name: "importExchangeRate",
@@ -80,12 +80,12 @@ const fieldData = {
       type: "date",
       isEdit: true,
     },
-    {
-      label: "ETB",
-      name: "etb",
-      type: "date",
-      isEdit: true,
-    },
+    // {
+    //   label: "ETB",
+    //   name: "etb",
+    //   type: "date",
+    //   isEdit: true,
+    // },
     {
       label: "Port Cut Off",
       name: "portCutoff",
@@ -99,12 +99,12 @@ const fieldData = {
       type: "date",
       isEdit: true,
     },
-    {
-      label: "ATB",
-      name: "berthDate",
-      type: "date",
-      isEdit: true,
-    },
+    // {
+    //   label: "ATB",
+    //   name: "berthDate",
+    //   type: "date",
+    //   isEdit: true,
+    // },
     {
       label: "Sail Date",
       name: "sailDate",
@@ -207,18 +207,18 @@ const fieldData = {
       type: "date",
       isEdit: true,
     },
-    {
-      label: "PC No",
-      name: "pcNo",
-      type: "text",
-      isEdit: true,
-    },
-    {
-      label: "PC Date",
-      name: "pcDate",
-      type: "date",
-      isEdit: true,
-    },
+    // {
+    //   label: "PC No",
+    //   name: "pcNo",
+    //   type: "text",
+    //   isEdit: true,
+    // },
+    // {
+    //   label: "PC Date",
+    //   name: "pcDate",
+    //   type: "date",
+    //   isEdit: true,
+    // },
     {
       label: "Via No",
       name: "viaNo",
