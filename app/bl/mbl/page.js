@@ -325,7 +325,6 @@ export default function Home() {
           whereCondition: `t.vesselId = ${vesselId} and t.status = 1`,
           orderBy: "t.voyageNo",
         };
-
         const { data, success } = await getDataWithCondition(obj);
         if (
           !cancelled &&
