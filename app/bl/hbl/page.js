@@ -23,15 +23,12 @@ import {
   formFormatThirdLevel,
   getUserByCookies,
   setInputValue,
-  setVoyageBasedonVessel,
   useNextPrevData,
-  validateContainerForMBL,
-  validatePanCard,
-  validPinCode,
 } from "@/utils";
 import {
   deleteRecord,
   fetchForm,
+  fetchHblColumnsChanges,
   getDataWithCondition,
   insertUpdateForm,
 } from "@/apis";
@@ -41,6 +38,7 @@ import {
   copyHandler,
   createBlurFunc,
   createHandleChangeFunc,
+  filterColumnsUpdate,
   requestStatusFun,
   useTotalGrossAndPack,
 } from "./utils";
@@ -89,6 +87,7 @@ export default function Home() {
   const userData = getUserByCookies();
   const [agreed, setAgreed] = useState(false);
   const [requestBtn, setRequestBtn] = useState(true);
+  const [hightLightForm, setHightLightForm] = useState({});
   const [rejectState, setRejectState] = useState({
     toggle: false,
     value: null,
@@ -316,6 +315,17 @@ export default function Home() {
       setHblArray(
         Array.from({ length: formatState.tblBl.length }, (_, i) => i)
       );
+
+      if (mode.status === "Request" && userData.roleCode === "shipping") {
+        const { data } = await fetchHblColumnsChanges({ ids: mode.formId });
+        const res = filterColumnsUpdate(data);
+        const changeFormatState = formatDataWithFormThirdLevel(
+          res,
+          [...jsonData.mblFields],
+          "tblBl"
+        );
+        setHightLightForm(changeFormatState);
+      }
     }
     fetchFormHandler();
   }, [mode.formId]);
@@ -446,6 +456,7 @@ export default function Home() {
                 fieldsMode={fieldsMode}
                 handleBlurEventFunctions={handleBlurEventFunctions}
                 handleChangeEventFunctions={handleChangeEventFunctions}
+                hightLightForm={hightLightForm}
               />
             </Box>
             <FormHeading text="HBL Details" />
@@ -494,6 +505,7 @@ export default function Home() {
                           fieldsMode={fieldsMode}
                           tabName={"tblBl"}
                           tabIndex={index}
+                          hightLightForm={hightLightForm}
                         />
                       </Box>
                       <FormHeading text="Consignor Details">
@@ -508,6 +520,7 @@ export default function Home() {
                             handleChangeEventFunctions={
                               handleChangeEventFunctions
                             }
+                            hightLightForm={hightLightForm}
                           />
                         </Box>
                       </FormHeading>
@@ -542,6 +555,7 @@ export default function Home() {
                               handleChangeEventFunctions
                             }
                             handleBlurEventFunctions={handleBlurEventFunctions}
+                            hightLightForm={hightLightForm}
                           />
                         </Box>
                       </FormHeading>
@@ -575,6 +589,7 @@ export default function Home() {
                               handleChangeEventFunctions
                             }
                             handleBlurEventFunctions={handleBlurEventFunctions}
+                            hightLightForm={hightLightForm}
                           />
                         </Box>
                       </FormHeading>
@@ -587,6 +602,7 @@ export default function Home() {
                             fieldsMode={fieldsMode}
                             tabName={"tblBl"}
                             tabIndex={index}
+                            hightLightForm={hightLightForm}
                           />
                         </Box>
                       </FormHeading>
@@ -598,6 +614,7 @@ export default function Home() {
                           fieldsMode={fieldsMode}
                           tabName={"tblBl"}
                           tabIndex={index}
+                          hightLightForm={hightLightForm}
                         />
                       </Box>
                       <FormHeading text="Container Details" />

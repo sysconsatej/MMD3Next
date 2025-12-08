@@ -42,7 +42,7 @@ export function getInputValue(obj) {
   const { gridName, tabName, tabIndex, containerIndex, formData, name } = obj;
 
   if (!tabName && !gridName) {
-    return formData[name] || "";
+    return formData?.[name] || "";
   } else if (!tabName && gridName) {
     return formData?.[gridName]?.[containerIndex]?.[name] || "";
   } else if (tabName && !gridName) {

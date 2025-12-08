@@ -1,11 +1,11 @@
 import React from "react";
 import { Box, InputLabel } from "@mui/material";
 
-const TextAreaInput = ({ commonProps, fieldValue, field }) => {
+const TextAreaInput = ({ commonProps, fieldValue, field, fieldHighLight }) => {
   return (
     <Box className={`flex items-end gap-2 ${field.gridColumn}`}>
       {commonProps.label && (
-        <InputLabel>
+        <InputLabel className={`${fieldHighLight && "bg-[#FDACAC]"}`}>
           {commonProps.required && (
             <span className="text-red-600 font-bold ">┃</span>
           )}

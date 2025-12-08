@@ -69,6 +69,7 @@ const FileInput = ({
   containerIndex,
   fieldValue,
   field,
+  fieldHighLight
 }) => {
   const { label, ...remainingProps } = commonProps;
 
@@ -107,7 +108,7 @@ const FileInput = ({
       } `}
     >
       {label && (
-        <InputLabel>
+        <InputLabel  className={`${fieldHighLight && "bg-[#FDACAC]"}`} >
           {remainingProps.required && (
             <span className="text-red-600 font-bold ">┃</span>
           )}

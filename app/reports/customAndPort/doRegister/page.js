@@ -38,7 +38,7 @@ export default function DoConfirmReport() {
         const transformed = transformToIds(formData);
 
         const requestBody = {
-            spName: "",
+            spName: "doRegister",
             jsonData: transformed,
             companyId: userData.companyId,
         };

@@ -116,11 +116,16 @@ const fieldData = {
         },
         {
             label: "Select Report ",
-            name: "selectedReportId",
+            name: "selReportId",
             type: "dropdown",
+            tableName: "tblMasterData m",
+            displayColumn: "m.name",
+            where: "m.masterListName = 'doRegisterName'",
+            orderBy: "m.name",
+            foreignTable: "name,tblMasterData",
             isEdit: true,
         },
     ],
 };
 export default fieldData;
-export const metaData = [];
+export const metaData = []; 

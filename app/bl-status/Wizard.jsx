@@ -70,23 +70,23 @@ function ColorlibStepIcon(props) {
 }
 
 export default function HorizontalLinearStepper({ steps }) {
-  const [activeStep, setActiveStep] = React.useState(0);
+  // const [activeStep, setActiveStep] = React.useState(0);
 
-  const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  };
+  // const handleNext = () => {
+  //   setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  // };
 
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
+  // const handleBack = () => {
+  //   setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  // };
 
-  const handleReset = () => {
-    setActiveStep(0);
-  };
+  // const handleReset = () => {
+  //   setActiveStep(0);
+  // };
 
   return (
     <Box sx={{ width: "100%" }}>
-      {activeStep === steps.length ? (
+      {/* {activeStep === steps.length ? (
         <React.Fragment>
           <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
             <Button onClick={handleReset}>Reset</Button>
@@ -112,7 +112,7 @@ export default function HorizontalLinearStepper({ steps }) {
         </React.Fragment>
       )}
       {/* connector props is the line bwteen 2 steps */}
-      <Stepper
+      {/* <Stepper
         activeStep={activeStep}
         connector={<ColorlibConnector />}
         alternativeLabel
@@ -139,7 +139,12 @@ export default function HorizontalLinearStepper({ steps }) {
             </Step>
           );
         })}
-      </Stepper>
+      </Stepper> */}
+      <Box sx={{ display: "flex", flexDirection: "row", pt: 2 , gap : 10}}>
+        {steps?.map((info) => (
+          <RequestCard key={info.id} item={info} />
+        ))}
+      </Box>
     </Box>
   );
 }
