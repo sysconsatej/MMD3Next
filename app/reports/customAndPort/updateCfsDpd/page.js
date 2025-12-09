@@ -54,6 +54,16 @@ export default function IGM() {
     return v;
   };
 
+  // 🔹 NEW: mapping from header dropdowns → report columns
+  const autoFillOnSelect = {
+    ...(formData.nominatedAreaCode && {
+      "Nominated Area": formData.nominatedAreaCode,
+    }),
+    ...(formData.dpdCode && {
+      "DPD Desciption": formData.dpdCode,
+    }),
+  };
+
   const handleUpdate = async () => {
     if (!Array.isArray(tableFormData) || tableFormData.length === 0) {
       toast.info("Select & edit at least one row to update.");
@@ -215,6 +225,7 @@ export default function IGM() {
           data={tableData}
           metaData={metaData}
           onSelectedEditedChange={setTableFormData}
+          autoFillOnSelect={autoFillOnSelect}
         />
       </Box>
       <ToastContainer />

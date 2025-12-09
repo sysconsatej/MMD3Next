@@ -2,12 +2,8 @@ const fieldData = {
   hblReportsFields: [
     {
       label: "Freight Forwarder",
-      name: "podId",
-      type: "dropdown",
-      tableName: "tblPort p",
-      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
-      orderBy: "p.name",
-      foreignTable: "code-name,tblPort",
+      name: "freightForwarderText",
+      type: "text",
       isEdit: true,
     },
     {
@@ -22,12 +18,12 @@ const fieldData = {
       type: "text",
       isEdit: true,
     },
-    {
-      label: "Status",
-      name: "status",
-      type: "text",
-      isEdit: true,
-    },
+    // {
+    //   label: "Status",
+    //   name: "status",
+    //   type: "text",
+    //   isEdit: true,
+    // },
     {
       label: "Vessel",
       name: "vesselId",
@@ -39,7 +35,6 @@ const fieldData = {
       orderBy: "t.name",
       isEdit: true,
     },
-    
     {
       label: "Voyage",
       name: "voyageId",
@@ -48,8 +43,14 @@ const fieldData = {
       idColumn: "id",
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
-      selectedConditions: [{ vessel: "vesselId" }],
+      selectedConditions: [{ vesselId: "vesselId" }],
       orderBy: "t.voyageNo",
+      isEdit: true,
+    },
+    {
+      label: "Pod",
+      name: "podId",
+      type: "dropdown",
       isEdit: true,
     },
     {
@@ -64,12 +65,7 @@ const fieldData = {
       type: "date",
       isEdit: true,
     },
-    {
-      label: "Pod",
-      name: "podId",
-      type: "dropdown",
-      isEdit: true,
-    },
+    
     
   ],
 };

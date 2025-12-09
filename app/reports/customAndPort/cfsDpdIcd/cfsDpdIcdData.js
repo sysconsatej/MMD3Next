@@ -1,6 +1,5 @@
 const fieldData = {
-  vesselSummaryReportFields: [
-    
+  cfsDpdIcdFields: [
     {
       label: "Vessel",
       name: "vesselId",
@@ -12,7 +11,6 @@ const fieldData = {
       orderBy: "t.name",
       isEdit: true,
     },
-    
     {
       label: "Voyage",
       name: "voyageId",
@@ -26,15 +24,27 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "Location",
+      label: "POD",
       name: "podId",
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
-      selectedConditions: [{ voyageId: "v.voyageId" }],
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
+      selectedConditions: [{ voyageId: "voyageId" }],
       isEdit: true,
+    },
+    {
+      label: "Payor Name",
+      name: "payorName",
+      type: "text",
+      isEdit: true,
+    },
+    {
+      label: "MBL No",
+      name: "mblNo",
+      type: "text",
+      isEdit: true,  
     },
     {
       label: "From Date",

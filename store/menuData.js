@@ -250,13 +250,13 @@ export const navItems = [
     menuName: "Reports",
     icon: "chart",
     menuLink: "/reports",
-    isChecked: false, // Added isChecked for parent
+    isChecked: false,
     subMenu: [
       {
         id: 40,
         menuName: "Customs And Port",
         menuLink: "/reports/customsAndPort",
-        isChecked: false, // Added isChecked for parent
+        isChecked: false,
         subMenu: [
           {
             id: 41,
@@ -322,6 +322,30 @@ export const navItems = [
             id: 51,
             menuName: "Shipping Bill",
             menuLink: "/reports/customAndPort/shippingBill",
+            isChecked: false,
+          },
+          {
+            id: 52,
+            menuName: "Vessel Summary Report",
+            menuLink: "/reports/customAndPort/vesselSummaryReport",
+            isChecked: false,
+          },
+          {
+            id: 53,
+            menuName: "IGM Generation Audit Report",
+            menuLink: "/reports/customAndPort/igmGenerationAuditReport",
+            isChecked: false,
+          },
+          {
+            id: 54,
+            menuName: "CFS DPD ICD",
+            menuLink: "/reports/customAndPort/cfsDpdIcd",
+            isChecked: false,
+          },
+          {
+            id: 55,
+            menuName: "DO Register",
+            menuLink: "/reports/customAndPort/doRegister",
             isChecked: false,
           },
         ],
