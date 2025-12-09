@@ -1,7 +1,13 @@
+"use client";
+import { formStore, useBlWorkFlowData } from "@/store";
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import Link from "next/link";
 
 const RequestCard = ({ item }) => {
+  const { workFlowData } = useBlWorkFlowData();
+  const { setMode } = formStore();
+  const data = workFlowData?.[0]?.[item?.keyName] ?? [];
+
   return (
     <Card
       sx={{
@@ -11,6 +17,7 @@ const RequestCard = ({ item }) => {
         boxShadow: 3,
         marginTop: 3,
         height: 250,
+        width: 300,
       }}
     >
       <Box
@@ -47,36 +54,40 @@ const RequestCard = ({ item }) => {
       <Box sx={{ display: "flex", flexDirection: "column" }}>
         <CardContent sx={{ flex: 1, p: 2 }}>
           <Box>
-            <Link href={""} >
-              <Typography
-                variant="body2"
-                sx={{
-                  color: "primary.main",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                  wordBreak: "break-word",
-                  fontSize: 12,
-                }}
-              >
-                MASONTKD17126
-              </Typography>
-            </Link>
-{/* 
+            {data && Array.isArray(data) && data.length > 0 ? (
+              <>
+                {data.map((info, _index) => (
+                  <Link
+                    href={item?.link ||  '#'}
+                    key={_index}
+                    onClick={() =>
+                      setMode({ formId: info?.referenceId, mode: "view" })
+                    }
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "primary.main",
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        wordBreak: "break-word",
+                        fontSize: 12,
+                      }}
+                    >
+                      {info?.referenceNo}
+                    </Typography>
+                  </Link>
+                ))}
+              </>
+            ) : (
+              <></>
+            )}
+            {/* 
             <Typography variant="body2" sx={{ mt: 1, fontSize: 12 }}>
               Released
             </Typography> */}
           </Box>
         </CardContent>
-
-        <Box sx={{ mt: 2 }}>
-          <Link
-            href="#"
-            underline="hover"
-            sx={{ color: "blue", fontSize: 12, fontWeight: 400 }}
-          >
-            New Request
-          </Link>
-        </Box>
       </Box>
     </Card>
   );

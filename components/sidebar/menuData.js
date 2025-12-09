@@ -224,90 +224,107 @@ export const navItems = [
       //   isShow: false,
       // },
       {
+        name: "DO Register",
+        href: "/reports/customAndPort/doRegister",
+        isShow: true,
+      },
+      {
         name: "Shipping Bill",
         href: "/reports/customAndPort/shippingBill",
         isShow: false,
       },
-      {
-        name: "DO Confirm Report",
-        href: "/reports/customAndPort/doConfirmReport",
-        isShow: false,
-      },
-      {
-        name: "Invoice Conversion Report",
-        href: "/reports/customAndPort/invoiceConversionReport",
-        isShow: false,
-      },
-      {
-        name: "Invoice Request",
-        href: "/reports/customAndPort/invoiceRequest",
-        isShow: false,
-      },
-      {
-        name: "Receipt",
-        href: "/reports/customAndPort/receipt",
-        isShow: false,
-      },
-      {
-        name: "Released DO",
-        href: "/reports/customAndPort/releasedDoShipper",
-        isShow: false,
-      },
-      {
-        name: "Un Released DO",
-        href: "/reports/customAndPort/unReleasedDo",
-        isShow: false,
-      },
-      {
-        name: "CFS/DPD/ICD",
-        href: "/reports/customAndPort/cfsDpdIcd",
-        isShow: false,
-      },
+      // {
+      //   name: "DO Confirm Report",
+      //   href: "/reports/customAndPort/doConfirmReport",
+      //   isShow: false,
+      // },
+      // {
+      //   name: "Invoice Conversion Report",
+      //   href: "/reports/customAndPort/invoiceConversionReport",
+      //   isShow: false,
+      // },
+      // {
+      //   name: "Invoice Request",
+      //   href: "/reports/customAndPort/invoiceRequest",
+      //   isShow: false,
+      // },
+      // {
+      //   name: "Receipt",
+      //   href: "/reports/customAndPort/receipt",
+      //   isShow: false,
+      // },
+      // {
+      //   name: "Released DO",
+      //   href: "/reports/customAndPort/releasedDoShipper",
+      //   isShow: false,
+      // },
+      // {
+      //   name: "Un Released DO",
+      //   href: "/reports/customAndPort/unReleasedDo",
+      //   isShow: false,
+      // },
+
       {
         name: "HBL",
         href: "/reports/customAndPort/hbl",
-        isShow: false,
+        isShow: true,
       },
       {
         name: "Vessel Summary Report",
         href: "/reports/customAndPort/vesselSummaryReport",
-        isShow: false,
+        isShow: true,
       },
       {
         name: "Igm Generation Audit Report",
         href: "/reports/customAndPort/igmGenerationAuditReport",
-        isShow: false,
+        isShow: true,
       },
-      {
-        name: "All Payments",
-        href: "/reports/customAndPort/allPayments",
-        isShow: false,
-      },
-      {
-        name: "DO Confirm Report",
-        href: "/reports/customAndPort/doConfirmReport",
-        isShow: false,
-      },
-      {
-        name: "Invoice Report",
-        href: "/reports/customAndPort/invoiceReport",
-        isShow: false,
-      },
-      {
-        name: "Pending Invoice",
-        href: "/reports/customAndPort/pendingInvoices",
-        isShow: false,
-      },
-      {
-        name: "Released DO",
-        href: "/reports/customAndPort/releasedDo",
-        isShow: false,
-      },
+      // {
+      //   name: "All Payments",
+      //   href: "/reports/customAndPort/allPayments",
+      //   isShow: false,
+      // },
+      // {
+      //   name: "DO Confirm Report",
+      //   href: "/reports/customAndPort/doConfirmReport",
+      //   isShow: false,
+      // },
+      // {
+      //   name: "Invoice Report",
+      //   href: "/reports/customAndPort/invoiceReport",
+      //   isShow: false,
+      // },
+      // {
+      //   name: "Pending Invoice",
+      //   href: "/reports/customAndPort/pendingInvoices",
+      //   isShow: false,
+      // },
+      // {
+      //   name: "Released DO",
+      //   href: "/reports/customAndPort/releasedDo",
+      //   isShow: false,
+      // },
       {
         name: "Pending DO",
         href: "/reports/customAndPort/pendingDo",
         isShow: false,
       },
+      {
+        name: "CFS DPD ICD",
+        href: "/reports/customAndPort/cfsDpdIcd",
+        isShow: true,
+      },
+
+      {
+        name: "Slab Wise Report",
+        href: "/reports/customAndPort/slabWiseReport",
+        isShow: true,
+      },
+      {
+        name: "Released DO Tat",
+        href: "/reports/customAndPort/releaseddotat",
+        isShow: true,
+      }
     ],
   },
 ];

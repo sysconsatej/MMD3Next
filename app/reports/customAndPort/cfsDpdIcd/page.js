@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data, { metaData } from "./doRegisterData";
+import data, { metaData } from "./cfsDpdIcdData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { getUserByCookies } from "@/utils";
 import { jsonToExcelFile } from "@/utils/helper";
 
-export default function DoConfirmReport() {
+export default function CfsDpdIcd() {
     const [formData, setFormData] = useState({});
     const [fieldsMode, setFieldsMode] = useState("");
     const [tableData, setTableData] = useState([]);
@@ -38,7 +38,7 @@ export default function DoConfirmReport() {
         const transformed = transformToIds(formData);
 
         const requestBody = {
-            spName: "doRegister",
+            spName: "",
             jsonData: transformed,
             companyId: userData.companyId,
         };
@@ -97,7 +97,7 @@ export default function DoConfirmReport() {
             toast.info("No data to export.");
             return;
         }
-        jsonToExcelFile(tableData, "Do Confirm Report");
+        jsonToExcelFile(tableData, "Slab Wise Report");
     };
 
     return (
@@ -106,14 +106,14 @@ export default function DoConfirmReport() {
                 <section className="py-1 px-4">
                     <Box className="flex justify-between items-end py-1">
                         <h1 className="text-left text-base flex items-end m-0">
-                            Do Register
+                            Cfs Dpd Icd
                         </h1>
                     </Box>
 
                     <Box className="border border-solid border-black rounded-[4px]">
-                        <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black">
+                        <Box className="sm:grid sm:grid-cols-3 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black">
                             <CustomInput
-                                fields={data.doRegisterFields}
+                                fields={data.cfsDpdIcdFields}
                                 formData={formData}
                                 setFormData={setFormData}
                                 fieldsMode={fieldsMode}
