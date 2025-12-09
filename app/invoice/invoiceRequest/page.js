@@ -460,6 +460,8 @@ export default function InvoiceRequest() {
     const rowsPayload = data.map((row) => ({
       id: row.id,
       invoiceRequestStatusId: requestStatusId,
+      updatedBy: userData.userId,
+      updatedDate: new Date(),
     }));
     const res = await updateStatusRows({
       tableName: "tblInvoiceRequest",
@@ -510,6 +512,8 @@ export default function InvoiceRequest() {
           id: mode.formId,
           invoiceRequestStatusId: rejectedStatusId,
           rejectRemarks: rejectState.value,
+          updatedBy: userData.userId,
+          updatedDate: new Date(),
         },
       ],
     };
@@ -625,14 +629,13 @@ export default function InvoiceRequest() {
               )}
 
             {/* Request */}
-            {userData?.roleCode === "customer" &&
-              mode.status !=="Confirm" &&(
-                  <CustomButton
-                    text="Request"
-                    onClick={requestHandler}
-                    disabled={!canRequest || loading}
-                  />
-                )}
+            {userData?.roleCode === "customer" && mode.status !== "Confirm" && (
+              <CustomButton
+                text="Request"
+                onClick={requestHandler}
+                disabled={!canRequest || loading}
+              />
+            )}
 
             {/* Liner Release */}
             {/* {showReleaseBtn && (
