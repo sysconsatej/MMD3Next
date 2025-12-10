@@ -410,6 +410,8 @@ export default function InvoiceUpload() {
           {
             id: currentInvoiceReqId,
             invoiceRequestStatusId: releasedStatusId,
+            updatedBy: userData.userId,
+            updatedDate: new Date(),
           },
         ],
       };
