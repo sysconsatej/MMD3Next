@@ -232,7 +232,7 @@ export function InvoiceAssignModal({ modal, setModal, onAssignHandler }) {
       type: "dropdown",
       tableName: "tblUser u",
       displayColumn: "u.name",
-      where: `u.userType = 'U' and u.companyId = ${userData.companyId}`,
+      where: `u.userType = 'U' and u.companyId = ${userData?.companyId}`,
       orderBy: "u.name",
       isEdit: true,
     },
