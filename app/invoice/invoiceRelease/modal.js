@@ -13,12 +13,18 @@ import {
   Box,
   Typography,
   IconButton,
+  Modal,
 } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
 import CropSquareIcon from "@mui/icons-material/CropSquare";
 import { fetchInvoiceReleaseHistory } from "@/apis/history";
 import { statusColor } from "./invoiceReleaseData";
+import FormHeading from "@/components/formHeading/formHeading";
+import { CustomInput } from "@/components/customInput";
+import CustomButton from "@/components/button/button";
+import { getUserByCookies } from "@/utils";
+
 export default function InvoiceHistoryModal({
   open,
   onClose,
@@ -199,5 +205,61 @@ export default function InvoiceHistoryModal({
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+export function InvoiceAssignModal({ modal, setModal, onAssignHandler }) {
+  const [formData, setFormData] = useState({});
+  const userData = getUserByCookies();
+
+  const style = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "auto",
+    bgcolor: "background.paper",
+    boxShadow: 1,
+    p: 1,
+    width: "300px",
+    height: "200px",
+  };
+
+  const field = [
+    {
+      label: "User Name",
+      name: "userId",
+      type: "dropdown",
+      tableName: "tblUser u",
+      displayColumn: "u.name",
+      where: `u.userType = 'U' and u.companyId = ${userData.companyId}`,
+      orderBy: "u.name",
+      isEdit: true,
+    },
+  ];
+
+  return (
+    <Modal
+      open={modal.toggle}
+      onClose={() => setModal((prev) => ({ ...prev, toggle: false }))}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      <Box sx={style}>
+        <FormHeading text="Assign To" />
+        <Box className="my-3 ">
+          <CustomInput
+            fields={field}
+            formData={formData}
+            setFormData={setFormData}
+            fieldsMode={""}
+          />
+        </Box>
+        <CustomButton
+          text="Submit"
+          onClick={() => onAssignHandler(formData, modal.invoiceIds)}
+        />
+      </Box>
+    </Modal>
   );
 }

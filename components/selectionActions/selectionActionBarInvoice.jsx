@@ -10,6 +10,7 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
+import PersonIcon from "@mui/icons-material/Person";
 
 export default function InvoiceToolbarActions({
   selectedIds = [],
@@ -21,6 +22,7 @@ export default function InvoiceToolbarActions({
   onNotify,
   onClose,
   onReprocess,
+  onAssign,
   allowBulkRelease = true,
   allowBulkKyc = true,
   allowBulkUpload = true,
@@ -29,6 +31,7 @@ export default function InvoiceToolbarActions({
   allowBulkClose = true,
   allowBulkReprocess = true,
   disableRelease = false, // 👈 NEW PROP
+  allowBulkAssign = true,
 }) {
   const ids = useMemo(
     () =>
@@ -107,7 +110,9 @@ export default function InvoiceToolbarActions({
           icon={<LocalShippingIcon />}
           onClick={() => call(onInvoiceLookup, allowBulkInvoiceLookup)}
           disabled={
-            !hasAny || !onInvoiceLookup || (!allowBulkInvoiceLookup && !isSingle)
+            !hasAny ||
+            !onInvoiceLookup ||
+            (!allowBulkInvoiceLookup && !isSingle)
           }
         />
         <Segment
@@ -128,6 +133,17 @@ export default function InvoiceToolbarActions({
           onClick={() => call(onReprocess, allowBulkReprocess)}
           disabled={
             !hasAny || !onReprocess || (!allowBulkReprocess && !isSingle)
+          }
+        />
+        <Segment
+          label="Assign To"
+          icon={<PersonIcon />}
+          onClick={() => call(onAssign, allowBulkAssign)}
+          disabled={
+            !hasAny ||
+            !onAssign ||
+            (!allowBulkAssign && !isSingle) ||
+            disableRelease
           }
         />
       </div>
