@@ -1,12 +1,34 @@
 "use client";
-import { formStore, useBlWorkFlowData } from "@/store";
+import { formStore, useBackLinksStore, useBlWorkFlowData } from "@/store";
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import Link from "next/link";
+const noDataBgColor = "#67606bff";
 
 const RequestCard = ({ item }) => {
   const { workFlowData } = useBlWorkFlowData();
   const { setMode } = formStore();
   const data = workFlowData?.[0]?.[item?.keyName] ?? [];
+  const { setBlStatus } = useBackLinksStore();
+  const dataExists = data && Array.isArray(data) && data.length > 0;
+  const buildLink = (keyName, referenceId, link, invoiceId) => {
+    const linkMappings = {
+      invoiceRequest: link,
+      invoice: invoiceId ? `${link}?blId=${referenceId}` : "#",
+      invoicePyment: link,
+      do: link,
+      receipt: link,
+    };
+
+    return linkMappings[keyName] || "#";
+  };
+
+  const handleClick = ({ formId }) => {
+    setMode({
+      formId: formId,
+      mode: "view",
+    });
+    setBlStatus({ blStatus: "/bl-status" });
+  };
 
   return (
     <Card
@@ -17,7 +39,8 @@ const RequestCard = ({ item }) => {
         boxShadow: 3,
         marginTop: 3,
         height: 250,
-        width: 300,
+        width: 210,
+        backgroundColor: !dataExists ? noDataBgColor : "",
       }}
     >
       <Box
@@ -58,10 +81,19 @@ const RequestCard = ({ item }) => {
               <>
                 {data.map((info, _index) => (
                   <Link
-                    href={item?.link ||  '#'}
+                    href={buildLink(
+                      item?.keyName,
+                      info?.referenceId,
+                      item?.link,
+                      info?.invoiceId
+                    )}
                     key={_index}
                     onClick={() =>
-                      setMode({ formId: info?.referenceId, mode: "view" })
+                      handleClick({
+                        formId: info?.invoiceId
+                          ? info?.invoiceId
+                          : info?.referenceId,
+                      })
                     }
                   >
                     <Typography
