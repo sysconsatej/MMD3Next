@@ -44,7 +44,7 @@ import TableExportButtons from "@/components/tableExportButtons/tableExportButto
 import { TopActionIcons } from "@/components/tableHoverIcons/tableHoverIconsPayment";
 import { getUserByCookies } from "@/utils";
 import AttachFileIcon from "@mui/icons-material/AttachFile"; // 🔹 NEW
-import { InvoiceModal } from "../utils"; // 🔹 adjust path as per your file
+import { InvoiceModal, InvoicePaymentAssignModal } from "../utils"; // 🔹 adjust path as per your file
 
 const LIST_TABLE = "tblInvoicePayment p";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -84,7 +84,8 @@ function createData(
   PaymentRefNo,
   Amount,
   status,
-  blId
+  blId,
+  assignTo
 ) {
   return {
     id,
@@ -98,13 +99,13 @@ function createData(
     Amount,
     status,
     blId,
+    assignTo
   };
 }
 
 export default function InvoiceRequestList() {
   const router = useRouter();
   const { setMode } = formStore();
-
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [totalPage, setTotalPage] = useState(1);
@@ -124,20 +125,19 @@ export default function InvoiceRequestList() {
     value: "",
     paymentId: null,
   });
+  const [assignModal, setAssignModal] = useState({ toggle: false });
   const userData = getUserByCookies();
-
   const [selectedIds, setSelectedIds] = useState([]);
+  const [modal, setModal] = useState({
+    toggle: false,
+    value: null,
+  });
+
   const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
   const allChecked =
     selectedIds.length > 0 && selectedIds.length === idsOnPage.length;
   const someChecked =
     selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
-
-  // 🔹 NEW: modal state for attachments
-  const [modal, setModal] = useState({
-    toggle: false,
-    value: null, // will hold paymentId
-  });
 
   const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
   const toggleOne = (id) =>
@@ -145,19 +145,83 @@ export default function InvoiceRequestList() {
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
 
-  useEffect(() => {
-    async function fetchStatus() {
-      const obj = {
-        columns: "id as Id, name as Name",
-        tableName: "tblMasterData",
-        whereCondition: "masterListName = 'tblPaymentStatus' AND status = 1",
-      };
+  const getData = useCallback(
+    async (pageNo = page, pageSize = rowsPerPage) => {
+      try {
+        // 🔹 Build advanced search WHERE from UI
+        const advWhere = advanceSearchFilter(advanceSearch);
 
-      const { success, data } = await getDataWithCondition(obj);
-      if (success) setStatusList(data);
-    }
-    fetchStatus();
-  }, []);
+        // 🔹 Default: hide "Payment Rejected" when NO status filter is selected
+        let finalWhere = advWhere;
+        if (!advanceSearch.statusId || advanceSearch.statusId.length === 0) {
+          const hideRejected = `ms.name = 'Payment Confirmed'`;
+          finalWhere = finalWhere
+            ? `${finalWhere} AND ${hideRejected}`
+            : hideRejected;
+        }
+
+        const tableObj = {
+          columns: `
+          p.id id,
+          p.blId blId,
+          p.createdDate paymentDate,
+          ISNULL(hblNo, mblNo) blNo,
+          r.isFreeDays DoExtension,
+          u1.name PayorName,
+          m.name paymentType,
+          p.bankName BankName,
+          p.referenceNo PaymentRefNo,
+          p.Amount Amount,
+          ms.name status,
+          u3.name assignTo
+        `,
+          tableName: LIST_TABLE,
+          pageNo,
+          pageSize,
+          // 🔹 pass combined WHERE (advanced + default hide rejected)
+          advanceSearch: finalWhere,
+          joins: `left join tblUser u on u.id = ${userData.userId}
+          left join tblUser u1 on u1.id = p.createdBy
+		      left join tblUser u3 on u3.id = p.assignToId
+          join tblBl b on b.id = p.blId and b.shippingLineId = u.companyId and (p.assignToId = ${userData.userId} or p.assignToId is null)
+          left join tblInvoiceRequest r on r.blNo = b.mblNo
+          left join tblMasterData m on m.id = p.paymentTypeId
+          left join tblMasterData ms on ms.id = p.paymentStatusId`,
+          orderBy: "order by p.createdDate desc",
+        };
+
+        const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
+
+        const mapped = (data || []).map((item) =>
+          createData(
+            item["id"],
+            item["paymentDate"],
+            item["blNo"],
+            item["DoExtension"],
+            item["PayorName"],
+            item["paymentType"],
+            item["BankName"],
+            item["PaymentRefNo"],
+            item["Amount"],
+            item["status"],
+            item["blId"],
+            item["assignTo"],
+          )
+        );
+
+        setRows(mapped);
+        setTotalPage(totalPage);
+        setPage(pageNo);
+        setRowsPerPage(pageSize);
+        setTotalRows(totalRows);
+        setSelectedIds([]);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setLoadingState("Failed to load data");
+      }
+    },
+    [page, rowsPerPage, advanceSearch]
+  );
 
   const approveHandler = async (paymentId) => {
     const id = statusList.find((x) => x.Name === "Payment Confirmed")?.Id;
@@ -204,95 +268,55 @@ export default function InvoiceRequestList() {
     } else toast.error(res?.message);
   };
 
-  const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
-      try {
-        // 🔹 Build advanced search WHERE from UI
-        const advWhere = advanceSearchFilter(advanceSearch);
+  const assignToHandler = async (id) => {
+    setAssignModal((prev) => ({ ...prev, toggle: true, paymentId: id }));
+  };
 
-        // 🔹 Default: hide "Payment Rejected" when NO status filter is selected
-        let finalWhere = advWhere;
-        if (!advanceSearch.statusId || advanceSearch.statusId.length === 0) {
-          const hideRejected = `
-          p.paymentStatusId <> (
-            SELECT TOP 1 id
-            FROM tblMasterData
-            WHERE masterListName = 'tblPaymentStatus'
-              AND name = 'Payment Rejected'
-          )
-        `;
-          finalWhere = finalWhere
-            ? `${finalWhere} AND ${hideRejected}`
-            : hideRejected;
-        }
-
-        const tableObj = {
-          columns: `
-          p.id id,
-          p.blId blId,
-          p.createdDate paymentDate,
-          ISNULL(hblNo, mblNo) blNo,
-          r.isFreeDays DoExtension,
-          u1.name PayorName,
-          m.name paymentType,
-          p.bankName BankName,
-          p.referenceNo PaymentRefNo,
-          p.Amount Amount,
-          ms.name status
-        `,
-          tableName: LIST_TABLE,
-          pageNo,
-          pageSize,
-          // 🔹 pass combined WHERE (advanced + default hide rejected)
-          advanceSearch: finalWhere,
-          joins: `left join tblUser u on u.id = ${userData.userId}
-          left join tblUser u1 on u1.id=p.createdBy
-          join tblBl b on b.id = p.blId and b.shippingLineId = u.companyId
-          left join tblInvoiceRequest r on r.blNo=b.mblNo
-          left join tblMasterData m on m.id=p.paymentTypeId
-          left join tblMasterData ms on ms.id=p.paymentStatusId`,
-          orderBy: "order by p.createdDate desc",
-        };
-
-        const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-
-        const mapped = (data || []).map((item) =>
-          createData(
-            item["id"],
-            item["paymentDate"],
-            item["blNo"],
-            item["DoExtension"],
-            item["PayorName"],
-            item["paymentType"],
-            item["BankName"],
-            item["PaymentRefNo"],
-            item["Amount"],
-            item["status"],
-            item["blId"]
-          )
-        );
-
-        setRows(mapped);
-        setTotalPage(totalPage);
-        setPage(pageNo);
-        setRowsPerPage(pageSize);
-        setTotalRows(totalRows);
-        setSelectedIds([]);
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setLoadingState("Failed to load data");
-      }
-    },
-    [page, rowsPerPage, advanceSearch]
-  );
-
-  useEffect(() => {
-    setMode({ mode: null, formId: null });
-    getData(1, rowsPerPage);
-  }, []);
+  const onAssignHandler = async ({ userId }, paymentId) => {
+    const userData = getUserByCookies();
+    const rowsPayload = [
+      {
+        id: paymentId,
+        assignToId: userId?.Id,
+        updatedBy: userData.userId,
+        updatedDate: new Date(),
+      },
+    ];
+    const res = await updateStatusRows({
+      tableName: "tblInvoicePayment",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      setAssignModal((prev) => ({ ...prev, toggle: false, invoiceIds: null }));
+      return;
+    }
+    toast.success("Assign updated successfully!");
+    setAssignModal((prev) => ({ ...prev, toggle: false, invoiceIds: null }));
+    getData();
+  };
 
   const handleChangePage = (_e, newPage) => getData(newPage, rowsPerPage);
   const handleChangeRowsPerPage = (e) => getData(1, +e.target.value);
+
+  useEffect(() => {
+    async function fetchStatus() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: "masterListName = 'tblPaymentStatus' AND status = 1",
+      };
+
+      const { success, data } = await getDataWithCondition(obj);
+      if (success) setStatusList(data);
+
+      setMode({ mode: null, formId: null });
+      getData(1, rowsPerPage);
+    }
+    fetchStatus();
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -383,6 +407,7 @@ export default function InvoiceRequestList() {
                 <TableCell>Reference No</TableCell>
                 <TableCell>Amount</TableCell>
                 <TableCell>Status</TableCell>
+                <TableCell>Assign To</TableCell>
                 {/* 🔹 NEW column header */}
                 <TableCell>Attachments</TableCell>
                 <TableCell sx={ACTIONS_HEAD_SX}>Actions</TableCell>
@@ -432,6 +457,7 @@ export default function InvoiceRequestList() {
                     <TableCell sx={{ color: paymentStatusColor(row.status) }}>
                       {row.status}
                     </TableCell>
+                    <TableCell>{row.assignTo}</TableCell>
 
                     {/* 🔹 NEW Attachments icon cell */}
                     <TableCell>
@@ -457,7 +483,7 @@ export default function InvoiceRequestList() {
                           notify: true,
                           search: true,
                         }}
-                        onAddUser={() => {}}
+                        onAddUser={() => assignToHandler(row.id)}
                         onUndo={() => {}}
                         onApprove={() => approveHandler(row.id)}
                         onReject={() =>
@@ -509,10 +535,12 @@ export default function InvoiceRequestList() {
         setRejectState={setRejectState}
         rejectHandler={rejectHandlerFinal}
       />
-
-      {/* 🔹 Attachments modal */}
       <InvoiceModal modal={modal} setModal={setModal} />
-
+      <InvoicePaymentAssignModal
+        modal={assignModal}
+        setModal={setAssignModal}
+        onAssignHandler={onAssignHandler}
+      />
       <ToastContainer />
     </ThemeProvider>
   );
