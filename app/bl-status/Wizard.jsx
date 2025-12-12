@@ -78,7 +78,6 @@ export default function HorizontalLinearStepper({ steps }) {
   const checkLength = steps.filter(
     (info) => data && data[info?.keyName]?.length > 0
   );
-  console.log("checkLength", checkLength);
 
   return (
     <Box
