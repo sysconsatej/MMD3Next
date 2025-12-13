@@ -185,6 +185,7 @@ export default function InvoiceRequest() {
           formData?.isHighSealSale === true || formData?.isHighSealSale === "Y"
             ? "Y"
             : "N",
+        locationId: userData?.location || null,    
       };
 
       const payload = formatFormData(

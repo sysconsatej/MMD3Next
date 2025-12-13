@@ -99,6 +99,7 @@ export default function BLList() {
   });
   const { data } = useGetUserAccessUtils("HBL Request");
   const userData = getUserByCookies();
+  console.log("User Access Data:", userData);
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
