@@ -8,7 +8,7 @@ const fieldData = {
       name: "paymentTypeId",
       type: "dropdown",
       tableName: "tblMasterData m",
-      where: "m.masterListName = 'tblPaymentType'",
+      where: "m.masterListName = 'tblPaymentType' AND m.name <> 'Receipt'",
       displayColumn: "m.name",
       foreignTable: "name,tblMasterData",
       required: true,

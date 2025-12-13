@@ -141,6 +141,11 @@ export const navItems = [
         href: "/invoice/doRequest",
         isShow: false,
       },
+      {
+        name: "Receipt",
+        href: "/invoice/blReceipt/list",
+        isShow: false,
+      },
     ],
   },
   {
@@ -324,7 +329,7 @@ export const navItems = [
         name: "Released DO Tat",
         href: "/reports/customAndPort/releaseddotat",
         isShow: true,
-      }
+      },
     ],
   },
 ];
