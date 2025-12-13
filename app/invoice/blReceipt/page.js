@@ -362,7 +362,7 @@ export default function ReceiptForm() {
       <section className="p-5">
         <Box className="flex justify-between items-end mb-2">
           <h1 className="text-left text-base m-0">New Receipt</h1>
-          <CustomButton text="Back" href="/receipt/list" />
+          <CustomButton text="Back" href="/blReceipt/list" />
         </Box>
 
         <FormHeading text="BL Details" />
