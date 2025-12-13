@@ -138,7 +138,7 @@ export const navItems = [
       },
       {
         name: "Do Request",
-        href: "/invoice/doRequest/list",
+        href: "/invoice/doRequest",
         isShow: false,
       },
     ],
