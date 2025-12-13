@@ -74,7 +74,11 @@ export default function Home() {
 
     const format = formatFormData(
       "tblBl",
-      { ...formData, mblHblFlag: "MBL" },
+      {
+        ...formData,
+        mblHblFlag: "MBL",
+        locationId: userData?.location || null,
+      },
       mode.formId,
       "blId"
     );

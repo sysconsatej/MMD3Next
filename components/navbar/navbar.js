@@ -25,7 +25,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { navItems } from "./index";
 import { navTheme } from "@/styles";
-import { useModal, auth } from "@/store";
+import { useModal, auth, formStore } from "@/store";
 import { getUserByCookies, useInitUser } from "@/utils/userInit";
 import { CustomInput } from "../customInput";
 import { locationFields } from "./navbarUtil";
@@ -128,6 +128,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [formData, setFormData] = useState({});
+  const { mode } = formStore();
 
   // aakash yadav code
   useInitUser();
@@ -194,7 +195,7 @@ export default function Navbar() {
           ...prevData,
           location: { Id: data[0].Id, Name: data[0].Name },
         }));
-      } catch (error) { 
+      } catch (error) {
         console.error("Error fetching user data:", error);
       }
     };
@@ -221,13 +222,6 @@ export default function Navbar() {
             <Box className="nav-grid">
               <Box className="nav-links">
                 {/* Location Input */}
-                <CustomInput
-                  fields={locationFields.location}
-                  formData={formData}
-                  setFormData={setFormData}
-                  handleChangeEventFunctions={handleChange}
-                />
-
                 {/* {navItems.map((item) =>
                   item.submenu ? (
                     <Box
@@ -373,22 +367,33 @@ export default function Navbar() {
                 )} */}
               </Box>
 
-              <Box
-                className="nav-account cursor-pointer "
-                role="button"
-                tabIndex={1}
-                onClick={() => setModalOpen("logout")}
-              >
-                <Avatar>
-                  {String(userData?.data?.userName).charAt(0).toUpperCase()}
-                </Avatar>
-                <Box>
-                  <div className="account-name">
-                    {userData?.data?.companyName}
-                  </div>
-                  <div className="account-role">
-                    {userData.data?.roleName || ""}
-                  </div>
+              <Box className="flex align-bottom justify-end">
+                <Box className="w-[150px] mt-auto">
+                  <CustomInput
+                    fields={locationFields.location}
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleChangeEventFunctions={handleChange}
+                    fieldsMode={mode?.formId ? "view" : "edit"}
+                  />
+                </Box>
+                <Box
+                  className="nav-account cursor-pointer "
+                  role="button"
+                  tabIndex={1}
+                  onClick={() => setModalOpen("logout")}
+                >
+                  <Avatar>
+                    {String(userData?.data?.userName).charAt(0).toUpperCase()}
+                  </Avatar>
+                  <Box>
+                    <div className="account-name">
+                      {userData?.data?.companyName}
+                    </div>
+                    <div className="account-role">
+                      {userData.data?.roleName || ""}
+                    </div>
+                  </Box>
                 </Box>
               </Box>
             </Box>
