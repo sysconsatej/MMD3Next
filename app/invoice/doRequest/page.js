@@ -230,12 +230,12 @@ export default function Home() {
                     <Box className="flex justify-between items-center mb-2">
                         <h1 className="text-left text-base m-0">Do Request</h1>
                         <Box className="flex items-center gap-4">
-
+                            {/* 
                             <CustomButton
                                 text="Back"
-                                href="/invoice/doRequest/list"
+                                href="/das"
                                 onClick={() => setMode({ mode: null, formId: null })}
-                            />
+                            /> */}
                         </Box>
                     </Box>
 
@@ -250,7 +250,7 @@ export default function Home() {
                             />
                         </Box>
                         <FormHeading text="Transport Details">
-                            <Box className="grid grid-cols-4 gap-2 p-2 ">
+                            <Box className="grid grid-cols-3 gap-2 p-2 ">
                                 <CustomInput
                                     fields={jsonData.transportDetails}
                                     formData={formData}

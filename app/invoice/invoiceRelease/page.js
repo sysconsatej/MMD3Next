@@ -11,7 +11,7 @@ import TableGrid from "@/components/tableGrid/tableGrid";
 import fieldData, { cfsGridButtons } from "./invoiceReleaseData";
 import { CustomInput } from "@/components/customInput";
 import { useSearchParams } from "next/navigation";
-import { formStore, useBackLinksStore } from "@/store";
+import { formStore, useBackLinksStore, useBlWorkFlowData } from "@/store";
 import { getDataWithCondition, fetchForm } from "@/apis";
 import {
   formatFetchForm,
@@ -30,6 +30,7 @@ function CustomTabPanel({ children, value, index }) {
 
 export default function InvoiceReleasePage() {
   const { link } = useBackLinksStore();
+  const  { setClearData  } = useBlWorkFlowData();
   const searchParams = useSearchParams();
   const { mode } = formStore();
   const blIdFromQS = searchParams.get("blId");
@@ -209,6 +210,7 @@ export default function InvoiceReleasePage() {
           <CustomButton
             text="Back"
             href={link ? link?.blStatus : "/payment/paymentConfirmation/list"}
+            onClick={() => setClearData([])}
           />
         </Box>
 

@@ -41,7 +41,7 @@ const processArr = [
     bgColor: "#33c6f4",
     status: "off",
     keyName: "invoicePayment",
-    link: "#",
+    link: "/invoice/invoiceRelease",
   },
   {
     id: 4,

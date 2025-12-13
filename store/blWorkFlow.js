@@ -10,7 +10,7 @@ const useBlWorkFlowData = create((set) => ({
       workFlowData: res,
     });
   },
-  
+  setClearData: () => set({ workFlowData: [] }),
 }));
 
 export default useBlWorkFlowData;
