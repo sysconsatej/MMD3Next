@@ -90,7 +90,7 @@ export const navItems = [
 export const locationFields = {
   location: [
     {
-      label: "Location",
+      label: "",
       name: "location",
       type: "dropdown",
       placeholder: "Location",
