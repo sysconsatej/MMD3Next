@@ -26,7 +26,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { navItems } from "./index";
 import { navTheme } from "@/styles";
 import { useModal, auth } from "@/store";
-import { useInitUser } from "@/utils/userInit";
+import { getUserByCookies, useInitUser } from "@/utils/userInit";
+import { CustomInput } from "../customInput";
+import { locationFields } from "./navbarUtil";
+import Cookies from "js-cookie";
+import { getDataWithCondition } from "@/apis";
 
 const norm = (s) => (s ? s.split("?")[0].replace(/\/$/, "") : "");
 const scope = (path, depth) => norm(path).split("/").slice(0, depth).join("/");
@@ -113,17 +117,18 @@ export default function Navbar() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [thirdMenuAnchor, setThirdMenuAnchor] = useState(null);
   const [openThirdMenu, setOpenThirdMenu] = useState(null);
-  
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeLink, setActiveLink] = useState("Home");
   const [activeSubLink, setActiveSubLink] = useState("");
   const [activeParentSubLink, setActiveParentSubLink] = useState("");
   const [openSubmenus, setOpenSubmenus] = useState({});
-  
+
   const isMobile = useMediaQuery("(max-width:900px)");
   const pathname = usePathname();
   const router = useRouter();
-  
+  const [formData, setFormData] = useState({});
+
   // aakash yadav code
   useInitUser();
   const { userData } = auth();
@@ -151,6 +156,52 @@ export default function Navbar() {
 
   // if (pathname === "/login") return <></>;
 
+  const handleChange = {
+    getLocation: (name, value) => {
+      const user = getUserByCookies();
+      if (!user || typeof user !== "object") return;
+
+      const updateUser = {
+        ...user,
+        location: value?.Id ?? null,
+      };
+
+      Cookies.set("user", JSON.stringify(updateUser), {
+        expires: 1,
+        path: "/",
+      });
+      window.location.reload();
+    },
+  };
+
+  useEffect(() => {
+    const fetchDataAndSetValue = async () => {
+      try {
+        const user = getUserByCookies();
+        if (!user || typeof user !== "object") return;
+        const locationId = user.location;
+        if (!locationId) return;
+
+        const payLoad = {
+          columns: "l.id Id, l.name Name",
+          tableName: "tblLocation l",
+          whereCondition: `l.id = ${locationId} and l.status = 1`,
+        };
+        const response = await getDataWithCondition(payLoad);
+        const data = response.data;
+        if (!Array.isArray(data) || !data[0]) return;
+        setFormData((prevData) => ({
+          ...prevData,
+          location: { Id: data[0].Id, Name: data[0].Name },
+        }));
+      } catch (error) { 
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchDataAndSetValue();
+  }, []);
+
   return (
     <ThemeProvider theme={navTheme}>
       <CssBaseline />
@@ -169,6 +220,14 @@ export default function Navbar() {
           {!isMobile && (
             <Box className="nav-grid">
               <Box className="nav-links">
+                {/* Location Input */}
+                <CustomInput
+                  fields={locationFields.location}
+                  formData={formData}
+                  setFormData={setFormData}
+                  handleChangeEventFunctions={handleChange}
+                />
+
                 {/* {navItems.map((item) =>
                   item.submenu ? (
                     <Box

@@ -86,3 +86,20 @@ export const navItems = [
     ],
   },
 ];
+
+export const locationFields = {
+  location: [
+    {
+      label: "Location",
+      name: "location",
+      type: "dropdown",
+      placeholder: "Location",
+      tableName: "tblLocation l",
+      displayColumn: "l.name",
+      foreignTable: "name,tblLocation",
+      orderBy: "l.name",
+      isEdit: true,
+      changeFun: "getLocation",
+    },
+  ],
+};
