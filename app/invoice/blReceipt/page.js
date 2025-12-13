@@ -145,7 +145,6 @@ export default function ReceiptForm() {
               attachmentMap[p.id] = [];
             }
           } catch (e) {
-            console.error("fetchForm tblAttachment error:", p.id, e);
             attachmentMap[p.id] = [];
           }
         });
@@ -153,7 +152,7 @@ export default function ReceiptForm() {
         await Promise.allSettled(promises);
 
         const nextReceipts = payments.map((p) => ({
-          id: p.id, // invoicePaymentId
+          id: p.id,
           Amount: p.Amount || 0,
           receiptNo: p.receiptNo || "",
           receiptDate: p.receiptDate || "",
@@ -169,9 +168,7 @@ export default function ReceiptForm() {
         }));
 
         setTabValue(0);
-        // toast.success(" Receipt loaded.");
       } catch (err) {
-        console.error(err);
         toast.error("Error fetching BL details.");
       }
     },
@@ -179,6 +176,103 @@ export default function ReceiptForm() {
   );
 
   const handleBlurEventFunctions = { fetchBlDetails };
+
+  // -------------------------------
+  // ⭐ NEW VIEW MODE LOGIC (ONLY CHANGE)
+  // -------------------------------
+  useEffect(() => {
+    async function loadViewMode() {
+      if (!mode?.formId || fieldsMode !== "view") return;
+
+      try {
+        const ids = mode.formId
+          .split(",")
+          .map((x) => Number(x.trim()))
+          .filter(Boolean);
+
+        if (!ids.length) return;
+
+        const firstId = ids[0];
+
+        // 1️⃣ Fetch BL No + Payor Name only once
+        const headerQuery = {
+          columns: `
+            ISNULL(b.hblNo, b.mblNo) AS blNo,
+            u.name AS payorName
+          `,
+          tableName: "tblInvoicePayment p",
+          joins: `
+            JOIN tblBl b ON b.id = p.blId
+            JOIN tblUser u ON u.id = p.createdBy
+          `,
+          whereCondition: `p.id = ${firstId}`,
+        };
+
+        const { success: hdrSuccess, data: hdrData } =
+          await getDataWithCondition(headerQuery);
+
+        if (!hdrSuccess || !hdrData?.length) return;
+
+        const blNo = hdrData[0].blNo;
+        const payorName = hdrData[0].payorName;
+
+        setFormData((prev) => ({
+          ...prev,
+          blNo,
+          payorName: { Id: null, Name: payorName },
+        }));
+
+        // 2️⃣ Fetch individual receipts using fetchForm
+        const receiptArr = [];
+
+        const promises = ids.map(async (id) => {
+          const fmt = formatFetchForm(
+            jsonData,
+            "tblInvoicePayment",
+            id,
+            '["tblAttachment"]',
+            "invoicePaymentId"
+          );
+
+          const { success, result } = await fetchForm(fmt);
+          if (!success) return;
+
+          const mapped = formatDataWithForm(result, jsonData);
+
+          receiptArr.push({
+            id,
+            receiptNo: mapped.receiptNo || "",
+            receiptDate: mapped.receiptDate || "",
+            Amount: mapped.Amount || 0,
+            tblAttachment: mapped.tblAttachment || [],
+          });
+        });
+
+        await Promise.all(promises);
+
+        setFormData((prev) => ({
+          ...prev,
+          tblReceipt: receiptArr,
+        }));
+
+        setTabValue(0);
+      } catch (e) {
+        toast.error("Failed loading view mode data.");
+      }
+    }
+
+    loadViewMode();
+  }, [mode?.formId, fieldsMode]);
+  // -------------------------------
+
+  useEffect(() => {
+    if (mode?.formId && fieldsMode !== "view") {
+      setFieldsMode(mode?.mode || "");
+      loadFromPaymentId(mode.formId);
+    } else {
+      setFieldsMode(initialMode);
+    }
+  }, [mode?.formId, mode?.mode]);
 
   const loadFromPaymentId = useCallback(
     async (paymentId) => {
@@ -200,21 +294,11 @@ export default function ReceiptForm() {
         setFormData((p) => ({ ...p, blNo }));
         await fetchBlDetails({ target: { value: blNo } });
       } catch (e) {
-        console.error(e);
         toast.error("Failed to load receipt by payment id.");
       }
     },
     [fetchBlDetails]
   );
-
-  useEffect(() => {
-    if (mode?.formId) {
-      setFieldsMode(mode?.mode || "");
-      loadFromPaymentId(mode.formId);
-    } else {
-      setFieldsMode(initialMode);
-    }
-  }, [mode?.formId, mode?.mode]);
 
   const handleSubmit = async () => {
     try {
@@ -237,7 +321,6 @@ export default function ReceiptForm() {
           ? row.tblAttachment
           : [];
 
-        // ✅ remove invoicePaymentId if present inside attachment rows
         const cleanedAttachments = attachments.map((a) => {
           const { invoicePaymentId: _dup, ...rest } = a || {};
           return rest;
@@ -270,7 +353,6 @@ export default function ReceiptForm() {
 
       if (allSuccess) toast.success("Receipt details saved successfully.");
     } catch (err) {
-      console.error("handleSubmit error:", err);
       toast.error("Error while saving receipt details.");
     }
   };
@@ -298,7 +380,11 @@ export default function ReceiptForm() {
         <FormHeading text="Receipt Details" />
 
         <Box className="px-2 mt-4">
-          <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)} variant="scrollable">
+          <Tabs
+            value={tabValue}
+            onChange={(e, v) => setTabValue(v)}
+            variant="scrollable"
+          >
             {receipts.map((_, i) => (
               <Tab
                 key={i}
@@ -314,7 +400,14 @@ export default function ReceiptForm() {
                 iconPosition="end"
               />
             ))}
-            <Tab icon={<AddIcon />} iconPosition="end" label="Add Receipt" onClick={handleAddReceipt} />
+            {fieldsMode !== "view" && (
+              <Tab
+                icon={<AddIcon />}
+                iconPosition="end"
+                label="Add Receipt"
+                onClick={handleAddReceipt}
+              />
+            )}
           </Tabs>
         </Box>
 

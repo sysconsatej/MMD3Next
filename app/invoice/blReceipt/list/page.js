@@ -26,6 +26,8 @@ import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import { getUserByCookies } from "@/utils";
 
 import { advanceSearchFields, advanceSearchFilter } from "../blReceiptData";
+import { InvoiceModal } from "../utils";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 
 const LIST_TABLE = "tblInvoicePayment p";
 
@@ -39,6 +41,10 @@ export default function ReceiptList() {
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
   const [advanceSearch, setAdvanceSearch] = useState({});
+  const [modal, setModal] = useState({
+    toggle: false,
+    value: null,
+  });
 
   const tableWrapRef = useRef(null);
 
@@ -58,7 +64,8 @@ export default function ReceiptList() {
           MAX(p.receiptDate) AS receiptDate,               
           ISNULL(b.hblNo, b.mblNo) AS blNo,                
           u1.name AS payorName,                            
-          SUM(p.Amount) AS Amount   
+          SUM(p.Amount) AS Amount,
+          STRING_AGG(p.id, ',') AS receiptIds   
           `,
           tableName: LIST_TABLE,
           pageNo: pg,
@@ -132,6 +139,7 @@ export default function ReceiptList() {
                 <TableCell>BL No</TableCell>
                 <TableCell>Payor Name</TableCell>
                 <TableCell>Amount</TableCell>
+                <TableCell>Attachments</TableCell>
               </TableRow>
             </TableHead>
 
@@ -147,7 +155,7 @@ export default function ReceiptList() {
                           e.preventDefault();
                           formStore
                             .getState()
-                            .setMode({ mode: "view", formId: row.id });
+                            .setMode({ mode: "view", formId: row.receiptIds });
                           router.push(`/invoice/blReceipt`);
                         }}
                         sx={{ cursor: "pointer", fontWeight: 500 }}
@@ -160,6 +168,18 @@ export default function ReceiptList() {
                     <TableCell>{row.blNo || "-"}</TableCell>
                     <TableCell>{row.payorName || "-"}</TableCell>
                     <TableCell>{row.Amount}</TableCell>
+                    <TableCell>
+                      <AttachFileIcon
+                        sx={{ cursor: "pointer", fontSize: 16 }}
+                        onClick={() =>
+                          setModal((prev) => ({
+                            ...prev,
+                            toggle: true,
+                            value: row.receiptIds, // paymentId
+                          }))
+                        }
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -184,6 +204,7 @@ export default function ReceiptList() {
           />
         </Box>
       </Box>
+      <InvoiceModal modal={modal} setModal={setModal} />
 
       <ToastContainer />
     </ThemeProvider>

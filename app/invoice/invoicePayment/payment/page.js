@@ -307,6 +307,7 @@ export default function PaymentPage() {
         paymentStatusId,
         companyId: userData?.companyId,
         companyBranchId: userData?.companyBranchId, // 🔥 status = Payment Confirmation Requested
+        locationId: userData?.location || null,
       };
 
       const payload = formatFormData(
