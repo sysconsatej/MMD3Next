@@ -183,7 +183,7 @@ export default function InvoiceRequestList() {
           joins: `left join tblUser u on u.id = ${userData.userId}
           left join tblUser u1 on u1.id = p.createdBy
 		      left join tblUser u3 on u3.id = p.assignToId
-          join tblBl b on b.id = p.blId and b.shippingLineId = u.companyId and (p.assignToId = ${userData.userId} or p.assignToId is null)
+          join tblBl b on b.id = p.blId and b.shippingLineId = u.companyId and (p.assignToId = ${userData.userId} or p.assignToId is null) and p.locationId = ${userData.location}
           left join tblInvoiceRequest r on r.blNo = b.mblNo
           left join tblMasterData m on m.id = p.paymentTypeId
           left join tblMasterData ms on ms.id = p.paymentStatusId`,

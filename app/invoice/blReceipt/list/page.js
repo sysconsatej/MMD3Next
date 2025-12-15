@@ -76,7 +76,7 @@ export default function ReceiptList() {
 
           joins: `
             LEFT JOIN tblUser u ON u.id = ${userData.userId}
-            JOIN tblBl b ON b.id = p.blId AND b.shippingLineId = u.companyId
+            JOIN tblBl b ON b.id = p.blId AND b.shippingLineId = u.companyId and p.locationId = ${userData.location}
             LEFT JOIN tblUser u1 ON u1.id = p.createdBy
             JOIN tblMasterData ms ON ms.id = p.paymentStatusId and ms.name='Payment Confirmed'
           `,

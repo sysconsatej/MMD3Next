@@ -95,7 +95,7 @@ export default function InvoiceReleaseList() {
   const [statusList, setStatusList] = useState([]);
   const [rows, setRows] = useState([]);
   const [advanceSearch, setAdvanceSearch] = useState({});
-  const [loadingState, setLoadingState] = useState("Loading...");
+  const [loadingState, setLoadingState] = useState("Data not found!");
   const tableWrapRef = useRef(null);
   const [modal, setModal] = useState({ toggle: false, value: null });
 
@@ -147,7 +147,7 @@ export default function InvoiceReleaseList() {
           LEFT JOIN tblUser u ON u.id = ${userData.userId}
           left join tblUser u2 on u2.id = i.assignToId
           LEFT JOIN tblCompany c ON c.id = u.companyId
-          JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId and i.invoiceRequestStatusId IS NOT NULL and i.shippingLineId = u.companyId
+          JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId and i.invoiceRequestStatusId IS NOT NULL and i.shippingLineId = u.companyId and i.locationId = ${userData.location}
           and (i.assignToId is null or i.assignToId = ${userData.userId})
           `,
           orderBy: `

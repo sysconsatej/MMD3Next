@@ -146,7 +146,6 @@ export default function hblUpload() {
   const [busy, setBusy] = useState(false);
   const [objectToRemove, setObjectsToRemove] = useState(1);
   const userData = getUserByCookies();
-  console.log("userData", userData);
   const getSelectedTemplateName = () => "HBLMaster";
 
   /* ------------------ Download Template (mapped to Node files) ------------------ */
