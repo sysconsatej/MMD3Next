@@ -58,7 +58,7 @@ const processArr = [
     bgColor: "#084561ff",
     status: "off",
     keyName: "receipt",
-    link: "invoice/blReceipt",
+    link: "/invoice/blReceipt",
   },
 ];
 
