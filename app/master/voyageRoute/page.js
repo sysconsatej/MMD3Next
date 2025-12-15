@@ -1,5 +1,5 @@
 "use client";
-
+ 
 import { useState, useEffect } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data from "./voyageRouteData";
@@ -8,23 +8,40 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { fetchForm, insertUpdateForm } from "@/apis";
-import { formatDataWithForm, formatFetchForm, formatFormData,getUserByCookies } from "@/utils";
+import {
+  formatDataWithForm,
+  formatFetchForm,
+  formatFormData,
+  getUserByCookies,
+} from "@/utils";
 import { formStore } from "@/store";
-
+ 
 export default function VoyageRoute() {
-  const [formData, setFormData] = useState({});
-  const [fieldsMode, setFieldsMode] = useState("");
-  const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
+  const [fieldsMode, setFieldsMode] = useState("");
+  const [formData, setFormData] = useState({
+    maritimeDeclaration: mode?.mode === null ? "N" : "",
+    crewListDeclaration: mode?.mode === null ? "N" : "",
+    importLocking: mode?.mode === null ? "N" : "",
+    exportLocking: mode?.mode === null ? "N" : "",
+    passengerList: mode?.mode === null ? "N" : "",
+    sameBottomCargo: mode?.mode === null ? "N" : "",
+    shipStoresDeclaration: mode?.mode === null ? "N" : "",
+  });
+  const [jsonData, setJsonData] = useState(data);
   const userData = getUserByCookies();
   const submitHandler = async (event) => {
     event.preventDefault();
     const updatedFormdData = {
       ...formData,
-      companyid : userData?.companyId,
-      companyBranchid  : userData?.branchId,
-    }
-    const format = formatFormData("tblVoyageRoute ", updatedFormdData, mode.formId);
+      companyid: userData?.companyId,
+      companyBranchid: userData?.branchId,
+    };
+    const format = formatFormData(
+      "tblVoyageRoute ",
+      updatedFormdData,
+      mode.formId
+    );
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
@@ -47,7 +64,7 @@ export default function VoyageRoute() {
         }
       }
     }
-
+ 
     fetchFormHandler();
   }, [mode.formId]);
   return (
@@ -85,3 +102,5 @@ export default function VoyageRoute() {
     </ThemeProvider>
   );
 }
+ 
+ 

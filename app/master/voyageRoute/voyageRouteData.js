@@ -56,12 +56,12 @@ const fieldData = {
       isEdit: true,
       required: true,
     },
-    {
-      label: "Export Voyage No",
-      name: "exportExchangeRate",
-      type: "number",
-      isEdit: true,
-    },
+    // {
+    //   label: "Export Voyage No",
+    //   name: "exportExchangeRate",
+    //   type: "number",
+    //   isEdit: true,
+    // },
     {
       label: "Import Voyage No",
       name: "importExchangeRate",
@@ -80,31 +80,31 @@ const fieldData = {
       type: "date",
       isEdit: true,
     },
-    {
-      label: "ETB",
-      name: "etb",
-      type: "date",
-      isEdit: true,
-    },
+    // {
+    //   label: "ETB",
+    //   name: "etb",
+    //   type: "date",
+    //   isEdit: true,
+    // },
     {
       label: "Port Cut Off",
       name: "portCutoff",
       type: "date",
       isEdit: true,
     },
-
+ 
     {
       label: "Arrival Date",
       name: "arrivalDate",
       type: "date",
       isEdit: true,
     },
-    {
-      label: "ATB",
-      name: "berthDate",
-      type: "date",
-      isEdit: true,
-    },
+    // {
+    //   label: "ATB",
+    //   name: "berthDate",
+    //   type: "date",
+    //   isEdit: true,
+    // },
     {
       label: "Sail Date",
       name: "sailDate",
@@ -192,7 +192,7 @@ const fieldData = {
     //   isEdit: true,
     //   type :
     // },
-
+ 
     { label: "IGM No", name: "igmNo", type: "text", isEdit: true },
     {
       label: "IGM Date",
@@ -207,18 +207,18 @@ const fieldData = {
       type: "date",
       isEdit: true,
     },
-    {
-      label: "PC No",
-      name: "pcNo",
-      type: "text",
-      isEdit: true,
-    },
-    {
-      label: "PC Date",
-      name: "pcDate",
-      type: "date",
-      isEdit: true,
-    },
+    // {
+    //   label: "PC No",
+    //   name: "pcNo",
+    //   type: "text",
+    //   isEdit: true,
+    // },
+    // {
+    //   label: "PC Date",
+    //   name: "pcDate",
+    //   type: "date",
+    //   isEdit: true,
+    // },
     {
       label: "Via No",
       name: "viaNo",
@@ -242,7 +242,7 @@ const fieldData = {
       name: "lightHouseDues",
       isEdit: true,
     },
-
+ 
     {
       label: "Passenger List",
       name: "passengerList",
@@ -348,7 +348,7 @@ const fieldData = {
     },
   ],
 };
-
+ 
 export const VoyageRoute = [
   { label: "Port of Call", value: "p.name" },
   { label: "Vessel No", value: "ve.name" },
@@ -358,5 +358,7 @@ export const VoyageRoute = [
   { label: "Import Locking", value: "v.importLocking" },
   { label: "Terminal", value: "p.name" },
 ];
-
+ 
 export default fieldData;
+ 
+ 
