@@ -20,7 +20,7 @@ import {
   formatFormData,
   getUserByCookies,
 } from "@/utils";
-import { formStore } from "@/store";
+import { formStore, useBackLinksStore, useBlWorkFlowData } from "@/store";
 
 function CustomTabPanel({ children, value, index }) {
   return (
@@ -40,6 +40,9 @@ export default function ReceiptForm() {
   const [tabValue, setTabValue] = useState(0);
 
   const receipts = formData.tblReceipt || [];
+
+  const { link } = useBackLinksStore();
+  const  { setClearData } = useBlWorkFlowData();
 
   const handleAddReceipt = () => {
     const nextReceipts = [...receipts, { tblAttachment: [] }];
@@ -71,8 +74,9 @@ export default function ReceiptForm() {
             AND shippingLineId = ${userData?.companyId}`,
         };
 
-        const { success: blSuccess, data: blData } =
-          await getDataWithCondition(blQuery);
+        const { success: blSuccess, data: blData } = await getDataWithCondition(
+          blQuery
+        );
 
         if (!blSuccess || !blData?.length) {
           toast.error("BL not found.");
@@ -357,12 +361,21 @@ export default function ReceiptForm() {
     }
   };
 
+
+  const handleClick =  ()  =>  {
+    setClearData([])
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <section className="p-5">
         <Box className="flex justify-between items-end mb-2">
           <h1 className="text-left text-base m-0">New Receipt</h1>
-          <CustomButton text="Back" href="/blReceipt/list" />
+          <CustomButton
+            text="Back"
+            href={link?.blStatus ? "/bl-status" : "invoice/blReceipt/list"}
+            onClick={handleClick}
+          />
         </Box>
 
         <FormHeading text="BL Details" />
