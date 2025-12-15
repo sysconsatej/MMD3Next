@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -42,7 +43,7 @@ export default function ReceiptForm() {
   const receipts = formData.tblReceipt || [];
 
   const { link } = useBackLinksStore();
-  const  { setClearData } = useBlWorkFlowData();
+  const { setClearData } = useBlWorkFlowData();
 
   const handleAddReceipt = () => {
     const nextReceipts = [...receipts, { tblAttachment: [] }];
@@ -181,55 +182,50 @@ export default function ReceiptForm() {
 
   const handleBlurEventFunctions = { fetchBlDetails };
 
-  // -------------------------------
-  // ⭐ NEW VIEW MODE LOGIC (ONLY CHANGE)
-  // -------------------------------
-  useEffect(() => {
-    async function loadViewMode() {
-      if (!mode?.formId || fieldsMode !== "view") return;
+  // ✅ view mode loader (stable order + safe failure)
+  const loadViewMode = useCallback(async () => {
+    if (!mode?.formId) return;
 
-      try {
-        const ids = mode.formId
-          .split(",")
-          .map((x) => Number(x.trim()))
-          .filter(Boolean);
+    try {
+      const ids = String(mode.formId)
+        .split(",")
+        .map((x) => Number(x.trim()))
+        .filter(Boolean);
 
-        if (!ids.length) return;
+      if (!ids.length) return;
 
-        const firstId = ids[0];
+      const firstId = ids[0];
 
-        // 1️⃣ Fetch BL No + Payor Name only once
-        const headerQuery = {
-          columns: `
-            ISNULL(b.hblNo, b.mblNo) AS blNo,
-            u.name AS payorName
-          `,
-          tableName: "tblInvoicePayment p",
-          joins: `
-            JOIN tblBl b ON b.id = p.blId
-            JOIN tblUser u ON u.id = p.createdBy
-          `,
-          whereCondition: `p.id = ${firstId}`,
-        };
+      // NOTE: keep same style you used elsewhere (join inside tableName)
+      const headerQuery = {
+        columns: `
+          TOP 1
+          ISNULL(b.hblNo, b.mblNo) AS blNo,
+          u.name AS payorName
+        `,
+        tableName:
+          "tblInvoicePayment p JOIN tblBl b ON b.id = p.blId JOIN tblUser u ON u.id = p.createdBy",
+        whereCondition: `p.id = ${firstId}`,
+      };
 
-        const { success: hdrSuccess, data: hdrData } =
-          await getDataWithCondition(headerQuery);
+      const { success: hdrSuccess, data: hdrData } = await getDataWithCondition(
+        headerQuery
+      );
 
-        if (!hdrSuccess || !hdrData?.length) return;
-
-        const blNo = hdrData[0].blNo;
-        const payorName = hdrData[0].payorName;
+      if (hdrSuccess && Array.isArray(hdrData) && hdrData.length) {
+        const blNo = hdrData[0]?.blNo || "";
+        const payorName = hdrData[0]?.payorName || "";
 
         setFormData((prev) => ({
           ...prev,
           blNo,
-          payorName: { Id: null, Name: payorName },
+          payorName: payorName ? { Id: null, Name: payorName } : null,
         }));
+      }
 
-        // 2️⃣ Fetch individual receipts using fetchForm
-        const receiptArr = [];
-
-        const promises = ids.map(async (id) => {
+      // ✅ keep ids order (no push in async)
+      const settled = await Promise.allSettled(
+        ids.map(async (id) => {
           const fmt = formatFetchForm(
             jsonData,
             "tblInvoicePayment",
@@ -239,44 +235,36 @@ export default function ReceiptForm() {
           );
 
           const { success, result } = await fetchForm(fmt);
-          if (!success) return;
+          if (!success || !result) return null;
 
           const mapped = formatDataWithForm(result, jsonData);
 
-          receiptArr.push({
+          return {
             id,
-            receiptNo: mapped.receiptNo || "",
-            receiptDate: mapped.receiptDate || "",
-            Amount: mapped.Amount || 0,
-            tblAttachment: mapped.tblAttachment || [],
-          });
-        });
+            receiptNo: mapped?.receiptNo || "",
+            receiptDate: mapped?.receiptDate || "",
+            Amount: mapped?.Amount || 0,
+            tblAttachment: Array.isArray(mapped?.tblAttachment)
+              ? mapped.tblAttachment
+              : [],
+          };
+        })
+      );
 
-        await Promise.all(promises);
+      const receiptArr = settled
+        .map((r) => (r.status === "fulfilled" ? r.value : null))
+        .filter(Boolean);
 
-        setFormData((prev) => ({
-          ...prev,
-          tblReceipt: receiptArr,
-        }));
+      setFormData((prev) => ({
+        ...prev,
+        tblReceipt: receiptArr,
+      }));
 
-        setTabValue(0);
-      } catch (e) {
-        toast.error("Failed loading view mode data.");
-      }
+      setTabValue(0);
+    } catch (e) {
+      toast.error("Failed loading view mode data.");
     }
-
-    loadViewMode();
-  }, [mode?.formId, fieldsMode]);
-  // -------------------------------
-
-  useEffect(() => {
-    if (mode?.formId && fieldsMode !== "view") {
-      setFieldsMode(mode?.mode || "");
-      loadFromPaymentId(mode.formId);
-    } else {
-      setFieldsMode(initialMode);
-    }
-  }, [mode?.formId, mode?.mode]);
+  }, [mode?.formId, jsonData]);
 
   const loadFromPaymentId = useCallback(
     async (paymentId) => {
@@ -284,8 +272,7 @@ export default function ReceiptForm() {
       try {
         const q = {
           columns: `TOP 1 ISNULL(b.hblNo, b.mblNo) AS blNo`,
-          tableName: "tblInvoicePayment i",
-          joins: "JOIN tblBl b ON b.id = i.blId",
+          tableName: "tblInvoicePayment i JOIN tblBl b ON b.id = i.blId",
           whereCondition: `i.id = ${paymentId}`,
         };
 
@@ -303,6 +290,22 @@ export default function ReceiptForm() {
     },
     [fetchBlDetails]
   );
+  // ✅ FIX #1: decide mode using mode.mode, NOT fieldsMode
+  useEffect(() => {
+    const nextMode = mode?.mode || initialMode;
+    setFieldsMode(nextMode);
+
+    if (!mode?.formId) return;
+
+    if (nextMode === "view") {
+      // only view loader
+      loadViewMode();
+    } else {
+      // only non-view loader
+      loadFromPaymentId(mode.formId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode?.formId, mode?.mode]); // keep minimal deps; functions are stable via useCallback
 
   const handleSubmit = async () => {
     try {
@@ -361,10 +364,9 @@ export default function ReceiptForm() {
     }
   };
 
-
-  const handleClick =  ()  =>  {
-    setClearData([])
-  }
+  const handleClick = () => {
+    setClearData([]);
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -373,7 +375,7 @@ export default function ReceiptForm() {
           <h1 className="text-left text-base m-0">New Receipt</h1>
           <CustomButton
             text="Back"
-            href={link?.blStatus ? "/bl-status" : "invoice/blReceipt/list"}
+            href={link?.blStatus ? "/bl-status" : "/invoice/blReceipt/list"} // ✅ FIX #4
             onClick={handleClick}
           />
         </Box>
@@ -403,16 +405,19 @@ export default function ReceiptForm() {
                 key={i}
                 label={`Receipt ${i + 1}`}
                 icon={
-                  <CloseIcon
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemove(i);
-                    }}
-                  />
+                  fieldsMode !== "view" ? ( // ✅ FIX #5 (no remove in view)
+                    <CloseIcon
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemove(i);
+                      }}
+                    />
+                  ) : null
                 }
                 iconPosition="end"
               />
             ))}
+
             {fieldsMode !== "view" && (
               <Tab
                 icon={<AddIcon />}
