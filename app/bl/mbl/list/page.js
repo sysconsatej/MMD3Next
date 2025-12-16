@@ -111,7 +111,7 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "coalesce(b.hblNo, b.mblNo)  blNo, iif(b.hblNo is null, (select b2.id, b2.hblNo from tblBl b2 left join tblMasterData m3 on m3.id = b2.hblRequestStatus where b2.mblNo =  b.mblNo and b2.status = 1 and b2.mblHblFlag = 'HBL' and m3.name = 'Confirm' and b2.shippingLineId = u.companyId for json path), null) hblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId, b.mblHblFlag mblHblFlag",
+            `coalesce(b.hblNo, b.mblNo)  blNo, iif(b.hblNo is null, (select b2.id, b2.hblNo from tblBl b2 left join tblMasterData m3 on m3.id = b2.hblRequestStatus where b2.mblNo =  b.mblNo and b2.status = 1 and b2.mblHblFlag = 'HBL' and m3.name = 'Confirm' and b2.shippingLineId = u.companyId and b2.locationId = ${userData.location} for json path), null) hblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId, b.mblHblFlag mblHblFlag`,
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
