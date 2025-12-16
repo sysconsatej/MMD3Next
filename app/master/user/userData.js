@@ -6,16 +6,19 @@ const fieldData = {
       label: "User Name",
       name: "name",
       isEdit: "true",
+      required: true,
     },
     {
       label: "Password",
       name: "password",
       isEdit: "true",
+      required: true,
     },
     {
       label: "Email Address",
       name: "emailId",
       isEdit: "true",
+      required: true,
     },
     {
       label: "Company",
@@ -25,8 +28,9 @@ const fieldData = {
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
-      foreignTable:"name,tblCompany",
+      foreignTable: "name,tblCompany",
       isEdit: true,
+      required: true,
     },
     {
       label: "Company Branch",
@@ -38,6 +42,7 @@ const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblCompanyBranch",
       isEdit: true,
+      required: true,
     },
   ],
   tblUserRoleMapping: [
@@ -51,6 +56,21 @@ const fieldData = {
       where: "u.userType = 'R'",
       orderBy: "u.name",
       isEdit: true,
+      required: true,
+    },
+  ],
+  tblUserLocation: [
+    {
+      label: "Location",
+      name: "locationId",
+      type: "dropdown",
+      tableName: "tblLocation l",
+      foreignTable: "name,tblLocation",
+      displayColumn: "l.name",
+      where: "",
+      orderBy: "l.name",
+      isEdit: true,
+      required: true,
     },
   ],
 };
