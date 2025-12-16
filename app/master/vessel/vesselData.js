@@ -54,6 +54,17 @@ const fieldData = {
       type: "number",
       isEdit: true,
     },
+    {
+      label: "Ship Type",
+      name: "shiptypeId",
+      type: "dropdown",
+      tableName: "tblMasterData",
+      displayColumn: "t.name",
+      where: "masterListName = 'tblShipType'",
+      orderBy: "t.name",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+    },
   ],
   tblVoyage: [
     {

@@ -26,16 +26,7 @@ import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { fieldData, searchDataAray } from "../carrierPortData";
 import { getUserByCookies } from "@/utils";
 
-function createData(
-  companyId,
-  name,
-  podId,
-  fpdId,
-  modeId,
-  panNo,
-  bondNo,
-  id
-) {
+function createData(companyId, name, podId, fpdId, modeId, panNo, bondNo, id) {
   return {
     companyId,
     name,
@@ -71,8 +62,7 @@ export default function CompanyList() {
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins:
-            `left join tblCompany s on s.id='${userData?.companyId}' left join tblPort p on p.id=c.podId left join tblPort p1 on p1.id=c.fpdId left join tblMasterData m on m.id=c.modeId`,
+          joins: `left join tblCompany s on s.id='${userData?.companyId}' left join tblPort p on p.id=c.podId left join tblPort p1 on p1.id=c.fpdId left join tblMasterData m on m.id=c.modeId`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setBerthData(data ?? []);
@@ -82,8 +72,8 @@ export default function CompanyList() {
         setTotalRows(totalRows);
       } catch (err) {
         setLoadingState("Failed to load data");
-      } finally  {
-        setLoadingState("Loading ...")
+      } finally {
+        setLoadingState("Loading ...");
       }
     },
     [page, rowsPerPage, search]
@@ -119,8 +109,7 @@ export default function CompanyList() {
 
   // delete
   const handleDeleteRecord = async (formId) => {
-    
-     const updateObj = {
+    const updateObj = {
       updatedBy: userData?.userId,
       clientId: 1,
       updatedDate: new Date(),
@@ -148,12 +137,6 @@ export default function CompanyList() {
     router.push("/master/carrierPort");
   };
 
-
-  
-
-
-
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -178,9 +161,11 @@ export default function CompanyList() {
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                {fieldData.berthAgentFields.map((item) => (
-                  <TableCell key={item.name}>{item.label}</TableCell>
-                ))}
+                {fieldData.berthAgentFields
+                  ?.filter((i) => i.showFieldonSearch !== false)
+                  ?.map((item) => (
+                    <TableCell key={item.name}>{item.label}</TableCell>
+                  ))}
               </TableRow>
             </TableHead>
             <TableBody>
