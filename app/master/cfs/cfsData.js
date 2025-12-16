@@ -50,7 +50,7 @@ const fieldData = {
     },
     {
       label: "Mode Of Transport",
-      name: "modeOfTransport",
+      name: "modeId",
       type: "dropdown",
       tableName: "tblMasterData",
       where: "masterListName ='tblMode'",
@@ -58,20 +58,17 @@ const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
-    {
-      label: "Carrier/Vendor Code",
-      name: "carrierVendorCode",
-      isEdit: true,
-    },
+
     {
       label: "Transit Bond No",
-      name: "TransitBondNo",
+      name: "bondNo",
       isEdit: true,
     },
     {
       label: "Carrier Pan",
-      name: "carrierPan",
+      name: "panNo",
       isEdit: true,
+      blurFun: "validatePanCard",
     },
   ],
 };

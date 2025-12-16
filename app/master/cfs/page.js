@@ -73,6 +73,21 @@ export default function Cfs() {
       setErrorState((prev) => ({ ...prev, [name]: false }));
       return true;
     },
+    validatePanCard: (e) => {
+      const value = e.target.value;
+      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+      if (value !== String(value).toUpperCase()) {
+        setFormData((prev) => ({ ...prev, panNo: null }));
+        return toast.error("Pan card should be always in caps");
+      }
+
+      if (panRegex.test(value)) {
+        return true;
+      } else {
+        setFormData((prev) => ({ ...prev, panNo: null }));
+        return toast.error("Pan Number is invalid ");
+      }
+    },
   };
 
   useEffect(() => {
