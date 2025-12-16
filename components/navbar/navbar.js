@@ -31,6 +31,7 @@ import { CustomInput } from "../customInput";
 import { locationFields } from "./navbarUtil";
 import Cookies from "js-cookie";
 import { getDataWithCondition } from "@/apis";
+import { toast } from "react-toastify";
 
 const norm = (s) => (s ? s.split("?")[0].replace(/\/$/, "") : "");
 const scope = (path, depth) => norm(path).split("/").slice(0, depth).join("/");
@@ -162,6 +163,12 @@ export default function Navbar() {
       const user = getUserByCookies();
       if (!user || typeof user !== "object") return;
 
+      if (!value) {
+        setFormData((prev) => ({ ...prev, location: formData?.location }));
+        toast.error("You can not set empty location!");
+        return;
+      }
+
       const updateUser = {
         ...user,
         location: value?.Id ?? null,
@@ -180,13 +187,13 @@ export default function Navbar() {
       try {
         const user = getUserByCookies();
         if (!user || typeof user !== "object") return;
-        const locationId = user.location;
-        if (!locationId) return;
+        const locationIds = user.location ?? user.locations;
+        if (!locationIds) return;
 
         const payLoad = {
           columns: "l.id Id, l.name Name",
           tableName: "tblLocation l",
-          whereCondition: `l.id = ${locationId} and l.status = 1`,
+          whereCondition: `l.id in (${locationIds}) and l.status = 1`,
         };
         const response = await getDataWithCondition(payLoad);
         const data = response.data;
@@ -195,6 +202,17 @@ export default function Navbar() {
           ...prevData,
           location: { Id: data[0].Id, Name: data[0].Name },
         }));
+        if (!user?.location) {
+          const updateUser = {
+            ...user,
+            location: data[0].Id ?? null,
+          };
+
+          Cookies.set("user", JSON.stringify(updateUser), {
+            expires: 1,
+            path: "/",
+          });
+        }
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
