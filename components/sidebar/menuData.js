@@ -101,6 +101,11 @@ export const navItems = [
         href: "/bl/mbl/upload",
         isShow: false,
       },
+      {
+        name: "CFS Request",
+        href: "/bl/cfs-request/list",
+        isShow: false,
+      },
     ],
   },
 
