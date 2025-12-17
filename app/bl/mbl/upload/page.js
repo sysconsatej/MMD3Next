@@ -272,7 +272,8 @@ export default function MblUpload() {
         companyName: u.companyName,
         companyBranchId: u.branchId,
         companyBranchName: u.branchName,
-        shippingLineId: u.companyName,
+        shippingLineId: u.companyId,
+        location: u.location
       });
 
       const mergeUserIntoHeader = (headerObj = {}, user = {}) => {
@@ -289,7 +290,7 @@ export default function MblUpload() {
         spName,
         json: {
           template: cleanName,
-          header: mergeUserIntoHeader(cleanHeader, userData),
+          header: { ...mergeUserIntoHeader(cleanHeader, userData), location: userData?.location ?? null },
           data: prunedRows,
         },
       };
