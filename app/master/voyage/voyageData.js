@@ -68,6 +68,28 @@ const fieldData = {
       name: "conveyRefNo",
       isEdit: "true",
     },
+    {
+      label: "Cargo Desc Code",
+      name: "cargoDescCodeId",
+      type: "dropdown",
+      tableName: "tblMasterData",
+      displayColumn: "t.name",
+      where: "masterListName = 'tblCargoDesc'",
+      orderBy: "t.name",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+    },
+    {
+      label: "Purpose of Call",
+      name:"purposeOfCall",
+      type:"dropdown",
+      tableName:"tblMasterData",
+      displayColumn:"t.name",
+      where:"masterListName = 'tblPurposeOfCall'",
+      orderBy:"t.name",
+      foreignTable:"name,tblMasterData",
+      isEdit:true,
+    },
   ],
 };
 
