@@ -16,12 +16,16 @@ import {
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
+import { handleChange } from "./utils";
+import { getUserByCookies } from "@/utils";
+import { useSetDefault } from "./hooks";
 
 export default function Company() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [errorState, setErrorState] = useState({});
   const { mode, setMode } = formStore();
+  const userData = getUserByCookies();
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -39,6 +43,9 @@ export default function Company() {
       toast.error(error || message);
     }
   };
+
+  //  to set default values on 1st render
+  useSetDefault({ userData, setFormData });
 
   useEffect(() => {
     async function fetchFormHandler() {
@@ -63,7 +70,7 @@ export default function Company() {
 
     fetchFormHandler();
   }, [mode.formId]);
-  const handleChangeEventFunctions = {};
+  const handleChangeEventFunctions = handleChange({ setFormData, formData });
 
   const handleBlurEventFunctions = {};
 
