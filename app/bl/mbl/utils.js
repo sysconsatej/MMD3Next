@@ -1,8 +1,15 @@
 import { getDataWithCondition } from "@/apis";
-import { setInputValue, validatePanCard, validPinCode } from "@/utils";
+import {
+  getUserByCookies,
+  setInputValue,
+  validatePanCard,
+  validPinCode,
+} from "@/utils";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 export const storeApiResult = [];
+
+const userData = getUserByCookies();
 
 export function useTotalGrossAndPack(formData, setTotals) {
   useEffect(() => {
@@ -252,7 +259,15 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
       const fpdId = mappedObj.fpdId;
 
       if (polId === "F" && podId === "F" && fpdId === "F") {
-        console.log("hello");
+        // const resObj = {
+        //   columns: `s.id Id, s.isocode Name`,
+        //   tableName: "tblIsocode s",
+        //   joins:
+        //     "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
+        //   whereCondition: `d.id = ${sizeId} and d1.id = ${value.Id}`,
+        // };
+
+        // const res = await getDataWithCondition(resObj);
       } else if (polId === "IN" && podId === "IN" && fpdId === "IN") {
         console.log("hello two");
       } else if (polId === "F" && podId === "IN" && fpdId === "IN") {
