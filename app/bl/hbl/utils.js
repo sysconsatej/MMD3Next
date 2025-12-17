@@ -12,6 +12,8 @@ import {
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 
+const userData = getUserByCookies();
+
 export function useTotalGrossAndPack(formData, setTotals) {
   useEffect(() => {
     if (Array.isArray(formData?.tblBl)) {
@@ -669,22 +671,17 @@ export const createHandleChangeFunc = ({ setFormData, formData }) => {
       }
 
       if (!value?.Id) {
-        const clearValues = ["shippingLineId", "podVoyageId"];
-        clearValues.map((info) => {
-          setFormData((prev) =>
-            setInputValue({
-              prev,
-              name: info,
-              value: {},
-            })
-          );
+        setFormData((prev) => {
+          return {
+            ...prev,
+            podVoyageId: {},
+          };
         });
 
-        return "";
+        return;
       }
 
       // cha is there then selected and shipper is their then login
-
       const { data } = await setVoyageBasedonVessel({
         vesselId: value?.Id,
         companyId: formData?.shippingLineId?.Id,
