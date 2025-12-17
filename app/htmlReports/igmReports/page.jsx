@@ -360,7 +360,7 @@ function RptIGMContent() {
                   2. Port where report is made :
                 </p>
               </div>
-              <div style={{ width: "60%" }}>{data[0]?.pod || ""}</div>
+              <div style={{ width: "60%" }}>{data[0]?.pod + " ( " + data[0]?.podCode + " )" || ""}</div>
             </div>
             <div className="flex mb-2">
               <div style={{ width: "40%" }}>
@@ -376,7 +376,7 @@ function RptIGMContent() {
                 <p className="text-black font-bold">5 Port of Loading :</p>
               </div>
               <div style={{ width: "60%" }}>
-                <p className="text-black">{data[0]?.pol || ""}</p>
+                <p className="text-black">{data[0]?.pol + " ( " + data[0]?.polCode + " )" || ""}</p>
               </div>
             </div>
             <div className="flex mt-2">
@@ -387,6 +387,16 @@ function RptIGMContent() {
               </div>
               <div style={{ width: "60%" }}>
                 <p className="text-black">{data[0]?.carrierCode || ""}</p>
+              </div>
+            </div>
+            <div className="flex mt-2">
+              <div style={{ width: "40%" }}>
+                <p className="text-black font-bold">
+                  7 VCN No :
+                </p>
+              </div>
+              <div style={{ width: "60%" }}>
+                <p className="text-black">{data[0]?.customVcnNo || ""}</p>
               </div>
             </div>
           </div>

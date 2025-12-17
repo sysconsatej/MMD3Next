@@ -82,8 +82,13 @@ const fieldData = {
     {
       label: "Purpose of Call",
       name:"purposeOfCall",
-      isEdit: "true",
-      type:"number",
+      type:"dropdown",
+      tableName:"tblMasterData",
+      displayColumn:"t.name",
+      where:"masterListName = 'tblPurposeOfCall'",
+      orderBy:"t.name",
+      foreignTable:"name,tblMasterData",
+      isEdit:true,
     },
   ],
 };

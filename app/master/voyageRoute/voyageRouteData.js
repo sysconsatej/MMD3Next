@@ -181,11 +181,11 @@ const fieldData = {
     //   orderBy: "t.name",
     //   isEdit: true,
     // },
-    {
-      label: "SCR No",
-      name: "scrNo",
-      isEdit: true,
-    },
+    // {
+    //   label: "SCR No",
+    //   name: "scrNo",
+    //   isEdit: true,
+    // },
     // {
     //   label: "Empty Depot",
     //   name: "depotId",
@@ -293,26 +293,26 @@ const fieldData = {
       ],
       isEdit: true,
     },
-    {
-      label: "Export Locking",
-      name: "exportLocking",
-      type: "radio",
-      radioData: [
-        { label: "Yes", value: "Y" },
-        { label: "No", value: "N" },
-      ],
-      isEdit: true,
-    },
-    {
-      label: "Import Locking",
-      name: "importLocking",
-      type: "radio",
-      radioData: [
-        { label: "Yes", value: "Y" },
-        { label: "No", value: "N" },
-      ],
-      isEdit: true,
-    },
+    // {
+    //   label: "Export Locking",
+    //   name: "exportLocking",
+    //   type: "radio",
+    //   radioData: [
+    //     { label: "Yes", value: "Y" },
+    //     { label: "No", value: "N" },
+    //   ],
+    //   isEdit: true,
+    // },
+    // {
+    //   label: "Import Locking",
+    //   name: "importLocking",
+    //   type: "radio",
+    //   radioData: [
+    //     { label: "Yes", value: "Y" },
+    //     { label: "No", value: "N" },
+    //   ],
+    //   isEdit: true,
+    // },
     {
       label: "Auth Person Pan No",
       name: "authPersonPanNo",
@@ -354,8 +354,8 @@ export const VoyageRoute = [
   { label: "Vessel No", value: "ve.name" },
   { label: "Voyage", value: "vo.voyageNo" },
   { label: "IGM NO", value: "v.igmNo" },
-  { label: "Export Locking", value: "v.exportLocking" },
-  { label: "Import Locking", value: "v.importLocking" },
+  // { label: "Export Locking", value: "v.exportLocking" },
+  // { label: "Import Locking", value: "v.importLocking" },
   { label: "Terminal", value: "p.name" },
 ];
  

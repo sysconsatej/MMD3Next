@@ -116,50 +116,50 @@ export const fieldData = {
 
     ContainerNew: [
 
-        {
-            label: "Select For Do",
-            name: "DoSelect",
-            isEdit: true,
-            type: "checkbox",
-        },
-        {
-            label: "Container No",
-            name: "containerNo",
-            isEdit: true,
-        },
-        {
-            label: "Size",
-            name: "sizeId",
-            type: "dropdown",
-            tableName: "tblMasterData m",
-            displayColumn: "m.name",
-            where: "m.masterListName = 'tblSize'",
-            orderBy: "m.name",
-            foreignTable: "name,tblMasterData",
-            isEdit: true,
-        },
-        {
-            label: "Type",
-            name: "typeId",
-            type: "dropdown",
-            tableName: "tblMasterData m",
-            displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
-            where: "m.masterListName = 'tblType'",
-            orderBy: "m.name",
-            foreignTable: "code-name,tblMasterData",
-            isEdit: true,
-            changeFun: "setISOByType",
-        },
+        // {
+        //     label: "Select For Do",
+        //     name: "DoSelect",
+        //     isEdit: true,
+        //     type: "checkbox",
+        // },
+        // {
+        //     label: "Container No",
+        //     name: "containerNo",
+        //     isEdit: true,
+        // },
+        // {
+        //     label: "Size",
+        //     name: "sizeId",
+        //     type: "dropdown",
+        //     tableName: "tblMasterData m",
+        //     displayColumn: "m.name",
+        //     where: "m.masterListName = 'tblSize'",
+        //     orderBy: "m.name",
+        //     foreignTable: "name,tblMasterData",
+        //     isEdit: true,
+        // },
+        // {
+        //     label: "Type",
+        //     name: "typeId",
+        //     type: "dropdown",
+        //     tableName: "tblMasterData m",
+        //     displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
+        //     where: "m.masterListName = 'tblType'",
+        //     orderBy: "m.name",
+        //     foreignTable: "code-name,tblMasterData",
+        //     isEdit: true,
+        //     changeFun: "setISOByType",
+        // },
 
     ],
 
     attachmentFields: [
-        {
-            name: "attachment",
-            type: "fileupload",
-            isEdit: true,
-            dragDrop: true,
-        },
+        // {
+        //     name: "attachment",
+        //     type: "fileupload",
+        //     isEdit: true,
+        //     dragDrop: true,
+        // },
     ],
 };
 
