@@ -25,8 +25,8 @@ import { useRouter } from "next/navigation";
 import { locationData } from "../fieldsData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(name, id) {
-  return { name, id };
+function createData(Name, id) {
+  return { Name, id };
 }
 
 export default function CountryList() {
@@ -34,7 +34,7 @@ export default function CountryList() {
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
-  const [countryData, setCountryData] = useState([]);
+  const [locationData, setLocationData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
@@ -46,15 +46,15 @@ export default function CountryList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "name, id",
-          tableName: "tblLocation",
+          columns: "l.name  Name, l.id  id",
+          tableName: "tblLocation l",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-        setCountryData(data);
+        setLocationData(data);
         setTotalPage(totalPage);
         setPage(pageNo);
         setRowsPerPage(pageSize);
@@ -72,7 +72,7 @@ export default function CountryList() {
   }, []);
 
   const rows = locationData
-    ? locationData.map((item) => createData(item["name"], item["id"]))
+    ? locationData.map((item) => createData(item["Name"], item["id"]))
     : [];
 
   const handleChangePage = (event, newPage) => {
@@ -148,7 +148,7 @@ export default function CountryList() {
               ) : (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group">
-                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{row?.Name}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

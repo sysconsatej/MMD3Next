@@ -996,7 +996,7 @@ export const totalFieldData = {
   ],
 };
 
-export const mappingConsigneeToNotify = {
+export const mappingConsigneeToNotify =  {
   notifyPartyText: "consigneeText",
   notifyParty1IdNo: "consigneeIdNo",
   // notifyPartyTypeId: "consigneeTypeId",
