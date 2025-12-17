@@ -210,7 +210,8 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
         <ul className="ml-3 mt-1 space-y-[2px] border-l border-white/10 pl-2">
           {(node?.submenu || node?.children || [])
             .filter((i) => i.isShow)
-            .map((child, i) => (
+            ?.sort((a, b) => (a.name > b.name ? 1 : -1))
+            ?.map((child, i) => (
               <MenuNode
                 key={child.href || child.name || i}
                 node={child}

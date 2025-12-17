@@ -3,7 +3,7 @@ export const roleAccessPaths = {
   "/reports": ["admin", "shipping", "customer", "cfs"],
   "/bl-status": ["admin", "shipping", "customer", "cfs"],
   "/bl": ["admin", "shipping", "customer", "cfs"],
-  "/bl/cfs-request/list": ["cfs"],
+  "/bl/cfs-request/list": ["admin", "shipping", "customer", "cfs"],
   "/request": ["admin", "shipping", "customer", "cfs"],
   "/htmlReports/igmReports": ["admin", "shipping", "customer", "cfs"],
   "/upload": ["admin", "shipping", "customer", "cfs"],
