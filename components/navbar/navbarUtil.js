@@ -1,3 +1,9 @@
+"use client";
+
+import { getUserByCookies } from "@/utils";
+
+const userData = getUserByCookies();
+
 export const navItems = [
   { name: "Home", href: "/home" },
   {
@@ -98,6 +104,7 @@ export const locationFields = {
       displayColumn: "l.name",
       foreignTable: "name,tblLocation",
       orderBy: "l.name",
+      where: `id in (${userData?.locations})`,
       isEdit: true,
       changeFun: "getLocation",
     },

@@ -28,6 +28,12 @@ const fieldData = {
       required: true,
       blurFun: "duplicateHandler",
     },
+    {
+      label: "Terminal Opr Code",
+      name: "ediPortCode",
+      isEdit: "true",
+      required: true,
+    },
   ],
 };
 
