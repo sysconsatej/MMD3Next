@@ -20,13 +20,14 @@ const fieldData = {
       label: "Vessel Name",
       name: "vesselId",
       type: "dropdown",
-      tableName: "tblVessel",
+      tableName: "tblVessel t",
       foreignTable: "name,tblVessel",
       displayColumn: "t.name",
       orderBy: "t.name",
       displayColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblVessel",
+      changeFun: "handleChangeOnVessel",
       isEdit: true,
       required: true,
     },
@@ -92,7 +93,7 @@ const fieldData = {
       type: "date",
       isEdit: true,
     },
- 
+
     {
       label: "Arrival Date",
       name: "arrivalDate",
@@ -192,7 +193,7 @@ const fieldData = {
     //   isEdit: true,
     //   type :
     // },
- 
+
     { label: "IGM No", name: "igmNo", type: "text", isEdit: true },
     {
       label: "IGM Date",
@@ -242,7 +243,7 @@ const fieldData = {
       name: "lightHouseDues",
       isEdit: true,
     },
- 
+
     {
       label: "Passenger List",
       name: "passengerList",
@@ -255,7 +256,7 @@ const fieldData = {
     },
     {
       label: "Same Bottom Cargo",
-      name: "sameBottomCargo",   
+      name: "sameBottomCargo",
       type: "radio",
       radioData: [
         { label: "Yes", value: "Y" },
@@ -348,7 +349,7 @@ const fieldData = {
     },
   ],
 };
- 
+
 export const VoyageRoute = [
   { label: "Port of Call", value: "p.name" },
   { label: "Vessel No", value: "ve.name" },
@@ -358,7 +359,6 @@ export const VoyageRoute = [
   // { label: "Import Locking", value: "v.importLocking" },
   { label: "Terminal", value: "p.name" },
 ];
- 
+
 export default fieldData;
- 
- 
+

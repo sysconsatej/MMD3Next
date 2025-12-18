@@ -15,6 +15,7 @@ import {
   updateDynamicReportData,
 } from "@/apis/dynamicReport";
 import { exportText, getUserByCookies } from "@/utils";
+import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 import { company } from "faker/lib/locales/az";
 
 export default function IGMEDI() {
@@ -125,7 +126,10 @@ export default function IGMEDI() {
       setGoLoading(false);
     }
   };
-
+  const handleChangeEventFunctions = createHandleChangeEventFunction({
+    setFormData,
+    formData,
+  });
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={handleSubmit}>
@@ -140,6 +144,7 @@ export default function IGMEDI() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>

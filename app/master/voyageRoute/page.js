@@ -1,5 +1,5 @@
 "use client";
- 
+
 import { useState, useEffect } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data from "./voyageRouteData";
@@ -7,15 +7,16 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import { fetchForm, insertUpdateForm } from "@/apis";
+import { fetchForm, insertUpdateForm, getDataWithCondition } from "@/apis";
 import {
   formatDataWithForm,
   formatFetchForm,
   formatFormData,
   getUserByCookies,
 } from "@/utils";
+import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 import { formStore } from "@/store";
- 
+
 export default function VoyageRoute() {
   const { mode, setMode } = formStore();
   const [fieldsMode, setFieldsMode] = useState("");
@@ -64,9 +65,12 @@ export default function VoyageRoute() {
         }
       }
     }
- 
     fetchFormHandler();
   }, [mode.formId]);
+  const handleChangeEventFunctions = createHandleChangeEventFunction({
+    setFormData,
+    formData,
+  });
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
@@ -88,6 +92,7 @@ export default function VoyageRoute() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>
@@ -102,5 +107,4 @@ export default function VoyageRoute() {
     </ThemeProvider>
   );
 }
- 
- 
+

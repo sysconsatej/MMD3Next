@@ -90,6 +90,7 @@ export const fieldData = {
       searchColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblVessel",
+      changeFun: "handleChangeOnVessel",
       isEdit: true,
     },
     {
@@ -787,7 +788,7 @@ export const fieldData = {
       name: "sealTypeId",
       type: "dropdown",
       tableName: "tblMasterData m",
-      displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
+      displayColumn: "m.name",
       where: "m.masterListName = 'tblSealType'",
       orderBy: "m.name",
       foreignTable: "code-name,tblMasterData",
