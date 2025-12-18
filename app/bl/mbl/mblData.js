@@ -90,6 +90,7 @@ export const fieldData = {
       searchColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblVessel",
+      changeFun: "handleChangeOnVessel",
       isEdit: true,
     },
     {
@@ -243,7 +244,7 @@ export const fieldData = {
       foreignTable: "code-name,tblPort",
       isEdit: true,
       required: true,
-      changeFun :  "handleChangeOnPOL"
+      changeFun: "handleChangeOnPOL"
     },
     {
       label: "Transhipment Port 1",
@@ -284,7 +285,7 @@ export const fieldData = {
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
       isEdit: true,
-      changeFun :  "handleChangeOnPOL"
+      changeFun: "handleChangeOnPOL"
     },
     {
       label: "Port of Destination",
@@ -296,7 +297,7 @@ export const fieldData = {
       foreignTable: "code-name,tblPort",
       isEdit: true,
       required: true,
-      changeFun :  "handleChangeOnPOL"
+      changeFun: "handleChangeOnPOL"
 
     },
     {
@@ -626,7 +627,7 @@ export const fieldData = {
       name: "consigneePinCode",
       type: "number",
       isEdit: true,
-      blurFun:"checkPinCode",
+      blurFun: "checkPinCode",
     },
     {
       label: "Email Id",
@@ -650,7 +651,7 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
-    { label: "PAN Number", name: "notifyParty1IdNo", isEdit: true ,blurFun: "panCardValid"},
+    { label: "PAN Number", name: "notifyParty1IdNo", isEdit: true, blurFun: "panCardValid" },
     {
       label: "City",
       name: "notifyParty1City",
@@ -689,7 +690,7 @@ export const fieldData = {
       name: "notifyParty1PinCode",
       type: "number",
       isEdit: true,
-      blurFun : "checkPinCode"
+      blurFun: "checkPinCode"
     },
     {
       label: "Email Id",
@@ -782,7 +783,7 @@ export const fieldData = {
       name: "sealTypeId",
       type: "dropdown",
       tableName: "tblMasterData m",
-      displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
+      displayColumn: "m.name",
       where: "m.masterListName = 'tblSealType'",
       orderBy: "m.name",
       foreignTable: "code-name,tblMasterData",
@@ -808,7 +809,7 @@ export const fieldData = {
     //   isEdit: true,
     //   // required: true,
     // },
-     {
+    {
       label: "Custom Seal",
       name: "customSealNo",
       isEdit: true,
@@ -820,7 +821,7 @@ export const fieldData = {
       isEdit: true,
       // required: true,
     },
- 
+
     {
       label: "Container Agent Code",
       name: "containerAgentCode",

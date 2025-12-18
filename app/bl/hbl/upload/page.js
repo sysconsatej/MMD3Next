@@ -10,9 +10,9 @@ import { theme } from "@/styles";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import fieldData from "./uploadData";
-import { uploads } from "@/apis"; // ← functional now
+import { uploads, getDataWithCondition } from "@/apis";
 import { getUserByCookies } from "@/utils";
-
+let vesselChangeReq = 0;
 const BASE_URL =
   (process.env.NEXT_PUBLIC_BACKEND_URL || "").replace(/\/+$/, "") + "/";
 
@@ -275,6 +275,49 @@ export default function hblUpload() {
       setBusy(false);
     }
   };
+  const handleChangeEventFunctions = {
+    handleChangeOnVessel: async (name, value) => {
+      const reqId = ++vesselChangeReq;
+
+      const vesselId = value?.Id || null;
+
+      // ✅ Always clear voyage immediately when vessel changes
+      setFormData((prevData) => ({
+        ...prevData,
+        // if your CustomInput already sets vessel field itself, you can remove this line
+        // but keeping it is safe
+        [name]: vesselId ? value : null,
+        podVoyageId: null, // <-- change this field name if your voyage field is different
+      }));
+
+      if (!vesselId) return;
+
+      try {
+        const obj = {
+          columns: "t.id as Id, t.voyageNo as Name",
+          tableName: "tblVoyage t",
+          whereCondition: `t.vesselId = ${vesselId} and t.status = 1`,
+          orderBy: "t.voyageNo",
+        };
+
+        const { data, success } = await getDataWithCondition(obj);
+
+        // ✅ ignore old response if vessel changed again quickly
+        if (reqId !== vesselChangeReq) return;
+
+        // ✅ if only 1 voyage, auto select it
+        if (success && Array.isArray(data) && data.length === 1) {
+          setFormData((prevData) => ({
+            ...prevData,
+            podVoyageId: data[0], // <-- change this field name if needed
+          }));
+        }
+      } catch (e) {
+        console.error("handleChangeOnVessel error:", e);
+      }
+    },
+  };
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -294,6 +337,7 @@ export default function hblUpload() {
                 formData={formData}
                 setFormData={setFormData}
                 disabled={busy}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>

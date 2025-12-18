@@ -10,10 +10,10 @@ import { theme } from "@/styles";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import fieldData from "./uploadData";
-import { uploads } from "@/apis";
+import { uploads, getDataWithCondition } from "@/apis";
 import { getUserByCookies } from "@/utils";
 import ErrorList from "@/components/errorTable/errorList";
-
+let vesselChangeReq = 0;
 const BASE_URL =
   (process.env.NEXT_PUBLIC_BACKEND_URL || "").replace(/\/+$/, "") + "/";
 
@@ -317,6 +317,45 @@ export default function MblUpload() {
     }));
     setErrorGrid([]);
   }, [formData?.template]);
+  const handleChangeEventFunctions = {
+    handleChangeOnVessel: async (name, value) => {
+      const reqId = ++vesselChangeReq;
+      const vesselId = value?.Id || null;
+
+      // ✅ clear voyage immediately when vessel changes
+      setFormData((prev) => ({
+        ...prev,
+        [name]: vesselId ? value : null,  // podVesselId set
+        podVoyageId: null,                 // voyage cleared
+      }));
+
+      if (!vesselId) return;
+
+      try {
+        const obj = {
+          columns: "t.id as Id, t.voyageNo as Name",
+          tableName: "tblVoyage t",
+          whereCondition: `t.vesselId = ${vesselId} and t.status = 1`,
+          orderBy: "t.voyageNo",
+        };
+
+        const { data, success } = await getDataWithCondition(obj);
+
+        // ✅ ignore old response if user changed vessel again
+        if (reqId !== vesselChangeReq) return;
+
+        // ✅ if only one voyage -> auto set
+        if (success && Array.isArray(data) && data.length === 1) {
+          setFormData((prev) => ({
+            ...prev,
+            podVoyageId: data[0],
+          }));
+        }
+      } catch (e) {
+        console.error("handleChangeOnVessel error:", e);
+      }
+    },
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -336,6 +375,7 @@ export default function MblUpload() {
                 formData={formData}
                 setFormData={setFormData}
                 disabled={busy}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>
