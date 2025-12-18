@@ -11,6 +11,7 @@ import { formStore } from "@/store";
 import { fetchDynamicReportData, updateDynamicReportData } from "@/apis";
 import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable";
 import { useRouter } from "next/navigation";
+import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 
 export default function IGM() {
   const [formData, setFormData] = useState({});
@@ -35,7 +36,7 @@ export default function IGM() {
     );
   };
 
-  const transformed  = transformToIds(formData);
+  const transformed = transformToIds(formData);
   const valuesOnly = (rows = []) =>
     rows.map(({ __dirty, ...row }) =>
       Object.fromEntries(Object.entries(row).map(([k, v]) => [k, onlyVal(v)]))
@@ -169,6 +170,9 @@ export default function IGM() {
       setLoading(false);
     }
   };
+  const handleChangeEventFunctions = createHandleChangeEventFunction({
+    setFormData,
+  });
   return (
     <ThemeProvider theme={theme}>
       <form>
@@ -185,6 +189,7 @@ export default function IGM() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>

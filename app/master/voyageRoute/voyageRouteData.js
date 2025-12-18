@@ -20,13 +20,14 @@ const fieldData = {
       label: "Vessel Name",
       name: "vesselId",
       type: "dropdown",
-      tableName: "tblVessel",
+      tableName: "tblVessel t",
       foreignTable: "name,tblVessel",
       displayColumn: "t.name",
       orderBy: "t.name",
       displayColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblVessel",
+      changeFun: "handleChangeOnVessel",
       isEdit: true,
       required: true,
     },
@@ -426,3 +427,4 @@ export const VoyageRoute = [
 ];
 
 export default fieldData;
+

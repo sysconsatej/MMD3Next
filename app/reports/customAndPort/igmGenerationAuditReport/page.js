@@ -11,6 +11,7 @@ import { fetchDynamicReportData } from "@/apis/dynamicReport";
 import { useRouter } from "next/navigation";
 import { getUserByCookies } from "@/utils";
 import { jsonToExcelFile } from "@/utils/helper";
+import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 
 export default function IgmGenerationAuditReport() {
   const [formData, setFormData] = useState({});
@@ -100,7 +101,10 @@ export default function IgmGenerationAuditReport() {
     }
     jsonToExcelFile(tableData, "IGM Generation Audit Report");
   };
-
+  const handleChangeEventFunctions = createHandleChangeEventFunction({
+    setFormData,
+    formData,
+  });
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={handleSubmit}>
@@ -118,6 +122,7 @@ export default function IgmGenerationAuditReport() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>

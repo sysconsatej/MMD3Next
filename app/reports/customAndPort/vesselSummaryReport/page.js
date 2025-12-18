@@ -11,6 +11,7 @@ import { fetchDynamicReportData } from "@/apis/dynamicReport";
 import { useRouter } from "next/navigation";
 import { getUserByCookies } from "@/utils";
 import { jsonToExcelFile } from "@/utils/helper";
+import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 
 export default function VesselSummaryReport() {
   const [formData, setFormData] = useState({});
@@ -100,7 +101,9 @@ export default function VesselSummaryReport() {
     }
     jsonToExcelFile(tableData, "Vessel Summary Report");
   };
-
+  const handleChangeEventFunctions = createHandleChangeEventFunction({
+    setFormData,
+  });
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={handleSubmit}>
@@ -118,6 +121,7 @@ export default function VesselSummaryReport() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>

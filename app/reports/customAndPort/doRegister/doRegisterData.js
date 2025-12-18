@@ -7,6 +7,7 @@ const fieldData = {
             tableName: "tblVessel t",
             idColumn: "id",
             displayColumn: "t.name",
+            changeFun: "handleChangeOnVessel",
             searchColumn: "t.name",
             orderBy: "t.name",
             isEdit: true,

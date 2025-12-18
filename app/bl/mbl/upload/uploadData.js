@@ -16,6 +16,7 @@ const fieldData = {
         {
             label: "Vessel",
             name: "podVesselId",
+            changeFun: "handleChangeOnVessel",
             type: "dropdown",
             tableName: "tblVessel t",
             idColumn: "id",

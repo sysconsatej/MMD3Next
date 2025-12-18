@@ -7,13 +7,14 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import { fetchForm, insertUpdateForm } from "@/apis";
+import { fetchForm, insertUpdateForm, getDataWithCondition } from "@/apis";
 import {
   formatDataWithForm,
   formatFetchForm,
   formatFormData,
   getUserByCookies,
 } from "@/utils";
+import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 import { formStore } from "@/store";
 import FormHeading from "@/components/formHeading/formHeading";
 
@@ -65,9 +66,12 @@ export default function VoyageRoute() {
         }
       }
     }
-
     fetchFormHandler();
   }, [mode.formId]);
+  const handleChangeEventFunctions = createHandleChangeEventFunction({
+    setFormData,
+    formData,
+  });
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
@@ -89,6 +93,7 @@ export default function VoyageRoute() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
             <Box className="grid grid-cols-1 gap-2 p-2 border-b border-b-solid border-b-black">
@@ -112,3 +117,4 @@ export default function VoyageRoute() {
     </ThemeProvider>
   );
 }
+

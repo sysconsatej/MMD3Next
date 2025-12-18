@@ -448,7 +448,11 @@ export const createBlurFunc = ({
   };
 };
 
-export const createHandleChangeFunc = ({ setFormData, formData }) => {
+export const createHandleChangeFunc = ({
+  setFormData,
+  formData,
+  setJsonData,
+}) => {
   return {
     setCountryAndState: async (name, value, { containerIndex, tabIndex }) => {
       const setName = name.replace("City", "");
@@ -570,11 +574,11 @@ export const createHandleChangeFunc = ({ setFormData, formData }) => {
       }
     },
     cargoTypeHandler: async (name, value) => {
-      const isHazardous = value.Name === "HAZ - HAZARDOUS";
+      const isHazardous = value?.Name === "HAZ - HAZARDOUS";
       setJsonData((prev) => {
         const itemContainer = prev.tblBlPackingList;
         const requiredUno = itemContainer.map((item) => {
-          if (item.name === "imoId") {
+          if (item.name === "imoCode" ||  item.name == 'unNo') {
             return { ...item, required: isHazardous };
           }
 
