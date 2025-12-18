@@ -1,5 +1,5 @@
 "use client";
- 
+
 import { useState, useEffect } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data from "./voyageRouteData";
@@ -15,7 +15,8 @@ import {
   getUserByCookies,
 } from "@/utils";
 import { formStore } from "@/store";
- 
+import FormHeading from "@/components/formHeading/formHeading";
+
 export default function VoyageRoute() {
   const { mode, setMode } = formStore();
   const [fieldsMode, setFieldsMode] = useState("");
@@ -64,7 +65,7 @@ export default function VoyageRoute() {
         }
       }
     }
- 
+
     fetchFormHandler();
   }, [mode.formId]);
   return (
@@ -90,6 +91,15 @@ export default function VoyageRoute() {
                 fieldsMode={fieldsMode}
               />
             </Box>
+            <Box className="grid grid-cols-1 gap-2 p-2 border-b border-b-solid border-b-black">
+              <FormHeading text="Iternary" />
+              <CustomInput
+                fields={jsonData.iternaryFields}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
+              />
+            </Box>
           </Box>
           <Box className="w-full flex mt-2 ">
             {fieldsMode !== "view" && (
@@ -102,5 +112,3 @@ export default function VoyageRoute() {
     </ThemeProvider>
   );
 }
- 
- 

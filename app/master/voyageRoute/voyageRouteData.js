@@ -92,7 +92,7 @@ const fieldData = {
       type: "date",
       isEdit: true,
     },
- 
+
     {
       label: "Arrival Date",
       name: "arrivalDate",
@@ -192,7 +192,7 @@ const fieldData = {
     //   isEdit: true,
     //   type :
     // },
- 
+
     { label: "IGM No", name: "igmNo", type: "text", isEdit: true },
     {
       label: "IGM Date",
@@ -242,7 +242,7 @@ const fieldData = {
       name: "lightHouseDues",
       isEdit: true,
     },
- 
+
     {
       label: "Passenger List",
       name: "passengerList",
@@ -255,7 +255,7 @@ const fieldData = {
     },
     {
       label: "Same Bottom Cargo",
-      name: "sameBottomCargo",   
+      name: "sameBottomCargo",
       type: "radio",
       radioData: [
         { label: "Yes", value: "Y" },
@@ -347,8 +347,74 @@ const fieldData = {
       isEdit: true,
     },
   ],
+  iternaryFields: [
+    {
+      label: "Port (-3)",
+      name: "priorToPriorPortId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      idColumn: "id",
+      displayColumn: "p.name",
+      searchColumn: "p.name",
+      orderBy: "p.name",
+      joins:
+        "LEFT JOIN tblCountry c ON c.id = p.countryId LEFT JOIN tblMasterData m ON m.id = p.portTypeId",
+      where: "m.name = 'SEA PORT' AND c.name = 'India'",
+      foreignTable: "name,tblPort",
+      isEdit: true,
+      required: true,
+    },
+    {
+      label: "Port (-2)",
+      name: "priorToLastPortId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      idColumn: "id",
+      displayColumn: "p.name",
+      searchColumn: "p.name",
+      orderBy: "p.name",
+      joins:
+        "LEFT JOIN tblCountry c ON c.id = p.countryId LEFT JOIN tblMasterData m ON m.id = p.portTypeId",
+      where: "m.name = 'SEA PORT' AND c.name = 'India'",
+      foreignTable: "name,tblPort",
+      isEdit: true,
+      required: true,
+    },
+    {
+      label: "Port (-1)",
+      name: "lastPortId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      idColumn: "id",
+      displayColumn: "p.name",
+      searchColumn: "p.name",
+      orderBy: "p.name",
+      joins:
+        "LEFT JOIN tblCountry c ON c.id = p.countryId LEFT JOIN tblMasterData m ON m.id = p.portTypeId",
+      where: "m.name = 'SEA PORT' AND c.name = 'India'",
+      foreignTable: "name,tblPort",
+      isEdit: true,
+      required: true,
+    },
+    {
+      label: "Port (1)",
+      name: "nextPortId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      idColumn: "id",
+      displayColumn: "p.name",
+      searchColumn: "p.name",
+      orderBy: "p.name",
+      joins:
+        "LEFT JOIN tblCountry c ON c.id = p.countryId LEFT JOIN tblMasterData m ON m.id = p.portTypeId",
+      where: "m.name = 'SEA PORT' AND c.name = 'India'",
+      foreignTable: "name,tblPort",
+      isEdit: true,
+      required: true,
+    },
+  ],
 };
- 
+
 export const VoyageRoute = [
   { label: "Port of Call", value: "p.name" },
   { label: "Vessel No", value: "ve.name" },
@@ -358,7 +424,5 @@ export const VoyageRoute = [
   // { label: "Import Locking", value: "v.importLocking" },
   { label: "Terminal", value: "p.name" },
 ];
- 
+
 export default fieldData;
- 
- 
