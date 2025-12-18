@@ -196,6 +196,7 @@ export default function Home() {
 
   const handleGridEventFunctions = {
     addGrid: async ({ tabIndex, gridIndex }) => {
+      console.log("Add Grid Event Triggered");
       const obj = {
         columns: "id as Id, name as Name , code as code , masterListName",
         tableName: "tblMasterData",

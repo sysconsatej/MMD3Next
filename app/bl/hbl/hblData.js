@@ -884,6 +884,8 @@ export const mapping = {
   notifyParty1State: "consigneeState",
   notifyParty1City: "consigneeCity",
   notifyPartyAddress: "consigneeAddress",
+  notifyParty1PinCode: "consigneePinCode",
+
 };
 
 export const advanceSearchFields = {

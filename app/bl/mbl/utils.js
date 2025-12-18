@@ -1,9 +1,15 @@
 import { getDataWithCondition } from "@/apis";
-import { setInputValue, validatePanCard, validPinCode } from "@/utils";
+import {
+  getUserByCookies,
+  setInputValue,
+  validatePanCard,
+  validPinCode,
+} from "@/utils";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 export const storeApiResult = [];
-let vesselChangeReq = 0;
+
+const userData = getUserByCookies();
 export function useTotalGrossAndPack(formData, setTotals) {
   useEffect(() => {
     let grossWt = 0;
@@ -241,7 +247,6 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         portId: value?.Id,
         inputName: name,
       });
-      // Convert storeApiResult to an object with all three IDs
       const mappedObj = storeApiResult.reduce((acc, item) => {
         acc[item.inputName] = item.countryCategory;
         return acc;
@@ -252,7 +257,15 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
       const fpdId = mappedObj.fpdId;
 
       if (polId === "F" && podId === "F" && fpdId === "F") {
-        console.log("hello");
+        // const resObj = {
+        //   columns: `s.id Id, s.isocode Name`,
+        //   tableName: "tblIsocode s",
+        //   joins:
+        //     "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
+        //   whereCondition: `d.id = ${sizeId} and d1.id = ${value.Id}`,
+        // };
+
+        // const res = await getDataWithCondition(resObj);
       } else if (polId === "IN" && podId === "IN" && fpdId === "IN") {
         console.log("hello two");
       } else if (polId === "F" && podId === "IN" && fpdId === "IN") {
@@ -271,7 +284,6 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
     handleChangeOnVessel: async (name, value) => {
       const vesselId = value?.Id || null;
 
-      // ✅ 0) Immediately clear voyage when vessel changes (A -> B)
       setFormData((prevData) =>
         setInputValue({
           prevData,
@@ -284,7 +296,6 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         })
       );
 
-      // if vessel cleared, stop here
       if (!vesselId) return;
 
       try {
@@ -297,7 +308,6 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
 
         const { data, success } = await getDataWithCondition(obj);
 
-        // ✅ 1) If only 1 voyage, auto-set it
         if (success && Array.isArray(data) && data.length === 1) {
           setFormData((prevData) =>
             setInputValue({
@@ -311,7 +321,6 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
             })
           );
         }
-        // else: keep it null (user will select)
       } catch (e) {
         console.error("handleChangeOnVessel error:", e);
       }

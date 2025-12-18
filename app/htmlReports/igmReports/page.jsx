@@ -439,6 +439,10 @@ function RptIGMContent() {
     if (!rowRefsByGroup.current[groupKey]) {
       rowRefsByGroup.current[groupKey] = [];
     }
+    const fpdName = (groupedHeaderName?.fpdName || "").trim();
+    const via = (data?.[0]?.via || "").trim();
+
+    const showVia = via && fpdName.toLowerCase() !== via.toLowerCase();
 
     return (
       <>
@@ -494,9 +498,13 @@ function RptIGMContent() {
               style={{ fontSize: "8px" }}
             >
               <p className="text-black">
-                {groupedHeaderName.movementCarrier} CARGO FROM{" "}
-                {groupedHeaderName.plrName} TO {groupedHeaderName.fpdName} VIA{" "}
-                {groupedHeaderName.fpdName}
+                {groupedHeaderName?.movementCarrier} CARGO FROM{" "}
+                {groupedHeaderName?.plrName} TO {groupedHeaderName?.fpdName}{" "}
+                {showVia ? (
+                  <>
+                    VIA {data?.[0]?.via || ""}
+                  </>
+                ) : null}
               </p>
               {(headerData?.polVessel || headerData?.polVoyage) && (
                 <p className="text-black">
@@ -536,7 +544,7 @@ function RptIGMContent() {
                 <div className="p-1 wordBreak" style={{ width: "5%" }}>
                   <p className="wordBreak" style={{ fontSize: "8px" }}>
                     {item.noOfPackages || ""} <br />{" "}
-                    {item.commodityTypeName || ""}
+                    {item.typeOfPackage || ""}
                   </p>
                 </div>
                 <div className="p-1 wordBreak" style={{ width: "15%" }}>

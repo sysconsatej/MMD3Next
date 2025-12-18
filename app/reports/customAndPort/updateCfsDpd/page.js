@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { metaData } from "./updateCfsDpd";
 import { CustomInput } from "@/components/customInput";
@@ -11,6 +11,8 @@ import { formStore } from "@/store";
 import { fetchDynamicReportData, updateDynamicReportData } from "@/apis";
 import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable";
 import { useRouter } from "next/navigation";
+import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
+
 
 export default function IGM() {
   const [formData, setFormData] = useState({});
@@ -179,6 +181,10 @@ export default function IGM() {
       setLoading(false);
     }
   };
+  const handleChangeEventFunctions = useMemo(
+    () => createHandleChangeEventFunction({ setFormData }),
+    [setFormData]
+  );
   return (
     <ThemeProvider theme={theme}>
       <form>
@@ -195,6 +201,7 @@ export default function IGM() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>
