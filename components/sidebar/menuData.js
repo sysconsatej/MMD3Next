@@ -9,9 +9,9 @@ const userData = getUserByCookies();
 const links =  ()  =>  {
   switch (userData?.roleCode) {
     case  "shipping" :
-      return  "/invoice/doRequest/list";
+      return  "/invoice/doRequest/liner";
     case  "customer" :
-      return  "/invoice/doRequest";
+      return  "/invoice/doRequest/list";
     default :
       return  "/invoice/doRequest/list";
   }

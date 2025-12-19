@@ -244,6 +244,7 @@ export default function Home() {
   const handleChangeEventFunctions = createHandleChangeFunc({
     setFormData,
     formData,
+    setJsonData,
   });
 
   const handleBlurEventFunctions = createBlurFunc({

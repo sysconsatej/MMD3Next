@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import { cfsData, cfsGridButtons, fieldData } from "./fieldsData";
 import { CustomInput } from "@/components/customInput";
@@ -16,12 +16,16 @@ import {
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
+import { handleBlur } from "./utils";
+import { getUserByCookies } from "@/utils";
+import { useSetDefault } from "./hooks";
 
 export default function Company() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [errorState, setErrorState] = useState({});
   const { mode, setMode } = formStore();
+  const userData = getUserByCookies();
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -39,6 +43,9 @@ export default function Company() {
       toast.error(error || message);
     }
   };
+
+  //  to set default values on 1st render
+  useSetDefault({ userData, setFormData });
 
   useEffect(() => {
     async function fetchFormHandler() {
@@ -65,7 +72,7 @@ export default function Company() {
   }, [mode.formId]);
   const handleChangeEventFunctions = {};
 
-  const handleBlurEventFunctions = {};
+  const handleBlurEventFunctions = handleBlur({ setFormData, formData });
 
   return (
     <ThemeProvider theme={theme}>

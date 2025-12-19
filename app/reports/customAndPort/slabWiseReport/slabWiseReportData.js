@@ -6,6 +6,7 @@ const fieldData = {
             type: "dropdown",
             tableName: "tblVessel t",
             idColumn: "id",
+            changeFun: "handleChangeOnVessel",
             displayColumn: "t.name",
             searchColumn: "t.name",
             orderBy: "t.name",

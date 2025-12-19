@@ -10,7 +10,6 @@ import { toast } from "react-toastify";
 export const storeApiResult = [];
 
 const userData = getUserByCookies();
-
 export function useTotalGrossAndPack(formData, setTotals) {
   useEffect(() => {
     let grossWt = 0;
@@ -66,9 +65,9 @@ export const checkNoPackages = ({ formData, hblType }) => {
 
       const childTotal = Array.isArray(row?.tblBlPackingList)
         ? row.tblBlPackingList.reduce(
-            (sum, cur) => sum + Number(cur?.noOfPackages || 0),
-            0
-          )
+          (sum, cur) => sum + Number(cur?.noOfPackages || 0),
+          0
+        )
         : 0;
 
       if (parentPackages !== childTotal) {
@@ -83,9 +82,9 @@ export const checkNoPackages = ({ formData, hblType }) => {
 
   const totalPackages = Array.isArray(formData?.tblBlPackingList)
     ? formData.tblBlPackingList.reduce(
-        (sum, cur) => sum + Number(cur?.noOfPackages || 0),
-        0
-      )
+      (sum, cur) => sum + Number(cur?.noOfPackages || 0),
+      0
+    )
     : 0;
 
   return totalPackages === Number(formData?.noOfPackages)
@@ -248,7 +247,6 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         portId: value?.Id,
         inputName: name,
       });
-      // Convert storeApiResult to an object with all three IDs
       const mappedObj = storeApiResult.reduce((acc, item) => {
         acc[item.inputName] = item.countryCategory;
         return acc;
@@ -281,6 +279,50 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         console.log("hello four");
       } else {
         console.log("hello else");
+      }
+    },
+    handleChangeOnVessel: async (name, value) => {
+      const vesselId = value?.Id || null;
+
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          tabName: null,
+          gridName: null,
+          tabIndex: null,
+          containerIndex: null,
+          name: "podVoyageId",
+          value: null,
+        })
+      );
+
+      if (!vesselId) return;
+
+      try {
+        const obj = {
+          columns: "t.id as Id, t.voyageNo as Name",
+          tableName: "tblVoyage t",
+          whereCondition: `t.vesselId = ${vesselId} and t.status = 1`,
+          orderBy: "t.voyageNo",
+        };
+
+        const { data, success } = await getDataWithCondition(obj);
+
+        if (success && Array.isArray(data) && data.length === 1) {
+          setFormData((prevData) =>
+            setInputValue({
+              prevData,
+              tabName: null,
+              gridName: null,
+              tabIndex: null,
+              containerIndex: null,
+              name: "podVoyageId",
+              value: data[0],
+            })
+          );
+        }
+      } catch (e) {
+        console.error("handleChangeOnVessel error:", e);
       }
     },
   };

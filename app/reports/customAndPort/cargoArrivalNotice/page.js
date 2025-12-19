@@ -10,6 +10,7 @@ import CustomButton from "@/components/button/button";
 import { formStore } from "@/store";
 import { fetchDynamicReportData, sendEmail } from "@/apis";
 import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable";
+import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 
 export default function CargoArrivalNotice() {
   const headerImg =
@@ -140,7 +141,7 @@ export default function CargoArrivalNotice() {
 
       const fetchedData = await fetchDynamicReportData(requestBody);
       const data = fetchedData?.data;
-      console.log(fetchedData?.data ,'[][][][')
+      console.log(fetchedData?.data, '[][][][')
 
       if (!Array.isArray(data) || data.length === 0) {
         toast.info("No data returned to email");
@@ -340,7 +341,10 @@ export default function CargoArrivalNotice() {
     </div>`;
     return html; // ✅ important
   };
-
+  const handleChangeEventFunctions = createHandleChangeEventFunction({
+    setFormData,
+    formData,
+  });
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={handleSubmit}>
@@ -357,6 +361,7 @@ export default function CargoArrivalNotice() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>

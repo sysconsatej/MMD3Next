@@ -90,6 +90,7 @@ export const fieldData = {
       searchColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblVessel",
+      changeFun: "handleChangeOnVessel",
       isEdit: true,
     },
     {
@@ -105,17 +106,7 @@ export const fieldData = {
       foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
     },
-    {
-      label: "Type of Cargo",
-      name: "cargoTypeId",
-      type: "dropdown",
-      tableName: "tblMasterData m",
-      displayColumn: "m.code",
-      where: "m.masterListName = 'tblServiceType'",
-      foreignTable: "code,tblMasterData",
-      orderBy: "m.name",
-      isEdit: true,
-    },
+
     // {
     //   label: "Container Status",
     //   name: "containerStatusId",
@@ -243,7 +234,7 @@ export const fieldData = {
       foreignTable: "code-name,tblPort",
       isEdit: true,
       required: true,
-      changeFun :  "handleChangeOnPOL"
+      changeFun: "handleChangeOnPOL",
     },
     {
       label: "Transhipment Port 1",
@@ -284,7 +275,7 @@ export const fieldData = {
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
       isEdit: true,
-      changeFun :  "handleChangeOnPOL"
+      changeFun: "handleChangeOnPOL",
     },
     {
       label: "Port of Destination",
@@ -296,8 +287,7 @@ export const fieldData = {
       foreignTable: "code-name,tblPort",
       isEdit: true,
       required: true,
-      changeFun :  "handleChangeOnPOL"
-
+      changeFun: "handleChangeOnPOL",
     },
     {
       label: "Nominated Area (CFS)",
@@ -328,7 +318,7 @@ export const fieldData = {
       name: "movementTypeId",
       type: "dropdown",
       tableName: "tblMasterData m",
-      displayColumn: "m.name",
+      displayColumn: "m.code",
       where: "m.masterListName = 'tblMovementType'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
@@ -363,6 +353,17 @@ export const fieldData = {
     {
       label: "Carrier Code",
       name: "carrierCode",
+      isEdit: true,
+    },
+    {
+      label: "Type of Cargo",
+      name: "cargoTypeId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      displayColumn: "m.code",
+      where: "m.masterListName = 'tblServiceType' and status  =  1",
+      foreignTable: "code,tblMasterData",
+      orderBy: "m.name",
       isEdit: true,
     },
   ],
@@ -626,7 +627,7 @@ export const fieldData = {
       name: "consigneePinCode",
       type: "number",
       isEdit: true,
-      blurFun:"checkPinCode",
+      blurFun: "checkPinCode",
     },
     {
       label: "Email Id",
@@ -650,7 +651,12 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
-    { label: "PAN Number", name: "notifyParty1IdNo", isEdit: true ,blurFun: "panCardValid"},
+    {
+      label: "PAN Number",
+      name: "notifyParty1IdNo",
+      isEdit: true,
+      blurFun: "panCardValid",
+    },
     {
       label: "City",
       name: "notifyParty1City",
@@ -689,7 +695,7 @@ export const fieldData = {
       name: "notifyParty1PinCode",
       type: "number",
       isEdit: true,
-      blurFun : "checkPinCode"
+      blurFun: "checkPinCode",
     },
     {
       label: "Email Id",
@@ -782,7 +788,7 @@ export const fieldData = {
       name: "sealTypeId",
       type: "dropdown",
       tableName: "tblMasterData m",
-      displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
+      displayColumn: "m.name",
       where: "m.masterListName = 'tblSealType'",
       orderBy: "m.name",
       foreignTable: "code-name,tblMasterData",
@@ -808,7 +814,7 @@ export const fieldData = {
     //   isEdit: true,
     //   // required: true,
     // },
-     {
+    {
       label: "Custom Seal",
       name: "customSealNo",
       isEdit: true,
@@ -820,13 +826,13 @@ export const fieldData = {
       isEdit: true,
       // required: true,
     },
- 
+
     {
       label: "Container Agent Code",
       name: "containerAgentCode",
       isEdit: true,
       required: true,
-      blurFun: "panCardValid"
+      blurFun: "panCardValid",
     },
     {
       label: "Cargo Gross Wt(Kgs)",
@@ -996,7 +1002,7 @@ export const totalFieldData = {
   ],
 };
 
-export const mappingConsigneeToNotify =  {
+export const mappingConsigneeToNotify = {
   notifyPartyText: "consigneeText",
   notifyParty1IdNo: "consigneeIdNo",
   // notifyPartyTypeId: "consigneeTypeId",

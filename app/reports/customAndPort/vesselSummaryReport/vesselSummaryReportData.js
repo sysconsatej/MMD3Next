@@ -1,18 +1,19 @@
 const fieldData = {
   vesselSummaryReportFields: [
-    
+
     {
       label: "Vessel",
       name: "vesselId",
       type: "dropdown",
       tableName: "tblVessel t",
+      changeFun: "handleChangeOnVessel",
       idColumn: "id",
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
       isEdit: true,
     },
-    
+
     {
       label: "Voyage",
       name: "voyageId",
@@ -48,7 +49,7 @@ const fieldData = {
       type: "date",
       isEdit: true,
     },
-    
+
   ],
 };
 export default fieldData;
