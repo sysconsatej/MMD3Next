@@ -65,9 +65,9 @@ export const checkNoPackages = ({ formData, hblType }) => {
 
       const childTotal = Array.isArray(row?.tblBlPackingList)
         ? row.tblBlPackingList.reduce(
-          (sum, cur) => sum + Number(cur?.noOfPackages || 0),
-          0
-        )
+            (sum, cur) => sum + Number(cur?.noOfPackages || 0),
+            0
+          )
         : 0;
 
       if (parentPackages !== childTotal) {
@@ -82,9 +82,9 @@ export const checkNoPackages = ({ formData, hblType }) => {
 
   const totalPackages = Array.isArray(formData?.tblBlPackingList)
     ? formData.tblBlPackingList.reduce(
-      (sum, cur) => sum + Number(cur?.noOfPackages || 0),
-      0
-    )
+        (sum, cur) => sum + Number(cur?.noOfPackages || 0),
+        0
+      )
     : 0;
 
   return totalPackages === Number(formData?.noOfPackages)
@@ -123,6 +123,22 @@ export const getPortBasedOnCountry = async ({ portId, inputName }) => {
   }
 
   return result?.data[0];
+};
+export const getMasterByCode = async (code, masterListName) => {
+  if (!code) return null;
+
+  const obj = {
+    columns: `id AS Id, code AS Name`,
+    tableName: `tblMasterData`,
+    whereCondition: `
+      code = '${code}'
+      AND masterListName = '${masterListName}'
+      AND status = 1
+    `,
+  };
+
+  const res = await getDataWithCondition(obj);
+  return res?.data?.[0] || null; // ✅ {Id, Name}
 };
 
 export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
@@ -236,19 +252,19 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
       }
     },
     handleChangeOnPOL: async (name, value) => {
-      setFormData((prev) => {
-        return {
-          ...prev,
-          plrId: value || {},
-        };
-      });
+      // update changed port field
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value || null, // ✅ IMPORTANT: you were always setting plrId
+      }));
 
-      const res = await getPortBasedOnCountry({
+      await getPortBasedOnCountry({
         portId: value?.Id,
         inputName: name,
       });
+
       const mappedObj = storeApiResult.reduce((acc, item) => {
-        acc[item.inputName] = item.countryCategory;
+        acc[item.inputName] = item.countryCategory; // "F" / "IN" / "IN(ICD)"
         return acc;
       }, {});
 
@@ -256,31 +272,43 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
       const podId = mappedObj.podId;
       const fpdId = mappedObj.fpdId;
 
-      if (polId === "F" && podId === "F" && fpdId === "F") {
-        // const resObj = {
-        //   columns: `s.id Id, s.isocode Name`,
-        //   tableName: "tblIsocode s",
-        //   joins:
-        //     "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
-        //   whereCondition: `d.id = ${sizeId} and d1.id = ${value.Id}`,
-        // };
+      let movementCode = null;
+      let cargoCode = null;
 
-        // const res = await getDataWithCondition(resObj);
+      // ---------- RULES ----------
+      if (polId === "F" && podId === "F" && fpdId === "F") {
+        movementCode = "TC";
+        cargoCode = "CG";
       } else if (polId === "IN" && podId === "IN" && fpdId === "IN") {
-        console.log("hello two");
+        movementCode = "LC";
+        cargoCode = "CG";
+      } else if (polId === "IN" && podId === "IN" && fpdId === "IN(ICD)") {
+        movementCode = "TI";
+        cargoCode = "CG";
+      } else if (polId === "F" && podId === "IN" && fpdId === "IN(ICD)") {
+        movementCode = "TI";
+        cargoCode = "IM";
       } else if (polId === "F" && podId === "IN" && fpdId === "IN") {
-        console.log("hello three");
-      } else if (
-        polId === "F" &&
-        podId === "IN" &&
-        fpdId === "IN" &&
-        formData?.nominatedAreaId
-      ) {
-        console.log("hello four");
-      } else {
-        console.log("hello else");
+        movementCode = "LC";
+        cargoCode = "IM";
       }
+
+      if (!movementCode && !cargoCode) return;
+
+      // ✅ fetch {Id,Name} objects
+      const movementObj = await getMasterByCode(
+        movementCode,
+        "tblMovementType"
+      );
+      const cargoObj = await getMasterByCode(cargoCode, "tblServiceType");
+
+      setFormData((prev) => ({
+        ...prev,
+        ...(movementObj ? { movementTypeId: movementObj } : {}),
+        ...(cargoObj ? { cargoTypeId: cargoObj } : {}),
+      }));
     },
+
     handleChangeOnVessel: async (name, value) => {
       const vesselId = value?.Id || null;
 
