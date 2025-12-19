@@ -64,7 +64,7 @@ export default function IGM() {
     const cleaned = valuesOnly(tableFormData);
 
     const body = {
-      spName: "updateNominatedArea",
+      spName: "updateLineNumber",
       jsonData: {
         clientId: 8,
         ...transformed,

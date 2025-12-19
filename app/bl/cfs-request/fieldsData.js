@@ -31,6 +31,7 @@ export const fieldData = {
       type: "text",
       isEdit: true,
       required: true,
+      blurFun: "getDataBasedonLinerAndBLNo",
     },
     {
       label: "MBL Date",
@@ -38,6 +39,7 @@ export const fieldData = {
       type: "date",
       isEdit: true,
       required: true,
+      disabled: true,
     },
     {
       label: "Vessel",
@@ -50,6 +52,7 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblVessel",
       isEdit: true,
+      disabled: true,
     },
     {
       label: "Voyage",
@@ -63,13 +66,18 @@ export const fieldData = {
       orderBy: "t.voyageNo",
       foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
+      disabled: true,
     },
     {
       label: "Place of Delivery",
       name: "fpdId",
       type: "dropdown",
       tableName: "tblPort p",
-      isEdit: true,
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      orderBy: "p.name",
+      foreignTable: "code-name,tblPort",
+      required: true,
+      disabled: true,
     },
     {
       label: "Consignee Name",
