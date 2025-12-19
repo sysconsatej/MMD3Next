@@ -361,7 +361,6 @@ const fieldData = {
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
       isEdit: true,
-      required: true,
     },
     {
       label: "Port (-2)",
@@ -375,7 +374,6 @@ const fieldData = {
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
       isEdit: true,
-      required: true,
     },
     {
       label: "Port (-1)",
@@ -389,7 +387,6 @@ const fieldData = {
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
       isEdit: true,
-      required: true,
     },
     {
       label: "Port (1)",
@@ -403,7 +400,32 @@ const fieldData = {
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
       isEdit: true,
-      required: true,
+    },
+    {
+      label: "Port (2)",
+      name: "nextToNextPort",
+      type: "dropdown",
+      tableName: "tblPort p",
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      joins:
+        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+      where: "m.name IN ('SEA PORT')",
+      orderBy: "p.name",
+      foreignTable: "code-name,tblPort",
+      isEdit: true,
+    },
+    {
+      label: "Port (3)",
+      name: "lastNextPort",
+      type: "dropdown",
+      tableName: "tblPort p",
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      joins:
+        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+      where: "m.name IN ('SEA PORT')",
+      orderBy: "p.name",
+      foreignTable: "code-name,tblPort",
+      isEdit: true,
     },
   ],
 };
