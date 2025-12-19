@@ -182,8 +182,12 @@ export default function IGM() {
     }
   };
   const handleChangeEventFunctions = useMemo(
-    () => createHandleChangeEventFunction({ setFormData }),
-    [setFormData]
+    () =>
+      createHandleChangeEventFunction({
+        setFormData,
+        fields: jsonData.igmEdiFields,
+      }),
+    [setFormData, jsonData.igmEdiFields]
   );
   return (
     <ThemeProvider theme={theme}>

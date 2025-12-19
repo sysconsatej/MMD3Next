@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState,useMemo } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { metaData } from "./slabWiseReportData";
 import { CustomInput } from "@/components/customInput";
@@ -18,6 +18,7 @@ export default function SlabWiseReport() {
     const [fieldsMode, setFieldsMode] = useState("");
     const [tableData, setTableData] = useState([]);
     const [goLoading, setGoLoading] = useState(false);
+    const [jsonData, setJsonData] = useState(data);
     const router = useRouter();
     const userData = getUserByCookies();
 
@@ -100,10 +101,14 @@ export default function SlabWiseReport() {
         }
         jsonToExcelFile(tableData, "Slab Wise Report");
     };
-    const handleChangeEventFunctions = createHandleChangeEventFunction({
+    const handleChangeEventFunctions = useMemo(
+    () =>
+      createHandleChangeEventFunction({
         setFormData,
-        formData,
-    });
+        fields: jsonData.slabWiseReportFields,
+      }),
+    [setFormData, jsonData.slabWiseReportFields]
+  );
     return (
         <ThemeProvider theme={theme}>
             <form onSubmit={handleSubmit}>

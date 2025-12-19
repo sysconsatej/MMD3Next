@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState ,useMemo} from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { metaData } from "./scmtrSamData";
 import { CustomInput } from "@/components/customInput";
@@ -120,10 +120,14 @@ export default function SAM() {
       setGoLoading(false);
     }
   };
-  const handleChangeEventFunctions = createHandleChangeEventFunction({
-    setFormData,
-    formData,
-  });
+  const handleChangeEventFunctions = useMemo(
+    () =>
+      createHandleChangeEventFunction({
+        setFormData,
+        fields: jsonData.igmEdiFields,
+      }),
+    [setFormData, jsonData.igmEdiFields]
+  );
   return (
     <ThemeProvider theme={theme}>
       <form>

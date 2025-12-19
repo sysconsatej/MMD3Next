@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState,useMemo } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { metaData } from "./vesselSummaryReportData";
 import { CustomInput } from "@/components/customInput";
@@ -17,6 +17,7 @@ export default function VesselSummaryReport() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [tableData, setTableData] = useState([]);
+  const [jsonData, setJsonData] = useState(data);
   const [goLoading, setGoLoading] = useState(false);
   const router = useRouter();
   const userData = getUserByCookies();
@@ -101,9 +102,14 @@ export default function VesselSummaryReport() {
     }
     jsonToExcelFile(tableData, "Vessel Summary Report");
   };
-  const handleChangeEventFunctions = createHandleChangeEventFunction({
-    setFormData,
-  });
+  const handleChangeEventFunctions = useMemo(
+    () =>
+      createHandleChangeEventFunction({
+        setFormData,
+        fields: jsonData.vesselSummaryReportFields,
+      }),
+    [setFormData, jsonData.vesselSummaryReportFields]
+  );
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={handleSubmit}>

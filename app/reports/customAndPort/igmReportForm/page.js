@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState,useMemo} from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { metaData } from "./igmReportFormData";
 import { CustomInput } from "@/components/customInput";
@@ -122,10 +122,14 @@ export default function IGM() {
     const recordIdParam = ids.map(encodeURIComponent).join(",");
     router.push(`/htmlReports/igmReports?recordId=${recordIdParam}`);
   };
-  const handleChangeEventFunctions = createHandleChangeEventFunction({
-    setFormData,
-    formData,
-  });
+  const handleChangeEventFunctions = useMemo(
+    () =>
+      createHandleChangeEventFunction({
+        setFormData,
+        fields: jsonData.igmEdiFields,
+      }),
+    [setFormData, jsonData.igmEdiFields]
+  );
   return (
     <ThemeProvider theme={theme}>
       <form>
