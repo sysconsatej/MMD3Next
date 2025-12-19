@@ -16,25 +16,21 @@ import {
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
-import { handleBlur } from "./utils";
+import { handleBlur, handleChange } from "./utils";
 import { getUserByCookies } from "@/utils";
 import { useSetDefault } from "./hooks";
 
 export default function Company() {
+  const { mode, setMode } = formStore();
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [errorState, setErrorState] = useState({});
-  const { mode, setMode } = formStore();
   const userData = getUserByCookies();
+  const [mlblId, setMblId] = useState(null);
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData(
-      //   "tblCompany",
-      formData,
-      mode.formId
-      //   "companyId"
-    );
+    const format = formatFormData("tblBl", formData, mode.formId, "tblBl");
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
@@ -49,30 +45,34 @@ export default function Company() {
 
   useEffect(() => {
     async function fetchFormHandler() {
-      if (mode.formId) {
-        setFieldsMode(mode.mode);
-        const format = formatFetchForm(
-          data,
-          //   "tblCompany",
-          mode.formId
-          //   '["tblCompanyBranch"]',
-          //   "companyId"
-        );
-        const { success, result, message, error } = await fetchForm(format);
-        if (success) {
-          const getData = formatDataWithForm(result, data);
-          setFormData(getData);
-        } else {
-          toast.error(error || message);
-        }
+      if (!mlblId) return;
+
+      setFieldsMode(mode?.mode);
+      const format = formatFetchForm(
+        fieldData,
+        "tblBl",
+        mlblId,
+        '["tblAttachment"]',
+        "blId"
+      );
+      const { success, result, message, error } = await fetchForm(format);
+      if (success) {
+        const getData = formatDataWithForm(result, fieldData);
+        setFormData(getData);
+      } else {
+        toast.error(error || message);
       }
     }
 
     fetchFormHandler();
-  }, [mode.formId]);
-  const handleChangeEventFunctions = {};
+  }, [mlblId, mode?.mode]);
+  const handleChangeEventFunctions = handleChange({ setFormData, formData });
 
-  const handleBlurEventFunctions = handleBlur({ setFormData, formData });
+  const handleBlurEventFunctions = handleBlur({
+    setFormData,
+    formData,
+    setMblId,
+  });
 
   return (
     <ThemeProvider theme={theme}>

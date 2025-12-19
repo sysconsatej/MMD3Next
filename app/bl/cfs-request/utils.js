@@ -1,13 +1,14 @@
-import { getDataWithCondition } from "@/apis";
-import { getUserByCookies } from "@/utils";
+import { fetchForm, getDataWithCondition } from "@/apis";
+import { formatDataWithForm, formatFetchForm, getUserByCookies } from "@/utils";
 import { toast } from "react-toastify";
+import { fieldData } from "./fieldsData";
 
 const userData = getUserByCookies();
 
-export const handleBlur = ({ setFormData, formData }) => {
+export const handleBlur = ({ setFormData, formData, setMblId }) => {
   return {
     getDataBasedonLinerAndBLNo: async (event) => {
-      const {  name  , value }   =  event.target;
+      const { value } = event.target;
       if (!value) {
         setFormData((prev) => {
           return {
@@ -18,6 +19,7 @@ export const handleBlur = ({ setFormData, formData }) => {
             mblDate: "",
           };
         });
+        return "";
       }
 
       if (!formData?.shippingLineId) {
@@ -26,28 +28,56 @@ export const handleBlur = ({ setFormData, formData }) => {
 
       const mblNo = String(value).trim();
       const payload = {
-        columns:
-          "b.mblDate, v.name as vesselName , v.id as  vesselId  , vy.voyageNo as voyageNo, vy.id as voyageId, p.name as portName,p.id as portId",
+        columns: "b.id",
         tableName: "tblBl b",
         whereCondition: `b.shippingLineId = '${formData?.shippingLineId?.Id}' and b.mblNo='${mblNo}'`,
-        joins:
-          "left join tblVessel v on v.id = b.podVesselId left join tblVoyage vy on vy.id = b.podVoyageId  left join tblPort  p on p.id  = b.fpdId",
       };
 
       const res = await getDataWithCondition(payload);
       const data = res?.data && res?.data[0];
-      const setObj = {
-        podVoyageId: { Id: data?.voyageId, Name: data?.voyageNo },
-        podVesselId: { Id: data?.vesselId, Name: data?.vesselName },
-        fpdId: { Id: data?.portId, Name: data?.portName },
-        mblDate: data?.mblDate,
+      const mlBlId = data && data?.id;
+      if (mlBlId) {
+        setMblId(mlBlId)
+        const format = formatFetchForm(
+          fieldData,
+          "tblBl",
+          mlBlId,
+          '["tblAttachment"]',
+          "blId"
+        );
+        const { success, result, message, error } = await fetchForm(format);
+        if (success) {
+          const getData = formatDataWithForm(result, fieldData);
+          console.log(getData, " [][[]");
+          setFormData(getData);
+        } else {
+          toast.error(error || message);
+        }
+      }
+    },
+  };
+};
+
+export const handleChange = ({ setFormData, formData }) => {
+  return {
+    setAttachmentType: async (name, value) => {
+      console.log(value);
+      if (!value?.Id) return;
+
+      const payload = {
+        columns: "m.name Name , m.id  Id",
+        tableName: "tblMasterData m",
+        whereCondition: `m.masterListName = 'tblCfsAttachmentType' `,
       };
-      setFormData((prev) => {
-        return {
-          ...prev,
-          ...setObj,
-        };
-      });
+
+      const data = await getDataWithCondition(payload);
+      console.log(data);
+      // setFormData((prev)  =>  {
+      //   return  {
+      //     ...prev,
+      //     tblAttachment: data,
+      //   }
+      // })
     },
   };
 };
