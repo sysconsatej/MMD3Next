@@ -187,6 +187,8 @@ const DynamicReportTable = ({
   metaData = [],
   onSelectedEditedChange,
   showTotalsRow = false,
+  // NEW PROP: values to auto-fill when row is selected
+  autoFillOnSelect = {},
 }) => {
   const rawRows = Array.isArray(data)
     ? data
@@ -330,14 +332,54 @@ const DynamicReportTable = ({
   const pageAllChecked =
     uidsOnPage.length > 0 && uidsOnPage.every((k) => selectedUids.includes(k));
 
+  // 🔹 UPDATED: handleToggleRow with auto-fill on select
   const handleToggleRow = (row) => {
     const uid = getRowUid(row);
     if (uid == null) return;
-    const next = selectedUids.includes(uid)
+
+    const alreadySelected = selectedUids.includes(uid);
+
+    // If selecting (was unchecked) and we have autoFillOnSelect mappings
+    if (!alreadySelected && autoFillOnSelect && typeof autoFillOnSelect === "object") {
+      setEditableRows((prev) => {
+        const nextRows = prev.map((r) => {
+          if (r.__uid !== uid) return r;
+
+          let updated = { ...r };
+
+          // only apply values for matching column names
+          for (const [colKey, srcVal] of Object.entries(autoFillOnSelect)) {
+            if (!DISPLAY_KEYS.includes(colKey)) continue;
+
+            const meta = customFieldMap.get(colKey);
+            if (meta) {
+              const normalizedVal = normalizeIn(meta, srcVal);
+              const storeVal = denormalizeOut(meta, normalizedVal);
+              updated[colKey] = storeVal;
+            } else {
+              updated[colKey] = srcVal;
+            }
+          }
+
+          return updated;
+        });
+
+        const nextSelected = [...selectedUids, uid];
+        setSelectedUids(nextSelected);
+        emitSelected(nextRows, nextSelected);
+
+        return nextRows;
+      });
+      return;
+    }
+
+    // Default behaviour (unselect or no auto-fill configured)
+    const nextSelected = alreadySelected
       ? selectedUids.filter((k) => k !== uid)
       : [...selectedUids, uid];
-    setSelectedUids(next);
-    emitSelected(editableRows, next);
+
+    setSelectedUids(nextSelected);
+    emitSelected(editableRows, nextSelected);
   };
 
   const handleToggleAllOnPage = (checked) => {

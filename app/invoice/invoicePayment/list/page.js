@@ -82,7 +82,7 @@ export default function InvoicePaymentList() {
   const [totalRows, setTotalRows] = useState(1);
   const [rows, setRows] = useState([]);
   const [advanceSearch, setAdvanceSearch] = useState({});
-  const [loadingState, setLoadingState] = useState("Loading...");
+  const [loadingState, setLoadingState] = useState("Data not found!");
   const [selectedIds, setSelectedIds] = useState([]);
   const userData = getUserByCookies();
 
@@ -122,7 +122,7 @@ export default function InvoicePaymentList() {
     LEFT JOIN tblCompany c ON c.id = b.companyId
     LEFT JOIN tblMasterData cat ON cat.id = i.invoiceCategoryId
     LEFT JOIN tblUser u ON u.id = ${userData.userId}
-    JOIN tblInvoiceRequest ir on  ir.id = i.invoiceRequestId and ir.companyId = u.companyId and ir.companyBranchId = u.branchId
+    JOIN tblInvoiceRequest ir on  ir.id = i.invoiceRequestId and ir.companyId = u.companyId and ir.companyBranchId = u.branchId and i.locationId = ${userData.location}
     left join tblUser u2 on u2.id = i.createdBy
 	  left join tblUserRoleMapping ur on ur.userId = u2.id
 	  left join tblUser u3 on u3.id = ur.roleId

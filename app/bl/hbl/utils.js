@@ -12,6 +12,8 @@ import {
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 
+const userData = getUserByCookies();
+
 export function useTotalGrossAndPack(formData, setTotals) {
   useEffect(() => {
     if (Array.isArray(formData?.tblBl)) {
@@ -446,7 +448,11 @@ export const createBlurFunc = ({
   };
 };
 
-export const createHandleChangeFunc = ({ setFormData, formData }) => {
+export const createHandleChangeFunc = ({
+  setFormData,
+  formData,
+  setJsonData,
+}) => {
   return {
     setCountryAndState: async (name, value, { containerIndex, tabIndex }) => {
       const setName = name.replace("City", "");
@@ -568,11 +574,11 @@ export const createHandleChangeFunc = ({ setFormData, formData }) => {
       }
     },
     cargoTypeHandler: async (name, value) => {
-      const isHazardous = value.Name === "HAZ - HAZARDOUS";
+      const isHazardous = value?.Name === "HAZ - HAZARDOUS";
       setJsonData((prev) => {
         const itemContainer = prev.tblBlPackingList;
         const requiredUno = itemContainer.map((item) => {
-          if (item.name === "imoId") {
+          if (item.name === "imoCode" ||  item.name == 'unNo') {
             return { ...item, required: isHazardous };
           }
 
@@ -669,22 +675,17 @@ export const createHandleChangeFunc = ({ setFormData, formData }) => {
       }
 
       if (!value?.Id) {
-        const clearValues = ["shippingLineId", "podVoyageId"];
-        clearValues.map((info) => {
-          setFormData((prev) =>
-            setInputValue({
-              prev,
-              name: info,
-              value: {},
-            })
-          );
+        setFormData((prev) => {
+          return {
+            ...prev,
+            podVoyageId: {},
+          };
         });
 
-        return "";
+        return;
       }
 
       // cha is there then selected and shipper is their then login
-
       const { data } = await setVoyageBasedonVessel({
         vesselId: value?.Id,
         companyId: formData?.shippingLineId?.Id,

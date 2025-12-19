@@ -42,7 +42,7 @@ import {
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { getUserByCookies } from "@/utils";
 import { InvoiceModal } from "../../invoiceRequest/utils";
-import InvoiceHistoryModal from "../modal";
+import InvoiceHistoryModal, { InvoiceAssignModal } from "../modal";
 import HistoryIcon from "@mui/icons-material/History"; // ⬅️ NEW
 
 const LIST_TABLE = "tblInvoiceRequest i";
@@ -65,7 +65,8 @@ function createData(
   remarks,
   date,
   requester,
-  status
+  status,
+  assignTo
 ) {
   return {
     id,
@@ -78,6 +79,7 @@ function createData(
     date,
     requester,
     status,
+    assignTo,
   };
 }
 
@@ -93,7 +95,7 @@ export default function InvoiceReleaseList() {
   const [statusList, setStatusList] = useState([]);
   const [rows, setRows] = useState([]);
   const [advanceSearch, setAdvanceSearch] = useState({});
-  const [loadingState, setLoadingState] = useState("Loading...");
+  const [loadingState, setLoadingState] = useState("Data not found!");
   const tableWrapRef = useRef(null);
   const [modal, setModal] = useState({ toggle: false, value: null });
 
@@ -103,6 +105,7 @@ export default function InvoiceReleaseList() {
     id: null,
     invoiceNo: "",
   });
+  const [assignModal, setAssignModal] = useState({ toggle: false });
 
   const idsOnPage = useMemo(() => rows.map((x) => x.id), [rows]);
 
@@ -117,19 +120,79 @@ export default function InvoiceReleaseList() {
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
 
-  useEffect(() => {
-    async function fetchStatus() {
-      const obj = {
-        columns: "id as Id, name as Name",
-        tableName: "tblMasterData",
-        whereCondition: "masterListName = 'tblInvoiceRequest' AND status = 1",
-      };
+  const getData = useCallback(
+    async (pageNo = page, pageSize = rowsPerPage) => {
+      try {
+        const tableObj = {
+          columns: `
+            i.id,
+            c.name AS liner,
+            i.blNo,
+            m.name AS type,
+            i.isFreeDays AS freeDays,
+            i.isHighSealSale AS highSealSale,
+            i.remarks,
+            i.createdDate AS date,
+            u.name AS requester,
+            st.name AS status,
+            u2.name as assignTo
+          `,
+          tableName: LIST_TABLE,
+          pageNo,
+          pageSize,
+          advanceSearch: advanceSearchFilter(advanceSearch),
 
-      const { success, data } = await getDataWithCondition(obj);
-      if (success) setStatusList(data);
-    }
-    fetchStatus();
-  }, []);
+          joins: `
+          LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
+          LEFT JOIN tblUser u ON u.id = ${userData.userId}
+          left join tblUser u2 on u2.id = i.assignToId
+          LEFT JOIN tblCompany c ON c.id = u.companyId
+          JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId and i.invoiceRequestStatusId IS NOT NULL and i.shippingLineId = u.companyId and i.locationId = ${userData.location}
+          and (i.assignToId is null or i.assignToId = ${userData.userId})
+          `,
+          orderBy: `
+            ORDER BY 
+              CASE 
+                WHEN st.name = 'Requested' THEN 1
+                WHEN st.name = 'Released' THEN 2
+                WHEN st.name = 'Rejected' THEN 3
+                ELSE 4
+              END,
+              ISNULL(i.updatedDate, i.createdDate) DESC
+          `,
+        };
+
+        const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
+
+        const mapped = (data || []).map((item) =>
+          createData(
+            item.id,
+            item.liner,
+            item.blNo,
+            item.type,
+            item.freeDays,
+            item.highSealSale,
+            item.remarks,
+            item.date,
+            item.requester,
+            item.status,
+            item.assignTo
+          )
+        );
+
+        setRows(mapped);
+        setTotalPage(totalPage);
+        setTotalRows(totalRows);
+        setPage(pageNo);
+        setRowsPerPage(pageSize);
+        setSelectedIds([]);
+      } catch (err) {
+        console.error("Error fetching:", err);
+        setLoadingState("Failed to load data");
+      }
+    },
+    [page, rowsPerPage, advanceSearch]
+  );
 
   const releaseHandler = async (ids) => {
     if (!ids?.length) return toast.warn("Please select at least one row");
@@ -161,80 +224,35 @@ export default function InvoiceReleaseList() {
     router.push(`/invoice/invoiceRelease/invoiceUpload?blId=${blId}`);
   };
 
-  const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
-      try {
-        const tableObj = {
-          columns: `
-            i.id,
-            c.name AS liner,
-            i.blNo,
-            m.name AS type,
-            i.isFreeDays AS freeDays,
-            i.isHighSealSale AS highSealSale,
-            i.remarks,
-            i.createdDate AS date,
-            u.name AS requester,
-            st.name AS status
-          `,
-          tableName: LIST_TABLE,
-          pageNo,
-          pageSize,
-          advanceSearch: advanceSearchFilter(advanceSearch),
+  const assignHandler = async (ids) => {
+    setAssignModal((prev) => ({ ...prev, toggle: true, invoiceIds: ids }));
+  };
 
-          joins: `
-          LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
-          LEFT JOIN tblUser u ON u.id = ${userData.userId}
-          LEFT JOIN tblCompany c ON c.id = u.companyId
-          JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId and i.invoiceRequestStatusId IS NOT NULL and i.shippingLineId = u.companyId
-          `,
-          orderBy: `
-            ORDER BY 
-              CASE 
-                WHEN st.name = 'Requested' THEN 1
-                WHEN st.name = 'Released' THEN 2
-                WHEN st.name = 'Rejected' THEN 3
-                ELSE 4
-              END,
-              ISNULL(i.updatedDate, i.createdDate) DESC
-          `,
-        };
-
-        const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-
-        const mapped = (data || []).map((item) =>
-          createData(
-            item.id,
-            item.liner,
-            item.blNo,
-            item.type,
-            item.freeDays,
-            item.highSealSale,
-            item.remarks,
-            item.date,
-            item.requester,
-            item.status
-          )
-        );
-
-        setRows(mapped);
-        setTotalPage(totalPage);
-        setTotalRows(totalRows);
-        setPage(pageNo);
-        setRowsPerPage(pageSize);
-        setSelectedIds([]);
-      } catch (err) {
-        console.error("Error fetching:", err);
-        setLoadingState("Failed to load data");
-      }
-    },
-    [page, rowsPerPage, advanceSearch]
-  );
-
-  useEffect(() => {
-    setMode({ mode: null, formId: null });
-    getData(1, rowsPerPage);
-  }, []);
+  const onAssignHandler = async ({ userId }, invoiceIds) => {
+    const userData = getUserByCookies();
+    const rowsPayload = invoiceIds.map((id) => {
+      return {
+        id: id,
+        assignToId: userId?.Id,
+        updatedBy: userData.userId,
+        updatedDate: new Date(),
+      };
+    });
+    const res = await updateStatusRows({
+      tableName: "tblInvoiceRequest",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      setAssignModal((prev) => ({ ...prev, toggle: false, invoiceIds: null }));
+      return;
+    }
+    toast.success("Assign updated successfully!");
+    setAssignModal((prev) => ({ ...prev, toggle: false, invoiceIds: null }));
+    getData();
+  };
 
   const handleChangePage = (_, newPage) => getData(newPage, rowsPerPage);
   const handleChangeRowsPerPage = (e) => getData(1, +e.target.value);
@@ -247,6 +265,24 @@ export default function InvoiceReleaseList() {
     [router, setMode]
   );
 
+  useEffect(() => {
+    setMode({ mode: null, formId: null });
+    getData(1, rowsPerPage);
+  }, []);
+
+  useEffect(() => {
+    async function fetchStatus() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: "masterListName = 'tblInvoiceRequest' AND status = 1",
+      };
+
+      const { success, data } = await getDataWithCondition(obj);
+      if (success) setStatusList(data);
+    }
+    fetchStatus();
+  }, []);
 
   const disableRelease = useMemo(() => {
     const selectedRows = rows.filter((r) => selectedIds.includes(r.id));
@@ -282,6 +318,7 @@ export default function InvoiceReleaseList() {
           selectedIds={selectedIds}
           onView={(id) => modeHandler("view", id)}
           onRelease={(ids) => releaseHandler(ids)}
+          onAssign={(ids) => assignHandler(ids)}
           hideReject={true}
           disableRelease={disableRelease}
         />
@@ -307,6 +344,7 @@ export default function InvoiceReleaseList() {
                 <TableCell>Status</TableCell>
                 <TableCell>Remarks</TableCell>
                 <TableCell>Request Date</TableCell>
+                <TableCell>Assign To</TableCell>
                 <TableCell>Attachment</TableCell>
                 <TableCell>History</TableCell>
               </TableRow>
@@ -323,9 +361,7 @@ export default function InvoiceReleaseList() {
                         sx={CHECKBOX_SX}
                       />
                     </TableCell>
-
                     <TableCell>{row.liner}</TableCell>
-
                     <TableCell>
                       <Link
                         href="#"
@@ -338,19 +374,15 @@ export default function InvoiceReleaseList() {
                         {row.blNo}
                       </Link>
                     </TableCell>
-
                     <TableCell>{row.type}</TableCell>
                     <TableCell>{toFreeDaysLabel(row.freeDays)}</TableCell>
                     <TableCell>{toYesNo(row.highSeaSale)}</TableCell>
-
                     <TableCell sx={{ color: statusColor(row.status) }}>
                       {row.status}
                     </TableCell>
-
                     <TableCell>{row.remarks}</TableCell>
-
                     <TableCell>{row.date}</TableCell>
-
+                    <TableCell>{row.assignTo}</TableCell>
                     <TableCell>
                       <AttachFileIcon
                         sx={{ cursor: "pointer", fontSize: "18px" }}
@@ -374,7 +406,7 @@ export default function InvoiceReleaseList() {
                           setHistoryModal({
                             open: true,
                             id: row.id,
-                            invoiceNo: row.blNo, 
+                            invoiceNo: row.blNo,
                           })
                         }
                       />
@@ -419,6 +451,11 @@ export default function InvoiceReleaseList() {
         }
         invoiceId={historyModal.id}
         invoiceNo={historyModal.invoiceNo}
+      />
+      <InvoiceAssignModal
+        modal={assignModal}
+        setModal={setAssignModal}
+        onAssignHandler={onAssignHandler}
       />
     </ThemeProvider>
   );

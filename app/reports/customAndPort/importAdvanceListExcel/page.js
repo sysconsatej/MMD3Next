@@ -16,6 +16,7 @@ import {
 import { useRouter } from "next/navigation";
 import { exportExcel } from "@/utils/dynamicReportUtils";
 import { getUserByCookies } from "@/utils";
+import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 
 export default function ImportAdvanceList() {
   const [formData, setFormData] = useState({});
@@ -122,7 +123,10 @@ export default function ImportAdvanceList() {
       setGoLoading(false);
     }
   };
-
+  const handleChangeEventFunctions = createHandleChangeEventFunction({
+    setFormData,
+    formData,
+  });
   return (
     <ThemeProvider theme={theme}>
       <form>
@@ -139,6 +143,7 @@ export default function ImportAdvanceList() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>

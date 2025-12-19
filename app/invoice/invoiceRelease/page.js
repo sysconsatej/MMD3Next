@@ -11,7 +11,7 @@ import TableGrid from "@/components/tableGrid/tableGrid";
 import fieldData, { cfsGridButtons } from "./invoiceReleaseData";
 import { CustomInput } from "@/components/customInput";
 import { useSearchParams } from "next/navigation";
-import { formStore } from "@/store";
+import { formStore, useBackLinksStore, useBlWorkFlowData } from "@/store";
 import { getDataWithCondition, fetchForm } from "@/apis";
 import {
   formatFetchForm,
@@ -29,6 +29,8 @@ function CustomTabPanel({ children, value, index }) {
 }
 
 export default function InvoiceReleasePage() {
+  const { link } = useBackLinksStore();
+  const  { setClearData  } = useBlWorkFlowData();
   const searchParams = useSearchParams();
   const { mode } = formStore();
   const blIdFromQS = searchParams.get("blId");
@@ -85,7 +87,7 @@ export default function InvoiceReleasePage() {
         const invQ = {
           columns: "id",
           tableName: "tblInvoice",
-          whereCondition: `invoicePaymentId = ${mode.formId} AND status = 1`,
+          whereCondition: `blId in (${blId}) AND status = 1`,
         };
         const { success: invOk, data: invRows } = await getDataWithCondition(
           invQ
@@ -205,7 +207,11 @@ export default function InvoiceReleasePage() {
             Invoice Details - <b>BL No. {formData?.blNo || "—"}</b>
           </Typography>
 
-          <CustomButton text="Back" href="/payment/paymentConfirmation/list" />
+          <CustomButton
+            text="Back"
+            href={link ? link?.blStatus : "/payment/paymentConfirmation/list"}
+            onClick={() => setClearData([])}
+          />
         </Box>
 
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>

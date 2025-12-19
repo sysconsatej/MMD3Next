@@ -12,6 +12,7 @@ import { fetchDynamicReportData, updateDynamicReportData } from "@/apis";
 import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable";
 import { useRouter } from "next/navigation";
 import { getUserByCookies, jsonExport } from "@/utils";
+import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 
 export default function SAM() {
   const [formData, setFormData] = useState({});
@@ -52,7 +53,7 @@ export default function SAM() {
         jsonData: {
           ...transformed,
           clientId: 1,
-          userId:userData.userId ,
+          userId: userData.userId,
           data: rows,
         },
       }),
@@ -119,7 +120,10 @@ export default function SAM() {
       setGoLoading(false);
     }
   };
-
+  const handleChangeEventFunctions = createHandleChangeEventFunction({
+    setFormData,
+    formData,
+  });
   return (
     <ThemeProvider theme={theme}>
       <form>
@@ -136,6 +140,7 @@ export default function SAM() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>

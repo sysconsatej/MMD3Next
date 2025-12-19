@@ -2,8 +2,6 @@ import { getUserByCookies } from "@/utils";
 
 const userData = getUserByCookies();
 
-
-
 // input fields data
 export const fieldData = {
   berthAgentFields: [
@@ -18,7 +16,10 @@ export const fieldData = {
       displayColumn: "c.name",
       orderBy: "c.name",
       foreignTable: "name,tblCompany",
-      where: userData?.roleCode === "shipping" ? `c.id  = '${userData?.companyId}'` : "",
+      where:
+        userData?.roleCode === "shipping"
+          ? `c.id  = '${userData?.companyId}'`
+          : "",
     },
     {
       label: "Carrier",
@@ -70,13 +71,33 @@ export const fieldData = {
       type: "text",
       isEdit: true,
     },
+    {
+      label: "Deafult CFS",
+      name: "defaultCfs",
+      type: "radio",
+      radioData: [
+        { label: "Yes", value: "Y" },
+        { label: "No", value: "N" },
+      ],
+      isEdit: true,
+      showFieldonSearch: false,
+    },
+    {
+      label: "SCMRT Bond NO",
+      name: "scmtrBondNo",
+      type: "text",
+      isEdit: true,
+      showFieldonSearch: false,
+    },
   ],
 };
 
 // search array
-export const searchDataAray = fieldData.berthAgentFields.map((info) => {
-  return {
-    label: info.label,
-    value: `b.${info.name}`,
-  };
-});
+export const searchDataAray = fieldData.berthAgentFields
+  .filter((i) => i.showFieldonSearch !== false)
+  .map((info) => {
+    return {
+      label: info.label,
+      value: `b.${info.name}`,
+    };
+  });

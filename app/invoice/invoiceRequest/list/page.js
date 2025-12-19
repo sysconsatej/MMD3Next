@@ -88,7 +88,7 @@ export default function InvoiceRequestList() {
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
   const [rows, setRows] = useState([]);
-  const [loadingState, setLoadingState] = useState("Loading...");
+  const [loadingState, setLoadingState] = useState("Data not found!");
   const tableWrapRef = useRef(null);
   const userData = getUserByCookies();
   const [advanceSearch, setAdvanceSearch] = useState({});
@@ -149,7 +149,7 @@ export default function InvoiceRequestList() {
             LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
             LEFT JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId
             LEFT JOIN tblUser u on u.id = ${userData.userId}
-            JOIN tblUser u2 on u2.companyId = u.companyId and i.createdBy = u2.id
+            JOIN tblUser u2 on u2.companyId = u.companyId and i.createdBy = u2.id and i.locationId = ${userData.location}
           `,
           orderBy:
             "ORDER BY isnull(i.updatedDate, i.createdDate) DESC, i.id DESC",

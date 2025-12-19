@@ -5,56 +5,59 @@ import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import { StepConnector, stepConnectorClasses, styled } from "@mui/material";
+import { stepConnectorClasses, styled, StepConnector } from "@mui/material";
 import DoneIcon from "@mui/icons-material/Done";
 import RequestCard from "./RequestCards";
+import { useBlWorkFlowData } from "@/store";
 
-const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
-  [`&.${stepConnectorClasses.alternativeLabel}`]: {
-    top: 22,
-  },
-  [`&.${stepConnectorClasses.active}`]: {
-    [`& .${stepConnectorClasses.line}`]: {
-      backgroundColor: "green",
+const ColorlibConnector = styled(StepConnector)(({ theme, ownerState }) => {
+  return {
+    [`&.${stepConnectorClasses.alternativeLabel}`]: {
+      top: "15px !important",
     },
-  },
-  [`&.${stepConnectorClasses.completed}`]: {
-    [`& .${stepConnectorClasses.line}`]: {
-      backgroundColor: "green",
+    [`&.${stepConnectorClasses.active}`]: {
+      [`& .${stepConnectorClasses.line}`]: {
+        backgroundColor: ownerState?.active
+          ? "green !important"
+          : "grey !important",
+      },
     },
-  },
-  [`& .${stepConnectorClasses.line}`]: {
-    height: 2,
-    backgroundColor: "#eaeaf0",
-    zIndex: 1,
-    ...theme.applyStyles("dark", {
-      backgroundColor: theme.palette.grey[800],
-    }),
-  },
-}));
+    [`&.${stepConnectorClasses.completed}`]: {
+      [`& .${stepConnectorClasses.line}`]: {
+        backgroundColor: ownerState?.completed
+          ? "green !important"
+          : "grey !important",
+      },
+    },
+    [`& .${stepConnectorClasses.line}`]: {
+      height: 2,
+      backgroundColor: "grey !important",
+      zIndex: 1,
+      ...theme.applyStyles("dark", {
+        backgroundColor: "grey !important",
+      }),
+    },
+  };
+});
 
 const ColorlibStepIconRoot = styled("div")(({ theme, ownerState }) => ({
-  // zIndex: -1,
-  width: 30,
-  height: 30,
-  display: "flex",
-  borderRadius: "50%",
-  justifyContent: "center",
-  alignItems: "center",
+  width: "30px !important",
+  height: "30px !important",
+  display: "flex !important",
+  borderRadius: "50%  !important",
+  justifyContent: "center !important",
+  alignItems: "center !important",
   ...theme.applyStyles("dark", {
-    backgroundColor: theme.palette.grey[700],
+    backgroundColor: ownerState?.completed
+      ? "#087444ff !important"
+      : theme.palette.grey[700],
   }),
   variants: [
     {
       style: {
-        backgroundColor: ownerState?.completed ? "green" : "gray",
-      },
-    },
-    {
-      style: {
-        backgroundColor: ownerState?.completed ? "green" : "gray",
+        backgroundColor: ownerState?.completed
+          ? "green !important"
+          : "gray !important",
       },
     },
   ],
@@ -70,58 +73,32 @@ function ColorlibStepIcon(props) {
 }
 
 export default function HorizontalLinearStepper({ steps }) {
-  // const [activeStep, setActiveStep] = React.useState(0);
-
-  // const handleNext = () => {
-  //   setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  // };
-
-  // const handleBack = () => {
-  //   setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  // };
-
-  // const handleReset = () => {
-  //   setActiveStep(0);
-  // };
+  const { workFlowData } = useBlWorkFlowData();
+  const data = workFlowData?.[0] ?? [];
+  const checkLength = steps.filter(
+    (info) => data && data[info?.keyName]?.length > 0
+  );
 
   return (
-    <Box sx={{ width: "100%" }}>
-      {/* {activeStep === steps.length ? (
-        <React.Fragment>
-          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-            <Button onClick={handleReset}>Reset</Button>
-          </Box>
-        </React.Fragment>
-      ) : (
-        <React.Fragment>
-          <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography>
-          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-            <Button
-              color="inherit"
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              sx={{ mr: 1 }}
-            >
-              Back
-            </Button>
-            <Box sx={{ flex: "1 1 auto" }} />
-            <Button onClick={handleNext}>
-              {activeStep === steps.length - 1 ? "Finish" : "Next"}
-            </Button>
-          </Box>
-        </React.Fragment>
-      )}
-      {/* connector props is the line bwteen 2 steps */}
-      {/* <Stepper
-        activeStep={activeStep}
-        connector={<ColorlibConnector />}
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        pt: 2,
+        gap: 5,
+      }}
+    >
+      <Stepper
+        connector={<ColorlibConnector  />}
         alternativeLabel
       >
-        {steps.map((label, index) => {
-          const isActive = activeStep === index;
-          const isCompleted = activeStep > index;
+        {steps.map((info) => {
+          const isActive =
+            data && data[info?.keyName]?.length > 0 ? true : false;
+          const isCompleted =
+            data && data[info?.keyName]?.length > 0 ? true : false;
           return (
-            <Step key={label?.id}>
+            <Step key={info?.id}>
               <StepLabel
                 slots={{
                   stepIcon: ColorlibStepIcon,
@@ -133,18 +110,13 @@ export default function HorizontalLinearStepper({ steps }) {
                   },
                 }}
               >
-                {label?.cardType}
-                <RequestCard item={label} />
+                {info?.cardType}
+                <RequestCard key={info.id} item={info} />
               </StepLabel>
             </Step>
           );
         })}
-      </Stepper> */}
-      <Box sx={{ display: "flex", flexDirection: "row", pt: 2 , gap : 10}}>
-        {steps?.map((info) => (
-          <RequestCard key={info.id} item={info} />
-        ))}
-      </Box>
+      </Stepper>
     </Box>
   );
 }

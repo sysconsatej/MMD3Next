@@ -142,7 +142,11 @@ export default function Home() {
       const { id, ...resData } = item;
       const formatItem = formatFormData(
         "tblBl",
-        { ...resData, mblHblFlag: "HBL" },
+        {
+          ...resData,
+          mblHblFlag: "HBL",
+          locationId: userData?.location || null,
+        },
         formId,
         "blId"
       );
@@ -192,6 +196,7 @@ export default function Home() {
 
   const handleGridEventFunctions = {
     addGrid: async ({ tabIndex, gridIndex }) => {
+      console.log("Add Grid Event Triggered");
       const obj = {
         columns: "id as Id, name as Name , code as code , masterListName",
         tableName: "tblMasterData",
@@ -239,6 +244,7 @@ export default function Home() {
   const handleChangeEventFunctions = createHandleChangeFunc({
     setFormData,
     formData,
+    setJsonData,
   });
 
   const handleBlurEventFunctions = createBlurFunc({

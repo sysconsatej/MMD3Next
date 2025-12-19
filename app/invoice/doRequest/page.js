@@ -1,7 +1,9 @@
+/* eslint-disable */
 "use client";
-import { useEffect, useState } from "react";
-import { ThemeProvider, Box, Typography } from "@mui/material";
-import { fieldData } from "./doData";
+
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { ThemeProvider, Box } from "@mui/material";
+import { cfsGridButtons, fieldData } from "./doData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -9,297 +11,203 @@ import CustomButton from "@/components/button/button";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import FormHeading from "@/components/formHeading/formHeading";
 import { formStore } from "@/store";
-import {
-    copyHandler,
-    formatDataWithForm,
-    formatFetchForm,
-    formatFormData,
-    getUserByCookies,
-    setInputValue,
-    useNextPrevData,
-} from "@/utils";
-import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import { getDataWithCondition } from "@/apis";
 
 export default function Home() {
-    const [formData, setFormData] = useState({});
-    const [fieldsMode, setFieldsMode] = useState("");
-    const [jsonData, setJsonData] = useState(fieldData);
-    const { mode, setMode } = formStore();
-    const [totals, setTotals] = useState({});
-    const [packTypeState, setPackTypeState] = useState(null);
-    const userData = getUserByCookies();
+  const [formData, setFormData] = useState({});
+  const [fieldsMode, setFieldsMode] = useState("");
+  const [jsonData] = useState(fieldData);
+  const { mode } = formStore();
 
+  const GRID_NAME = "tblInvoicePayment";
+  const GRID_ATTACHMENT = "tblAttachment";
 
+  const doRequestFieldsToRender = useMemo(() => {
+    const fields = jsonData?.doRequestFields || [];
 
-    const submitHandler = async (event) => {
-        event.preventDefault();
-        const packageMismatchError = checkNoPackages({
-            formData: formData,
-            hblType: "MBL",
-        });
-        if (packageMismatchError) {
-            toast.error(packageMismatchError);
-            return;
-        }
+    return formData?.isFreeDays === "D"
+      ? fields.filter((f) => f.name !== "validTill") // hide validTill
+      : fields; // normal
+  }, [jsonData?.doRequestFields, formData?.isFreeDays]);
 
-        const format = formatFormData(
-            "tblBl",
-            { ...formData, mblHblFlag: "MBL" },
-            mode.formId,
-            "blId"
+  const fetchInvoicePaymentByBlAndLiner = useCallback(
+    async (eventOrValue) => {
+      const blNo =
+        typeof eventOrValue === "string"
+          ? eventOrValue.trim()
+          : eventOrValue?.target?.value?.trim();
+
+      if (!blNo) return;
+
+      const linerId =
+        formData?.shippingLineId?.Id ?? formData?.shippingLineId ?? null;
+
+      if (!linerId) {
+        toast.warn("Select Liner first.");
+        return;
+      }
+
+      try {
+        const blQuery = {
+          columns: "TOP 1 id",
+          tableName: "tblBl",
+          whereCondition: `
+            ISNULL(hblNo, mblNo) = '${blNo.replace(/'/g, "''")}'
+            AND ISNULL(status,1) = 1
+            AND shippingLineId = ${linerId}
+          `,
+        };
+
+        const { success: blSuccess, data: blData } = await getDataWithCondition(
+          blQuery
         );
 
-        const { success, error, message } = await insertUpdateForm(format);
-        if (success) {
-            toast.success(message);
-            setFormData({});
-        } else {
-            toast.error(error || message);
+        if (!blSuccess || !Array.isArray(blData) || !blData.length) {
+          toast.error("BL not found for selected Liner.");
+          setFormData((p) => ({
+            ...p,
+            blNo,
+            blId: null,
+            [GRID_NAME]: [],
+          }));
+          return;
         }
-    };
 
-    const handleGridEventFunctions = {
-        addGrid: async ({ tabIndex, gridIndex }) => {
-            const obj = {
-                columns: "id as Id, name as Name",
-                tableName: "tblMasterData",
-                whereCondition: `masterListName = 'tblSealType' and name = 'BTSL' and status = 1`,
-            };
-            const { data } = await getDataWithCondition(obj);
-            setFormData((prevData) =>
-                setInputValue({
-                    prevData,
-                    tabName: null,
-                    gridName: "tblBlContainer",
-                    tabIndex: null,
-                    containerIndex: gridIndex,
-                    name: "sealTypeId",
-                    value: data[0],
-                })
-            );
-        },
-    };
+        const blId = blData[0].id;
 
-    const handleChangeEventFunctions = {
-        setCountryAndState: async (name, value) => {
-            const setName = name.replace("City", "");
+        const payQuery = {
+          columns: `
+            p.id,
+            p.paymentTypeId,
+            m.name  AS paymentTypeName,
+            p.Amount,
+            p.bankName,
+            p.bankBranchName,
+            p.referenceNo,
+            p.referenceDate,
+            p.receiptNo,
+            p.receiptDate,
+            inv.invoiceNos AS invoiceNo,
+            p.paymentStatusId,
+            m1.name AS paymentStatusName
+          `,
+          tableName: `
+            tblInvoicePayment p
+            LEFT JOIN tblMasterData m  ON m.id  = p.paymentTypeId
+            LEFT JOIN tblMasterData m1 ON m1.id = p.paymentStatusId
+            OUTER APPLY (
+              SELECT STRING_AGG(i.invoiceNo, ', ') AS invoiceNos
+              FROM string_split(CAST(p.invoiceIds AS nvarchar(max)), ',') s
+              JOIN tblInvoice i
+                ON i.id = TRY_CAST(LTRIM(RTRIM(s.value)) AS int)
+               AND ISNULL(i.status,1) = 1
+            ) inv
+          `,
+          whereCondition: `
+            p.blId = ${blId}
+            AND ISNULL(p.status,1) = 1
+            AND m1.name = 'Payment Confirmed'
+          `,
+          orderBy: "p.id DESC",
+        };
 
-            const obj = {
-                columns: `(select id from tblState s where s.id = ci.stateId and s.status = 1) stateId,
-                  (select name from tblState s where s.id = ci.stateId and s.status = 1) stateName,
-                  (select id from tblCountry c where c.id = ci.countryId and c.status = 1) countyId,
-                  (select name from tblCountry c where c.id = ci.countryId and c.status = 1) countryName`,
-                tableName: "tblCity ci",
-                whereCondition: `ci.id = ${value.Id} and ci.status = 1`,
-            };
-            const { data } = await getDataWithCondition(obj);
-            setFormData((prev) => {
-                if (setName === "shipper") {
-                    return {
-                        ...prev,
-                        [`${setName}Country`]: {
-                            Id: data[0].countyId,
-                            Name: data[0].countryName,
-                        },
-                    };
-                } else {
-                    return {
-                        ...prev,
-                        [`${setName}State`]: {
-                            Id: data[0].stateId,
-                            Name: data[0].stateName,
-                        },
-                        [`${setName}Country`]: {
-                            Id: data[0].countyId,
-                            Name: data[0].countryName,
-                        },
-                    };
-                }
-            });
-        },
-        setISOBySize: async (name, value, { containerIndex, tabIndex }) => {
-            const typeId = formData?.tblBlContainer[containerIndex]?.typeId?.Id;
-            const obj = {
-                columns: `s.id id, s.isocode Name`,
-                tableName: "tblIsocode s",
-                joins:
-                    "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
-                whereCondition: `d.id = ${value.Id} and d1.id = ${typeId}`,
-            };
-            const { data, success } = await getDataWithCondition(obj);
-            if (success) {
-                setFormData((prevData) =>
-                    setInputValue({
-                        prevData,
-                        tabName: null,
-                        gridName: "tblBlContainer",
-                        tabIndex: null,
-                        containerIndex,
-                        name: "isoCode",
-                        value: data[0],
-                    })
-                );
-            } else {
-                setFormData((prevData) =>
-                    setInputValue({
-                        prevData,
-                        tabName: null,
-                        gridName: "tblBlContainer",
-                        tabIndex: null,
-                        containerIndex,
-                        name: "isoCode",
-                        value: null,
-                    })
-                );
-            }
-        },
-        setISOByType: async (name, value, { containerIndex, tabIndex }) => {
-            const sizeId = formData?.tblBlContainer[containerIndex]?.sizeId?.Id;
-            const obj = {
-                columns: `s.id id, s.isocode Name`,
-                tableName: "tblIsocode s",
-                joins:
-                    "join tblMasterData d on d.id = s.sizeId join tblMasterData d1 on d1.id = s.typeId",
-                whereCondition: `d.id = ${sizeId} and d1.id = ${value.Id}`,
-            };
-            const { data, success } = await getDataWithCondition(obj);
-            if (success) {
-                setFormData((prevData) =>
-                    setInputValue({
-                        prevData,
-                        tabName: null,
-                        gridName: "tblBlContainer",
-                        tabIndex: null,
-                        containerIndex,
-                        name: "isoCode",
-                        value: data[0],
-                    })
-                );
-            } else {
-                setFormData((prevData) =>
-                    setInputValue({
-                        prevData,
-                        tabName: null,
-                        gridName: "tblBlContainer",
-                        tabIndex: null,
-                        containerIndex,
-                        name: "isoCode",
-                        value: null,
-                    })
-                );
-            }
-        },
-    };
+        const { data: payData } = await getDataWithCondition(payQuery);
 
-    const handleBlurEventFunctions = {
-        containerNumberHandler: (event, { containerIndex, tabIndex }) => {
-            const { name, value } = event?.target || {};
-            const pattern = /^[A-Za-z]{4}[0-9]{7}$/;
-            if (!pattern.test(value)) {
-                toast.error(
-                    "Invalid Container Number format. It should be 4 letters followed by 7 digits."
-                );
+        const rows = (Array.isArray(payData) ? payData : []).map((r) => ({
+          ...r,
+          paymentTypeId: r.paymentTypeId
+            ? { Id: r.paymentTypeId, Name: r.paymentTypeName }
+            : null,
+          paymentStatusId: r.paymentStatusId
+            ? { Id: r.paymentStatusId, Name: r.paymentStatusName }
+            : null,
+        }));
 
-                setFormData((prevData) =>
-                    setInputValue({
-                        prevData,
-                        tabName: "tblBl",
-                        gridName: "tblBlContainer",
-                        tabIndex,
-                        containerIndex,
-                        name,
-                        value: null,
-                    })
-                );
+        setFormData((p) => ({
+          ...p,
+          blNo,
+          blId,
+          [GRID_NAME]: rows,
+        }));
 
-                return "";
-            }
+        if (!rows.length) toast.info("No payment confirmed found for this BL.");
+      } catch (e) {
+        console.error(e);
+        toast.error("Error fetching payment details.");
+        setFormData((p) => ({ ...p, [GRID_NAME]: [] }));
+      }
+    },
+    [formData?.shippingLineId]
+  );
 
-            return "";
-        },
-    };
+  const handleBlurEventFunctions = { fetchInvoicePaymentByBlAndLiner };
 
+  useEffect(() => {
+    if (formData?.shippingLineId && formData?.blNo) {
+      fetchInvoicePaymentByBlAndLiner(formData.blNo);
+    }
+  }, [formData?.shippingLineId]);
 
-    return (
-        <ThemeProvider theme={theme}>
-            <form onSubmit={submitHandler}>
-                <section className="py-2 px-4">
-                    <Box className="flex justify-between items-center mb-2">
-                        <h1 className="text-left text-base m-0">Do Request</h1>
-                        <Box className="flex items-center gap-4">
+  const submitHandler = async (e) => {
+    e.preventDefault();
+  };
 
-                            <CustomButton
-                                text="Back"
-                                href="/invoice/doRequest/list"
-                                onClick={() => setMode({ mode: null, formId: null })}
-                            />
-                        </Box>
-                    </Box>
+  return (
+    <ThemeProvider theme={theme}>
+      <form onSubmit={submitHandler}>
+        <section className="py-2 px-4">
+          <Box className="flex justify-between items-center mb-2">
+            <h1 className="text-left text-base m-0">Do Request</h1>
+            <CustomButton text="Back" href="/invoice/doRequest/list" />
+          </Box>
 
-                    <Box>
-                        <FormHeading text="Do Request" />
-                        <Box className="grid grid-cols-4 items-end gap-2 p-2 ">
-                            <CustomInput
-                                fields={jsonData.doRequestFields}
-                                formData={formData}
-                                setFormData={setFormData}
-                                fieldsMode={fieldsMode}
-                            />
-                        </Box>
-                        <FormHeading text="Transport Details">
-                            <Box className="grid grid-cols-4 gap-2 p-2 ">
-                                <CustomInput
-                                    fields={jsonData.transportDetails}
-                                    formData={formData}
-                                    setFormData={setFormData}
-                                    fieldsMode={fieldsMode}
-                                />
-                            </Box>
-                        </FormHeading>
-                        <FormHeading text="Shipment Details">
-                            <Box className="grid grid-cols-4 gap-2 p-2 ">
-                                <CustomInput
-                                    fields={jsonData.ShipmentDetails}
-                                    formData={formData}
-                                    setFormData={setFormData}
-                                    fieldsMode={fieldsMode}
-                                />
-                            </Box>
-                        </FormHeading>
-                        <FormHeading text="Container New">
-                            <Box className="grid grid-cols-4 gap-2 p-2 ">
-                                <CustomInput
-                                    fields={jsonData.ContainerNew}
-                                    formData={formData}
-                                    setFormData={setFormData}
-                                    fieldsMode={fieldsMode}
-                                />
-                            </Box>
-                        </FormHeading>
+          <Box>
+            <FormHeading text="Do Request" />
 
-                        <FormHeading text="Attachment">
-                            <Box className="grid grid-cols-1 gap-2 p-2 ">
-                                <CustomInput
-                                    fields={jsonData.attachmentFields}
-                                    formData={formData}
-                                    setFormData={setFormData}
-                                    fieldsMode={fieldsMode}
-                                />
-                            </Box>
-                        </FormHeading>
+            <Box className="grid grid-cols-4 items-end gap-2 p-2 ">
+              <CustomInput
+                fields={doRequestFieldsToRender}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
+                handleBlurEventFunctions={handleBlurEventFunctions}
+              />
+            </Box>
 
-                    </Box>
-                    <Box className="w-full flex mt-2">
-                        {fieldsMode !== "view" && (
-                            <CustomButton text={"Print"} type="submit" />
-                        )}
-                    </Box>
-                </section>
-            </form>
-            <ToastContainer />
-        </ThemeProvider>
-    );
+            <Box className="mt-4 border">
+              <FormHeading text="Payment Information" variant="body2" />
+
+              <TableGrid
+                fields={jsonData.tblInvoicePayment}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
+                gridName={GRID_NAME}
+              />
+            </Box>
+            <Box className="mt-4 border">
+              <FormHeading text="Document List" variant="body2" />
+
+              <TableGrid
+                fields={jsonData.tblAttachment}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
+                gridName={GRID_ATTACHMENT}
+                buttons={cfsGridButtons}
+              />
+            </Box>
+          </Box>
+
+          <Box className="w-full flex mt-2">
+            {fieldsMode !== "view" && (
+              <CustomButton text={"Print"} type="submit" />
+            )}
+          </Box>
+        </section>
+      </form>
+
+      <ToastContainer />
+    </ThemeProvider>
+  );
 }

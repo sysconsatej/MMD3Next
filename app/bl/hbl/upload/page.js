@@ -10,14 +10,12 @@ import { theme } from "@/styles";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import fieldData from "./uploadData";
-import { uploads } from "@/apis"; // ← functional now
+import { uploads, getDataWithCondition } from "@/apis";
 import { getUserByCookies } from "@/utils";
-
-/* ------------------ URL + template file map ------------------ */
+let vesselChangeReq = 0;
 const BASE_URL =
   (process.env.NEXT_PUBLIC_BACKEND_URL || "").replace(/\/+$/, "") + "/";
 
-/** Canonicalize text for matching */
 const canon = (s = "") =>
   String(s)
     .normalize("NFKC")
@@ -28,7 +26,6 @@ const canon = (s = "") =>
     .trim()
     .toLowerCase();
 
-/** Your uploaded files on Node (add/edit names if your MD names differ) */
 const TEMPLATE_FILES = [
   {
     names: ["HBLMaster", "HBL Master", "Master BL", "MasterBL"],
@@ -37,21 +34,16 @@ const TEMPLATE_FILES = [
   },
 ];
 
-/** Find file by matching the selected template name */
 const findTemplateFile = (selectedName = "") => {
   const csel = canon(selectedName);
-  // exact/alias match
   for (const f of TEMPLATE_FILES) {
     if (f.names.some((n) => canon(n) === csel)) return f;
   }
-  // heuristic by keyword
   if (/\bcontainer\b/.test(csel)) return TEMPLATE_FILES[1];
   if (/\bitem\b/.test(csel)) return TEMPLATE_FILES[2];
-  // default master
   return TEMPLATE_FILES[0];
 };
 
-/* ------------------ helpers ------------------ */
 const isEmptyRow = (obj = {}) =>
   Object.values(obj).every(
     (v) => v === null || v === "" || typeof v === "undefined"
@@ -75,14 +67,13 @@ const getFirstFile = (val) => {
 const formatHeaderForSp = (obj = {}) => {
   const out = {};
   for (const [k, v] of Object.entries(obj)) {
-    if (k === "upload") continue; // don't send file
+    if (k === "upload") continue;
     if (v && typeof v === "object") out[k] = v.Id ?? v.id ?? v.value ?? null;
     else out[k] = v ?? null;
   }
   return out;
 };
 
-// Replace your current parseFile with this:
 const parseFile = async (file) => {
   const ext = (file?.name?.split(".").pop() || "").toLowerCase();
   if (!["xlsx", "xls", "csv", "json"].includes(ext))
@@ -118,10 +109,8 @@ const parseFile = async (file) => {
   return rows.filter((r) => !isEmptyRow(r));
 };
 
-/** Infer SP directly from template name */
 const getSpFromTemplateName = () => "inputHbl";
 
-/** Download helper: try blob, fallback window.open */
 const downloadViaUrl = async (url, filenameBase = "Template") => {
   try {
     const resp = await fetch(url);
@@ -146,10 +135,8 @@ export default function hblUpload() {
   const [busy, setBusy] = useState(false);
   const [objectToRemove, setObjectsToRemove] = useState(1);
   const userData = getUserByCookies();
-  console.log("userData", userData);
   const getSelectedTemplateName = () => "HBLMaster";
 
-  /* ------------------ Download Template (mapped to Node files) ------------------ */
   const handleDownloadTemplate = async () => {
     const selectedName = getSelectedTemplateName();
     if (!selectedName) {
@@ -170,7 +157,6 @@ export default function hblUpload() {
     }
   };
 
-  /* ------------------ Upload (SP inferred from Template name) ------------------ */
   const handleUpload = async (e) => {
     e.preventDefault();
 
@@ -190,11 +176,8 @@ export default function hblUpload() {
       const header = { ...formatHeaderForSp(formData), ...userData };
       const spName = getSpFromTemplateName(selectedName);
 
-      // Quote-like characters to remove from keys/values
       const QUOTE_RE = /['\u2019\u2018\u02BC\uFF07\u2032\u2035\u0060]/g;
-      // '  ’  ‘  ʼ  ＇  ′  ‵  `
 
-      // Deep sanitizer: remove quotes in strings, strip "__EMPTY*" keys, and clean key names
       const sanitizeDeep = (val) => {
         const isEmptyKey = (k) => /^__EMPTY/i.test(k);
 
@@ -230,17 +213,14 @@ export default function hblUpload() {
           return out;
         }
 
-        return val; // numbers, booleans, etc.
+        return val;
       };
 
-      // ---- Use your state here ----
-      // e.g. const objectToRemove = Number(newState?.objectToRemove) ?? 0;
       const toNonNegInt = (v) => {
         const n = Number(v);
         return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
       };
 
-      // Clean inputs
       const cleanHeader = sanitizeDeep(header);
       const cleanRows = sanitizeDeep(rows);
       const cleanName =
@@ -248,13 +228,11 @@ export default function hblUpload() {
           ? selectedName.replace(QUOTE_RE, "")
           : selectedName;
 
-      // Remove the top N rows from data
-      const N = toNonNegInt(objectToRemove); // <-- from your state
+      const N = toNonNegInt(objectToRemove);
       const prunedRows = Array.isArray(cleanRows)
-        ? cleanRows.slice(Math.min(N, cleanRows.length)) // safe clamp
-        : cleanRows; // if not an array, leave as-is
+        ? cleanRows.slice(Math.min(N, cleanRows.length))
+        : cleanRows;
 
-      // Build payload
       const mapUserToHeader = (u = {}) => ({
         userId: u.userId,
         userName: u.userName,
@@ -264,8 +242,9 @@ export default function hblUpload() {
         roleCode: u.roleCode,
         companyId: u.companyId,
         companyName: u.companyName,
-        companyBranchId: u.branchId, // normalize
+        companyBranchId: u.branchId,
         companyBranchName: u.branchName,
+        location: u.location,
       });
       const mergeUserIntoHeader = (header = {}, user = {}) => {
         const mapped = mapUserToHeader(user);
@@ -281,7 +260,7 @@ export default function hblUpload() {
         spName,
         json: {
           template: cleanName,
-          header: mergeUserIntoHeader(cleanHeader, userData),
+          header: { ...mergeUserIntoHeader(cleanHeader, userData), location: userData?.location ?? null },
           data: prunedRows,
         },
       };
@@ -296,6 +275,49 @@ export default function hblUpload() {
       setBusy(false);
     }
   };
+  const handleChangeEventFunctions = {
+    handleChangeOnVessel: async (name, value) => {
+      const reqId = ++vesselChangeReq;
+
+      const vesselId = value?.Id || null;
+
+      // ✅ Always clear voyage immediately when vessel changes
+      setFormData((prevData) => ({
+        ...prevData,
+        // if your CustomInput already sets vessel field itself, you can remove this line
+        // but keeping it is safe
+        [name]: vesselId ? value : null,
+        podVoyageId: null, // <-- change this field name if your voyage field is different
+      }));
+
+      if (!vesselId) return;
+
+      try {
+        const obj = {
+          columns: "t.id as Id, t.voyageNo as Name",
+          tableName: "tblVoyage t",
+          whereCondition: `t.vesselId = ${vesselId} and t.status = 1`,
+          orderBy: "t.voyageNo",
+        };
+
+        const { data, success } = await getDataWithCondition(obj);
+
+        // ✅ ignore old response if vessel changed again quickly
+        if (reqId !== vesselChangeReq) return;
+
+        // ✅ if only 1 voyage, auto select it
+        if (success && Array.isArray(data) && data.length === 1) {
+          setFormData((prevData) => ({
+            ...prevData,
+            podVoyageId: data[0], // <-- change this field name if needed
+          }));
+        }
+      } catch (e) {
+        console.error("handleChangeOnVessel error:", e);
+      }
+    },
+  };
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -315,6 +337,7 @@ export default function hblUpload() {
                 formData={formData}
                 setFormData={setFormData}
                 disabled={busy}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>

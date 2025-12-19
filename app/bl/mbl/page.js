@@ -74,7 +74,11 @@ export default function Home() {
 
     const format = formatFormData(
       "tblBl",
-      { ...formData, mblHblFlag: "MBL" },
+      {
+        ...formData,
+        mblHblFlag: "MBL",
+        locationId: userData?.location || null,
+      },
       mode.formId,
       "blId"
     );
@@ -203,20 +207,20 @@ export default function Home() {
       },
       ...(!mode?.formId
         ? {
-            // set only if empty, for safety
-            ...(!prev?.shippingLineId && {
-              shippingLineId: {
-                Id: userData.companyId,
-                Name: userData.companyName,
-              },
-            }),
-            ...(!prev?.mloId && {
-              mloId: {
-                Id: userData.companyId,
-                Name: userData.companyName,
-              },
-            }),
-          }
+          // set only if empty, for safety
+          ...(!prev?.shippingLineId && {
+            shippingLineId: {
+              Id: userData.companyId,
+              Name: userData.companyName,
+            },
+          }),
+          ...(!prev?.mloId && {
+            mloId: {
+              Id: userData.companyId,
+              Name: userData.companyName,
+            },
+          }),
+        }
         : {}),
     }));
     if (mode?.formId) return;
@@ -299,60 +303,6 @@ export default function Home() {
     getMblData();
   }, []);
 
-  useEffect(() => {
-    const vesselId = formData?.podVesselId?.Id;
-
-    // ðŸ”¹ If vessel is cleared â†’ also clear voyage and exit
-    if (!vesselId) {
-      if (formData?.podVoyageId) {
-        setFormData((prev) => ({
-          ...prev,
-          podVoyageId: null,
-        }));
-      }
-      return;
-    }
-
-    if (formData?.podVoyageId) return;
-
-    let cancelled = false;
-
-    async function autoSetVoyageIfSingle() {
-      try {
-        const obj = {
-          columns: "t.id as Id, t.voyageNo as Name",
-          tableName: "tblVoyage t",
-          whereCondition: `t.vesselId = ${vesselId} and t.status = 1`,
-          orderBy: "t.voyageNo",
-        };
-        const { data, success } = await getDataWithCondition(obj);
-        if (
-          !cancelled &&
-          success &&
-          Array.isArray(data) &&
-          data.length === 1 // âœ… only when exactly ONE row
-        ) {
-          setFormData((prev) =>
-            prev?.podVoyageId
-              ? prev
-              : {
-                  ...prev,
-                  podVoyageId: data[0],
-                }
-          );
-        }
-      } catch (e) {
-        console.error("autoSetVoyageIfSingle error:", e);
-      }
-    }
-
-    autoSetVoyageIfSingle();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [formData?.podVesselId?.Id]);
-
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
@@ -402,6 +352,7 @@ export default function Home() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
             <FormHeading text="CSN">

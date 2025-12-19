@@ -142,8 +142,6 @@ export function BLHistoryModal({ historyModal, setHistoryModal }) {
   const [modalData, setModalData] = useState([]);
   const userData = getUserByCookies();
 
-  console.log("historyModal", historyModal);
-
   useEffect(() => {
     async function getModalData() {
       const tableObj = {
@@ -158,7 +156,6 @@ export function BLHistoryModal({ historyModal, setHistoryModal }) {
         joins: `left join tblMasterData m on b.cargoTypeId = m.id  left join tblVessel v on b.podVesselId = v.id left join tblMasterData m1 on m1.id = b.hblRequestStatus  left join tblUser u on u.id = ${userData.userId} left join tblUser usr1 on usr1.companyId = u.companyId join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1 and b.createdBy = usr1.id and b1.mblNo = '${historyModal.value}'`,
       };
       const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-      console.log("data", data);
       // setModalData(data);
     }
     getModalData();

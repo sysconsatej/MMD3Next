@@ -22,7 +22,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { theme } from "@/styles";
 import { getDataWithCondition, insertUpdateForm } from "@/apis";
 import { payment } from "@/apis/payment";
-import { formatFormData } from "@/utils";
+import { formatFormData, getUserByCookies } from "@/utils";
 import { CustomInput } from "@/components/customInput";
 import CustomButton from "@/components/button/button";
 import FormHeading from "@/components/formHeading/formHeading";
@@ -40,6 +40,7 @@ export default function PaymentPage() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("new");
   const [statusList, setStatusList] = useState([]);
+  const userData = getUserByCookies();
 
   // ✅ selected invoices for payment
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState([]);
@@ -303,10 +304,18 @@ export default function PaymentPage() {
         ...formData,
         blId: Number(blId),
         invoiceIds,
-        paymentStatusId, // 🔥 status = Payment Confirmation Requested
+        paymentStatusId,
+        companyId: userData?.companyId,
+        companyBranchId: userData?.companyBranchId, // 🔥 status = Payment Confirmation Requested
+        locationId: userData?.location || null,
       };
 
-      const payload = formatFormData("tblInvoicePayment",  normalized, null, 'invoicePaymentId');
+      const payload = formatFormData(
+        "tblInvoicePayment",
+        normalized,
+        null,
+        "invoicePaymentId"
+      );
 
       const { success, message, error } = await insertUpdateForm(payload);
 

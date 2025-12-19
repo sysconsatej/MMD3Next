@@ -8,6 +8,7 @@ const fieldData = {
       idColumn: "id",
       displayColumn: "t.name",
       searchColumn: "t.name",
+      changeFun: "handleChangeOnVessel",
       orderBy: "t.name",
       isEdit: true,
     },

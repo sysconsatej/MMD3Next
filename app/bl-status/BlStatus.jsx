@@ -25,7 +25,7 @@ const processArr = [
     bgColor: "#f47b20",
     status: "off",
     keyName: "invoiceRequest",
-    link :  "/invoice/invoiceRequest"
+    link: "/invoice/invoiceRequest",
   },
   {
     id: 2,
@@ -33,7 +33,7 @@ const processArr = [
     bgColor: "#d47add",
     status: "off",
     keyName: "invoice",
-    // link :  "/invoice/invoiceRelease",
+    link: "/invoice/invoiceRelease",
   },
   {
     id: 3,
@@ -41,7 +41,7 @@ const processArr = [
     bgColor: "#33c6f4",
     status: "off",
     keyName: "invoicePayment",
-    // link :  "",
+    link: "/invoice/invoiceRelease",
   },
   {
     id: 4,
@@ -49,7 +49,16 @@ const processArr = [
     bgColor: "#a56cc1",
     status: "off",
     keyName: "do",
-    // link :  "",
+    link: "#",
+  },
+
+  {
+    id: 5,
+    cardType: "Receipts",
+    bgColor: "#084561ff",
+    status: "off",
+    keyName: "receipt",
+    link: "/invoice/blReceipt",
   },
 ];
 
@@ -62,19 +71,21 @@ export const BlStatus = () => {
   };
 
   return (
-    <Container>
-      <Box className="flex gap-4 mt-3">
-        <CustomInput
-          fields={inputField.fieldsData}
-          formData={formData}
-          setFormData={setFormData}
-        />
-        <CustomButton onClick={getBlWorkFlowData} text={"Search"} />
-      </Box>
-      <Box className="mt-5 px-5">
-        <HorizontalLinearStepper steps={processArr} />
-      </Box>
-      <ToastContainer />
-    </Container>
+    <>
+      <Container>
+        <Box className="flex gap-4 mt-3">
+          <CustomInput
+            fields={inputField.fieldsData}
+            formData={formData}
+            setFormData={setFormData}
+          />
+          <CustomButton onClick={getBlWorkFlowData} text={"Search"} />
+        </Box>
+        <Box className="mt-5 px-5">
+          <HorizontalLinearStepper steps={processArr} />
+        </Box>
+        <ToastContainer />
+      </Container>
+    </>
   );
 };

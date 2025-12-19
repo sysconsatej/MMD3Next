@@ -26,7 +26,7 @@
     "js-cookie": "^3.0.5",
     "jspdf": "^3.0.3",
     "jspdf-autotable": "^5.0.2",
-    "next": "15.3.4",
+    "next": "15.3.8",
     "pdf-parse": "^2.4.5",
     "pdfjs-dist": "^3.11.174",
     "pdfreader": "^3.0.8",

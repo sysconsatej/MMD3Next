@@ -25,8 +25,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { navItems } from "./index";
 import { navTheme } from "@/styles";
-import { useModal, auth } from "@/store";
-import { useInitUser } from "@/utils/userInit";
+import { useModal, auth, formStore } from "@/store";
+import { getUserByCookies, useInitUser } from "@/utils/userInit";
+import { CustomInput } from "../customInput";
+import { locationFields } from "./navbarUtil";
+import Cookies from "js-cookie";
+import { getDataWithCondition } from "@/apis";
+import { toast } from "react-toastify";
 
 const norm = (s) => (s ? s.split("?")[0].replace(/\/$/, "") : "");
 const scope = (path, depth) => norm(path).split("/").slice(0, depth).join("/");
@@ -113,17 +118,19 @@ export default function Navbar() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [thirdMenuAnchor, setThirdMenuAnchor] = useState(null);
   const [openThirdMenu, setOpenThirdMenu] = useState(null);
-  
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeLink, setActiveLink] = useState("Home");
   const [activeSubLink, setActiveSubLink] = useState("");
   const [activeParentSubLink, setActiveParentSubLink] = useState("");
   const [openSubmenus, setOpenSubmenus] = useState({});
-  
+
   const isMobile = useMediaQuery("(max-width:900px)");
   const pathname = usePathname();
   const router = useRouter();
-  
+  const [formData, setFormData] = useState({});
+  const { mode } = formStore();
+
   // aakash yadav code
   useInitUser();
   const { userData } = auth();
@@ -151,6 +158,69 @@ export default function Navbar() {
 
   // if (pathname === "/login") return <></>;
 
+  const handleChange = {
+    getLocation: (name, value) => {
+      const user = getUserByCookies();
+      if (!user || typeof user !== "object") return;
+
+      if (!value) {
+        setFormData((prev) => ({ ...prev, location: formData?.location }));
+        toast.error("You can not set empty location!");
+        return;
+      }
+
+      const updateUser = {
+        ...user,
+        location: value?.Id ?? null,
+      };
+
+      Cookies.set("user", JSON.stringify(updateUser), {
+        expires: 1,
+        path: "/",
+      });
+      window.location.reload();
+    },
+  };
+
+  useEffect(() => {
+    const fetchDataAndSetValue = async () => {
+      try {
+        const user = getUserByCookies();
+        if (!user || typeof user !== "object") return;
+        const locationIds = user.location ?? user.locations;
+        if (!locationIds) return;
+
+        const payLoad = {
+          columns: "l.id Id, l.name Name",
+          tableName: "tblLocation l",
+          whereCondition: `l.id in (${locationIds}) and l.status = 1`,
+        };
+        const response = await getDataWithCondition(payLoad);
+        const data = response.data;
+        if (!Array.isArray(data) || !data[0]) return;
+        setFormData((prevData) => ({
+          ...prevData,
+          location: { Id: data[0].Id, Name: data[0].Name },
+        }));
+        if (!user?.location) {
+          const updateUser = {
+            ...user,
+            location: data[0].Id ?? null,
+          };
+
+          Cookies.set("user", JSON.stringify(updateUser), {
+            expires: 1,
+            path: "/",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchDataAndSetValue();
+  }, []);
+
   return (
     <ThemeProvider theme={navTheme}>
       <CssBaseline />
@@ -169,6 +239,7 @@ export default function Navbar() {
           {!isMobile && (
             <Box className="nav-grid">
               <Box className="nav-links">
+                {/* Location Input */}
                 {/* {navItems.map((item) =>
                   item.submenu ? (
                     <Box
@@ -314,22 +385,33 @@ export default function Navbar() {
                 )} */}
               </Box>
 
-              <Box
-                className="nav-account cursor-pointer "
-                role="button"
-                tabIndex={1}
-                onClick={() => setModalOpen("logout")}
-              >
-                <Avatar>
-                  {String(userData?.data?.userName).charAt(0).toUpperCase()}
-                </Avatar>
-                <Box>
-                  <div className="account-name">
-                    {userData?.data?.companyName}
-                  </div>
-                  <div className="account-role">
-                    {userData.data?.roleName || ""}
-                  </div>
+              <Box className="flex align-bottom justify-end">
+                <Box className="w-[150px] mt-auto">
+                  <CustomInput
+                    fields={locationFields.location}
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleChangeEventFunctions={handleChange}
+                    fieldsMode={mode?.formId ? "view" : "edit"}
+                  />
+                </Box>
+                <Box
+                  className="nav-account cursor-pointer "
+                  role="button"
+                  tabIndex={1}
+                  onClick={() => setModalOpen("logout")}
+                >
+                  <Avatar>
+                    {String(userData?.data?.userName).charAt(0).toUpperCase()}
+                  </Avatar>
+                  <Box>
+                    <div className="account-name">
+                      {userData?.data?.companyName}
+                    </div>
+                    <div className="account-role">
+                      {userData.data?.roleName || ""}
+                    </div>
+                  </Box>
                 </Box>
               </Box>
             </Box>

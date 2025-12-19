@@ -1,6 +1,23 @@
 // components/sidebar/menuData.js
 // Parent items can specify an `icon` string: "home" | "cube" | "file" | "inbox" | "chart"
+
+import { getUserByCookies } from "@/utils";
+
 // Only parent level renders icons; children render text-only.
+const userData = getUserByCookies();
+
+const links =  ()  =>  {
+  switch (userData?.roleCode) {
+    case  "shipping" :
+      return  "/invoice/doRequest/liner";
+    case  "customer" :
+      return  "/invoice/doRequest/list";
+    default :
+      return  "/invoice/doRequest/list";
+  }
+}
+
+
 export const navItems = [
   { name: "Home", href: "/home", icon: "home", isShow: true },
   {
@@ -101,6 +118,11 @@ export const navItems = [
         href: "/bl/mbl/upload",
         isShow: false,
       },
+      {
+        name: "CFS Request",
+        href: "/bl/cfs-request/list",
+        isShow: false,
+      },
     ],
   },
 
@@ -138,7 +160,13 @@ export const navItems = [
       },
       {
         name: "Do Request",
-        href: "/invoice/doRequest/list",
+        href: links(),
+        isShow: false,
+      },
+
+      {
+        name: "Receipt",
+        href: "/invoice/blReceipt/list",
         isShow: false,
       },
     ],
@@ -324,7 +352,7 @@ export const navItems = [
         name: "Released DO Tat",
         href: "/reports/customAndPort/releaseddotat",
         isShow: true,
-      }
+      },
     ],
   },
 ];

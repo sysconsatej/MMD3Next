@@ -656,7 +656,7 @@ export const fieldData = {
       name: "sizeId",
       type: "dropdown",
       tableName: "tblMasterData m",
-      displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
+      displayColumn: "ISNULL(m.name,'')",
       where: "m.masterListName = 'tblSize'",
       orderBy: "m.name",
       foreignTable: "code-name,tblMasterData",
@@ -690,7 +690,7 @@ export const fieldData = {
       name: "containerStatusId",
       type: "dropdown",
       tableName: "tblMasterData m",
-      displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
+      displayColumn: "ISNULL(m.name,'')",
       where: "m.masterListName = 'tblContainerStatus'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
@@ -884,6 +884,8 @@ export const mapping = {
   notifyParty1State: "consigneeState",
   notifyParty1City: "consigneeCity",
   notifyPartyAddress: "consigneeAddress",
+  notifyParty1PinCode: "consigneePinCode",
+
 };
 
 export const advanceSearchFields = {

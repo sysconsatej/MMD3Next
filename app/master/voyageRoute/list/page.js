@@ -25,22 +25,11 @@ import { useRouter } from "next/navigation";
 import { VoyageRoute } from "../voyageRouteData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(
-  portOfCall,
-  vesselNo,
-  voyageNo,
-  exportLocking,
-  importLocking,
-  igmNo,
-  terminal,
-  id
-) {
+function createData(portOfCall, vesselNo, voyageNo, igmNo, terminal, id) {
   return {
     portOfCall,
     vesselNo,
     voyageNo,
-    exportLocking,
-    importLocking,
     igmNo,
     terminal,
     id,
@@ -99,8 +88,6 @@ export default function VoyageRouteList() {
           item["portOfCall"],
           item["vesselNo"],
           item["voyageNo"],
-          item["exportLocking"],
-          item["importLocking"],
           item["igmNo"],
           item["terminal"],
           item["id"]
@@ -173,8 +160,6 @@ export default function VoyageRouteList() {
                 <TableCell>Vessel Name</TableCell>
                 <TableCell>Voyage</TableCell>
                 <TableCell>IGM No</TableCell>
-                <TableCell>Export Locking</TableCell>
-                <TableCell>Import Locking</TableCell>
                 <TableCell>Terminal</TableCell>
               </TableRow>
             </TableHead>
@@ -186,8 +171,6 @@ export default function VoyageRouteList() {
                     <TableCell>{row.vesselNo}</TableCell>
                     <TableCell>{row.voyageNo}</TableCell>
                     <TableCell>{row.igmNo}</TableCell>
-                    <TableCell>{row.exportLocking}</TableCell>
-                    <TableCell>{row.importLocking}</TableCell>
                     <TableCell>{row.terminal}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons

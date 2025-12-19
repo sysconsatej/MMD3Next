@@ -30,58 +30,81 @@ export default function Package() {
       toast.error(error || message);
     }
   };
-  const handleBlurEventFunctions = {
-    duplicateHandler: async (event) => {
-      const { name, value } = event.target;
-      const SPECIAL_RE = /[@#$%&!`~*]/;
-      const toSql = (s) => String(s).replace(/'/g, "''");
-      const norm = (n, v) => {
-        const t = String(v ?? "").trim();
-        return n === "code" ? t.toUpperCase() : t;
-      };
-      const setField = (val) =>
-        setFormData((prev) => ({ ...prev, [name]: val }));
-      const setErr = (flag) =>
-        setErrorState?.((prev) => ({ ...prev, [name]: flag }));
-      const normalized = norm(name, value);
-      setField(normalized);
-      if (name === "code") {
-        if (!/^[A-Z]{3}$/.test(normalized)) {
-          setField("");
-          setErr(true);
-          toast.error("Code must be exactly two letters (e.g., LFT).");
-          return false;
-        }
-      } else if (SPECIAL_RE.test(normalized)) {
-        setField("");
-        setErr(true);
-        toast.error("Special characters are not allowed.");
-        return false;
-      }
-      const literal = toSql(normalized.toUpperCase());
-      const whereCondition = `UPPER(${name}) = '${literal}' and masterListName = 'tblPackage'  and status = 1`;
+ const handleBlurEventFunctions = {
+  duplicateHandler: async (event) => {
+    const { name, value } = event.target;
+    const SPECIAL_RE = /[@#$%&!`~*]/;
+    const norm = (n, v) => {
+      const t = String(v ?? "").trim();
+      return n === "code" ? t.toUpperCase() : t;
+    };
 
-      const resp = await getDataWithCondition({
-        columns: name,
-        tableName: "tblMasterData",
-        whereCondition,
-      });
+    const setField = (val) =>
+      setFormData((prev) => ({ ...prev, [name]: val }));
+    const setErr = (flag) =>
+      setErrorState?.((prev) => ({ ...prev, [name]: flag }));
 
-      const isDuplicate =
-        resp?.success === true ||
-        (Array.isArray(resp?.data) && resp.data.length > 0);
+    const normalized = norm(name, value);
 
-      if (isDuplicate) {
-        setField("");
-        setErr(true);
-        toast.error(`Duplicate ${name}!`);
-        return false;
-      }
-
+    // if empty → nothing to check
+    if (!normalized) {
+      setField("");
       setErr(false);
       return true;
-    },
-  };
+    }
+
+    // validations (same as before)
+    if (name === "code") {
+      if (!/^[A-Z]{3}$/.test(normalized)) {
+        setField("");
+        setErr(true);
+        toast.error("Code must be exactly two letters (e.g., LFT).");
+        return false;
+      }
+    } else if (SPECIAL_RE.test(normalized)) {
+      setField("");
+      setErr(true);
+      toast.error("Special characters are not allowed.");
+      return false;
+    }
+
+    const literal = normalized.replace(/'/g, "''");
+
+    let whereCondition = `
+      UPPER(${name}) = '${literal.toUpperCase()}'
+      AND masterListName = 'tblPackage'
+      AND status = 1
+    `;
+
+    // ✅ in edit mode, ignore the current record
+    if (mode?.formId) {
+      whereCondition += ` AND id <> ${mode.formId}`;
+    }
+
+    const resp = await getDataWithCondition({
+      columns: "id",
+      tableName: "tblMasterData",
+      whereCondition,
+    });
+
+    const isDuplicate =
+      resp?.success === true ||
+      (Array.isArray(resp?.data) && resp.data.length > 0);
+
+    if (isDuplicate) {
+      setField("");
+      setErr(true);
+      toast.error(`Duplicate ${name}!`);
+      return false;
+    }
+
+    // ✅ no duplicate → keep normalized value
+    setField(normalized);
+    setErr(false);
+    return true;
+  },
+};
+
 
   useEffect(() => {
     async function fetchFormHandler() {

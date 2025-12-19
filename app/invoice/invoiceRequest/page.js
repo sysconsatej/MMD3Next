@@ -20,7 +20,7 @@ import {
   formatFormData,
   getUserByCookies,
 } from "@/utils";
-import { formStore } from "@/store";
+import { formStore, useBackLinksStore, useBlWorkFlowData } from "@/store";
 import {
   Dialog,
   DialogTitle,
@@ -95,6 +95,8 @@ export default function InvoiceRequest() {
 
   const userData = getUserByCookies();
   const isLiner = userData?.roleCode === "shipping"; // liner vs customer
+  const { link } = useBackLinksStore();
+  const  { setClearData  } = useBlWorkFlowData();
 
   /* ------------------------ FREE DAYS ------------------------ */
   const normalizeFD = (v) => {
@@ -183,6 +185,7 @@ export default function InvoiceRequest() {
           formData?.isHighSealSale === true || formData?.isHighSealSale === "Y"
             ? "Y"
             : "N",
+        locationId: userData?.location || null,    
       };
 
       const payload = formatFormData(
@@ -460,6 +463,8 @@ export default function InvoiceRequest() {
     const rowsPayload = data.map((row) => ({
       id: row.id,
       invoiceRequestStatusId: requestStatusId,
+      updatedBy: userData.userId,
+      updatedDate: new Date(),
     }));
     const res = await updateStatusRows({
       tableName: "tblInvoiceRequest",
@@ -510,6 +515,8 @@ export default function InvoiceRequest() {
           id: mode.formId,
           invoiceRequestStatusId: rejectedStatusId,
           rejectRemarks: rejectState.value,
+          updatedBy: userData.userId,
+          updatedDate: new Date(),
         },
       ],
     };
@@ -530,6 +537,11 @@ export default function InvoiceRequest() {
   const showRejectBtn = isLiner;
   const showReleaseBtn = isLiner;
 
+  const handleClearData = () => {
+    setMode({ mode: null, formId: null });
+    setClearData([]);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
@@ -540,16 +552,16 @@ export default function InvoiceRequest() {
             {userData?.roleCode === "customer" && (
               <CustomButton
                 text="Back"
-                href="/invoice/invoiceRequest/list"
-                onClick={() => setMode({ mode: null, formId: null })}
+                href={link ? link?.blStatus : "/invoice/invoiceRequest/list"}
+                onClick={handleClearData}
               />
             )}
 
             {userData?.roleCode === "shipping" && (
               <CustomButton
                 text="Back"
-                href="/invoice/invoiceRelease/list"
-                onClick={() => setMode({ mode: null, formId: null })}
+                href={link ? link?.blStatus : "/invoice/invoiceRelease/list"}
+                onClick={handleClearData}
               />
             )}
           </Box>
@@ -625,14 +637,13 @@ export default function InvoiceRequest() {
               )}
 
             {/* Request */}
-            {userData?.roleCode === "customer" &&
-              mode.status !=="Confirm" &&(
-                  <CustomButton
-                    text="Request"
-                    onClick={requestHandler}
-                    disabled={!canRequest || loading}
-                  />
-                )}
+            {userData?.roleCode === "customer" && mode.status !== "Confirm" && (
+              <CustomButton
+                text="Request"
+                onClick={requestHandler}
+                disabled={!canRequest || loading}
+              />
+            )}
 
             {/* Liner Release */}
             {/* {showReleaseBtn && (
