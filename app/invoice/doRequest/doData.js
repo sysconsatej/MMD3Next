@@ -80,17 +80,17 @@ export const fieldData = {
       type: "checkbox",
       isEdit: true,
     },
-    {
-      label: "Advance BL Submit",
-      name: "paymentNotViaOdeX",
-      type: "checkbox",
-      isEdit: true,
-    },
-    {
-      label: "Runner Boy",
-      name: "runnerBoy",
-      isEdit: true,
-    },
+    // {
+    //   label: "Advance BL Submit",
+    //   name: "paymentNotViaOdeX",
+    //   type: "checkbox",
+    //   isEdit: true,
+    // },
+    // {
+    //   label: "Runner Boy",
+    //   name: "runnerBoy",
+    //   isEdit: true,
+    // },
     {
       label: "Remarks",
       name: "remarks",

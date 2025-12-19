@@ -16,6 +16,7 @@ import {
 } from "@/utils";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 import { formStore } from "@/store";
+import FormHeading from "@/components/formHeading/formHeading";
 
 export default function VoyageRoute() {
   const { mode, setMode } = formStore();
@@ -93,6 +94,15 @@ export default function VoyageRoute() {
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
                 handleChangeEventFunctions={handleChangeEventFunctions}
+              />
+            </Box>
+            <Box className="grid grid-cols-1 gap-2 p-2 border-b border-b-solid border-b-black">
+              <FormHeading text="Iternary" />
+              <CustomInput
+                fields={jsonData.iternaryFields}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
               />
             </Box>
           </Box>

@@ -66,32 +66,10 @@ export const fieldData = {
     },
     {
       label: "Place of Delivery",
-      name: "",
-      type: "text",
-      isEdit: true,
-    },
-
-    //
-    {
-      label: "Delivery Type",
-      name: "",
+      name: "fpdId",
       type: "dropdown",
+      tableName: "tblPort p",
       isEdit: true,
-      required: true,
-    },
-    {
-      label: "CFS Type",
-      name: "",
-      type: "dropdown",
-      isEdit: true,
-      required: true,
-    },
-    {
-      label: "CFS Name",
-      name: "",
-      type: "text",
-      isEdit: true,
-      required: true,
     },
     {
       label: "Consignee Name",
@@ -100,15 +78,35 @@ export const fieldData = {
       isEdit: true,
     },
     {
-      label: "Nominated CB",
+      label: "CFS Type",
+      name: "cfsTypeId",
+      type: "dropdown",
+      isEdit: true,
+      required: true,
+    },
+    {
+      label: "CFS",
+      name: "",
+      type: "dropdown",
+      isEdit: true,
+    },
+    {
+      label: "DPD",
       name: "",
       type: "dropdown",
       isEdit: true,
     },
 
     {
-      label: "Status",
+      label: "Nominated CB",
       name: "",
+      type: "text",
+      isEdit: true,
+    },
+
+    {
+      label: "Status",
+      name: "cfsRequestStatusId",
       type: "dropdown",
       isEdit: false,
     },

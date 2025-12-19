@@ -19,7 +19,8 @@ export default function Home() {
   const [jsonData] = useState(fieldData);
   const { mode } = formStore();
 
-  const GRID_NAME = "tblInvoiceRequestContainer";
+  const GRID_NAME = "tblInvoicePayment";
+  const GRID_ATTACHMENT = "tblAttachment";
 
   const doRequestFieldsToRender = useMemo(() => {
     const fields = jsonData?.doRequestFields || [];
@@ -157,6 +158,7 @@ export default function Home() {
         <section className="py-2 px-4">
           <Box className="flex justify-between items-center mb-2">
             <h1 className="text-left text-base m-0">Do Request</h1>
+            <CustomButton text="Back" href="/invoice/doRequest/list" />
           </Box>
 
           <Box>
@@ -191,7 +193,7 @@ export default function Home() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
-                gridName={GRID_NAME}
+                gridName={GRID_ATTACHMENT}
                 buttons={cfsGridButtons}
               />
             </Box>
