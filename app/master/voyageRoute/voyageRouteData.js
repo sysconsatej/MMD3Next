@@ -403,7 +403,7 @@ const fieldData = {
     },
     {
       label: "Port (2)",
-      name: "nextToNextPort",
+      name: "nextToNextPortId",
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
@@ -416,7 +416,7 @@ const fieldData = {
     },
     {
       label: "Port (3)",
-      name: "lastNextPort",
+      name: "lastNextPortId",
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",

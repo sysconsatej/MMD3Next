@@ -4,7 +4,7 @@ import CloseIcon from "@mui/icons-material/Close";
 export const fieldData = {
   fields: [
     {
-      label: "Location (POD)",
+      label: "Location",
       name: "locationId",
       type: "dropdown",
       isEdit: true,
@@ -13,6 +13,7 @@ export const fieldData = {
       displayColumn: "p.name",
       orderBy: "p.name",
       where: "p.status = 1",
+      foreignTable: "name,tblLocation",
     },
     {
       label: "Liner",
@@ -81,7 +82,7 @@ export const fieldData = {
     },
     {
       label: "Consignee Name",
-      name: "",
+      name: "consigneeText",
       type: "text",
       isEdit: true,
     },
@@ -91,19 +92,37 @@ export const fieldData = {
       type: "dropdown",
       isEdit: true,
       required: true,
+      displayColumn: "m.name",
+      tableName: "tblMasterData m",
+      where: "masterListName  = 'tblCfsType'",
+      orderBy: "m.name",
+      foreignTable: "name,tblMasterData",
+      changeFun: "setAttachmentType",
     },
     {
       label: "CFS",
-      name: "",
+      name: "nominatedAreaId",
       type: "dropdown",
+      tableName: "tblPort p",
+      displayColumn: "p.name",
+      joins:
+        "join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS'",
       isEdit: true,
+      foreignTable: "name,tblMasterData",
     },
     {
       label: "DPD",
-      name: "",
+      name: "dpdId",
       type: "dropdown",
+      tableName: "tblPort p",
+      displayColumn: "p.name",
+      joins:
+        "join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'DPD'",
       isEdit: true,
+      foreignTable: "name,tblMasterData",
     },
+
+    // will have to add   in db
 
     {
       label: "Nominated CB",
@@ -117,6 +136,12 @@ export const fieldData = {
       name: "cfsRequestStatusId",
       type: "dropdown",
       isEdit: false,
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where: "masterListName = 'tblCfsStatusType'",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+      orderBy: "m.name",
     },
   ],
 
@@ -130,7 +155,7 @@ export const fieldData = {
       displayColumn: "m.name",
       searchColumn: "m.name",
       orderBy: "m.name",
-      where: "m.masterListName = 'tblBlTypeAttachment'",
+      where: "m.masterListName = 'tblCfsAttachmentType'",
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
@@ -139,7 +164,6 @@ export const fieldData = {
       name: "path",
       type: "fileupload",
       isEdit: true,
-      required: true,
     },
   ],
 };
