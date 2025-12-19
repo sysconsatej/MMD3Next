@@ -45,7 +45,7 @@ function createData(
   arrivalVessel,
   arrivalVoyage,
   line,
-  id
+  id,
 ) {
   return {
     mblNo,
@@ -198,9 +198,31 @@ export default function BLList() {
           <Typography variant="body1" className="text-left flex items-center">
             Do Request List
           </Typography>
-          <CustomButton text ="ADD" href="/invoice/doRequest" />
         </Box>
 
+        {/* 🔥 TOOLBAR ADDED HERE */}
+        <DoToolbarActions
+          selectedIds={selectedIds}
+          onReleaseDO={handleReleaseDO}
+          onEditBL={handleEditBL}
+          onViewBL={handleViewBL}
+          onConfirm={handleConfirm}
+          onNotify={handleNotify}
+          onGenerateDO={handleGenerateDO}
+          onPCS={handlePCS}
+          onReject={handleReject}
+          onSecuritySlip={handleSecuritySlip}
+        />
+        <DoStatusToolbar
+          values={statusValues}
+          onAdvanceBL={(v) => updateStatus("advanceBL", v)}
+          onNotificationHistory={(v) => updateStatus("notificationHistory", v)}
+          onRemarksHold={(v) => updateStatus("remarksHold", v)}
+          onReRequest={(v) => updateStatus("reRequest", v)}
+          onSeawayBL={(v) => updateStatus("seawayBL", v)}
+          onAttachments={(v) => updateStatus("attachments", v)}
+          onAutoDoRequest={(v) => updateStatus("autoDoRequest", v)}
+        />
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small">
             <TableHead>
