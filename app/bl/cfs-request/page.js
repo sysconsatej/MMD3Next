@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import { cfsData, cfsGridButtons, fieldData } from "./fieldsData";
 import { CustomInput } from "@/components/customInput";
@@ -16,7 +16,7 @@ import {
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
-import { handleChange } from "./utils";
+import { handleBlur } from "./utils";
 import { getUserByCookies } from "@/utils";
 import { useSetDefault } from "./hooks";
 
@@ -70,9 +70,9 @@ export default function Company() {
 
     fetchFormHandler();
   }, [mode.formId]);
-  const handleChangeEventFunctions = handleChange({ setFormData, formData });
+  const handleChangeEventFunctions = {};
 
-  const handleBlurEventFunctions = {};
+  const handleBlurEventFunctions = handleBlur({ setFormData, formData });
 
   return (
     <ThemeProvider theme={theme}>
