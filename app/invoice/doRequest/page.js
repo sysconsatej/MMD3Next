@@ -161,7 +161,6 @@ export default function Home() {
     getDoStatus();
   }, []);
 
-  console.log("doStatus", doStatus);
 
   return (
     <ThemeProvider theme={theme}>
