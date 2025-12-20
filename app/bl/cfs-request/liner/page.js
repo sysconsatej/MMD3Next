@@ -176,11 +176,13 @@ export default function SearchRequestCfsDpdIcd() {
           <Table
             size="small"
             className="
-              w-full table-fixed
-              [&_th]:px-1 [&_td]:px-1
-              [&_th]:py-1 [&_td]:py-1
-              [&_th]:text-[11px] [&_td]:text-[11px]
-            "
+            w-full table-fixed
+            [&_th]:whitespace-normal [&_td]:whitespace-normal
+            [&_th]:break-words      [&_td]:break-words
+            [&_th]:px-1 [&_td]:px-1
+            [&_th]:py-1 [&_td]:py-1
+            [&_th]:text-[11px] [&_td]:text-[11px]
+        "
           >
             <TableHead>
               <TableRow>
@@ -227,7 +229,9 @@ export default function SearchRequestCfsDpdIcd() {
                     <TableCell>{row.CompanyName || "-"}</TableCell>
                     <TableCell>{row.mblNo || "-"}</TableCell>
                     <TableCell>
-                      {(row.vesselName || "-") + " - " + (row.voyageName || "-")}
+                      {(row.vesselName || "-") +
+                        " - " +
+                        (row.voyageName || "-")}
                     </TableCell>
                     <TableCell>{row.POD || "-"}</TableCell>
                     <TableCell>{row.PlaceOfDeleverey || "-"}</TableCell>
