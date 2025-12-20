@@ -375,7 +375,7 @@ export default function InvoiceUpload() {
             blId,
             invoiceRequestId: currentInvoiceReqId,
             companyId: userData?.companyId,
-            companyBranchId: userData?.companyBranchId,
+            companyBranchId: userData?.branchId,
             tblInvoiceRequestContainer: row.tblInvoiceRequestContainer || [],
             tblAttachment: row.tblAttachment || [],
             locationId: userData?.location || null,
