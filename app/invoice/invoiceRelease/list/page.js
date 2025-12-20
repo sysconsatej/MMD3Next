@@ -133,7 +133,7 @@ export default function InvoiceReleaseList() {
             i.isHighSealSale AS highSealSale,
             i.remarks,
             i.createdDate AS date,
-            u.name AS requester,
+            u3.name AS requester,
             st.name AS status,
             u2.name as assignTo
           `,
@@ -146,7 +146,8 @@ export default function InvoiceReleaseList() {
           LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
           LEFT JOIN tblUser u ON u.id = ${userData.userId}
           left join tblUser u2 on u2.id = i.assignToId
-          LEFT JOIN tblCompany c ON c.id = u.companyId
+          left join tblUser u3 on u3.id = i.createdBy
+           LEFT JOIN tblCompany c ON c.id = u.companyId
           JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId and i.invoiceRequestStatusId IS NOT NULL and i.shippingLineId = u.companyId and i.locationId = ${userData.location}
           and (i.assignToId is null or i.assignToId = ${userData.userId})
           `,
@@ -344,6 +345,7 @@ export default function InvoiceReleaseList() {
                 <TableCell>Status</TableCell>
                 <TableCell>Remarks</TableCell>
                 <TableCell>Request Date</TableCell>
+                <TableCell>Requester Name</TableCell>
                 <TableCell>Assign To</TableCell>
                 <TableCell>Attachment</TableCell>
                 <TableCell>History</TableCell>
@@ -382,6 +384,7 @@ export default function InvoiceReleaseList() {
                     </TableCell>
                     <TableCell>{row.remarks}</TableCell>
                     <TableCell>{row.date}</TableCell>
+                    <TableCell>{row.requester}</TableCell>
                     <TableCell>{row.assignTo}</TableCell>
                     <TableCell>
                       <AttachFileIcon

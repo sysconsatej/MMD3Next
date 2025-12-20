@@ -226,6 +226,43 @@ export const advanceSearchFields = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
+    {
+      label: "Liner",
+      name: "shippingLineId",
+      type: "dropdown",
+      tableName: "tblCompany t",
+      idColumn: "id",
+      displayColumn: "t.name",
+      searchColumn: "t.name",
+      orderBy: "t.name",
+      foreignTable: "name,tblCompany",
+      isEdit: true,
+    },
+    {
+      label: "Type",
+      name: "deliveryTypeId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      idColumn: "id",
+      displayColumn: "m.name",
+      searchColumn: "m.name",
+      orderBy: "m.name",
+      where: "m.masterListName = 'tblStuffingDestuffingType'",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+    },
+    {
+      label: "Date (From)",
+      name: "fromDate",
+      type: "date",
+      isEdit: true,
+    },
+    {
+      label: "Date (To)",
+      name: "toDate",
+      type: "date",
+      isEdit: true,
+    },
   ],
 };
 export function advanceSearchFilter(advanceSearch) {
@@ -241,6 +278,17 @@ export function advanceSearchFilter(advanceSearch) {
       `i.invoiceRequestStatusId in (${advanceSearch.statusId
         .map((item) => item.Id)
         .join(",")})`
+    );
+  }
+  if(advanceSearch.shippingLineId?.Id){
+    condition.push(`i.shippingLineId = ${advanceSearch.shippingLineId.Id}`);
+  }
+  if (advanceSearch.deliveryTypeId?.Id) {
+    condition.push(`i.deliveryTypeId = ${advanceSearch.deliveryTypeId.Id}`);
+  }
+  if (advanceSearch.fromDate && advanceSearch.toDate) {
+    condition.push(
+      `i.createdDate BETWEEN '${advanceSearch.fromDate}' AND '${advanceSearch.toDate}'`
     );
   }
 

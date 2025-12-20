@@ -1,4 +1,3 @@
-/* eslint-disable */
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
@@ -11,13 +10,27 @@ import CustomButton from "@/components/button/button";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import FormHeading from "@/components/formHeading/formHeading";
 import { formStore } from "@/store";
-import { getDataWithCondition } from "@/apis";
+import {
+  fetchForm,
+  getDataWithCondition,
+  insertUpdateForm,
+  updateStatusRows,
+} from "@/apis";
+import {
+  formatDataWithForm,
+  formatFetchForm,
+  formatFormData,
+  getUserByCookies,
+} from "@/utils";
 
 export default function Home() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData] = useState(fieldData);
-  const { mode } = formStore();
+  const { mode, setMode } = formStore();
+  const [doStatus, setDoStatus] = useState([]);
+  const [requestBtn, setRequestBtn] = useState(true);
+  const userData = getUserByCookies();
 
   const GRID_NAME = "tblInvoicePayment";
   const GRID_ATTACHMENT = "tblAttachment";
@@ -30,8 +43,20 @@ export default function Home() {
       : fields; // normal
   }, [jsonData?.doRequestFields, formData?.isFreeDays]);
 
-  const fetchInvoicePaymentByBlAndLiner = useCallback(
-    async (eventOrValue) => {
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    const format = formatFormData("tblBl", formData, mode.formId, "blId");
+    const { success, error, message } = await insertUpdateForm(format);
+    if (success) {
+      toast.success(message);
+      setRequestBtn(false);
+    } else {
+      toast.error(error || message);
+    }
+  };
+
+  const handleBlurEventFunctions = {
+    fetchInvoicePaymentByBlAndLiner: async (eventOrValue) => {
       const blNo =
         typeof eventOrValue === "string"
           ? eventOrValue.trim()
@@ -52,9 +77,10 @@ export default function Home() {
           columns: "TOP 1 id",
           tableName: "tblBl",
           whereCondition: `
-            ISNULL(hblNo, mblNo) = '${blNo.replace(/'/g, "''")}'
-            AND ISNULL(status,1) = 1
-            AND shippingLineId = ${linerId}
+            ISNULL(hblNo, mblNo) = '${blNo.replace(
+              /'/g,
+              "''"
+            )}' AND 1 = 1 AND shippingLineId = ${linerId}
           `,
         };
 
@@ -64,93 +90,77 @@ export default function Home() {
 
         if (!blSuccess || !Array.isArray(blData) || !blData.length) {
           toast.error("BL not found for selected Liner.");
-          setFormData((p) => ({
-            ...p,
-            blNo,
-            blId: null,
-            [GRID_NAME]: [],
-          }));
+          setFormData({});
           return;
         }
+        const blId = blData?.[0]?.id;
 
-        const blId = blData[0].id;
-
-        const payQuery = {
-          columns: `
-            p.id,
-            p.paymentTypeId,
-            m.name  AS paymentTypeName,
-            p.Amount,
-            p.bankName,
-            p.bankBranchName,
-            p.referenceNo,
-            p.referenceDate,
-            p.receiptNo,
-            p.receiptDate,
-            inv.invoiceNos AS invoiceNo,
-            p.paymentStatusId,
-            m1.name AS paymentStatusName
-          `,
-          tableName: `
-            tblInvoicePayment p
-            LEFT JOIN tblMasterData m  ON m.id  = p.paymentTypeId
-            LEFT JOIN tblMasterData m1 ON m1.id = p.paymentStatusId
-            OUTER APPLY (
-              SELECT STRING_AGG(i.invoiceNo, ', ') AS invoiceNos
-              FROM string_split(CAST(p.invoiceIds AS nvarchar(max)), ',') s
-              JOIN tblInvoice i
-                ON i.id = TRY_CAST(LTRIM(RTRIM(s.value)) AS int)
-               AND ISNULL(i.status,1) = 1
-            ) inv
-          `,
-          whereCondition: `
-            p.blId = ${blId}
-            AND ISNULL(p.status,1) = 1
-            AND m1.name = 'Payment Confirmed'
-          `,
-          orderBy: "p.id DESC",
-        };
-
-        const { data: payData } = await getDataWithCondition(payQuery);
-
-        const rows = (Array.isArray(payData) ? payData : []).map((r) => ({
-          ...r,
-          paymentTypeId: r.paymentTypeId
-            ? { Id: r.paymentTypeId, Name: r.paymentTypeName }
-            : null,
-          paymentStatusId: r.paymentStatusId
-            ? { Id: r.paymentStatusId, Name: r.paymentStatusName }
-            : null,
-        }));
-
-        setFormData((p) => ({
-          ...p,
-          blNo,
-          blId,
-          [GRID_NAME]: rows,
-        }));
-
-        if (!rows.length) toast.info("No payment confirmed found for this BL.");
+        setMode({ mode: null, formId: blId });
       } catch (e) {
         console.error(e);
         toast.error("Error fetching payment details.");
-        setFormData((p) => ({ ...p, [GRID_NAME]: [] }));
+        setFormData({});
       }
     },
-    [formData?.shippingLineId]
-  );
+  };
 
-  const handleBlurEventFunctions = { fetchInvoicePaymentByBlAndLiner };
+  async function requestHandler() {
+    const requestStatus = doStatus.filter(
+      (item) => item.Name === "Request for DO"
+    );
+    const rowsPayload = [
+      {
+        id: mode?.formId,
+        dostatusId: requestStatus?.[0]?.Id,
+        hblRequestRemarks: null,
+        updatedBy: userData?.userId,
+        updatedDate: new Date(),
+      },
+    ];
+    const res = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Request updated successfully!");
+  }
 
   useEffect(() => {
-    if (formData?.shippingLineId && formData?.blNo) {
-      fetchInvoicePaymentByBlAndLiner(formData.blNo);
+    async function getBl() {
+      const format = formatFetchForm(
+        jsonData,
+        "tblBl",
+        mode.formId,
+        '["tblInvoicePayment", "tblAttachment"]',
+        "blId"
+      );
+      const { result } = await fetchForm(format);
+      const getData = formatDataWithForm(result, jsonData);
+      setFormData(getData);
     }
-  }, [formData?.shippingLineId]);
+    getBl();
+  }, [mode]);
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-  };
+  useEffect(() => {
+    async function getDoStatus() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblDoStatus' and status = 1`,
+      };
+      const { data, success } = await getDataWithCondition(obj);
+      if (success) {
+        setDoStatus(data);
+      }
+    }
+    getDoStatus();
+  }, []);
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -199,9 +209,16 @@ export default function Home() {
             </Box>
           </Box>
 
-          <Box className="w-full flex mt-2">
+          <Box className="w-full flex mt-2 gap-2">
             {fieldsMode !== "view" && (
-              <CustomButton text={"Print"} type="submit" />
+              <CustomButton text={"Submit"} type="submit" />
+            )}
+            {userData?.roleCode === "customer" && (
+              <CustomButton
+                text={"Request"}
+                onClick={requestHandler}
+                disabled={requestBtn}
+              />
             )}
           </Box>
         </section>

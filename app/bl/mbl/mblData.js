@@ -314,6 +314,17 @@ export const fieldData = {
       isEdit: true,
     },
     {
+      label: "Type of Cargo",
+      name: "cargoTypeId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      displayColumn: "m.code",
+      where: "m.masterListName = 'tblServiceType' and status  =  1",
+      foreignTable: "code,tblMasterData",
+      orderBy: "m.name",
+      isEdit: true,
+    },
+    {
       label: "Cargo Movement",
       name: "movementTypeId",
       type: "dropdown",
@@ -324,6 +335,7 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
+
     {
       label: "Post Carriage",
       name: "postCarriageId",
@@ -353,17 +365,6 @@ export const fieldData = {
     {
       label: "Carrier Code",
       name: "carrierCode",
-      isEdit: true,
-    },
-    {
-      label: "Type of Cargo",
-      name: "cargoTypeId",
-      type: "dropdown",
-      tableName: "tblMasterData m",
-      displayColumn: "m.code",
-      where: "m.masterListName = 'tblServiceType' and status  =  1",
-      foreignTable: "code,tblMasterData",
-      orderBy: "m.name",
       isEdit: true,
     },
   ],

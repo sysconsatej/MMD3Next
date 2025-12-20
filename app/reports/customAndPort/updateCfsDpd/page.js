@@ -12,6 +12,7 @@ import { fetchDynamicReportData, updateDynamicReportData } from "@/apis";
 import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable";
 import { useRouter } from "next/navigation";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
+import { getUserByCookies } from "@/utils";
 
 
 export default function IGM() {
@@ -25,6 +26,7 @@ export default function IGM() {
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [tableFormData, setTableFormData] = useState([]);
   const router = useRouter();
+  const userData = getUserByCookies();
 
   const transformToIds = (data) => {
     return Object.fromEntries(
@@ -79,9 +81,9 @@ export default function IGM() {
       jsonData: {
         clientId: 8,
         ...transformed,
-        companyId: 7819,
-        branchId: 5594,
-        userId: 235,
+        companyId: userData.companyId,
+        branchId: userData.branchId,
+        userId: userData.userId,
         data: cleaned,
       },
     };

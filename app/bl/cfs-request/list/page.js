@@ -23,7 +23,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
-import { cfsData, tblColsLables } from "../fieldsData";
+import { cfsData, fieldData, tblColsLables } from "../fieldsData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionPayment";
@@ -58,6 +58,9 @@ function createData(
   };
 }
 
+const cols = fieldData.fields.map((r) => `b.${r.name}`);
+console.log(cols)
+
 export default function CompanyList() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(25);
@@ -77,7 +80,7 @@ export default function CompanyList() {
       try {
         const tableObj = {
           columns: "",
-          tableName: "",
+          tableName: "tblBl  b",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
