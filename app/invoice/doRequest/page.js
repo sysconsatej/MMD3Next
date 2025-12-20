@@ -39,13 +39,21 @@ export default function Home() {
     const fields = jsonData?.doRequestFields || [];
 
     return formData?.isFreeDays === "D"
-      ? fields.filter((f) => f.name !== "validTill") // hide validTill
+      ? fields.filter((f) => f.name !== "validTill")
       : fields; // normal
   }, [jsonData?.doRequestFields, formData?.isFreeDays]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    const format = formatFormData("tblBl", formData, mode.formId, "blId");
+    const requestStatus = doStatus.filter(
+      (item) => item.Name === "Pending for DO"
+    );
+    const format = formatFormData(
+      "tblBl",
+      { ...formData, dostatusId: requestStatus?.[0]?.Id },
+      mode.formId,
+      "blId"
+    );
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
@@ -142,6 +150,7 @@ export default function Home() {
       const { result } = await fetchForm(format);
       const getData = formatDataWithForm(result, jsonData);
       setFormData(getData);
+      setFieldsMode(mode.mode);
     }
     getBl();
   }, [mode]);
@@ -160,7 +169,6 @@ export default function Home() {
     }
     getDoStatus();
   }, []);
-
 
   return (
     <ThemeProvider theme={theme}>
@@ -217,7 +225,9 @@ export default function Home() {
               <CustomButton
                 text={"Request"}
                 onClick={requestHandler}
-                disabled={requestBtn}
+                disabled={
+                  fieldsMode !== "view" && fieldsMode !== "edit" && requestBtn
+                }
               />
             )}
           </Box>

@@ -14,20 +14,18 @@ import {
   Checkbox,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
-import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
-import { deleteRecord, fetchTableValues } from "@/apis";
-import { toast, ToastContainer } from "react-toastify";
-import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { fetchTableValues } from "@/apis";
+import { ToastContainer } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
-import ReportPickerModal from "@/components/ReportPickerModal/reportPickerModal";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import DoToolbarActions from "@/components/selectionActions/doToolbarActions";
 import DoStatusToolbar from "@/components/selectionActions/doStatus";
+import { doStatusHandler, statusColor } from "../utils";
 
 const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -35,29 +33,23 @@ const UPDATE_TABLE = LIST_TABLE.trim()
   .replace(/^dbo\./i, "");
 
 function createData(
+  location,
+  submittedBy,
   mblNo,
-  mblDate,
-  consigneeText,
-  pol,
-  pod,
-  fpd,
-  cargoMovement,
-  arrivalVessel,
-  arrivalVoyage,
-  line,
-  id,
+  validTill,
+  isFreeDays,
+  stuffDestuffId,
+  doStatus,
+  id
 ) {
   return {
+    location,
+    submittedBy,
     mblNo,
-    mblDate,
-    consigneeText,
-    pol,
-    pod,
-    fpd,
-    cargoMovement,
-    arrivalVessel,
-    arrivalVoyage,
-    line,
+    validTill,
+    isFreeDays,
+    stuffDestuffId,
+    doStatus,
     id,
   };
 }
@@ -76,6 +68,8 @@ export default function BLList() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [idsOnPage, setIdsOnPage] = useState([]);
   const userData = getUserByCookies();
+  const [allChecked, setAllChecked] = useState(false);
+  const [someChecked, setSomeChecked] = useState(false);
   const { data } = useGetUserAccessUtils("HBL Request");
   const [statusValues, setStatusValues] = useState({
     advanceBL: false,
@@ -95,20 +89,18 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "b.mblNo mblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId",
+            "l.name location, u2.name submittedBy, b.mblNo mblNo, b.validTill validTill, b.isFreeDays isFreeDays, m2.name stuffDestuffId, m.name doStatus, b.id id",
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
           joins: `
-            left join tblPort p on p.id = b.polId
-            left join tblPort p1 on p1.id=b.podId
-            left join tblPort p2 on p2.id=b.fpdId
-            left join tblVoyage v on v.id=b.podVoyageId
-            left join tblVessel v1 on v1.id=b.podVesselId
-            left join tblMasterData m on m.id = b.movementTypeId
+            left join tblMasterData m on m.id = b.dostatusId
+            left join tblMasterData m2 on m2.id = b.stuffDestuffId
+            left join tblLocation l on l.id = b.locationId
+            left join tblUser u2 on u2.id = b.updatedBy
             left join tblUser u on u.id = ${userData.userId}
-            left join tblUser usr1 on usr1.companyId = u.companyId
-            join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'MBL' and b1.status = 1 and b1.createdBy = usr1.id
+            join tblBl b2 on b2.id = b.id and b.dostatusId is not null and m.name <> 'Pending for DO' 
+            and b.locationId = ${userData.location} and b.shippingLineId = u.companyId
           `,
         };
 
@@ -131,39 +123,38 @@ export default function BLList() {
   const updateStatus = (key, value) => {
     setStatusValues((prev) => ({ ...prev, [key]: value }));
   };
-  useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-  }, []);
 
   const rows = blData
     ? blData.map((item) =>
         createData(
+          item["location"],
+          item["submittedBy"],
           item["mblNo"],
-          item["mblDate"],
-          item["consigneeText"],
-          item["pol"],
-          item["pod"],
-          item["fpd"],
-          item["cargoMovement"],
-          item["arrivalVessel"],
-          item["arrivalVoyage"],
-          item["line"],
-          item["id"],
-          item["clientId"]
+          item["validTill"],
+          item["isFreeDays"],
+          item["stuffDestuffId"],
+          item["doStatus"],
+          item["id"]
         )
       )
     : [];
 
-  useEffect(() => {
-    setIdsOnPage((blData || []).map((r) => r.id));
-  }, [blData]);
-
   // ---------------- Checkbox Logic ----------------
-  const toggleOne = (id) =>
+  const toggleAll = () => {
+    if (selectedIds.length > 0) {
+      setSelectedIds([]);
+      setAllChecked(false);
+    } else {
+      setSelectedIds(rows.map((item) => item.id));
+      setAllChecked(true);
+    }
+  };
+
+  const toggleOne = (id) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
+  };
 
   // --------------------------------------------
   // 🔥 Toolbar Action Handlers
@@ -183,12 +174,15 @@ export default function BLList() {
     router.push("/bl/mbl");
   };
 
-  const handleConfirm = (ids) => console.log("Confirm:", ids);
+  const handleSecuritySlip = (ids) => console.log("Security Slip:", ids);
   const handleNotify = (ids) => console.log("Notify:", ids);
   const handleGenerateDO = (ids) => console.log("Generate DO:", ids);
   const handlePCS = (ids) => console.log("PCS:", ids);
-  const handleReject = (ids) => console.log("Reject:", ids);
-  const handleSecuritySlip = (ids) => console.log("Security Slip:", ids);
+
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -206,11 +200,11 @@ export default function BLList() {
           onReleaseDO={handleReleaseDO}
           onEditBL={handleEditBL}
           onViewBL={handleViewBL}
-          onConfirm={handleConfirm}
+          onConfirm={(ids) => doStatusHandler(getData).handleConfirm(ids)}
           onNotify={handleNotify}
           onGenerateDO={handleGenerateDO}
           onPCS={handlePCS}
-          onReject={handleReject}
+          onReject={(ids) => doStatusHandler(getData).handleReject(ids)}
           onSecuritySlip={handleSecuritySlip}
         />
         <DoStatusToolbar
@@ -227,15 +221,25 @@ export default function BLList() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>BL NO</TableCell>
+                <TableCell
+                  padding="checkbox"
+                  sx={{ width: 36, minWidth: 36, maxWidth: 36 }}
+                >
+                  <Checkbox
+                    size="small"
+                    indeterminate={someChecked}
+                    checked={allChecked}
+                    onChange={toggleAll}
+                    sx={{ p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } }}
+                  />
+                </TableCell>
+                <TableCell>Location</TableCell>
+                <TableCell>Submitted By</TableCell>
+                <TableCell>mblNo</TableCell>
                 <TableCell>Valid Till</TableCell>
-                <TableCell>Free Days</TableCell>
-                <TableCell>Auto Do Req</TableCell>
-                <TableCell>Pymts</TableCell>
-                <TableCell>Pymt Conf Dt</TableCell>
-                <TableCell>Doc Conf Dt</TableCell>
+                <TableCell>IsFreeDays</TableCell>
+                <TableCell>Stuff Destuff</TableCell>
                 <TableCell>Doc Status</TableCell>
-                <TableCell>Bl Drop Loc</TableCell>
                 <TableCell>Assigned To</TableCell>
               </TableRow>
             </TableHead>
@@ -243,21 +247,32 @@ export default function BLList() {
             <TableBody>
               {rows.length > 0 ? (
                 rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    hover
-                    className="relative group"
-                    onClick={() => toggleOne(row.id)}
-                  >
+                  <TableRow key={row.id} hover className="relative group">
+                    <TableCell
+                      padding="checkbox"
+                      sx={{ width: 32, minWidth: 32, maxWidth: 32 }}
+                    >
+                      <Checkbox
+                        size="small"
+                        checked={selectedIds.includes(row.id)}
+                        onChange={() => toggleOne(row.id)}
+                        sx={{ p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } }}
+                      />
+                    </TableCell>
+                    <TableCell>{row.location}</TableCell>
+                    <TableCell>{row.submittedBy}</TableCell>
                     <TableCell>{row.mblNo}</TableCell>
-                    <TableCell>{row.mblDate}</TableCell>
-                    <TableCell>{row.consigneeText}</TableCell>
-                    <TableCell>{row.pol}</TableCell>
-                    <TableCell>{row.pod}</TableCell>
-                    <TableCell>{row.fpd}</TableCell>
-                    <TableCell>{row.cargoMovement}</TableCell>
-                    <TableCell>{row.arrivalVessel}</TableCell>
-                    <TableCell>{row.arrivalVoyage}</TableCell>
+                    <TableCell>{row.validTill}</TableCell>
+                    <TableCell>{row.isFreeDays}</TableCell>
+                    <TableCell>{row.stuffDestuffId}</TableCell>
+                    <TableCell
+                      sx={{
+                        color: statusColor(row.doStatus.replace(/\s+/g, "")),
+                      }}
+                    >
+                      {row.doStatus}
+                    </TableCell>
+                    <TableCell></TableCell>
                   </TableRow>
                 ))
               ) : (

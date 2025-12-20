@@ -45,21 +45,23 @@ export default function DoStatusToolbar({
 
   return (
     <Box className="flex gap-2 flex-wrap my-2">
-      <Item label="Advance BL" color="#f8cccc" checked={values.advanceBL} onChange={onAdvanceBL} />
       <Item
         label="Notification History"
         color="#f1f1f1"
         checked={values.notificationHistory}
         onChange={onNotificationHistory}
       />
-      <Item label="Remarks for Hold" color="#fff" checked={values.remarksHold} onChange={onRemarksHold} />
-      <Item label="Re - Request" color="#d1e7dd" checked={values.reRequest} onChange={onReRequest} />
       <Item
-        label="Seaway BL/Telex BL"
-        color="#fff3cd"
-        icon={<DescriptionIcon />}
-        checked={values.seawayBL}
-        onChange={onSeawayBL}
+        label="Remarks for Hold"
+        color="#fff"
+        checked={values.remarksHold}
+        onChange={onRemarksHold}
+      />
+      <Item
+        label="Re - Request"
+        color="#d1e7dd"
+        checked={values.reRequest}
+        onChange={onReRequest}
       />
       <Item
         label="Attachments"

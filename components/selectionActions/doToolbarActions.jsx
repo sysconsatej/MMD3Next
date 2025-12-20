@@ -10,6 +10,8 @@ import FolderOpenIcon from "@mui/icons-material/FolderOpen"; // Generate DO
 import DesktopMacIcon from "@mui/icons-material/DesktopMac"; // PCS
 import CloseIcon from "@mui/icons-material/Close"; // Reject
 import WorkIcon from "@mui/icons-material/Work"; // Security Slip
+import PageviewIcon from "@mui/icons-material/Pageview";
+import RequestPageIcon from "@mui/icons-material/RequestPage";
 
 export default function DoToolbarActions({
   selectedIds = [],
@@ -22,7 +24,9 @@ export default function DoToolbarActions({
   onPCS,
   onReject,
   onSecuritySlip,
-
+  onView,
+  onEdit,
+  onRequestDO,
   allowBulk = true, // global bulk toggle
 }) {
   const ids = useMemo(
@@ -65,77 +69,125 @@ export default function DoToolbarActions({
   return (
     <Box className="w-full flex items-center gap-2 flex-wrap">
       <div className="flex items-center gap-1.5 flex-wrap">
+        {/* View */}
+        {onView && (
+          <Segment
+            label="View"
+            icon={<PageviewIcon />}
+            onClick={() => call(onView)}
+            disabled={!isSingle}
+          />
+        )}
+
+        {/* Edit */}
+        {onEdit && (
+          <Segment
+            label="Edit"
+            icon={<EditIcon />}
+            onClick={() => call(onEdit)}
+            disabled={!isSingle}
+          />
+        )}
+
+        {/* Request */}
+        {onRequestDO && (
+          <Segment
+            label="Request DO"
+            icon={<RequestPageIcon />}
+            onClick={() => call(onRequestDO)}
+            disabled={!hasAny || !onRequestDO}
+          />
+        )}
+
         {/* Release DO */}
-        <Segment
-          label="Release DO"
-          icon={<LocalShippingIcon />}
-          onClick={() => call(onReleaseDO)}
-          disabled={!hasAny || !onReleaseDO}
-        />
+        {onReleaseDO && (
+          <Segment
+            label="Release DO"
+            icon={<LocalShippingIcon />}
+            onClick={() => call(onReleaseDO)}
+            disabled={!hasAny || !onReleaseDO}
+          />
+        )}
 
         {/* Edit BL Docs */}
-        <Segment
-          label="Edit BL Docs"
-          icon={<EditIcon />}
-          onClick={() => call(onEditBL)}
-          disabled={!hasAny || !onEditBL}
-        />
+        {onEditBL && (
+          <Segment
+            label="Edit BL Docs"
+            icon={<EditIcon />}
+            onClick={() => call(onEditBL)}
+            disabled={!hasAny || !onEditBL}
+          />
+        )}
 
         {/* View BL Docs */}
-        <Segment
-          label="View BL Docs"
-          icon={<SearchIcon />}
-          onClick={() => call(onViewBL)}
-          disabled={!isSingle || !onViewBL}
-        />
+        {onViewBL && (
+          <Segment
+            label="View BL Docs"
+            icon={<SearchIcon />}
+            onClick={() => call(onViewBL)}
+            disabled={!isSingle || !onViewBL}
+          />
+        )}
 
         {/* Confirm */}
-        <Segment
-          label="Confirm"
-          icon={<CheckIcon />}
-          onClick={() => call(onConfirm)}
-          disabled={!hasAny || !onConfirm}
-        />
+        {onConfirm && (
+          <Segment
+            label="Confirm"
+            icon={<CheckIcon />}
+            onClick={() => call(onConfirm)}
+            disabled={!hasAny || !onConfirm}
+          />
+        )}
 
         {/* Notify */}
-        <Segment
-          label="Notify"
-          icon={<MailOutlineIcon />}
-          onClick={() => call(onNotify)}
-          disabled={!hasAny || !onNotify}
-        />
+        {onNotify && (
+          <Segment
+            label="Notify"
+            icon={<MailOutlineIcon />}
+            onClick={() => call(onNotify)}
+            disabled={!hasAny || !onNotify}
+          />
+        )}
 
         {/* Generate DO */}
-        <Segment
-          label="Generate DO"
-          icon={<FolderOpenIcon />}
-          onClick={() => call(onGenerateDO)}
-          disabled={!hasAny || !onGenerateDO}
-        />
+        {onGenerateDO && (
+          <Segment
+            label="Generate DO"
+            icon={<FolderOpenIcon />}
+            onClick={() => call(onGenerateDO)}
+            disabled={!hasAny || !onGenerateDO}
+          />
+        )}
 
         {/* PCS */}
-        <Segment
-          label="PCS"
-          icon={<DesktopMacIcon />}
-          onClick={() => call(onPCS)}
-          disabled={!hasAny || !onPCS}
-        />
+        {onPCS && (
+          <Segment
+            label="PCS"
+            icon={<DesktopMacIcon />}
+            onClick={() => call(onPCS)}
+            disabled={!hasAny || !onPCS}
+          />
+        )}
 
         {/* Reject */}
-        <Segment
-          label="Reject"
-          icon={<CloseIcon />}
-          onClick={() => call(onReject)}
-          disabled={!hasAny || !onReject}
-        />
+        {onReject && (
+          <Segment
+            label="Reject"
+            icon={<CloseIcon />}
+            onClick={() => call(onReject)}
+            disabled={!hasAny || !onReject}
+          />
+        )}
 
         {/* Security Slip */}
-        <Segment
-          label="Security Slip"
-          icon={<WorkIcon />}
-          onClick={() => call(onSecuritySlip)}
-          disabled={!hasAny || !onSecuritySlip}
-        />
+        {onSecuritySlip && (
+          <Segment
+            label="Security Slip"
+            icon={<WorkIcon />}
+            onClick={() => call(onSecuritySlip)}
+            disabled={!hasAny || !onSecuritySlip}
+          />
+        )}
       </div>
 
       {/* Selected Count */}
