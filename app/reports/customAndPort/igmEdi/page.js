@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState,useMemo } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { metaData } from "./igmData";
 import { CustomInput } from "@/components/customInput";
@@ -126,10 +126,14 @@ export default function IGMEDI() {
       setGoLoading(false);
     }
   };
-  const handleChangeEventFunctions = createHandleChangeEventFunction({
-    setFormData,
-    formData,
-  });
+  const handleChangeEventFunctions = useMemo(
+    () =>
+      createHandleChangeEventFunction({
+        setFormData,
+        fields: jsonData.igmEdiFields,
+      }),
+    [setFormData, jsonData.igmEdiFields]
+  );
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={handleSubmit}>

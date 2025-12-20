@@ -121,8 +121,12 @@ export default function ImportAdvanceList() {
     }
   };
   const handleChangeEventFunctions = useMemo(
-    () => createHandleChangeEventFunction({ setFormData }),
-    [setFormData]
+    () =>
+      createHandleChangeEventFunction({
+        setFormData,
+        fields: jsonData.igmEdiFields,
+      }),
+    [setFormData, jsonData.igmEdiFields]
   );
   return (
     <ThemeProvider theme={theme}>
