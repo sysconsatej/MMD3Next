@@ -54,8 +54,7 @@ export default function CompanyList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const payload = tableObj({ pageNo, pageSize, search });
-        const { data, totalPage, totalRows } =
-          await fetchTableValues(payload);
+        const { data, totalPage, totalRows } = await fetchTableValues(payload);
 
         setRows(data || []);
         setTotalPage(totalPage || 1);
@@ -83,8 +82,7 @@ export default function CompanyList() {
   const someChecked =
     selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
 
-  const toggleAll = (checked) =>
-    setSelectedIds(checked ? idsOnPage : []);
+  const toggleAll = (checked) => setSelectedIds(checked ? idsOnPage : []);
 
   const toggleOne = (id) =>
     setSelectedIds((prev) =>
@@ -151,11 +149,13 @@ export default function CompanyList() {
           <Table
             size="small"
             className="
-              w-full table-fixed
-              [&_th]:px-1 [&_td]:px-1
-              [&_th]:py-1 [&_td]:py-1
-              [&_th]:text-[11px] [&_td]:text-[11px]
-            "
+            w-full table-fixed
+            [&_th]:whitespace-normal [&_td]:whitespace-normal
+            [&_th]:break-words      [&_td]:break-words
+            [&_th]:px-1 [&_td]:px-1
+            [&_th]:py-1 [&_td]:py-1
+            [&_th]:text-[11px] [&_td]:text-[11px]
+           "
           >
             <TableHead>
               <TableRow>
@@ -236,9 +236,7 @@ export default function CompanyList() {
             page={page}
             rowsPerPage={rowsPerPage}
             onPageChange={(e, v) => getData(v, rowsPerPage)}
-            handleChangeRowsPerPage={(e) =>
-              getData(1, Number(e.target.value))
-            }
+            handleChangeRowsPerPage={(e) => getData(1, Number(e.target.value))}
           />
         </Box>
       </Box>
