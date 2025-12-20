@@ -398,7 +398,7 @@ export default function InvoicePayment() {
             invoiceRequestId: invoiceReqId,
             blId,
             companyId: userData?.companyId,
-            companyBranchId: userData?.companyBranchId,
+            companyBranchId: userData?.branchId,
             locationId: userData?.location || null,
             tblInvoiceRequestContainer: tblInvoiceRequestContainer || [],
             tblAttachment: tblAttachment || [],

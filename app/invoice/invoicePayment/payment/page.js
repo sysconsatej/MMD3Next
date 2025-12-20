@@ -306,7 +306,7 @@ export default function PaymentPage() {
         invoiceIds,
         paymentStatusId,
         companyId: userData?.companyId,
-        companyBranchId: userData?.companyBranchId, // 🔥 status = Payment Confirmation Requested
+        companyBranchId: userData?.branchId, // 🔥 status = Payment Confirmation Requested
         locationId: userData?.location || null,
       };
 
