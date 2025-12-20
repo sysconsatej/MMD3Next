@@ -77,13 +77,13 @@ export default function Company() {
 
   useEffect(() => {
     async function fetchFormHandler() {
-      if (!mlblId) return;
+      if (!defaultValues?.mlblId) return;
 
       setFieldsMode(mode?.mode);
       const format = formatFetchForm(
         fieldData,
         "tblBl",
-        mlblId,
+        defaultValues?.mlblId,
         '["tblAttachment"]',
         "blId"
       );
