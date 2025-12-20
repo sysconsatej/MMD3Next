@@ -159,10 +159,6 @@ export default function BLList() {
   // --------------------------------------------
   // 🔥 Toolbar Action Handlers
   // --------------------------------------------
-  const handleReleaseDO = (ids) => {
-    console.log("Release DO:", ids);
-  };
-
   const handleEditBL = (ids) => {
     const id = ids[0];
     setMode({ mode: "edit", formId: id });
@@ -197,7 +193,6 @@ export default function BLList() {
         {/* 🔥 TOOLBAR ADDED HERE */}
         <DoToolbarActions
           selectedIds={selectedIds}
-          onReleaseDO={handleReleaseDO}
           onEditBL={handleEditBL}
           onViewBL={handleViewBL}
           onConfirm={(ids) => doStatusHandler(getData).handleConfirm(ids)}

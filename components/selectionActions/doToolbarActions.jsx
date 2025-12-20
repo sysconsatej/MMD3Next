@@ -15,7 +15,6 @@ import RequestPageIcon from "@mui/icons-material/RequestPage";
 
 export default function DoToolbarActions({
   selectedIds = [],
-  onReleaseDO,
   onEditBL,
   onViewBL,
   onConfirm,
@@ -96,16 +95,6 @@ export default function DoToolbarActions({
             icon={<RequestPageIcon />}
             onClick={() => call(onRequestDO)}
             disabled={!hasAny || !onRequestDO}
-          />
-        )}
-
-        {/* Release DO */}
-        {onReleaseDO && (
-          <Segment
-            label="Release DO"
-            icon={<LocalShippingIcon />}
-            onClick={() => call(onReleaseDO)}
-            disabled={!hasAny || !onReleaseDO}
           />
         )}
 
