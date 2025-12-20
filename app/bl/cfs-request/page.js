@@ -1,12 +1,17 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import { cfsData, cfsGridButtons, fieldData } from "./fieldsData";
+import { cfsGridButtons, fieldData } from "./fieldsData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
+import {
+  fetchForm,
+  getDataWithCondition,
+  insertUpdateForm,
+  updateStatusRows,
+} from "@/apis";
 import {
   formatDataWithForm,
   formatFetchForm,
@@ -23,13 +28,15 @@ import { useSetDefault } from "./hooks";
 export default function Company() {
   const { mode, setMode } = formStore();
   const [formData, setFormData] = useState({});
+  const [jsonData, setJsonData] = useState(fieldData);
   const [fieldsMode, setFieldsMode] = useState("");
   const [errorState, setErrorState] = useState({});
   const userData = getUserByCookies();
   const [defaultValues, setDefaultvalues] = useState({
-    mlblId: null,
+    mlblId: mode?.formId || null,
     cfsRequestStatusId: {},
   });
+  const [requestButtonStatus, setRequestBtnStatus] = useState(false);
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -48,7 +55,18 @@ export default function Company() {
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
-      setFormData({});
+      setRequestBtnStatus(true);
+      setJsonData((prev) => {
+        return {
+          ...prev,
+          fields: prev.fields.map((r) => {
+            return { ...r, disabled: true };
+          }),
+          tblAttachment: prev.tblAttachment.map((r) => {
+            return { ...r, disabled: true };
+          }),
+        };
+      });
     } else {
       toast.error(error || message);
     }
@@ -89,8 +107,32 @@ export default function Company() {
     defaultValues,
   });
 
+  // const updateStatus = async () => {
+  //   try {
+  //     const obj1 = {
+  //       columns: "id",
+  //       tableName: "tblMasterData",
+  //       whereCondition: `masterListName =  'tblCfsStatusType' and name='Request' `,
+  //     };
+  //     const { data, success } = await getDataWithCondition(obj1);
+  //     console.log(data);
+
+  //     // const rowsPayload  =  [{  }]
+  //     // const { success, message, error } = await updateStatusRows({
+  //     //   tableName: "tblBl",
+  //     //   rows: rowsPayload,
+  //     //   keyColumn: "",
+  //     // });
+
+  //     // console.log(success , '{}}}{{{}')
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
+
   return (
     <ThemeProvider theme={theme}>
+      {/* requestButtonStatus ? updateStatus : */}
       <form onSubmit={submitHandler}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
@@ -106,7 +148,7 @@ export default function Company() {
           <FormHeading text="MBL Details" />
           <Box className="grid grid-cols-4 items-end gap-2 p-2 ">
             <CustomInput
-              fields={fieldData.fields}
+              fields={jsonData.fields}
               formData={formData}
               setFormData={setFormData}
               fieldsMode={fieldsMode}
@@ -117,7 +159,7 @@ export default function Company() {
           <Box className="border-2 border-solid border-gray-300 p-3 mt-2 ">
             <FormHeading text="Attachment Details" />
             <TableGrid
-              fields={fieldData.tblAttachment}
+              fields={jsonData.tblAttachment}
               formData={formData}
               setFormData={setFormData}
               fieldsMode={mode.mode}
@@ -129,10 +171,20 @@ export default function Company() {
               handleChangeEventFunctions={{}}
             />
           </Box>
-          <Box className="w-full flex mt-2 ">
+          <Box className="w-full flex mt-2 gap-3 ">
             {fieldsMode !== "view" && (
-              <CustomButton text={"Submit"} type="submit" />
+              <CustomButton
+                text={"Submit"}
+                type="submit"
+                disabled={requestButtonStatus ?? false}
+              />
             )}
+            {/* 
+            {requestButtonStatus ? (
+              <CustomButton text={"Request"} type="submit" />
+            ) : (
+              <></>
+            )} */}
           </Box>
         </section>
       </form>
