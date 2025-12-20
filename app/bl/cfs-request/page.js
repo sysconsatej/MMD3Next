@@ -75,15 +75,17 @@ export default function Company() {
   //  to set default values on 1st render
   useSetDefault({ userData, setFormData, setDefaultvalues });
 
+
+  console.log("mode?.formId", mode?.formId);
   useEffect(() => {
     async function fetchFormHandler() {
-      if (!defaultValues?.mlblId) return;
+      if (!mode?.formId) return;
 
       setFieldsMode(mode?.mode);
       const format = formatFetchForm(
         fieldData,
         "tblBl",
-        defaultValues?.mlblId,
+        mode?.formId,
         '["tblAttachment"]',
         "blId"
       );
@@ -97,7 +99,8 @@ export default function Company() {
     }
 
     fetchFormHandler();
-  }, [defaultValues?.mlblId, mode?.mode]);
+  }, [mode]);
+
   const handleChangeEventFunctions = handleChange({ setFormData, formData });
 
   const handleBlurEventFunctions = handleBlur({

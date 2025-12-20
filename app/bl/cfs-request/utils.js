@@ -35,7 +35,7 @@ export const handleBlur = ({
       const payload = {
         columns: "b.id",
         tableName: "tblBl b",
-        whereCondition: `b.shippingLineId = '${formData?.shippingLineId?.Id}' and locationId='${userData?.location}' and b.mblNo='${mblNo}'`,
+        whereCondition: `b.shippingLineId = '${formData?.shippingLineId?.Id}' and locationId='${userData?.location}' and b.mblNo='${mblNo}' and mblHblFlag = 'MBL'`,
       };
 
       const res = await getDataWithCondition(payload);
