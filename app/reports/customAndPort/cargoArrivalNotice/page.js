@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState,useMemo } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { metaData } from "./cargoArrivalNoticeData";
 import { CustomInput } from "@/components/customInput";
@@ -341,10 +341,14 @@ export default function CargoArrivalNotice() {
     </div>`;
     return html; // ✅ important
   };
-  const handleChangeEventFunctions = createHandleChangeEventFunction({
-    setFormData,
-    formData,
-  });
+  const handleChangeEventFunctions = useMemo(
+      () =>
+        createHandleChangeEventFunction({
+          setFormData,
+          fields: jsonData.cargoFields,
+        }),
+      [setFormData, jsonData.cargoFields]
+    );
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={handleSubmit}>

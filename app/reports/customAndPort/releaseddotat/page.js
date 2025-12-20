@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState ,useMemo} from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { metaData } from "./releaseddotatdata";
 import { CustomInput } from "@/components/customInput";
@@ -17,6 +17,7 @@ export default function ReleasedDoTat() {
     const [formData, setFormData] = useState({});
     const [fieldsMode, setFieldsMode] = useState("");
     const [tableData, setTableData] = useState([]);
+    const [jsonData, setJsonData] = useState(data);
     const [goLoading, setGoLoading] = useState(false);
     const router = useRouter();
     const userData = getUserByCookies();
@@ -100,10 +101,14 @@ export default function ReleasedDoTat() {
         }
         jsonToExcelFile(tableData, "Released Do Tat");
     };
-    const handleChangeEventFunctions = createHandleChangeEventFunction({
+    const handleChangeEventFunctions = useMemo(
+    () =>
+      createHandleChangeEventFunction({
         setFormData,
-        formData,
-    });
+        fields: jsonData.releasedDoTatFields,
+      }),
+    [setFormData, jsonData.releasedDoTatFields]
+  );
     return (
         <ThemeProvider theme={theme}>
             <form onSubmit={handleSubmit}>

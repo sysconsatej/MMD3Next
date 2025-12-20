@@ -2,37 +2,52 @@
 import { getDataWithCondition } from "@/apis";
 import { useEffect } from "react";
 
-export function useSetDefault({ userData, setFormData }) {
+export function useSetDefault({ userData, setFormData, setDefaultvalues }) {
   useEffect(() => {
     if (!userData?.location) return;
 
     let isMounted = true;
 
-    const setLocation = async () => {
+    const setDefaults = async () => {
       try {
-        const data = await getDataWithCondition({
-          columns: "t.id as Id, t.name as Name",
+        const payload = {
+          columns:
+            "t.id as Id,t.name as Name,m.name as statusName,m.id as statusId",
           tableName: "tblLocation t",
           whereCondition: `t.id = '${userData.location}' and t.status = 1`,
-          orderBy: "t.name",
-        });
+          joins:
+            "left join tblMasterData m on m.masterListName = 'tblCfsStatusType' AND m.name = 'Pending'",
+        };
 
-        if (
-          isMounted &&
-          data?.success &&
-          data.data?.length > 0
-        ) {
-          setFormData((prev) => ({
-            ...prev,
-            locationId: data.data[0],
-          }));
+        const res = await getDataWithCondition(payload);
+        const data = res && res?.data[0];
+        if (data) {
+          setFormData((prev) => {
+            return {
+              ...prev,
+              locationId: { Id: data?.Id, Name: data?.Name },
+              cfsRequestStatusId: {
+                Id: data?.statusId,
+                Name: data?.statusName,
+              },
+            };
+          });
+          setDefaultvalues((prev) => {
+            return {
+              ...prev,
+              cfsRequestStatusId: {
+                Id: data?.statusId,
+                Name: data?.statusName,
+              },
+            };
+          });
         }
       } catch (err) {
-        console.error(err);
+        console.log(err);
       }
     };
 
-    setLocation();
+    setDefaults();
 
     return () => {
       isMounted = false;

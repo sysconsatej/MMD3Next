@@ -27,48 +27,54 @@ import { cfsData, fieldData, tblColsLables } from "../fieldsData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionPayment";
+import { tableObj } from "../utils";
 
 const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
 const CHECKBOX_CELL_SX = { width: 32, minWidth: 32, maxWidth: 32 };
 const CHECKBOX_SX = { p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } };
 
 function createData(
-  code,
-  name,
-  countryName,
-  stateName,
-  cityName,
-  phoneNo,
-  emailId,
-  panNO,
-  gstInNo,
+  locationId,
+  shippingLineId,
+  mblNo,
+  mblDate,
+  podVesselId,
+  podVoyageId,
+  fpdId,
+  consigneeText,
+  cfsTypeId,
+  nominatedAreaId,
+  dpdId,
+  customBrokerText,
+  cfsRequestStatusId,
   id
 ) {
   return {
-    code,
-    name,
-    countryName,
-    stateName,
-    cityName,
-    phoneNo,
-    emailId,
-    panNO,
-    gstInNo,
+    locationId,
+    shippingLineId,
+    mblNo,
+    mblDate,
+    podVesselId,
+    podVoyageId,
+    fpdId,
+    consigneeText,
+    dpdId,
+    cfsTypeId,
+    nominatedAreaId,
+    customBrokerText,
+    cfsRequestStatusId,
     id,
   };
 }
 
-const cols = fieldData.fields.map((r) => `b.${r.name}`);
-console.log(cols)
-
 export default function CompanyList() {
   const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [rowsPerPage, setRowsPerPage] = useState(100);
   const [allChecked, setAllChecked] = useState(false);
   const [someChecked, setSomeChecked] = useState(false);
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
-  const [companyData, setCompanyData] = useState([]);
+  const [cfsData, setCfsData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
@@ -78,18 +84,9 @@ export default function CompanyList() {
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
-        const tableObj = {
-          columns: "",
-          tableName: "tblBl  b",
-          pageNo,
-          pageSize,
-          searchColumn: search.searchColumn,
-          searchValue: search.searchValue,
-          joins: "",
-        };
-        const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-
-        setCompanyData(data);
+        const payload = tableObj({ pageNo, pageSize, search });
+        const { data, totalPage, totalRows } = await fetchTableValues(payload);
+        setCfsData(data);
         setTotalPage(totalPage);
         setPage(pageNo);
         setRowsPerPage(pageSize);
@@ -107,9 +104,27 @@ export default function CompanyList() {
     setMode({ mode: null, formId: null });
   }, []);
 
-  const rows = cfsData
-    ? cfsData.map((item) => createData(item["code"], item["name"], item["id"]))
-    : [];
+  const rows =
+    cfsData && Array.isArray(cfsData)
+      ? cfsData.map((item) =>
+          createData(
+            item["locationId"],
+            item["shippingLineId"],
+            item["mblNo"],
+            item["mblDate"],
+            item["podVesselId"],
+            item["podVoyageId"],
+            item["fpdId"],
+            item["consigneeText"],
+            item["cfsTypeId"], 
+            item["nominatedAreaId"], 
+            item["dpdId"], 
+            item["customBrokerText"],
+            item["cfsRequestStatusId"],
+            item["id"]
+          )
+        )
+      : [];
 
   const handleChangePage = (event, newPage) => {
     getData(newPage, rowsPerPage);
@@ -200,8 +215,28 @@ export default function CompanyList() {
               {rows.length > 0 ? (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group ">
-                    <TableCell>{row.code}</TableCell>
-                    <TableCell>{row.name}</TableCell>
+                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                      <Checkbox
+                        size="small"
+                        checked={{}}
+                        onChange={{}}
+                        sx={CHECKBOX_SX}
+                      />
+                    </TableCell>
+                    <TableCell>{row?.locationId}</TableCell>
+                    <TableCell>{row?.shippingLineId}</TableCell>
+                    <TableCell>{row?.mblNo}</TableCell>
+                    <TableCell>{row?.mblDate}</TableCell>
+                    <TableCell>{row?.podVesselId}</TableCell>
+                    <TableCell>{row?.podVoyageId}</TableCell>
+                    <TableCell>{row?.fpdId}</TableCell>
+                    <TableCell>{row?.consigneeText}</TableCell>
+                    <TableCell>{row?.cfsTypeId}</TableCell>
+                    <TableCell>{row?.nominatedAreaId}</TableCell>
+                    <TableCell>{row?.dpdId}</TableCell>
+                    <TableCell>{row?.customBrokerText}</TableCell>
+                    <TableCell>{row?.cfsRequestStatusId}</TableCell>
+
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

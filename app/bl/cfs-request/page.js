@@ -26,11 +26,25 @@ export default function Company() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [errorState, setErrorState] = useState({});
   const userData = getUserByCookies();
-  const [mlblId, setMblId] = useState(null);
+  const [defaultValues, setDefaultvalues] = useState({
+    mlblId: null,
+    cfsRequestStatusId: {},
+  });
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData("tblBl", formData, mode.formId, "tblBl");
+
+    const updatedData = {
+      ...formData,
+      companyId: userData?.companyId,
+      companyBranchId: userData?.branchId,
+    };
+    const format = formatFormData(
+      "tblBl",
+      updatedData,
+      mode.formId || defaultValues.mlblId,
+      "blId"
+    );
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
@@ -41,7 +55,7 @@ export default function Company() {
   };
 
   //  to set default values on 1st render
-  useSetDefault({ userData, setFormData });
+  useSetDefault({ userData, setFormData, setDefaultvalues });
 
   useEffect(() => {
     async function fetchFormHandler() {
@@ -65,13 +79,14 @@ export default function Company() {
     }
 
     fetchFormHandler();
-  }, [mlblId, mode?.mode]);
+  }, [defaultValues?.mlblId, mode?.mode]);
   const handleChangeEventFunctions = handleChange({ setFormData, formData });
 
   const handleBlurEventFunctions = handleBlur({
     setFormData,
     formData,
-    setMblId,
+    setDefaultvalues,
+    defaultValues,
   });
 
   return (

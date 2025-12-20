@@ -108,7 +108,7 @@ export const fieldData = {
       joins:
         "join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS'",
       isEdit: true,
-      foreignTable: "name,tblMasterData",
+      foreignTable: "name,tblPort",
     },
     {
       label: "DPD",
@@ -119,14 +119,12 @@ export const fieldData = {
       joins:
         "join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'DPD'",
       isEdit: true,
-      foreignTable: "name,tblMasterData",
+      foreignTable: "name,tblPort",
     },
-
-    // will have to add   in db
 
     {
       label: "Nominated CB",
-      name: "",
+      name: "customBrokerText",
       type: "text",
       isEdit: true,
     },
@@ -142,6 +140,7 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
       orderBy: "m.name",
+      disabled: true,
     },
   ],
 
@@ -168,10 +167,10 @@ export const fieldData = {
   ],
 };
 
-export const cfsData = [
-  { label: "Country Code", value: "code" },
-  { label: "Country Name", value: "name" },
-];
+// export const cfsData = [
+//   { label: "Country Code", value: "code" },
+//   { label: "Country Name", value: "name" },
+// ];
 
 export const tblColsLables = fieldData.fields.map((field) => field.label);
 
