@@ -110,7 +110,7 @@ export default function Company() {
       const payload = {
         columns: "m.id , m.name",
         tableName: "tblMasterData m",
-        whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Requested'`,
+        whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Request'`,
       };
       const getStatusId = await getDataWithCondition(payload);
       if (getStatusId) {
