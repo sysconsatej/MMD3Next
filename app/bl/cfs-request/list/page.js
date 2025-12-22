@@ -23,12 +23,14 @@ import { toast, ToastContainer } from "react-toastify";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
-import { tblColsLables } from "../fieldsData";
+import { fieldData, tblColsLables } from "../fieldsData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionPayment";
 import { tableObj } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
+import { statusColor } from "../../hbl/utils";
+import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 
 /* checkbox sizing – SAME AS OTHER PAGE */
 const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
@@ -45,7 +47,7 @@ export default function CompanyList() {
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
   const tableWrapRef = useRef(null);
-  
+  const [advanceSearch, setAdvanceSearch] = useState({});
 
   const { setMode } = formStore();
   const router = useRouter();
@@ -128,12 +130,14 @@ export default function CompanyList() {
           <Typography variant="body1">CFS Request</Typography>
 
           <Box className="flex gap-4">
-            <SearchBar
+            <AdvancedSearchBar
+              fields={fieldData.fields.map((r) => {
+                return { ...r, disabled: false };
+              })}
+              advanceSearch={advanceSearch}
+              setAdvanceSearch={setAdvanceSearch}
               getData={getData}
               rowsPerPage={rowsPerPage}
-              search={search}
-              setSearch={setSearch}
-              options={rows}
             />
             <CustomButton text="Add" href="/bl/cfs-request" />
           </Box>
@@ -148,7 +152,7 @@ export default function CompanyList() {
         />
 
         {/* TABLE */}
-        <TableContainer component={Paper} className="mt-2" ref={tableWrapRef} >
+        <TableContainer component={Paper} className="mt-2" ref={tableWrapRef}>
           <Table
             size="small"
             className="
@@ -205,7 +209,15 @@ export default function CompanyList() {
                     <TableCell>{row.nominatedAreaId}</TableCell>
                     <TableCell>{row.dpdId}</TableCell>
                     <TableCell>{row.customBrokerText}</TableCell>
-                    <TableCell>{row.cfsRequestStatusId}</TableCell>
+                    <TableCell
+                      sx={{
+                        color: statusColor(
+                          row.cfsRequestStatusId.replace(/\s+/g, "")
+                        ),
+                      }}
+                    >
+                      {row.cfsRequestStatusId}
+                    </TableCell>
 
                     {/* ACTION ICONS */}
                     <TableCell

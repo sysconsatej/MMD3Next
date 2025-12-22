@@ -26,6 +26,7 @@ import { formStore } from "@/store";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { getUserByCookies } from "@/utils";
 import SearchRequestToolbarActions from "@/components/selectionActions/cfsRequestActionBar";
+import { statusColor } from "../../hbl/utils";
 
 /* ---------------- Constants ---------------- */
 const LIST_TABLE = "tblBl b";
@@ -250,14 +251,14 @@ export default function SearchRequestCfsDpdIcd() {
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table
             size="small"
-            className="
-            w-full table-fixed
-            [&_th]:whitespace-normal [&_td]:whitespace-normal
-            [&_th]:break-words      [&_td]:break-words
-            [&_th]:px-1 [&_td]:px-1
-            [&_th]:py-1 [&_td]:py-1
-            [&_th]:text-[11px] [&_td]:text-[11px]
-        "
+        //     className="
+        //     w-full table-fixed
+        //     [&_th]:whitespace-normal [&_td]:whitespace-normal
+        //     [&_th]:break-words      [&_td]:break-words
+        //     [&_th]:px-1 [&_td]:px-1
+        //     [&_th]:py-1 [&_td]:py-1
+        //     [&_th]:text-[11px] [&_td]:text-[10px]
+        // "
           >
             <TableHead>
               <TableRow>
@@ -312,7 +313,15 @@ export default function SearchRequestCfsDpdIcd() {
                     <TableCell>{row.cfsType || "-"}</TableCell>
                     <TableCell>{row.consigneeName || "-"}</TableCell>
                     <TableCell>{row.NominatedCB || "-"}</TableCell>
-                    <TableCell>{row.statusName || "-"}</TableCell>
+                    <TableCell
+                      sx={{
+                        color: statusColor(
+                          row.statusName.replace(/\s+/g, "")
+                        ),
+                      }}
+                    >
+                      {row.statusName || "-"}
+                    </TableCell>
                     <TableCell>{row.LoginId || "-"}</TableCell>
                     <TableCell>{row.UserName || "-"}</TableCell>
                     <TableCell>{row.ContactNo || "-"}</TableCell>
