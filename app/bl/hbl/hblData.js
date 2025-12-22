@@ -67,7 +67,7 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblVessel",
       isEdit: true,
-      changeFun : "selectVoyageNoBasedOnVessel",
+      changeFun: "selectVoyageNoBasedOnVessel",
     },
     {
       label: "Voyage",
@@ -656,10 +656,10 @@ export const fieldData = {
       name: "sizeId",
       type: "dropdown",
       tableName: "tblMasterData m",
-      displayColumn: "ISNULL(m.name,'')",
+      displayColumn: "m.name",
       where: "m.masterListName = 'tblSize'",
       orderBy: "m.name",
-      foreignTable: "code-name,tblMasterData",
+      foreignTable: "name,tblMasterData",
       isEdit: true,
       changeFun: "setISOBySize",
     },
@@ -690,7 +690,7 @@ export const fieldData = {
       name: "containerStatusId",
       type: "dropdown",
       tableName: "tblMasterData m",
-      displayColumn: "ISNULL(m.name,'')",
+      displayColumn: "m.name",
       where: "m.masterListName = 'tblContainerStatus'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
@@ -726,7 +726,7 @@ export const fieldData = {
     //   isEdit: true,
     //   // required: true,
     // },
-     {
+    {
       label: "Custom Seal",
       name: "customSealNo",
       isEdit: true,
@@ -738,7 +738,7 @@ export const fieldData = {
       isEdit: true,
       // required: true,
     },
- 
+
     {
       label: "Container Agent Code",
       name: "containerAgentCode",
