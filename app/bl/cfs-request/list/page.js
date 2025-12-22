@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
   Table,
@@ -23,76 +23,50 @@ import { toast, ToastContainer } from "react-toastify";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
-import { cfsData, fieldData, tblColsLables } from "../fieldsData";
+import { tblColsLables } from "../fieldsData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionPayment";
 import { tableObj } from "../utils";
+import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 
+/* checkbox sizing – SAME AS OTHER PAGE */
 const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
 const CHECKBOX_CELL_SX = { width: 32, minWidth: 32, maxWidth: 32 };
 const CHECKBOX_SX = { p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } };
 
-function createData(
-  locationId,
-  shippingLineId,
-  mblNo,
-  mblDate,
-  podVesselId,
-  podVoyageId,
-  fpdId,
-  consigneeText,
-  cfsTypeId,
-  nominatedAreaId,
-  dpdId,
-  customBrokerText,
-  cfsRequestStatusId,
-  id
-) {
-  return {
-    locationId,
-    shippingLineId,
-    mblNo,
-    mblDate,
-    podVesselId,
-    podVoyageId,
-    fpdId,
-    consigneeText,
-    dpdId,
-    cfsTypeId,
-    nominatedAreaId,
-    customBrokerText,
-    cfsRequestStatusId,
-    id,
-  };
-}
-
 export default function CompanyList() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(100);
-  const [allChecked, setAllChecked] = useState(false);
-  const [someChecked, setSomeChecked] = useState(false);
   const [totalPage, setTotalPage] = useState(1);
-  const [totalRows, setTotalRows] = useState(1);
-  const [cfsData, setCfsData] = useState([]);
+  const [totalRows, setTotalRows] = useState(0);
+  const [rows, setRows] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
+  const tableWrapRef = useRef(null);
+  
+
   const { setMode } = formStore();
   const router = useRouter();
-  const { data } = useGetUserAccessUtils("CFS Request");
+  const { data: menuAccess } = useGetUserAccessUtils("CFS Request");
   const userData = getUserByCookies();
+
+  /* ---------------- Fetch Data ---------------- */
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const payload = tableObj({ pageNo, pageSize, search });
         const { data, totalPage, totalRows } = await fetchTableValues(payload);
-        setCfsData(data);
-        setTotalPage(totalPage);
+
+        setRows(data || []);
+        setTotalPage(totalPage || 1);
+        setTotalRows(totalRows || 0);
         setPage(pageNo);
         setRowsPerPage(pageSize);
-        setTotalRows(totalRows);
+        setSelectedIds([]);
       } catch (err) {
-        console.error("Error fetching city data:", err);
+        console.error(err);
         setLoadingState("Failed to load data");
       }
     },
@@ -104,47 +78,29 @@ export default function CompanyList() {
     setMode({ mode: null, formId: null });
   }, []);
 
-  const rows =
-    cfsData && Array.isArray(cfsData)
-      ? cfsData.map((item) =>
-          createData(
-            item["locationId"],
-            item["shippingLineId"],
-            item["mblNo"],
-            item["mblDate"],
-            item["podVesselId"],
-            item["podVoyageId"],
-            item["fpdId"],
-            item["consigneeText"],
-            item["cfsTypeId"], 
-            item["nominatedAreaId"], 
-            item["dpdId"], 
-            item["customBrokerText"],
-            item["cfsRequestStatusId"],
-            item["id"]
-          )
-        )
-      : [];
+  /* ---------------- Checkbox Logic ---------------- */
+  const idsOnPage = rows.map((r) => r.id);
+  const allChecked =
+    idsOnPage.length > 0 && selectedIds.length === idsOnPage.length;
+  const someChecked =
+    selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
 
-  const handleChangePage = (event, newPage) => {
-    getData(newPage, rowsPerPage);
-  };
+  const toggleAll = (checked) => setSelectedIds(checked ? idsOnPage : []);
 
-  const handleChangeRowsPerPage = (event) => {
-    getData(1, +event.target.value);
-  };
+  const toggleOne = (id) =>
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
 
-  const handleDeleteRecord = async (formId) => {
-    const updateObj = {
+  /* ---------------- Actions ---------------- */
+  const handleDeleteRecord = async (id) => {
+    const obj = {
+      recordId: id,
       updatedBy: userData?.userId,
       clientId: 1,
       updatedDate: new Date(),
     };
-    const obj = {
-      recordId: formId,
-      tableName: "",
-      ...updateObj,
-    };
+
     const { success, message, error } = await deleteRecord(obj);
     if (success) {
       toast.success(message);
@@ -154,102 +110,120 @@ export default function CompanyList() {
     }
   };
 
-  const modeHandler = (mode, formId = null) => {
+  const modeHandler = (mode, id) => {
     if (mode === "delete") {
-      handleDeleteRecord(formId);
+      handleDeleteRecord(id);
       return;
     }
-    setMode({ mode, formId });
+    setMode({ mode, formId: id });
     router.push("/bl/cfs-request");
   };
 
+  /* ---------------- Render ---------------- */
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box className="sm:px-4 py-1">
-        <Box className="flex flex-col sm:flex-row justify-between pb-1">
-          <Typography variant="body1" className="text-left flex items-center">
-            CFS Request
-          </Typography>
-          <Box className="flex flex-col sm:flex-row gap-6">
+        <Box className="flex justify-between pb-1">
+          <Typography variant="body1">CFS Request</Typography>
+
+          <Box className="flex gap-4">
             <SearchBar
               getData={getData}
               rowsPerPage={rowsPerPage}
               search={search}
               setSearch={setSearch}
-              options={cfsData}
+              options={rows}
             />
             <CustomButton text="Add" href="/bl/cfs-request" />
           </Box>
         </Box>
 
+        {/* ACTION BAR */}
         <SelectionActionsBar
-          selectedIds={[]}
-          tableName={""}
-          keyColumn=""
-          // allowBulkDelete
+          selectedIds={selectedIds}
           onEdit={(id) => modeHandler("edit", id)}
           onView={(id) => modeHandler("view", id)}
           onUpdated={() => getData(page, rowsPerPage)}
         />
 
-        <TableContainer component={Paper} className="mt-2">
-          <Table size="small" sx={{ minWidth: 650 }}>
+        {/* TABLE */}
+        <TableContainer component={Paper} className="mt-2" ref={tableWrapRef} >
+          <Table
+            size="small"
+            className="
+            w-full table-fixed
+            [&_th]:whitespace-normal [&_td]:whitespace-normal
+            [&_th]:break-words      [&_td]:break-words
+            [&_th]:px-1 [&_td]:px-1
+            [&_th]:py-1 [&_td]:py-1
+            [&_th]:text-[11px] [&_td]:text-[11px]
+           "
+          >
             <TableHead>
               <TableRow>
                 <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
                   <Checkbox
                     size="small"
-                    indeterminate={{}}
                     checked={allChecked}
-                    onChange={{}}
+                    indeterminate={someChecked}
+                    onChange={(e) => toggleAll(e.target.checked)}
                     sx={CHECKBOX_SX}
                   />
                 </TableCell>
-                {tblColsLables.map((label, index) => (
-                  <TableCell key={index}>{label}</TableCell>
+
+                {tblColsLables.map((label, i) => (
+                  <TableCell key={i}>{label}</TableCell>
                 ))}
+
+                <TableCell />
               </TableRow>
             </TableHead>
+
             <TableBody>
               {rows.length > 0 ? (
-                rows.map((row, index) => (
-                  <TableRow key={index} hover className="relative group ">
+                rows.map((row) => (
+                  <TableRow key={row.id} hover>
                     <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <Checkbox
                         size="small"
-                        checked={{}}
-                        onChange={{}}
+                        checked={selectedIds.includes(row.id)}
+                        onChange={() => toggleOne(row.id)}
                         sx={CHECKBOX_SX}
                       />
                     </TableCell>
-                    <TableCell>{row?.locationId}</TableCell>
-                    <TableCell>{row?.shippingLineId}</TableCell>
-                    <TableCell>{row?.mblNo}</TableCell>
-                    <TableCell>{row?.mblDate}</TableCell>
-                    <TableCell>{row?.podVesselId}</TableCell>
-                    <TableCell>{row?.podVoyageId}</TableCell>
-                    <TableCell>{row?.fpdId}</TableCell>
-                    <TableCell>{row?.consigneeText}</TableCell>
-                    <TableCell>{row?.cfsTypeId}</TableCell>
-                    <TableCell>{row?.nominatedAreaId}</TableCell>
-                    <TableCell>{row?.dpdId}</TableCell>
-                    <TableCell>{row?.customBrokerText}</TableCell>
-                    <TableCell>{row?.cfsRequestStatusId}</TableCell>
 
-                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                    <TableCell>{row.locationId}</TableCell>
+                    <TableCell>{row.shippingLineId}</TableCell>
+                    <TableCell>{row.mblNo}</TableCell>
+                    <TableCell>{row.mblDate}</TableCell>
+                    <TableCell>{row.podVesselId}</TableCell>
+                    <TableCell>{row.podVoyageId}</TableCell>
+                    <TableCell>{row.fpdId}</TableCell>
+                    <TableCell>{row.consigneeText}</TableCell>
+                    <TableCell>{row.cfsTypeId}</TableCell>
+                    <TableCell>{row.nominatedAreaId}</TableCell>
+                    <TableCell>{row.dpdId}</TableCell>
+                    <TableCell>{row.customBrokerText}</TableCell>
+                    <TableCell>{row.cfsRequestStatusId}</TableCell>
+
+                    {/* ACTION ICONS */}
+                    <TableCell
+                      onClick={(e) => e.stopPropagation()}
+                      className="opacity-0 group-hover:opacity-100"
+                    >
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}
                         onEdit={() => modeHandler("edit", row.id)}
                         onDelete={() => modeHandler("delete", row.id)}
-                        menuAccess={data ?? {}}
+                        menuAccess={menuAccess ?? {}}
                       />
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} align="center">
+                  <TableCell colSpan={15} align="center">
                     {loadingState}
                   </TableCell>
                 </TableRow>
@@ -258,17 +232,23 @@ export default function CompanyList() {
           </Table>
         </TableContainer>
 
-        <Box className="flex justify-end items-center mt-2">
+        <Box className="flex justify-between items-center mt-1">
+          <TableExportButtons
+            targetRef={tableWrapRef}
+            title="Search Request for CFS / DPD / ICD"
+            fileName="CFS Request"
+          />
           <CustomPagination
             count={totalPage}
             totalRows={totalRows}
             page={page}
             rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            handleChangeRowsPerPage={handleChangeRowsPerPage}
+            onPageChange={(e, v) => getData(v, rowsPerPage)}
+            handleChangeRowsPerPage={(e) => getData(1, Number(e.target.value))}
           />
         </Box>
       </Box>
+
       <ToastContainer />
     </ThemeProvider>
   );

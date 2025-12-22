@@ -160,6 +160,34 @@ export default function InvoiceUpload() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!Array.isArray(formData?.tblInvoice)) return;
+
+    let changed = false;
+
+    const updatedInvoices = formData.tblInvoice.map((inv) => {
+      const invoiceAmt = Number(inv?.totalInvoiceAmount) || 0;
+      const tdsAmt = Number(inv?.tdsAmount) || 0;
+      const payableAmt = invoiceAmt - tdsAmt;
+
+      if (Number(inv?.invoicePayableAmount) !== payableAmt) {
+        changed = true;
+        return {
+          ...inv,
+          invoicePayableAmount: payableAmt,
+        };
+      }
+      return inv;
+    });
+
+    if (changed) {
+      setFormData((prev) => ({
+        ...prev,
+        tblInvoice: updatedInvoices,
+      }));
+    }
+  }, [formData?.tblInvoice]);
+
   /* ⭐ CHANGE 1 — Load BL No using ISNULL(hblNo, mblNo) */
   useEffect(() => {
     async function loadBL() {
@@ -375,7 +403,7 @@ export default function InvoiceUpload() {
             blId,
             invoiceRequestId: currentInvoiceReqId,
             companyId: userData?.companyId,
-            companyBranchId: userData?.companyBranchId,
+            companyBranchId: userData?.branchId,
             tblInvoiceRequestContainer: row.tblInvoiceRequestContainer || [],
             tblAttachment: row.tblAttachment || [],
             locationId: userData?.location || null,

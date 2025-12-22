@@ -15,8 +15,18 @@ const links =  ()  =>  {
     default :
       return  "/invoice/doRequest/list";
   }
-}
+};
 
+const links1 = () => {
+  switch (userData?.roleCode) {
+    case "shipping":
+      return "/bl/cfs-request/liner";
+    case "customer":
+      return "/bl/cfs-request/list";
+    default:
+      return "/bl/cfs-request/list";
+  }
+};
 
 export const navItems = [
   { name: "Home", href: "/home", icon: "home", isShow: true },
@@ -120,7 +130,7 @@ export const navItems = [
       },
       {
         name: "CFS Request",
-        href: "/bl/cfs-request/list",
+        href: links1(),
         isShow: false,
       },
     ],
