@@ -63,13 +63,7 @@ const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
-    {
-      label: "Inv Amt",
-      name: "totalInvoiceAmount",
-      type: "number",
-      isEdit: true,
-      required: true,
-    },
+
     // {
     //   label: "Currency",
     //   name: "currencyId",
@@ -116,6 +110,27 @@ const fieldData = {
       rows: 2,
       gridColumn: "col-span-2",
       isEdit: true,
+    },
+    {
+      label: "Inv Amt",
+      name: "totalInvoiceAmount",
+      type: "number",
+      isEdit: true,
+      required: true,
+    },
+    {
+      label: "Inv Tds Amt",
+      name: "tdsAmount",
+      type: "number",
+      isEdit: true,
+      required: true,
+    },
+    {
+      label: "Inv Payable Amt",
+      name: "invoicePayableAmount",
+      type: "number",
+      required: true,
+      disabled: true
     },
   ],
 

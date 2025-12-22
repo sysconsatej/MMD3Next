@@ -13,14 +13,16 @@ const RadioInput = ({
   field,
   changeHandler,
   containerIndex,
-  fieldHighLight
+  tabIndex,
+  fieldHighLight,
+  handleChangeEventFunctions,
 }) => {
   return (
     <FormControl
       className={`flex items-end !flex-row gap-2 ${commonProps.className}`}
     >
       {commonProps.label && (
-        <FormLabel className={`radioLabel ${fieldHighLight && "bg-[#FDACAC]"}`} >
+        <FormLabel className={`radioLabel ${fieldHighLight && "bg-[#FDACAC]"}`}>
           {commonProps.required && (
             <span className="text-red-600 font-bold ">┃</span>
           )}
@@ -42,14 +44,21 @@ const RadioInput = ({
               label={item.label}
               disabled={commonProps.disabled}
               required={commonProps.required}
-              onClick={() =>
+              onClick={() => {
                 changeHandler(
                   {
                     target: { name: commonProps.name, value: item.value },
                   },
                   containerIndex
-                )
-              }
+                );
+                if (field.changeFun && handleChangeEventFunctions) {
+                  handleChangeEventFunctions[field.changeFun](
+                    commonProps.name,
+                    item.value,
+                    { containerIndex, tabIndex }
+                  );
+                }
+              }}
             />
           );
         })}

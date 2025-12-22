@@ -12,12 +12,7 @@ import {
   insertUpdateForm,
   updateStatusRows,
 } from "@/apis";
-import {
-  formatDataWithForm,
-  formatFetchForm,
-  formatFormData,
-  setInputValue,
-} from "@/utils";
+import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
@@ -35,6 +30,7 @@ export default function Company() {
   const [defaultValues, setDefaultvalues] = useState({
     mlblId: mode?.formId || null,
     cfsRequestStatusId: {},
+    disableRequestButton: false,
   });
   const [requestButtonStatus, setRequestBtnStatus] = useState(false);
 
@@ -75,8 +71,6 @@ export default function Company() {
   //  to set default values on 1st render
   useSetDefault({ userData, setFormData, setDefaultvalues });
 
-
-  console.log("mode?.formId", mode?.formId);
   useEffect(() => {
     async function fetchFormHandler() {
       if (!mode?.formId) return;
@@ -110,33 +104,61 @@ export default function Company() {
     defaultValues,
   });
 
-  // const updateStatus = async () => {
-  //   try {
-  //     const obj1 = {
-  //       columns: "id",
-  //       tableName: "tblMasterData",
-  //       whereCondition: `masterListName =  'tblCfsStatusType' and name='Request' `,
-  //     };
-  //     const { data, success } = await getDataWithCondition(obj1);
-  //     console.log(data);
+  const updateStatusToRequest = async (event) => {
+    event.preventDefault();
+    try {
+      const payload = {
+        columns: "m.id , m.name",
+        tableName: "tblMasterData m",
+        whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Requested'`,
+      };
+      const getStatusId = await getDataWithCondition(payload);
+      if (getStatusId) {
+        const rowsPayload = [
+          {
+            id: mode?.formId || defaultValues?.mlblId,
+            cfsRequestStatusId: getStatusId?.data[0]?.id,
+            updatedBy: userData.userId,
+            updatedDate: new Date(),
+          },
+        ];
+        const res = await updateStatusRows({
+          tableName: "tblBl",
+          rows: rowsPayload,
+          keyColumn: "id",
+        });
 
-  //     // const rowsPayload  =  [{  }]
-  //     // const { success, message, error } = await updateStatusRows({
-  //     //   tableName: "tblBl",
-  //     //   rows: rowsPayload,
-  //     //   keyColumn: "",
-  //     // });
+        if (res?.success === true) {
+          setFormData((prev) => {
+            return {
+              ...prev,
+              cfsRequestStatusId: {
+                Id: getStatusId?.data[0]?.id,
+                Name: getStatusId?.data[0]?.name,
+              },
+            };
+          });
 
-  //     // console.log(success , '{}}}{{{}')
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // };
+          setDefaultvalues((prev) => {
+            return {
+              ...prev,
+              disableRequestButton: true,
+            };
+          });
+
+          toast.success("This CFS is Requested");
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <ThemeProvider theme={theme}>
-      {/* requestButtonStatus ? updateStatus : */}
-      <form onSubmit={submitHandler}>
+      <form
+        onSubmit={requestButtonStatus ? updateStatusToRequest : submitHandler}
+      >
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
@@ -182,12 +204,16 @@ export default function Company() {
                 disabled={requestButtonStatus ?? false}
               />
             )}
-            {/* 
+
             {requestButtonStatus ? (
-              <CustomButton text={"Request"} type="submit" />
+              <CustomButton
+                text={"Request"}
+                type="submit"
+                disabled={defaultValues.disableRequestButton ?? false}
+              />
             ) : (
               <></>
-            )} */}
+            )}
           </Box>
         </section>
       </form>

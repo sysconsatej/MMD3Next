@@ -125,7 +125,7 @@ export default function PaymentPage() {
             i.id AS invoiceId,
             i.invoiceNo,
             CONVERT(VARCHAR, i.invoiceDate, 103) AS invoiceDate,
-            i.totalInvoiceAmount,
+            i.invoicePayableAmount,
             i.remarks,
             cat.name AS invoiceCategory,
             ISNULL(hblNo, mblNo) AS blNo,
@@ -208,7 +208,7 @@ export default function PaymentPage() {
   useEffect(() => {
     const total = invoices
       .filter((inv) => selectedInvoiceIds.includes(inv.invoiceId))
-      .reduce((sum, inv) => sum + Number(inv.totalInvoiceAmount || 0), 0);
+      .reduce((sum, inv) => sum + Number(inv.invoicePayableAmount || 0), 0);
 
     setFormData((prev) => ({
       ...prev,
@@ -241,7 +241,7 @@ export default function PaymentPage() {
       setIframeError(false);
 
       const totalAmount = selectedInvoices.reduce(
-        (sum, inv) => sum + Number(inv.totalInvoiceAmount || 0),
+        (sum, inv) => sum + Number(inv.invoicePayableAmount || 0),
         0
       );
 
@@ -336,7 +336,7 @@ export default function PaymentPage() {
   // ✅ Total only from selected invoices
   const grandTotal = invoices
     .filter((inv) => selectedInvoiceIds.includes(inv.invoiceId))
-    .reduce((sum, inv) => sum + Number(inv.totalInvoiceAmount || 0), 0);
+    .reduce((sum, inv) => sum + Number(inv.invoicePayableAmount || 0), 0);
 
   return (
     <ThemeProvider theme={theme}>
@@ -423,7 +423,7 @@ export default function PaymentPage() {
                             {inv.invoiceCategory}
                           </td>
                           <td className="border px-3 py-2 text-right">
-                            ₹{inv.totalInvoiceAmount}
+                            ₹{inv.invoicePayableAmount}
                           </td>
                           <td className="border px-3 py-2">
                             {inv.remarks || "-"}
@@ -504,7 +504,7 @@ export default function PaymentPage() {
                             {inv.invoiceCategory}
                           </td>
                           <td className="border px-3 py-2 text-right">
-                            ₹{inv.totalInvoiceAmount}
+                            ₹{inv.invoicePayableAmount}
                           </td>
                           <td className="border px-3 py-2">
                             {inv.remarks || "-"}

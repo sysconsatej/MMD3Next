@@ -287,7 +287,7 @@ export default function InvoicePayment() {
 
         // 👉 initialise containerData in edit mode
         await loadBlContainersByBlId(blId);
-        await setInvoiceRequestId(blData?.[0]?.blNo)
+        await setInvoiceRequestId(blData?.[0]?.blNo);
 
         const allInvoicesQuery = {
           columns: "id,invoiceRequestId",
@@ -354,6 +354,35 @@ export default function InvoicePayment() {
 
     fetchInvoiceData();
   }, [mode.formId, mode.mode, data, loadBlContainersByBlId]);
+
+  useEffect(() => {
+    if (!Array.isArray(formData?.tblInvoice)) return;
+
+    let updated = false;
+
+    const nextInvoices = formData.tblInvoice.map((inv) => {
+      const invAmt = Number(inv?.totalInvoiceAmount) || 0;
+      const tdsAmt = Number(inv?.tdsAmount) || 0;
+      const payable = invAmt - tdsAmt;
+
+      // prevent infinite loop
+      if (Number(inv?.invoicePayableAmount) !== payable) {
+        updated = true;
+        return {
+          ...inv,
+          invoicePayableAmount: payable,
+        };
+      }
+      return inv;
+    });
+
+    if (updated) {
+      setFormData((prev) => ({
+        ...prev,
+        tblInvoice: nextInvoices,
+      }));
+    }
+  }, [formData?.tblInvoice]);
 
   const submitHandler = async (e) => {
     e.preventDefault();

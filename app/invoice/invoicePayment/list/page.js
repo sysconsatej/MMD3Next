@@ -109,7 +109,7 @@ export default function InvoicePaymentList() {
     ir.blNo AS blNo,
     STRING_AGG(i.invoiceNo, ', ') AS invoiceNos,
     CONVERT(VARCHAR, MAX(i.invoiceDate), 103) AS latestInvoiceDate,
-    SUM(i.totalInvoiceAmount) AS totalInvoiceAmount,
+    SUM(i.invoicePayableAmount) AS totalInvoiceAmount,
     c.name AS beneficiary,
     MAX(cat.name) AS category,
     MAX(ipAgg.remarks) AS remark,

@@ -277,8 +277,10 @@ function TableGrid({
                                       {value?.split(/-(.+)/)[1]}
                                     </Link>
                                   )
+                                ) : typeof value === "boolean" ? (
+                                  String(value)
                                 ) : (
-                                  value || ""
+                                  value ?? ""
                                 )}
                               </TableCell>
                             )}

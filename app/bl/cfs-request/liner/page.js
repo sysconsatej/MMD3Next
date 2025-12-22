@@ -16,12 +16,17 @@ import {
 import { ThemeProvider } from "@mui/material/styles";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
-import { fetchTableValues } from "@/apis";
-import { ToastContainer } from "react-toastify";
+import {
+  fetchTableValues,
+  getDataWithCondition,
+  updateStatusRows,
+} from "@/apis";
+import { toast, ToastContainer } from "react-toastify";
 import { formStore } from "@/store";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { getUserByCookies } from "@/utils";
 import SearchRequestToolbarActions from "@/components/selectionActions/cfsRequestActionBar";
+import { statusColor } from "../../hbl/utils";
 
 /* ---------------- Constants ---------------- */
 const LIST_TABLE = "tblBl b";
@@ -91,7 +96,7 @@ export default function SearchRequestCfsDpdIcd() {
             left join tblVoyage vy on vy.id = b.podVoyageId
             left join tblPort f on f.id = b.fpdId
             left join tblUser u1 on u1.id = b.createdBy
-            left join tblCompany c1 on c1.id = u1.companyId
+            join tblCompany c1 on c1.id = u1.companyId and b.shippingLineId = u1.companyId
           `,
         };
 
@@ -140,9 +145,80 @@ export default function SearchRequestCfsDpdIcd() {
     setMode({ mode: "view", formId: id });
     console.log("View:", id);
   };
-  const handleReject = (ids) => console.log("Reject:", ids);
+
+  //  reject
+  const handleReject = async (ids) => {
+    try {
+      const payload = {
+        columns: "m.id , m.name",
+        tableName: "tblMasterData m",
+        whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Reject'`,
+      };
+      const getStatusId = await getDataWithCondition(payload);
+
+      if (getStatusId) {
+        const rowsPayload =
+          Array.isArray(ids) &&
+          ids.map((info) => {
+            return {
+              id: info,
+              cfsRequestStatusId: getStatusId?.data[0]?.id,
+              updatedBy: userData.userId,
+              updatedDate: new Date(),
+            };
+          });
+
+        const res = await updateStatusRows({
+          tableName: "tblBl",
+          rows: rowsPayload,
+          keyColumn: "id",
+        });
+
+        if (res?.success === true) {
+          toast.success(` Status Changed from Requested to Confrim   `);
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const handleVerify = (ids) => console.log("Verify:", ids);
-  const handleConfirm = (ids) => console.log("Confirm:", ids);
+  const handleConfirm = async (ids) => {
+    try {
+      const payload = {
+        columns: "m.id , m.name",
+        tableName: "tblMasterData m",
+        whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Confirm'`,
+      };
+      const getStatusId = await getDataWithCondition(payload);
+
+      if (getStatusId) {
+        const rowsPayload =
+          Array.isArray(ids) &&
+          ids.map((info) => {
+            return {
+              id: info,
+              cfsRequestStatusId: getStatusId?.data[0]?.id,
+              updatedBy: userData.userId,
+              updatedDate: new Date(),
+            };
+          });
+
+        const res = await updateStatusRows({
+          tableName: "tblBl",
+          rows: rowsPayload,
+          keyColumn: "id",
+        });
+
+        if (res?.success === true) {
+          toast.success(` Status Changed from Requested to Confrim   `);
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
   const handleEditVessel = (id) => console.log("Edit Vessel:", id);
   const handleNotify = (ids) => console.log("Notify:", ids);
 
@@ -158,31 +234,31 @@ export default function SearchRequestCfsDpdIcd() {
         {/* ACTION TOOLBAR */}
         <SearchRequestToolbarActions
           selectedIds={selectedIds}
-          onEdit={handleEdit}
-          onView={handleView}
+          // onEdit={handleEdit}
+          // onView={handleView}
           onReject={handleReject}
-          onVerify={handleVerify}
+          // onVerify={handleVerify}
           onConfirm={handleConfirm}
-          onEditVessel={handleEditVessel}
-          onNotify={handleNotify}
-          amendmentChecked={amendment}
-          onAmendmentChange={setAmendment}
-          historyChecked={history}
-          onHistoryChange={setHistory}
+          // onEditVessel={handleEditVessel}
+          // onNotify={handleNotify}
+          // amendmentChecked={amendment}
+          // onAmendmentChange={setAmendment}
+          // historyChecked={history}
+          // onHistoryChange={setHistory}
         />
 
         {/* TABLE */}
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table
             size="small"
-            className="
-            w-full table-fixed
-            [&_th]:whitespace-normal [&_td]:whitespace-normal
-            [&_th]:break-words      [&_td]:break-words
-            [&_th]:px-1 [&_td]:px-1
-            [&_th]:py-1 [&_td]:py-1
-            [&_th]:text-[11px] [&_td]:text-[11px]
-        "
+        //     className="
+        //     w-full table-fixed
+        //     [&_th]:whitespace-normal [&_td]:whitespace-normal
+        //     [&_th]:break-words      [&_td]:break-words
+        //     [&_th]:px-1 [&_td]:px-1
+        //     [&_th]:py-1 [&_td]:py-1
+        //     [&_th]:text-[11px] [&_td]:text-[10px]
+        // "
           >
             <TableHead>
               <TableRow>
@@ -198,7 +274,8 @@ export default function SearchRequestCfsDpdIcd() {
 
                 <TableCell>Company Name</TableCell>
                 <TableCell>MBL No.</TableCell>
-                <TableCell>Vessel - Voyage</TableCell>
+                <TableCell>Vessel</TableCell>
+                <TableCell>Voyage No</TableCell>
                 <TableCell>POD</TableCell>
                 <TableCell>Place of Delivery</TableCell>
                 <TableCell>Delivery Type</TableCell>
@@ -228,18 +305,23 @@ export default function SearchRequestCfsDpdIcd() {
 
                     <TableCell>{row.CompanyName || "-"}</TableCell>
                     <TableCell>{row.mblNo || "-"}</TableCell>
-                    <TableCell>
-                      {(row.vesselName || "-") +
-                        " - " +
-                        (row.voyageName || "-")}
-                    </TableCell>
+                    <TableCell>{row.vesselName}</TableCell>
+                    <TableCell>{row.voyageName}</TableCell>
                     <TableCell>{row.POD || "-"}</TableCell>
                     <TableCell>{row.PlaceOfDeleverey || "-"}</TableCell>
                     <TableCell>{row.dpd || "-"}</TableCell>
                     <TableCell>{row.cfsType || "-"}</TableCell>
                     <TableCell>{row.consigneeName || "-"}</TableCell>
                     <TableCell>{row.NominatedCB || "-"}</TableCell>
-                    <TableCell>{row.statusName || "-"}</TableCell>
+                    <TableCell
+                      sx={{
+                        color: statusColor(
+                          row.statusName.replace(/\s+/g, "")
+                        ),
+                      }}
+                    >
+                      {row.statusName || "-"}
+                    </TableCell>
                     <TableCell>{row.LoginId || "-"}</TableCell>
                     <TableCell>{row.UserName || "-"}</TableCell>
                     <TableCell>{row.ContactNo || "-"}</TableCell>

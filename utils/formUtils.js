@@ -55,7 +55,7 @@ export function formatFormData(
             arrItems[arrKey] = item[arrKey].name;
           } else if (
             typeof item[arrKey] === "object" &&
-            arrItems[arrKey] !== null
+            item[arrKey] !== null
           ) {
             arrItems[arrKey] = item[arrKey].Id;
           } else {

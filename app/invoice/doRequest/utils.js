@@ -2,9 +2,54 @@ import { getDataWithCondition, updateStatusRows } from "@/apis";
 import { getUserByCookies } from "@/utils";
 import { toast } from "react-toastify";
 
-export const doStatusHandler = (getData) => {
+export const doStatusHandler = (getData, router, setMode) => {
   const userData = getUserByCookies();
+
   return {
+    handleView: (id) => {
+      setMode({ mode: "view", formId: id?.[0] });
+      router.push("/invoice/doRequest");
+    },
+    handleEdit: (id) => {
+      setMode({ mode: "edit", formId: id?.[0] });
+      router.push("/invoice/doRequest");
+    },
+    handleViewBL: async (ids) => {
+      const id = ids[0];
+      const obj = {
+        columns: "mblHblFlag",
+        tableName: "tblBl",
+        whereCondition: `id = ${id} and status = 1`,
+      };
+      const { data, success } = await getDataWithCondition(obj);
+      if (success) {
+        if (data?.[0]?.mblHblFlag === "HBL") {
+          setMode({ mode: "view", formId: `${id}` });
+          router.push("/bl/hbl");
+        } else {
+          setMode({ mode: "view", formId: id });
+          router.push("/bl/mbl");
+        }
+      }
+    },
+    handleEditBL: async (ids) => {
+      const id = ids[0];
+      const obj = {
+        columns: "mblHblFlag",
+        tableName: "tblBl",
+        whereCondition: `id = ${id} and status = 1`,
+      };
+      const { data, success } = await getDataWithCondition(obj);
+      if (success) {
+        if (data?.[0]?.mblHblFlag === "HBL") {
+          setMode({ mode: "edit", formId: `${id}` });
+          router.push("/bl/hbl");
+        } else {
+          setMode({ mode: "edit", formId: id });
+          router.push("/bl/mbl");
+        }
+      }
+    },
     handleRequestDO: async (ids) => {
       const obj = {
         columns: "id as Id, name as Name",
