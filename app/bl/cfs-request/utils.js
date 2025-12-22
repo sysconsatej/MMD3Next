@@ -35,7 +35,7 @@ export const handleBlur = ({
       const payload = {
         columns: "b.id",
         tableName: "tblBl b",
-        whereCondition: `b.shippingLineId = '${formData?.shippingLineId?.Id}' and locationId='${userData?.location}' and b.mblNo='${mblNo}'`,
+        whereCondition: `b.shippingLineId = '${formData?.shippingLineId?.Id}' and locationId='${userData?.location}' and b.mblNo='${mblNo}' and mblHblFlag = 'MBL'`,
       };
 
       const res = await getDataWithCondition(payload);
@@ -88,7 +88,7 @@ export const tableObj = ({ pageNo, pageSize, search }) => {
 b.mblNo as mblNo,
 b.mblDate as mblDate,
 b.customBrokerText as customBrokerText,
-b.consigneeText as consigneeName,
+b.consigneeText as consigneeText,
 l.name as locationId,
 m.name as cfsRequestStatusId,
 r.name as cfsTypeId,
