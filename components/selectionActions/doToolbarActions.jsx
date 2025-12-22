@@ -98,16 +98,6 @@ export default function DoToolbarActions({
           />
         )}
 
-        {/* Edit BL Docs */}
-        {onEditBL && (
-          <Segment
-            label="Edit BL Docs"
-            icon={<EditIcon />}
-            onClick={() => call(onEditBL)}
-            disabled={!hasAny || !onEditBL}
-          />
-        )}
-
         {/* View BL Docs */}
         {onViewBL && (
           <Segment
@@ -118,6 +108,16 @@ export default function DoToolbarActions({
           />
         )}
 
+        {/* Edit BL Docs */}
+        {onEditBL && (
+          <Segment
+            label="Edit BL Docs"
+            icon={<EditIcon />}
+            onClick={() => call(onEditBL)}
+            disabled={!hasAny || !onEditBL}
+          />
+        )}
+
         {/* Confirm */}
         {onConfirm && (
           <Segment
@@ -125,6 +125,16 @@ export default function DoToolbarActions({
             icon={<CheckIcon />}
             onClick={() => call(onConfirm)}
             disabled={!hasAny || !onConfirm}
+          />
+        )}
+
+        {/* Reject */}
+        {onReject && (
+          <Segment
+            label="Reject"
+            icon={<CloseIcon />}
+            onClick={() => call(onReject)}
+            disabled={!hasAny || !onReject}
           />
         )}
 
@@ -155,16 +165,6 @@ export default function DoToolbarActions({
             icon={<DesktopMacIcon />}
             onClick={() => call(onPCS)}
             disabled={!hasAny || !onPCS}
-          />
-        )}
-
-        {/* Reject */}
-        {onReject && (
-          <Segment
-            label="Reject"
-            icon={<CloseIcon />}
-            onClick={() => call(onReject)}
-            disabled={!hasAny || !onReject}
           />
         )}
 

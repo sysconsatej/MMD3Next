@@ -26,22 +26,11 @@ import {
 export default function Home() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
-  const [jsonData] = useState(fieldData);
+  const [jsonData, setJsonData] = useState(fieldData);
   const { mode, setMode } = formStore();
   const [doStatus, setDoStatus] = useState([]);
   const [requestBtn, setRequestBtn] = useState(true);
   const userData = getUserByCookies();
-
-  const GRID_NAME = "tblInvoicePayment";
-  const GRID_ATTACHMENT = "tblAttachment";
-
-  const doRequestFieldsToRender = useMemo(() => {
-    const fields = jsonData?.doRequestFields || [];
-
-    return formData?.isFreeDays === "D"
-      ? fields.filter((f) => f.name !== "validTill")
-      : fields; // normal
-  }, [jsonData?.doRequestFields, formData?.isFreeDays]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -82,7 +71,7 @@ export default function Home() {
 
       try {
         const blQuery = {
-          columns: "TOP 1 id",
+          columns: "TOP 1 id, mblHblFlag",
           tableName: "tblBl",
           whereCondition: `
             ISNULL(hblNo, mblNo) = '${blNo.replace(
@@ -103,11 +92,73 @@ export default function Home() {
         }
         const blId = blData?.[0]?.id;
 
+        setJsonData((prev) => {
+          const updateDoRequestFields = prev?.doRequestFields?.map((item) => {
+            if (item.name === "mblNo") {
+              if (blData?.[0]?.mblHblFlag === "HBL") {
+                return { ...item, name: "hblNo" };
+              } else {
+                return { ...item, name: "mblNo" };
+              }
+            }
+            return item;
+          });
+
+          return {
+            ...prev,
+            doRequestFields: updateDoRequestFields,
+          };
+        });
+
         setMode({ mode: null, formId: blId });
       } catch (e) {
         console.error(e);
         toast.error("Error fetching payment details.");
         setFormData({});
+      }
+    },
+  };
+
+  const handleChangeEventFunctions = {
+    freeDaysChangeHandler: async (name, value) => {
+      if (value === "F") {
+        try {
+          const obj = {
+            columns: "vor.arrivalDate",
+            tableName: "tblBl b",
+            joins:
+              "inner join tblVoyageRoute vor on vor.voyageId = b.podVoyageId and vor.portOfCallId = b.podId",
+            whereCondition: `b.id = ${mode.formId} and b.status = 1`,
+          };
+          const { data, success } = await getDataWithCondition(obj);
+          if (success && data.length > 0) {
+            setFormData((prev) => {
+              const updateTblBlContainer = prev?.tblBlContainer?.map(
+                (item) => ({
+                  ...item,
+                  doValidityDate: data?.[0]?.arrivalDate,
+                })
+              );
+              return {
+                ...prev,
+                tblBlContainer: updateTblBlContainer,
+              };
+            });
+          }
+        } catch (e) {
+          console.log("error", e.message);
+        }
+      } else {
+        setFormData((prev) => {
+          const updateTblBlContainer = prev?.tblBlContainer?.map((item) => ({
+            ...item,
+            doValidityDate: null,
+          }));
+          return {
+            ...prev,
+            tblBlContainer: updateTblBlContainer,
+          };
+        });
       }
     },
   };
@@ -144,12 +195,19 @@ export default function Home() {
         jsonData,
         "tblBl",
         mode.formId,
-        '["tblInvoicePayment", "tblAttachment"]',
+        '["tblInvoicePayment", "tblAttachment", "tblBlContainer"]',
         "blId"
       );
       const { result } = await fetchForm(format);
       const getData = formatDataWithForm(result, jsonData);
-      setFormData(getData);
+      if (mode.mode !== "edit" && mode.mode !== "view") {
+        const updateTblContainer = getData?.tblBlContainer?.map((subItem) => {
+          return { ...subItem, selectForDO: true };
+        });
+        setFormData({ ...getData, tblBlContainer: updateTblContainer });
+      } else {
+        setFormData(getData);
+      }
       setFieldsMode(mode.mode);
     }
     getBl();
@@ -176,42 +234,54 @@ export default function Home() {
         <section className="py-2 px-4">
           <Box className="flex justify-between items-center mb-2">
             <h1 className="text-left text-base m-0">Do Request</h1>
-            <CustomButton text="Back" href="/invoice/doRequest/list" />
+            {userData?.roleCode === "customer" && (
+              <CustomButton text="Back" href="/invoice/doRequest/list" />
+            )}
+            {userData?.roleCode === "shipping" && (
+              <CustomButton text="Back" href="/invoice/doRequest/liner" />
+            )}
           </Box>
 
           <Box>
             <FormHeading text="Do Request" />
-
             <Box className="grid grid-cols-4 items-end gap-2 p-2 ">
               <CustomInput
-                fields={doRequestFieldsToRender}
+                fields={jsonData.doRequestFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
                 handleBlurEventFunctions={handleBlurEventFunctions}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
-
             <Box className="mt-4 border">
               <FormHeading text="Payment Information" variant="body2" />
-
               <TableGrid
                 fields={jsonData.tblInvoicePayment}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
-                gridName={GRID_NAME}
+                gridName={"tblInvoicePayment"}
+              />
+            </Box>
+            <Box className="mt-4 border">
+              <FormHeading text="Container Information" variant="body2" />
+              <TableGrid
+                fields={jsonData.tblBlContainer}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={fieldsMode}
+                gridName={"tblBlContainer"}
               />
             </Box>
             <Box className="mt-4 border">
               <FormHeading text="Document List" variant="body2" />
-
               <TableGrid
                 fields={jsonData.tblAttachment}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
-                gridName={GRID_ATTACHMENT}
+                gridName={"tblAttachment"}
                 buttons={cfsGridButtons}
               />
             </Box>

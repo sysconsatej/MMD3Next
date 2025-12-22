@@ -18,7 +18,6 @@ import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
 import { fetchTableValues } from "@/apis";
 import { ToastContainer } from "react-toastify";
-import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
@@ -26,11 +25,7 @@ import { getUserByCookies } from "@/utils";
 import DoToolbarActions from "@/components/selectionActions/doToolbarActions";
 import DoStatusToolbar from "@/components/selectionActions/doStatus";
 import { doStatusHandler, statusColor } from "../utils";
-
-const LIST_TABLE = "tblBl b";
-const UPDATE_TABLE = LIST_TABLE.trim()
-  .split(/\s+/)[0]
-  .replace(/^dbo\./i, "");
+import { useRouter } from "next/navigation";
 
 function createData(
   location,
@@ -63,7 +58,6 @@ export default function BLList() {
   const [advanceSearch, setAdvanceSearch] = useState({});
   const [loadingState, setLoadingState] = useState("NO DATA...");
   const { setMode } = formStore();
-  const router = useRouter();
   const tableWrapRef = useRef(null);
   const [selectedIds, setSelectedIds] = useState([]);
   const [idsOnPage, setIdsOnPage] = useState([]);
@@ -71,6 +65,7 @@ export default function BLList() {
   const [allChecked, setAllChecked] = useState(false);
   const [someChecked, setSomeChecked] = useState(false);
   const { data } = useGetUserAccessUtils("HBL Request");
+  const router = useRouter();
   const [statusValues, setStatusValues] = useState({
     advanceBL: false,
     notificationHistory: false,
@@ -90,7 +85,7 @@ export default function BLList() {
         const tableObj = {
           columns:
             "l.name location, u2.name submittedBy, b.mblNo mblNo, b.validTill validTill, b.isFreeDays isFreeDays, m2.name stuffDestuffId, m.name doStatus, b.id id",
-          tableName: LIST_TABLE,
+          tableName: "tblBl b",
           pageNo,
           pageSize,
           joins: `
@@ -159,17 +154,6 @@ export default function BLList() {
   // --------------------------------------------
   // 🔥 Toolbar Action Handlers
   // --------------------------------------------
-  const handleEditBL = (ids) => {
-    const id = ids[0];
-    setMode({ mode: "edit", formId: id });
-    router.push("/bl/mbl");
-  };
-
-  const handleViewBL = (id) => {
-    setMode({ mode: "view", formId: id });
-    router.push("/bl/mbl");
-  };
-
   const handleSecuritySlip = (ids) => console.log("Security Slip:", ids);
   const handleNotify = (ids) => console.log("Notify:", ids);
   const handleGenerateDO = (ids) => console.log("Generate DO:", ids);
@@ -193,13 +177,23 @@ export default function BLList() {
         {/* 🔥 TOOLBAR ADDED HERE */}
         <DoToolbarActions
           selectedIds={selectedIds}
-          onEditBL={handleEditBL}
-          onViewBL={handleViewBL}
+          onView={(ids) =>
+            doStatusHandler(getData, router, setMode).handleView(ids)
+          }
+          onEdit={(ids) =>
+            doStatusHandler(getData, router, setMode).handleEdit(ids)
+          }
+          onEditBL={(ids) =>
+            doStatusHandler(getData, router, setMode).handleEditBL(ids)
+          }
+          onViewBL={(ids) =>
+            doStatusHandler(getData, router, setMode).handleViewBL(ids)
+          }
           onConfirm={(ids) => doStatusHandler(getData).handleConfirm(ids)}
+          onReject={(ids) => doStatusHandler(getData).handleReject(ids)}
           onNotify={handleNotify}
           onGenerateDO={handleGenerateDO}
           onPCS={handlePCS}
-          onReject={(ids) => doStatusHandler(getData).handleReject(ids)}
           onSecuritySlip={handleSecuritySlip}
         />
         <DoStatusToolbar

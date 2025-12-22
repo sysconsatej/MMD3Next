@@ -24,7 +24,6 @@ export const fieldData = {
       required: true,
       blurFun: "fetchInvoicePaymentByBlAndLiner",
     },
-
     {
       label: "Cargo Type",
       name: "cargoTypeId",
@@ -55,31 +54,8 @@ export const fieldData = {
         { label: "Do Extension", value: "D" },
       ],
       isEdit: true,
-      blurFun: "duplicateHandler",
+      changeFun: "freeDaysChangeHandler",
     },
-    {
-      label: " Valid Till",
-      name: "validTill",
-      type: "date",
-      isEdit: true,
-    },
-    // {
-    //   label: "Payment not via MMD3",
-    //   name: "paymentNotViaOdeX",
-    //   type: "checkbox",
-    //   isEdit: true,
-    // },
-    // {
-    //   label: "Advance BL Submit",
-    //   name: "paymentNotViaOdeX",
-    //   type: "checkbox",
-    //   isEdit: true,
-    // },
-    // {
-    //   label: "Runner Boy",
-    //   name: "runnerBoy",
-    //   isEdit: true,
-    // },
     {
       label: "Remarks",
       name: "doRemarks",
@@ -168,6 +144,52 @@ export const fieldData = {
       where: "m.masterListName = 'tblPaymentStatus'",
       displayColumn: "m.name",
       foreignTable: "name,tblMasterData",
+    },
+  ],
+
+  tblBlContainer: [
+    {
+      label: "Select For DO",
+      name: "selectForDO",
+      type: "checkbox",
+      isEdit: true,
+    },
+    {
+      label: "CONTAINER NO",
+      name: "containerNo",
+      isEdit: true,
+      required: true,
+      blurFun: "containerNumberHandler",
+    },
+    {
+      label: "Size",
+      name: "sizeId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where: "m.masterListName = 'tblSize'",
+      orderBy: "m.name",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+      changeFun: "setISOBySize",
+    },
+    {
+      label: "Type",
+      name: "typeId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
+      where: "m.masterListName = 'tblType'",
+      orderBy: "m.name",
+      foreignTable: "code-name,tblMasterData",
+      isEdit: true,
+      changeFun: "setISOByType",
+    },
+    {
+      label: " Valid Till",
+      name: "doValidityDate",
+      type: "date",
+      isEdit: true,
     },
   ],
 
