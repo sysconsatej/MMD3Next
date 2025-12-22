@@ -222,7 +222,12 @@ const CustomInput = ({
         return <CheckBoxInput {...inputProps} />;
 
       case "radio":
-        return <RadioInput {...inputProps} />;
+        return (
+          <RadioInput
+            {...inputProps}
+            handleChangeEventFunctions={handleChangeEventFunctions}
+          />
+        );
 
       case "number":
         return <NumberInput {...inputProps} />;

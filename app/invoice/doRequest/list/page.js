@@ -19,13 +19,13 @@ import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
 import { fetchTableValues } from "@/apis";
 import { ToastContainer } from "react-toastify";
-import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import DoToolbarActions from "@/components/selectionActions/doToolbarActions";
 import { doStatusHandler, statusColor } from "../utils";
+import { useRouter } from "next/navigation";
 
 function createData(
   mblNo,
@@ -56,7 +56,6 @@ export default function BLList() {
   const [advanceSearch, setAdvanceSearch] = useState({});
   const [loadingState, setLoadingState] = useState("NO DATA...");
   const { setMode } = formStore();
-  const router = useRouter();
   const tableWrapRef = useRef(null);
   const [selectedIds, setSelectedIds] = useState([]);
   const [idsOnPage, setIdsOnPage] = useState([]);
@@ -64,15 +63,7 @@ export default function BLList() {
   const { data } = useGetUserAccessUtils("HBL Request");
   const [someChecked, setSomeChecked] = useState(false);
   const [allChecked, setAllChecked] = useState(false);
-  const [statusValues, setStatusValues] = useState({
-    advanceBL: false,
-    notificationHistory: false,
-    remarksHold: false,
-    reRequest: false,
-    seawayBL: false,
-    attachments: false,
-    autoDoRequest: false,
-  });
+  const router = useRouter();
 
   // --------------------------------------------
   // 🔥 Fetch Table Data
@@ -143,19 +134,6 @@ export default function BLList() {
     );
   };
 
-  // --------------------------------------------
-  // 🔥 Toolbar Action Handlers
-  // --------------------------------------------
-  const handleView = (id) => {
-    setMode({ mode: "view", formId: id?.[0] });
-    router.push("/invoice/doRequest");
-  };
-
-  const handleEdit = (id) => {
-    setMode({ mode: "edit", formId: id?.[0] });
-    router.push("/invoice/doRequest");
-  };
-
   useEffect(() => {
     getData(1, rowsPerPage);
     setMode({ mode: null, formId: null });
@@ -173,8 +151,12 @@ export default function BLList() {
         </Box>
         <DoToolbarActions
           selectedIds={selectedIds}
-          onView={handleView}
-          onEdit={handleEdit}
+          onView={(ids) =>
+            doStatusHandler(getData, router, setMode).handleView(ids)
+          }
+          onEdit={(ids) =>
+            doStatusHandler(getData, router, setMode).handleEdit(ids)
+          }
           onRequestDO={(ids) => doStatusHandler(getData).handleRequestDO(ids)}
         />
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
@@ -199,7 +181,6 @@ export default function BLList() {
                 <TableCell>Stuff Destuff</TableCell>
                 <TableCell>Liner Name</TableCell>
                 <TableCell>Do Status</TableCell>
-                <TableCell>Assigned To</TableCell>
               </TableRow>
             </TableHead>
 
@@ -230,7 +211,6 @@ export default function BLList() {
                     >
                       {row.doStatus}
                     </TableCell>
-                    <TableCell></TableCell>
                   </TableRow>
                 ))
               ) : (
