@@ -2,8 +2,14 @@
 import { getDataWithCondition } from "@/apis";
 import { useEffect } from "react";
 
-export function useSetDefault({ userData, setFormData, setDefaultvalues }) {
+export function useSetDefault({
+  userData,
+  setFormData,
+  setDefaultvalues,
+  mode,
+}) {
   useEffect(() => {
+    if (mode?.mode !== null) return;
     if (!userData?.location) return;
 
     let isMounted = true;
@@ -52,5 +58,5 @@ export function useSetDefault({ userData, setFormData, setDefaultvalues }) {
     return () => {
       isMounted = false;
     };
-  }, [userData?.location, setFormData]);
+  }, [userData?.location, setFormData, mode?.mode, setDefaultvalues]);
 }

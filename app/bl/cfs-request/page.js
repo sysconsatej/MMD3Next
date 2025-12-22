@@ -69,7 +69,7 @@ export default function Company() {
   };
 
   //  to set default values on 1st render
-  useSetDefault({ userData, setFormData, setDefaultvalues });
+  useSetDefault({ userData, setFormData, setDefaultvalues, mode: mode });
 
   useEffect(() => {
     async function fetchFormHandler() {
