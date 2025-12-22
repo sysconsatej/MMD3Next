@@ -53,18 +53,18 @@ export default function SearchRequestToolbarActions({
     <Box className="w-full flex flex-col gap-2">
       {/* 🔹 FIRST ROW (Buttons) */}
       <div className="flex items-center gap-2 flex-wrap">
-        <Segment
+        {/* <Segment
           label="Edit"
           icon={<EditIcon />}
           onClick={() => onEdit?.(ids[0])}
           disabled={!isSingle}
-        />
-        <Segment
+        /> */}
+        {/* <Segment
           label="View"
           icon={<VisibilityIcon />}
           onClick={() => onView?.(ids[0])}
           disabled={!isSingle}
-        />
+        /> */}
         <Segment
           label="Reject"
           icon={<CancelIcon />}
@@ -78,7 +78,7 @@ export default function SearchRequestToolbarActions({
           onClick={() => onConfirm?.(ids)}
           disabled={!hasAny || disableConfirm}
         />
-        <Segment
+        {/* <Segment
           label="Edit Vessel"
           icon={<DirectionsBoatIcon />}
           onClick={() => onEditVessel?.(ids[0])}
@@ -89,7 +89,7 @@ export default function SearchRequestToolbarActions({
           icon={<MailOutlineIcon />}
           onClick={() => onNotify?.(ids)}
           disabled={!hasAny}
-        />
+        /> */}
       </div>
 
       {/* 🔹 SECOND ROW (Checkboxes) */}
