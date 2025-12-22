@@ -506,12 +506,12 @@ function RptIGMContent() {
                   </>
                 ) : null}
               </p>
-              {(headerData?.polVessel || headerData?.polVoyage) && (
+              {/* {(headerData?.polVessel || headerData?.polVoyage) && (
                 <p className="text-black">
                   EX VESSEL {headerData?.polVessel || ""} VOYAGE{" "}
                   {headerData?.polVoyage || ""}
                 </p>
-              )}
+              )} */}
             </div>
             <hr className="hrRow border-black border-bold" />
           </>
