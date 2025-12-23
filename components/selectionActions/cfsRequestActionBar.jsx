@@ -93,7 +93,7 @@ export default function SearchRequestToolbarActions({
       </div>
 
       {/* 🔹 SECOND ROW (Checkboxes) */}
-      <div className="flex items-center gap-6">
+      {/* <div className="flex items-center gap-6">
         <label className="flex items-center gap-1 bg-[#ffcdd2] px-2 py-[3px] rounded-[3px] text-[11px] cursor-pointer">
           <Checkbox
             size="small"
@@ -117,7 +117,7 @@ export default function SearchRequestToolbarActions({
             Notification History
           </span>
         </label>
-      </div>
+      </div> */}
     </Box>
   );
 }

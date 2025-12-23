@@ -175,7 +175,7 @@ export default function SearchRequestCfsDpdIcd() {
         });
 
         if (res?.success === true) {
-          toast.success(` Status Changed from Requested to Confrim   `);
+          toast.success(`Status Changed from Requested to Reject`);
         }
       }
     } catch (err) {
