@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState,useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { metaData } from "./cargoArrivalNoticeData";
 import { CustomInput } from "@/components/customInput";
@@ -195,19 +195,19 @@ export default function CargoArrivalNotice() {
   };
 
   const formatBlData = (item) => {
-    if (!item) return ""; // if null/undefined return nothing
+    if (!item) return "";
 
     const dateObj = new Date(item);
-    if (isNaN(dateObj)) return ""; // not a valid date
+    if (isNaN(dateObj)) return "";
 
-    return dateObj.toLocaleDateString("en-GB"); // dd/MM/yyyy
+    return dateObj.toLocaleDateString("en-GB");
   };
 
   const formatGrossWt = (grossWt) => {
-    if (grossWt == null || grossWt === "") return ""; // handle null/empty
+    if (grossWt == null || grossWt === "") return "";
     const num = Number(grossWt);
-    if (isNaN(num)) return ""; // safeguard
-    return num.toFixed(2); // 2 decimals
+    if (isNaN(num)) return "";
+    return num.toFixed(2);
   };
 
   const generatedHtmlReport = (item) => {
@@ -339,16 +339,16 @@ export default function CargoArrivalNotice() {
       <hr style="border: 0.5px solid #7F7C82;">
    </div>
     </div>`;
-    return html; // ✅ important
+    return html;
   };
   const handleChangeEventFunctions = useMemo(
-      () =>
-        createHandleChangeEventFunction({
-          setFormData,
-          fields: jsonData.cargoFields,
-        }),
-      [setFormData, jsonData.cargoFields]
-    );
+    () =>
+      createHandleChangeEventFunction({
+        setFormData,
+        fields: jsonData.cargoFields,
+      }),
+    [setFormData, jsonData.cargoFields]
+  );
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={handleSubmit}>
