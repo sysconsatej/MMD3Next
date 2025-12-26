@@ -232,32 +232,14 @@ export default function SearchRequestCfsDpdIcd() {
         {/* ACTION TOOLBAR */}
         <SearchRequestToolbarActions
           selectedIds={selectedIds}
-          // onEdit={handleEdit}
-          // onView={handleView}
           onReject={handleReject}
-          // onVerify={handleVerify}
           onConfirm={handleConfirm}
-          // onEditVessel={handleEditVessel}
-          // onNotify={handleNotify}
-          // amendmentChecked={amendment}
-          // onAmendmentChange={setAmendment}
-          // historyChecked={history}
-          // onHistoryChange={setHistory}
+          
         />
 
         {/* TABLE */}
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
-          <Table
-            size="small"
-            //     className="
-            //     w-full table-fixed
-            //     [&_th]:whitespace-normal [&_td]:whitespace-normal
-            //     [&_th]:break-words      [&_td]:break-words
-            //     [&_th]:px-1 [&_td]:px-1
-            //     [&_th]:py-1 [&_td]:py-1
-            //     [&_th]:text-[11px] [&_td]:text-[10px]
-            // "
-          >
+          <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
