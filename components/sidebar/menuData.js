@@ -250,12 +250,12 @@ export const navItems = [
       {
         name: "PreCAN",
         href: "/reports/customAndPort/preCan",
-        isShow: false,
+        isShow: true,
       },
       {
         name: "Post CAN",
         href: "/reports/customAndPort/postCan",
-        isShow: false,
+        isShow: true,
       },
       {
         name: "Update CFS DPD",
