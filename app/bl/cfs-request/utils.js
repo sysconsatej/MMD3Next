@@ -59,13 +59,13 @@ export const handleBlur = ({
         if (success) {
           const getData = formatDataWithForm(result, fieldData);
           console.log(getData, " [][[]");
-            setFormData((prev) => {
-              return {
-                ...prev,
-                ...getData,
-                cfsRequestStatusId: defaultValues?.cfsRequestStatusId || {},
-              };
-            });
+          setFormData((prev) => {
+            return {
+              ...prev,
+              ...getData,
+              cfsRequestStatusId: defaultValues?.cfsRequestStatusId || {},
+            };
+          });
         } else {
           toast.error(error || message);
         }
@@ -97,14 +97,16 @@ c.name as  dpdId,
 v.name as podVesselId,
 vy.voyageNo as podVoyageId,
 f.name as fpdId,
-c1.name as shippingLineId
+c1.name as shippingLineId,
+b.createdBy,
+c1.name as companyName
 `,
     tableName: "tblBl  b",
     pageNo,
     pageSize,
     searchColumn: search.searchColumn,
     searchValue: search.searchValue,
-    joins: `left join tblLocation  l on l.id = '${userData?.location}'
+    joins: `join tblLocation  l on l.id = b.locationId and l.id = '${userData?.location}' 
 join tblMasterData  m on m.id  =  b.cfsRequestStatusId  and b.cfsRequestStatusId IS NOT NULL
 left join tblMasterData r  on r.id  =  b.cfsTypeId  
 left join tblPort p on p.id  =  b.nominatedAreaId
@@ -112,8 +114,8 @@ left join tblPort c  on  c.id  =  b.dpdId
 left join tblVessel  v on  v.id  =  b.podVesselId
 left join tblVoyage vy on vy.id  = b.podVoyageId
 left join tblPort f on f.id  =  b.fpdId
-left join tblUser u1 on u1.id=b.createdBy
-left join tblCompany c1 on c1.id =u1.companyId`,
+join tblUser u1 on u1.id=b.createdBy and u1.companyId='${userData?.companyId}'
+left join tblCompany c1 on c1.id = b.shippingLineId`,
   };
   return payload;
 };

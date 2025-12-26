@@ -45,7 +45,7 @@ export default function CompanyList() {
   const [rows, setRows] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
-  const [loadingState, setLoadingState] = useState("Loading...");
+  const [loadingState, setLoadingState] = useState("NO DATA...");
   const tableWrapRef = useRef(null);
   const [advanceSearch, setAdvanceSearch] = useState({});
 
