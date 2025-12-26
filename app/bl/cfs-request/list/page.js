@@ -23,12 +23,14 @@ import { toast, ToastContainer } from "react-toastify";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
-import { tblColsLables } from "../fieldsData";
+import { fieldData, tblColsLables } from "../fieldsData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionPayment";
 import { tableObj } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
+import { statusColor } from "../../hbl/utils";
+import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 
 /* checkbox sizing – SAME AS OTHER PAGE */
 const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
@@ -43,9 +45,9 @@ export default function CompanyList() {
   const [rows, setRows] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
-  const [loadingState, setLoadingState] = useState("Loading...");
+  const [loadingState, setLoadingState] = useState("NO DATA...");
   const tableWrapRef = useRef(null);
-  
+  const [advanceSearch, setAdvanceSearch] = useState({});
 
   const { setMode } = formStore();
   const router = useRouter();
@@ -120,6 +122,10 @@ export default function CompanyList() {
   };
 
   /* ---------------- Render ---------------- */
+
+  console.log(tblColsLables)
+
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -128,13 +134,24 @@ export default function CompanyList() {
           <Typography variant="body1">CFS Request</Typography>
 
           <Box className="flex gap-4">
-            <SearchBar
-              getData={getData}
-              rowsPerPage={rowsPerPage}
+            {/* <SearchBar
               search={search}
               setSearch={setSearch}
-              options={rows}
-            />
+              options={fieldData.fields.map((r) => {
+                return { label: r.label, value: r.name };
+              })}
+              rowsPerPage={rowsPerPage}
+              getData={getData}
+            /> */}
+            {/* <AdvancedSearchBar
+              fields={fieldData.fields.map((r) => {
+                return { ...r, disabled: false };
+              })}
+              advanceSearch={advanceSearch}
+              setAdvanceSearch={setAdvanceSearch}
+              getData={getData}
+              rowsPerPage={rowsPerPage}
+            /> */}
             <CustomButton text="Add" href="/bl/cfs-request" />
           </Box>
         </Box>
@@ -148,17 +165,17 @@ export default function CompanyList() {
         />
 
         {/* TABLE */}
-        <TableContainer component={Paper} className="mt-2" ref={tableWrapRef} >
+        <TableContainer component={Paper} className="mt-2" ref={tableWrapRef}>
           <Table
-            size="small"
-            className="
-            w-full table-fixed
-            [&_th]:whitespace-normal [&_td]:whitespace-normal
-            [&_th]:break-words      [&_td]:break-words
-            [&_th]:px-1 [&_td]:px-1
-            [&_th]:py-1 [&_td]:py-1
-            [&_th]:text-[11px] [&_td]:text-[11px]
-           "
+          // size="small"
+          //   className="
+          //   w-full table-fixed
+          //   [&_th]:whitespace-normal [&_td]:whitespace-normal
+          //   [&_th]:break-words      [&_td]:break-words
+          //   [&_th]:px-1 [&_td]:px-1
+          //   [&_th]:py-1 [&_td]:py-1
+          //   [&_th]:text-[11px] [&_td]:text-[11px]
+          //  "
           >
             <TableHead>
               <TableRow>
@@ -176,14 +193,13 @@ export default function CompanyList() {
                   <TableCell key={i}>{label}</TableCell>
                 ))}
 
-                <TableCell />
               </TableRow>
             </TableHead>
 
             <TableBody>
               {rows.length > 0 ? (
                 rows.map((row) => (
-                  <TableRow key={row.id} hover>
+                  <TableRow key={row.id}>
                     <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <Checkbox
                         size="small"
@@ -193,31 +209,26 @@ export default function CompanyList() {
                       />
                     </TableCell>
 
-                    <TableCell>{row.locationId}</TableCell>
-                    <TableCell>{row.shippingLineId}</TableCell>
-                    <TableCell>{row.mblNo}</TableCell>
-                    <TableCell>{row.mblDate}</TableCell>
-                    <TableCell>{row.podVesselId}</TableCell>
-                    <TableCell>{row.podVoyageId}</TableCell>
-                    <TableCell>{row.fpdId}</TableCell>
-                    <TableCell>{row.consigneeText}</TableCell>
-                    <TableCell>{row.cfsTypeId}</TableCell>
-                    <TableCell>{row.nominatedAreaId}</TableCell>
-                    <TableCell>{row.dpdId}</TableCell>
-                    <TableCell>{row.customBrokerText}</TableCell>
-                    <TableCell>{row.cfsRequestStatusId}</TableCell>
-
-                    {/* ACTION ICONS */}
+                    <TableCell>{row?.locationId}</TableCell>
+                    <TableCell>{row?.shippingLineId}</TableCell>
+                    <TableCell>{row?.mblNo}</TableCell>
+                    <TableCell>{row?.mblDate}</TableCell>
+                    <TableCell>{row?.podVesselId}</TableCell>
+                    <TableCell>{row?.podVoyageId}</TableCell>
+                    <TableCell>{row?.fpdId}</TableCell>
+                    <TableCell>{row?.consigneeText}</TableCell>
+                    <TableCell>{row?.cfsTypeId}</TableCell>
+                    <TableCell>{row?.nominatedAreaId}</TableCell>
+                    <TableCell>{row?.dpdId}</TableCell>
+                    <TableCell>{row?.customBrokerText}</TableCell>
                     <TableCell
-                      onClick={(e) => e.stopPropagation()}
-                      className="opacity-0 group-hover:opacity-100"
+                      sx={{
+                        color: statusColor(
+                          row.cfsRequestStatusId.replace(/\s+/g, "")
+                        ),
+                      }}
                     >
-                      <HoverActionIcons
-                        onView={() => modeHandler("view", row.id)}
-                        onEdit={() => modeHandler("edit", row.id)}
-                        onDelete={() => modeHandler("delete", row.id)}
-                        menuAccess={menuAccess ?? {}}
-                      />
+                      {row.cfsRequestStatusId}
                     </TableCell>
                   </TableRow>
                 ))

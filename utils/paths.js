@@ -1,9 +1,17 @@
 export const roleAccessPaths = {
   "/menu-access": ["admin"],
   "/reports": ["admin", "shipping", "customer", "cfs"],
+
   "/bl-status": ["admin", "shipping", "customer", "cfs"],
-  "/bl": ["admin", "shipping", "customer", "cfs"],
-  "/bl/cfs-request/list": ["admin", "shipping", "customer", "cfs"],
+  "/bl/hbl/list": ["admin", "customer"],
+  "/bl/hbl/upload": ["customer", "admin"],
+  "/bl/hbl/linerSearch": ["shipping", "admin"],
+  "/bl/mbl/list": ["shipping", "admin"],
+  "/bl/cfs-request/list": ["admin" , "customer"],
+
+
+
+
   "/request": ["admin", "shipping", "customer", "cfs"],
   "/htmlReports/igmReports": ["admin", "shipping", "customer", "cfs"],
   "/upload": ["admin", "shipping", "customer", "cfs"],
@@ -17,7 +25,6 @@ export const roleAccessPaths = {
   "/reports/customAndPort/igmGenerationAuditReport": ["shipping"],
   "/reports/customAndPort/doRegister": ["shipping"],
   "/reports/customAndPort/slabWiseReport": ["shipping"],
-
 
   // Added master routes with only admin access
   "/master/company/list": ["admin"],
