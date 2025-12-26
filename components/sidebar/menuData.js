@@ -6,14 +6,14 @@ import { getUserByCookies } from "@/utils";
 // Only parent level renders icons; children render text-only.
 const userData = getUserByCookies();
 
-const links =  ()  =>  {
+const links = () => {
   switch (userData?.roleCode) {
-    case  "shipping" :
-      return  "/invoice/doRequest/liner";
-    case  "customer" :
-      return  "/invoice/doRequest/list";
-    default :
-      return  "/invoice/doRequest/list";
+    case "shipping":
+      return "/invoice/doRequest/liner";
+    case "customer":
+      return "/invoice/doRequest/list";
+    default:
+      return "/invoice/doRequest/list";
   }
 };
 
@@ -242,8 +242,8 @@ export const navItems = [
         isShow: false,
       },
       {
-        name: "Cargo Arrival Notice",
-        href: "/reports/customAndPort/cargoArrivalNotice",
+        name: "PreCAN",
+        href: "/reports/customAndPort/preCan",
         isShow: false,
       },
       {
