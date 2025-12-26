@@ -17,16 +17,16 @@ const links = () => {
   }
 };
 
-const links1 = () => {
-  switch (userData?.roleCode) {
-    case "shipping":
-      return "/bl/cfs-request/liner";
-    case "customer":
-      return "/bl/cfs-request/list";
-    default:
-      return "/bl/cfs-request/list";
-  }
-};
+// const links1 = () => {
+//   switch (userData?.roleCode) {
+//     case "shipping":
+//       return "/bl/cfs-request/liner";
+//     case "customer":
+//       return "/bl/cfs-request/list";
+//     default:
+//       return "/bl/cfs-request/list";
+//   }
+// };
 
 export const navItems = [
   { name: "Home", href: "/home", icon: "home", isShow: true },
@@ -130,7 +130,13 @@ export const navItems = [
       },
       {
         name: "CFS Request",
-        href: links1(),
+        href: "/bl/cfs-request/list",
+        isShow: false,
+      },
+
+      {
+        name: "CFS Track",
+        href: "/bl/cfs-request/liner",
         isShow: false,
       },
     ],

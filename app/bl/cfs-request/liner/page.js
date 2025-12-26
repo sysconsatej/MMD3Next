@@ -83,20 +83,18 @@ export default function SearchRequestCfsDpdIcd() {
           pageNo,
           pageSize,
           joins: `
-            left join tblUser u on u.id = ${userData?.userId}
-            left join tblLocation l on l.id =${userData?.location}
-            join tblMasterData m 
-              on m.id = b.cfsRequestStatusId 
-             and b.cfsRequestStatusId IS NOT NULL
-            left join tblMasterData r on r.id = b.cfsTypeId
-            left join tblPort p1 on p1.id = b.polId
-            left join tblPort p on p.id = b.nominatedAreaId
-            left join tblPort c on c.id = b.dpdId
-            left join tblVessel v on v.id = b.podVesselId
-            left join tblVoyage vy on vy.id = b.podVoyageId
-            left join tblPort f on f.id = b.fpdId
-            left join tblUser u1 on u1.id = b.createdBy
-            join tblCompany c1 on c1.id = u1.companyId and b.shippingLineId = u1.companyId
+        left join tblUser u on u.id = ${userData?.userId}
+        left join tblCompany c1 on c1.id = u.companyId 
+        left join tblLocation l on l.id = ${userData?.location}
+        join tblMasterData m on m.id = b.cfsRequestStatusId 
+        and b.cfsRequestStatusId IS NOT NULL and b.locationId = l.id and b.shippingLineId = u.companyId 
+        left join tblMasterData r on r.id = b.cfsTypeId 
+        left join tblPort p1 on p1.id = b.polId 
+        left join tblPort p on p.id = b.nominatedAreaId 
+        left join tblPort c on c.id = b.dpdId 
+        left join tblVessel v on v.id = b.podVesselId 
+        left join tblVoyage vy on vy.id = b.podVoyageId 
+        left join tblPort f on f.id = b.fpdId
           `,
         };
 
@@ -175,7 +173,7 @@ export default function SearchRequestCfsDpdIcd() {
         });
 
         if (res?.success === true) {
-          toast.success(` Status Changed from Requested to Confrim   `);
+          toast.success(`Status Changed from Requested to Reject`);
         }
       }
     } catch (err) {
@@ -251,14 +249,14 @@ export default function SearchRequestCfsDpdIcd() {
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table
             size="small"
-        //     className="
-        //     w-full table-fixed
-        //     [&_th]:whitespace-normal [&_td]:whitespace-normal
-        //     [&_th]:break-words      [&_td]:break-words
-        //     [&_th]:px-1 [&_td]:px-1
-        //     [&_th]:py-1 [&_td]:py-1
-        //     [&_th]:text-[11px] [&_td]:text-[10px]
-        // "
+            //     className="
+            //     w-full table-fixed
+            //     [&_th]:whitespace-normal [&_td]:whitespace-normal
+            //     [&_th]:break-words      [&_td]:break-words
+            //     [&_th]:px-1 [&_td]:px-1
+            //     [&_th]:py-1 [&_td]:py-1
+            //     [&_th]:text-[11px] [&_td]:text-[10px]
+            // "
           >
             <TableHead>
               <TableRow>
@@ -315,9 +313,7 @@ export default function SearchRequestCfsDpdIcd() {
                     <TableCell>{row.NominatedCB || "-"}</TableCell>
                     <TableCell
                       sx={{
-                        color: statusColor(
-                          row.statusName.replace(/\s+/g, "")
-                        ),
+                        color: statusColor(row.statusName.replace(/\s+/g, "")),
                       }}
                     >
                       {row.statusName || "-"}
