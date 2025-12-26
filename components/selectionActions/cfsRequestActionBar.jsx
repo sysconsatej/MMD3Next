@@ -36,23 +36,22 @@ export default function SearchRequestToolbarActions({
     <Tooltip title={label} arrow disableInteractive>
       <div
         className={[
-         "flex items-center gap-1 rounded-[3px] px-1.5 py-[2px] text-[11px] leading-none",
-          "bg-[#efefef] text-[#444] border border-[#d9d9d9]",
-          "cursor-pointer hover:bg-[#e9e9e9] hover:text-[#111]",
+          "flex-1 text-center py-1 px-3 cursor-pointer hover:bg-[#B5C4F0] hover:text-white border-r border-[#B5C4F0]",
+          // "bg-[#efefef] text-[#444] border border-[#d9d9d9]",
+          // "cursor-pointer hover:bg-[#e9e9e9] hover:text-[#111]",
           disabled ? "pointer-events-none opacity-50 cursor-not-allowed" : "",
         ].join(" ")}
         onClick={!disabled ? onClick : undefined}
       >
-        {React.cloneElement(icon, { sx: { fontSize: 14 } })}
+        {/* {React.cloneElement(icon, { sx: { fontSize: 14 } })} */}
         <span>{label}</span>
       </div>
     </Tooltip>
   );
 
   return (
-    <Box className="w-full flex flex-col gap-2">
-      {/* 🔹 FIRST ROW (Buttons) */}
-      <div className="flex items-center gap-2 flex-wrap">
+    <Box className="flex items-center justify-between">
+      <div className="flex border text-black border-[#B5C4F0] mt-2 text-xs rounded-sm overflow-hidden">
         {/* <Segment
           label="Edit"
           icon={<EditIcon />}
@@ -67,14 +66,12 @@ export default function SearchRequestToolbarActions({
         /> */}
         <Segment
           label="Reject"
-          icon={<CancelIcon />}
           onClick={() => onReject?.(ids)}
           disabled={!hasAny}
         />
 
         <Segment
           label="Confirm"
-          icon={<CheckCircleIcon />}
           onClick={() => onConfirm?.(ids)}
           disabled={!hasAny || disableConfirm}
         />

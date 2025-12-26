@@ -140,12 +140,15 @@ export default function Home() {
     const promises = format.map(async (item) => {
       const formId = item?.id ?? null;
       const { id, ...resData } = item;
+      console.log(resData, "res Data [][][][]");
       const formatItem = formatFormData(
         "tblBl",
         {
           ...resData,
           mblHblFlag: "HBL",
           locationId: userData?.location || null,
+          companyBranchId: userData?.companyId,
+          companyBranchId: userData?.companyBranchId,
         },
         formId,
         "blId"
@@ -361,21 +364,6 @@ export default function Home() {
       if (success) {
         setHblStatus(data);
       }
-
-      // 3) Company + branch from logged-in user
-      setFormData((prev) => {
-        return {
-          ...prev,
-          companyId: {
-            Id: userData.companyId,
-            Name: userData.companyName,
-          },
-          companyBranchId: {
-            Id: userData.branchId,
-            Name: userData.branchName,
-          },
-        };
-      });
 
       // 4) 🔹 Default CIN Type = "PCIN" for NEW requests only
       if (!mode.formId) {

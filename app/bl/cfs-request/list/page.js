@@ -123,9 +123,6 @@ export default function CompanyList() {
 
   /* ---------------- Render ---------------- */
 
-  console.log(tblColsLables)
-
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -162,6 +159,7 @@ export default function CompanyList() {
           onEdit={(id) => modeHandler("edit", id)}
           onView={(id) => modeHandler("view", id)}
           onUpdated={() => getData(page, rowsPerPage)}
+          showEdit
         />
 
         {/* TABLE */}
@@ -192,7 +190,6 @@ export default function CompanyList() {
                 {tblColsLables.map((label, i) => (
                   <TableCell key={i}>{label}</TableCell>
                 ))}
-
               </TableRow>
             </TableHead>
 
