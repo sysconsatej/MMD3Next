@@ -10,14 +10,12 @@ import { toast } from "react-toastify";
 export const storeApiResult = [];
 
 function hasDuplicateId(arr) {
-  const seenIds = new Set();
+  const seen = new Set();
 
   for (const obj of arr) {
-    const uniqueKey = `${obj.id}-${obj.name}`;
-    if (seenIds.has(uniqueKey)) {
-      return true;
-    }
-    seenIds.add(uniqueKey);
+    if (!obj?.Id) continue;
+    if (seen.has(obj.Id)) return true;
+    seen.add(obj.Id);
   }
 
   return false;
@@ -266,137 +264,108 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
       }
     },
     handleChangeOnPOL: async (name, value) => {
+      const updates = {};
+
+      // POL → PLR mapping
       if (name === "polId") {
-        setFormData((prev) => {
-          return {
-            ...prev,
-            plrId: value ? { Id: value?.Id, Name: value?.Name } : {},
-          };
-        });
+        updates.plrId = value ? { Id: value.Id, Name: value.Name } : {};
       }
 
+      // Fetch port-based country data
       await getPortBasedOnCountry({
         portId: value?.Id,
         inputName: name,
       });
 
-      const mappedObj = storeApiResult.reduce((acc, item) => {
-        acc[item.inputName] = item.countryCategory; // "F" / "IN" / "IN(ICD)"
+      // Map storeApiResult → { polId, podId, fpdId }
+      const countryMap = storeApiResult.reduce((acc, item) => {
+        acc[item.inputName] = item.countryCategory;
         return acc;
       }, {});
 
-      const polId = mappedObj.polId;
-      const podId = mappedObj.podId;
-      const fpdId = mappedObj.fpdId;
+      const { polId, podId, fpdId } = countryMap;
 
+      // Fetch movement + cargo master data
       const payload = {
-        columns: `m.id Id  , name  Name , m.code code , m.masterListName `,
-        tableName: `tblMasterData  m`,
+        columns: "m.id Id, name Name, m.code code, m.masterListName",
+        tableName: "tblMasterData m",
         whereCondition:
-          "(m.masterListName  =  'tblServiceType'  OR m.masterListName  =  'tblMovementType') AND m.status  = 1",
+          "(m.masterListName = 'tblServiceType' OR m.masterListName = 'tblMovementType') AND m.status = 1",
       };
 
       const res = await getDataWithCondition(payload);
-      const data = res && res?.data;
-      console.log(data);
-      if (!data) {
-        return;
-      }
-      const tblMovementType =
-        data &&
-        Array.isArray(data) &&
-        data.filter((info) => info?.masterListName === "tblMovementType");
-      const cargoType =
-        data &&
-        Array.isArray(data) &&
-        data.filter((info) => info.masterListName === "tblServiceType");
+      const data = res?.data;
 
-      if (!tblMovementType || !cargoType) {
-        return;
-      }
+      if (!Array.isArray(data)) return;
 
-      //  for type of cargo
+      // Create lookup maps
+      const cargoMap = {};
+      const movementMap = {};
+
+      data.forEach((item) => {
+        if (item.masterListName === "tblServiceType") {
+          cargoMap[item.code] = item;
+        }
+        if (item.masterListName === "tblMovementType") {
+          movementMap[item.code] = item;
+        }
+      });
+
+      /* -------------------- Cargo Type Rules -------------------- */
+
       if (polId === "IN" && podId === "IN") {
-        const updatedData = cargoType?.filter((info) => info?.code === "CG");
-
-        setFormData((prev) => {
-          return {
-            ...prev,
-            cargoTypeId: { Id: updatedData[0]?.Id, Name: updatedData[0]?.code },
-          };
-        });
+        updates.cargoTypeId = cargoMap.CG && {
+          Id: cargoMap.CG.Id,
+          Name: cargoMap.CG.code,
+        };
       }
 
       if (polId === "F" && podId === "F") {
-        const updatedData = cargoType?.filter((info) => info?.code === "TR");
-        setFormData((prev) => {
-          return {
-            ...prev,
-            cargoTypeId: { Id: updatedData[0]?.Id, Name: updatedData[0]?.code },
-          };
-        });
+        updates.cargoTypeId = cargoMap.TR && {
+          Id: cargoMap.TR.Id,
+          Name: cargoMap.TR.code,
+        };
       }
 
       if (polId === "F" && podId === "IN") {
-        const updatedData = cargoType?.filter((info) => info?.code === "IM");
-        setFormData((prev) => {
-          return {
-            ...prev,
-            cargoTypeId: { Id: updatedData[0]?.Id, Name: updatedData[0]?.code },
-          };
-        });
+        updates.cargoTypeId = cargoMap.IM && {
+          Id: cargoMap.IM.Id,
+          Name: cargoMap.IM.code,
+        };
       }
 
-      // for cargo movement
+      /* -------------------- Movement Type Rules -------------------- */
 
       if (podId === "F") {
-        const updateMovementData = tblMovementType.filter(
-          (info) => info?.code === "TC"
-        );
-        setFormData((prev) => {
-          return {
-            ...prev,
-            movementTypeId: {
-              Id: updateMovementData[0]?.Id,
-              Name: updateMovementData[0]?.code,
-            },
-          };
-        });
+        updates.movementTypeId = movementMap.TC && {
+          Id: movementMap.TC.Id,
+          Name: movementMap.TC.code,
+        };
       }
 
       if (podId === "IN" && fpdId === "IN") {
-        const flteredData = storeApiResult.filter(
-          (i) => i?.inputName === "polId" || i?.inputName === "podId"
+        const filtered = storeApiResult.filter(
+          (i) => i.inputName === "polId" || i.inputName === "podId"
         );
-        const sameData = hasDuplicateId(flteredData);
-        if (sameData) {
-          const updateMovementData = tblMovementType.filter(
-            (info) => info?.code === "LC"
-          );
-          setFormData((prev) => {
-            return {
-              ...prev,
-              movementTypeId: {
-                Id: updateMovementData[0]?.Id,
-                Name: updateMovementData[0]?.code,
-              },
+
+        const isSamePort = hasDuplicateId(filtered);
+
+        updates.movementTypeId = isSamePort
+          ? movementMap.LC && {
+              Id: movementMap.LC.Id,
+              Name: movementMap.LC.code,
+            }
+          : movementMap.TI && {
+              Id: movementMap.TI.Id,
+              Name: movementMap.TI.code,
             };
-          });
-        } else {
-          const updateMovementData = tblMovementType.filter(
-            (info) => info?.code === "TI"
-          );
-          setFormData((prev) => {
-            return {
-              ...prev,
-              movementTypeId: {
-                Id: updateMovementData[0]?.Id,
-                Name: updateMovementData[0]?.code,
-              },
-            };
-          });
-        }
       }
+
+      // Final single state update
+      setFormData((prev) => ({
+        ...prev,
+        ...updates,
+      }));
     },
     setCarrierBondAndCode: async (name, value, { tabIndex }) => {
       if (!value?.Id) return;
