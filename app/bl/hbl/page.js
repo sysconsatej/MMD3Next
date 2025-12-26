@@ -345,7 +345,7 @@ export default function Home() {
       const obj1 = {
         columns: "id as Id, name as Name",
         tableName: "tblMasterData",
-        whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
+        whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES' and status = 1`,
       };
       const { data: data1, success: success1 } = await getDataWithCondition(
         obj1

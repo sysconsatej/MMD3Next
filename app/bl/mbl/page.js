@@ -181,20 +181,6 @@ export default function Home() {
 
   //  this useEffect is used for Auto set values
   useEffect(() => {
-    async function getMblData() {
-      const obj = {
-        columns:
-          "id as Id, name as Name , masterListName as masterListName , code as code",
-        tableName: "tblMasterData",
-        whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES'`,
-      };
-      const { data, success } = await getDataWithCondition(obj);
-      // console.log(data?.filter(i => i?.masterListName === 'tblTypeOfShipment' && i?.masterListName === 'tblItemType'), ' [][][]]');
-      if (success) {
-        setPackTypeState(data[0]);
-      }
-    }
-
     setFormData((prev) => ({
       ...prev,
       companyId: {
@@ -207,20 +193,20 @@ export default function Home() {
       },
       ...(!mode?.formId
         ? {
-          // set only if empty, for safety
-          ...(!prev?.shippingLineId && {
-            shippingLineId: {
-              Id: userData.companyId,
-              Name: userData.companyName,
-            },
-          }),
-          ...(!prev?.mloId && {
-            mloId: {
-              Id: userData.companyId,
-              Name: userData.companyName,
-            },
-          }),
-        }
+            // set only if empty, for safety
+            ...(!prev?.shippingLineId && {
+              shippingLineId: {
+                Id: userData.companyId,
+                Name: userData.companyName,
+              },
+            }),
+            ...(!prev?.mloId && {
+              mloId: {
+                Id: userData.companyId,
+                Name: userData.companyName,
+              },
+            }),
+          }
         : {}),
     }));
     if (mode?.formId) return;
@@ -293,6 +279,16 @@ export default function Home() {
             // don't override if user / fetch already set
             prev?.cinType ? prev : { ...prev, cinType: cinRes.data[0] }
           );
+        }
+
+        const obj = {
+          columns: "id as Id, name as Name",
+          tableName: "tblMasterData",
+          whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES' and status = 1`,
+        };
+        const { data, success } = await getDataWithCondition(obj);
+        if (success) {
+          setPackTypeState(data[0]);
         }
       } catch (e) {
         if (!cancelled) {

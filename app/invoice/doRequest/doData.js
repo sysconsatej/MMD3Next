@@ -85,6 +85,19 @@ export const fieldData = {
       name: "deliveryZipCode",
       isEdit: true,
     },
+    {
+      label: "Nominated Area (CFS)",
+      name: "nominatedAreaId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      joins: "LEFT JOIN tblMasterData m ON m.id = p.portTypeId",
+      searchColumn: "p.name",
+      orderBy: "p.name",
+      foreignTable: "code-name,tblPort",
+      style: "col-span-2 row-span-1",
+      isEdit: true,
+    },
   ],
 
   tblInvoicePayment: [
