@@ -253,6 +253,11 @@ export const navItems = [
         isShow: false,
       },
       {
+        name: "Post CAN",
+        href: "/reports/customAndPort/postCan",
+        isShow: false,
+      },
+      {
         name: "Update CFS DPD",
         href: "/reports/customAndPort/updateCfsDpd",
         isShow: false,

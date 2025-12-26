@@ -147,8 +147,6 @@ export default function CargoArrivalNotice() {
                 toast.info("No data returned to email");
                 return;
             }
-
-            // 5) Send emails one by one (sequential ensures simpler rate-limit handling)
             let successCount = 0;
             let failureCount = 0;
             let blNo = null;
@@ -156,10 +154,10 @@ export default function CargoArrivalNotice() {
             for (const item of data) {
                 try {
                     blNo = item?.blNo || "";
-                    const html = generatedHtmlReport(item); // assumes this never throws
+                    const html = generatedHtmlReport(item);
                     const emailPayload = {
-                        tailwindLocalPath: "./assets/css/tailwind.min.css", // optional
-                        to: "productmgr@mastergroups.com", // TODO: replace with item-specific email if needed
+                        tailwindLocalPath: "./assets/css/tailwind.min.css",
+                        to: "tejas@sysconinfotech.com",
                         htmlContent: html,
                     };
 
@@ -173,18 +171,13 @@ export default function CargoArrivalNotice() {
                     }
                 } catch (err) {
                     failureCount++;
-                    //toast.error(err?.message || "Failed to send one email");
                 }
             }
 
-            // 6) Final summary
             if (successCount > 0) {
             }
             if (failureCount > 0) {
-                //toast.error(`Failed: ${failureCount}`);
             }
-
-            // (Optional) console logs for debugging
             console.log("Fetched Data:", data);
             console.log("Selected Rows:", tableFormData);
         } catch (e) {
