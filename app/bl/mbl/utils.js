@@ -150,7 +150,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         columns: `(select id from tblState s where s.id = ci.stateId and s.status = 1) stateId,
                   (select name from tblState s where s.id = ci.stateId and s.status = 1) stateName,
                   (select id from tblCountry c where c.id = ci.countryId and c.status = 1) countyId,
-                  (select name from tblCountry c where c.id = ci.countryId and c.status = 1) countryName`,
+                  (select concat(code, ' - ', name) from tblCountry c where c.id = ci.countryId and c.status = 1) countryName`,
         tableName: "tblCity ci",
         whereCondition: `ci.id = ${value.Id} and ci.status = 1`,
       };
@@ -308,6 +308,28 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         ...(cargoObj ? { cargoTypeId: cargoObj } : {}),
       }));
     },
+    setCarrierBondAndCode: async (name, value, { tabIndex }) => {
+      if (!value?.Id) return;
+
+      const obj = {
+        columns: `
+      t.bondNo,
+      t.panNo
+    `,
+        tableName: "tblCarrierPort t",
+        whereCondition: `t.id = ${value.Id}`,
+      };
+
+      const { data } = await getDataWithCondition(obj);
+
+      setFormData((prev) => {
+        return {
+          ...prev,
+          carrierBondNo: data?.[0]?.bondNo ?? null,
+          carrierPanNo: data?.[0]?.panNo ?? null,
+        };
+      });
+    },
 
     handleChangeOnVessel: async (name, value) => {
       const vesselId = value?.Id || null;
@@ -369,7 +391,7 @@ export const createdHandleBlurEventFunctions = ({ setFormData, formData }) => {
         setFormData((prevData) =>
           setInputValue({
             prevData,
-            tabName: "tblBl",
+            tabName: null,
             gridName: "tblBlContainer",
             tabIndex,
             containerIndex,

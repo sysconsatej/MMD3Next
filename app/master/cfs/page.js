@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data from "./cfsData";
+import data, { branchGridButtons } from "./cfsData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -10,6 +10,7 @@ import CustomButton from "@/components/button/button";
 import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { formStore } from "@/store";
+import TableGrid from "@/components/tableGrid/tableGrid";
 
 export default function Cfs() {
   const [formData, setFormData] = useState({});
@@ -20,7 +21,7 @@ export default function Cfs() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData("tblPort", formData, mode.formId);
+    const format = formatFormData("tblPort", formData, mode.formId, "portId");
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
@@ -89,12 +90,38 @@ export default function Cfs() {
       }
     },
   };
+  const handleChangeEventFunctions = {
+    onReferencePortChange: (name, value, { setFormData }) => {
+      setJsonData((prev) => {
+        const updateTblPortDetails = prev.tblPortDetails.map((field) => {
+          if (field.name === "berthId") {
+            return {
+              ...field,
+              where: `m.name IN ('PORT TERMINAL') and p.referencePortId = ${value?.Id}`,
+            };
+          }
+          return field;
+        });
+
+        return {
+          ...prev,
+          tblPortDetails: updateTblPortDetails,
+        };
+      });
+    },
+  };
 
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
         setFieldsMode(mode.mode);
-        const format = formatFetchForm(data, "tblPort", mode.formId);
+        const format = formatFetchForm(
+          data,
+          "tblPort",
+          mode.formId,
+          '["tblPortDetails"]',
+          "portId"
+        );
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
           const getData = formatDataWithForm(result, data);
@@ -150,7 +177,18 @@ export default function Cfs() {
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
                 handleBlurEventFunctions={handleBlurEventFunctions}
+                handleChangeEventFunctions={handleChangeEventFunctions}
                 errorState={errorState}
+              />
+            </Box>
+            <Box className="p-1">
+              <TableGrid
+                fields={jsonData.tblPortDetails}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={mode.mode}
+                gridName="tblPortDetails"
+                buttons={branchGridButtons}
               />
             </Box>
           </Box>

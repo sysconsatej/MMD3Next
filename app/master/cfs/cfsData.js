@@ -1,3 +1,5 @@
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
 const fieldData = {
   cfsFields: [
     {
@@ -47,6 +49,7 @@ const fieldData = {
       orderBy: "p.name",
       foreignTable: "name,tblPort",
       isEdit: true,
+      changeFun: "onReferencePortChange"
     },
     {
       label: "Mode Of Transport",
@@ -71,6 +74,30 @@ const fieldData = {
       blurFun: "validatePanCard",
     },
   ],
+  tblPortDetails: [
+    {
+      label: "Berth",
+      name: "berthId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      foreignTable: "name,tblPort",
+      joins: "JOIN tblMasterData m ON m.id = p.portTypeId",
+      where: "m.name IN ('PORT TERMINAL')",
+      displayColumn: "p.name",
+      orderBy: "p.name",
+      isEdit: true,
+    },
+    {
+      label: "CFS Code",
+      name: "cfsCode",
+      isEdit: true,
+    },
+    {
+      label: "DPD CFS Code",
+      name: "dpdCfsCode",
+      isEdit: true,
+    },
+  ],
 };
 
 export const cfs = [
@@ -83,3 +110,15 @@ export const cfs = [
 ];
 
 export default fieldData;
+export const branchGridButtons = [
+  {
+    text: "Add ",
+    icon: <AddIcon />,
+    func: "gridAddHandler",
+  },
+  {
+    text: "Delete ",
+    icon: <CloseIcon />,
+    func: "gridDeleteHandler",
+  },
+];
