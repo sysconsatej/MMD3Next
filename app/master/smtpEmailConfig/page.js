@@ -12,7 +12,7 @@ import { formatDataWithForm, formatFetchForm, formatFormData, getUserByCookies }
 import { formStore } from "@/store";
 import TableGrid from "@/components/tableGrid/tableGrid";
 
-export default function smtpEmailConfig() {
+export default function SmtpEmailConfig() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
