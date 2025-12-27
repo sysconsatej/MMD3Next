@@ -248,9 +248,14 @@ export const navItems = [
         isShow: false,
       },
       {
-        name: "Cargo Arrival Notice",
-        href: "/reports/customAndPort/cargoArrivalNotice",
-        isShow: false,
+        name: "PreCAN",
+        href: "/reports/customAndPort/preCan",
+        isShow: true,
+      },
+      {
+        name: "Post CAN",
+        href: "/reports/customAndPort/postCan",
+        isShow: true,
       },
       {
         name: "Update CFS DPD",

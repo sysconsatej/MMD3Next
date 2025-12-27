@@ -460,7 +460,7 @@ export const createHandleChangeFunc = ({
         columns: `(select id from tblState s where s.id = ci.stateId and s.status = 1) stateId,
                     (select name from tblState s where s.id = ci.stateId and s.status = 1) stateName,
                     (select id from tblCountry c where c.id = ci.countryId and c.status = 1) countyId,
-                    (select name from tblCountry c where c.id = ci.countryId and c.status = 1) countryName`,
+                    (select concat(code, ' - ', name) from tblCountry c where c.id = ci.countryId and c.status = 1) countryName`,
         tableName: "tblCity ci",
         whereCondition: `ci.id = ${value?.Id} and ci.status = 1`,
       };

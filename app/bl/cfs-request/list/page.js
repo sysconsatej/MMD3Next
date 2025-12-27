@@ -106,7 +106,7 @@ export default function CompanyList() {
       toast.error(error || message);
     }
   };
-  
+
   /* ---------------- Render ---------------- */
   useEffect(() => {
     getData(1, rowsPerPage);

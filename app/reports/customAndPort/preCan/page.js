@@ -14,9 +14,9 @@ import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 
 export default function CargoArrivalNotice() {
   const headerImg =
-    "http://94.136.187.170:4000/uploads/cargo-arrival-header.png";
+    "";
   const signImg =
-    "http://94.136.187.170:4000/uploads/cargo-arrival-signature.png";
+    "";
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
@@ -31,9 +31,9 @@ export default function CargoArrivalNotice() {
     return Object.fromEntries(
       Object.entries(data).map(([key, value]) => {
         if (value && typeof value === "object" && "Id" in value) {
-          return [key, value.Id]; // take only the Id
+          return [key, value.Id];
         }
-        return [key, value]; // keep original if not object
+        return [key, value];
       })
     );
   };
@@ -106,7 +106,6 @@ export default function CargoArrivalNotice() {
   };
 
   const handleSendEmail = async () => {
-    // 1) Validate selection
     if (!Array.isArray(tableFormData) || tableFormData.length === 0) {
       toast.info("Please select at least one record");
       return;
@@ -114,7 +113,6 @@ export default function CargoArrivalNotice() {
 
     setEmailLoading(true);
     try {
-      // 2) Build clean id list: prefer ID over id, remove empties, de-dupe
       const cleanedRows = Array.from(
         new Set(
           tableFormData
@@ -127,8 +125,6 @@ export default function CargoArrivalNotice() {
         toast.info("No valid IDs found in selected rows");
         return;
       }
-
-      // 3) Request payload
       const requestBody = {
         spName: "blData",
         jsonData: {
@@ -147,8 +143,6 @@ export default function CargoArrivalNotice() {
         toast.info("No data returned to email");
         return;
       }
-
-      // 5) Send emails one by one (sequential ensures simpler rate-limit handling)
       let successCount = 0;
       let failureCount = 0;
       let blNo = null;
@@ -156,10 +150,10 @@ export default function CargoArrivalNotice() {
       for (const item of data) {
         try {
           blNo = item?.blNo || "";
-          const html = generatedHtmlReport(item); // assumes this never throws
+          const html = generatedHtmlReport(item);
           const emailPayload = {
-            tailwindLocalPath: "./assets/css/tailwind.min.css", // optional
-            to: "productmgr@mastergroups.com", // TODO: replace with item-specific email if needed
+            tailwindLocalPath: "./assets/css/tailwind.min.css",
+            to: "tejas@sysconinfotech.com",
             htmlContent: html,
           };
 
@@ -173,20 +167,13 @@ export default function CargoArrivalNotice() {
           }
         } catch (err) {
           failureCount++;
-          //toast.error(err?.message || "Failed to send one email");
         }
       }
 
-      // 6) Final summary
       if (successCount > 0) {
       }
       if (failureCount > 0) {
-        //toast.error(`Failed: ${failureCount}`);
       }
-
-      // (Optional) console logs for debugging
-      console.log("Fetched Data:", data);
-      console.log("Selected Rows:", tableFormData);
     } catch (e) {
       toast.error(e?.message || "Something went wrong.");
     } finally {
@@ -218,126 +205,125 @@ export default function CargoArrivalNotice() {
        alt="header" 
        style="width: 100%; height: 100%; object-fit: cover; display: block;" />
    </div>
-   <div style="display: flex; padding: 20px;">
-      <div style="width: 50%">
-         <p style="font-size: 16px; font-weight: bold; margin: 0;">${item?.shipper || ""
-      }</p>
-         <p style="font-size: 11px; ; margin: 5px 0 0 0; width: 70%;">${item?.shipperAddress || ""
-      }
-         </p>
-      </div>
-      <div style="width: 50%;">
-         <p style="font-size: 16px; font-weight: bold; margin: 0; text-align: right;">CARGO ARRIVAL NOTICE</p>
-         <p style="font-size: 11px; ; margin: 5px 0 0 0;text-align: right;">12/09/2025</p>
-      </div>
-   </div>
-   <div style="padding: 0 20px;">
-      <p style="font-size: 11px; ; margin: 0;">IEC: </p>
-      <p style="font-size: 11px; ; margin: 0;">PAN: </p>
-      <p style="font-size: 11px; ; margin: 0;">GSTN: </p>
-   </div>
-   <div style="padding: 20px;">
-      <p style="font-size: 11px; ; margin: 0;">Dear Sir/Madam</p>
-      <p style="font-size: 11px; ; margin: 0; width: 70%;">This notice is to update your good office about the arrival of below mentioned shipment at destination.
-         ETA: ${formatBlData(
-        item?.arrivalDate
-      )} (Contact us and verify ETA as last-minute schedule change can happen)
-         ${formatBlData(item?.podVessel)} - ${formatBlData(item?.podVoyage)}
+    <div className="flex justify-between w-full">
+      <div className="flex items-end justify-start">
+       <p className="text-black font-bold" style={{ fontSize: "10px" }}>
+       To, <br />
+        ${item?.consigneeName || ""}<br />
+        ${item?.consigneeNameAndAddress || ""}<br />
       </p>
+     </div>
+     <div className="flex justify-between w-full">
+        <p  className="text-black">
+          Please find system generated Cargo Arrival Notice of your shipment.<br />
+          Please arrange to pay all local charges and take delivery of your shipment once discharged.<br />
+          Looking forward to your valuable support.<br />
+        </p>
+      </div>
    </div>
-   <div style="padding: 0 20px; display: flex;">
-      <div style="width: 40%;">
-         <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">Shipper Name & Address</p>
-         <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">${item?.shipper || ""
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%; margin-top:10px;">
+       <div style="display:flex; gap:6px; width:30%; font-size:14px; line-height:1.2; color:#000;">
+         <span style="font-weight:700;">B/L No.:</span>
+         <span>${item?.blNo || ""}</span>
+      </div>
+         <div style="display:flex; gap:6px; width:70%; font-size:14px; line-height:1.2; color:#000;">
+          <span style="font-weight:700;">B/L Date.:</span>
+          <span>${formatBlData(item?.blData || "")}</span>
+        </div>
+    </div>
+     <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
+           <span style="font-weight:700;">Vessel - Voyage:</span>
+           <span>${item?.podVessel || ""} - ${item?.podVoyage || ""}</span>
+     </div>
+    <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
+           <span style="font-weight:700;">E.T.A:</span>
+           <span>${item?.arrivalDate || ""}</span>
+     </div>
+      <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
+           <span style="font-weight:700;">Port of Loading:</span>
+           <span>${item?.pol || ""}</span>
+     </div>
+      <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
+           <span style="font-weight:700;">Port of Discharge:</span>
+           <span>${item?.pod || ""}</span>
+     </div>
+      <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
+           <span style="font-weight:700;">Port of Delivery:</span>
+           <span>${item?.fpd || ""}</span>
+     </div>
+      <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
+     <div style="font-size:12px; line-height:1.35;">
+    <span style="font-weight:700;">Description of Goods:</span>
+    <span style="
+      font-weight:400;
+      margin-left:6px;
+      white-space:normal;
+      word-break:break-word;
+      overflow-wrap:anywhere;
+    ">
+      ${String(item?.goodsDesc ?? "").replace(/\s+/g, " ").trim()}
+    </span>
+  </div>
+</div>
+  <div style="padding:10px 20px 0 20px;">
+    <table cellpadding="0" cellspacing="0"
+      style="width:100%; border-collapse:collapse; font-size:10px; color:#000;">
+      <thead>
+        <tr>
+          <th style="border:1px solid #000; padding:5px; text-align:left;">Container No.</th>
+          <th style="border:1px solid #000; padding:5px; text-align:left;">Size</th>
+          <th style="border:1px solid #000; padding:5px; text-align:left;">Seal No.</th>
+          <th style="border:1px solid #000; padding:5px; text-align:right;">No. of Packages</th>
+          <th style="border:1px solid #000; padding:5px; text-align:left;">Package Type</th>
+          <th style="border:1px solid #000; padding:5px; text-align:left;">Type</th>
+          <th style="border:1px solid #000; padding:5px; text-align:right;">Gross Wt</th>
+          <th style="border:1px solid #000; padding:5px; text-align:right;">Container Gross Wt</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${Array.isArray(item?.tblBlContainer) && item.tblBlContainer.length
+        ? item.tblBlContainer.map((c) => `
+              <tr>
+                <td style="border:1px solid #000; padding:5px; text-align:left;">${c?.containerNo ?? ""}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:left;">${c?.size ?? ""}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:left;">${c?.agentSealNo ?? c?.customSealNo ?? ""}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">${c?.noOfPackages ?? ""}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:left;">${c?.package ?? ""}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:left;">${c?.type ?? ""}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">${c?.grossWt ?? ""}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">${c?.vgm ?? ""}</td>
+              </tr>
+            `).join("")
+        : `
+              <tr>
+                <td colspan="8" style="border:1px solid #000; padding:8px; text-align:center;">
+                  No container data
+                </td>
+              </tr>
+            `
       }
-            ${item?.shipperAddress || ""}
-         </p>
-      </div>
-      <div style="width: 60%; display: flex;">
-         <div style="width: 50%;" >
-            <div>
-               <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">BL No</p>
-               <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">${item?.blNo || ""
-      }</p>
-            </div>
-            <div style="margin-top: 5px;">
-               <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">Container</p>
-               <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;"></p>
-            </div>
-         </div>
-         <div style="width: 50%;" >
-            <div>
-               <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">BL Date</p>
-               <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">${formatBlData(
-        "2025-06-16"
-      )}</p>
-            </div>
-            <div style="margin-top: 5px;">
-               <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">Gross Weight - Kg</p>
-               <p style="font-size: 11px; ; margin: 0; width: 90%; color: black;">${formatGrossWt(
-        item?.grossWt || ""
-      )}</p>
-            </div>
-         </div>
-      </div>
-   </div>
-   <div style="padding: 0 20px; display: flex;">
-      <div style="width: 20%;">
-         <p style="font-size: 9px; margin: 0;  color: #7F7C82;">PLR</p>
-         <p style="font-size: 11px; margin: 0; width: 90%; color: black;">${item?.plrCode || ""
-      }</p>
-      </div>
-      <div style="width: 20%;">
-         <p style="font-size: 9px; margin: 0;  color: #7F7C82;">POL</p>
-         <p style="font-size: 11px; margin: 0; width: 90%; color: black;">${item?.polCode || ""
-      }</p>
-      </div>
-      <div style="width: 30%;">
-         <p style="font-size: 9px; margin: 0;  color: #7F7C82;">POD</p>
-         <p style="font-size: 11px; margin: 0; width: 90%; color: black;">${item?.podCode || ""
-      }</p>
-      </div>
-      <div style="width: 24%;">
-         <p style="font-size: 9px; margin: 0;  color: #7F7C82;">PLD</p>
-         <p style="font-size: 11px; margin: 0; width: 90%; color: black;"></p>
-      </div>
-   </div>
-   <div style="padding: 0 20px; display: flex;">
-      <div style="width: 40%; display: flex;">
-         <div style="width: 100%;">
-            <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">Marks & No</p>
-            <p style="font-size: 11px; ; margin: 0; color: black;">${item?.marksNos || ""
-      }</p>
-         </div>
-      </div>
-      <div style="width: 60%;">
-         <p style="font-size: 9px; ; margin: 0;  color: #7F7C82;">Description</p>
-         <p style="font-size: 11px; ; margin: 0; width: 100%; color: black;">${item?.goodsDesc || ""
-      }
-         </p>
-      </div>
-   </div>
-   <div style="padding: 20px 20px;">
-      <p style="color: black; font-size: 11px; font-weight: bold;"><u>Verify Charges / Generate Invoice</u></p>
-      <p style="color: black; font-size: 9px; width: 95%;">Kindly open the customer portal https://customer.oasisdomain.net (New customers should register their KYC through the portal to access the billing
-         module) and view/generate Invoices. Kindly arrange to obtain the Delivery Order from us on surrendering the original Bill of Lading duly endorsed in all
-         respects and on payment of relevant charges as applicable. Consignees of Personal Effects should also submit a passport copy along with the original
-         for verification. Copy of a photo ID card should be submitted at counter when collecting the Delivery Order. Kindly note the detention charges on the
-         following page.</br></br>
-         If the cargo is not cleared within 2 months from the date of arrival the container will be destuffed in accordance with the provisions of the port regulations
-         and the cargo would be lying in the custody of port at your sole risk as to cost and consequences. For further clarification please contact our Counter
-         office.
-      </p>
-   </div>
-   <div style="padding: 20px 20px;">
-      <p style="color: black; font-size: 9px;">Thanking you,</p>
-      <p style="color: black; font-size: 9px;">Yours faithfully</p>
-      <p style="color: black; font-size: 10px; font-weight: bold; margin-top: 20px;">For ${item?.company || ""
-      }</p>
-      <img src=${signImg}  alt="sign" height="100px" width="180px" />
-      <p style="color: black; font-size: 12px;">(AUTHORISED SIGNATORY)</p>
-      <hr style="border: 0.5px solid #7F7C82;">
-   </div>
+      </tbody>
+    </table>
+  </div>
+<div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000; margin-top:6px;">
+  <span style="font-weight:700;">Remarks:</span>
+  <span>${item?.remarks || ""}</span>
+</div>
+<div style="margin:8px 0; font-size:14px; line-height:1.35; color:#000;">
+  <p style="margin:0;">
+    This is to inform you that the above consignment is expected to arrive on above vessel.
+    Kindly arrange to present original bills of lading duly discharged and obtain Delivery Order to clear the goods from the Port
+    / CFS / ICD premises on payment of all relative charges as applicable with in normal / granted free days time of landing of
+    container / cargo at Port / CFS / ICD or else detention charges will be applicable as per prevailing tariff.
+    You are also requested to note that if you fail to take the delivery of cargo within 60 days of landing at Port / CFS / ICD,
+    your cargo may be auctioned / de-stuffed under section 61 &amp; 62 of Major Port Trust Act, 1963 or TAMP or Section-48 of
+    the Customs Act,1962.
+  </p>
+</div>
+<div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000; margin-top:6px;">
+  <span style="font-weight:700;">Disclaimer:</span>
+  <span>NO responsibility shall be attached to the carrier or its Agents for failure to notify about shipment arrival.</span>
+</div>
     </div>`;
     return html;
   };
@@ -355,7 +341,7 @@ export default function CargoArrivalNotice() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              Cargo Arrival Notice
+              Pre Cargo Arrival Notice
             </h1>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">

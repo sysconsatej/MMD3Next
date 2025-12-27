@@ -45,7 +45,7 @@ export default function SearchRequestToolbarActions({
         ].join(" ")}
         onClick={!disabled ? onClick : undefined}
       >
-        {React.cloneElement(icon, { sx: { fontSize: 14 } })}
+        {/* {React.cloneElement(icon, { sx: { fontSize: 14 } })} */}
         <span>{label}</span>
       </div>
     </Tooltip>
