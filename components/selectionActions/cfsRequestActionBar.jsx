@@ -8,6 +8,7 @@ import VerifiedIcon from "@mui/icons-material/Verified";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
+import RequestPageIcon from "@mui/icons-material/RequestPage";
 
 export default function SearchRequestToolbarActions({
   selectedIds = [],
@@ -15,6 +16,7 @@ export default function SearchRequestToolbarActions({
   onView,
   onReject,
   onConfirm,
+  onRequest,
   onEditVessel,
   onNotify,
   amendmentChecked = false,
@@ -36,7 +38,7 @@ export default function SearchRequestToolbarActions({
     <Tooltip title={label} arrow disableInteractive>
       <div
         className={[
-         "flex items-center gap-1 rounded-[3px] px-1.5 py-[2px] text-[11px] leading-none",
+          "flex items-center gap-1 rounded-[3px] px-1.5 py-[2px] text-[11px] leading-none",
           "bg-[#efefef] text-[#444] border border-[#d9d9d9]",
           "cursor-pointer hover:bg-[#e9e9e9] hover:text-[#111]",
           disabled ? "pointer-events-none opacity-50 cursor-not-allowed" : "",
@@ -53,31 +55,46 @@ export default function SearchRequestToolbarActions({
     <Box className="w-full flex flex-col gap-2">
       {/* 🔹 FIRST ROW (Buttons) */}
       <div className="flex items-center gap-2 flex-wrap">
-        {/* <Segment
-          label="Edit"
-          icon={<EditIcon />}
-          onClick={() => onEdit?.(ids[0])}
-          disabled={!isSingle}
-        /> */}
-        {/* <Segment
-          label="View"
-          icon={<VisibilityIcon />}
-          onClick={() => onView?.(ids[0])}
-          disabled={!isSingle}
-        /> */}
-        <Segment
-          label="Reject"
-          icon={<CancelIcon />}
-          onClick={() => onReject?.(ids)}
-          disabled={!hasAny}
-        />
-
-        <Segment
-          label="Confirm"
-          icon={<CheckCircleIcon />}
-          onClick={() => onConfirm?.(ids)}
-          disabled={!hasAny || disableConfirm}
-        />
+        {onView && (
+          <Segment
+            label="View"
+            icon={<VisibilityIcon />}
+            onClick={() => onView?.(ids[0])}
+            disabled={!isSingle}
+          />
+        )}
+        {onEdit && (
+          <Segment
+            label="Edit"
+            icon={<EditIcon />}
+            onClick={() => onEdit?.(ids[0])}
+            disabled={!isSingle}
+          />
+        )}
+        {onRequest && (
+          <Segment
+            label="Request"
+            icon={<RequestPageIcon />}
+            onClick={() => onRequest?.(ids)}
+            disabled={!isSingle}
+          />
+        )}
+        {onReject && (
+          <Segment
+            label="Reject"
+            icon={<CancelIcon />}
+            onClick={() => onReject?.(ids)}
+            disabled={!hasAny}
+          />
+        )}
+        {onConfirm && (
+          <Segment
+            label="Confirm"
+            icon={<CheckCircleIcon />}
+            onClick={() => onConfirm?.(ids)}
+            disabled={!hasAny || disableConfirm}
+          />
+        )}
         {/* <Segment
           label="Edit Vessel"
           icon={<DirectionsBoatIcon />}

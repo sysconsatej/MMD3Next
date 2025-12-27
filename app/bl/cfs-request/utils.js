@@ -1,4 +1,4 @@
-import { fetchForm, getDataWithCondition } from "@/apis";
+import { fetchForm, getDataWithCondition, updateStatusRows } from "@/apis";
 import { formatDataWithForm, formatFetchForm, getUserByCookies } from "@/utils";
 import { toast } from "react-toastify";
 import { fieldData } from "./fieldsData";
@@ -118,4 +118,125 @@ join tblUser u1 on u1.id=b.createdBy and u1.companyId='${userData?.companyId}'
 left join tblCompany c1 on c1.id = b.shippingLineId`,
   };
   return payload;
+};
+
+export const cfsStatusHandler = (getData, router, setMode) => {
+  return {
+    handleView: (id) => {
+      setMode({ mode: "view", formId: id });
+      router.push("/bl/cfs-request");
+    },
+    handleEdit: (id) => {
+      setMode({ mode: "edit", formId: id });
+      router.push("/bl/cfs-request");
+    },
+    handleRequest: async (ids) => {
+      try {
+        const payload = {
+          columns: "m.id , m.name",
+          tableName: "tblMasterData m",
+          whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Request'`,
+        };
+        const getStatusId = await getDataWithCondition(payload);
+
+        if (getStatusId) {
+          const rowsPayload =
+            Array.isArray(ids) &&
+            ids.map((info) => {
+              return {
+                id: info,
+                cfsRequestStatusId: getStatusId?.data[0]?.id,
+                updatedBy: userData.userId,
+                updatedDate: new Date(),
+              };
+            });
+
+          const res = await updateStatusRows({
+            tableName: "tblBl",
+            rows: rowsPayload,
+            keyColumn: "id",
+          });
+
+          if (res?.success === true) {
+            toast.success(`Status Requested successfully!`);
+            getData();
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    handleConfirm: async (ids) => {
+      try {
+        const payload = {
+          columns: "m.id , m.name",
+          tableName: "tblMasterData m",
+          whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Confirm'`,
+        };
+        const getStatusId = await getDataWithCondition(payload);
+
+        if (getStatusId) {
+          const rowsPayload =
+            Array.isArray(ids) &&
+            ids.map((info) => {
+              return {
+                id: info,
+                cfsRequestStatusId: getStatusId?.data[0]?.id,
+                updatedBy: userData.userId,
+                updatedDate: new Date(),
+              };
+            });
+
+          const res = await updateStatusRows({
+            tableName: "tblBl",
+            rows: rowsPayload,
+            keyColumn: "id",
+          });
+
+          if (res?.success === true) {
+            toast.success(`Status Confirm successfully!`);
+            getData();
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    handleReject: async (ids) => {
+      try {
+        const payload = {
+          columns: "m.id , m.name",
+          tableName: "tblMasterData m",
+          whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Reject'`,
+        };
+        const getStatusId = await getDataWithCondition(payload);
+
+        if (getStatusId) {
+          const rowsPayload =
+            Array.isArray(ids) &&
+            ids.map((info) => {
+              return {
+                id: info,
+                cfsRequestStatusId: getStatusId?.data[0]?.id,
+                updatedBy: userData.userId,
+                updatedDate: new Date(),
+              };
+            });
+
+          const res = await updateStatusRows({
+            tableName: "tblBl",
+            rows: rowsPayload,
+            keyColumn: "id",
+          });
+
+          if (res?.success === true) {
+            toast.success(`Status Rejected successfully!`);
+            getData();
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+  };
 };

@@ -27,6 +27,8 @@ import TableExportButtons from "@/components/tableExportButtons/tableExportButto
 import { getUserByCookies } from "@/utils";
 import SearchRequestToolbarActions from "@/components/selectionActions/cfsRequestActionBar";
 import { statusColor } from "../../hbl/utils";
+import { cfsStatusHandler } from "../utils";
+import { useRouter } from "next/navigation";
 
 /* ---------------- Constants ---------------- */
 const LIST_TABLE = "tblBl b";
@@ -52,6 +54,7 @@ export default function SearchRequestCfsDpdIcd() {
   const tableWrapRef = useRef(null);
   const { setMode } = formStore();
   const userData = getUserByCookies();
+  const router = useRouter();
 
   /* ---------------- Fetch Table Data ---------------- */
   const getData = useCallback(
@@ -118,11 +121,6 @@ export default function SearchRequestCfsDpdIcd() {
     [page, rowsPerPage, userData?.userId, userData?.location]
   );
 
-  useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-  }, []);
-
   const idsOnPage = blData.map((r) => r.id);
   const allChecked =
     selectedIds.length > 0 && selectedIds.length === idsOnPage.length;
@@ -135,90 +133,10 @@ export default function SearchRequestCfsDpdIcd() {
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
 
-  const handleEdit = (id) => {
-    setMode({ mode: "edit", formId: id });
-    console.log("Edit:", id);
-  };
-  const handleView = (id) => {
-    setMode({ mode: "view", formId: id });
-    console.log("View:", id);
-  };
-
-  //  reject
-  const handleReject = async (ids) => {
-    try {
-      const payload = {
-        columns: "m.id , m.name",
-        tableName: "tblMasterData m",
-        whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Reject'`,
-      };
-      const getStatusId = await getDataWithCondition(payload);
-
-      if (getStatusId) {
-        const rowsPayload =
-          Array.isArray(ids) &&
-          ids.map((info) => {
-            return {
-              id: info,
-              cfsRequestStatusId: getStatusId?.data[0]?.id,
-              updatedBy: userData.userId,
-              updatedDate: new Date(),
-            };
-          });
-
-        const res = await updateStatusRows({
-          tableName: "tblBl",
-          rows: rowsPayload,
-          keyColumn: "id",
-        });
-
-        if (res?.success === true) {
-          toast.success(`Status Changed from Requested to Reject`);
-        }
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const handleVerify = (ids) => console.log("Verify:", ids);
-  const handleConfirm = async (ids) => {
-    try {
-      const payload = {
-        columns: "m.id , m.name",
-        tableName: "tblMasterData m",
-        whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Confirm'`,
-      };
-      const getStatusId = await getDataWithCondition(payload);
-
-      if (getStatusId) {
-        const rowsPayload =
-          Array.isArray(ids) &&
-          ids.map((info) => {
-            return {
-              id: info,
-              cfsRequestStatusId: getStatusId?.data[0]?.id,
-              updatedBy: userData.userId,
-              updatedDate: new Date(),
-            };
-          });
-
-        const res = await updateStatusRows({
-          tableName: "tblBl",
-          rows: rowsPayload,
-          keyColumn: "id",
-        });
-
-        if (res?.success === true) {
-          toast.success(` Status Changed from Requested to Confrim   `);
-        }
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  const handleEditVessel = (id) => console.log("Edit Vessel:", id);
-  const handleNotify = (ids) => console.log("Notify:", ids);
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -232,32 +150,23 @@ export default function SearchRequestCfsDpdIcd() {
         {/* ACTION TOOLBAR */}
         <SearchRequestToolbarActions
           selectedIds={selectedIds}
-          // onEdit={handleEdit}
-          // onView={handleView}
-          onReject={handleReject}
-          // onVerify={handleVerify}
-          onConfirm={handleConfirm}
-          // onEditVessel={handleEditVessel}
-          // onNotify={handleNotify}
-          // amendmentChecked={amendment}
-          // onAmendmentChange={setAmendment}
-          // historyChecked={history}
-          // onHistoryChange={setHistory}
+          onEdit={(id) =>
+            cfsStatusHandler(getData, router, setMode).handleEdit(id)
+          }
+          onView={(id) =>
+            cfsStatusHandler(getData, router, setMode).handleView(id)
+          }
+          onReject={(ids) =>
+            cfsStatusHandler(getData, router, setMode).handleReject(ids)
+          }
+          onConfirm={(ids) =>
+            cfsStatusHandler(getData, router, setMode).handleConfirm(ids)
+          }
         />
 
         {/* TABLE */}
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
-          <Table
-            size="small"
-            //     className="
-            //     w-full table-fixed
-            //     [&_th]:whitespace-normal [&_td]:whitespace-normal
-            //     [&_th]:break-words      [&_td]:break-words
-            //     [&_th]:px-1 [&_td]:px-1
-            //     [&_th]:py-1 [&_td]:py-1
-            //     [&_th]:text-[11px] [&_td]:text-[10px]
-            // "
-          >
+          <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
