@@ -83,7 +83,7 @@ export default function BLList() {
             left join tblMasterData m2 on m2.id = b.stuffDestuffId
             left join tblUser u on u.id = ${userData.userId}
             left join tblUser u2 on u2.companyId = u.companyId
-            join tblBl b2 on b2.id = b.id and b.dostatusId is not null and b.locationId = ${userData.location} and b.createdBy = u2.id and m.name <> 'Confirm for DO'
+            join tblBl b2 on b2.id = b.id and b.dostatusId is not null and b.locationId = ${userData.location} and b.doRequestCreatedBy = u2.id and m.name <> 'Confirm for DO'
           `,
         };
 

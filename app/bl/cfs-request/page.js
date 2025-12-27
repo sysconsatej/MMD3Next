@@ -38,7 +38,7 @@ export default function Company() {
     event.preventDefault();
     const format = formatFormData(
       "tblBl",
-      formData,
+      { ...formData, cfsRequestCreatedBy: userData?.userId },
       mode.formId || defaultValues.mlblId,
       "blId"
     );
