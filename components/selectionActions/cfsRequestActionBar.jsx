@@ -1,14 +1,12 @@
 "use client";
-import React, { useMemo } from "react";
-import { Box, Tooltip, Checkbox } from "@mui/material";
+import React, { useEffect, useMemo, useState } from "react";
+import { Box, Tooltip } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import CancelIcon from "@mui/icons-material/Cancel";
-import VerifiedIcon from "@mui/icons-material/Verified";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
-import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import RequestPageIcon from "@mui/icons-material/RequestPage";
+import { getDataWithCondition } from "@/apis";
 
 export default function SearchRequestToolbarActions({
   selectedIds = [],
@@ -20,14 +18,15 @@ export default function SearchRequestToolbarActions({
   onRequestAmendment,
   onRejectAmendment,
   onConfirmAmendment,
-  onEditVessel,
-  onNotify,
-  amendmentChecked = false,
-  onAmendmentChange,
-  historyChecked = false,
-  onHistoryChange,
-  disableConfirm = false,
 }) {
+  const [cfsStatus, setCfsStatus] = useState(null);
+  const [isDisableBtn, setIsDisableBtn] = useState({
+    isRequestDisable: false,
+    isRequestAmdDisable: false,
+    isRejAndAprAmdDisable: false,
+    isRejAndConfDisable: false,
+  });
+
   const ids = useMemo(
     () => (Array.isArray(selectedIds) ? selectedIds.filter(Boolean) : []),
     [selectedIds]
@@ -54,6 +53,85 @@ export default function SearchRequestToolbarActions({
     </Tooltip>
   );
 
+  useEffect(() => {
+    async function checkStatus() {
+      const obj = {
+        columns: "cfsRequestStatusId",
+        tableName: "tblBl",
+        whereCondition: `id in (${ids.join(",")}) and status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+
+      const filterStatus = cfsStatus?.filter(
+        (item) =>
+          item.Name !== "Reject" && item.Name !== "Confirm for Amendment"
+      );
+      const filterCheckReq = data?.some((item) =>
+        filterStatus?.some((status) => status.Id === item.cfsRequestStatusId)
+      );
+      setIsDisableBtn((prev) => ({
+        ...prev,
+        isRequestDisable: filterCheckReq,
+      }));
+
+      const filterStatusAmd = cfsStatus?.filter(
+        (item) => item.Name !== "Confirm"
+      );
+      const hasNonEmpty = data?.every((obj) => Object.keys(obj).length > 0);
+      let filterCheckReqAmd = data?.some((item) =>
+        filterStatusAmd?.some((status) => status.Id === item.cfsRequestStatusId)
+      );
+      if (!hasNonEmpty) {
+        filterCheckReqAmd = true;
+      }
+      setIsDisableBtn((prev) => ({
+        ...prev,
+        isRequestAmdDisable: filterCheckReqAmd,
+      }));
+
+      const filterStatusAprAndRejAmd = cfsStatus?.filter(
+        (item) => item.Name !== "Request for Amendment"
+      );
+      const filterCheckAprAndRejAmd = data?.some((item) =>
+        filterStatusAprAndRejAmd?.some(
+          (status) => status.Id === item.cfsRequestStatusId
+        )
+      );
+      setIsDisableBtn((prev) => ({
+        ...prev,
+        isRejAndAprAmdDisable: filterCheckAprAndRejAmd,
+      }));
+
+      const filterStatusAprAndRej = cfsStatus?.filter(
+        (item) => item.Name !== "Request"
+      );
+      const filterCheckAprAndRej = data?.some((item) =>
+        filterStatusAprAndRej?.some(
+          (status) => status.Id === item.cfsRequestStatusId
+        )
+      );
+      setIsDisableBtn((prev) => ({
+        ...prev,
+        isRejAndConfDisable: filterCheckAprAndRej,
+      }));
+    }
+    checkStatus();
+  }, [ids]);
+
+  useEffect(() => {
+    async function getCfsStatus() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblCfsStatusType' and status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      setCfsStatus(data);
+    }
+
+    getCfsStatus();
+  }, []);
+
   return (
     <Box className="w-full flex flex-col gap-2">
       {/* 🔹 FIRST ROW (Buttons) */}
@@ -79,7 +157,7 @@ export default function SearchRequestToolbarActions({
             label="Request"
             icon={<RequestPageIcon />}
             onClick={() => onRequest?.(ids)}
-            disabled={!isSingle}
+            disabled={!hasAny || isDisableBtn?.isRequestDisable}
           />
         )}
         {onReject && (
@@ -87,7 +165,11 @@ export default function SearchRequestToolbarActions({
             label="Reject"
             icon={<CancelIcon />}
             onClick={() => onReject?.(ids)}
-            disabled={!hasAny}
+            disabled={
+              !hasAny ||
+              isDisableBtn?.isRejAndConfDisable ||
+              !isDisableBtn?.isRejAndAprAmdDisable
+            }
           />
         )}
         {onConfirm && (
@@ -95,7 +177,11 @@ export default function SearchRequestToolbarActions({
             label="Confirm"
             icon={<CheckCircleIcon />}
             onClick={() => onConfirm?.(ids)}
-            disabled={!hasAny || disableConfirm}
+            disabled={
+              !hasAny ||
+              isDisableBtn?.isRejAndConfDisable ||
+              !isDisableBtn?.isRejAndAprAmdDisable
+            }
           />
         )}
         {onRequestAmendment && (
@@ -103,7 +189,7 @@ export default function SearchRequestToolbarActions({
             label="Request for Amendment"
             icon={<RequestPageIcon />}
             onClick={() => onRequestAmendment?.(ids)}
-            disabled={!isSingle}
+            disabled={!hasAny || isDisableBtn?.isRequestAmdDisable}
           />
         )}
         {onRejectAmendment && (
@@ -111,7 +197,7 @@ export default function SearchRequestToolbarActions({
             label="Reject for Amendment"
             icon={<CancelIcon />}
             onClick={() => onRejectAmendment?.(ids)}
-            disabled={!hasAny}
+            disabled={!hasAny || isDisableBtn?.isRejAndAprAmdDisable}
           />
         )}
         {onConfirmAmendment && (
@@ -119,49 +205,10 @@ export default function SearchRequestToolbarActions({
             label="Confirm for Amendment"
             icon={<CheckCircleIcon />}
             onClick={() => onConfirmAmendment?.(ids)}
-            disabled={!hasAny || disableConfirm}
+            disabled={!hasAny || isDisableBtn?.isRejAndAprAmdDisable}
           />
         )}
-        {/* <Segment
-          label="Edit Vessel"
-          icon={<DirectionsBoatIcon />}
-          onClick={() => onEditVessel?.(ids[0])}
-          disabled={!isSingle}
-        />
-        <Segment
-          label="Notify"
-          icon={<MailOutlineIcon />}
-          onClick={() => onNotify?.(ids)}
-          disabled={!hasAny}
-        /> */}
       </div>
-
-      {/* 🔹 SECOND ROW (Checkboxes) */}
-      {/* <div className="flex items-center gap-6">
-        <label className="flex items-center gap-1 bg-[#ffcdd2] px-2 py-[3px] rounded-[3px] text-[11px] cursor-pointer">
-          <Checkbox
-            size="small"
-            checked={amendmentChecked}
-            onChange={(e) => onAmendmentChange?.(e.target.checked)}
-            sx={{ p: 0, "& .MuiSvgIcon-root": { fontSize: 14 } }}
-          />
-          <span className="text-[#b71c1c] font-medium">
-            Request For Amendment
-          </span>
-        </label>
-
-        <label className="flex items-center gap-1 px-2 py-[3px] rounded-[3px] text-[11px] cursor-pointer">
-          <Checkbox
-            size="small"
-            checked={historyChecked}
-            onChange={(e) => onHistoryChange?.(e.target.checked)}
-            sx={{ p: 0, "& .MuiSvgIcon-root": { fontSize: 14 } }}
-          />
-          <span className="text-[#0d47a1] font-medium">
-            Notification History
-          </span>
-        </label>
-      </div> */}
     </Box>
   );
 }
