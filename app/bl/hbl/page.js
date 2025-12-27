@@ -147,7 +147,7 @@ export default function Home() {
           mblHblFlag: "HBL",
           locationId: userData?.location || null,
           companyId: userData?.companyId,
-          companyBranchId: userData?.companyBranchId,
+          companyBranchId: userData?.branchId,
         },
         formId,
         "blId"

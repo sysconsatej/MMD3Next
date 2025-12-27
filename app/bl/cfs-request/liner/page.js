@@ -26,8 +26,7 @@ import { formStore } from "@/store";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { getUserByCookies } from "@/utils";
 import SearchRequestToolbarActions from "@/components/selectionActions/cfsRequestActionBar";
-import { statusColor } from "../../hbl/utils";
-import { cfsStatusHandler } from "../utils";
+import { cfsStatusHandler, statusColor } from "../utils";
 import { useRouter } from "next/navigation";
 
 /* ---------------- Constants ---------------- */
@@ -161,6 +160,12 @@ export default function SearchRequestCfsDpdIcd() {
           }
           onConfirm={(ids) =>
             cfsStatusHandler(getData, router, setMode).handleConfirm(ids)
+          }
+          onRejectAmendment={(ids) =>
+            cfsStatusHandler(getData, router, setMode).handleRejectAmend(ids)
+          }
+          onConfirmAmendment={(ids) =>
+            cfsStatusHandler(getData, router, setMode).handleConfirmAmend(ids)
           }
         />
 

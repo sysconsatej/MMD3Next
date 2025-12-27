@@ -26,9 +26,8 @@ import { useRouter } from "next/navigation";
 import { fieldData, tblColsLables } from "../fieldsData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-import { cfsStatusHandler, tableObj } from "../utils";
+import { cfsStatusHandler, statusColor, tableObj } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
-import { statusColor } from "../../hbl/utils";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import SearchRequestToolbarActions from "@/components/selectionActions/cfsRequestActionBar";
 
@@ -134,6 +133,9 @@ export default function CompanyList() {
           }
           onRequest={(ids) =>
             cfsStatusHandler(getData, router, setMode).handleRequest(ids)
+          }
+          onRequestAmendment={(ids) =>
+            cfsStatusHandler(getData, router, setMode).handleRequestAmend(ids)
           }
         />
         <TableContainer component={Paper} className="mt-2" ref={tableWrapRef}>

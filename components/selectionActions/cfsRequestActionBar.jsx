@@ -17,6 +17,9 @@ export default function SearchRequestToolbarActions({
   onReject,
   onConfirm,
   onRequest,
+  onRequestAmendment,
+  onRejectAmendment,
+  onConfirmAmendment,
   onEditVessel,
   onNotify,
   amendmentChecked = false,
@@ -92,6 +95,30 @@ export default function SearchRequestToolbarActions({
             label="Confirm"
             icon={<CheckCircleIcon />}
             onClick={() => onConfirm?.(ids)}
+            disabled={!hasAny || disableConfirm}
+          />
+        )}
+        {onRequestAmendment && (
+          <Segment
+            label="Request for Amendment"
+            icon={<RequestPageIcon />}
+            onClick={() => onRequestAmendment?.(ids)}
+            disabled={!isSingle}
+          />
+        )}
+        {onRejectAmendment && (
+          <Segment
+            label="Reject for Amendment"
+            icon={<CancelIcon />}
+            onClick={() => onRejectAmendment?.(ids)}
+            disabled={!hasAny}
+          />
+        )}
+        {onConfirmAmendment && (
+          <Segment
+            label="Confirm for Amendment"
+            icon={<CheckCircleIcon />}
+            onClick={() => onConfirmAmendment?.(ids)}
             disabled={!hasAny || disableConfirm}
           />
         )}

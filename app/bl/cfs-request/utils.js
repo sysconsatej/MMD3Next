@@ -238,5 +238,126 @@ export const cfsStatusHandler = (getData, router, setMode) => {
         console.log(err);
       }
     },
+    handleRequestAmend: async (ids) => {
+      try {
+        const payload = {
+          columns: "m.id , m.name",
+          tableName: "tblMasterData m",
+          whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Request for Amendment'`,
+        };
+        const getStatusId = await getDataWithCondition(payload);
+
+        if (getStatusId) {
+          const rowsPayload =
+            Array.isArray(ids) &&
+            ids.map((info) => {
+              return {
+                id: info,
+                cfsRequestStatusId: getStatusId?.data[0]?.id,
+                updatedBy: userData.userId,
+                updatedDate: new Date(),
+              };
+            });
+
+          const res = await updateStatusRows({
+            tableName: "tblBl",
+            rows: rowsPayload,
+            keyColumn: "id",
+          });
+
+          if (res?.success === true) {
+            toast.success(`Status Requested successfully!`);
+            getData();
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    handleConfirmAmend: async (ids) => {
+      try {
+        const payload = {
+          columns: "m.id , m.name",
+          tableName: "tblMasterData m",
+          whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Confirm for Amendment'`,
+        };
+        const getStatusId = await getDataWithCondition(payload);
+
+        if (getStatusId) {
+          const rowsPayload =
+            Array.isArray(ids) &&
+            ids.map((info) => {
+              return {
+                id: info,
+                cfsRequestStatusId: getStatusId?.data[0]?.id,
+                updatedBy: userData.userId,
+                updatedDate: new Date(),
+              };
+            });
+
+          const res = await updateStatusRows({
+            tableName: "tblBl",
+            rows: rowsPayload,
+            keyColumn: "id",
+          });
+
+          if (res?.success === true) {
+            toast.success(`Status Confirm successfully!`);
+            getData();
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    handleRejectAmend: async (ids) => {
+      try {
+        const payload = {
+          columns: "m.id , m.name",
+          tableName: "tblMasterData m",
+          whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Reject for Amendment'`,
+        };
+        const getStatusId = await getDataWithCondition(payload);
+
+        if (getStatusId) {
+          const rowsPayload =
+            Array.isArray(ids) &&
+            ids.map((info) => {
+              return {
+                id: info,
+                cfsRequestStatusId: getStatusId?.data[0]?.id,
+                updatedBy: userData.userId,
+                updatedDate: new Date(),
+              };
+            });
+
+          const res = await updateStatusRows({
+            tableName: "tblBl",
+            rows: rowsPayload,
+            keyColumn: "id",
+          });
+
+          if (res?.success === true) {
+            toast.success(`Status Rejected successfully!`);
+            getData();
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
   };
 };
+
+export function statusColor(status) {
+  const color = {
+    Pending: "#F4B342",
+    Reject: "#DC0E0E",
+    Request: "#4E61D3",
+    Confirm: "green",
+    RejectforAmendment: "#BF124D",
+    RequestforAmendment: "#393D7E",
+    ConfirmforAmendment: "#007E6E",
+  };
+  return color[status];
+}
