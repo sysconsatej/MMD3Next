@@ -30,6 +30,7 @@ const links = () => {
 
 export const navItems = [
   { name: "Home", href: "/home", icon: "home", isShow: true },
+
   {
     name: "Master",
     icon: "cube",
@@ -95,6 +96,11 @@ export const navItems = [
         href: "/master/carrierPort/list",
         isShow: false,
       },
+      {
+        name: "SMTP Email Configuration",
+        href: "/master/smtpEmailConfig/list",
+        isShow: false,
+      }
     ],
   },
 
@@ -372,6 +378,11 @@ export const navItems = [
       {
         name: "Released DO Tat",
         href: "/reports/customAndPort/releaseddotat",
+        isShow: true,
+      },
+      {
+        name: "Manifest BL Register",
+        href: "/reports/customAndPort/manifestBlRegister",
         isShow: true,
       },
     ],

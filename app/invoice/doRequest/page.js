@@ -39,7 +39,11 @@ export default function Home() {
     );
     const format = formatFormData(
       "tblBl",
-      { ...formData, dostatusId: requestStatus?.[0]?.Id },
+      {
+        ...formData,
+        dostatusId: requestStatus?.[0]?.Id,
+        doRequestCreatedBy: userData?.userId,
+      },
       mode.formId,
       "blId"
     );

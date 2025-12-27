@@ -117,7 +117,7 @@ c1.name as companyName
             left join tblCompany c1 on c1.id = b.shippingLineId
             left join tblUser u1 on u1.id = ${userData?.userId}
             left join tblUser u2 on u2.companyId = u1.companyId
-            join tblBl b2 on b2.id = b.id and b2.updatedBy = u2.id and b.cfsRequestStatusId IS NOT NULL and b.locationId = ${userData?.location}`,
+            join tblBl b2 on b2.id = b.id and b2.cfsRequestCreatedBy = u2.id and b.cfsRequestStatusId IS NOT NULL and b.locationId = ${userData?.location}`,
   };
   return payload;
 };
