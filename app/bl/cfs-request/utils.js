@@ -1,4 +1,4 @@
-import { fetchForm, getDataWithCondition } from "@/apis";
+import { fetchForm, getDataWithCondition, updateStatusRows } from "@/apis";
 import { formatDataWithForm, formatFetchForm, getUserByCookies } from "@/utils";
 import { toast } from "react-toastify";
 import { fieldData } from "./fieldsData";
@@ -106,16 +106,260 @@ c1.name as companyName
     pageSize,
     searchColumn: search.searchColumn,
     searchValue: search.searchValue,
-    joins: `join tblLocation  l on l.id = b.locationId and l.id = '${userData?.location}' 
-join tblMasterData  m on m.id  =  b.cfsRequestStatusId  and b.cfsRequestStatusId IS NOT NULL
-left join tblMasterData r  on r.id  =  b.cfsTypeId  
-left join tblPort p on p.id  =  b.nominatedAreaId
-left join tblPort c  on  c.id  =  b.dpdId
-left join tblVessel  v on  v.id  =  b.podVesselId
-left join tblVoyage vy on vy.id  = b.podVoyageId
-left join tblPort f on f.id  =  b.fpdId
-join tblUser u1 on u1.id=b.createdBy and u1.companyId='${userData?.companyId}'
-left join tblCompany c1 on c1.id = b.shippingLineId`,
+    joins: `left join tblLocation  l on l.id = b.locationId
+            left join tblMasterData  m on m.id  =  b.cfsRequestStatusId
+            left join tblMasterData r  on r.id  =  b.cfsTypeId  
+            left join tblPort p on p.id  =  b.nominatedAreaId
+            left join tblPort c  on  c.id  =  b.dpdId
+            left join tblVessel  v on  v.id  =  b.podVesselId
+            left join tblVoyage vy on vy.id  = b.podVoyageId
+            left join tblPort f on f.id  =  b.fpdId
+            left join tblCompany c1 on c1.id = b.shippingLineId
+            left join tblUser u1 on u1.id = ${userData?.userId}
+            left join tblUser u2 on u2.companyId = u1.companyId
+            join tblBl b2 on b2.id = b.id and b2.cfsRequestCreatedBy = u2.id and b.cfsRequestStatusId IS NOT NULL and b.locationId = ${userData?.location}`,
   };
   return payload;
 };
+
+export const cfsStatusHandler = (getData, router, setMode) => {
+  return {
+    handleView: (id) => {
+      setMode({ mode: "view", formId: id });
+      router.push("/bl/cfs-request");
+    },
+    handleEdit: (id) => {
+      setMode({ mode: "edit", formId: id });
+      router.push("/bl/cfs-request");
+    },
+    handleRequest: async (ids) => {
+      try {
+        const payload = {
+          columns: "m.id , m.name",
+          tableName: "tblMasterData m",
+          whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Request'`,
+        };
+        const getStatusId = await getDataWithCondition(payload);
+
+        if (getStatusId) {
+          const rowsPayload =
+            Array.isArray(ids) &&
+            ids.map((info) => {
+              return {
+                id: info,
+                cfsRequestStatusId: getStatusId?.data[0]?.id,
+                updatedBy: userData.userId,
+                updatedDate: new Date(),
+              };
+            });
+
+          const res = await updateStatusRows({
+            tableName: "tblBl",
+            rows: rowsPayload,
+            keyColumn: "id",
+          });
+
+          if (res?.success === true) {
+            toast.success(`Status Requested successfully!`);
+            getData();
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    handleConfirm: async (ids) => {
+      try {
+        const payload = {
+          columns: "m.id , m.name",
+          tableName: "tblMasterData m",
+          whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Confirm'`,
+        };
+        const getStatusId = await getDataWithCondition(payload);
+
+        if (getStatusId) {
+          const rowsPayload =
+            Array.isArray(ids) &&
+            ids.map((info) => {
+              return {
+                id: info,
+                cfsRequestStatusId: getStatusId?.data[0]?.id,
+                updatedBy: userData.userId,
+                updatedDate: new Date(),
+              };
+            });
+
+          const res = await updateStatusRows({
+            tableName: "tblBl",
+            rows: rowsPayload,
+            keyColumn: "id",
+          });
+
+          if (res?.success === true) {
+            toast.success(`Status Confirm successfully!`);
+            getData();
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    handleReject: async (ids) => {
+      try {
+        const payload = {
+          columns: "m.id , m.name",
+          tableName: "tblMasterData m",
+          whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Reject'`,
+        };
+        const getStatusId = await getDataWithCondition(payload);
+
+        if (getStatusId) {
+          const rowsPayload =
+            Array.isArray(ids) &&
+            ids.map((info) => {
+              return {
+                id: info,
+                cfsRequestStatusId: getStatusId?.data[0]?.id,
+                updatedBy: userData.userId,
+                updatedDate: new Date(),
+              };
+            });
+
+          const res = await updateStatusRows({
+            tableName: "tblBl",
+            rows: rowsPayload,
+            keyColumn: "id",
+          });
+
+          if (res?.success === true) {
+            toast.success(`Status Rejected successfully!`);
+            getData();
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    handleRequestAmend: async (ids) => {
+      try {
+        const payload = {
+          columns: "m.id , m.name",
+          tableName: "tblMasterData m",
+          whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Request for Amendment'`,
+        };
+        const getStatusId = await getDataWithCondition(payload);
+
+        if (getStatusId) {
+          const rowsPayload =
+            Array.isArray(ids) &&
+            ids.map((info) => {
+              return {
+                id: info,
+                cfsRequestStatusId: getStatusId?.data[0]?.id,
+                updatedBy: userData.userId,
+                updatedDate: new Date(),
+              };
+            });
+
+          const res = await updateStatusRows({
+            tableName: "tblBl",
+            rows: rowsPayload,
+            keyColumn: "id",
+          });
+
+          if (res?.success === true) {
+            toast.success(`Status Requested successfully!`);
+            getData();
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    handleConfirmAmend: async (ids) => {
+      try {
+        const payload = {
+          columns: "m.id , m.name",
+          tableName: "tblMasterData m",
+          whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Confirm for Amendment'`,
+        };
+        const getStatusId = await getDataWithCondition(payload);
+
+        if (getStatusId) {
+          const rowsPayload =
+            Array.isArray(ids) &&
+            ids.map((info) => {
+              return {
+                id: info,
+                cfsRequestStatusId: getStatusId?.data[0]?.id,
+                updatedBy: userData.userId,
+                updatedDate: new Date(),
+              };
+            });
+
+          const res = await updateStatusRows({
+            tableName: "tblBl",
+            rows: rowsPayload,
+            keyColumn: "id",
+          });
+
+          if (res?.success === true) {
+            toast.success(`Status Confirm successfully!`);
+            getData();
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    handleRejectAmend: async (ids) => {
+      try {
+        const payload = {
+          columns: "m.id , m.name",
+          tableName: "tblMasterData m",
+          whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Reject for Amendment'`,
+        };
+        const getStatusId = await getDataWithCondition(payload);
+
+        if (getStatusId) {
+          const rowsPayload =
+            Array.isArray(ids) &&
+            ids.map((info) => {
+              return {
+                id: info,
+                cfsRequestStatusId: getStatusId?.data[0]?.id,
+                updatedBy: userData.userId,
+                updatedDate: new Date(),
+              };
+            });
+
+          const res = await updateStatusRows({
+            tableName: "tblBl",
+            rows: rowsPayload,
+            keyColumn: "id",
+          });
+
+          if (res?.success === true) {
+            toast.success(`Status Rejected successfully!`);
+            getData();
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+  };
+};
+
+export function statusColor(status) {
+  const color = {
+    Pending: "#F4B342",
+    Reject: "#DC0E0E",
+    Request: "#4E61D3",
+    Confirm: "green",
+    RejectforAmendment: "#BF124D",
+    RequestforAmendment: "#393D7E",
+    ConfirmforAmendment: "#007E6E",
+  };
+  return color[status];
+}

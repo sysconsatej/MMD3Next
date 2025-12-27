@@ -26,11 +26,10 @@ import { useRouter } from "next/navigation";
 import { fieldData, tblColsLables } from "../fieldsData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-import SelectionActionsBar from "@/components/selectionActions/selectionActionPayment";
-import { tableObj } from "../utils";
+import { cfsStatusHandler, statusColor, tableObj } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
-import { statusColor } from "../../hbl/utils";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
+import SearchRequestToolbarActions from "@/components/selectionActions/cfsRequestActionBar";
 
 /* checkbox sizing – SAME AS OTHER PAGE */
 const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
@@ -75,11 +74,6 @@ export default function CompanyList() {
     [page, rowsPerPage, search]
   );
 
-  useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-  }, []);
-
   /* ---------------- Checkbox Logic ---------------- */
   const idsOnPage = rows.map((r) => r.id);
   const allChecked =
@@ -112,16 +106,11 @@ export default function CompanyList() {
     }
   };
 
-  const modeHandler = (mode, id) => {
-    if (mode === "delete") {
-      handleDeleteRecord(id);
-      return;
-    }
-    setMode({ mode, formId: id });
-    router.push("/bl/cfs-request");
-  };
-
   /* ---------------- Render ---------------- */
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -131,50 +120,26 @@ export default function CompanyList() {
           <Typography variant="body1">CFS Request</Typography>
 
           <Box className="flex gap-4">
-            {/* <SearchBar
-              search={search}
-              setSearch={setSearch}
-              options={fieldData.fields.map((r) => {
-                return { label: r.label, value: r.name };
-              })}
-              rowsPerPage={rowsPerPage}
-              getData={getData}
-            /> */}
-            {/* <AdvancedSearchBar
-              fields={fieldData.fields.map((r) => {
-                return { ...r, disabled: false };
-              })}
-              advanceSearch={advanceSearch}
-              setAdvanceSearch={setAdvanceSearch}
-              getData={getData}
-              rowsPerPage={rowsPerPage}
-            /> */}
             <CustomButton text="Add" href="/bl/cfs-request" />
           </Box>
         </Box>
-
-        {/* ACTION BAR */}
-        <SelectionActionsBar
+        <SearchRequestToolbarActions
           selectedIds={selectedIds}
-          onEdit={(id) => modeHandler("edit", id)}
-          onView={(id) => modeHandler("view", id)}
-          onUpdated={() => getData(page, rowsPerPage)}
-          showEdit
+          onEdit={(id) =>
+            cfsStatusHandler(getData, router, setMode).handleEdit(id)
+          }
+          onView={(id) =>
+            cfsStatusHandler(getData, router, setMode).handleEdit(id)
+          }
+          onRequest={(ids) =>
+            cfsStatusHandler(getData, router, setMode).handleRequest(ids)
+          }
+          onRequestAmendment={(ids) =>
+            cfsStatusHandler(getData, router, setMode).handleRequestAmend(ids)
+          }
         />
-
-        {/* TABLE */}
         <TableContainer component={Paper} className="mt-2" ref={tableWrapRef}>
-          <Table
-          // size="small"
-          //   className="
-          //   w-full table-fixed
-          //   [&_th]:whitespace-normal [&_td]:whitespace-normal
-          //   [&_th]:break-words      [&_td]:break-words
-          //   [&_th]:px-1 [&_td]:px-1
-          //   [&_th]:py-1 [&_td]:py-1
-          //   [&_th]:text-[11px] [&_td]:text-[11px]
-          //  "
-          >
+          <Table>
             <TableHead>
               <TableRow>
                 <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>

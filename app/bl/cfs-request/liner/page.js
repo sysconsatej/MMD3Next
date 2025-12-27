@@ -26,7 +26,8 @@ import { formStore } from "@/store";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { getUserByCookies } from "@/utils";
 import SearchRequestToolbarActions from "@/components/selectionActions/cfsRequestActionBar";
-import { statusColor } from "../../hbl/utils";
+import { cfsStatusHandler, statusColor } from "../utils";
+import { useRouter } from "next/navigation";
 
 /* ---------------- Constants ---------------- */
 const LIST_TABLE = "tblBl b";
@@ -52,6 +53,7 @@ export default function SearchRequestCfsDpdIcd() {
   const tableWrapRef = useRef(null);
   const { setMode } = formStore();
   const userData = getUserByCookies();
+  const router = useRouter();
 
   /* ---------------- Fetch Table Data ---------------- */
   const getData = useCallback(
@@ -87,7 +89,7 @@ export default function SearchRequestCfsDpdIcd() {
         left join tblCompany c1 on c1.id = u.companyId 
         left join tblLocation l on l.id = ${userData?.location}
         join tblMasterData m on m.id = b.cfsRequestStatusId 
-        and b.cfsRequestStatusId IS NOT NULL and b.locationId = l.id and b.shippingLineId = u.companyId 
+        and b.cfsRequestStatusId IS NOT NULL and b.locationId = l.id and b.shippingLineId = u.companyId and m.name <> 'Pending' 
         left join tblMasterData r on r.id = b.cfsTypeId 
         left join tblPort p1 on p1.id = b.polId 
         left join tblPort p on p.id = b.nominatedAreaId 
@@ -118,11 +120,6 @@ export default function SearchRequestCfsDpdIcd() {
     [page, rowsPerPage, userData?.userId, userData?.location]
   );
 
-  useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-  }, []);
-
   const idsOnPage = blData.map((r) => r.id);
   const allChecked =
     selectedIds.length > 0 && selectedIds.length === idsOnPage.length;
@@ -135,90 +132,10 @@ export default function SearchRequestCfsDpdIcd() {
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
 
-  const handleEdit = (id) => {
-    setMode({ mode: "edit", formId: id });
-    console.log("Edit:", id);
-  };
-  const handleView = (id) => {
-    setMode({ mode: "view", formId: id });
-    console.log("View:", id);
-  };
-
-  //  reject
-  const handleReject = async (ids) => {
-    try {
-      const payload = {
-        columns: "m.id , m.name",
-        tableName: "tblMasterData m",
-        whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Reject'`,
-      };
-      const getStatusId = await getDataWithCondition(payload);
-
-      if (getStatusId) {
-        const rowsPayload =
-          Array.isArray(ids) &&
-          ids.map((info) => {
-            return {
-              id: info,
-              cfsRequestStatusId: getStatusId?.data[0]?.id,
-              updatedBy: userData.userId,
-              updatedDate: new Date(),
-            };
-          });
-
-        const res = await updateStatusRows({
-          tableName: "tblBl",
-          rows: rowsPayload,
-          keyColumn: "id",
-        });
-
-        if (res?.success === true) {
-          toast.success(`Status Changed from Requested to Reject`);
-        }
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const handleVerify = (ids) => console.log("Verify:", ids);
-  const handleConfirm = async (ids) => {
-    try {
-      const payload = {
-        columns: "m.id , m.name",
-        tableName: "tblMasterData m",
-        whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Confirm'`,
-      };
-      const getStatusId = await getDataWithCondition(payload);
-
-      if (getStatusId) {
-        const rowsPayload =
-          Array.isArray(ids) &&
-          ids.map((info) => {
-            return {
-              id: info,
-              cfsRequestStatusId: getStatusId?.data[0]?.id,
-              updatedBy: userData.userId,
-              updatedDate: new Date(),
-            };
-          });
-
-        const res = await updateStatusRows({
-          tableName: "tblBl",
-          rows: rowsPayload,
-          keyColumn: "id",
-        });
-
-        if (res?.success === true) {
-          toast.success(` Status Changed from Requested to Confrim   `);
-        }
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  const handleEditVessel = (id) => console.log("Edit Vessel:", id);
-  const handleNotify = (ids) => console.log("Notify:", ids);
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -232,9 +149,24 @@ export default function SearchRequestCfsDpdIcd() {
         {/* ACTION TOOLBAR */}
         <SearchRequestToolbarActions
           selectedIds={selectedIds}
-          onReject={handleReject}
-          onConfirm={handleConfirm}
-          
+          onEdit={(id) =>
+            cfsStatusHandler(getData, router, setMode).handleEdit(id)
+          }
+          onView={(id) =>
+            cfsStatusHandler(getData, router, setMode).handleView(id)
+          }
+          onReject={(ids) =>
+            cfsStatusHandler(getData, router, setMode).handleReject(ids)
+          }
+          onConfirm={(ids) =>
+            cfsStatusHandler(getData, router, setMode).handleConfirm(ids)
+          }
+          onRejectAmendment={(ids) =>
+            cfsStatusHandler(getData, router, setMode).handleRejectAmend(ids)
+          }
+          onConfirmAmendment={(ids) =>
+            cfsStatusHandler(getData, router, setMode).handleConfirmAmend(ids)
+          }
         />
 
         {/* TABLE */}

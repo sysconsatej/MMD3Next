@@ -36,15 +36,9 @@ export default function Company() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-
-    const updatedData = {
-      ...formData,
-      companyId: userData?.companyId,
-      companyBranchId: userData?.branchId,
-    };
     const format = formatFormData(
       "tblBl",
-      updatedData,
+      { ...formData, cfsRequestCreatedBy: userData?.userId },
       mode.formId || defaultValues.mlblId,
       "blId"
     );
