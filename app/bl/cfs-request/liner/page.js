@@ -89,7 +89,7 @@ export default function SearchRequestCfsDpdIcd() {
         left join tblCompany c1 on c1.id = u.companyId 
         left join tblLocation l on l.id = ${userData?.location}
         join tblMasterData m on m.id = b.cfsRequestStatusId 
-        and b.cfsRequestStatusId IS NOT NULL and b.locationId = l.id and b.shippingLineId = u.companyId 
+        and b.cfsRequestStatusId IS NOT NULL and b.locationId = l.id and b.shippingLineId = u.companyId and m.name <> 'Pending' 
         left join tblMasterData r on r.id = b.cfsTypeId 
         left join tblPort p1 on p1.id = b.polId 
         left join tblPort p on p.id = b.nominatedAreaId 

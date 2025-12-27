@@ -106,16 +106,18 @@ c1.name as companyName
     pageSize,
     searchColumn: search.searchColumn,
     searchValue: search.searchValue,
-    joins: `join tblLocation  l on l.id = b.locationId and l.id = '${userData?.location}' 
-join tblMasterData  m on m.id  =  b.cfsRequestStatusId  and b.cfsRequestStatusId IS NOT NULL
-left join tblMasterData r  on r.id  =  b.cfsTypeId  
-left join tblPort p on p.id  =  b.nominatedAreaId
-left join tblPort c  on  c.id  =  b.dpdId
-left join tblVessel  v on  v.id  =  b.podVesselId
-left join tblVoyage vy on vy.id  = b.podVoyageId
-left join tblPort f on f.id  =  b.fpdId
-join tblUser u1 on u1.id=b.createdBy and u1.companyId='${userData?.companyId}'
-left join tblCompany c1 on c1.id = b.shippingLineId`,
+    joins: `left join tblLocation  l on l.id = b.locationId
+            left join tblMasterData  m on m.id  =  b.cfsRequestStatusId
+            left join tblMasterData r  on r.id  =  b.cfsTypeId  
+            left join tblPort p on p.id  =  b.nominatedAreaId
+            left join tblPort c  on  c.id  =  b.dpdId
+            left join tblVessel  v on  v.id  =  b.podVesselId
+            left join tblVoyage vy on vy.id  = b.podVoyageId
+            left join tblPort f on f.id  =  b.fpdId
+            left join tblCompany c1 on c1.id = b.shippingLineId
+            left join tblUser u1 on u1.id = ${userData?.userId}
+            left join tblUser u2 on u2.companyId = u1.companyId
+            join tblBl b2 on b2.id = b.id and b2.updatedBy = u2.id and b.cfsRequestStatusId IS NOT NULL and b.locationId = ${userData?.location}`,
   };
   return payload;
 };
