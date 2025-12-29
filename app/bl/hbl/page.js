@@ -140,15 +140,14 @@ export default function Home() {
     const promises = format.map(async (item) => {
       const formId = item?.id ?? null;
       const { id, ...resData } = item;
-      console.log(resData, "res Data [][][][]");
       const formatItem = formatFormData(
         "tblBl",
         {
           ...resData,
           mblHblFlag: "HBL",
           locationId: userData?.location || null,
-          companyBranchId: userData?.companyId,
-          companyBranchId: userData?.companyBranchId,
+          companyId: userData?.companyId,
+          companyBranchId: userData?.branchId,
         },
         formId,
         "blId"

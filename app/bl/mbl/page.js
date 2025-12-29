@@ -299,8 +299,6 @@ export default function Home() {
     getMblData();
   }, []);
 
-
-
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
