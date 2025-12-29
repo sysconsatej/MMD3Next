@@ -161,6 +161,9 @@ export default function InvoiceHistoryModal({
                 <TableCell sx={{ fontWeight: 700 }}>Field Name</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Old Value</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>New Value</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Modify By</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Modify Date</TableCell>
+
                 <TableCell sx={{ fontWeight: 700 }}>Liner Name</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Liner Id</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Contact No</TableCell>

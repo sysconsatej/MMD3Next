@@ -16,7 +16,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
-import { fetchTableValues } from "@/apis";
+import { deleteRecord, fetchTableValues } from "@/apis";
 import SearchBar from "@/components/searchBar/searchBar";
 import { ToastContainer } from "react-toastify";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
@@ -24,6 +24,7 @@ import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
 import { voyage } from "../voyageData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
+import { getUserByCookies } from "@/utils";
 
 function createData(vesselName, voyageNO, id) {
   return { vesselName, voyageNO, id };
@@ -40,6 +41,7 @@ export default function VoyageList() {
   const { setMode } = formStore();
   const router = useRouter();
   const { data } = useGetUserAccessUtils("Voyage");
+  const userData = getUserByCookies();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
@@ -84,12 +86,33 @@ export default function VoyageList() {
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
   };
+  const handleDeleteRecord = async (formId) => {
+    const updateObj = {
+      updatedBy: userData?.userId,
+      clientId: 1,
+      updatedDate: new Date(),
+    };
+    const obj = {
+      recordId: formId,
+      tableName: "tblVoyage",
+      ...updateObj,
+    };
+    const { success, message, error } = await deleteRecord(obj);
+    if (success) {
+      toast.success(message);
+      getData(page, rowsPerPage);
+    } else {
+      toast.error(error || message);
+    }
+  };
   const modeHandler = (mode, formId = null) => {
-    if (mode === "delete") return;
+    if (mode === "delete") {
+      handleDeleteRecord(formId);
+      return;
+    }
     setMode({ mode, formId });
     router.push("/master/voyage");
   };
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
