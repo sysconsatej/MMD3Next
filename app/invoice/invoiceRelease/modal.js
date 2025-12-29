@@ -115,7 +115,7 @@ export default function InvoiceHistoryModal({
         sx={{
           minHeight: 400,
           p: 2,
-          overflow: "hidden",
+          overflow: "auto",
         }}
       >
         <Typography sx={{ fontWeight: 700, mb: 2 }}>
@@ -161,8 +161,8 @@ export default function InvoiceHistoryModal({
                 <TableCell sx={{ fontWeight: 700 }}>Field Name</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Old Value</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>New Value</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Modify By</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Modify Date</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Modified By</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Modified On</TableCell>
 
                 <TableCell sx={{ fontWeight: 700 }}>Liner Name</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Liner Id</TableCell>
@@ -171,6 +171,8 @@ export default function InvoiceHistoryModal({
                   Rejection Remarks
                 </TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Remark</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Assign To</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Assign Date &amp; Timestamp</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
               </TableRow>
             </TableHead>
@@ -178,7 +180,7 @@ export default function InvoiceHistoryModal({
             <TableBody>
               {rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={15} align="center">
+                  <TableCell colSpan={17} align="center">
                     No history found
                   </TableCell>
                 </TableRow>
@@ -192,12 +194,16 @@ export default function InvoiceHistoryModal({
                     <TableCell>{row["Field Name"]}</TableCell>
                     <TableCell>{row["Old Value"]}</TableCell>
                     <TableCell>{row["New Value"]}</TableCell>
+                    <TableCell>{row["Modified By"]}</TableCell>
+                    <TableCell>{row["Modified On"]}</TableCell>
                     <TableCell>{row["Liner Name"]}</TableCell>
                     <TableCell>{row["Liner Id"]}</TableCell>
                     <TableCell>{row["Contact No"]}</TableCell>
                     <TableCell>{row["Rejection Remarks"]}</TableCell>
                     <TableCell>{row["Remark"]}</TableCell>
-                    <TableCell sx={{ color: statusColor(row.Status) }}>
+                    <TableCell>{row["Assign To"]}</TableCell>
+                    <TableCell>{row["Assign Date & timestamp"]}</TableCell>
+                    <TableCell sx={{ color: statusColor(row.Status), fontWeight: 600 }}>
                       {row.Status}
                     </TableCell>
                   </TableRow>
