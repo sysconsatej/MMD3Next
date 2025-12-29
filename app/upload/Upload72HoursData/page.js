@@ -26,16 +26,6 @@ const canon = (s = "") =>
     .trim()
     .toLowerCase();
 
-const findTemplateFile = (selectedName = "") => {
-  const csel = canon(selectedName);
-  for (const f of TEMPLATE_FILES) {
-    if (f.names.some((n) => canon(n) === csel)) return f;
-  }
-  if (/\bcontainer\b/.test(csel)) return TEMPLATE_FILES[1];
-  if (/\bitem\b/.test(csel)) return TEMPLATE_FILES[2];
-  return TEMPLATE_FILES[0];
-};
-
 const isEmptyRow = (obj = {}) =>
   Object.values(obj).every(
     (v) => v === null || v === "" || typeof v === "undefined"
@@ -101,32 +91,6 @@ const parseFile = async (file) => {
   return rows.filter((r) => !isEmptyRow(r));
 };
 
-const getSpFromTemplateName = (name = "") => {
-  const c = canon(name);
-  if (/container/.test(c)) return "inputMblContainer";
-  if (/item/.test(c)) return "inputMblItem";
-  return "inputMbl";
-};
-
-const downloadViaUrl = async (url, filenameBase = "Template") => {
-  try {
-    const resp = await fetch(url);
-    if (!resp.ok) throw new Error("Download failed");
-    const blob = await resp.blob();
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    const extGuess =
-      url.split("?")[0].split("#")[0].split(".").pop()?.toLowerCase() || "xlsx";
-    a.download = `${filenameBase}.${extGuess.replace(/[^a-z0-9]/gi, "")}`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(a.href);
-  } catch {
-    window.open(url, "_blank");
-  }
-};
-
 export default function MblUpload() {
   const [formData, setFormData] = useState({});
   const [busy, setBusy] = useState(false);
@@ -141,13 +105,12 @@ export default function MblUpload() {
     formData?.template?.Code ||
     formData?.template?.code ||
     "";
-  // convert header like "Bill of Lading(Master)" -> "billOfLadingMaster"
   const toCamelKey = (s) => {
     const str = String(s ?? "")
       .trim()
       .replace(/\s+/g, " ")
-      .replace(/[()]/g, " ") // remove brackets
-      .replace(/[^a-zA-Z0-9 ]/g, " ") // remove special chars
+      .replace(/[()]/g, " ")
+      .replace(/[^a-zA-Z0-9 ]/g, " ")
       .replace(/\s+/g, " ")
       .trim()
       .toLowerCase();
@@ -161,7 +124,6 @@ export default function MblUpload() {
   };
 
   const isRowEmpty = (obj) => {
-    // row empty if all values are blank/null/undefined
     return Object.values(obj).every((v) => {
       const s = String(v ?? "").trim();
       return s === "" || s.toLowerCase() === "nan";
@@ -178,18 +140,10 @@ export default function MblUpload() {
     }
 
     try {
-      // 1) read file -> ArrayBuffer
       const buffer = await file.arrayBuffer();
-
-      // 2) parse excel
       const wb = XLSX.read(buffer, { type: "array" });
-
-      // 3) first sheet
       const sheetName = wb.SheetNames[0];
       const ws = wb.Sheets[sheetName];
-
-      // 4) sheet -> JSON (use defval to avoid undefined)
-      // raw:false will make Excel dates come as formatted strings in most cases
       const rows = XLSX.utils.sheet_to_json(ws, {
         defval: "",
         raw: false,
@@ -201,7 +155,6 @@ export default function MblUpload() {
         return;
       }
 
-      // 5) normalize keys (optional but recommended)
       const normalized = rows
         .map((r) => {
           const out = {};
@@ -214,19 +167,17 @@ export default function MblUpload() {
         })
         .filter((r) => !isRowEmpty(r));
 
-      // ✅ Your final JSON
       console.log("Excel JSON:", normalized);
+      const payLoad = {
+        shippingLineId: formData?.shippingLineId?.Id || null,
+        data: normalized,
+      };
 
-      // If you want to store it in state:
-      // setExcelJson(normalized);
-
-      // If you want to store inside formData (example):
-      // setFormData((prev) => ({ ...prev, excelJson: normalized }));
-
-      toast.success(`Converted ${normalized.length} rows to JSON`);
+      // console.log("payLoad =>>", payLoad);
+      // toast.success(`Converted ${normalized.length} rows to JSON`);
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to read Excel. Please check the file format.");
+      // console.error(err);
+      // toast.error("Failed to read Excel. Please check the file format.");
     }
   };
 
@@ -243,9 +194,9 @@ export default function MblUpload() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0">
-              MBL Upload
+              Upload 72 Hours Data
             </h1>
-            <CustomButton text="Back" href="/bl/mbl/list" />
+            {/* <CustomButton text="Back" href="/bl/mbl/list" /> */}
           </Box>
 
           <Box className="border border-solid border-black rounded-[4px]">
