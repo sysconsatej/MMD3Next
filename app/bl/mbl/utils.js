@@ -345,7 +345,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
 
       if (podId === "IN" && fpdId === "IN") {
         const filtered = storeApiResult.filter(
-          (i) => i.inputName === "polId" || i.inputName === "podId"
+          (i) => i.inputName === "polId" || i.inputName === "fpdId"
         );
 
         const isSamePort = hasDuplicateId(filtered);
