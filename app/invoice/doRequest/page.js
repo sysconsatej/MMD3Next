@@ -228,6 +228,22 @@ export default function Home() {
       if (success) {
         setDoStatus(data);
       }
+
+      if (userData?.roleCode === "shipping") {
+        setJsonData((prev) => {
+          const updateDoRequestFields = prev.doRequestFields.map((item) => {
+            if (item.name === "surveyor" || item.name === "emptyDepotId") {
+              return { ...item, disabled: false };
+            }
+            return item;
+          });
+
+          return {
+            ...prev,
+            doRequestFields: updateDoRequestFields,
+          };
+        });
+      }
     }
     getDoStatus();
   }, []);
