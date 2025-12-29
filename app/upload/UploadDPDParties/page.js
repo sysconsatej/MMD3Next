@@ -15,7 +15,6 @@ import MultiFileUpload from "@/components/customInput/multiFileUpload";
 import data, { dpdGridButtons } from "./uploadDpdData";
 import { formatFormData, getUserByCookies } from "@/utils";
 import { insertUpdateForm } from "@/apis";
-import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
 
 //import { extractTextFromPdfs } from "@/helper/pdfTextExtractor";
 
