@@ -382,9 +382,9 @@ function RptDoLetter() {
                         </p>
                         <p className="text-black font-bold" style={{ fontSize: "10px" }}>C.C. Deport</p>
                     </div>
-                    {/* <div style={{ marginTop: "6mm" }}>
+                    <div style={{ marginTop: "6mm" }}>
                         <CompanyImgFooterModule />
-                    </div> */}
+                    </div>
                 </div>
             </div>
         );
@@ -421,8 +421,8 @@ function RptDoLetter() {
                         {data[0]?.destuffName ? `Delivery Order / ${data[0].destuffName}` : "Delivery Order"}
                     </h1>
 
-                    <div className="flex items-start justify-end">
-                        <p className="text-black font-bold " style={{ fontSize: "10px" }}>D/O No:</p>
+                    <div className="flex items-end justify-end">
+                        <p className="text-black font-bold mr-2" style={{ fontSize: "10px" }}>D/O No:</p>
                         <p className="text-black" style={{ fontSize: "10px", minWidth: "100px" }}>{data[0]?.doNo || ""}</p>
                     </div>
 
@@ -683,13 +683,13 @@ function RptDoLetter() {
                         <p className="text-black font-bold mt-2" style={{ fontSize: "10px" }}>
                             Thanking You, For {data[0]?.company} <br /> As Agent
                         </p>
-                        {/* <p style={{ width: "80%", height: "100%" }}>
+                        <p style={{ width: "80%", height: "100%" }}>
                             <ImgSign />
-                        </p> */}
+                        </p>
                     </div>
-                    {/* <div style={{ marginTop: "6mm" }}>
+                    <div style={{ marginTop: "6mm" }}>
                         <CompanyImgFooterModule />
-                    </div> */}
+                    </div>
                 </div>
             </div>
         );
@@ -901,17 +901,17 @@ function RptDoLetter() {
                         Thanking You, <br />
                         For {data?.[0]?.company} <br />
                     </p>
-                   {/* <p style={{ width: "80%", height: "100%" }}>
+                    <p style={{ width: "80%", height: "100%" }}>
                         <ImgSign />
                     </p>
                     <p className="text-black" style={{ fontSize: "10px" }}>
                         Please note this is a computer-generated document, hence no
                         signature and stamp required.
-                    </p> */}
+                    </p>
                 </div>
-                {/* <div style={{ marginTop: "6mm" }}>
-                    <Comp anyImgFooterModule />
-                </div> */}
+                <div style={{ marginTop: "6mm" }}>
+                    <CompanyImgFooterModule />
+                </div>
             </div>
         </div>
     );
