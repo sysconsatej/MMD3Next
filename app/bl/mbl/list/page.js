@@ -360,6 +360,7 @@ export default function BLList() {
         recordId={reportModalForRow?.id}
         clientId={reportModalForRow?.clientId}
         reportRoute={REPORT_ROUTE}
+        tableName={"tblBl"}
       />
 
       <BLHistoryModal
