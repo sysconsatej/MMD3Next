@@ -151,20 +151,26 @@ export default function SelectionActionsBar({
 
   const submitReject = async (filterStatus) => {
     if (!hasAny) return;
-    const rejectStatus = hblStatus.filter((item) => item.Name === filterStatus);
-    const rowsPayload = ids.flatMap((keyVal) =>
-      keyVal.split(",").map((id) => {
-        return {
-          [keyColumn]: id,
-          hblRequestStatus: rejectStatus[0].Id,
-          hblRequestRemarks: (remarks || "").trim() || null,
-          updatedBy: userData.userId,
-          updatedDate: new Date(),
-        };
-      })
-    );
-    const ok = await applyUpdate(rowsPayload, "Rejected");
-    if (ok) closeReject();
+    if (remarks) {
+      const rejectStatus = hblStatus.filter(
+        (item) => item.Name === filterStatus
+      );
+      const rowsPayload = ids.flatMap((keyVal) =>
+        keyVal.split(",").map((id) => {
+          return {
+            [keyColumn]: id,
+            hblRequestStatus: rejectStatus[0].Id,
+            hblRequestRemarks: (remarks || "").trim() || null,
+            updatedBy: userData.userId,
+            updatedDate: new Date(),
+          };
+        })
+      );
+      const ok = await applyUpdate(rowsPayload, "Rejected");
+      if (ok) closeReject();
+    } else {
+      toast.warn("Please enter reject remark!");
+    }
   };
 
   const Segment = ({ label, onClick, disabled, isLast }) => {
@@ -201,7 +207,8 @@ export default function SelectionActionsBar({
       }));
 
       const filterStatusAmd = hblStatus?.filter(
-        (item) => item.Name !== "Confirm"
+        (item) =>
+          item.Name !== "Confirm" && item.Name !== "Reject for Amendment"
       );
       const hasNonEmpty = data?.every((obj) => Object.keys(obj).length > 0);
       let filterCheckReqAmd = data?.some((item) =>

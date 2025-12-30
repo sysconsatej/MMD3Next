@@ -41,7 +41,6 @@ export const fieldData = {
       type: "date",
       isEdit: true,
       required: true,
-      disabled: true,
     },
     {
       label: "Vessel",
@@ -54,7 +53,6 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblVessel",
       isEdit: true,
-      disabled: true,
     },
     {
       label: "Voyage",
@@ -68,7 +66,6 @@ export const fieldData = {
       orderBy: "t.voyageNo",
       foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
-      disabled: true,
     },
     {
       label: "Place of Delivery",
@@ -79,7 +76,7 @@ export const fieldData = {
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
       required: true,
-      disabled: true,
+      isEdit: true,
     },
     {
       label: "Consignee Name",
@@ -164,6 +161,7 @@ export const fieldData = {
       name: "path",
       type: "fileupload",
       isEdit: true,
+      required: true,
     },
   ],
 };
