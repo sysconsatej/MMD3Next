@@ -5,12 +5,12 @@ const fieldData = {
       name: "vessel",
       type: "dropdown",
       tableName: "tblVessel t",
-      changeFun: "handleChangeOnVessel",
       idColumn: "id",
       displayColumn: "t.name",
+      changeFun: "handleChangeOnVessel",
       searchColumn: "t.name",
       orderBy: "t.name",
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "Voyage",
@@ -21,30 +21,21 @@ const fieldData = {
       changeFun: "handleDropdownChange",
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
+      selectedConditions: [{ vessel: "t.vesselId" }],
       orderBy: "t.voyageNo",
-      selectedConditions: [{ "vessel": "vesselId" }],
-      isEdit: true
+      isEdit: true,
     },
     {
       label: "POD",
       name: "pod",
       type: "dropdown",
-      tableName: "tblPort t",
-      idColumn: "id",
+      tableName: "tblPort p",
+      displayColumn: "p.name",
       changeFun: "handleDropdownChange",
-      displayColumn: "t.name",
-      searchColumn: "t.name",
-      orderBy: "t.name",
-      isEdit: true
-    },
-    {
-      label: "New Line No",
-      name: "newLineNo",
-      type: "radio",
-      radioData: [
-        { label: "Yes", value: "Y" },
-        { label: "No", value: "N" },
-      ],
+      joins: `join tblMasterData d on p.portTypeId = d.id and d.name = 'SEA PORT' join tblVoyageRoute v on v.portOfCallId = p.id`,
+      selectedConditions: [{ voyage: "v.voyageId" }],
+      searchColumn: "p.name",
+      orderBy: "p.name",
       isEdit: true,
     },
   ],
@@ -55,6 +46,7 @@ export const metaData = [
   {
     name: "From",
     isEdit: true,
+    blurFun: "handleCellBlur",
   },
   {
     name: "To",
