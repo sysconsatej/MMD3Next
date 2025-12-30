@@ -9,7 +9,7 @@ import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import FormHeading from "@/components/formHeading/formHeading";
-import { formStore } from "@/store";
+import { formStore, useBackLinksStore } from "@/store";
 import {
   fetchForm,
   getDataWithCondition,
@@ -24,6 +24,7 @@ import {
 } from "@/utils";
 
 export default function Home() {
+  const { link } = useBackLinksStore();
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(fieldData);
@@ -255,10 +256,10 @@ export default function Home() {
           <Box className="flex justify-between items-center mb-2">
             <h1 className="text-left text-base m-0">Do Request</h1>
             {userData?.roleCode === "customer" && (
-              <CustomButton text="Back" href="/invoice/doRequest/list" />
+              <CustomButton text="Back" href={link ? link?.blStatus :  "/invoice/doRequest/list"} />
             )}
             {userData?.roleCode === "shipping" && (
-              <CustomButton text="Back" href="/invoice/doRequest/liner" />
+              <CustomButton text="Back" href={link ? link?.blStatus :  "/invoice/doRequest/liner"} />
             )}
           </Box>
 
