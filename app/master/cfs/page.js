@@ -8,7 +8,12 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
-import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
+import {
+  formatDataWithForm,
+  formatFetchForm,
+  formatFormData,
+  getUserByCookies,
+} from "@/utils";
 import { formStore } from "@/store";
 import TableGrid from "@/components/tableGrid/tableGrid";
 
@@ -134,12 +139,15 @@ export default function Cfs() {
 
     fetchFormHandler();
   }, [mode.formId]);
+
   useEffect(() => {
     async function initialHandler() {
+      const userData = getUserByCookies();
+
       const obj = {
         columns: "id",
         tableName: "tblMasterData",
-        whereCondition: "name = 'CONTAINER FREIGHT STATION'",
+        whereCondition: "name = 'CONTAINER FREIGHT STATION' and masterListName = 'tblPortType' and status = 1",
       };
 
       const { data, message, error, success } = await getDataWithCondition(obj);
@@ -147,6 +155,7 @@ export default function Cfs() {
         setFormData((prev) => ({
           ...prev,
           portTypeId: data[0].id,
+          companyId: userData?.companyId,
         }));
       } else {
         toast.error(error || message);
@@ -155,6 +164,7 @@ export default function Cfs() {
 
     initialHandler();
   }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
