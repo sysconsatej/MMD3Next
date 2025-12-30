@@ -6,20 +6,24 @@ import {
     Backdrop, Modal, Fade, Box, Typography, Checkbox, FormControlLabel,
     Button, Divider, Paper, ToggleButtonGroup, ToggleButton,
 } from "@mui/material";
+import { validatePrint } from "@/apis/validatePrint.js";
+import { getUserByCookies } from "@/utils";
 
 export default function ReportPickerModal({
-    open,
-    onClose,
-    availableReports,
-    defaultSelectedKeys = [],
-    initialMode = "combined",
-    onGenerate,
-    recordId,
-    clientId,
-    reportRoute = "/htmlReports/rptDoLetter",
+  open,
+  onClose,
+  availableReports,
+  defaultSelectedKeys = [],
+  initialMode = "combined",
+  onGenerate,
+  recordId,
+  clientId,
+  reportRoute = "/htmlReports/rptDoLetter",
+  tableName,
 }) {
     const [mode, setMode] = useState(initialMode);
     const [selected, setSelected] = useState(() => new Set(defaultSelectedKeys));
+    const userData = getUserByCookies();
 
     useEffect(() => {
         if (open) {
@@ -41,36 +45,75 @@ export default function ReportPickerModal({
         });
     };
 
-    const handleGenerateMouseDown = (e) => {
-        e.preventDefault();
-        if (selected.size === 0) return;
-
-        const ordered = (availableReports || []).map(r => r.key).filter(k => selected.has(k));
-        const rid = encodeURIComponent(recordId ?? "");
-        const cid = encodeURIComponent(clientId ?? "");
-        if (!rid || !cid) { onClose?.(); return; }
-
-        if (mode === "separate") {
-            for (const name of ordered) {
-                const url = `${reportRoute}?recordId=${rid}&clientId=${cid}&mode=combined&selected=${encodeURIComponent(name)}`;
-                const w = window.open("", "_blank");
-                if (w && !w.closed) {
-                    try { w.opener = null; } catch { }
-                    try { w.location.replace(url); } catch { w.location.href = url; }
-                }
-            }
-        } else {
-            const url = `${reportRoute}?recordId=${rid}&clientId=${cid}&mode=combined&selected=${encodeURIComponent(ordered.join("!"))}`;
-            const w = window.open("", "_blank");
-            if (w && !w.closed) {
-                try { w.opener = null; } catch { }
-                try { w.location.replace(url); } catch { w.location.href = url; }
-            }
-        }
-
-        onGenerate?.({ selectedKeys: ordered, mode });
-        onClose?.();
+    const handleGenerateMouseDown = async (e) => {
+    e.preventDefault();
+    if (selected.size === 0) return;
+    const reportsName =
+      selected?.size > 0 ? Array.from(selected).join(",") : null;
+ 
+    const validatePrintObj = {
+      recordId: recordId,
+      reportsName: reportsName,
+      tableName: tableName || null,
+      loginCompanyId: userData?.companyId || null,
+      loginBranchId: userData?.branchId || null,
+      locationId: userData?.location || null,
     };
+ 
+    const validatePrintResponse = await validatePrint(validatePrintObj);
+    if (validatePrintResponse[0]?.success === false) {
+      toast.error(validatePrintResponse[0]?.message || "failed To Open Report");
+      return;
+    }
+ 
+    const ordered = (availableReports || [])
+      .map((r) => r.key)
+      .filter((k) => selected.has(k));
+    const rid = encodeURIComponent(recordId ?? "");
+    const cid = encodeURIComponent(clientId ?? "");
+    if (!rid || !cid) {
+      onClose?.();
+      return;
+    }
+ 
+    if (mode === "separate") {
+      for (const name of ordered) {
+        const url = `${reportRoute}?recordId=${rid}&clientId=${cid}&mode=combined&selected=${encodeURIComponent(
+          name
+        )}`;
+        const w = window.open("", "_blank");
+        if (w && !w.closed) {
+          try {
+            w.opener = null;
+          } catch {}
+          try {
+            w.location.replace(url);
+          } catch {
+            w.location.href = url;
+          }
+        }
+      }
+    } else {
+      const url = `${reportRoute}?recordId=${rid}&clientId=${cid}&mode=combined&selected=${encodeURIComponent(
+        ordered.join("!")
+      )}`;
+      const w = window.open("", "_blank");
+      if (w && !w.closed) {
+        try {
+          w.opener = null;
+        } catch {}
+        try {
+          w.location.replace(url);
+        } catch {
+          w.location.href = url;
+        }
+      }
+    }
+ 
+    onGenerate?.({ selectedKeys: ordered, mode });
+    onClose?.();
+  };
+ 
 
     const disableGenerate = selected.size === 0 || !recordId || !clientId;
 
@@ -197,4 +240,5 @@ ReportPickerModal.propTypes = {
     recordId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     clientId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     reportRoute: PropTypes.string,
+    tableName: PropTypes.string,
 };
