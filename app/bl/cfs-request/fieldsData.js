@@ -25,6 +25,7 @@ export const fieldData = {
       foreignTable: "name,tblCompany",
       required: true,
       isEdit: true,
+      changeFun: "setCfsAndDpd",
     },
     {
       label: "MBL No.",
@@ -106,7 +107,7 @@ export const fieldData = {
       tableName: "tblPort p",
       displayColumn: "p.name",
       joins:
-        "join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS'",
+        "join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = null",
       isEdit: true,
       foreignTable: "name,tblPort",
     },
@@ -117,7 +118,7 @@ export const fieldData = {
       tableName: "tblPort p",
       displayColumn: "p.name",
       joins:
-        "join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'DPD'",
+        "join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'DPD' and p.companyId = null",
       isEdit: true,
       foreignTable: "name,tblPort",
     },

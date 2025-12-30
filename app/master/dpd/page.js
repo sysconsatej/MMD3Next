@@ -8,7 +8,12 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
-import { formatDataWithForm, formatFetchForm, formatFormData, getUserByCookies } from "@/utils";
+import {
+  formatDataWithForm,
+  formatFetchForm,
+  formatFormData,
+  getUserByCookies,
+} from "@/utils";
 import { formStore } from "@/store";
 
 export default function DPD() {
@@ -17,6 +22,7 @@ export default function DPD() {
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
   const [errorState, setErrorState] = useState({});
+  const userData = getUserByCookies();
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -56,7 +62,7 @@ export default function DPD() {
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
           const getData = formatDataWithForm(result, data);
-          setFormData(getData);
+          setFormData({ ...getData, companyId: userData?.companyId });
         } else {
           toast.error(error || message);
         }
@@ -68,19 +74,18 @@ export default function DPD() {
 
   useEffect(() => {
     async function initialHandler() {
-      const userData = getUserByCookies();
-
       const obj = {
         columns: "id",
         tableName: "tblMasterData",
-        whereCondition: "name = 'DIRECT PORT DELIVERY' and masterListName = 'tblPortType' and status = 1",
+        whereCondition:
+          "name = 'DIRECT PORT DELIVERY' and masterListName = 'tblPortType' and status = 1",
       };
 
       const { data, message, error, success } = await getDataWithCondition(obj);
       if (success) {
         setFormData((prev) => ({
           ...prev,
-          portTypeId: data[0].id,
+          portTypeId: data?.[0]?.id,
           companyId: userData?.companyId,
         }));
       } else {
