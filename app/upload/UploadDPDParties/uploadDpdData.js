@@ -1,5 +1,3 @@
-import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from "@mui/icons-material/Close";
 
 const fieldData = {
     uploadFields: [
@@ -25,8 +23,3 @@ const fieldData = {
 };
 
 export default fieldData;
-
-export const dpdGridButtons = [
-    { text: "Add", icon: <AddIcon />, func: "gridAddHandler" },
-    { text: "Delete", icon: <CloseIcon />, func: "gridDeleteHandler" },
-];
