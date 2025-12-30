@@ -74,10 +74,33 @@ export const handleBlur = ({
   };
 };
 
-export const handleChange = ({ setFormData, formData }) => {
+export const handleChange = ({ setFormData, formData, setJsonData }) => {
   return {
     setAttachmentType: async (name, value) => {
       console.log("Sample");
+    },
+    setCfsAndDpd: async (name, value) => {
+      setJsonData((prev) => {
+        const updateFields = prev.fields.map((item) => {
+          if (item?.name === "dpdId") {
+            return {
+              ...item,
+              joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'DPD' and p.companyId = ${value?.Id}`,
+            };
+          } else if (item?.name === "nominatedAreaId") {
+            return {
+              ...item,
+              joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${value?.Id}`,
+            };
+          }
+          return item;
+        });
+
+        return {
+          ...prev,
+          fields: updateFields,
+        };
+      });
     },
   };
 };

@@ -33,6 +33,8 @@ export default function Company() {
     disableRequestButton: false,
   });
   const [requestButtonStatus, setRequestBtnStatus] = useState(false);
+  //  to set default values on 1st render
+  useSetDefault({ userData, setFormData, setDefaultvalues, mode: mode });
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -62,34 +64,11 @@ export default function Company() {
     }
   };
 
-  //  to set default values on 1st render
-  useSetDefault({ userData, setFormData, setDefaultvalues, mode: mode });
-
-  useEffect(() => {
-    async function fetchFormHandler() {
-      if (!mode?.formId) return;
-
-      setFieldsMode(mode?.mode);
-      const format = formatFetchForm(
-        fieldData,
-        "tblBl",
-        mode?.formId,
-        '["tblAttachment"]',
-        "blId"
-      );
-      const { success, result, message, error } = await fetchForm(format);
-      if (success) {
-        const getData = formatDataWithForm(result, fieldData);
-        setFormData(getData);
-      } else {
-        toast.error(error || message);
-      }
-    }
-
-    fetchFormHandler();
-  }, [mode]);
-
-  const handleChangeEventFunctions = handleChange({ setFormData, formData });
+  const handleChangeEventFunctions = handleChange({
+    setFormData,
+    formData,
+    setJsonData,
+  });
 
   const handleBlurEventFunctions = handleBlur({
     setFormData,
@@ -147,6 +126,34 @@ export default function Company() {
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    async function fetchFormHandler() {
+      if (!mode?.formId) return;
+
+      setFieldsMode(mode?.mode);
+      const format = formatFetchForm(
+        fieldData,
+        "tblBl",
+        mode?.formId,
+        '["tblAttachment"]',
+        "blId"
+      );
+      const { success, result, message, error } = await fetchForm(format);
+      if (success) {
+        const getData = formatDataWithForm(result, fieldData);
+        setFormData(getData);
+        handleChangeEventFunctions?.setCfsAndDpd(
+          "shippingLineId",
+          getData?.shippingLineId
+        );
+      } else {
+        toast.error(error || message);
+      }
+    }
+
+    fetchFormHandler();
+  }, [mode]);
 
   return (
     <ThemeProvider theme={theme}>
