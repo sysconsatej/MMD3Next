@@ -7,6 +7,7 @@ import {
     Button, Divider, Paper, ToggleButtonGroup, ToggleButton,
 } from "@mui/material";
 import { validatePrint } from "@/apis/validatePrint.js";
+import { toast } from "react-toastify";
 import { getUserByCookies } from "@/utils";
 
 export default function ReportPickerModal({
@@ -22,15 +23,14 @@ export default function ReportPickerModal({
   tableName,
 }) {
     const [mode, setMode] = useState(initialMode);
-    const [selected, setSelected] = useState(() => new Set(defaultSelectedKeys));
+    const [selected, setSelected] = useState(() => new Set());
     const userData = getUserByCookies();
 
     useEffect(() => {
         if (open) {
             setMode(initialMode);
-            setSelected(new Set(defaultSelectedKeys));
         }
-    }, [open, initialMode, defaultSelectedKeys]);
+    }, [open, initialMode]);
 
     const allKeys = useMemo(() => (availableReports || []).map(r => r.key), [availableReports]);
     const allChecked = selected.size > 0 && selected.size === allKeys.length;
