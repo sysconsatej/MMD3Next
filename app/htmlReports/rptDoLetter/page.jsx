@@ -99,6 +99,8 @@ function RptDoLetter() {
         if (reportIds.length > 0) fetchData();
     }, [reportIds, searchParams, baseUrl, clientId]);
 
+    console.log("Do_Data", data);
+
     const formatDateToYMD = (dateStr) => {
         if (!dateStr) return "";
         const d = new Date(dateStr);
@@ -141,6 +143,13 @@ function RptDoLetter() {
         return out;
     };
     const chunks = chunkSize > 0 ? chunkArray(containers, chunkSize) : [containers];
+    const cmcChunkSize = 6;
+    const CMCLetterSizeChunks =
+        cmcChunkSize > 0 ? chunkArray(containers, cmcChunkSize) : [containers];
+
+    const customsChunkSize = 6;
+    const CustomsExamChunks =
+        customsChunkSize > 0 ? chunkArray(containers, customsChunkSize) : [containers];
 
     const ImgSign = () => (
         <img
@@ -418,7 +427,7 @@ function RptDoLetter() {
 
                 <div className="mx-auto text-black">
                     <h1 className="text-black font-bold text-sm text-center underline">
-                        {data[0]?.destuffName ? `Delivery Order / ${data[0].destuffName}` : "Delivery Order"}
+                        {"Delivery Order"}
                     </h1>
 
                     <div className="flex items-start justify-end">
@@ -695,39 +704,51 @@ function RptDoLetter() {
         );
     };
 
-    const EmptyOffLoadingLetter = (containersProp) => (
+    const EmptyOffLoadingLetter = (containers) => (
         <div>
             <div className="mx-auto">
                 <CompanyImgModule />
             </div>
+            {/* Header */}
             <div className="mx-auto text-black">
                 <h1 className="text-black font-bold text-sm text-center underline">
                     <u>EMPTY OFF LOADING LETTER</u>
                 </h1>
                 <div className="flex items-end justify-end">
-                    <p className="text-black" style={{ fontSize: "10px", minWidth: "100px" }}></p>
+                    <p
+                        className="text-black"
+                        style={{ fontSize: "10px", minWidth: "100px" }}
+                    ></p>
                 </div>
                 <div className="flex justify-between w-full">
                     <div className="flex items-end justify-start w-[40%]">
-                        <p className="text-black font-bold mr-2" style={{ fontSize: "10px" }}>
+                        <p
+                            className="text-black font-bold mr-2"
+                            style={{ fontSize: "10px" }}
+                        >
                             To, <br />
                             The Manager, <br />
-                            {data?.[0]?.emptyDepot || ""}
+                            {data[0]?.emptyDepot || ""}
                             <br />
-                            {data?.[0]?.emptyDepotAddress || ""}
+                            {data[0]?.emptyDepotAddress || ""}
                         </p>
                     </div>
                     <div className="flex items-start justify-end">
-                        <p className="text-black font-bold mr-2" style={{ fontSize: "10px" }}>
+                        <p
+                            className="text-black font-bold mr-2"
+                            style={{ fontSize: "10px" }}
+                        >
                             Date :
                         </p>
-                        <p className="text-black" style={{ fontSize: "10px", minWidth: "100px" }}>
-                            {formatDateToYMD(data?.[0]?.doDate)}
+                        <p
+                            className="text-black"
+                            style={{ fontSize: "10px", minWidth: "100px" }}
+                        >
+                            {formatDateToYMD(data[0]?.doDate)}
                         </p>
                     </div>
                 </div>
             </div>
-
             <div className="flex mt-2" style={{ width: "100%" }}>
                 <div style={{ width: "12%" }}>
                     <p className="text-black font-bold" style={{ fontSize: "10px" }}>
@@ -738,132 +759,272 @@ function RptDoLetter() {
             <div className="flex mt-1" style={{ width: "100%" }}>
                 <div>
                     <p className="text-black" style={{ fontSize: "10px" }}>
-                        Please Accept the below mentioned Empty container(s).On account of{" "}
-                        <span className="text-black uppercase">{data?.[0]?.mlo || ""}</span>
+                        Please Accept the below mentioned Empty container(s).On account of
+                        <span className="text-black uppercase">{data[0]?.mlo || ""}</span>
                     </p>
                 </div>
             </div>
-
+            {/* main Grid */}
             <table className="w-full table-fixed border border-black border-collapse mt-4">
                 <tbody>
                     <tr>
                         <td className="w-1/6 border-t border-b border-l border-black p-1">
-                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>VESSEL/VOY :</p>
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                VESSEL/VOY :
+                            </p>
                         </td>
                         <td className="w-2/6 border-t border-b border-r border-black p-1">
                             <p className="text-black" style={{ fontSize: "9px" }}>
-                                {data?.[0]?.podVessel || ""} {data?.[0]?.podVoyage || ""}
+                                {data[0]?.podVessel || ""} {data[0]?.podVoyage || ""}
                             </p>
                         </td>
                         <td className="w-1/6 border-t border-b border-l border-black p-1">
-                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>PORT/ICD ARR DATE :</p>
-                        </td>
-                        <td className="w-2/6 border-t border-b border-r border-black p-1">
-                            <p className="text-black" style={{ fontSize: "9px" }}>
-                                {formatDateToYMD(data?.[0]?.arrivalDate)}
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                PORT/ICD ARR DATE :
                             </p>
                         </td>
-                    </tr>
-                    <tr>
-                        <td className="w-1/6 border-t border-b border-l border-black p-1">
-                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>PLACE OF ORIGIN :</p>
-                        </td>
-                        <td className="w-2/6 border-t border-b border-r border-black p-1">
-                            <p className="text-black" style={{ fontSize: "9px" }}>{data?.[0]?.plr || ""}</p>
-                        </td>
-                        <td className="w-1/6 border-t border-b border-l border-black p-1">
-                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>LOAD PORT :</p>
-                        </td>
-                        <td className="w-2/6 border-t border-b border-r border-black p-1">
-                            <p className="text-black" style={{ fontSize: "9px" }}>{data?.[0]?.pol || ""}</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="w-1/6 border-t border-b border-l border-black p-1">
-                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>DISCH PORT :</p>
-                        </td>
-                        <td className="w-2/6 border-t border-b border-r border-black p-1">
-                            <p className="text-black" style={{ fontSize: "9px" }}>{data?.[0]?.pod || ""}</p>
-                        </td>
-                        <td className="w-1/6 border-t border-b border-l border-black p-1">
-                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>FINAL DEST :</p>
-                        </td>
-                        <td className="w-2/6 border-t border-b border-r border-black p-1">
-                            <p className="text-black" style={{ fontSize: "9px" }}>{data?.[0]?.fpd || ""}</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="w-1/6 border-t border-b border-l border-black p-1">
-                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>B/L NO. :</p>
-                        </td>
-                        <td className="w-2/6 border-t border-b border-r border-black p-1">
-                            <p className="text-black" style={{ fontSize: "9px" }}>{data?.[0]?.blNo || ""}</p>
-                        </td>
-                        <td className="w-1/6 border-t border-b border-l border-black p-1">
-                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>B/L DATE :</p>
-                        </td>
                         <td className="w-2/6 border-t border-b border-r border-black p-1">
                             <p className="text-black" style={{ fontSize: "9px" }}>
-                                {formatDateToYMD(data?.[0]?.blDate)}
+                                {formatDateToYMD(data[0]?.arrivalDate)}
                             </p>
                         </td>
                     </tr>
                     <tr>
                         <td className="w-1/6 border-t border-b border-l border-black p-1">
-                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>IGM NO. :</p>
-                        </td>
-                        <td className="w-2/6 border-t border-b border-r border-black p-1">
-                            <p className="text-black" style={{ fontSize: "9px" }}>{data?.[0]?.igmNo || ""}</p>
-                        </td>
-                        <td className="w-1/6 border-t border-b border-l border-black p-1">
-                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>IGM DATE :</p>
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                PLACE OF ORIGIN :
+                            </p>
                         </td>
                         <td className="w-2/6 border-t border-b border-r border-black p-1">
                             <p className="text-black" style={{ fontSize: "9px" }}>
-                                {formatDateToYMD(data?.[0]?.igmDate)}
+                                {data[0]?.plr || ""}
+                            </p>
+                        </td>
+                        <td className="w-1/6 border-t border-b border-l border-black p-1">
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                LOAD PORT :
+                            </p>
+                        </td>
+                        <td className="w-2/6 border-t border-b border-r border-black p-1">
+                            <p className="text-black" style={{ fontSize: "9px" }}>
+                                {data[0]?.pol || ""}
                             </p>
                         </td>
                     </tr>
                     <tr>
                         <td className="w-1/6 border-t border-b border-l border-black p-1">
-                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>ITEM NO. :</p>
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                DISCH PORT :
+                            </p>
                         </td>
                         <td className="w-2/6 border-t border-b border-r border-black p-1">
-                            <p className="text-black" style={{ fontSize: "9px" }}>{data?.[0]?.lineNo || ""}</p>
+                            <p className="text-black" style={{ fontSize: "9px" }}>
+                                {data[0]?.pod || ""}
+                            </p>
                         </td>
                         <td className="w-1/6 border-t border-b border-l border-black p-1">
-                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>DESTUFFING TYPE :</p>
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                FINAL DEST :
+                            </p>
                         </td>
                         <td className="w-2/6 border-t border-b border-r border-black p-1">
-                            <p className="text-black" style={{ fontSize: "9px" }}>{data?.[0]?.destuffName || ""}</p>
+                            <p className="text-black" style={{ fontSize: "9px" }}>
+                                {data[0]?.fpd || ""}
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td className="w-1/6 border-t border-b border-l border-black p-1">
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                B/L NO. :
+                            </p>
+                        </td>
+                        <td className="w-2/6 border-t border-b border-r border-black p-1">
+                            <p className="text-black" style={{ fontSize: "9px" }}>
+                                {data[0]?.blNo || ""}
+                            </p>
+                        </td>
+                        <td className="w-1/6 border-t border-b border-l border-black p-1">
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                B/L DATE :
+                            </p>
+                        </td>
+                        <td className="w-2/6 border-t border-b border-r border-black p-1">
+                            <p className="text-black" style={{ fontSize: "9px" }}>
+                                {formatDateToYMD(data[0]?.blDate)}
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td className="w-1/6 border-t border-b border-l border-black p-1">
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                IGM NO. :
+                            </p>
+                        </td>
+                        <td className="w-2/6 border-t border-b border-r border-black p-1">
+                            <p className="text-black" style={{ fontSize: "9px" }}>
+                                {data[0]?.igmNo || ""}
+                            </p>
+                        </td>
+                        <td className="w-1/6 border-t border-b border-l border-black p-1">
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                IGM DATE :
+                            </p>
+                        </td>
+                        <td className="w-2/6 border-t border-b border-r border-black p-1">
+                            <p className="text-black" style={{ fontSize: "9px" }}>
+                                {formatDateToYMD(data[0]?.igmDate)}
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td className="w-1/6 border-t border-b border-l border-black p-1">
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                ITEM NO. :
+                            </p>
+                        </td>
+                        <td className="w-2/6 border-t border-b border-r border-black p-1">
+                            <p className="text-black" style={{ fontSize: "9px" }}>
+                                {data[0]?.lineNo || ""}
+                            </p>
+                        </td>
+                        <td className="w-1/6 border-t border-b border-l border-black p-1">
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                DESTUFFING TYPE :
+                            </p>
+                        </td>
+                        <td className="w-2/6 border-t border-b border-r border-black p-1">
+                            <p className="text-black" style={{ fontSize: "9px" }}>
+                                {data[0]?.destuffName || ""}
+                            </p>
                         </td>
                     </tr>
                     <tr>
                         <td className="w-1/6 border-t border-b border-l border-black p-1 align-top">
-                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>CONSIGNEE :</p>
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                CONSIGNEE :
+                            </p>
                         </td>
                         <td className="w-2/6 border-t border-b border-r border-black p-1">
                             <p className="text-black" style={{ fontSize: "9px" }}>
-                                <span>{data?.[0]?.consigneeText || ""}</span>
+                                <span>{data[0]?.consigneeText || ""}</span>
                                 <br />
                                 <span style={{ wordBreak: "break-word" }}>
-                                    {data?.[0]?.consigneeAddress || ""}
+                                    {data[0]?.consigneeAddress || ""}
                                 </span>
                             </p>
                         </td>
                         <td className="w-1/6 border-t border-b border-l border-black p-1 align-top">
-                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>NOTIFY PARTY :</p>
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                NOTIFY PARTY :
+                            </p>
                         </td>
                         <td className="w-2/6 border-t border-b border-r border-black p-1">
                             <p className="text-black" style={{ fontSize: "9px" }}>
-                                <span>{data?.[0]?.notifyPartyText || ""}</span>
+                                <span>{data[0]?.notifyPartyText || ""}</span>
                                 <br />
                                 <span style={{ wordBreak: "break-word" }}>
-                                    {data?.[0]?.notifyPartyAddress || ""}
+                                    {data[0]?.notifyPartyAddress || ""}
                                 </span>
                             </p>
                         </td>
                     </tr>
+                </tbody>
+            </table>
+            {/* main Grid */}
+            <div className="flex mt-1" style={{ width: "100%" }}>
+                <div style={{ width: "12%" }}>
+                    <p className="text-black font-bold" style={{ fontSize: "10px" }}>
+                        CHA Name :
+                    </p>
+                </div>
+                <div style={{ width: "88%" }}>
+                    <p className="text-black" style={{ fontSize: "10px" }}>
+                        {data[0]?.customBrokerName || ""}
+                    </p>
+                </div>
+            </div>
+            <div className="flex mt-1" style={{ width: "100%" }}>
+                <div style={{ width: "12%" }}>
+                    <p className="text-black font-bold" style={{ fontSize: "10px" }}>
+                        PRINCIPAL :
+                    </p>
+                </div>
+                <div style={{ width: "88%" }}>
+                    <p className="text-black" style={{ fontSize: "10px" }}>
+                        {data[0]?.mlo || ""}
+                    </p>
+                </div>
+            </div>
+            {/* Container Details Grid */}
+            <table className="w-full mt-2 table-fixed border border-black border-collapse">
+                <thead>
+                    <tr>
+                        <th className="w-1/8 border border-black p-1">
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                Container No.
+                            </p>
+                        </th>
+                        <th className="w-1/8 border border-black p-1">
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                Size/Type
+                            </p>
+                        </th>
+                        <th className="w-1/8 border border-black p-1">
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                Status
+                            </p>
+                        </th>
+                        <th className="w-1/8 border border-black p-1">
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                Off Hire Reference
+                            </p>
+                        </th>
+                        <th className="w-1/8 border border-black p-1">
+                            <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                Valid Date
+                            </p>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {containers?.length > 0 &&
+                        containers?.map((item, index) => (
+                            <tr key={index}>
+                                <th className="w-1/8 border border-black p-1">
+                                    <p
+                                        className="text-black font-normal"
+                                        style={{ fontSize: "9px" }}
+                                    >
+                                        {item.containerNo || ""}
+                                    </p>
+                                </th>
+                                <th className="w-1/8 border border-black p-1">
+                                    <p
+                                        className="text-black font-normal text-left"
+                                        style={{ fontSize: "9px" }}
+                                    >
+                                        {(item.size || "") + "/" + (item.type || "")}
+                                    </p>
+                                </th>
+                                <th className="w-1/8 border font-normal border-black p-1">
+                                    <p className="text-black" style={{ fontSize: "9px" }}>
+                                        {item.containerStatus || ""}
+                                    </p>
+                                </th>
+                                <th className="w-1/8 border font-normal border-black p-1">
+                                    <p className="text-black" style={{ fontSize: "9px" }}></p>
+                                </th>
+                                <th className="w-1/8 border border-black p-1">
+                                    <p
+                                        className="text-black font-normal"
+                                        style={{ fontSize: "9px" }}
+                                    >
+                                        {formatDateToYMD(data?.[0]?.doValidDate)}
+                                    </p>
+                                </th>
+                            </tr>
+                        ))}
                 </tbody>
             </table>
 
@@ -890,32 +1051,570 @@ function RptDoLetter() {
                 </div>
                 <div style={{ width: "85%" }}>
                     <p className="text-black" style={{ fontSize: "10px" }}>
-                        {data?.[0]?.description || ""}
+                        {data[0]?.description || ""}
                     </p>
                 </div>
             </div>
 
-            <div className="footer">
+            {/* Sticky Footer */}
+            <footer
+                style={{
+                    bottom: "10px",
+                    width: "100%",
+                }}
+            >
                 <div>
                     <p className="text-black font-bold mt-2" style={{ fontSize: "10px" }}>
                         Thanking You, <br />
-                        For {data?.[0]?.company} <br />
+                        For {data[0]?.company} <br />
                     </p>
-                   {/* <p style={{ width: "80%", height: "100%" }}>
+                    <p style={{ width: "80%", height: "100%" }}>
                         <ImgSign />
                     </p>
+                    {/* <p className="text-black mt-14" style={{ fontSize: "10px" }}>
+            Issued By: admin
+          </p> */}
                     <p className="text-black" style={{ fontSize: "10px" }}>
                         Please note this is a computer-generated document, hence no
                         signature and stamp required.
-                    </p> */}
+                    </p>
                 </div>
-                {/* <div style={{ marginTop: "6mm" }}>
-                    <Comp anyImgFooterModule />
-                </div> */}
-            </div>
+            </footer>
         </div>
     );
+    const CMCLetter = (container) => {
+        const containersLocal = Array.isArray(container)
+            ? container
+            : Array.isArray(container?.containers)
+                ? container.containers
+                : [];
 
+        return (
+            <div>
+                <div className="mx-auto">
+                    <CompanyImgModule />
+                </div>
+
+                {/* Header */}
+                <div className="mx-auto text-black">
+                    <h1 className="text-black font-bold text-sm text-center underline">
+                        <u>CMC Letter</u>
+                    </h1>
+                </div>
+
+                {/* Main Grid */}
+                <table className="w-full table-fixed border border-black border-collapse mt-4">
+                    <tbody>
+                        <tr>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    VESSEL/VOY :
+                                </p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    {data?.[0]?.podVessel || ""} {data?.[0]?.podVoyage || ""}
+                                </p>
+                            </td>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    ARRIVAL DATE :
+                                </p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    {formatDateToYMD(data?.[0]?.arrivalDate)}
+                                </p>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    PLACE OF ORIGIN :
+                                </p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    {data?.[0]?.plr || ""}
+                                </p>
+                            </td>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    LOAD PORT :
+                                </p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    {data?.[0]?.pol || ""}
+                                </p>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    DISCH PORT :
+                                </p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    {data?.[0]?.pod || ""}
+                                </p>
+                            </td>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    FINAL DEST :
+                                </p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    {data?.[0]?.fpd || ""}
+                                </p>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    B/L NO. :
+                                </p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    {data?.[0]?.blNo || ""}
+                                </p>
+                            </td>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    B/L DATE :
+                                </p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    {formatDateToYMD(data?.[0]?.blDate)}
+                                </p>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    IGM NO. :
+                                </p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    {data?.[0]?.igmNo || ""}
+                                </p>
+                            </td>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    IGM DATE :
+                                </p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    {formatDateToYMD(data?.[0]?.igmDate)}
+                                </p>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    ITEM NO. :
+                                </p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    {data?.[0]?.lineNo || ""}
+                                </p>
+                            </td>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1" />
+                            <td className="w-2/6 border-t border-b border-r border-black p-1" />
+                        </tr>
+
+                        <tr>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1 align-top">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    CONSIGNEE :
+                                </p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    <span>{data?.[0]?.consigneeText || ""}</span>
+                                    <br />
+                                    <span style={{ wordBreak: "break-word" }}>
+                                        {data?.[0]?.consigneeAddress || ""}
+                                    </span>
+                                </p>
+                            </td>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1 align-top">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    NOTIFY PARTY :
+                                </p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    <span>{data?.[0]?.notifyPartyText || ""}</span>
+                                    <br />
+                                    <span style={{ wordBreak: "break-word" }}>
+                                        {data?.[0]?.notifyPartyAddress || ""}
+                                    </span>
+                                </p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                {/* To + Date */}
+                <div className="mx-auto text-black mt-2">
+                    <div className="flex justify-between w-full">
+                        <div className="flex items-end justify-start">
+                            <p className="text-black font-bold mr-2" style={{ fontSize: "10px" }}>
+                                To, <br />
+                                The Assistant Commisioner of Custom, <br />
+                                Container Cell <br />
+                                {data?.[0]?.podCode || ""} <br />
+                            </p>
+                        </div>
+                        <div className="flex items-start justify-end">
+                            <p className="text-black font-bold mr-2" style={{ fontSize: "10px" }}>
+                                Date :
+                            </p>
+                            <p className="text-black" style={{ fontSize: "10px", minWidth: "100px" }}>
+                                {formatDateToYMD(data?.[0]?.doDate)}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Body */}
+                <p className="text-black mt-5" style={{ fontSize: "10px" }}>
+                    Respected Sir,
+                </p>
+
+                <p className="text-black mt-5" style={{ fontSize: "10px" }}>
+                    The below mentioned consignee desires to take the import loaded container to their factory
+                    premises situated at factory for <br /> destuffing the import consignment
+                </p>
+
+                <p className="text-black mt-5 font-bold" style={{ fontSize: "10px" }}>
+                    NAME OF THE CONSIGNEE : {data?.[0]?.consigneeText || ""}
+                </p>
+
+                <p className="text-black mt-1 font-bold" style={{ fontSize: "10px" }}>
+                    CHA : {data?.[0]?.switchAgent || ""}
+                </p>
+
+                {/* Container table */}
+                <table className="w-full mt-2 table-fixed border border-black border-collapse">
+                    <thead>
+                        <tr>
+                            <th className="w-1/8 border border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    Container No.
+                                </p>
+                            </th>
+                            <th className="w-1/8 border border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    Size/Type
+                                </p>
+                            </th>
+                            <th className="w-1/8 border border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    Status
+                                </p>
+                            </th>
+                            <th className="w-1/8 border border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    Gross Wt.
+                                </p>
+                            </th>
+                            <th className="w-1/8 border border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    No. of Packages
+                                </p>
+                            </th>
+                            <th className="w-1/8 border border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    Seal No.
+                                </p>
+                            </th>
+                            <th className="w-1/8 border border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>
+                                    Valid Date
+                                </p>
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {containersLocal.map((item, index) => (
+                            <tr key={`cmc-row-${index}`}>
+                                <th className="w-1/8 border border-black p-1">
+                                    <p className="text-black font-normal" style={{ fontSize: "9px" }}>
+                                        {item.containerNo || ""}
+                                    </p>
+                                </th>
+
+                                <th className="w-1/8 border border-black p-1">
+                                    <p className="text-black font-normal text-left" style={{ fontSize: "9px" }}>
+                                        {(item.size || "") + "/" + (item.type || "")}
+                                    </p>
+                                </th>
+
+                                <th className="w-1/8 border font-normal border-black p-1">
+                                    <p className="text-black" style={{ fontSize: "9px" }}>
+                                        {item.containerStatus || ""}
+                                    </p>
+                                </th>
+
+                                <th className="w-1/8 border border-black p-1">
+                                    <p className="text-black font-normal text-left" style={{ fontSize: "9px" }}>
+                                        {(item.grossWt || "") + " " + (item.weightUnitCode || "")}
+                                    </p>
+                                </th>
+
+                                <th className="w-1/8 border border-black p-1">
+                                    <p className="text-black font-normal text-left" style={{ fontSize: "9px" }}>
+                                        {item.noOfPackages || ""} {item.packageCode || ""}
+                                    </p>
+                                </th>
+
+                                <th className="w-1/8 border border-black p-1">
+                                    <p className="text-black font-normal text-right" style={{ fontSize: "9px" }}>
+                                        {item.customSealNo || ""}
+                                    </p>
+                                </th>
+
+                                <th className="w-1/8 border border-black p-1">
+                                    <p className="text-black font-normal text-center" style={{ fontSize: "9px" }}>
+                                        {formatDateToYMD(data?.[0]?.doValidDate)}
+                                    </p>
+                                </th>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+                <div className="flex mt-2" style={{ width: "100%" }}>
+                    <div>
+                        <p className="text-black font-bold" style={{ fontSize: "10px" }}>
+                            We Kindly request to enter the above mentioned containers in our Bond Register No.
+                            S\43-CONT(B) NS/147/2013 After destuffing, please allow to store the above mentioned
+                            containers at our empty container yard.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="flex mt-5 font-bold" style={{ width: "100%" }}>
+                    <div style={{ width: "12%" }}>
+                        <p className="text-black font-bold" style={{ fontSize: "10px" }}>
+                            Thanking You,
+                        </p>
+                    </div>
+                </div>
+
+                <div className="flex mt-1" style={{ width: "100%" }}>
+                    <div style={{ width: "100%" }}>
+                        <p className="text-black font-bold" style={{ fontSize: "10px" }}>
+                            For {data?.[0]?.company || ""}
+                        </p>
+
+                    </div>
+                </div>
+
+                <div style={{ marginTop: "20px" }}>
+
+                </div>
+            </div>
+        );
+    };
+    const CustomsExaminationOrder = (input) => {
+        const containersLocal = Array.isArray(input)
+            ? input
+            : Array.isArray(input?.containers)
+                ? input.containers
+                : [];
+
+        return (
+            <div>
+                <div className="mx-auto">
+                    <CompanyImgModule />
+                </div>
+
+                <div className="mx-auto text-black">
+                    <h1 className="text-black font-bold text-sm text-center underline">
+                        Customs Examination Order
+                    </h1>
+                </div>
+
+                <table className="w-full table-fixed border border-black border-collapse mt-4">
+                    <tbody>
+                        <tr>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>VESSEL/VOY :</p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    {data?.[0]?.podVessel || ""} {data?.[0]?.podVoyage || ""}
+                                </p>
+                            </td>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>ARRIVAL DATE :</p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    {formatDateToYMD(data?.[0]?.arrivalDate)}
+                                </p>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>PLACE OF ORIGIN :</p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>{data?.[0]?.plr || ""}</p>
+                            </td>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>LOAD PORT :</p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>{data?.[0]?.pol || ""}</p>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>DISCH PORT :</p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>{data?.[0]?.pod || ""}</p>
+                            </td>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>FINAL DEST :</p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>{data?.[0]?.fpd || ""}</p>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>B/L NO. :</p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>{data?.[0]?.blNo || ""}</p>
+                            </td>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>B/L DATE :</p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>{formatDateToYMD(data?.[0]?.blDate)}</p>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>IGM NO. :</p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>{data?.[0]?.igmNo || ""}</p>
+                            </td>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>IGM DATE :</p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>{formatDateToYMD(data?.[0]?.igmDate)}</p>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>ITEM NO. :</p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>{data?.[0]?.lineNo || ""}</p>
+                            </td>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>TERMINAL :</p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>{data?.[0]?.berthName || ""}</p>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1 align-top">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>CONSIGNEE :</p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    <span>{data?.[0]?.consigneeText || ""}</span><br />
+                                    <span style={{ wordBreak: "break-word" }}>{data?.[0]?.consigneeAddress || ""}</span>
+                                </p>
+                            </td>
+                            <td className="w-1/6 border-t border-b border-l border-black p-1 align-top">
+                                <p className="text-black font-bold" style={{ fontSize: "9px" }}>NOTIFY PARTY :</p>
+                            </td>
+                            <td className="w-2/6 border-t border-b border-r border-black p-1">
+                                <p className="text-black" style={{ fontSize: "9px" }}>
+                                    <span>{data?.[0]?.notifyPartyText || ""}</span><br />
+                                    <span style={{ wordBreak: "break-word" }}>{data?.[0]?.notifyPartyAddress || ""}</span>
+                                </p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table className="w-full mt-4 table-fixed border border-black border-collapse">
+                    <thead>
+                        <tr>
+                            <th className="w-1/8 border border-black p-1"><p className="text-black font-bold" style={{ fontSize: "9px" }}>Container No.</p></th>
+                            <th className="w-1/8 border border-black p-1"><p className="text-black font-bold" style={{ fontSize: "9px" }}>Size/Type</p></th>
+                            <th className="w-1/8 border border-black p-1"><p className="text-black font-bold" style={{ fontSize: "9px" }}>Status</p></th>
+                            <th className="w-1/8 border border-black p-1"><p className="text-black font-bold" style={{ fontSize: "9px" }}>Gross Wt.</p></th>
+                            <th className="w-1/8 border border-black p-1"><p className="text-black font-bold" style={{ fontSize: "9px" }}>No. of Packages</p></th>
+                            <th className="w-1/8 border border-black p-1"><p className="text-black font-bold" style={{ fontSize: "9px" }}>Seal No.</p></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {containersLocal.map((item, index) => (
+                            <tr key={`ceo-row-${index}`}>
+                                <td className="w-1/8 border border-black p-1"><p className="text-black" style={{ fontSize: "9px" }}>{item.containerNo || ""}</p></td>
+                                <td className="w-1/8 border border-black p-1"><p className="text-black" style={{ fontSize: "9px" }}>{(item.size || "") + "/" + (item.type || "")}</p></td>
+                                <td className="w-1/8 border border-black p-1"><p className="text-black" style={{ fontSize: "9px" }}>{item.containerStatus || ""}</p></td>
+                                <td className="w-1/8 border border-black p-1"><p className="text-black" style={{ fontSize: "9px" }}>{(item.grossWt || "") + " " + (item.weightUnitCode || "")}</p></td>
+                                <td className="w-1/8 border border-black p-1"><p className="text-black" style={{ fontSize: "9px" }}>{item.noOfPackages || ""} {item.packageCode || ""}</p></td>
+                                <td className="w-1/8 border border-black p-1"><p className="text-black text-right" style={{ fontSize: "9px" }}>{item.customSealNo || ""}</p></td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+                <div className="flex mt-2" style={{ width: "100%" }}>
+                    <div style={{ width: "15%" }}>
+                        <p className="text-black font-bold" style={{ fontSize: "10px" }}>Description :</p>
+                    </div>
+                    <div style={{ width: "85%" }}>
+                        <p className="text-black" style={{ fontSize: "10px" }}>{data?.[0]?.goodsDesc || ""}</p>
+                    </div>
+                </div>
+
+                <div className="flex mt-2" style={{ width: "100%" }}>
+                    <div style={{ width: "15%" }}>
+                        <p className="text-black font-bold" style={{ fontSize: "10px" }}>Marks & Nos :</p>
+                    </div>
+                    <div style={{ width: "85%" }}>
+                        <p className="text-black" style={{ fontSize: "10px" }}>{data?.[0]?.marksNos || ""}</p>
+                    </div>
+                </div>
+            </div>
+        );
+    };
     const normalizedAll = reportIds.map(normalizeId);
     const pdfNameBase = `${(reportIds || []).join("_")}_${data?.[0]?.blNo || "report"}`;
     refSeq.current = 0;
@@ -1030,7 +1729,115 @@ function RptDoLetter() {
                                 </React.Fragment>
                             );
                         }
+                        case "cmc letter":
+                        case "cmcletter":
+                        case "cmc_letter":
+                        case "cmc-letter": {
+                            const pages =
+                                Array.isArray(CMCLetterSizeChunks) && CMCLetterSizeChunks.length
+                                    ? CMCLetterSizeChunks
+                                    : [undefined];
 
+                            return (
+                                <React.Fragment key={`cmc-${index}`}>
+                                    {pages.map((container, i) => (
+                                        <React.Fragment key={`cmc-${index}-page-${i}`}>
+                                            <div
+                                                className="a4-size"
+                                                style={{
+                                                    width: "210mm",
+                                                    height: "297mm",
+                                                    padding: "5mm",
+                                                    boxSizing: "border-box",
+                                                }}
+                                                ref={(el) => {
+                                                    if (!el) return;
+                                                    const k = refSeq.current++;
+                                                    enquiryModuleRefs.current[k] = el;
+                                                }}
+                                                id="CMC Letter"
+                                            >
+                                                <div
+                                                    className="main-border"
+                                                    style={{
+                                                        height: "100%",
+                                                        width: "100%",
+                                                        padding: "5mm",
+                                                        boxSizing: "border-box",
+                                                        display: "flex",
+                                                        flexDirection: "column",
+                                                    }}
+                                                >
+                                                    <div className="content" style={{ flex: "1 1 auto", overflow: "visible" }}>
+                                                        {CMCLetter(container)}
+                                                    </div>
+
+                                                    {/* Optional footer image at bottom */}
+                                                    {/* <div style={{ marginTop: "auto" }}>
+                                                         <CompanyImgFooterModule />
+                                                                                     </div> */}
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-gray-300 h-2 no-print" />
+                                        </React.Fragment>
+                                    ))}
+                                </React.Fragment>
+                            );
+                        }
+                        case "customs examination order":
+                        case "customsexaminationorder":
+                        case "customs_examination_order":
+                        case "customs-examination-order": {
+                            const pages =
+                                Array.isArray(CustomsExamChunks) && CustomsExamChunks.length
+                                    ? CustomsExamChunks
+                                    : [undefined];
+
+                            return (
+                                <React.Fragment key={`ceo-${index}`}>
+                                    {pages.map((container, i) => (
+                                        <React.Fragment key={`ceo-${index}-page-${i}`}>
+                                            <div
+                                                className="a4-size"
+                                                style={{
+                                                    width: "210mm",
+                                                    height: "297mm",
+                                                    padding: "5mm",
+                                                    boxSizing: "border-box",
+                                                }}
+                                                ref={(el) => {
+                                                    if (!el) return;
+                                                    const k = refSeq.current++;
+                                                    enquiryModuleRefs.current[k] = el;
+                                                }}
+                                                id="Customs Examination Order"
+                                            >
+                                                <div
+                                                    className="main-border"
+                                                    style={{
+                                                        height: "100%",
+                                                        width: "100%",
+                                                        padding: "5mm",
+                                                        boxSizing: "border-box",
+                                                        display: "flex",
+                                                        flexDirection: "column",
+                                                    }}
+                                                >
+                                                    <div className="content" style={{ flex: "1 1 auto", overflow: "visible" }}>
+                                                        {CustomsExaminationOrder(container)}
+                                                    </div>
+
+                                                    <div className="footer" style={{ marginTop: "auto" }} />
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-gray-300 h-2 no-print" />
+                                        </React.Fragment>
+                                    ))}
+                                </React.Fragment>
+                            );
+                        }
                         default:
                             return null;
                     }
