@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data, { metaData } from "./updateLineNo";
+import data, { metaData } from "./bulkUpdateLineNo";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -12,6 +12,7 @@ import { fetchDynamicReportData, updateDynamicReportData } from "@/apis";
 import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable";
 import { useRouter } from "next/navigation";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
+import { getUserByCookies } from "@/utils";
 
 export default function IGM() {
   const [formData, setFormData] = useState({});
@@ -19,10 +20,12 @@ export default function IGM() {
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
   const [tableData, setTableData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [goLoading, setGoLoading] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
   const router = useRouter();
+  const userData = getUserByCookies();
 
   const transformToIds = (data) => {
     return Object.fromEntries(
@@ -37,6 +40,16 @@ export default function IGM() {
 
   const transformed = transformToIds(formData);
 
+  const handleTableBlur = ({ rowUid, name, value, row, updateCell }) => {
+    if (name !== "From") return;
+
+    const from = Number(value) || 0;
+    const blCount = Number(String(row["BLCount"] ?? "").replace(/,/g, ""));
+
+    if (!Number.isFinite(blCount)) return;
+
+    updateCell(rowUid, "To", from + blCount - 1);
+  };
   const valuesOnly = (rows = []) =>
     rows.map(({ __dirty, ...row }) =>
       Object.fromEntries(Object.entries(row).map(([k, v]) => [k, onlyVal(v)]))
@@ -66,16 +79,16 @@ export default function IGM() {
     const body = {
       spName: "updateBlLineNoDetails",
       jsonData: {
-        clientId: 8,
+        clientId: 1,
         ...transformed,
-        companyId: 7819,
-        branchId: 5594,
-        userId: 235,
+        companyId: userData.companyId,
+        branchId: userData.branchId,
+        userId: userData.userId,
         data: cleaned,
       },
     };
 
-    setLoading(true);
+    setUpdateLoading(true);
     setError(null);
 
     try {
@@ -98,23 +111,20 @@ export default function IGM() {
       setError(errText);
       toast.error(errText);
     } finally {
-      setLoading(false);
+      setUpdateLoading(false);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setGoLoading(true);
     setError(null);
 
     const requestBody = {
       spName: "getBlLineNoDetails",
       jsonData: {
-        clientId: 8,
+        clientId: 1,
         ...transformed,
-        companyId: 7819,
-        branchId: 5594,
-        userId: 235,
       },
     };
 
@@ -167,7 +177,7 @@ export default function IGM() {
         toast.error(errText);
       }
     } finally {
-      setLoading(false);
+      setGoLoading(false);
     }
   };
   const handleChangeEventFunctions = useMemo(
@@ -184,7 +194,7 @@ export default function IGM() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              Update Line No
+              Bulk Update Line No
             </h1>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
@@ -200,21 +210,23 @@ export default function IGM() {
           </Box>
           <Box className="w-full flex mt-2  gap-2">
             <CustomButton
-              text={loading ? "Loading..." : "GO"}
+              text={goLoading ? "Loading..." : "GO"}
               type="submit"
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={goLoading || updateLoading}
             />
             <CustomButton
-              text={"Update Line No"}
+              text={updateLoading ? "Loading..." : "UPDATE LINE NO"}
               type="button"
               onClick={handleUpdate}
+              disabled={goLoading || updateLoading}
             />
             <CustomButton
               text="Cancel"
               buttonStyles="!text-[white] !bg-[#f5554a] !text-[11px]"
               onClick={() => router.push("/")}
               type="button"
+              disabled={goLoading || updateLoading}
             />
           </Box>
         </section>
@@ -224,6 +236,7 @@ export default function IGM() {
           data={tableData}
           metaData={metaData}
           onSelectedEditedChange={setTableFormData}
+          handleBlur={handleTableBlur}
         />
       </Box>
       <ToastContainer />

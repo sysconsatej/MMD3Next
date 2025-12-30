@@ -189,6 +189,7 @@ const DynamicReportTable = ({
   showTotalsRow = false,
   // NEW PROP: values to auto-fill when row is selected
   autoFillOnSelect = {},
+  handleBlur,
 }) => {
   const rawRows = Array.isArray(data)
     ? data
@@ -340,7 +341,11 @@ const DynamicReportTable = ({
     const alreadySelected = selectedUids.includes(uid);
 
     // If selecting (was unchecked) and we have autoFillOnSelect mappings
-    if (!alreadySelected && autoFillOnSelect && typeof autoFillOnSelect === "object") {
+    if (
+      !alreadySelected &&
+      autoFillOnSelect &&
+      typeof autoFillOnSelect === "object"
+    ) {
       setEditableRows((prev) => {
         const nextRows = prev.map((r) => {
           if (r.__uid !== uid) return r;
@@ -426,6 +431,7 @@ const DynamicReportTable = ({
         disabled: meta.disabled ?? false,
         labelType: meta.labelType,
         foreignTable: meta.foreignTable,
+        blurFun: meta.blurFun ?? null,
 
         // ✅ forward dropdown config from meta to CustomInput.getData()
         tableName: meta.tableName,
@@ -463,6 +469,19 @@ const DynamicReportTable = ({
             fieldsMode={fieldDef.isEdit ? "edit" : "view"}
             errorState={{}}
             popUp={false}
+            handleBlurEventFunctions={{
+              handleCellBlur: (event, { containerIndex, tabIndex }) => {
+                const name = event.target.name;
+                const value = event.target.value;
+                handleBlur?.({
+                  rowUid: row.__uid,
+                  name,
+                  value,
+                  row,
+                  updateCell,
+                });
+              },
+            }}
           />
         </div>
       );

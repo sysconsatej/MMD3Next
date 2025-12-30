@@ -100,7 +100,7 @@ export const navItems = [
         name: "SMTP Email Configuration",
         href: "/master/smtpEmailConfig/list",
         isShow: false,
-      }
+      },
     ],
   },
 
@@ -383,7 +383,12 @@ export const navItems = [
       {
         name: "Manifest BL Register",
         href: "/reports/customAndPort/manifestBlRegister",
-        isShow: true,
+        isShow: false,
+      },
+      {
+        name: "Bulk Update Line No",
+        href: "/reports/customAndPort/bulkUpdateLineNo",
+        isShow: false,
       },
     ],
   },
