@@ -100,7 +100,7 @@ export const navItems = [
         name: "SMTP Email Configuration",
         href: "/master/smtpEmailConfig/list",
         isShow: false,
-      }
+      },
     ],
   },
 
@@ -383,6 +383,24 @@ export const navItems = [
       {
         name: "Manifest BL Register",
         href: "/reports/customAndPort/manifestBlRegister",
+        isShow: true,
+      },
+    ],
+  },
+  {
+    name: "Upload",
+    icon: "Upload",
+    href: "/upload",
+    isShow: true,
+    submenu: [
+      {
+        name: "UploadDPDParties",
+        href: "/upload/UploadDPDParties",
+        isShow: true,
+      },
+      {
+        name: "Upload72HoursData",
+        href: "/upload/Upload72HoursData",
         isShow: true,
       },
     ],
