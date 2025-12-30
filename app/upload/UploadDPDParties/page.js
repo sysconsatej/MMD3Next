@@ -13,87 +13,11 @@ import TableGrid from "@/components/tableGrid/tableGrid";
 import MultiFileUpload from "@/components/customInput/multiFileUpload";
 
 import data, { dpdGridButtons } from "./uploadDpdData";
-import { formatFormData, getUserByCookies } from "@/utils";
-import { insertUpdateForm } from "@/apis";
+import { getUserByCookies } from "@/utils";
+import { uploads } from "@/apis";
 
-//import { extractTextFromPdfs } from "@/helper/pdfTextExtractor";
-
-/** ---------------- helpers (PDF parser) ---------------- */
 const clean = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
 
-const looksLikePan = (token) => /^[A-Z]{5}\d{4}[A-Z]$/i.test(token || "");
-const looksLikeDpd = (token) => /^[A-Z]\d{3}$/i.test(token || "");
-
-function coerceExtractedToText(x) {
-    if (typeof x === "string") return x;
-    if (!x || typeof x !== "object") return String(x ?? "");
-    return x.text || x.rawText || x.fullText || x.pdfText || x.content || "";
-}
-
-/**
- * ✅ Robust parser for JNPA "List of DPD parties..." PDF
- * Handles wrapped rows by parsing on full text (not by lines)
- */
-function parseDpdTextToRows(fullText) {
-    let t = String(fullText ?? "");
-    if (!t.trim()) return [];
-
-    // normalize whitespace but keep it as a single stream
-    t = t.replace(/\r/g, "\n");
-    t = t.replace(/[ \t]+/g, " ");
-
-    // start after header if present (avoids From/To dates being picked)
-    const low = t.toLowerCase();
-    const idx = low.indexOf("sr.no");
-    if (idx !== -1) t = t.slice(idx);
-
-    // collapse ALL whitespace for regex scanning across line breaks
-    const collapsed = clean(t);
-
-    // row pattern:
-    // <srno> <name...> <DPD> <PAN> <IEC>
-    // stop when next srno starts
-    const rowRegex =
-        /(\d{1,5})\s+(.+?)\s+([A-Z]\d{3})\s+([A-Z]{5}\d{4}[A-Z])\s+([A-Z0-9]{6,20})(?=\s+\d{1,5}\s+|$)/gi;
-
-    const rows = [];
-    let m;
-
-    while ((m = rowRegex.exec(collapsed)) !== null) {
-        const srNo = Number(m[1]);
-        const partyName = clean(m[2]);
-        const dpd = clean(m[3]).toUpperCase();
-        const pan = clean(m[4]).toUpperCase();
-        const iec = clean(m[5]);
-
-        // safety checks
-        if (!srNo || !partyName) continue;
-        if (!looksLikeDpd(dpd)) continue;
-        if (!looksLikePan(pan)) continue;
-
-        rows.push({
-            // ❗ If your TableGrid already shows Sr.No automatically, DO NOT store srNo in row
-            // srNo,
-            partyName,
-            dpdCode: dpd,
-            panNo: pan,
-            iecCode: iec,
-            status: 1,
-        });
-    }
-
-    // de-dupe (PAN + DPD + Name)
-    const seen = new Set();
-    const unique = [];
-    for (const r of rows) {
-        const key = `${r.panNo}|${r.dpdCode}|${r.partyName}`.toLowerCase();
-        if (seen.has(key)) continue;
-        seen.add(key);
-        unique.push(r);
-    }
-
-    return unique;
-}
 export default function DpdPartyUploadPage() {
     const userData = getUserByCookies();
 
@@ -101,60 +25,37 @@ export default function DpdPartyUploadPage() {
         shippingLineId: null,
         tblDpdParty: [],
     });
+
     const [fieldsMode] = useState("add");
-
     const rows = useMemo(() => formData?.tblDpdParty || [], [formData]);
-
-    // Put this in a "use client" file (important)
-    // "use client";
-
-    // Keep your <MultiFileUpload onChange={handleFilesChange} /> as-is.
-    // This function will (1) read PDF text in the browser, (2) parse rows using regex, (3) console.log JSON.
 
     const handleFilesChange = async (fileList) => {
         try {
             const files = Array.from(fileList || []).filter(Boolean);
-            if (!files.length) {
-                console.log("No files selected");
-                return;
-            }
+            if (!files.length) return;
 
-            // ✅ load pdfjs ONLY on client inside this function (avoids Next build/canvas issues)
             let pdfjsMod;
             try {
                 pdfjsMod = await import("pdfjs-dist/legacy/build/pdf");
-            } catch (e1) {
+            } catch {
                 pdfjsMod = await import("pdfjs-dist/legacy/build/pdf.js");
             }
 
-            // pdfjs module can be either {getDocument,...} or {default:{getDocument,...}}
             const pdfjsLib = pdfjsMod?.getDocument ? pdfjsMod : pdfjsMod?.default;
-            if (!pdfjsLib?.getDocument) {
-                console.error("pdfjs not loaded properly:", pdfjsMod);
-                return;
+            if (!pdfjsLib?.getDocument) return;
+
+            if (pdfjsLib.GlobalWorkerOptions && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
+                const ver = pdfjsLib.version || "3.11.174";
+                pdfjsLib.GlobalWorkerOptions.workerSrc =
+                    `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${ver}/pdf.worker.min.js`;
             }
 
-            // ✅ Worker (safe). CDN worker so no bundling issues.
-            if (pdfjsLib.GlobalWorkerOptions) {
-                const already = pdfjsLib.GlobalWorkerOptions.workerSrc;
-                if (!already) {
-                    const ver = pdfjsLib.version || "3.11.174";
-                    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${ver}/pdf.worker.min.js`;
-                }
-            }
-
-            // -----------------------------------------
-            // 1) Extract text as REAL lines (by Y axis)
-            // -----------------------------------------
             const normalizeLine = (s) => String(s || "").replace(/\s+/g, " ").trim();
 
             const buildLinesFromTextContent = (textContent) => {
-                const items = (textContent?.items || []).filter(
-                    (it) => it && typeof it.str === "string"
-                );
+                const items = (textContent?.items || []).filter((it) => it && typeof it.str === "string");
+                const lineMap = new Map();
 
-                // Group by Y (line). Y varies slightly -> round it.
-                const lineMap = new Map(); // yKey -> [{x,str}]
                 for (const it of items) {
                     const str = normalizeLine(it.str);
                     if (!str) continue;
@@ -162,22 +63,17 @@ export default function DpdPartyUploadPage() {
                     const tr = it.transform || [];
                     const x = Number(tr[4] ?? 0);
                     const y = Number(tr[5] ?? 0);
-
-                    // 0.5 precision works well for tables
                     const yKey = Math.round(y * 2) / 2;
 
                     if (!lineMap.has(yKey)) lineMap.set(yKey, []);
                     lineMap.get(yKey).push({ x, str });
                 }
 
-                // Sort lines top->bottom (higher y first)
                 const ys = Array.from(lineMap.keys()).sort((a, b) => b - a);
-
                 const lines = [];
                 for (const y of ys) {
                     const parts = lineMap.get(y) || [];
-                    parts.sort((a, b) => a.x - b.x); // left->right
-
+                    parts.sort((a, b) => a.x - b.x);
                     const line = normalizeLine(parts.map((p) => p.str).join(" "));
                     if (line) lines.push(line);
                 }
@@ -191,43 +87,27 @@ export default function DpdPartyUploadPage() {
                 const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
                 const pdf = await loadingTask.promise;
 
-                console.log("PDF:", file.name, "pages:", pdf.numPages);
-
                 const allLines = [];
                 for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                     const page = await pdf.getPage(pageNum);
-
-                    // Note: disableCombineTextItems is older; keep simple call
                     const textContent = await page.getTextContent();
-
                     const pageLines = buildLinesFromTextContent(textContent);
-
-                    // Blank line between pages to prevent accidental merges
                     allLines.push(...pageLines, "");
                 }
 
                 extractedDocs.push({
                     fileName: file.name,
-                    lines: allLines,
                     text: allLines.join("\n"),
-                    pageCount: pdf.numPages,
                 });
             }
 
             const rawText = extractedDocs.map((d) => d.text || "").join("\n");
-
             const text = String(rawText || "")
                 .replace(/\r/g, "\n")
                 .replace(/[ \t]+/g, " ")
                 .replace(/\n{3,}/g, "\n\n")
                 .trim();
 
-            console.log("PDF TEXT (first 1200 chars):", text.slice(0, 1200));
-            console.log("PDF TEXT (last 1200 chars):", text.slice(-1200));
-
-            // -----------------------------------------
-            // 2) Parse rows (SrNo Name DPD PAN IEC)
-            // -----------------------------------------
             const isDPD = (s) => /^[A-Z]\d{3}$/i.test(s || "");
             const isPAN = (s) => /^[A-Z]{5}\d{4}[A-Z]$/i.test(s || "");
             const isIEC = (s) => /^(\d{9,12}|[A-Z]{5}\d{4}[A-Z])$/i.test(s || "");
@@ -239,19 +119,14 @@ export default function DpdPartyUploadPage() {
                 .filter((l) => !/^Sr\.?\s*No\b/i.test(l))
                 .filter((l) => !/^Name\s+DPD\b/i.test(l))
                 .filter((l) => !/^List of DPD parties\b/i.test(l))
-                .filter(
-                    (l) =>
-                        !/^From\s+\d{2}-\d{2}-\d{4}\s+To\s+\d{2}-\d{2}-\d{4}\b/i.test(l)
-                );
+                .filter((l) => !/^From\s+\d{2}-\d{2}-\d{4}\s+To\s+\d{2}-\d{2}-\d{4}\b/i.test(l));
 
-            const rows = [];
+            const parsedRows = [];
             let cur = null;
 
             const eatTailTokens = (tokens, state) => {
-                // Remove dpd/pan/iec from the tail (name can contain spaces)
                 for (let i = tokens.length - 1; i >= 0; i--) {
                     const t = tokens[i];
-
                     if (!state.iecCode && isIEC(t)) {
                         state.iecCode = t;
                         tokens.splice(i, 1);
@@ -273,7 +148,6 @@ export default function DpdPartyUploadPage() {
 
             const flush = () => {
                 if (!cur) return;
-
                 const name = normalizeLine((cur.nameParts || []).join(" "));
                 const ok =
                     Number.isFinite(cur.srNo) &&
@@ -283,11 +157,11 @@ export default function DpdPartyUploadPage() {
                     (cur.iecCode ? isIEC(cur.iecCode) : true);
 
                 if (ok) {
-                    rows.push({
+                    parsedRows.push({
                         srNo: cur.srNo,
-                        name,
+                        partyName: name, // ✅ keep for UI grid
                         dpdCode: String(cur.dpdCode || "").toUpperCase(),
-                        panNumber: String(cur.panNumber || "").toUpperCase(),
+                        panNo: String(cur.panNumber || "").toUpperCase(),
                         iecCode: String(cur.iecCode || ""),
                     });
                 }
@@ -295,80 +169,38 @@ export default function DpdPartyUploadPage() {
             };
 
             for (const line of cleanedLines) {
-                // new row: starts with sr no
                 const m = line.match(/^(\d{1,6})\s+(.*)$/);
                 if (m) {
                     flush();
-
-                    cur = {
-                        srNo: Number(m[1]),
-                        nameParts: [],
-                        dpdCode: "",
-                        panNumber: "",
-                        iecCode: "",
-                    };
-
-                    const rest = m[2];
-                    const tokens = rest.split(" ").filter(Boolean);
-
+                    cur = { srNo: Number(m[1]), nameParts: [], dpdCode: "", panNumber: "", iecCode: "" };
+                    const tokens = m[2].split(" ").filter(Boolean);
                     eatTailTokens(tokens, cur);
-
                     const nm = normalizeLine(tokens.join(" "));
                     if (nm) cur.nameParts.push(nm);
                     continue;
                 }
 
-                // continuation line
                 if (!cur) continue;
-
                 const tokens = line.split(" ").filter(Boolean);
                 eatTailTokens(tokens, cur);
-
                 const leftover = normalizeLine(tokens.join(" "));
                 if (leftover) cur.nameParts.push(leftover);
             }
             flush();
 
-            // -----------------------------------------
-            // 3) Output: FULL JSON array in console
-            // -----------------------------------------
-            const fullJsonData = rows; // ✅ as requested
-            console.log("fullJsonData:", fullJsonData);
-            console.log("DPD JSON total rows:", fullJsonData.length);
-            console.log("DPD JSON first 10:", fullJsonData.slice(0, 10));
-            console.log("DPD JSON last 10:", fullJsonData.slice(-10));
-
-            if (fullJsonData.length > 0) {
+            if (parsedRows.length > 0) {
                 setFormData((prev) => ({
                     ...prev,
-                    tblDpdParty: fullJsonData.map((r) => ({
-                        partyName: r.name || "",
-                        dpdCode: r.dpdCode || "",
-                        panNo: r.panNumber || "",
-                        iecCode: r.iecCode || "",
-                    })),
+                    tblDpdParty: parsedRows, // ✅ now includes srNo also
                 }));
-            }
-            // Stats (helps verify extraction is reading all pages)
-            const perFileStats = extractedDocs.map((d) => ({
-                file: d.fileName,
-                pageCount: d.pageCount,
-                lineCount: d.lines.length,
-                textLen: (d.text || "").length,
-            }));
-            console.log("PDF extraction stats:", perFileStats);
-
-            if (!fullJsonData.length) {
-                console.warn(
-                    "PDF text was read, but no rows matched. Check the 'PDF TEXT' output above."
-                );
+            } else {
+                toast.warn("PDF read successfully but no matching rows found.");
             }
         } catch (err) {
             console.error("handleFilesChange error:", err);
+            toast.error("PDF parse failed.");
         }
     };
-
-
 
     const submitHandler = async (e) => {
         e.preventDefault();
@@ -376,45 +208,28 @@ export default function DpdPartyUploadPage() {
         const shippingLineId =
             formData?.shippingLineId?.Id ?? formData?.shippingLineId?.id ?? null;
 
-        if (!shippingLineId) {
-            toast.error("Please select Shipping Line first.");
-            return;
-        }
+        if (!shippingLineId) return toast.error("Please select Shipping Line first.");
+        if (!rows.length) return toast.error("Please upload PDF and load rows first.");
 
-        if (!rows.length) {
-            toast.error("Please upload PDF and load rows first.");
-            return;
-        }
+        const dataForSp = rows.map((r, idx) => ({
+            srNo: String(r.srNo ?? idx + 1),
+            name: r.partyName ?? "",
+            dpdCode: r.dpdCode ?? "",
+            panNumber: r.panNo ?? "",
+            iecCode: r.iecCode ?? "",
+        }));
 
-        try {
-            let allSuccess = true;
+        const obj = {
+            spName: "UploadDPDParties",
+            json: {
+                shippingLineId,
+                data: dataForSp,
+            },
+        };
+        const resp = await uploads(obj);
 
-            const promises = rows.map(async (r, idx) => {
-                const payload = formatFormData(
-                    "tblDpdParty",
-                    {
-                        ...r,
-                        companyId: userData?.companyId,
-                        companyBranchId: userData?.branchId,
-                        shippingLineId,
-                    },
-                    r?.id ?? null
-                );
-
-                const { success, message, error } = await insertUpdateForm(payload);
-                if (!success) {
-                    allSuccess = false;
-                    toast.error(error || message || `Row ${idx + 1} failed`);
-                }
-            });
-
-            await Promise.allSettled(promises);
-
-            if (allSuccess) toast.success("DPD parties uploaded successfully.");
-        } catch (err) {
-            console.error(err);
-            toast.error("Upload failed.");
-        }
+        if (resp?.success) toast.success(resp?.message || "Uploaded successfully");
+        else toast.error(resp?.message || "Upload failed");
     };
 
     return (
@@ -458,7 +273,6 @@ export default function DpdPartyUploadPage() {
                             setFormData={setFormData}
                             fieldsMode={fieldsMode}
                             gridName="tblDpdParty"
-                            buttons={dpdGridButtons}
                         />
                     </Box>
 
