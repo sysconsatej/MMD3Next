@@ -335,18 +335,6 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
-
-    {
-      label: "Post Carriage",
-      name: "postCarriageId",
-      type: "dropdown",
-      tableName: "tblMasterData m",
-      displayColumn: "m.name",
-      where: "m.masterListName = 'tblMode'",
-      orderBy: "m.name",
-      foreignTable: "name,tblMasterData",
-      isEdit: true,
-    },
     {
       label: "Movement Carrier",
       name: "movementCarrierId",
@@ -367,6 +355,17 @@ export const fieldData = {
       label: "Carrier Code",
       name: "carrierPanNo",
       disabled: true,
+    },
+    {
+      label: "Post Carriage",
+      name: "postCarriageId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where: "m.masterListName = 'tblMode'",
+      orderBy: "m.name",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
     },
   ],
   hblBottomFields: [

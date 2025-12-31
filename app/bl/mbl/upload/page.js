@@ -45,6 +45,30 @@ const TEMPLATE_FILES = [
   },
 ];
 
+const getFieldValue = (val) => {
+  if (val && typeof val === "object") return val.Id ?? val.id ?? val.value ?? val.Name ?? val.name ?? null;
+  return val ?? null;
+};
+
+const validateRequiredFields = (fields = [], data = {}) => {
+  const missing = [];
+
+  for (const f of fields) {
+    if (!f?.required) continue;
+
+    const v = getFieldValue(data?.[f.name]);
+
+    const empty =
+      v == null ||
+      (typeof v === "string" && v.trim() === "") ||
+      (Array.isArray(v) && v.length === 0);
+
+    if (empty) missing.push(f.label || f.name);
+  }
+
+  return missing;
+};
+
 const findTemplateFile = (selectedName = "") => {
   const csel = canon(selectedName);
   for (const f of TEMPLATE_FILES) {
@@ -184,6 +208,12 @@ export default function MblUpload() {
   const handleUpload = async (e) => {
     e.preventDefault();
 
+    const missing = validateRequiredFields(fieldData?.mblFields, formData);
+    if (missing.length) {
+      toast.warn(`Please fill required: ${missing.join(", ")}`);
+      return;
+    }
+
     const file = getFirstFile(formData.upload);
     if (!file) {
       toast.warn("Please choose a file in the 'Upload File' field");
@@ -322,11 +352,10 @@ export default function MblUpload() {
       const reqId = ++vesselChangeReq;
       const vesselId = value?.Id || null;
 
-      // ✅ clear voyage immediately when vessel changes
       setFormData((prev) => ({
         ...prev,
-        [name]: vesselId ? value : null,  // podVesselId set
-        podVoyageId: null,                 // voyage cleared
+        [name]: vesselId ? value : null,
+        podVoyageId: null,
       }));
 
       if (!vesselId) return;
@@ -341,10 +370,8 @@ export default function MblUpload() {
 
         const { data, success } = await getDataWithCondition(obj);
 
-        // ✅ ignore old response if user changed vessel again
         if (reqId !== vesselChangeReq) return;
 
-        // ✅ if only one voyage -> auto set
         if (success && Array.isArray(data) && data.length === 1) {
           setFormData((prev) => ({
             ...prev,
