@@ -32,12 +32,13 @@ export default function Company() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData(
-      "tblBl",
-      { ...formData, cfsRequestCreatedBy: userData?.userId },
-      mode.formId,
-      "blId"
-    );
+    let payloadCfs = {};
+    if (userData.roleCode === "customer") {
+      payloadCfs = { ...formData, cfsRequestCreatedBy: userData?.userId };
+    } else {
+      payloadCfs = formData;
+    }
+    const format = formatFormData("tblBl", payloadCfs, mode.formId, "blId");
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);

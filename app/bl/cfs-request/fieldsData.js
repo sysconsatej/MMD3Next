@@ -95,7 +95,7 @@ export const fieldData = {
       where: "masterListName  = 'tblCfsType'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
-      changeFun: "setAttachmentType",
+      changeFun: "setCfsType",
     },
     {
       label: "CFS",
