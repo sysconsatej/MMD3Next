@@ -59,7 +59,7 @@ export default function VoyageRouteList() {
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `left join tblPort p on v.portOfCallId = p.id left join tblPort p1 on v.berthId = p1.id left join tblVessel ve on v.vesselId = ve.id  left join tblVoyage vo on vo.id=v.voyageId
+          joins: `left join tblPort p on v.portOfCallId = p.id left join tblPort p1 on v.berthId = p1.id left join tblVessel ve on v.vesselId = ve.id   join tblVoyage vo on vo.id=v.voyageId and v.companyid=${userData?.companyId}
 `,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
