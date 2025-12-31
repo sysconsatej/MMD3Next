@@ -26,7 +26,27 @@ ChartJS.register(
   Filler
 );
 
-const LineChart = ({ type }) => {
+const LineChart = ({ type, data }) => {
+  console.log(type, data);
+
+  if (!data || !Array.isArray(data)) return null;
+
+  const labels = data.map((d) => d.dimension);
+  const values = data.map((d) => d.measure);
+
+  const chartData = {
+    labels,
+    datasets: [
+      {
+        label: "Measure",
+        data: values,
+        fill: true,
+        backgroundColor: "rgba(75,192,192,0.2)",
+        borderColor: "rgba(75,192,192,1)",
+      },
+    ],
+  };
+
   return (
     <>
       <Line
@@ -48,7 +68,8 @@ const LineChart = ({ type }) => {
             responsive: true,
           })
         }
-        data={allChartData[`${type}`].data}
+        data={data ? chartData
+           : allChartData[`${type}`].data}
         height={300}
       />
     </>

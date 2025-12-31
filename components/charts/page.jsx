@@ -1,12 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import { chartRegister } from "./chartRegister";
-import { Autocomplete, Box, Skeleton, TextField } from "@mui/material";
+import { Box, Skeleton } from "@mui/material";
 import { chartApi } from "@/apis";
 
 export const ChartRender = ({ type, fullscreen }) => {
   //  api call to get chart data based on type
-
   const [chartData, setChartData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -15,6 +14,7 @@ export const ChartRender = ({ type, fullscreen }) => {
       setIsLoading(true);
       try {
         const data = await chartApi();
+        console.log(data?.data);
         setChartData(data?.data || {});
         setIsLoading(false);
       } catch (error) {
@@ -56,7 +56,7 @@ export const ChartRender = ({ type, fullscreen }) => {
       {isLoading ? (
         <Skeleton variant="rounded" height={250} width={300} />
       ) : (
-        <ChartComponent type={type} />
+        <ChartComponent type={type} data={chartData || []} />
       )}
     </Box>
   );
