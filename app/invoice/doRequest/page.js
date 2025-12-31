@@ -38,16 +38,18 @@ export default function Home() {
     const requestStatus = doStatus.filter(
       (item) => item.Name === "Pending for DO"
     );
-    const format = formatFormData(
-      "tblBl",
-      {
+    let payloadDO = {};
+    if (userData.roleCode === "customer") {
+      payloadDO = {
         ...formData,
         dostatusId: requestStatus?.[0]?.Id,
         doRequestCreatedBy: userData?.userId,
-      },
-      mode.formId,
-      "blId"
-    );
+      };
+    } else {
+      payloadDO = formData;
+    }
+
+    const format = formatFormData("tblBl", payloadDO, mode.formId, "blId");
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
@@ -233,7 +235,7 @@ export default function Home() {
       if (userData?.roleCode === "shipping") {
         setJsonData((prev) => {
           const updateDoRequestFields = prev.doRequestFields.map((item) => {
-            if (item.name === "surveyor" || item.name === "emptyDepotId") {
+            if (item.name === "surveyorText" || item.name === "emptyDepotId") {
               return { ...item, disabled: false };
             }
             return item;
@@ -256,10 +258,10 @@ export default function Home() {
           <Box className="flex justify-between items-center mb-2">
             <h1 className="text-left text-base m-0">Do Request</h1>
             {userData?.roleCode === "customer" && (
-              <CustomButton text="Back" href={link ? link?.blStatus :  "/invoice/doRequest/list"} />
+              <CustomButton text="Back" href={"/invoice/doRequest/list"} />
             )}
             {userData?.roleCode === "shipping" && (
-              <CustomButton text="Back" href={link ? link?.blStatus :  "/invoice/doRequest/liner"} />
+              <CustomButton text="Back" href={"/invoice/doRequest/liner"} />
             )}
           </Box>
 

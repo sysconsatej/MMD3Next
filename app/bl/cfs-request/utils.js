@@ -1,5 +1,10 @@
 import { fetchForm, getDataWithCondition, updateStatusRows } from "@/apis";
-import { formatDataWithForm, formatFetchForm, getUserByCookies } from "@/utils";
+import {
+  formatDataWithForm,
+  formatFetchForm,
+  getUserByCookies,
+  setInputValue,
+} from "@/utils";
 import { toast } from "react-toastify";
 import { fieldData } from "./fieldsData";
 import {
@@ -71,8 +76,44 @@ export const handleBlur = ({ setFormData, formData, setMode }) => {
 
 export const handleChange = ({ setFormData, formData, setJsonData }) => {
   return {
-    setAttachmentType: async (name, value) => {
-      console.log("Sample");
+    setCfsType: async (name, value) => {
+      try {
+        let setWhere = "";
+        if (value.Name === "Liner Empanelled CFS") {
+          setWhere = `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${formData?.shippingLineId?.Id} and p.cfsTypeId = ${value?.Id}`;
+        } else {
+          setWhere = `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${formData?.shippingLineId?.Id}`;
+        }
+        setJsonData((prev) => {
+          const updateFields = prev.fields.map((item) => {
+            if (item?.name === "nominatedAreaId") {
+              return {
+                ...item,
+                joins: setWhere,
+              };
+            }
+            return item;
+          });
+
+          return {
+            ...prev,
+            fields: updateFields,
+          };
+        });
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: null,
+            gridName: null,
+            tabIndex: null,
+            containerIndex: null,
+            name: "nominatedAreaId",
+            value: null,
+          })
+        );
+      } catch (error) {
+        console.log('error', error);
+      }
     },
     setCfsAndDpd: async (name, value) => {
       setJsonData((prev) => {
