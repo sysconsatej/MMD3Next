@@ -4,7 +4,7 @@ import { chartRegister } from "./chartRegister";
 import { Box, Skeleton } from "@mui/material";
 import { chartApi } from "@/apis";
 
-export const ChartRender = ({ type, fullscreen }) => {
+export const ChartRender = ({ type, fullscreen, spCallName }) => {
   //  api call to get chart data based on type
   const [chartData, setChartData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -13,7 +13,7 @@ export const ChartRender = ({ type, fullscreen }) => {
     const fetchChartData = async () => {
       setIsLoading(true);
       try {
-        const data = await chartApi();
+        const data = await chartApi({ apiCallName: spCallName });
         console.log(data?.data);
         setChartData(data?.data || {});
         setIsLoading(false);

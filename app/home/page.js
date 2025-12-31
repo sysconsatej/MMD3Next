@@ -11,12 +11,12 @@ export default function HomePage() {
   const [fullscreenId, setFullscreenId] = useState(null);
 
   const chartArr = [
-    { id: 1, chartType: "line" },
-    { id: 2, chartType: "area" },
-    { id: 3, chartType: "bar" },
-    { id: 4, chartType: "pie" },
-    { id: 5, chartType: "bar" },
-    { id: 6, chartType: "line" },
+    { id: 1, chartType: "line", funcApi: "slInvoiceReleaseCountChart" },
+    { id: 2, chartType: "area", funcApi: "slDoReleaseCountChart" },
+    { id: 3, chartType: "bar", funcApi: "slBlVerifiedCountChart" },
+    { id: 4, chartType: "pie", funcApi: "slTotalTeusCountChart" },
+    { id: 5, chartType: "bar", funcApi: "slCfsVerifiedCountChart" },
+    { id: 6, chartType: "line", funcApi: "" },
   ];
 
   const toggleFullscreen = (id) => {
@@ -35,6 +35,7 @@ export default function HomePage() {
         sx={{ padding: "16px" }}
       >
         {chartArr.map((_) => {
+          if (!_.funcApi) return null;
           const isFullscreen = fullscreenId === _.id;
           return (
             <Grid key={_.id} item size={{ xs: 12, sm: 4, md: 4, lg: 3 }}>
@@ -68,7 +69,11 @@ export default function HomePage() {
                   {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
                 </IconButton>
 
-                <ChartRender type={_.chartType} fullscreen={isFullscreen} />
+                <ChartRender
+                  type={_.chartType}
+                  fullscreen={isFullscreen}
+                  spCallName={_.funcApi}
+                />
               </Card>
             </Grid>
           );
