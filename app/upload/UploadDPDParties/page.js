@@ -31,15 +31,20 @@ export default function DpdPartyUploadPage() {
     const [fieldsMode] = useState("add");
     const rows = useMemo(() => formData?.tblDpdParty || [], [formData]);
 
-    const handleFilesChange = async (fileList) => {
+    const handleFilesChange = async (fileListOrEvent) => {
         try {
-            const parsedRows = await extractDpdPartiesFromPdfs(fileList);
+            // MultiFileUpload might pass (files) or (event)
+            const files =
+                fileListOrEvent?.target?.files || fileListOrEvent || [];
+
+            const parsedRows = await extractDpdPartiesFromPdfs(files);
 
             if (parsedRows.length > 0) {
                 setFormData((prev) => ({
                     ...prev,
                     tblDpdParty: parsedRows,
                 }));
+                toast.success(`Loaded ${parsedRows.length} rows from PDF`);
             } else {
                 toast.warn("PDF read successfully but no matching rows found.");
             }
@@ -48,7 +53,6 @@ export default function DpdPartyUploadPage() {
             toast.error("PDF parse failed.");
         }
     };
-
     const submitHandler = async (e) => {
         e.preventDefault();
 

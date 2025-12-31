@@ -1,74 +1,79 @@
 "use client";
 
+/**
+ * Build-safe PDF parser for Next.js.
+ * ✅ No import of: pdfjs-dist/legacy/build/pdf.js
+ * ✅ Uses: import("pdfjs-dist") (stable)
+ * ✅ Worker: CDN
+ */
+
+const normalizeLine = (s) => String(s || "").replace(/\s+/g, " ").trim();
+
+async function getPdfjs() {
+    const mod = await import("pdfjs-dist");
+    // In some versions it is { getDocument }, in some it is default
+    const pdfjsLib = mod?.getDocument ? mod : mod?.default;
+
+    if (!pdfjsLib?.getDocument) {
+        throw new Error("pdfjs-dist loaded but getDocument not found.");
+    }
+
+    // Worker setup (browser only)
+    if (pdfjsLib.GlobalWorkerOptions && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
+        const ver = pdfjsLib.version || "4.0.0";
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${ver}/pdf.worker.min.js`;
+    }
+
+    return pdfjsLib;
+}
+
+function buildLinesFromTextContent(textContent) {
+    const items = (textContent?.items || []).filter(
+        (it) => it && typeof it.str === "string"
+    );
+
+    const lineMap = new Map();
+
+    for (const it of items) {
+        const str = normalizeLine(it.str);
+        if (!str) continue;
+
+        const tr = it.transform || [];
+        const x = Number(tr[4] ?? 0);
+        const y = Number(tr[5] ?? 0);
+        const yKey = Math.round(y * 2) / 2;
+
+        if (!lineMap.has(yKey)) lineMap.set(yKey, []);
+        lineMap.get(yKey).push({ x, str });
+    }
+
+    const ys = Array.from(lineMap.keys()).sort((a, b) => b - a);
+
+    const lines = [];
+    for (const y of ys) {
+        const parts = lineMap.get(y) || [];
+        parts.sort((a, b) => a.x - b.x);
+        const line = normalizeLine(parts.map((p) => p.str).join(" "));
+        if (line) lines.push(line);
+    }
+
+    return lines;
+}
+
 export async function extractDpdPartiesFromPdfs(fileList) {
+    // ✅ Guard: run only in browser
     if (typeof window === "undefined") return [];
 
     const files = Array.from(fileList || []).filter(Boolean);
     if (!files.length) return [];
 
-    let pdfjsMod;
-    try {
-        pdfjsMod = await import("pdfjs-dist/legacy/build/pdf");
-    } catch {
-        pdfjsMod = await import("pdfjs-dist/legacy/build/pdf.js");
-    }
-
-    const pdfjsLib = pdfjsMod?.getDocument ? pdfjsMod : pdfjsMod?.default;
-    if (!pdfjsLib?.getDocument) return [];
-
-    try {
-        const workerMod = await import("pdfjs-dist/legacy/build/pdf.worker.min.mjs");
-        const workerSrc = workerMod?.default || workerMod;
-        if (pdfjsLib.GlobalWorkerOptions) {
-            pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
-        }
-    } catch {
-        // fallback (if worker import fails for some reason)
-        if (pdfjsLib.GlobalWorkerOptions && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
-            const ver = pdfjsLib.version || "3.11.174";
-            pdfjsLib.GlobalWorkerOptions.workerSrc =
-                `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${ver}/pdf.worker.min.js`;
-        }
-    }
-
-    const normalizeLine = (s) => String(s || "").replace(/\s+/g, " ").trim();
-
-    const buildLinesFromTextContent = (textContent) => {
-        const items = (textContent?.items || []).filter(
-            (it) => it && typeof it.str === "string"
-        );
-        const lineMap = new Map();
-
-        for (const it of items) {
-            const str = normalizeLine(it.str);
-            if (!str) continue;
-
-            const tr = it.transform || [];
-            const x = Number(tr[4] ?? 0);
-            const y = Number(tr[5] ?? 0);
-            const yKey = Math.round(y * 2) / 2;
-
-            if (!lineMap.has(yKey)) lineMap.set(yKey, []);
-            lineMap.get(yKey).push({ x, str });
-        }
-
-        const ys = Array.from(lineMap.keys()).sort((a, b) => b - a);
-        const lines = [];
-        for (const y of ys) {
-            const parts = lineMap.get(y) || [];
-            parts.sort((a, b) => a.x - b.x);
-            const line = normalizeLine(parts.map((p) => p.str).join(" "));
-            if (line) lines.push(line);
-        }
-        return lines;
-    };
+    const pdfjsLib = await getPdfjs();
 
     const extractedDocs = [];
 
     for (const file of files) {
         const arrayBuffer = await file.arrayBuffer();
-        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-        const pdf = await loadingTask.promise;
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
         const allLines = [];
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
@@ -110,6 +115,7 @@ export async function extractDpdPartiesFromPdfs(fileList) {
     const eatTailTokens = (tokens, state) => {
         for (let i = tokens.length - 1; i >= 0; i--) {
             const t = tokens[i];
+
             if (!state.iecCode && isIEC(t)) {
                 state.iecCode = t;
                 tokens.splice(i, 1);
@@ -131,8 +137,8 @@ export async function extractDpdPartiesFromPdfs(fileList) {
 
     const flush = () => {
         if (!cur) return;
-        const name = normalizeLine((cur.nameParts || []).join(" "));
 
+        const name = normalizeLine((cur.nameParts || []).join(" "));
         const ok =
             Number.isFinite(cur.srNo) &&
             name &&
@@ -149,6 +155,7 @@ export async function extractDpdPartiesFromPdfs(fileList) {
                 iecCode: String(cur.iecCode || ""),
             });
         }
+
         cur = null;
     };
 
@@ -157,20 +164,24 @@ export async function extractDpdPartiesFromPdfs(fileList) {
         if (m) {
             flush();
             cur = { srNo: Number(m[1]), nameParts: [], dpdCode: "", panNumber: "", iecCode: "" };
+
             const tokens = m[2].split(" ").filter(Boolean);
             eatTailTokens(tokens, cur);
+
             const nm = normalizeLine(tokens.join(" "));
             if (nm) cur.nameParts.push(nm);
             continue;
         }
 
         if (!cur) continue;
+
         const tokens = line.split(" ").filter(Boolean);
         eatTailTokens(tokens, cur);
+
         const leftover = normalizeLine(tokens.join(" "));
         if (leftover) cur.nameParts.push(leftover);
     }
-    flush();
 
+    flush();
     return parsedRows;
 }
