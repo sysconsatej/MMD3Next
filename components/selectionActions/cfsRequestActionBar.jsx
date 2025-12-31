@@ -75,7 +75,7 @@ export default function SearchRequestToolbarActions({
       }));
 
       const filterStatusAmd = cfsStatus?.filter(
-        (item) => item.Name !== "Confirm"
+        (item) => item.Name !== "Confirm" && item.Name !== "Reject for Amendment"
       );
       const hasNonEmpty = data?.every((obj) => Object.keys(obj).length > 0);
       let filterCheckReqAmd = data?.some((item) =>
