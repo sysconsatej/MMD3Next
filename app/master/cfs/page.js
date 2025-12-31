@@ -46,10 +46,11 @@ export default function Cfs() {
       const literal = normalized.replace(/'/g, "''");
 
       let whereDup = `
-      UPPER(${name}) = '${literal.toUpperCase()}'
+      ${name} = '${literal.toUpperCase()}'
       AND portTypeId IN (
         SELECT id FROM tblMasterData WHERE name = 'CONTAINER FREIGHT STATION'
       )
+      AND companyId = ${userData?.companyId}
       AND status = 1
     `;
 
