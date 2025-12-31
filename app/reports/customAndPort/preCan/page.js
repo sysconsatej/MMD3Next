@@ -153,7 +153,7 @@ export default function CargoArrivalNotice() {
           const html = generatedHtmlReport(item);
           const emailPayload = {
             tailwindLocalPath: "./assets/css/tailwind.min.css",
-            to: "tejas@sysconinfotech.com",
+            to: "productmgr@mastergroups.com",
             htmlContent: html,
           };
 
