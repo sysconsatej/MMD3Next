@@ -119,14 +119,12 @@ export const fieldData = {
       isEdit: true,
       foreignTable: "name,tblPort",
     },
-
     {
       label: "Nominated CB",
       name: "customBrokerText",
       type: "text",
       isEdit: true,
     },
-
     {
       label: "Status",
       name: "cfsRequestStatusId",
@@ -138,6 +136,14 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
       orderBy: "m.name",
+      disabled: true,
+    },
+    {
+      label: "Remark",
+      name: "cfsRejectRemarks",
+      type: "textarea",
+      gridColumn: "col-span-2 row-span-1 ",
+      isEdit: true,
       disabled: true,
     },
   ],
