@@ -22,7 +22,6 @@ const clean = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
 
 export default function DpdPartyUploadPage() {
     const userData = getUserByCookies();
-
     const [formData, setFormData] = useState({
         shippingLineId: null,
         tblDpdParty: [],
@@ -31,20 +30,15 @@ export default function DpdPartyUploadPage() {
     const [fieldsMode] = useState("add");
     const rows = useMemo(() => formData?.tblDpdParty || [], [formData]);
 
-    const handleFilesChange = async (fileListOrEvent) => {
+    const handleFilesChange = async (fileList) => {
         try {
-            // MultiFileUpload might pass (files) or (event)
-            const files =
-                fileListOrEvent?.target?.files || fileListOrEvent || [];
-
-            const parsedRows = await extractDpdPartiesFromPdfs(files);
+            const parsedRows = await extractDpdPartiesFromPdfs(fileList);
 
             if (parsedRows.length > 0) {
                 setFormData((prev) => ({
                     ...prev,
                     tblDpdParty: parsedRows,
                 }));
-                toast.success(`Loaded ${parsedRows.length} rows from PDF`);
             } else {
                 toast.warn("PDF read successfully but no matching rows found.");
             }
@@ -53,6 +47,7 @@ export default function DpdPartyUploadPage() {
             toast.error("PDF parse failed.");
         }
     };
+
     const submitHandler = async (e) => {
         e.preventDefault();
 
