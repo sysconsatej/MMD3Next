@@ -5,7 +5,6 @@ import { useEffect } from "react";
 export function useSetDefault({
   userData,
   setFormData,
-  setDefaultvalues,
   mode,
 }) {
   useEffect(() => {
@@ -38,15 +37,6 @@ export function useSetDefault({
               },
             };
           });
-          setDefaultvalues((prev) => {
-            return {
-              ...prev,
-              cfsRequestStatusId: {
-                Id: data?.statusId,
-                Name: data?.statusName,
-              },
-            };
-          });
         }
       } catch (err) {
         console.log(err);
@@ -58,5 +48,5 @@ export function useSetDefault({
     return () => {
       isMounted = false;
     };
-  }, [userData?.location, setFormData, mode?.mode, setDefaultvalues]);
+  }, [userData?.location, setFormData, mode?.mode]);
 }

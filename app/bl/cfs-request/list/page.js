@@ -192,6 +192,7 @@ export default function CompanyList() {
                     >
                       {row.cfsRequestStatusId}
                     </TableCell>
+                    <TableCell>{row?.remark}</TableCell>
                   </TableRow>
                 ))
               ) : (

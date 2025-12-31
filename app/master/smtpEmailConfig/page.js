@@ -26,7 +26,7 @@ export default function SmtpEmailConfig() {
     const payload = {
       ...formData,
       companyId: userData?.companyId,
-      locationId: userData?.locationId,
+      locationId: userData?.location,
       isSSL: formData?.isSSL ? "1" : "0", // ✅ FIX HERE
     };
 
