@@ -1,32 +1,64 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Card, Grid, IconButton, Skeleton } from "@mui/material";
+import {
+  Box,
+  Card,
+  Grid,
+  IconButton,
+  Skeleton,
+  Typography,
+} from "@mui/material";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import CustomButton from "@/components/button/button";
-import { useChartVisible } from "@/store";
-import { ChartRender } from "@/components/charts/page"; // Make sure this is correctly imported
+// import { useChartVisible } from "@/store";
+import { ChartRender } from "@/components/charts/page";
 
 export default function HomePage() {
   const [fullscreenId, setFullscreenId] = useState(null);
-  const { chartStatus, loading } = useChartVisible();
+  // const { chartStatus, loading } = useChartVisible();
 
   const chartArr = [
-    { id: 1, chartType: "bar", funcApi: "slInvoiceReleaseCountChart" },
-    { id: 2, chartType: "line", funcApi: "slDoReleaseCountChart" },
-    { id: 3, chartType: "bar", funcApi: "slBlVerifiedCountChart" },
-    { id: 4, chartType: "pie", funcApi: "slTotalTeusCountChart" },
-    { id: 5, chartType: "bar", funcApi: "slCfsVerifiedCountChart" },
+    {
+      id: 1,
+      chartType: "bar",
+      funcApi: "slInvoiceReleaseCountChart",
+      chartName: "Invoice Release Chart",
+    },
+    {
+      id: 2,
+      chartType: "line",
+      funcApi: "slDoReleaseCountChart",
+      chartName: "Do Release Chart",
+    },
+    {
+      id: 3,
+      chartType: "area",
+      funcApi: "slBlVerifiedCountChart",
+      chartName: "Bl Verification Chart",
+    },
+    {
+      id: 4,
+      chartType: "pie",
+      funcApi: "slTotalTeusCountChart",
+      chartName: "Teus Chart ",
+    },
+    {
+      id: 5,
+      chartType: "bar",
+      funcApi: "slCfsVerifiedCountChart",
+      chartName: "CFS Chart  ",
+    },
   ];
 
   const toggleFullscreen = (id) => {
     setFullscreenId(fullscreenId === id ? null : id);
   };
 
-  if (loading) {
-    return <Skeleton variant="rounded" height={300} width={300} />;
-  }
+  // if (loading) {
+  //   return <Skeleton variant="rounded" height={300} width={300} />;
+  // }
 
   return (
     <>
@@ -42,50 +74,52 @@ export default function HomePage() {
         {chartArr.map((_) => {
           if (!_.funcApi) return null;
           const isFullscreen = fullscreenId === _.id;
-          const isVisible = chartStatus[_.funcApi]?.visible;
+          // const isVisible = chartStatus[_.funcApi]?.visible;
 
           return (
             <Grid key={_.id} item size={{ xs: 12, sm: 4, md: 4, lg: 3 }}>
-              {isVisible ? (
-                <Card
+              {/* {isVisible ? ( */}
+              <Card
+                sx={{
+                  borderRadius: !isFullscreen ? 5 : 0,
+                  padding: 2,
+                  height: 300,
+                  position: "relative",
+                  ...(isFullscreen && {
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    width: "100vw",
+                    height: "100vh",
+                    zIndex: !isFullscreen ? 0 : 9999,
+                  }),
+                }}
+              >
+                <IconButton
+                  onClick={() => toggleFullscreen(_.id)}
                   sx={{
-                    borderRadius: !isFullscreen ? 5 : 0,
-                    padding: 2,
-                    height: 300,
-                    position: "relative",
-                    ...(isFullscreen && {
-                      position: "fixed",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      width: "100vw",
-                      height: "100vh",
-                      zIndex: !isFullscreen ? 0 : 9999,
-                    }),
+                    position: "absolute",
+                    top: 10,
+                    right: 10,
+                    zIndex: !isFullscreen ? 0 : 9999,
                   }}
                 >
-                  <IconButton
-                    onClick={() => toggleFullscreen(_.id)}
-                    sx={{
-                      position: "absolute",
-                      top: 10,
-                      right: 10,
-                      zIndex: !isFullscreen ? 0 : 9999,
-                    }}
-                  >
-                    {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
-                  </IconButton>
-
-                  <ChartRender
-                    type={_.chartType}
-                    fullscreen={isFullscreen}
-                    spCallName={_.funcApi}
-                  />
-                </Card>
-              ) : (
-                <></>
-              )}
+                  {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+                </IconButton>
+                <Typography className="text-center text-md  "  >
+                  {_.chartName}{" "}
+                </Typography>
+                <ChartRender
+                  type={_.chartType}
+                  fullscreen={isFullscreen}
+                  spCallName={_.funcApi}
+                />
+              </Card>
+              {/* //  ) : (
+              //   <></>
+              // )}  */}
             </Grid>
           );
         })}

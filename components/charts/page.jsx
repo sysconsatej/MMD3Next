@@ -9,8 +9,7 @@ export const ChartRender = ({ type, fullscreen, spCallName }) => {
   //  api call to get chart data based on type
   const [chartData, setChartData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const { setChartVisible } = useChartVisible();
-  const hasFetched = useRef();
+  // const { setChartVisible } = useChartVisible();
 
   useEffect(() => {
     const fetchChartData = async () => {
@@ -18,9 +17,9 @@ export const ChartRender = ({ type, fullscreen, spCallName }) => {
       try {
         const data = await chartApi({ apiCallName: spCallName });
         setChartData(data?.data || {});
-        const funcApi = spCallName;
-        setChartVisible(funcApi, !!data?.data && data?.data.length > 0);
-        hasFetched.current = true;
+        // const funcApi = spCallName;
+        // setChartVisible(funcApi, !!data?.data && data?.data.length > 0);
+        // hasFetched.current = true;
       } catch (error) {
         console.error("Error fetching chart data:", error);
       } finally {
