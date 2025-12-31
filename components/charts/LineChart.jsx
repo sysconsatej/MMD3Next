@@ -27,8 +27,6 @@ ChartJS.register(
 );
 
 const LineChart = ({ type, data }) => {
-  console.log(type, data);
-
   if (!data || !Array.isArray(data)) return null;
 
   const labels = data.map((d) => d.dimension);
@@ -68,8 +66,7 @@ const LineChart = ({ type, data }) => {
             responsive: true,
           })
         }
-        data={data ? chartData
-           : allChartData[`${type}`].data}
+        data={data ? chartData : allChartData[`${type}`].data}
         height={300}
       />
     </>

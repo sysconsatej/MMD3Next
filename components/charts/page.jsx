@@ -1,22 +1,26 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { chartRegister } from "./chartRegister";
 import { Box, Skeleton } from "@mui/material";
 import { chartApi } from "@/apis";
+import { useChartVisible } from "@/store";
 
 export const ChartRender = ({ type, fullscreen, spCallName }) => {
   //  api call to get chart data based on type
   const [chartData, setChartData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const { setChartVisible } = useChartVisible();
+  const hasFetched = useRef();
 
   useEffect(() => {
     const fetchChartData = async () => {
       setIsLoading(true);
       try {
         const data = await chartApi({ apiCallName: spCallName });
-        console.log(data?.data);
         setChartData(data?.data || {});
-        setIsLoading(false);
+        const funcApi = spCallName;
+        setChartVisible(funcApi, !!data?.data && data?.data.length > 0);
+        hasFetched.current = true;
       } catch (error) {
         console.error("Error fetching chart data:", error);
       } finally {
@@ -25,7 +29,7 @@ export const ChartRender = ({ type, fullscreen, spCallName }) => {
     };
 
     fetchChartData();
-  }, [type]);
+  }, [spCallName, setChartData]);
 
   const ChartComponent = chartRegister[type];
 
@@ -56,7 +60,13 @@ export const ChartRender = ({ type, fullscreen, spCallName }) => {
       {isLoading ? (
         <Skeleton variant="rounded" height={250} width={300} />
       ) : (
-        <ChartComponent type={type} data={chartData || []} />
+        <>
+          {chartData ? (
+            <ChartComponent type={type} data={chartData || []} />
+          ) : (
+            <></>
+          )}
+        </>
       )}
     </Box>
   );

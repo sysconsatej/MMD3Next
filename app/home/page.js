@@ -1,27 +1,32 @@
 "use client";
 
-import { ChartRender } from "@/components/charts/page";
-import { Box, Card, Grid, IconButton } from "@mui/material";
 import { useState } from "react";
+import { Box, Card, Grid, IconButton, Skeleton } from "@mui/material";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import CustomButton from "@/components/button/button";
+import { useChartVisible } from "@/store";
+import { ChartRender } from "@/components/charts/page"; // Make sure this is correctly imported
 
 export default function HomePage() {
   const [fullscreenId, setFullscreenId] = useState(null);
+  const { chartStatus, loading } = useChartVisible();
 
   const chartArr = [
-    { id: 1, chartType: "line", funcApi: "slInvoiceReleaseCountChart" },
-    { id: 2, chartType: "area", funcApi: "slDoReleaseCountChart" },
+    { id: 1, chartType: "bar", funcApi: "slInvoiceReleaseCountChart" },
+    { id: 2, chartType: "line", funcApi: "slDoReleaseCountChart" },
     { id: 3, chartType: "bar", funcApi: "slBlVerifiedCountChart" },
     { id: 4, chartType: "pie", funcApi: "slTotalTeusCountChart" },
     { id: 5, chartType: "bar", funcApi: "slCfsVerifiedCountChart" },
-    { id: 6, chartType: "line", funcApi: "" },
   ];
 
   const toggleFullscreen = (id) => {
     setFullscreenId(fullscreenId === id ? null : id);
   };
+
+  if (loading) {
+    return <Skeleton variant="rounded" height={300} width={300} />;
+  }
 
   return (
     <>
@@ -37,44 +42,50 @@ export default function HomePage() {
         {chartArr.map((_) => {
           if (!_.funcApi) return null;
           const isFullscreen = fullscreenId === _.id;
+          const isVisible = chartStatus[_.funcApi]?.visible;
+
           return (
             <Grid key={_.id} item size={{ xs: 12, sm: 4, md: 4, lg: 3 }}>
-              <Card
-                sx={{
-                  borderRadius: !isFullscreen ? 5 : 0,
-                  padding: 2,
-                  height: 300,
-                  position: "relative",
-                  ...(isFullscreen && {
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    width: "100vw",
-                    height: "100vh",
-                    zIndex: !isFullscreen ? 0 : 9999,
-                  }),
-                }}
-              >
-                <IconButton
-                  onClick={() => toggleFullscreen(_.id)}
+              {isVisible ? (
+                <Card
                   sx={{
-                    position: "absolute",
-                    top: 10,
-                    right: 10,
-                    zIndex: !isFullscreen ? 0 : 9999,
+                    borderRadius: !isFullscreen ? 5 : 0,
+                    padding: 2,
+                    height: 300,
+                    position: "relative",
+                    ...(isFullscreen && {
+                      position: "fixed",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      width: "100vw",
+                      height: "100vh",
+                      zIndex: !isFullscreen ? 0 : 9999,
+                    }),
                   }}
                 >
-                  {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
-                </IconButton>
+                  <IconButton
+                    onClick={() => toggleFullscreen(_.id)}
+                    sx={{
+                      position: "absolute",
+                      top: 10,
+                      right: 10,
+                      zIndex: !isFullscreen ? 0 : 9999,
+                    }}
+                  >
+                    {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+                  </IconButton>
 
-                <ChartRender
-                  type={_.chartType}
-                  fullscreen={isFullscreen}
-                  spCallName={_.funcApi}
-                />
-              </Card>
+                  <ChartRender
+                    type={_.chartType}
+                    fullscreen={isFullscreen}
+                    spCallName={_.funcApi}
+                  />
+                </Card>
+              ) : (
+                <></>
+              )}
             </Grid>
           );
         })}
