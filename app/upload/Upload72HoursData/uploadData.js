@@ -1,6 +1,6 @@
 const fieldData = {
-    uploadFields: [
-        // {
+    mblFields: [
+        //  {
         //     label: "Shipping Line",
         //     name: "shippingLineId",
         //     type: "dropdown",
@@ -11,13 +11,7 @@ const fieldData = {
         //     isEdit: true,
         //     required: true,
         // },
-    ],
-
-    tblDpdParty: [
-        { label: "Name", name: "partyName", isEdit: true, required: true },
-        { label: "DPD Code", name: "dpdCode", isEdit: true },
-        { label: "PAN Number", name: "panNo", isEdit: true },
-        { label: "IEC Code", name: "iecCode", isEdit: true },
+        { label: "Upload File", name: "upload", type: "fileupload" },
     ],
 };
 

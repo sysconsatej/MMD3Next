@@ -91,12 +91,14 @@ const parseFile = async (file) => {
   return rows.filter((r) => !isEmptyRow(r));
 };
 
-export default function MblUpload() {
+export default function xlUpload() {
   const [formData, setFormData] = useState({});
   const [busy, setBusy] = useState(false);
   const [objectToRemove, setObjectsToRemove] = useState(1);
   const userData = getUserByCookies();
   const [errorGrid, setErrorGrid] = useState([]);
+
+ 
 
   const getSelectedTemplateName = () =>
     formData?.template?.Name ||
@@ -131,56 +133,127 @@ export default function MblUpload() {
   };
 
   const handleUpload = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const file = getFirstFile(formData.upload);
-    if (!file) {
-      toast.warn("Please choose a file in the 'Upload File' field");
+  // const shippingLineId =
+  //   formData?.shippingLineId?.Id ?? formData?.shippingLineId?.id ?? null;
+
+  // if (!shippingLineId) {
+  //   toast.error("Please select Shipping Line first.");
+  //   return;
+  // }
+
+  const file = getFirstFile(formData.upload);
+  if (!file) {
+    toast.warn("Please choose a file in the 'Upload File' field");
+    return;
+  }
+
+  setBusy(true);
+  try {
+    const buffer = await file.arrayBuffer();
+    const wb = XLSX.read(buffer, { type: "array" });
+    const sheetName = wb.SheetNames[0];
+    const ws = wb.Sheets[sheetName];
+
+    const excelRows = XLSX.utils.sheet_to_json(ws, {
+      defval: "",
+      raw: false,
+      blankrows: false,
+    });
+
+    if (!excelRows.length) {
+      toast.warn("No rows found in the Excel sheet");
       return;
     }
 
-    try {
-      const buffer = await file.arrayBuffer();
-      const wb = XLSX.read(buffer, { type: "array" });
-      const sheetName = wb.SheetNames[0];
-      const ws = wb.Sheets[sheetName];
-      const rows = XLSX.utils.sheet_to_json(ws, {
-        defval: "",
-        raw: false,
-        blankrows: false,
-      });
+    // 1) normalize excel headers -> camel keys (your existing logic)
+    const normalized = excelRows
+      .map((r) => {
+        const out = {};
+        for (const [k, v] of Object.entries(r)) {
+          const nk = toCamelKey(k);
+          if (!nk) continue;
+          out[nk] = typeof v === "string" ? v.trim() : v;
+        }
+        return out;
+      })
+      .filter((r) => !isRowEmpty(r));
 
-      if (!rows.length) {
-        toast.warn("No rows found in the Excel sheet");
-        return;
-      }
-
-      const normalized = rows
-        .map((r) => {
-          const out = {};
-          for (const [k, v] of Object.entries(r)) {
-            const nk = toCamelKey(k);
-            if (!nk) continue;
-            out[nk] = typeof v === "string" ? v.trim() : v;
-          }
-          return out;
-        })
-        .filter((r) => !isRowEmpty(r));
-
-      console.log("Excel JSON:", normalized);
-      const payLoad = {
-        shippingLineId: formData?.shippingLineId?.Id || null,
-        data: normalized,
-      };
-
-      // console.log("payLoad =>>", payLoad);
-      // toast.success(`Converted ${normalized.length} rows to JSON`);
-    } catch (err) {
-      // console.error(err);
-      // toast.error("Failed to read Excel. Please check the file format.");
+    if (!normalized.length) {
+      toast.warn("No valid rows found after cleaning.");
+      return;
     }
-  };
 
+    // 2) map to EXACT keys your SP expects in OPENJSON WITH(...)
+    const dataForSp = normalized
+      .map((r, idx) => ({
+        srNo: String(r?.srNo ?? idx + 1),
+
+        dpdImporterName: String(
+          r?.dpdImporterName ?? r?.dpdImporter ?? r?.name ?? ""
+        ).trim(),
+
+        iecNumber: String(r?.iecNumber ?? r?.iecCode ?? "").trim(),
+
+        shippingLineName: String(r?.shippingLineName ?? "").trim(),
+        vesselName: String(r?.vesselName ?? "").trim(),
+        etaOfVessel: String(r?.etaOfVessel ?? "").trim(),
+        dateOfRequest: String(r?.dateOfRequest ?? "").trim(),
+        cfsName: String(r?.cfsName ?? "").trim(),
+
+        billOfLadingMaster: String(
+          r?.billOfLadingMaster ?? r?.mblNo ?? r?.mbl ?? ""
+        ).trim(),
+        dateMaster: String(r?.dateMaster ?? "").trim(),
+
+        billOfLadingHouse: String(
+          r?.billOfLadingHouse ?? r?.hblNo ?? r?.hbl ?? ""
+        ).trim(),
+        dateHouse: String(r?.dateHouse ?? "").trim(),
+
+        reasonOfChange: String(r?.reasonOfChange ?? "").trim(),
+        mobile: String(r?.mobile ?? "").trim(),
+        email: String(r?.email ?? "").trim(),
+        cfsreasonid: String(r?.cfsreasonid ?? r?.cfsReasonId ?? "").trim(),
+      }))
+      // optional: remove completely empty rows (except srNo)
+      .filter((x) =>
+        Object.entries(x).some(([k, v]) =>
+          k === "srNo" ? false : String(v ?? "").trim() !== ""
+        )
+      );
+
+    if (!dataForSp.length) {
+      toast.warn("No valid rows to upload.");
+      return;
+    }
+
+    // 3) bind SP call (like your UploadDPDParties example)
+    const obj = {
+      spName: "Upload72Hours",
+      json: {
+        userData,
+        data: dataForSp, // must be $.data
+       
+      },
+    };
+
+    const resp = await uploads(obj);
+
+    if (resp?.success) {
+      toast.success(resp?.message || "Uploaded successfully");
+      // optional: clear file
+      setFormData((prev) => ({ ...prev, upload: null }));
+    } else {
+      toast.error(resp?.message || "Upload failed");
+    }
+  } catch (err) {
+    toast.error(err?.message || "Failed to read/upload file.");
+  } finally {
+    setBusy(false);
+  }
+};
   useEffect(() => {
     setFormData((prev) => ({
       ...prev,
@@ -188,6 +261,7 @@ export default function MblUpload() {
     }));
     setErrorGrid([]);
   }, [formData?.template]);
+
   return (
     <ThemeProvider theme={theme}>
       <form>
