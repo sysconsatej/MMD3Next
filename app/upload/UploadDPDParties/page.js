@@ -205,11 +205,11 @@ export default function DpdPartyUploadPage() {
     const submitHandler = async (e) => {
         e.preventDefault();
 
-        const shippingLineId =
-            formData?.shippingLineId?.Id ?? formData?.shippingLineId?.id ?? null;
+        // const shippingLineId =
+        //     formData?.shippingLineId?.Id ?? formData?.shippingLineId?.id ?? null;
 
-        if (!shippingLineId) return toast.error("Please select Shipping Line first.");
-        if (!rows.length) return toast.error("Please upload PDF and load rows first.");
+        // if (!shippingLineId) return toast.error("Please select Shipping Line first.");
+        // if (!rows.length) return toast.error("Please upload PDF and load rows first.");
 
         const dataForSp = rows.map((r, idx) => ({
             srNo: String(r.srNo ?? idx + 1),
@@ -222,7 +222,7 @@ export default function DpdPartyUploadPage() {
         const obj = {
             spName: "UploadDPDParties",
             json: {
-                shippingLineId,
+                userData,
                 data: dataForSp,
             },
         };
@@ -243,7 +243,7 @@ export default function DpdPartyUploadPage() {
                         </Box>
                     </Box>
 
-                    <FormHeading text="Upload Filters" variant="body2" />
+                    {/* <FormHeading text="Upload Filters" variant="body2" />
                     <Box className="grid grid-cols-3 gap-2 p-2">
                         <CustomInput
                             fields={data.uploadFields}
@@ -251,7 +251,7 @@ export default function DpdPartyUploadPage() {
                             setFormData={setFormData}
                             fieldsMode={fieldsMode}
                         />
-                    </Box>
+                    </Box> */}
 
                     <FormHeading text="Upload File" variant="body2" />
                     <Box className="border border-gray-300 p-3 mt-2 flex flex-col gap-2">

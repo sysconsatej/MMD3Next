@@ -1,17 +1,17 @@
 
 const fieldData = {
     uploadFields: [
-        {
-            label: "Shipping Line",
-            name: "shippingLineId",
-            type: "dropdown",
-            tableName: "tblCompany c",
-            displayColumn: "c.name",
-            orderBy: "c.name",
-            foreignTable: "name,tblCompany",
-            isEdit: true,
-            required: true,
-        },
+        // {
+        //     label: "Shipping Line",
+        //     name: "shippingLineId",
+        //     type: "dropdown",
+        //     tableName: "tblCompany c",
+        //     displayColumn: "c.name",
+        //     orderBy: "c.name",
+        //     foreignTable: "name,tblCompany",
+        //     isEdit: true,
+        //     required: true,
+        // },
     ],
 
     tblDpdParty: [

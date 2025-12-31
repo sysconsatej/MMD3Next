@@ -98,6 +98,8 @@ export default function xlUpload() {
   const userData = getUserByCookies();
   const [errorGrid, setErrorGrid] = useState([]);
 
+ 
+
   const getSelectedTemplateName = () =>
     formData?.template?.Name ||
     formData?.template?.name ||
@@ -133,13 +135,13 @@ export default function xlUpload() {
   const handleUpload = async (e) => {
   e.preventDefault();
 
-  const shippingLineId =
-    formData?.shippingLineId?.Id ?? formData?.shippingLineId?.id ?? null;
+  // const shippingLineId =
+  //   formData?.shippingLineId?.Id ?? formData?.shippingLineId?.id ?? null;
 
-  if (!shippingLineId) {
-    toast.error("Please select Shipping Line first.");
-    return;
-  }
+  // if (!shippingLineId) {
+  //   toast.error("Please select Shipping Line first.");
+  //   return;
+  // }
 
   const file = getFirstFile(formData.upload);
   if (!file) {
@@ -231,8 +233,9 @@ export default function xlUpload() {
     const obj = {
       spName: "Upload72Hours",
       json: {
-        shippingLineId,
+        userData,
         data: dataForSp, // must be $.data
+       
       },
     };
 
@@ -251,8 +254,6 @@ export default function xlUpload() {
     setBusy(false);
   }
 };
-
-
   useEffect(() => {
     setFormData((prev) => ({
       ...prev,
