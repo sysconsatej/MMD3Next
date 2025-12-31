@@ -383,6 +383,11 @@ export const navItems = [
       {
         name: "Manifest BL Register",
         href: "/reports/customAndPort/manifestBlRegister",
+        isShow: true,
+      },{
+        name: "Job Report",
+        href: "/reports/customAndPort/jobReport",
+        isShow: true,
         isShow: false,
       },
       {

@@ -27,7 +27,7 @@ const NumberInput = ({
         variant="standard"
         slotProps={{
           htmlInput: {
-            min: 0,
+            min: field?.acceptBelowZero ? undefined :  0,
             step: "any",
           },
         }}

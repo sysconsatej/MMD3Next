@@ -64,7 +64,7 @@ export default function SearchRequestToolbarActions({
 
       const filterStatus = cfsStatus?.filter(
         (item) =>
-          item.Name !== "Reject" && item.Name !== "Confirm for Amendment"
+          item.Name !== "Reject" && item.Name !== "Confirm for Amendment" && item.Name !== "Pending"
       );
       const filterCheckReq = data?.some((item) =>
         filterStatus?.some((status) => status.Id === item.cfsRequestStatusId)
