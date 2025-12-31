@@ -42,11 +42,12 @@ export default function DPD() {
       const obj = {
         columns: name,
         tableName: "tblPort",
-        whereCondition: ` ${name} = '${value}' and portTypeId IN (SELECT id FROM tblMasterData WHERE name = 'DIRECT PORT DELIVERY') and status = 1`,
+        whereCondition: ` ${name} = '${value}' and portTypeId IN (SELECT id FROM tblMasterData WHERE name = 'DIRECT PORT DELIVERY') and companyId = ${userData?.companyId} and status = 1`,
       };
       const { success } = await getDataWithCondition(obj);
       if (success) {
         setErrorState((prev) => ({ ...prev, [name]: true }));
+        setFormData((prev) => ({ ...prev, [name]: "" }));
         toast.error(`Duplicate ${name}!`);
       } else {
         setErrorState((prev) => ({ ...prev, [name]: false }));
