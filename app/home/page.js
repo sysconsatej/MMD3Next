@@ -1,27 +1,64 @@
 "use client";
 
-import { ChartRender } from "@/components/charts/page";
-import { Box, Card, Grid, IconButton } from "@mui/material";
 import { useState } from "react";
+import {
+  Box,
+  Card,
+  Grid,
+  IconButton,
+  Skeleton,
+  Typography,
+} from "@mui/material";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import CustomButton from "@/components/button/button";
+// import { useChartVisible } from "@/store";
+import { ChartRender } from "@/components/charts/page";
 
 export default function HomePage() {
   const [fullscreenId, setFullscreenId] = useState(null);
+  // const { chartStatus, loading } = useChartVisible();
 
   const chartArr = [
-    { id: 1, chartType: "line" },
-    { id: 2, chartType: "area" },
-    { id: 3, chartType: "bar" },
-    { id: 4, chartType: "pie" },
-    { id: 5, chartType: "bar" },
-    { id: 6, chartType: "line" },
+    {
+      id: 1,
+      chartType: "bar",
+      funcApi: "slInvoiceReleaseCountChart",
+      chartName: "Invoice Release Chart",
+    },
+    {
+      id: 2,
+      chartType: "line",
+      funcApi: "slDoReleaseCountChart",
+      chartName: "Do Release Chart",
+    },
+    {
+      id: 3,
+      chartType: "area",
+      funcApi: "slBlVerifiedCountChart",
+      chartName: "Bl Verification Chart",
+    },
+    {
+      id: 4,
+      chartType: "pie",
+      funcApi: "slTotalTeusCountChart",
+      chartName: "Teus Chart ",
+    },
+    {
+      id: 5,
+      chartType: "bar",
+      funcApi: "slCfsVerifiedCountChart",
+      chartName: "CFS Chart  ",
+    },
   ];
 
   const toggleFullscreen = (id) => {
     setFullscreenId(fullscreenId === id ? null : id);
   };
+
+  // if (loading) {
+  //   return <Skeleton variant="rounded" height={300} width={300} />;
+  // }
 
   return (
     <>
@@ -35,9 +72,13 @@ export default function HomePage() {
         sx={{ padding: "16px" }}
       >
         {chartArr.map((_) => {
+          if (!_.funcApi) return null;
           const isFullscreen = fullscreenId === _.id;
+          // const isVisible = chartStatus[_.funcApi]?.visible;
+
           return (
             <Grid key={_.id} item size={{ xs: 12, sm: 4, md: 4, lg: 3 }}>
+              {/* {isVisible ? ( */}
               <Card
                 sx={{
                   borderRadius: !isFullscreen ? 5 : 0,
@@ -67,9 +108,18 @@ export default function HomePage() {
                 >
                   {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
                 </IconButton>
-
-                <ChartRender type={_.chartType} fullscreen={isFullscreen} />
+                <Typography className="text-center text-md  "  >
+                  {_.chartName}{" "}
+                </Typography>
+                <ChartRender
+                  type={_.chartType}
+                  fullscreen={isFullscreen}
+                  spCallName={_.funcApi}
+                />
               </Card>
+              {/* //  ) : (
+              //   <></>
+              // )}  */}
             </Grid>
           );
         })}

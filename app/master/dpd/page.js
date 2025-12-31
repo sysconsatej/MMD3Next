@@ -8,7 +8,12 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
-import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
+import {
+  formatDataWithForm,
+  formatFetchForm,
+  formatFormData,
+  getUserByCookies,
+} from "@/utils";
 import { formStore } from "@/store";
 
 export default function DPD() {
@@ -17,6 +22,7 @@ export default function DPD() {
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
   const [errorState, setErrorState] = useState({});
+  const userData = getUserByCookies();
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -29,23 +35,26 @@ export default function DPD() {
       toast.error(error || message);
     }
   };
+
   const handleBlurEventFunctions = {
     duplicateHandler: async (event) => {
       const { value, name } = event.target;
       const obj = {
         columns: name,
         tableName: "tblPort",
-        whereCondition: ` ${name} = '${value}' and portTypeId IN (SELECT id FROM tblMasterData WHERE name = 'DIRECT PORT DELIVERY') and status = 1`,
+        whereCondition: ` ${name} = '${value}' and portTypeId IN (SELECT id FROM tblMasterData WHERE name = 'DIRECT PORT DELIVERY') and companyId = ${userData?.companyId} and status = 1`,
       };
       const { success } = await getDataWithCondition(obj);
       if (success) {
         setErrorState((prev) => ({ ...prev, [name]: true }));
+        setFormData((prev) => ({ ...prev, [name]: "" }));
         toast.error(`Duplicate ${name}!`);
       } else {
         setErrorState((prev) => ({ ...prev, [name]: false }));
       }
     },
   };
+
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
@@ -54,7 +63,7 @@ export default function DPD() {
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
           const getData = formatDataWithForm(result, data);
-          setFormData(getData);
+          setFormData({ ...getData, companyId: userData?.companyId });
         } else {
           toast.error(error || message);
         }
@@ -69,14 +78,16 @@ export default function DPD() {
       const obj = {
         columns: "id",
         tableName: "tblMasterData",
-        whereCondition: "name = 'DIRECT PORT DELIVERY'",
+        whereCondition:
+          "name = 'DIRECT PORT DELIVERY' and masterListName = 'tblPortType' and status = 1",
       };
 
       const { data, message, error, success } = await getDataWithCondition(obj);
       if (success) {
         setFormData((prev) => ({
           ...prev,
-          portTypeId: data[0].id,
+          portTypeId: data?.[0]?.id,
+          companyId: userData?.companyId,
         }));
       } else {
         toast.error(error || message);
@@ -85,6 +96,7 @@ export default function DPD() {
 
     initialHandler();
   }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>

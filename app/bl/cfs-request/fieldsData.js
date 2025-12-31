@@ -25,6 +25,7 @@ export const fieldData = {
       foreignTable: "name,tblCompany",
       required: true,
       isEdit: true,
+      changeFun: "setCfsAndDpd",
     },
     {
       label: "MBL No.",
@@ -40,7 +41,6 @@ export const fieldData = {
       type: "date",
       isEdit: true,
       required: true,
-      disabled: true,
     },
     {
       label: "Vessel",
@@ -53,7 +53,6 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblVessel",
       isEdit: true,
-      disabled: true,
     },
     {
       label: "Voyage",
@@ -67,7 +66,6 @@ export const fieldData = {
       orderBy: "t.voyageNo",
       foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
-      disabled: true,
     },
     {
       label: "Place of Delivery",
@@ -78,7 +76,7 @@ export const fieldData = {
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
       required: true,
-      disabled: true,
+      isEdit: true,
     },
     {
       label: "Consignee Name",
@@ -97,7 +95,7 @@ export const fieldData = {
       where: "masterListName  = 'tblCfsType'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
-      changeFun: "setAttachmentType",
+      changeFun: "setCfsType",
     },
     {
       label: "CFS",
@@ -106,7 +104,7 @@ export const fieldData = {
       tableName: "tblPort p",
       displayColumn: "p.name",
       joins:
-        "join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS'",
+        "join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = null",
       isEdit: true,
       foreignTable: "name,tblPort",
     },
@@ -117,18 +115,16 @@ export const fieldData = {
       tableName: "tblPort p",
       displayColumn: "p.name",
       joins:
-        "join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'DPD'",
+        "join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'DPD' and p.companyId = null",
       isEdit: true,
       foreignTable: "name,tblPort",
     },
-
     {
       label: "Nominated CB",
       name: "customBrokerText",
       type: "text",
       isEdit: true,
     },
-
     {
       label: "Status",
       name: "cfsRequestStatusId",
@@ -140,6 +136,14 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
       orderBy: "m.name",
+      disabled: true,
+    },
+    {
+      label: "Remark",
+      name: "cfsRejectRemarks",
+      type: "textarea",
+      gridColumn: "col-span-2 row-span-1 ",
+      isEdit: true,
       disabled: true,
     },
   ],
@@ -163,6 +167,7 @@ export const fieldData = {
       name: "path",
       type: "fileupload",
       isEdit: true,
+      required: true,
     },
   ],
 };

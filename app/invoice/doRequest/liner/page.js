@@ -23,7 +23,6 @@ import TableExportButtons from "@/components/tableExportButtons/tableExportButto
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import DoToolbarActions from "@/components/selectionActions/doToolbarActions";
-import DoStatusToolbar from "@/components/selectionActions/doStatus";
 import { doStatusHandler, statusColor } from "../utils";
 import { useRouter } from "next/navigation";
 
@@ -191,20 +190,10 @@ export default function BLList() {
           }
           onConfirm={(ids) => doStatusHandler(getData).handleConfirm(ids)}
           onReject={(ids) => doStatusHandler(getData).handleReject(ids)}
-          onNotify={handleNotify}
           onGenerateDO={handleGenerateDO}
-          onPCS={handlePCS}
-          onSecuritySlip={handleSecuritySlip}
-        />
-        <DoStatusToolbar
-          values={statusValues}
-          onAdvanceBL={(v) => updateStatus("advanceBL", v)}
-          onNotificationHistory={(v) => updateStatus("notificationHistory", v)}
-          onRemarksHold={(v) => updateStatus("remarksHold", v)}
-          onReRequest={(v) => updateStatus("reRequest", v)}
-          onSeawayBL={(v) => updateStatus("seawayBL", v)}
-          onAttachments={(v) => updateStatus("attachments", v)}
-          onAutoDoRequest={(v) => updateStatus("autoDoRequest", v)}
+          // onNotify={handleNotify}
+          // onPCS={handlePCS}
+          // onSecuritySlip={handleSecuritySlip}
         />
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small">

@@ -27,25 +27,22 @@ export default function Company() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [errorState, setErrorState] = useState({});
   const userData = getUserByCookies();
-  const [defaultValues, setDefaultvalues] = useState({
-    mlblId: mode?.formId || null,
-    cfsRequestStatusId: {},
-    disableRequestButton: false,
-  });
-  const [requestButtonStatus, setRequestBtnStatus] = useState(false);
+  const [disableBtn, setDisableBtn] = useState(true);
+  useSetDefault({ userData, setFormData, mode: mode });
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData(
-      "tblBl",
-      { ...formData, cfsRequestCreatedBy: userData?.userId },
-      mode.formId || defaultValues.mlblId,
-      "blId"
-    );
+    let payloadCfs = {};
+    if (userData.roleCode === "customer") {
+      payloadCfs = { ...formData, cfsRequestCreatedBy: userData?.userId };
+    } else {
+      payloadCfs = formData;
+    }
+    const format = formatFormData("tblBl", payloadCfs, mode.formId, "blId");
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
-      setRequestBtnStatus(true);
+      setDisableBtn((prev) => ({ ...prev, submit: true }));
       setJsonData((prev) => {
         return {
           ...prev,
@@ -62,40 +59,16 @@ export default function Company() {
     }
   };
 
-  //  to set default values on 1st render
-  useSetDefault({ userData, setFormData, setDefaultvalues, mode: mode });
-
-  useEffect(() => {
-    async function fetchFormHandler() {
-      if (!mode?.formId) return;
-
-      setFieldsMode(mode?.mode);
-      const format = formatFetchForm(
-        fieldData,
-        "tblBl",
-        mode?.formId,
-        '["tblAttachment"]',
-        "blId"
-      );
-      const { success, result, message, error } = await fetchForm(format);
-      if (success) {
-        const getData = formatDataWithForm(result, fieldData);
-        setFormData(getData);
-      } else {
-        toast.error(error || message);
-      }
-    }
-
-    fetchFormHandler();
-  }, [mode]);
-
-  const handleChangeEventFunctions = handleChange({ setFormData, formData });
+  const handleChangeEventFunctions = handleChange({
+    setFormData,
+    formData,
+    setJsonData,
+  });
 
   const handleBlurEventFunctions = handleBlur({
     setFormData,
     formData,
-    setDefaultvalues,
-    defaultValues,
+    setMode,
   });
 
   const updateStatusToRequest = async (event) => {
@@ -110,7 +83,7 @@ export default function Company() {
       if (getStatusId) {
         const rowsPayload = [
           {
-            id: mode?.formId || defaultValues?.mlblId,
+            id: mode?.formId,
             cfsRequestStatusId: getStatusId?.data[0]?.id,
             updatedBy: userData.userId,
             updatedDate: new Date(),
@@ -132,14 +105,6 @@ export default function Company() {
               },
             };
           });
-
-          setDefaultvalues((prev) => {
-            return {
-              ...prev,
-              disableRequestButton: true,
-            };
-          });
-
           toast.success("This CFS is Requested");
         }
       }
@@ -148,21 +113,57 @@ export default function Company() {
     }
   };
 
+  useEffect(() => {
+    async function fetchFormHandler() {
+      if (!mode?.formId) return;
+
+      setFieldsMode(mode?.mode);
+      const format = formatFetchForm(
+        fieldData,
+        "tblBl",
+        mode?.formId,
+        '["tblAttachment"]',
+        "blId"
+      );
+      const { success, result, message, error } = await fetchForm(format);
+      if (success) {
+        const getData = formatDataWithForm(result, fieldData);
+        setFormData(getData);
+        setDisableBtn(false);
+        handleChangeEventFunctions?.setCfsAndDpd(
+          "shippingLineId",
+          getData?.shippingLineId
+        );
+      } else {
+        toast.error(error || message);
+      }
+    }
+
+    fetchFormHandler();
+  }, [mode]);
+
   return (
     <ThemeProvider theme={theme}>
-      <form
-        onSubmit={requestButtonStatus ? updateStatusToRequest : submitHandler}
-      >
+      <form onSubmit={submitHandler}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
               Create Request For CFS
             </h1>
-            <CustomButton
-              text="Back"
-              href="/bl/cfs-request/list"
-              onClick={() => setMode({ mode: null, formId: null })}
-            />
+            {userData?.roleCode === "customer" && (
+              <CustomButton
+                text="Back"
+                href="/bl/cfs-request/list"
+                onClick={() => setMode({ mode: null, formId: null })}
+              />
+            )}
+            {userData?.roleCode === "shipping" && (
+              <CustomButton
+                text="Back"
+                href="/bl/cfs-request/liner"
+                onClick={() => setMode({ mode: null, formId: null })}
+              />
+            )}
           </Box>
           <FormHeading text="MBL Details" />
           <Box className="grid grid-cols-4 items-end gap-2 p-2 ">
@@ -195,19 +196,14 @@ export default function Company() {
               <CustomButton
                 text={"Submit"}
                 type="submit"
-                disabled={requestButtonStatus ?? false}
+                disabled={disableBtn}
               />
             )}
-
-            {requestButtonStatus ? (
-              <CustomButton
-                text={"Request"}
-                type="submit"
-                disabled={defaultValues.disableRequestButton ?? false}
-              />
-            ) : (
-              <></>
-            )}
+            <CustomButton
+              text={"Request"}
+              onClick={updateStatusToRequest}
+              disabled={disableBtn}
+            />
           </Box>
         </section>
       </form>
