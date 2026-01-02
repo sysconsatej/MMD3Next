@@ -26,7 +26,8 @@ import { getUserByCookies } from "@/utils";
 import DoToolbarActions from "@/components/selectionActions/doToolbarActions";
 import { doStatusHandler, statusColor } from "../utils";
 import { useRouter } from "next/navigation";
-
+import HistoryIcon from "@mui/icons-material/History";
+import { DoHistoryModal } from "./historyModal";
 function createData(
   mblNo,
   validTill,
@@ -64,7 +65,10 @@ export default function BLList() {
   const [someChecked, setSomeChecked] = useState(false);
   const [allChecked, setAllChecked] = useState(false);
   const router = useRouter();
-
+  const [historyModal, setHistoryModal] = useState({
+    toggle: false,
+    value: null,
+  });
   // --------------------------------------------
   // 🔥 Fetch Table Data
   // --------------------------------------------
@@ -181,6 +185,7 @@ export default function BLList() {
                 <TableCell>Stuff Destuff</TableCell>
                 <TableCell>Liner Name</TableCell>
                 <TableCell>Do Status</TableCell>
+                <TableCell>History</TableCell>
               </TableRow>
             </TableHead>
 
@@ -210,6 +215,17 @@ export default function BLList() {
                       }}
                     >
                       {row.doStatus}
+                    </TableCell>
+                    <TableCell>
+                      <HistoryIcon
+                        sx={{ cursor: "pointer", fontSize: 16 }}
+                        onClick={() =>
+                          setHistoryModal({
+                            toggle: true,
+                            value: row.mblNo,
+                          })
+                        }
+                      />
                     </TableCell>
                   </TableRow>
                 ))
@@ -241,6 +257,10 @@ export default function BLList() {
           />
         </Box>
       </Box>
+      <DoHistoryModal
+        historyModal={historyModal}
+        setHistoryModal={setHistoryModal}
+      />
 
       <ToastContainer />
     </ThemeProvider>

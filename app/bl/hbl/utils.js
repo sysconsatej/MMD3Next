@@ -578,7 +578,7 @@ export const createHandleChangeFunc = ({
       setJsonData((prev) => {
         const itemContainer = prev.tblBlPackingList;
         const requiredUno = itemContainer.map((item) => {
-          if (item.name === "imoCode" ||  item.name == 'unNo') {
+          if (item.name === "imoCode" || item.name == "unNo") {
             return { ...item, required: isHazardous };
           }
 
@@ -592,19 +592,6 @@ export const createHandleChangeFunc = ({
       });
     },
     setTelePhoneNoBasedOnLinerId: async (name, value) => {
-      // console.log(!val)
-
-      //  if (!value?.Id) {
-      //   console.log("hell")
-      //   setFormData((prev) =>
-      //     setInputValue({
-      //       prev,
-      //       name: "podVesselId",
-      //       value: {},
-      //     })
-      //   );
-      // }
-
       const obj = {
         columns: "c.telephoneNo , c.panNo",
         tableName: "tblCompany c",
@@ -617,7 +604,7 @@ export const createHandleChangeFunc = ({
           setInputValue({
             prevData,
             name: "shippingLineTelNo",
-            value: "",
+            value: null,
           })
         );
         return toast.error("For this Shipper PhoneNo do not exist pls add");
@@ -631,38 +618,13 @@ export const createHandleChangeFunc = ({
         })
       );
 
-      // if (result?.data[0]?.panNo) {
-      //   const formatArray = formData?.tblBl
-      //     ?.map((_, idx) =>
-      //       _.tblBlContainer?.map((r) => {
-      //         return { ...r, tabIndex: idx };
-      //       })
-      //     )
-      //     ?.flat();
-
-      //   const updatedArray =
-      //     Array.isArray(formatArray) && formatArray.length > 0
-      //       ? formatArray?.map((i) => {
-      //           return { ...i, containerAgentCode: result?.data[0]?.panNo };
-      //         })
-      //       : [];
-
-      //   setFormData((prev) => {
-      //     return {
-      //       ...prev,
-      //       tblBl: prev.tblBl?.map((i, index) => {
-      //         return {
-      //           ...i,
-      //           tblBlContainer: updatedArray?.filter(
-      //             (r) => r?.tabIndex === index
-      //           ),
-      //         };
-      //       }),
-      //     };
-      //   });
-      // }
-
-      return "";
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          name: "podVoyageId",
+          value: null,
+        })
+      );
     },
     selectVoyageNoBasedOnVessel: async (name, value) => {
       const linerId =

@@ -1,3 +1,7 @@
+import { getUserByCookies } from "@/utils";
+
+const userData = getUserByCookies();
+
 const fieldData = {
   voyageFields: [
     {
@@ -39,6 +43,7 @@ const fieldData = {
       displayColumn: "t.voyageNo",
       orderBy: "t.voyageNo",
       selectedConditions: [{ vesselId: "vesselId" }],
+      where: `t.companyid = ${userData?.companyId} and t.status = 1`,
       foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
       required: true,
