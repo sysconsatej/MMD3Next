@@ -66,7 +66,7 @@ async function loadEsmPair(primary, list) {
       const lib = mod?.default ?? mod;
       lib.GlobalWorkerOptions.workerSrc = cand.workerEsm;
       return lib;
-    } catch (_) {}
+    } catch (_) { }
   }
   throw new Error("ESM load failed for all candidates");
 }
@@ -82,7 +82,7 @@ async function loadUmdPair(primary, list) {
       if (!lib) throw new Error("window.pdfjsLib missing after UMD load");
       lib.GlobalWorkerOptions.workerSrc = cand.workerUmd;
       return lib;
-    } catch (_) {}
+    } catch (_) { }
   }
   throw new Error("UMD load failed for all candidates");
 }
@@ -94,7 +94,7 @@ async function ensurePdfjs() {
     pdfjsLib = await loadEsmPair(SELF, CDN_CANDIDATES);
     workerReady = true;
     return pdfjsLib;
-  } catch (_) {}
+  } catch (_) { }
   pdfjsLib = await loadUmdPair(SELF, CDN_CANDIDATES);
   workerReady = true;
   return pdfjsLib;
@@ -127,10 +127,10 @@ async function extractRawPdf(file) {
   const text = pageTexts.join("\n");
   try {
     pdf.cleanup?.();
-  } catch {}
+  } catch { }
   try {
     pdf.destroy?.();
-  } catch {}
+  } catch { }
 
   return { pages: pageTexts.length, pageTexts, text };
 }
@@ -177,8 +177,8 @@ export async function extractTextFromPdfs(files) {
       typeof totalFromMulti === "number" && !Number.isNaN(totalFromMulti)
         ? totalFromMulti
         : totalFromSimple
-        ? Number(String(totalFromSimple).replace(/,/g, ""))
-        : 0;
+          ? Number(String(totalFromSimple).replace(/,/g, ""))
+          : 0;
 
     const freight = detectFreight(all);
 
@@ -195,7 +195,7 @@ export async function extractTextFromPdfs(files) {
 
     rows.push({
       invoiceNo,
-      invoiceTypeId, // ✅ Now it will be populated correctly
+      invoiceTypeId,
       totalInvoiceAmount,
       invoiceDate: invoiceDateISO,
       invoiceCategoryId,

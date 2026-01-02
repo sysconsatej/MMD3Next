@@ -419,7 +419,6 @@ export default function MblUpload() {
               disabled={busy}
             />
           </Box>
-          <ErrorList errorGrid={errorGrid} fileName={"MBL-Upload"} />
         </section>
       </form>
       <ToastContainer position="top-right" autoClose={3500} />

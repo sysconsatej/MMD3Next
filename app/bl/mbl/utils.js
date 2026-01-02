@@ -361,6 +361,23 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
             };
       }
 
+      // set data based on  pod and fpd and movementTypeId
+
+      // if (formData?.shippingLineId  &&   formData?.podId && formData?.fpdId && formData?.movementTypeId) {
+
+      //         select panNo, scmtrBondNo
+      // from tblCarrierPort
+      // where id = 7 and podId = 8567 and fpdId = 44554 and status = 1
+
+      //   const payload  =  {
+      //     columns  :  ""
+
+      //   }
+
+      //   const getCarrierData  =  await getDataWithCondition()
+
+      // }
+
       // Final single state update
       setFormData((prev) => ({
         ...prev,
