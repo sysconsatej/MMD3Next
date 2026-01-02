@@ -3,16 +3,16 @@
 import { Box, IconButton, Tooltip, SvgIcon } from "@mui/material";
 import {
   PersonAddAlt1,
-  Undo,
   CheckCircle,
   Close,
   NotificationsNone,
   Search,
+  History as HistoryIcon,
 } from "@mui/icons-material";
 
 export function TopActionIcons({
   onAddUser,
-  onUndo,
+  onHistory,
   onApprove,
   onReject,
   onNotify,
@@ -22,7 +22,7 @@ export function TopActionIcons({
 }) {
   const {
     addUser = false,
-    undo = false,
+    history = false,
     approve = false,
     reject = false,
     notify = false,
@@ -30,7 +30,7 @@ export function TopActionIcons({
   } = show;
 
   const blue = { color };
-  const red = { color: "#e11d2e" }; 
+  const red = { color: "#e11d2e" };
   return (
     <Box className="flex items-center gap-2">
       {addUser && (
@@ -41,10 +41,10 @@ export function TopActionIcons({
         </Tooltip>
       )}
 
-      {undo && (
-        <Tooltip title="Undo" arrow>
-          <IconButton onClick={onUndo} size="small" sx={blue}>
-            <Undo fontSize="small" />
+      {history && (
+        <Tooltip title="History" arrow>
+          <IconButton onClick={onHistory} size="small" sx={blue}>
+            <HistoryIcon fontSize="small" />
           </IconButton>
         </Tooltip>
       )}

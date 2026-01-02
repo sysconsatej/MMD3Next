@@ -25,6 +25,8 @@ import { getUserByCookies } from "@/utils";
 import DoToolbarActions from "@/components/selectionActions/doToolbarActions";
 import { doStatusHandler, statusColor } from "../utils";
 import { useRouter } from "next/navigation";
+import HistoryIcon from "@mui/icons-material/History";
+import { DoHistoryLinerModal } from "./historyModal";
 
 function createData(
   location,
@@ -73,6 +75,10 @@ export default function BLList() {
     seawayBL: false,
     attachments: false,
     autoDoRequest: false,
+  });
+  const [historyModal, setHistoryModal] = useState({
+    toggle: false,
+    value: null,
   });
 
   // --------------------------------------------
@@ -219,6 +225,7 @@ export default function BLList() {
                 <TableCell>Stuff Destuff</TableCell>
                 <TableCell>Doc Status</TableCell>
                 <TableCell>Assigned To</TableCell>
+                <TableCell>History</TableCell>
               </TableRow>
             </TableHead>
 
@@ -251,6 +258,17 @@ export default function BLList() {
                       {row.doStatus}
                     </TableCell>
                     <TableCell></TableCell>
+                    <TableCell>
+                      <HistoryIcon
+                        sx={{ cursor: "pointer", fontSize: 16 }}
+                        onClick={() =>
+                          setHistoryModal({
+                            toggle: true,
+                            value: row.mblNo,
+                          })
+                        }
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -281,6 +299,10 @@ export default function BLList() {
           />
         </Box>
       </Box>
+      <DoHistoryLinerModal
+        historyModal={historyModal}
+        setHistoryModal={setHistoryModal}
+      />
 
       <ToastContainer />
     </ThemeProvider>

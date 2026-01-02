@@ -30,6 +30,8 @@ import { cfsStatusHandler, statusColor, tableObj } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import SearchRequestToolbarActions from "@/components/selectionActions/cfsRequestActionBar";
+import { CfsHistoryModal } from "./historyModal";
+import HistoryIcon from "@mui/icons-material/History";
 
 /* checkbox sizing – SAME AS OTHER PAGE */
 const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
@@ -47,6 +49,10 @@ export default function CompanyList() {
   const [loadingState, setLoadingState] = useState("NO DATA...");
   const tableWrapRef = useRef(null);
   const [advanceSearch, setAdvanceSearch] = useState({});
+  const [historyModal, setHistoryModal] = useState({
+    toggle: false,
+    value: null,
+  });
 
   const { setMode } = formStore();
   const router = useRouter();
@@ -155,6 +161,7 @@ export default function CompanyList() {
                 {tblColsLables.map((label, i) => (
                   <TableCell key={i}>{label}</TableCell>
                 ))}
+                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell>
               </TableRow>
             </TableHead>
 
@@ -193,6 +200,18 @@ export default function CompanyList() {
                       {row.cfsRequestStatusId}
                     </TableCell>
                     <TableCell>{row?.remark}</TableCell>
+                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                      <HistoryIcon
+                        sx={{ cursor: "pointer", fontSize: "16px" }}
+                        onClick={() =>
+                          setHistoryModal((prev) => ({
+                            ...prev,
+                            toggle: true,
+                            value: row.mblNo,
+                          }))
+                        }
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -222,6 +241,10 @@ export default function CompanyList() {
           />
         </Box>
       </Box>
+      <CfsHistoryModal
+        historyModal={historyModal}
+        setHistoryModal={setHistoryModal}
+      />
 
       <ToastContainer />
     </ThemeProvider>

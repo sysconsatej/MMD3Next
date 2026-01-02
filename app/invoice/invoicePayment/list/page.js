@@ -39,6 +39,8 @@ import {
 } from "../invoicePaymentData";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import { getUserByCookies } from "@/utils";
+import HistoryIcon from "@mui/icons-material/History";
+import { PaymentHistoryModal } from "./historyModal";
 
 const LIST_TABLE = "tblInvoice i";
 const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
@@ -84,6 +86,10 @@ export default function InvoicePaymentList() {
   const [advanceSearch, setAdvanceSearch] = useState({});
   const [loadingState, setLoadingState] = useState("Data not found!");
   const [selectedIds, setSelectedIds] = useState([]);
+  const [historyModal, setHistoryModal] = useState({
+    toggle: false,
+    value: null,
+  });
   const userData = getUserByCookies();
 
   // === CHECKBOX ===
@@ -292,6 +298,7 @@ export default function InvoicePaymentList() {
                 <TableCell>Category</TableCell>
                 <TableCell>Remarks</TableCell>
                 <TableCell>Status</TableCell>
+                <TableCell>History</TableCell>
               </TableRow>
             </TableHead>
 
@@ -331,6 +338,17 @@ export default function InvoicePaymentList() {
                     <TableCell sx={{ color: paymentStatusColor(row.status) }}>
                       {row.status}
                     </TableCell>
+                    <TableCell>
+                      <HistoryIcon
+                        sx={{ cursor: "pointer", fontSize: 16 }}
+                        onClick={() =>
+                          setHistoryModal({
+                            toggle: true,
+                            value: row.blNo,
+                          })
+                        }
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -363,7 +381,10 @@ export default function InvoicePaymentList() {
           </Box>
         </Box>
       </Box>
-
+      <PaymentHistoryModal
+        historyModal={historyModal}
+        setHistoryModal={setHistoryModal}
+      />
       <ToastContainer />
     </ThemeProvider>
   );
