@@ -28,6 +28,8 @@ import { getUserByCookies } from "@/utils";
 import SearchRequestToolbarActions from "@/components/selectionActions/cfsRequestActionBar";
 import { BlRejectModal, cfsStatusHandler, statusColor } from "../utils";
 import { useRouter } from "next/navigation";
+import HistoryIcon from "@mui/icons-material/History";
+import { CfsHistoryLinerModal } from "./historyModal";
 
 /* ---------------- Constants ---------------- */
 const LIST_TABLE = "tblBl b";
@@ -46,6 +48,10 @@ export default function SearchRequestCfsDpdIcd() {
   const [loadingState, setLoadingState] = useState("NO DATA...");
   const [selectedIds, setSelectedIds] = useState([]);
   const [modal, setModal] = useState({ toggle: false, value: null, ids: [] });
+  const [historyModal, setHistoryModal] = useState({
+    toggle: false,
+    value: null,
+  });
 
   // toolbar checkbox states
   const [amendment, setAmendment] = useState(false);
@@ -212,6 +218,7 @@ export default function SearchRequestCfsDpdIcd() {
                 <TableCell>Contact No</TableCell>
                 <TableCell>Location</TableCell>
                 <TableCell>Remark</TableCell>
+                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell>
               </TableRow>
             </TableHead>
 
@@ -250,6 +257,18 @@ export default function SearchRequestCfsDpdIcd() {
                     <TableCell>{row.ContactNo || "-"}</TableCell>
                     <TableCell>{row.locationName || "-"}</TableCell>
                     <TableCell>{row.remark || "-"}</TableCell>
+                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                      <HistoryIcon
+                        sx={{ cursor: "pointer", fontSize: "16px" }}
+                        onClick={() =>
+                          setHistoryModal((prev) => ({
+                            ...prev,
+                            toggle: true,
+                            value: row.mblNo,
+                          }))
+                        }
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -284,6 +303,10 @@ export default function SearchRequestCfsDpdIcd() {
 
       <ToastContainer />
       <BlRejectModal modal={modal} setModal={setModal} getData={getData} />
+      <CfsHistoryLinerModal
+        historyModal={historyModal}
+        setHistoryModal={setHistoryModal}
+      />
     </ThemeProvider>
   );
 }

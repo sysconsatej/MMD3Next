@@ -45,6 +45,7 @@ import { TopActionIcons } from "@/components/tableHoverIcons/tableHoverIconsPaym
 import { getUserByCookies } from "@/utils";
 import AttachFileIcon from "@mui/icons-material/AttachFile"; // 🔹 NEW
 import { InvoiceModal, InvoicePaymentAssignModal } from "../utils"; // 🔹 adjust path as per your file
+import { PaymentHistoryModal } from "./historyModal";
 
 const LIST_TABLE = "tblInvoicePayment p";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -99,7 +100,7 @@ function createData(
     Amount,
     status,
     blId,
-    assignTo
+    assignTo,
   };
 }
 
@@ -129,6 +130,10 @@ export default function InvoiceRequestList() {
   const userData = getUserByCookies();
   const [selectedIds, setSelectedIds] = useState([]);
   const [modal, setModal] = useState({
+    toggle: false,
+    value: null,
+  });
+  const [historyModal, setHistoryModal] = useState({
     toggle: false,
     value: null,
   });
@@ -205,7 +210,7 @@ export default function InvoiceRequestList() {
             item["Amount"],
             item["status"],
             item["blId"],
-            item["assignTo"],
+            item["assignTo"]
           )
         );
 
@@ -477,14 +482,19 @@ export default function InvoiceRequestList() {
                       <TopActionIcons
                         show={{
                           addUser: true,
-                          undo: true,
+                          history: true,
                           approve: true,
                           reject: true,
                           notify: true,
                           search: true,
                         }}
                         onAddUser={() => assignToHandler(row.id)}
-                        onUndo={() => {}}
+                        onHistory={() => {
+                          setHistoryModal({
+                            toggle: true,
+                            value: row.blNo, // paymentId
+                          });
+                        }}
                         onApprove={() => approveHandler(row.id)}
                         onReject={() =>
                           setRejectState({
@@ -540,6 +550,10 @@ export default function InvoiceRequestList() {
         modal={assignModal}
         setModal={setAssignModal}
         onAssignHandler={onAssignHandler}
+      />
+      <PaymentHistoryModal
+        historyModal={historyModal}
+        setHistoryModal={setHistoryModal}
       />
       <ToastContainer />
     </ThemeProvider>

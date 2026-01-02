@@ -35,6 +35,8 @@ import { BLModal } from "../modal";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
+import { BLHistoryLinerModal } from "./historyModal";
+import HistoryIcon from "@mui/icons-material/History";
 
 const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -90,6 +92,10 @@ export default function BLList() {
   const [allChecked, setAllChecked] = useState(false);
   const [someChecked, setSomeChecked] = useState(false);
   const [modal, setModal] = useState({ toggle: false, value: null });
+  const [historyModal, setHistoryModal] = useState({
+    toggle: false,
+    value: null,
+  });
   const userData = getUserByCookies();
 
   const getData = useCallback(
@@ -270,6 +276,7 @@ export default function BLList() {
                 <TableCell>Email Id</TableCell>
                 <TableCell>User Name</TableCell>
                 <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell>
+                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell>
               </TableRow>
             </TableHead>
 
@@ -312,6 +319,18 @@ export default function BLList() {
                         }
                       />
                     </TableCell>
+                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                      <HistoryIcon
+                        sx={{ cursor: "pointer", fontSize: "16px" }}
+                        onClick={() =>
+                          setHistoryModal((prev) => ({
+                            ...prev,
+                            toggle: true,
+                            value: row.mblNo,
+                          }))
+                        }
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -344,6 +363,10 @@ export default function BLList() {
         </Box>
       </Box>
       <BLModal modal={modal} setModal={setModal} />
+      <BLHistoryLinerModal
+        historyModal={historyModal}
+        setHistoryModal={setHistoryModal}
+      />
       <ToastContainer />
     </ThemeProvider>
   );
