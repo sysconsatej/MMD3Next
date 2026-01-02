@@ -345,7 +345,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
 
       if (podId === "IN" && fpdId === "IN") {
         const filtered = storeApiResult.filter(
-          (i) => i.inputName === "polId" || i.inputName === "podId"
+          (i) => i.inputName === "podId" || i.inputName === "fpdId"
         );
 
         const isSamePort = hasDuplicateId(filtered);
@@ -360,6 +360,23 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
               Name: movementMap.TI.code,
             };
       }
+
+      // set data based on  pod and fpd and movementTypeId
+
+      // if (formData?.shippingLineId  &&   formData?.podId && formData?.fpdId && formData?.movementTypeId) {
+
+      //         select panNo, scmtrBondNo
+      // from tblCarrierPort
+      // where id = 7 and podId = 8567 and fpdId = 44554 and status = 1
+
+      //   const payload  =  {
+      //     columns  :  ""
+
+      //   }
+
+      //   const getCarrierData  =  await getDataWithCondition()
+
+      // }
 
       // Final single state update
       setFormData((prev) => ({

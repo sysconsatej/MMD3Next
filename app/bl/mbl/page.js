@@ -179,7 +179,6 @@ export default function Home() {
     fetchFormHandler();
   }, [mode.formId]);
 
-  //  this useEffect is used for Auto set values
   useEffect(() => {
     setFormData((prev) => ({
       ...prev,
@@ -193,20 +192,19 @@ export default function Home() {
       },
       ...(!mode?.formId
         ? {
-            // set only if empty, for safety
-            ...(!prev?.shippingLineId && {
-              shippingLineId: {
-                Id: userData.companyId,
-                Name: userData.companyName,
-              },
-            }),
-            ...(!prev?.mloId && {
-              mloId: {
-                Id: userData.companyId,
-                Name: userData.companyName,
-              },
-            }),
-          }
+          ...(!prev?.shippingLineId && {
+            shippingLineId: {
+              Id: userData.companyId,
+              Name: userData.companyName,
+            },
+          }),
+          ...(!prev?.mloId && {
+            mloId: {
+              Id: userData.companyId,
+              Name: userData.companyName,
+            },
+          }),
+        }
         : {}),
     }));
     if (mode?.formId) return;
@@ -233,7 +231,6 @@ export default function Home() {
           itemTypeRes.data.length > 0
         ) {
           setFormData((prev) =>
-            // don't override if something already set later by user/fetch
             prev?.blTypeId ? prev : { ...prev, blTypeId: itemTypeRes.data[0] }
           );
         }
@@ -276,7 +273,6 @@ export default function Home() {
           cinRes.data.length > 0
         ) {
           setFormData((prev) =>
-            // don't override if user / fetch already set
             prev?.cinType ? prev : { ...prev, cinType: cinRes.data[0] }
           );
         }

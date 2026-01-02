@@ -1,7 +1,10 @@
+import { getUserByCookies } from "@/utils";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+
+const userData = getUserByCookies();
 
 export const fieldData = {
   mblFields: [
@@ -290,16 +293,15 @@ export const fieldData = {
       changeFun: "handleChangeOnPOL",
     },
     {
-      label: "Nominated Area (CFS)",
+      label: "CFS",
       name: "nominatedAreaId",
       type: "dropdown",
       tableName: "tblPort p",
-      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
-      joins: "LEFT JOIN tblMasterData m ON m.id = p.portTypeId",
-      searchColumn: "p.name",
-      orderBy: "p.name",
-      foreignTable: "code-name,tblPort",
+      displayColumn: "p.name",
+      joins:
+        `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${userData?.companyId}`,
       isEdit: true,
+      foreignTable: "name,tblPort",
     },
     {
       label: "Direct Port Delivery",
@@ -335,18 +337,6 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
-
-    {
-      label: "Post Carriage",
-      name: "postCarriageId",
-      type: "dropdown",
-      tableName: "tblMasterData m",
-      displayColumn: "m.name",
-      where: "m.masterListName = 'tblMode'",
-      orderBy: "m.name",
-      foreignTable: "name,tblMasterData",
-      isEdit: true,
-    },
     {
       label: "Movement Carrier",
       name: "movementCarrierId",
@@ -367,6 +357,17 @@ export const fieldData = {
       label: "Carrier Code",
       name: "carrierPanNo",
       disabled: true,
+    },
+    {
+      label: "Post Carriage",
+      name: "postCarriageId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where: "m.masterListName = 'tblMode'",
+      orderBy: "m.name",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
     },
   ],
   hblBottomFields: [
@@ -892,6 +893,7 @@ export const fieldData = {
       name: "refTemp",
       type: "number",
       isEdit: true,
+      acceptBelowZero : true,
     },
     {
       label: "Reefer Temp Unit",

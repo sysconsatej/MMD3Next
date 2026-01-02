@@ -8,7 +8,12 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
-import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
+import {
+  formatDataWithForm,
+  formatFetchForm,
+  formatFormData,
+  getUserByCookies,
+} from "@/utils";
 import { formStore } from "@/store";
 import TableGrid from "@/components/tableGrid/tableGrid";
 
@@ -18,6 +23,7 @@ export default function Cfs() {
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
   const [errorState, setErrorState] = useState({});
+  const userData = getUserByCookies();
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -40,10 +46,11 @@ export default function Cfs() {
       const literal = normalized.replace(/'/g, "''");
 
       let whereDup = `
-      UPPER(${name}) = '${literal.toUpperCase()}'
+      ${name} = '${literal.toUpperCase()}'
       AND portTypeId IN (
         SELECT id FROM tblMasterData WHERE name = 'CONTAINER FREIGHT STATION'
       )
+      AND companyId = ${userData?.companyId}
       AND status = 1
     `;
 
@@ -125,7 +132,7 @@ export default function Cfs() {
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
           const getData = formatDataWithForm(result, data);
-          setFormData(getData);
+          setFormData({ ...getData, companyId: userData?.companyId });
         } else {
           toast.error(error || message);
         }
@@ -134,19 +141,22 @@ export default function Cfs() {
 
     fetchFormHandler();
   }, [mode.formId]);
+
   useEffect(() => {
     async function initialHandler() {
       const obj = {
         columns: "id",
         tableName: "tblMasterData",
-        whereCondition: "name = 'CONTAINER FREIGHT STATION'",
+        whereCondition:
+          "name = 'CONTAINER FREIGHT STATION' and masterListName = 'tblPortType' and status = 1",
       };
 
       const { data, message, error, success } = await getDataWithCondition(obj);
       if (success) {
         setFormData((prev) => ({
           ...prev,
-          portTypeId: data[0].id,
+          portTypeId: data?.[0].id,
+          companyId: userData?.companyId,
         }));
       } else {
         toast.error(error || message);
@@ -155,6 +165,7 @@ export default function Cfs() {
 
     initialHandler();
   }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>

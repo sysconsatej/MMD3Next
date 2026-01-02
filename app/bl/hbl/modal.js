@@ -176,10 +176,14 @@ export function BLHistoryModal({ historyModal, setHistoryModal }) {
               <TableHead>
                 <TableRow>
                   <TableCell>SrNo.</TableCell>
+                  <TableCell>Mbl No</TableCell>
+                  <TableCell>Hbl No</TableCell>
+                  <TableCell>old value</TableCell>
+                  <TableCell> new value</TableCell>
+                  <TableCell>createdBy</TableCell>
+                  <TableCell>Modifiy By</TableCell>
+                  <TableCell>Modifiy Date</TableCell>
                   <TableCell>Status</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>User</TableCell>
-                  <TableCell>Rejection Remarks</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

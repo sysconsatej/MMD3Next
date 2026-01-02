@@ -44,7 +44,6 @@ export default function CustomerHistoryModal({
       setLoading(true);
 
       const res = await fetchInvoiceHistory({
-        tableName: "tblInvoiceRequest",
         recordId: requestId,
       });
 
@@ -71,10 +70,11 @@ export default function CustomerHistoryModal({
       PaperProps={{
         sx: {
           m: windowMode === "maximized" ? 0 : 4,
-          overflow: "hidden",
+          overflow: "auto",
         },
       }}
     >
+      {/* ---------- HEADER ---------- */}
       <Box
         sx={{
           px: 2,
@@ -109,9 +109,10 @@ export default function CustomerHistoryModal({
         </Box>
       </Box>
 
+      {/* ---------- CONTENT ---------- */}
       <DialogContent dividers sx={{ minHeight: "260px" }}>
         <Typography sx={{ fontWeight: 700, mb: 1 }}>
-          Bl NO: <span style={{ fontWeight: 400 }}>{customer || "-"}</span>
+          BL NO: <span style={{ fontWeight: 400 }}>{customer || "-"}</span>
         </Typography>
 
         {loading ? (
@@ -137,52 +138,57 @@ export default function CustomerHistoryModal({
                 padding: "4px 6px",
                 fontSize: 11,
               },
-              "& .sr-col": {
-                width: 40,
-                maxWidth: 40,
-              },
             }}
           >
             <TableHead>
               <TableRow>
-                <TableCell className="sr-col" sx={{ fontWeight: 700 }}>
-                  Sr. No.
-                </TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Date</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Login Name</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Login Id</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Shipping Line</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Shipping Email</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Telephone</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>
-                  Rejection Remarks
-                </TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Remarks</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+                <TableCell>Sr.</TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Requester Name</TableCell>
+                <TableCell>Requester Id</TableCell>
+                <TableCell>Field Name</TableCell>
+                <TableCell>Old Value</TableCell>
+                <TableCell>New Value</TableCell>
+                <TableCell>Modify By</TableCell>
+                <TableCell>Modify Date & timestamp</TableCell>
+                <TableCell>Liner Name</TableCell>
+                <TableCell>Contact No</TableCell>
+                <TableCell>Rejection Remarks</TableCell>
+                <TableCell>Remark</TableCell>
+                <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
               {rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10} align="center">
+                  <TableCell colSpan={14} align="center">
                     No history found
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((row, idx) => (
                   <TableRow key={idx}>
-                    <TableCell className="sr-col">{idx + 1}</TableCell>
+                    <TableCell>{idx + 1}</TableCell>
                     <TableCell>{row.date}</TableCell>
-                    <TableCell>{row.loginName}</TableCell>
-                    <TableCell>{row.loginId}</TableCell>
-                    <TableCell>{row.shippingLine}</TableCell>
-                    <TableCell>{row.shippingLineEmailId}</TableCell>
-                    <TableCell>{row.shippingLineTelephoneNo}</TableCell>
-                    <TableCell>{row.rejectionRemarks}</TableCell>
-                    <TableCell>{row.remarks}</TableCell>
-                    <TableCell sx={{ color: statusColor(row.status) }}>
-                      {row.status}
+                    <TableCell>{row["Requester Name"]}</TableCell>
+                    <TableCell>{row["Requester Id"]}</TableCell>
+                    <TableCell>{row["Field Name"]}</TableCell>
+                    <TableCell>{row["Old Value"]}</TableCell>
+                    <TableCell>{row["New Value"]}</TableCell>
+                    <TableCell>{row["Modify By"]}</TableCell>
+                    <TableCell>{row["Modify Date & timestamp"]}</TableCell>
+                    <TableCell>{row["Liner Name"]}</TableCell>
+                    <TableCell>{row["Contact No"]}</TableCell>
+                    <TableCell>{row["Rejection Remarks"]}</TableCell>
+                    <TableCell>{row["Remark"]}</TableCell>
+                    <TableCell
+                      sx={{
+                        color: statusColor(row["Status"]),
+                        fontWeight: 600,
+                      }}
+                    >
+                      {row["Status"]}
                     </TableCell>
                   </TableRow>
                 ))
