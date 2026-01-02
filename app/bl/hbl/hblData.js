@@ -77,11 +77,13 @@ export const fieldData = {
       idColumn: "id",
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
-      selectedConditions: [{ podVesselId: "vesselId" }],
+      selectedConditions: [
+        { podVesselId: "vesselId" },
+        { shippingLineId: "companyid" },
+      ],
       orderBy: "t.voyageNo",
       foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
-      // changeFun  : "checkVesselId"
     },
     {
       label: "Type of Cargo",
@@ -885,7 +887,6 @@ export const mapping = {
   notifyParty1City: "consigneeCity",
   notifyPartyAddress: "consigneeAddress",
   notifyParty1PinCode: "consigneePinCode",
-
 };
 
 export const advanceSearchFields = {
