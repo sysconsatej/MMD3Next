@@ -77,9 +77,9 @@ export const checkNoPackages = ({ formData, hblType }) => {
 
       const childTotal = Array.isArray(row?.tblBlPackingList)
         ? row.tblBlPackingList.reduce(
-            (sum, cur) => sum + Number(cur?.noOfPackages || 0),
-            0
-          )
+          (sum, cur) => sum + Number(cur?.noOfPackages || 0),
+          0
+        )
         : 0;
 
       if (parentPackages !== childTotal) {
@@ -94,9 +94,9 @@ export const checkNoPackages = ({ formData, hblType }) => {
 
   const totalPackages = Array.isArray(formData?.tblBlPackingList)
     ? formData.tblBlPackingList.reduce(
-        (sum, cur) => sum + Number(cur?.noOfPackages || 0),
-        0
-      )
+      (sum, cur) => sum + Number(cur?.noOfPackages || 0),
+      0
+    )
     : 0;
 
   return totalPackages === Number(formData?.noOfPackages)
@@ -352,13 +352,13 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
 
         updates.movementTypeId = isSamePort
           ? movementMap.LC && {
-              Id: movementMap.LC.Id,
-              Name: movementMap.LC.code,
-            }
+            Id: movementMap.LC.Id,
+            Name: movementMap.LC.code,
+          }
           : movementMap.TI && {
-              Id: movementMap.TI.Id,
-              Name: movementMap.TI.code,
-            };
+            Id: movementMap.TI.Id,
+            Name: movementMap.TI.code,
+          };
       }
 
       // set data based on  pod and fpd and movementTypeId
@@ -551,4 +551,48 @@ export function statusColor(status) {
     ApprovedforAmendment: "#007E6E",
   };
   return color[status];
+}
+
+export async function getDefaultVal(setFormData, setPackTypeState) {
+  try {
+    const { success, data } = await getDataWithCondition({
+      columns: `json_object('cinType': json_object('Id':cin.id, 'Name':concat(cin.code, ' - ', cin.name)),
+                   'natureOfCargoId': json_object('Id':ship.id, 'Name':concat(ship.code, ' - ', ship.name)),
+                   'blTypeId':json_object('Id':item.id, 'Name':concat(item.code, ' - ', item.name)),
+                   'packageId': json_object('Id':pkg.id, 'Name':concat(pkg.code, ' - ', pkg.name))
+                   ) as data
+          `,
+      tableName: "tblMasterData cin",
+      joins: `join tblMasterData ship on 1 = 1
+                join tblMasterData item on 1 = 1
+                join tblMasterData pkg on 1 = 1`,
+      whereCondition: `cin.masterListName='tblCINType' and cin.name='PCIN' and cin.status=1
+            and ship.masterListName='tblTypeOfShipment' and ship.name='Containerised Cargo' and ship.status=1
+            and item.masterListName='tblItemType' and item.name='Other Cargo' and item.status=1
+            and pkg.masterListName='tblPackage' and pkg.name='PACKAGES' and pkg.status=1`,
+    });
+
+    if (success) {
+      const { packageId, ...restData } = data?.[0]?.data;
+      setFormData((prev) => ({
+        ...prev,
+        companyId: { Id: userData.companyId, Name: userData.companyName },
+        companyBranchId: { Id: userData.branchId, Name: userData.branchName },
+        shippingLineId: { Id: userData.companyId, Name: userData.companyName },
+        mloId: { Id: userData.companyId, Name: userData.companyName },
+        ...restData
+      }));
+      setPackTypeState(packageId)
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        companyId: { Id: userData.companyId, Name: userData.companyName },
+        companyBranchId: { Id: userData.branchId, Name: userData.branchName },
+        shippingLineId: { Id: userData.companyId, Name: userData.companyName },
+        mloId: { Id: userData.companyId, Name: userData.companyName },
+      }));
+    }
+  } catch (e) {
+    console.error(e);
+  }
 }

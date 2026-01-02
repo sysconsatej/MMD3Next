@@ -893,7 +893,7 @@ export const fieldData = {
       name: "refTemp",
       type: "number",
       isEdit: true,
-      acceptBelowZero : true,
+      acceptBelowZero: true,
     },
     {
       label: "Reefer Temp Unit",
