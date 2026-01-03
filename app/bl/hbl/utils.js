@@ -593,38 +593,34 @@ export const createHandleChangeFunc = ({
     },
     setTelePhoneNoBasedOnLinerId: async (name, value) => {
       const obj = {
-        columns: "c.telephoneNo , c.panNo",
-        tableName: "tblCompany c",
-        whereCondition: `c.id = ${value?.Id}`,
+        columns: "telephoneNo, panNo",
+        tableName: "tblCompany",
+        whereCondition: `id = ${value?.Id}`,
       };
-      const result = await getDataWithCondition(obj);
+      const { data: dataLinerTelNoAndPan } = await getDataWithCondition(obj);
 
-      if (result.length > 0 && result?.data[0]?.telephoneNo === "") {
-        setFormData((prevData) =>
-          setInputValue({
-            prevData,
-            name: "shippingLineTelNo",
-            value: null,
-          })
-        );
-        return toast.error("For this Shipper PhoneNo do not exist pls add");
-      }
+      setFormData((prev) => {
+        const updateTblBl = prev?.tblBl?.map((item) => {
+          const updateContainer = item?.tblBlContainer?.map((subItem) => {
+            if (!subItem?.soc) {
+              return {
+                ...subItem,
+                containerAgentCode: dataLinerTelNoAndPan?.[0]?.panNo || null,
+              };
+            }
+            return subItem;
+          });
 
-      setFormData((prevData) =>
-        setInputValue({
-          prevData,
-          name: "shippingLineTelNo",
-          value: result?.data[0]?.telephoneNo || "",
-        })
-      );
+          return { ...item, tblBlContainer: updateContainer };
+        });
 
-      setFormData((prevData) =>
-        setInputValue({
-          prevData,
-          name: "podVoyageId",
-          value: null,
-        })
-      );
+        return {
+          ...prev,
+          podVoyageId: null,
+          shippingLineTelNo: dataLinerTelNoAndPan?.[0]?.telephoneNo || null,
+          tblBl: updateTblBl,
+        };
+      });
     },
     selectVoyageNoBasedOnVessel: async (name, value) => {
       const linerId =
@@ -675,6 +671,86 @@ export const createHandleChangeFunc = ({
         }
       }
     },
+    setAgentCode: async (name, value, { containerIndex, tabIndex }) => {
+      if (value) {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex: tabIndex,
+            containerIndex: containerIndex,
+            name: "containerAgentCode",
+            value: null,
+          })
+        );
+      } else {
+        const objAgentCode = {
+          columns: "panNo",
+          tableName: "tblCompany",
+          whereCondition: `id = ${formData?.shippingLineId?.Id} and status = 1`,
+        };
+        const { data: dataAgentCode } = await getDataWithCondition(
+          objAgentCode
+        );
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex: tabIndex,
+            containerIndex: containerIndex,
+            name: "containerAgentCode",
+            value: dataAgentCode?.[0]?.panNo,
+          })
+        );
+      }
+    },
+  };
+};
+
+export const createGridEventFunctions = ({ formData, setFormData }) => {
+  return {
+    addGrid: async ({ tabIndex, gridIndex }) => {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblSealType' and name = 'BTSL' and status = 1`,
+        orderBy: "id asc",
+      };
+      const { data: dataSealType } = await getDataWithCondition(obj);
+
+      const objAgentCode = {
+        columns: "panNo",
+        tableName: "tblCompany",
+        whereCondition: `id = ${formData?.shippingLineId?.Id} and status = 1`,
+      };
+      const { data: dataAgentCode } = await getDataWithCondition(objAgentCode);
+
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          tabName: "tblBl",
+          gridName: "tblBlContainer",
+          tabIndex: tabIndex,
+          containerIndex: gridIndex,
+          name: "sealTypeId",
+          value: dataSealType?.[0],
+        })
+      );
+
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          tabName: "tblBl",
+          gridName: "tblBlContainer",
+          tabIndex: tabIndex,
+          containerIndex: gridIndex,
+          name: "containerAgentCode",
+          value: dataAgentCode?.[0]?.panNo,
+        })
+      );
+    },
   };
 };
 
@@ -687,4 +763,38 @@ export const filterColumnsUpdate = (arr) => {
   }, []);
 
   return result;
+};
+
+export const setTabDefaultVal = async (tabIndex, setFormData) => {
+  const obj = {
+    columns: `json_object(
+     'cinType': json_object('Id':cin.id, 'Name':concat(cin.code, ' - ', cin.name)),
+     'natureOfCargoId': json_object('Id':ship.id, 'Name':concat(ship.code, ' - ', ship.name)),
+     'blTypeId': json_object('Id':itemType.id, 'Name':concat(itemType.code, ' - ', itemType.name))
+  ) as data`,
+    tableName: "tblMasterData cin",
+    joins: `
+     join tblMasterData ship on 1 = 1
+     join tblMasterData itemType  on 1 = 1
+    `,
+    whereCondition: `
+    cin.masterListName  =  'tblCINType' and cin.name = 'PCIN'  and  cin.status  = 1 and
+    ship.masterListName =  'tblTypeOfShipment' and ship.code  =  'C'  and   ship.status  = 1 and
+    itemType.masterListName  =  'tblItemType' and itemType.code = 'OT' and itemType.status  = 1`,
+  };
+  const { data } = await getDataWithCondition(obj);
+
+  setFormData((prev) => {
+    const updateTblBl = prev?.tblBl?.map((item, index) => {
+      if (index === tabIndex) {
+        return { ...item, ...data?.[0]?.data };
+      }
+      return item;
+    });
+
+    return {
+      ...prev,
+      tblBl: updateTblBl,
+    };
+  });
 };
