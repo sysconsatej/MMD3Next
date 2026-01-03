@@ -1,4 +1,5 @@
 import { getDataWithCondition } from "@/apis";
+import { getUserByCookies } from "./userInit";
 
 let changeReq = 0;
 
@@ -123,6 +124,8 @@ export const createHandleChangeEventFunction = ({ setFormData, fields = [] }) =>
 
     return {
         handleChangeOnVessel: async (name, value, opts = {}) => {
+            const userData = getUserByCookies();
+
             const voyageField = opts?.voyageField || inferVoyageField(name);
             const reqId = ++changeReq;
 
@@ -143,7 +146,7 @@ export const createHandleChangeEventFunction = ({ setFormData, fields = [] }) =>
                 const obj = {
                     columns: "t.id as Id, t.voyageNo as Name",
                     tableName: "tblVoyage t",
-                    whereCondition: `t.vesselId = ${Number(vesselId)} and t.status = 1`,
+                    whereCondition: `t.vesselId = ${Number(vesselId)} and t.status = 1 and t.comapanyid = ${userData?.companyId}`,
                     orderBy: "t.voyageNo",
                 };
 

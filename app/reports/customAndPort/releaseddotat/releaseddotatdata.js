@@ -1,3 +1,7 @@
+import { getUserByCookies } from "@/utils";
+
+const userData = getUserByCookies();
+
 const fieldData = {
     releasedDoTatFields: [
         {
@@ -22,6 +26,7 @@ const fieldData = {
             displayColumn: "t.voyageNo",
             searchColumn: "t.voyageNo",
             selectedConditions: [{ vesselId: "vesselId" }],
+            where: `t.status = 1 and t.companyid = ${userData?.companyId}`,
             orderBy: "t.voyageNo",
             isEdit: true,
         },
