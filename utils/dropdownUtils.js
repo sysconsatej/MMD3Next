@@ -146,7 +146,7 @@ export const createHandleChangeEventFunction = ({ setFormData, fields = [] }) =>
                 const obj = {
                     columns: "t.id as Id, t.voyageNo as Name",
                     tableName: "tblVoyage t",
-                    whereCondition: `t.vesselId = ${Number(vesselId)} and t.status = 1 and t.comapanyid = ${userData?.companyId}`,
+                    whereCondition: `t.vesselId = ${Number(vesselId)} and t.status = 1 and t.companyid = ${userData?.companyId}`,
                     orderBy: "t.voyageNo",
                 };
 
