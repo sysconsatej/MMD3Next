@@ -23,16 +23,15 @@ export const fetchHistoryBl = async ({ tableName, recordId }) => {
     };
   }
 };
-export const fetchInvoiceHistory = async ({ tableName, recordId }) => {
+export const fetchInvoiceHistory = async ({ recordId }) => {
   try {
     const res = await api.get("history/invoice", {
       params: {
-        tableName,
-        id: recordId,
+        recordId, // ✅ correct param
       },
     });
 
-    return res.data; // { success, message, data }
+    return res.data;
   } catch (error) {
     console.error("fetchInvoiceHistory error:", error);
 
@@ -46,6 +45,7 @@ export const fetchInvoiceHistory = async ({ tableName, recordId }) => {
     };
   }
 };
+
 export const fetchInvoiceReleaseHistory = async ({ recordId }) => {
   try {
     const res = await api.get("history/invoiceRelease", {

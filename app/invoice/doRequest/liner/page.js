@@ -23,9 +23,10 @@ import TableExportButtons from "@/components/tableExportButtons/tableExportButto
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import DoToolbarActions from "@/components/selectionActions/doToolbarActions";
-import DoStatusToolbar from "@/components/selectionActions/doStatus";
 import { doStatusHandler, statusColor } from "../utils";
 import { useRouter } from "next/navigation";
+import HistoryIcon from "@mui/icons-material/History";
+import { DoHistoryLinerModal } from "./historyModal";
 
 function createData(
   location,
@@ -74,6 +75,10 @@ export default function BLList() {
     seawayBL: false,
     attachments: false,
     autoDoRequest: false,
+  });
+  const [historyModal, setHistoryModal] = useState({
+    toggle: false,
+    value: null,
   });
 
   // --------------------------------------------
@@ -191,20 +196,10 @@ export default function BLList() {
           }
           onConfirm={(ids) => doStatusHandler(getData).handleConfirm(ids)}
           onReject={(ids) => doStatusHandler(getData).handleReject(ids)}
-          onNotify={handleNotify}
           onGenerateDO={handleGenerateDO}
-          onPCS={handlePCS}
-          onSecuritySlip={handleSecuritySlip}
-        />
-        <DoStatusToolbar
-          values={statusValues}
-          onAdvanceBL={(v) => updateStatus("advanceBL", v)}
-          onNotificationHistory={(v) => updateStatus("notificationHistory", v)}
-          onRemarksHold={(v) => updateStatus("remarksHold", v)}
-          onReRequest={(v) => updateStatus("reRequest", v)}
-          onSeawayBL={(v) => updateStatus("seawayBL", v)}
-          onAttachments={(v) => updateStatus("attachments", v)}
-          onAutoDoRequest={(v) => updateStatus("autoDoRequest", v)}
+          // onNotify={handleNotify}
+          // onPCS={handlePCS}
+          // onSecuritySlip={handleSecuritySlip}
         />
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small">
@@ -230,6 +225,7 @@ export default function BLList() {
                 <TableCell>Stuff Destuff</TableCell>
                 <TableCell>Doc Status</TableCell>
                 <TableCell>Assigned To</TableCell>
+                <TableCell>History</TableCell>
               </TableRow>
             </TableHead>
 
@@ -262,6 +258,17 @@ export default function BLList() {
                       {row.doStatus}
                     </TableCell>
                     <TableCell></TableCell>
+                    <TableCell>
+                      <HistoryIcon
+                        sx={{ cursor: "pointer", fontSize: 16 }}
+                        onClick={() =>
+                          setHistoryModal({
+                            toggle: true,
+                            value: row.mblNo,
+                          })
+                        }
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -292,6 +299,10 @@ export default function BLList() {
           />
         </Box>
       </Box>
+      <DoHistoryLinerModal
+        historyModal={historyModal}
+        setHistoryModal={setHistoryModal}
+      />
 
       <ToastContainer />
     </ThemeProvider>

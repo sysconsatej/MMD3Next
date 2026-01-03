@@ -345,7 +345,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
 
       if (podId === "IN" && fpdId === "IN") {
         const filtered = storeApiResult.filter(
-          (i) => i.inputName === "polId" || i.inputName === "podId"
+          (i) => i.inputName === "podId" || i.inputName === "fpdId"
         );
 
         const isSamePort = hasDuplicateId(filtered);
@@ -360,6 +360,23 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
               Name: movementMap.TI.code,
             };
       }
+
+      // set data based on  pod and fpd and movementTypeId
+
+      // if (formData?.shippingLineId  &&   formData?.podId && formData?.fpdId && formData?.movementTypeId) {
+
+      //         select panNo, scmtrBondNo
+      // from tblCarrierPort
+      // where id = 7 and podId = 8567 and fpdId = 44554 and status = 1
+
+      //   const payload  =  {
+      //     columns  :  ""
+
+      //   }
+
+      //   const getCarrierData  =  await getDataWithCondition()
+
+      // }
 
       // Final single state update
       setFormData((prev) => ({
@@ -389,7 +406,6 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         };
       });
     },
-
     handleChangeOnVessel: async (name, value) => {
       const vesselId = value?.Id || null;
 
@@ -411,7 +427,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         const obj = {
           columns: "t.id as Id, t.voyageNo as Name",
           tableName: "tblVoyage t",
-          whereCondition: `t.vesselId = ${vesselId} and t.status = 1`,
+          whereCondition: `t.vesselId = ${vesselId} and t.status = 1 and t.companyid = ${userData?.companyId}`,
           orderBy: "t.voyageNo",
         };
 
@@ -432,6 +448,41 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         }
       } catch (e) {
         console.error("handleChangeOnVessel error:", e);
+      }
+    },
+    setAgentCode: async (name, value, { containerIndex }) => {
+      if (value) {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: null,
+            gridName: "tblBlContainer",
+            tabIndex: null,
+            containerIndex: containerIndex,
+            name: "containerAgentCode",
+            value: null,
+          })
+        );
+      } else {
+        const objAgentCode = {
+          columns: "panNo",
+          tableName: "tblCompany",
+          whereCondition: `id = ${userData?.companyId} and status = 1`,
+        };
+        const { data: dataAgentCode } = await getDataWithCondition(
+          objAgentCode
+        );
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: null,
+            gridName: "tblBlContainer",
+            tabIndex: null,
+            containerIndex: containerIndex,
+            name: "containerAgentCode",
+            value: dataAgentCode?.[0]?.panNo,
+          })
+        );
       }
     },
   };
@@ -499,7 +550,6 @@ export const createdHandleBlurEventFunctions = ({ setFormData, formData }) => {
         return toast.error(result.error);
       }
     },
-
     validUnoImoCode: (event) => {
       const { value, name } = event.target;
       const v = String(value).trim();
@@ -524,6 +574,50 @@ export const createdHandleBlurEventFunctions = ({ setFormData, formData }) => {
   };
 };
 
+export const createGridEventFunctions = ({ setFormData }) => {
+  return {
+    addGrid: async ({ tabIndex, gridIndex }) => {
+      const objSealType = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblSealType' and name = 'BTSL' and status = 1`,
+      };
+      const { data: dataSealType } = await getDataWithCondition(objSealType);
+
+      const objAgentCode = {
+        columns: "panNo",
+        tableName: "tblCompany",
+        whereCondition: `id = ${userData?.companyId} and status = 1`,
+      };
+      const { data: dataAgentCode } = await getDataWithCondition(objAgentCode);
+
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          tabName: null,
+          gridName: "tblBlContainer",
+          tabIndex: null,
+          containerIndex: gridIndex,
+          name: "sealTypeId",
+          value: dataSealType?.[0],
+        })
+      );
+
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          tabName: null,
+          gridName: "tblBlContainer",
+          tabIndex: null,
+          containerIndex: gridIndex,
+          name: "containerAgentCode",
+          value: dataAgentCode?.[0]?.panNo,
+        })
+      );
+    },
+  };
+};
+
 export function statusColor(status) {
   const color = {
     Reject: "#DC0E0E",
@@ -534,4 +628,48 @@ export function statusColor(status) {
     ApprovedforAmendment: "#007E6E",
   };
   return color[status];
+}
+
+export async function getDefaultVal(setFormData, setPackTypeState) {
+  try {
+    const { success, data } = await getDataWithCondition({
+      columns: `json_object('cinType': json_object('Id':cin.id, 'Name':concat(cin.code, ' - ', cin.name)),
+                   'natureOfCargoId': json_object('Id':ship.id, 'Name':concat(ship.code, ' - ', ship.name)),
+                   'blTypeId':json_object('Id':item.id, 'Name':concat(item.code, ' - ', item.name)),
+                   'packageId': json_object('Id':pkg.id, 'Name':concat(pkg.code, ' - ', pkg.name))
+                   ) as data
+          `,
+      tableName: "tblMasterData cin",
+      joins: `join tblMasterData ship on 1 = 1
+                join tblMasterData item on 1 = 1
+                join tblMasterData pkg on 1 = 1`,
+      whereCondition: `cin.masterListName='tblCINType' and cin.name='PCIN' and cin.status=1
+            and ship.masterListName='tblTypeOfShipment' and ship.name='Containerised Cargo' and ship.status=1
+            and item.masterListName='tblItemType' and item.name='Other Cargo' and item.status=1
+            and pkg.masterListName='tblPackage' and pkg.name='PACKAGES' and pkg.status=1`,
+    });
+
+    if (success) {
+      const { packageId, ...restData } = data?.[0]?.data;
+      setFormData((prev) => ({
+        ...prev,
+        companyId: { Id: userData.companyId, Name: userData.companyName },
+        companyBranchId: { Id: userData.branchId, Name: userData.branchName },
+        shippingLineId: { Id: userData.companyId, Name: userData.companyName },
+        mloId: { Id: userData.companyId, Name: userData.companyName },
+        ...restData,
+      }));
+      setPackTypeState(packageId);
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        companyId: { Id: userData.companyId, Name: userData.companyName },
+        companyBranchId: { Id: userData.branchId, Name: userData.branchName },
+        shippingLineId: { Id: userData.companyId, Name: userData.companyName },
+        mloId: { Id: userData.companyId, Name: userData.companyName },
+      }));
+    }
+  } catch (e) {
+    console.error(e);
+  }
 }

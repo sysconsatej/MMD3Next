@@ -25,7 +25,7 @@ ChartJS.register(
   Legend
 );
 
-const AreaComponent = ({ type }) => {
+const AreaComponent = ({ type  , data}) => {
   return (
       <Line
         options={allChartData[`${type}`].options}

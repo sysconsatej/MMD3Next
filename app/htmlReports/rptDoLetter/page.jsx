@@ -335,25 +335,25 @@ function RptDoLetter() {
                                     <p className="text-black font-normal" style={{ fontSize: "9px" }}>{item.containerNo || ""}</p>
                                 </th>
                                 <th className="w-1/8 border border-black p-1">
-                                    <p className="text-black font-normal text-left" style={{ fontSize: "9px" }}>
-                                        {(item.size || "") + "/" + (item.type || "")}
+                                    <p className="text-black font-normal text-center" style={{ fontSize: "9px" }}>
+                                        {(item.sizeType || "")}
                                     </p>
                                 </th>
                                 <th className="w-1/8 border font-normal border-black p-1">
                                     <p className="text-black" style={{ fontSize: "9px" }}>{item.containerStatus || ""}</p>
                                 </th>
                                 <th className="w-1/8 border border-black p-1">
-                                    <p className="text-black font-normal text-left" style={{ fontSize: "9px" }}>
+                                    <p className="text-black font-normal text-center" style={{ fontSize: "9px" }}>
                                         {(item.grossWt || "") + " " + (item.weightUnitCode || "")}
                                     </p>
                                 </th>
                                 <th className="w-1/8 border border-black p-1">
-                                    <p className="text-black font-normal text-left" style={{ fontSize: "9px" }}>
+                                    <p className="text-black font-normal text-center" style={{ fontSize: "9px" }}>
                                         {item.noOfPackages || ""} {item.packageCode || ""}
                                     </p>
                                 </th>
                                 <th className="w-1/8 border border-black p-1">
-                                    <p className="text-black font-normal text-right" style={{ fontSize: "9px" }}>
+                                    <p className="text-black font-normal  text-center" style={{ fontSize: "9px" }}>
                                         {item.customSealNo || ""}
                                     </p>
                                 </th>
@@ -387,7 +387,7 @@ function RptDoLetter() {
                         </p>
                         <p className="text-black font-bold" style={{ fontSize: "10px" }}>Authorize Signatory</p>
                         <p className="text-black font-bold" style={{ fontSize: "10px" }}>
-                            C.C TO M/s M/S {data?.[0]?.consignee}
+                            C.C TO M/S {data?.[0]?.consigneeText}
                         </p>
                         <p className="text-black font-bold" style={{ fontSize: "10px" }}>C.C. Deport</p>
                     </div>
@@ -544,7 +544,7 @@ function RptDoLetter() {
                                 <p className="text-black font-bold" style={{ fontSize: "9px" }}>DESTUFFING TYPE :</p>
                             </td>
                             <td className="w-2/6 border-t border-b border-r border-black p-1">
-                                <p className="text-black" style={{ fontSize: "9px" }}>{data[0]?.destuffName || ""}</p>
+                                <p className="text-black" style={{ fontSize: "9px" }}>{data[0]?.destuff || ""}</p>
                             </td>
                         </tr>
                         <tr>
@@ -592,38 +592,38 @@ function RptDoLetter() {
                         {containersLocal.map((item, index) => (
                             <tr key={`do-row-${index}`}>
                                 <td className="w-1/8 border border-black p-1">
-                                    <p className="text-black font-normal" style={{ fontSize: "9px" }}>{item.containerNo || ""}</p>
+                                    <p className="text-black font-normal text-center" style={{ fontSize: "9px" }}>{item.containerNo || ""}</p>
                                 </td>
                                 <td className="w-1/8 border border-black p-1">
-                                    <p className="text-black font-normal text-left" style={{ fontSize: "9px" }}>
-                                        {(item.size || "") + "/" + (item.type || "")}
+                                    <p className="text-black font-normal text-center" style={{ fontSize: "9px" }}>
+                                        {(item.sizeType || "")}
                                     </p>
                                 </td>
                                 <td className="w-1/8 border font-normal border-black p-1">
-                                    <p className="text-black" style={{ fontSize: "9px" }}>{item.containerStatus || ""}</p>
+                                    <p className="text-black text-center" style={{ fontSize: "9px" }}>{item.containerStatus || ""}</p>
                                 </td>
                                 <td className="w-1/8 border border-black p-1">
-                                    <p className="text-black font-normal text-left" style={{ fontSize: "9px" }}>
+                                    <p className="text-black font-normal text-center" style={{ fontSize: "9px" }}>
                                         {(item.grossWt || "") + " " + (item.weightUnitCode || "")}
                                     </p>
                                 </td>
                                 <td className="w-1/8 border border-black p-1">
-                                    <p className="text-black font-normal text-left" style={{ fontSize: "9px" }}>
+                                    <p className="text-black font-normal text-center" style={{ fontSize: "9px" }}>
                                         {item.noOfPackages || ""} {item.packageCode || ""}
                                     </p>
                                 </td>
                                 <td className="w-1/8 border border-black p-1">
-                                    <p className="text-black font-normal text-right" style={{ fontSize: "9px" }}>
+                                    <p className="text-black font-normal text-center" style={{ fontSize: "9px" }}>
                                         {item.customSealNo || ""}
                                     </p>
                                 </td>
                                 <td className="w-1/8 border border-black p-1">
-                                    <p className="text-black font-normal" style={{ fontSize: "9px" }}>
+                                    <p className="text-black font-normal text-center" style={{ fontSize: "9px" }}>
                                         {item.volume || ""} {item.volumeUnitCode || ""}
                                     </p>
                                 </td>
                                 <td className="w-1/8 border border-black p-1">
-                                    <p className="text-black font-normal" style={{ fontSize: "9px" }}>
+                                    <p className="text-black font-normal text-center" style={{ fontSize: "9px" }}>
                                         {formatDateToYMD(data?.[0]?.doValidDate)}
                                     </p>
                                 </td>
@@ -634,10 +634,10 @@ function RptDoLetter() {
                             <td colSpan={3} className="border border-black p-1 font-bold text-right" style={{ fontSize: "9px" }}>
                                 TOTAL
                             </td>
-                            <td className="border border-black p-1 font-bold" style={{ fontSize: "9px" }}>
+                            <td className="border border-black p-1 font-bold text-center" style={{ fontSize: "9px" }}>
                                 {totals.totalGrossWt.toFixed(2)} {totals.weightUnit}
                             </td>
-                            <td className="border border-black p-1 font-bold" style={{ fontSize: "9px" }}>
+                            <td className="border border-black p-1 font-bold text-center" style={{ fontSize: "9px" }}>
                                 {totals.totalPackages} {totals.packageUnit}
                             </td>
                             <td colSpan={3} className="border border-black p-1"></td>
@@ -760,7 +760,7 @@ function RptDoLetter() {
                 <div>
                     <p className="text-black" style={{ fontSize: "10px" }}>
                         Please Accept the below mentioned Empty container(s).On account of
-                        <span className="text-black uppercase">{data[0]?.mlo || ""}</span>
+                        <span className="text-black uppercase">{" " + data[0]?.mlo || ""}</span>
                     </p>
                 </div>
             </div>
@@ -895,7 +895,7 @@ function RptDoLetter() {
                         </td>
                         <td className="w-2/6 border-t border-b border-r border-black p-1">
                             <p className="text-black" style={{ fontSize: "9px" }}>
-                                {data[0]?.destuffName || ""}
+                                {data[0]?.destuff || ""}
                             </p>
                         </td>
                     </tr>
@@ -1001,10 +1001,10 @@ function RptDoLetter() {
                                 </th>
                                 <th className="w-1/8 border border-black p-1">
                                     <p
-                                        className="text-black font-normal text-left"
+                                        className="text-black font-normal text-center"
                                         style={{ fontSize: "9px" }}
                                     >
-                                        {(item.size || "") + "/" + (item.type || "")}
+                                        {(item.sizeType || "")}
                                     </p>
                                 </th>
                                 <th className="w-1/8 border font-normal border-black p-1">
@@ -1068,16 +1068,16 @@ function RptDoLetter() {
                         Thanking You, <br />
                         For {data[0]?.company} <br />
                     </p>
-                    <p style={{ width: "80%", height: "100%" }}>
+                    {/* <p style={{ width: "80%", height: "100%" }}>
                         <ImgSign />
-                    </p>
+                    </p> */}
                     {/* <p className="text-black mt-14" style={{ fontSize: "10px" }}>
             Issued By: admin
           </p> */}
-                    <p className="text-black" style={{ fontSize: "10px" }}>
+                    {/* <p className="text-black" style={{ fontSize: "10px" }}>
                         Please note this is a computer-generated document, hence no
                         signature and stamp required.
-                    </p>
+                    </p> */}
                 </div>
             </footer>
         </div>
@@ -1305,7 +1305,8 @@ function RptDoLetter() {
                 </p>
 
                 <p className="text-black mt-1 font-bold" style={{ fontSize: "10px" }}>
-                    CHA : {data?.[0]?.switchAgent || ""}
+                    CHA :{" " + data[0]?.customBrokerName || ""}
+
                 </p>
 
                 {/* Container table */}
@@ -1360,8 +1361,8 @@ function RptDoLetter() {
                                 </th>
 
                                 <th className="w-1/8 border border-black p-1">
-                                    <p className="text-black font-normal text-left" style={{ fontSize: "9px" }}>
-                                        {(item.size || "") + "/" + (item.type || "")}
+                                    <p className="text-black font-normal text-center" style={{ fontSize: "9px" }}>
+                                        {(item.sizeType || "")}
                                     </p>
                                 </th>
 
@@ -1372,19 +1373,19 @@ function RptDoLetter() {
                                 </th>
 
                                 <th className="w-1/8 border border-black p-1">
-                                    <p className="text-black font-normal text-left" style={{ fontSize: "9px" }}>
+                                    <p className="text-black font-normal text-center" style={{ fontSize: "9px" }}>
                                         {(item.grossWt || "") + " " + (item.weightUnitCode || "")}
                                     </p>
                                 </th>
 
                                 <th className="w-1/8 border border-black p-1">
-                                    <p className="text-black font-normal text-left" style={{ fontSize: "9px" }}>
+                                    <p className="text-black font-normal text-center" style={{ fontSize: "9px" }}>
                                         {item.noOfPackages || ""} {item.packageCode || ""}
                                     </p>
                                 </th>
 
                                 <th className="w-1/8 border border-black p-1">
-                                    <p className="text-black font-normal text-right" style={{ fontSize: "9px" }}>
+                                    <p className="text-black font-normal text-center" style={{ fontSize: "9px" }}>
                                         {item.customSealNo || ""}
                                     </p>
                                 </th>
@@ -1584,12 +1585,12 @@ function RptDoLetter() {
                     <tbody>
                         {containersLocal.map((item, index) => (
                             <tr key={`ceo-row-${index}`}>
-                                <td className="w-1/8 border border-black p-1"><p className="text-black" style={{ fontSize: "9px" }}>{item.containerNo || ""}</p></td>
-                                <td className="w-1/8 border border-black p-1"><p className="text-black" style={{ fontSize: "9px" }}>{(item.size || "") + "/" + (item.type || "")}</p></td>
-                                <td className="w-1/8 border border-black p-1"><p className="text-black" style={{ fontSize: "9px" }}>{item.containerStatus || ""}</p></td>
-                                <td className="w-1/8 border border-black p-1"><p className="text-black" style={{ fontSize: "9px" }}>{(item.grossWt || "") + " " + (item.weightUnitCode || "")}</p></td>
-                                <td className="w-1/8 border border-black p-1"><p className="text-black" style={{ fontSize: "9px" }}>{item.noOfPackages || ""} {item.packageCode || ""}</p></td>
-                                <td className="w-1/8 border border-black p-1"><p className="text-black text-right" style={{ fontSize: "9px" }}>{item.customSealNo || ""}</p></td>
+                                <td className="w-1/8 border border-black p-1"><p className="text-black text-center" style={{ fontSize: "9px" }}>{item.containerNo || ""}</p></td>
+                                <td className="w-1/8 border border-black p-1"><p className="text-black text-center" style={{ fontSize: "9px" }}> {(item.sizeType || "")}</p></td>
+                                <td className="w-1/8 border border-black p-1"><p className="text-black text-center" style={{ fontSize: "9px" }}>{item.containerStatus || ""}</p></td>
+                                <td className="w-1/8 border border-black p-1"><p className="text-black text-center" style={{ fontSize: "9px" }}>{(item.grossWt || "") + " " + (item.weightUnitCode || "")}</p></td>
+                                <td className="w-1/8 border border-black p-1"><p className="text-black text-center" style={{ fontSize: "9px" }}>{item.noOfPackages || ""} {item.packageCode || ""}</p></td>
+                                <td className="w-1/8 border border-black p-1"><p className="text-black text-center" style={{ fontSize: "9px" }}>{item.customSealNo || ""}</p></td>
                             </tr>
                         ))}
                     </tbody>

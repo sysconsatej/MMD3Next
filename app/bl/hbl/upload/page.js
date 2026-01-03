@@ -34,6 +34,33 @@ const TEMPLATE_FILES = [
   },
 ];
 
+const getFieldValue = (val) => {
+  // dropdown objects: {Id, Name} / {id, name} / {value, label}
+  if (val && typeof val === "object")
+    return val.Id ?? val.id ?? val.value ?? val.Name ?? val.name ?? null;
+  return val ?? null;
+};
+
+const validateRequiredFields = (fields = [], data = {}) => {
+  const missing = [];
+
+  for (const f of fields) {
+    if (!f?.required) continue;
+
+    const v = getFieldValue(data?.[f.name]);
+
+    const empty =
+      v == null ||
+      (typeof v === "string" && v.trim() === "") ||
+      (Array.isArray(v) && v.length === 0);
+
+    if (empty) missing.push(f.label || f.name);
+  }
+
+  return missing;
+};
+
+
 const findTemplateFile = (selectedName = "") => {
   const csel = canon(selectedName);
   for (const f of TEMPLATE_FILES) {
@@ -160,6 +187,11 @@ export default function hblUpload() {
   const handleUpload = async (e) => {
     e.preventDefault();
 
+    const missing = validateRequiredFields(fieldData?.hblFields, formData);
+    if (missing.length) {
+      toast.warn(`Please fill required: ${missing.join(", ")}`);
+      return;
+    }
     const file = getFirstFile(formData.upload);
     if (!file)
       return toast.warn("Please choose a file in the 'Upload File' field");
@@ -281,13 +313,10 @@ export default function hblUpload() {
 
       const vesselId = value?.Id || null;
 
-      // ✅ Always clear voyage immediately when vessel changes
       setFormData((prevData) => ({
         ...prevData,
-        // if your CustomInput already sets vessel field itself, you can remove this line
-        // but keeping it is safe
         [name]: vesselId ? value : null,
-        podVoyageId: null, // <-- change this field name if your voyage field is different
+        podVoyageId: null,
       }));
 
       if (!vesselId) return;
@@ -301,15 +330,11 @@ export default function hblUpload() {
         };
 
         const { data, success } = await getDataWithCondition(obj);
-
-        // ✅ ignore old response if vessel changed again quickly
         if (reqId !== vesselChangeReq) return;
-
-        // ✅ if only 1 voyage, auto select it
         if (success && Array.isArray(data) && data.length === 1) {
           setFormData((prevData) => ({
             ...prevData,
-            podVoyageId: data[0], // <-- change this field name if needed
+            podVoyageId: data[0],
           }));
         }
       } catch (e) {

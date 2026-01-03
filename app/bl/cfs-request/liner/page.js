@@ -26,8 +26,10 @@ import { formStore } from "@/store";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { getUserByCookies } from "@/utils";
 import SearchRequestToolbarActions from "@/components/selectionActions/cfsRequestActionBar";
-import { cfsStatusHandler, statusColor } from "../utils";
+import { BlRejectModal, cfsStatusHandler, statusColor } from "../utils";
 import { useRouter } from "next/navigation";
+import HistoryIcon from "@mui/icons-material/History";
+import { CfsHistoryLinerModal } from "./historyModal";
 
 /* ---------------- Constants ---------------- */
 const LIST_TABLE = "tblBl b";
@@ -45,6 +47,11 @@ export default function SearchRequestCfsDpdIcd() {
   const [blData, setBlData] = useState([]);
   const [loadingState, setLoadingState] = useState("NO DATA...");
   const [selectedIds, setSelectedIds] = useState([]);
+  const [modal, setModal] = useState({ toggle: false, value: null, ids: [] });
+  const [historyModal, setHistoryModal] = useState({
+    toggle: false,
+    value: null,
+  });
 
   // toolbar checkbox states
   const [amendment, setAmendment] = useState(false);
@@ -79,6 +86,7 @@ export default function SearchRequestCfsDpdIcd() {
             c1.name as UserName,
             c1.emailId as LoginId,
             c1.telephoneNo as ContactNo,
+            b.cfsRejectRemarks as remark,
             b.id as id
           `,
           tableName: LIST_TABLE,
@@ -156,13 +164,23 @@ export default function SearchRequestCfsDpdIcd() {
             cfsStatusHandler(getData, router, setMode).handleView(id)
           }
           onReject={(ids) =>
-            cfsStatusHandler(getData, router, setMode).handleReject(ids)
+            setModal((prev) => ({
+              ...prev,
+              toggle: true,
+              ids: ids,
+              isAmend: false,
+            }))
           }
           onConfirm={(ids) =>
             cfsStatusHandler(getData, router, setMode).handleConfirm(ids)
           }
           onRejectAmendment={(ids) =>
-            cfsStatusHandler(getData, router, setMode).handleRejectAmend(ids)
+            setModal((prev) => ({
+              ...prev,
+              toggle: true,
+              ids: ids,
+              isAmend: true,
+            }))
           }
           onConfirmAmendment={(ids) =>
             cfsStatusHandler(getData, router, setMode).handleConfirmAmend(ids)
@@ -199,6 +217,8 @@ export default function SearchRequestCfsDpdIcd() {
                 <TableCell>User Name</TableCell>
                 <TableCell>Contact No</TableCell>
                 <TableCell>Location</TableCell>
+                <TableCell>Remark</TableCell>
+                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell>
               </TableRow>
             </TableHead>
 
@@ -236,6 +256,19 @@ export default function SearchRequestCfsDpdIcd() {
                     <TableCell>{row.UserName || "-"}</TableCell>
                     <TableCell>{row.ContactNo || "-"}</TableCell>
                     <TableCell>{row.locationName || "-"}</TableCell>
+                    <TableCell>{row.remark || "-"}</TableCell>
+                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                      <HistoryIcon
+                        sx={{ cursor: "pointer", fontSize: "16px" }}
+                        onClick={() =>
+                          setHistoryModal((prev) => ({
+                            ...prev,
+                            toggle: true,
+                            value: row.mblNo,
+                          }))
+                        }
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -269,6 +302,11 @@ export default function SearchRequestCfsDpdIcd() {
       </Box>
 
       <ToastContainer />
+      <BlRejectModal modal={modal} setModal={setModal} getData={getData} />
+      <CfsHistoryLinerModal
+        historyModal={historyModal}
+        setHistoryModal={setHistoryModal}
+      />
     </ThemeProvider>
   );
 }

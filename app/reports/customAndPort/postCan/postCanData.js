@@ -1,3 +1,7 @@
+import { getUserByCookies } from "@/utils";
+
+const userData = getUserByCookies();
+
 const fieldData = {
     cargoFields: [
         {
@@ -21,6 +25,7 @@ const fieldData = {
             idColumn: "id",
             displayColumn: "t.voyageNo",
             selectedConditions: [{ vessel: "vesselId" }],
+            where: `t.status = 1 and t.companyid = ${userData?.companyId}`,
             searchColumn: "t.voyageNo",
             orderBy: "t.voyageNo",
             isEdit: true,

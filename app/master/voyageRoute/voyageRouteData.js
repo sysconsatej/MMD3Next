@@ -1,3 +1,7 @@
+import { getUserByCookies } from "@/utils";
+
+const userData = getUserByCookies();
+
 const fieldData = {
   voyageFields: [
     {
@@ -39,6 +43,7 @@ const fieldData = {
       displayColumn: "t.voyageNo",
       orderBy: "t.voyageNo",
       selectedConditions: [{ vesselId: "vesselId" }],
+      where: `t.companyid = ${userData?.companyId} and t.status = 1`,
       foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
       required: true,
@@ -48,11 +53,11 @@ const fieldData = {
       name: "berthId",
       type: "dropdown",
       tableName: "tblPort p",
-      foreignTable: "name,tblPort",
+      foreignTable: "code,tblPort",
       joins: "JOIN tblMasterData m ON m.id = p.portTypeId",
       where: "m.name IN ('PORT TERMINAL')",
-      displayColumn: "p.name",
-      orderBy: "p.name",
+      displayColumn: "p.code",
+      orderBy: "p.code",
       selectedConditions: [{ portOfCallId: "referencePortId" }],
       isEdit: true,
       required: true,

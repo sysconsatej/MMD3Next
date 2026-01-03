@@ -49,7 +49,7 @@ const fieldData = {
       orderBy: "p.name",
       foreignTable: "name,tblPort",
       isEdit: true,
-      changeFun: "onReferencePortChange"
+      changeFun: "onReferencePortChange",
     },
     {
       label: "Mode Of Transport",
@@ -61,7 +61,6 @@ const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
-
     {
       label: "Transit Bond No",
       name: "bondNo",
@@ -72,6 +71,18 @@ const fieldData = {
       name: "panNo",
       isEdit: true,
       blurFun: "validatePanCard",
+    },
+    {
+      label: "CFS Type",
+      name: "cfsTypeId",
+      type: "dropdown",
+      isEdit: true,
+      required: true,
+      displayColumn: "m.name",
+      tableName: "tblMasterData m",
+      where: "masterListName  = 'tblCfsType'",
+      orderBy: "m.name",
+      foreignTable: "name,tblMasterData",
     },
   ],
   tblPortDetails: [

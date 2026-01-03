@@ -1,16 +1,23 @@
 import { fetchForm, getDataWithCondition, updateStatusRows } from "@/apis";
-import { formatDataWithForm, formatFetchForm, getUserByCookies } from "@/utils";
+import {
+  formatDataWithForm,
+  formatFetchForm,
+  getUserByCookies,
+  setInputValue,
+} from "@/utils";
 import { toast } from "react-toastify";
 import { fieldData } from "./fieldsData";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+} from "@mui/material";
 
 const userData = getUserByCookies();
 
-export const handleBlur = ({
-  setFormData,
-  formData,
-  setDefaultvalues,
-  defaultValues,
-}) => {
+export const handleBlur = ({ setFormData, formData, setMode }) => {
   return {
     getDataBasedonLinerAndBLNo: async (event) => {
       const { value } = event.target;
@@ -42,12 +49,6 @@ export const handleBlur = ({
       const data = res?.data && res?.data[0];
       const mlBlId = data && data?.id;
       if (mlBlId) {
-        setDefaultvalues((prev) => {
-          return {
-            ...prev,
-            mlblId: mlBlId,
-          };
-        });
         const format = formatFetchForm(
           fieldData,
           "tblBl",
@@ -58,12 +59,11 @@ export const handleBlur = ({
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
           const getData = formatDataWithForm(result, fieldData);
-          console.log(getData, " [][[]");
+          setMode({ mode: "edit", formId: mlBlId });
           setFormData((prev) => {
             return {
               ...prev,
               ...getData,
-              cfsRequestStatusId: defaultValues?.cfsRequestStatusId || {},
             };
           });
         } else {
@@ -74,10 +74,69 @@ export const handleBlur = ({
   };
 };
 
-export const handleChange = ({ setFormData, formData }) => {
+export const handleChange = ({ setFormData, formData, setJsonData }) => {
   return {
-    setAttachmentType: async (name, value) => {
-      console.log("Sample");
+    setCfsType: async (name, value) => {
+      try {
+        let setWhere = "";
+        if (value.Name === "Liner Empanelled CFS") {
+          setWhere = `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${formData?.shippingLineId?.Id} and p.cfsTypeId = ${value?.Id}`;
+        } else {
+          setWhere = `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${formData?.shippingLineId?.Id}`;
+        }
+        setJsonData((prev) => {
+          const updateFields = prev.fields.map((item) => {
+            if (item?.name === "nominatedAreaId") {
+              return {
+                ...item,
+                joins: setWhere,
+              };
+            }
+            return item;
+          });
+
+          return {
+            ...prev,
+            fields: updateFields,
+          };
+        });
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: null,
+            gridName: null,
+            tabIndex: null,
+            containerIndex: null,
+            name: "nominatedAreaId",
+            value: null,
+          })
+        );
+      } catch (error) {
+        console.log('error', error);
+      }
+    },
+    setCfsAndDpd: async (name, value) => {
+      setJsonData((prev) => {
+        const updateFields = prev.fields.map((item) => {
+          if (item?.name === "dpdId") {
+            return {
+              ...item,
+              joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'DPD' and p.companyId = ${value?.Id}`,
+            };
+          } else if (item?.name === "nominatedAreaId") {
+            return {
+              ...item,
+              joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${value?.Id}`,
+            };
+          }
+          return item;
+        });
+
+        return {
+          ...prev,
+          fields: updateFields,
+        };
+      });
     },
   };
 };
@@ -99,7 +158,8 @@ vy.voyageNo as podVoyageId,
 f.name as fpdId,
 c1.name as shippingLineId,
 b.createdBy,
-c1.name as companyName
+c1.name as companyName,
+b.cfsRejectRemarks as remark
 `,
     tableName: "tblBl  b",
     pageNo,
@@ -204,7 +264,7 @@ export const cfsStatusHandler = (getData, router, setMode) => {
         console.log(err);
       }
     },
-    handleReject: async (ids) => {
+    handleReject: async (ids, value) => {
       try {
         const payload = {
           columns: "m.id , m.name",
@@ -220,6 +280,7 @@ export const cfsStatusHandler = (getData, router, setMode) => {
               return {
                 id: info,
                 cfsRequestStatusId: getStatusId?.data[0]?.id,
+                cfsRejectRemarks: value,
                 updatedBy: userData.userId,
                 updatedDate: new Date(),
               };
@@ -312,7 +373,7 @@ export const cfsStatusHandler = (getData, router, setMode) => {
         console.log(err);
       }
     },
-    handleRejectAmend: async (ids) => {
+    handleRejectAmend: async (ids, value) => {
       try {
         const payload = {
           columns: "m.id , m.name",
@@ -328,6 +389,7 @@ export const cfsStatusHandler = (getData, router, setMode) => {
               return {
                 id: info,
                 cfsRequestStatusId: getStatusId?.data[0]?.id,
+                cfsRejectRemarks: value,
                 updatedBy: userData.userId,
                 updatedDate: new Date(),
               };
@@ -362,4 +424,57 @@ export function statusColor(status) {
     ConfirmforAmendment: "#007E6E",
   };
   return color[status];
+}
+
+export function BlRejectModal({ modal, setModal, getData }) {
+  function handlerReject() {
+    if (modal.value) {
+      if (modal.isAmend) {
+        cfsStatusHandler(getData).handleRejectAmend(modal.ids, modal.value);
+      } else {
+        cfsStatusHandler(getData).handleReject(modal.ids, modal.value);
+      }
+      setModal((prev) => ({ ...prev, toggle: false }));
+    } else {
+      toast.warn("Please enter remark!");
+    }
+  }
+
+  return (
+    <Dialog
+      open={modal.toggle}
+      onClose={() => setModal((prev) => ({ ...prev, toggle: false }))}
+      maxWidth="xs"
+      fullWidth
+    >
+      <DialogTitle>Reject — Add Remarks</DialogTitle>
+      <DialogContent dividers>
+        <TextField
+          fullWidth
+          margin="dense"
+          multiline
+          minRows={3}
+          label="Remarks"
+          value={modal.value}
+          onChange={(e) =>
+            setModal((prev) => ({ ...prev, value: e.target.value }))
+          }
+        />
+      </DialogContent>
+      <DialogActions>
+        <div
+          className="py-1 px-3 border border-[#B5C4F0] rounded-sm text-xs cursor-pointer hover:bg-[#B5C4F0] hover:text-white"
+          onClick={() => setModal((prev) => ({ ...prev, toggle: false }))}
+        >
+          Cancel
+        </div>
+        <div
+          className="py-1 px-3 border border-[#B5C4F0] rounded-sm text-xs cursor-pointer hover:bg-[#B5C4F0] hover:text-white"
+          onClick={handlerReject}
+        >
+          Save
+        </div>
+      </DialogActions>
+    </Dialog>
+  );
 }

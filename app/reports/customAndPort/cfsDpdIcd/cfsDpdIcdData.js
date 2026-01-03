@@ -1,3 +1,7 @@
+import { getUserByCookies } from "@/utils";
+
+const userData = getUserByCookies();
+
 const fieldData = {
   cfsDpdIcdFields: [
     {
@@ -20,6 +24,7 @@ const fieldData = {
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
       selectedConditions: [{ vesselId: "vesselId" }],
+      where: `t.status = 1 and t.companyid = ${userData?.companyId}`,
       orderBy: "t.voyageNo",
       isEdit: true,
     },
@@ -44,7 +49,7 @@ const fieldData = {
       label: "MBL No",
       name: "mblNo",
       type: "text",
-      isEdit: true,  
+      isEdit: true,
     },
     {
       label: "From Date",
@@ -58,7 +63,6 @@ const fieldData = {
       type: "date",
       isEdit: true,
     },
-    
   ],
 };
 export default fieldData;

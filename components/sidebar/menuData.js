@@ -254,7 +254,7 @@ export const navItems = [
         isShow: false,
       },
       {
-        name: "PreCAN",
+        name: "Pre CAN",
         href: "/reports/customAndPort/preCan",
         isShow: true,
       },
@@ -399,6 +399,16 @@ export const navItems = [
         name: "Manifest BL Register",
         href: "/reports/customAndPort/manifestBlRegister",
         isShow: true,
+      }, {
+        name: "Job Report",
+        href: "/reports/customAndPort/jobReport",
+        isShow: true,
+        isShow: false,
+      },
+      {
+        name: "Bulk Update Line No",
+        href: "/reports/customAndPort/bulkUpdateLineNo",
+        isShow: false,
       },
     ],
   },

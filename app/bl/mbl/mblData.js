@@ -1,7 +1,10 @@
+import { getUserByCookies } from "@/utils";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+
+const userData = getUserByCookies();
 
 export const fieldData = {
   mblFields: [
@@ -22,30 +25,6 @@ export const fieldData = {
       isEdit: true,
       disabled: true,
     },
-    // {
-    //   label: "Company",
-    //   name: "companyId",
-    //   type: "dropdown",
-    //   tableName: "tblCompany t",
-    //   displayColumn: "t.name",
-    //   orderBy: "t.name",
-    //   foreignTable: "name,tblCompany",
-    //   required: true,
-    //   isEdit: true,
-    //   disabled: true,
-    // },
-    // {
-    //   label: "Company Branch",
-    //   name: "companyBranchId",
-    //   type: "dropdown",
-    //   tableName: "tblCompanyBranch t",
-    //   displayColumn: "t.name",
-    //   orderBy: "t.name",
-    //   foreignTable: "name,tblCompanyBranch",
-    //   isEdit: true,
-    //   required: true,
-    //   disabled: true,
-    // },
     {
       label: "MBL No",
       name: "mblNo",
@@ -69,17 +48,6 @@ export const fieldData = {
       ],
       isEdit: true,
     },
-    // {
-    //   label: "BL Type",
-    //   name: "blTypeId",
-    //   type: "dropdown",
-    //   tableName: "tblMasterData m",
-    //   displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
-    //   where: "m.masterListName = 'tblBlIssueType'",
-    //   orderBy: "m.name",
-    //   foreignTable: "code-name,tblMasterData",
-    //   isEdit: true,
-    // },
     {
       label: "Vessel",
       name: "podVesselId",
@@ -102,23 +70,11 @@ export const fieldData = {
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
       selectedConditions: [{ podVesselId: "vesselId" }],
+      where: `t.companyid = ${userData?.companyId} and t.status = 1`,
       orderBy: "t.voyageNo",
       foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
     },
-
-    // {
-    //   label: "Container Status",
-    //   name: "containerStatusId",
-    //   type: "dropdown",
-    //   tableName: "tblMasterData m",
-    //   displayColumn: "ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'')",
-    //   where: "m.masterListName = 'tblContainerStatus'",
-    //   orderBy: "m.name",
-    //   foreignTable: "code-name,tblMasterData",
-    //   isEdit: true,
-    //   required: true,
-    // },
   ],
   csnFields: [
     // {
@@ -272,6 +228,9 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      joins:
+        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+      where: "m.name IN ('SEA PORT') and c.name = 'India'",
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
       isEdit: true,
@@ -283,6 +242,9 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      joins:
+        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+      where: "m.name IN ('INLAND PORT', 'SEA PORT') and c.name = 'India'",
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
       isEdit: true,
@@ -290,16 +252,14 @@ export const fieldData = {
       changeFun: "handleChangeOnPOL",
     },
     {
-      label: "Nominated Area (CFS)",
+      label: "CFS",
       name: "nominatedAreaId",
       type: "dropdown",
       tableName: "tblPort p",
-      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
-      joins: "LEFT JOIN tblMasterData m ON m.id = p.portTypeId",
-      searchColumn: "p.name",
-      orderBy: "p.name",
-      foreignTable: "code-name,tblPort",
+      displayColumn: "p.name",
+      joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${userData?.companyId}`,
       isEdit: true,
+      foreignTable: "name,tblPort",
     },
     {
       label: "Direct Port Delivery",
@@ -308,7 +268,7 @@ export const fieldData = {
       tableName: "tblPort t",
       displayColumn: "ISNULL(t.code,'') + ' - ' + ISNULL(t.name,'')",
       joins: "JOIN tblMasterData m ON m.id = t.portTypeId",
-      where: "m.masterListName = 'tblPortType' AND m.code = 'DPD'",
+      where: `m.masterListName = 'tblPortType' AND m.code = 'DPD' and t.companyId = ${userData?.companyId}`,
       orderBy: "t.name",
       foreignTable: "code-name,tblPort",
       isEdit: true,
@@ -335,18 +295,6 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
-
-    {
-      label: "Post Carriage",
-      name: "postCarriageId",
-      type: "dropdown",
-      tableName: "tblMasterData m",
-      displayColumn: "m.name",
-      where: "m.masterListName = 'tblMode'",
-      orderBy: "m.name",
-      foreignTable: "name,tblMasterData",
-      isEdit: true,
-    },
     {
       label: "Movement Carrier",
       name: "movementCarrierId",
@@ -367,6 +315,17 @@ export const fieldData = {
       label: "Carrier Code",
       name: "carrierPanNo",
       disabled: true,
+    },
+    {
+      label: "Post Carriage",
+      name: "postCarriageId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where: "m.masterListName = 'tblMode'",
+      orderBy: "m.name",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
     },
   ],
   hblBottomFields: [
@@ -796,39 +755,23 @@ export const fieldData = {
       foreignTable: "code-name,tblMasterData",
       isEdit: true,
     },
-    // { label: "Seal No.", name: "agentSealNo", isEdit: true },
     {
       label: "SOC Flag",
       name: "soc",
       isEdit: true,
       type: "checkbox",
-      // required: true,
+      changeFun: "setAgentCode",
     },
-    // {
-    //   label: "Custom Seal",
-    //   // name: "containerAgentCode",
-    //   isEdit: true,
-    //   // required: true,
-    // },
-    // {
-    //   label: "Agent Seal",
-    //   // name: "containerAgentCode",
-    //   isEdit: true,
-    //   // required: true,
-    // },
     {
       label: "Custom Seal",
       name: "customSealNo",
       isEdit: true,
-      // required: true,
     },
     {
       label: "Agent Seal",
       name: "agentSealNo",
       isEdit: true,
-      // required: true,
     },
-
     {
       label: "Container Agent Code",
       name: "containerAgentCode",
@@ -843,14 +786,6 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
-
-    // {
-    //   label: "Cargo net Wt(Kgs)",
-    //   name: "netwt",
-    //   type: "number",
-    //   isEdit: true,
-    //   required: true,
-    // },
     { label: "NetWt(Kgs)", name: "netWt", type: "number", isEdit: true },
     { label: "Volume(CBM)", name: "volume", isEdit: true },
     {
@@ -872,7 +807,6 @@ export const fieldData = {
       required: true,
       isEdit: true,
     },
-
     {
       label: "UNO Code",
       name: "unNo",
@@ -892,6 +826,7 @@ export const fieldData = {
       name: "refTemp",
       type: "number",
       isEdit: true,
+      acceptBelowZero: true,
     },
     {
       label: "Reefer Temp Unit",
@@ -1057,10 +992,5 @@ export const gridButtons = [
     text: "Copy Row",
     icon: <FileCopyIcon />,
     func: "gridCopyHandler",
-  },
-  {
-    text: "Import Excel",
-    icon: <UploadFileIcon />,
-    func: "excelUpload",
   },
 ];

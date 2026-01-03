@@ -18,30 +18,6 @@ export const fieldData = {
       required: true,
       changeFun: "setTelePhoneNoBasedOnLinerId",
     },
-    // {
-    //   label: "Company",
-    //   name: "companyId",
-    //   type: "dropdown",
-    //   tableName: "tblCompany t",
-    //   displayColumn: "t.name",
-    //   searchColumn: "t.name",
-    //   orderBy: "t.name",
-    //   foreignTable: "name,tblCompany",
-    //   required: true,
-    //   disabled: true,
-    // },
-    // {
-    //   label: "Company Branch",
-    //   name: "companyBranchId",
-    //   type: "dropdown",
-    //   tableName: "tblCompanyBranch t",
-    //   displayColumn: "t.name",
-    //   orderBy: "t.name",
-    //   foreignTable: "name,tblCompanyBranch",
-    //   selectedConditions: [{ companyId: "companyId" }],
-    //   required: true,
-    //   disabled: true,
-    // },
     {
       label: "MBL No",
       name: "mblNo",
@@ -77,11 +53,13 @@ export const fieldData = {
       idColumn: "id",
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
-      selectedConditions: [{ podVesselId: "vesselId" }],
+      selectedConditions: [
+        { podVesselId: "vesselId" },
+        { shippingLineId: "companyid" },
+      ],
       orderBy: "t.voyageNo",
       foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
-      // changeFun  : "checkVesselId"
     },
     {
       label: "Type of Cargo",
@@ -707,38 +685,23 @@ export const fieldData = {
       foreignTable: "code-name,tblMasterData",
       isEdit: true,
     },
-    // { label: "Seal No.", name: "agentSealNo", isEdit: true },
     {
       label: "SOC Flag",
       name: "soc",
       isEdit: true,
       type: "checkbox",
+      changeFun: "setAgentCode",
     },
-    // {
-    //   label: "Custom Seal",
-    //   // name: "containerAgentCode",
-    //   isEdit: true,
-    //   // required: true,
-    // },
-    // {
-    //   label: "Agent Seal",
-    //   // name: "containerAgentCode",
-    //   isEdit: true,
-    //   // required: true,
-    // },
     {
       label: "Custom Seal",
       name: "customSealNo",
       isEdit: true,
-      // required: true,
     },
     {
       label: "Agent Seal",
       name: "agentSealNo",
       isEdit: true,
-      // required: true,
     },
-
     {
       label: "Container Agent Code",
       name: "containerAgentCode",
@@ -747,7 +710,6 @@ export const fieldData = {
       blurFun: "panCardValid",
       type: "text",
     },
-
     {
       label: "Cargo Gross Wt(Kgs)",
       name: "grossWt",
@@ -792,16 +754,6 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
-    // {
-    //   label: "UNO Code",
-    //   name: "imoId",
-    //   type: "dropdown",
-    //   tableName: "tblImo m",
-    //   displayColumn: "m.class",
-    //   orderBy: "m.class",
-    //   foreignTable: "class,tblImo",
-    //   isEdit: true,
-    // },
     {
       label: "UNO Code",
       name: "unNo",
@@ -885,7 +837,6 @@ export const mapping = {
   notifyParty1City: "consigneeCity",
   notifyPartyAddress: "consigneeAddress",
   notifyParty1PinCode: "consigneePinCode",
-
 };
 
 export const advanceSearchFields = {

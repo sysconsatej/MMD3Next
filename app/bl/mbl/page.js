@@ -32,6 +32,8 @@ import {
   checkNoPackages,
   craeateHandleChangeEventFunction,
   createdHandleBlurEventFunctions,
+  createGridEventFunctions,
+  getDefaultVal,
   getPortBasedOnCountry,
   removePrevInputName,
   storeApiResult,
@@ -94,27 +96,9 @@ export default function Home() {
     }
   };
 
-  const handleGridEventFunctions = {
-    addGrid: async ({ tabIndex, gridIndex }) => {
-      const obj = {
-        columns: "id as Id, name as Name",
-        tableName: "tblMasterData",
-        whereCondition: `masterListName = 'tblSealType' and name = 'BTSL' and status = 1`,
-      };
-      const { data } = await getDataWithCondition(obj);
-      setFormData((prevData) =>
-        setInputValue({
-          prevData,
-          tabName: null,
-          gridName: "tblBlContainer",
-          tabIndex: null,
-          containerIndex: gridIndex,
-          name: "sealTypeId",
-          value: data[0],
-        })
-      );
-    },
-  };
+  const handleGridEventFunctions = createGridEventFunctions({
+    setFormData,
+  });
 
   const handleChangeEventFunctions = craeateHandleChangeEventFunction({
     setFormData,
@@ -179,124 +163,12 @@ export default function Home() {
     fetchFormHandler();
   }, [mode.formId]);
 
-  //  this useEffect is used for Auto set values
   useEffect(() => {
-    setFormData((prev) => ({
-      ...prev,
-      companyId: {
-        Id: userData.companyId,
-        Name: userData.companyName,
-      },
-      companyBranchId: {
-        Id: userData.branchId,
-        Name: userData.branchName,
-      },
-      ...(!mode?.formId
-        ? {
-            // set only if empty, for safety
-            ...(!prev?.shippingLineId && {
-              shippingLineId: {
-                Id: userData.companyId,
-                Name: userData.companyName,
-              },
-            }),
-            ...(!prev?.mloId && {
-              mloId: {
-                Id: userData.companyId,
-                Name: userData.companyName,
-              },
-            }),
-          }
-        : {}),
-    }));
-    if (mode?.formId) return;
-
-    let cancelled = false;
-
-    async function getMblData() {
-      try {
-        const itemTypeObj = {
-          columns:
-            "m.id as Id, ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'') as Name",
-          tableName: "tblMasterData m",
-          whereCondition: `
-          m.masterListName = 'tblItemType'
-          AND ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'') = 'OT - Other Cargo'
-        `,
-        };
-
-        const itemTypeRes = await getDataWithCondition(itemTypeObj);
-        if (
-          !cancelled &&
-          itemTypeRes?.success &&
-          Array.isArray(itemTypeRes.data) &&
-          itemTypeRes.data.length > 0
-        ) {
-          setFormData((prev) =>
-            // don't override if something already set later by user/fetch
-            prev?.blTypeId ? prev : { ...prev, blTypeId: itemTypeRes.data[0] }
-          );
-        }
-        const natureObj = {
-          columns:
-            "m.id as Id, ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'') as Name",
-          tableName: "tblMasterData m",
-          whereCondition: `
-          m.masterListName = 'tblTypeOfShipment'
-          AND ISNULL(m.code,'') + ' - ' + ISNULL(m.name,'') = 'C - Containerised Cargo'
-        `,
-        };
-        const natureRes = await getDataWithCondition(natureObj);
-        if (
-          !cancelled &&
-          natureRes?.success &&
-          Array.isArray(natureRes.data) &&
-          natureRes.data.length > 0
-        ) {
-          setFormData((prev) =>
-            prev?.natureOfCargoId
-              ? prev
-              : { ...prev, natureOfCargoId: natureRes.data[0] }
-          );
-        }
-        const cinObj = {
-          columns: "m.id as Id, m.name as Name",
-          tableName: "tblMasterData m",
-          whereCondition: `
-          m.masterListName = 'tblCINType'
-          AND m.name = 'PCIN'
-        `,
-        };
-
-        const cinRes = await getDataWithCondition(cinObj);
-        if (
-          !cancelled &&
-          cinRes?.success &&
-          Array.isArray(cinRes.data) &&
-          cinRes.data.length > 0
-        ) {
-          setFormData((prev) =>
-            // don't override if user / fetch already set
-            prev?.cinType ? prev : { ...prev, cinType: cinRes.data[0] }
-          );
-        }
-
-        const obj = {
-          columns: "id as Id, name as Name",
-          tableName: "tblMasterData",
-          whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES' and status = 1`,
-        };
-        const { data, success } = await getDataWithCondition(obj);
-        if (success) {
-          setPackTypeState(data[0]);
-        }
-      } catch (e) {
-        if (!cancelled) {
-          console.error("Error in getMblData:", e);
-        }
-      }
+    async function initialize() {
+      if (mode.formId) return;
+      await getDefaultVal(setFormData, setPackTypeState);
     }
-    getMblData();
+    initialize();
   }, []);
 
   return (
