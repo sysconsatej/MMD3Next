@@ -32,6 +32,7 @@ import {
   checkNoPackages,
   craeateHandleChangeEventFunction,
   createdHandleBlurEventFunctions,
+  createGridEventFunctions,
   getDefaultVal,
   getPortBasedOnCountry,
   removePrevInputName,
@@ -95,27 +96,9 @@ export default function Home() {
     }
   };
 
-  const handleGridEventFunctions = {
-    addGrid: async ({ tabIndex, gridIndex }) => {
-      const obj = {
-        columns: "id as Id, name as Name",
-        tableName: "tblMasterData",
-        whereCondition: `masterListName = 'tblSealType' and name = 'BTSL' and status = 1`,
-      };
-      const { data } = await getDataWithCondition(obj);
-      setFormData((prevData) =>
-        setInputValue({
-          prevData,
-          tabName: null,
-          gridName: "tblBlContainer",
-          tabIndex: null,
-          containerIndex: gridIndex,
-          name: "sealTypeId",
-          value: data[0],
-        })
-      );
-    },
-  };
+  const handleGridEventFunctions = createGridEventFunctions({
+    setFormData,
+  });
 
   const handleChangeEventFunctions = craeateHandleChangeEventFunction({
     setFormData,

@@ -4,9 +4,12 @@ import { Box, Checkbox, InputLabel } from "@mui/material";
 const CheckBoxInput = ({
   commonProps,
   fieldValue,
+  field,
   changeHandler,
   containerIndex,
-  fieldHighLight
+  tabIndex,
+  fieldHighLight,
+  handleChangeEventFunctions,
 }) => {
   return (
     <Box className="flex items-end gap-2">
@@ -22,14 +25,21 @@ const CheckBoxInput = ({
         checked={fieldValue}
         disabled={commonProps.disabled}
         required={commonProps.required}
-        onChange={(e) =>
+        onChange={(e) => {
           changeHandler(
             {
               target: { name: commonProps.name, value: e.target.checked },
             },
             containerIndex
-          )
-        }
+          );
+          if (field.changeFun && handleChangeEventFunctions) {
+            handleChangeEventFunctions[field.changeFun](
+              commonProps.name,
+              e.target.checked,
+              { containerIndex, tabIndex }
+            );
+          }
+        }}
       />
     </Box>
   );
