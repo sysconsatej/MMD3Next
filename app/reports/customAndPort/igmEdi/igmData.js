@@ -1,3 +1,7 @@
+import { getUserByCookies } from "@/utils";
+
+const userData = getUserByCookies();
+
 const fieldData = {
   igmEdiFields: [
     {
@@ -21,6 +25,7 @@ const fieldData = {
       searchColumn: "t.voyageNo",
       changeFun: "handleDropdownChange",
       selectedConditions: [{ vessel: "vesselId" }],
+      where: `t.status = 1 and t.companyid = ${userData?.companyId}`,
       orderBy: "t.voyageNo",
       isEdit: true,
     },

@@ -70,7 +70,7 @@ export const fieldData = {
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
       selectedConditions: [{ podVesselId: "vesselId" }],
-      where : `t.companyid = ${userData?.companyId} and t.status = 1`,
+      where: `t.companyid = ${userData?.companyId} and t.status = 1`,
       orderBy: "t.voyageNo",
       foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
@@ -755,39 +755,23 @@ export const fieldData = {
       foreignTable: "code-name,tblMasterData",
       isEdit: true,
     },
-    // { label: "Seal No.", name: "agentSealNo", isEdit: true },
     {
       label: "SOC Flag",
       name: "soc",
       isEdit: true,
       type: "checkbox",
-      // required: true,
+      changeFun: "setAgentCode",
     },
-    // {
-    //   label: "Custom Seal",
-    //   // name: "containerAgentCode",
-    //   isEdit: true,
-    //   // required: true,
-    // },
-    // {
-    //   label: "Agent Seal",
-    //   // name: "containerAgentCode",
-    //   isEdit: true,
-    //   // required: true,
-    // },
     {
       label: "Custom Seal",
       name: "customSealNo",
       isEdit: true,
-      // required: true,
     },
     {
       label: "Agent Seal",
       name: "agentSealNo",
       isEdit: true,
-      // required: true,
     },
-
     {
       label: "Container Agent Code",
       name: "containerAgentCode",
@@ -802,14 +786,6 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
-
-    // {
-    //   label: "Cargo net Wt(Kgs)",
-    //   name: "netwt",
-    //   type: "number",
-    //   isEdit: true,
-    //   required: true,
-    // },
     { label: "NetWt(Kgs)", name: "netWt", type: "number", isEdit: true },
     { label: "Volume(CBM)", name: "volume", isEdit: true },
     {
@@ -831,7 +807,6 @@ export const fieldData = {
       required: true,
       isEdit: true,
     },
-
     {
       label: "UNO Code",
       name: "unNo",
@@ -1017,10 +992,5 @@ export const gridButtons = [
     text: "Copy Row",
     icon: <FileCopyIcon />,
     func: "gridCopyHandler",
-  },
-  {
-    text: "Import Excel",
-    icon: <UploadFileIcon />,
-    func: "excelUpload",
   },
 ];

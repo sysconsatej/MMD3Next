@@ -77,9 +77,9 @@ export const checkNoPackages = ({ formData, hblType }) => {
 
       const childTotal = Array.isArray(row?.tblBlPackingList)
         ? row.tblBlPackingList.reduce(
-          (sum, cur) => sum + Number(cur?.noOfPackages || 0),
-          0
-        )
+            (sum, cur) => sum + Number(cur?.noOfPackages || 0),
+            0
+          )
         : 0;
 
       if (parentPackages !== childTotal) {
@@ -94,9 +94,9 @@ export const checkNoPackages = ({ formData, hblType }) => {
 
   const totalPackages = Array.isArray(formData?.tblBlPackingList)
     ? formData.tblBlPackingList.reduce(
-      (sum, cur) => sum + Number(cur?.noOfPackages || 0),
-      0
-    )
+        (sum, cur) => sum + Number(cur?.noOfPackages || 0),
+        0
+      )
     : 0;
 
   return totalPackages === Number(formData?.noOfPackages)
@@ -352,13 +352,13 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
 
         updates.movementTypeId = isSamePort
           ? movementMap.LC && {
-            Id: movementMap.LC.Id,
-            Name: movementMap.LC.code,
-          }
+              Id: movementMap.LC.Id,
+              Name: movementMap.LC.code,
+            }
           : movementMap.TI && {
-            Id: movementMap.TI.Id,
-            Name: movementMap.TI.code,
-          };
+              Id: movementMap.TI.Id,
+              Name: movementMap.TI.code,
+            };
       }
 
       // set data based on  pod and fpd and movementTypeId
@@ -406,7 +406,6 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         };
       });
     },
-
     handleChangeOnVessel: async (name, value) => {
       const vesselId = value?.Id || null;
 
@@ -428,7 +427,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         const obj = {
           columns: "t.id as Id, t.voyageNo as Name",
           tableName: "tblVoyage t",
-          whereCondition: `t.vesselId = ${vesselId} and t.status = 1`,
+          whereCondition: `t.vesselId = ${vesselId} and t.status = 1 and t.companyid = ${userData?.companyId}`,
           orderBy: "t.voyageNo",
         };
 
@@ -449,6 +448,41 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         }
       } catch (e) {
         console.error("handleChangeOnVessel error:", e);
+      }
+    },
+    setAgentCode: async (name, value, { containerIndex }) => {
+      if (value) {
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: null,
+            gridName: "tblBlContainer",
+            tabIndex: null,
+            containerIndex: containerIndex,
+            name: "containerAgentCode",
+            value: null,
+          })
+        );
+      } else {
+        const objAgentCode = {
+          columns: "panNo",
+          tableName: "tblCompany",
+          whereCondition: `id = ${userData?.companyId} and status = 1`,
+        };
+        const { data: dataAgentCode } = await getDataWithCondition(
+          objAgentCode
+        );
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: null,
+            gridName: "tblBlContainer",
+            tabIndex: null,
+            containerIndex: containerIndex,
+            name: "containerAgentCode",
+            value: dataAgentCode?.[0]?.panNo,
+          })
+        );
       }
     },
   };
@@ -516,7 +550,6 @@ export const createdHandleBlurEventFunctions = ({ setFormData, formData }) => {
         return toast.error(result.error);
       }
     },
-
     validUnoImoCode: (event) => {
       const { value, name } = event.target;
       const v = String(value).trim();
@@ -537,6 +570,50 @@ export const createdHandleBlurEventFunctions = ({ setFormData, formData }) => {
         }
       }
       return true;
+    },
+  };
+};
+
+export const createGridEventFunctions = ({ setFormData }) => {
+  return {
+    addGrid: async ({ tabIndex, gridIndex }) => {
+      const objSealType = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblSealType' and name = 'BTSL' and status = 1`,
+      };
+      const { data: dataSealType } = await getDataWithCondition(objSealType);
+
+      const objAgentCode = {
+        columns: "panNo",
+        tableName: "tblCompany",
+        whereCondition: `id = ${userData?.companyId} and status = 1`,
+      };
+      const { data: dataAgentCode } = await getDataWithCondition(objAgentCode);
+
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          tabName: null,
+          gridName: "tblBlContainer",
+          tabIndex: null,
+          containerIndex: gridIndex,
+          name: "sealTypeId",
+          value: dataSealType?.[0],
+        })
+      );
+
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          tabName: null,
+          gridName: "tblBlContainer",
+          tabIndex: null,
+          containerIndex: gridIndex,
+          name: "containerAgentCode",
+          value: dataAgentCode?.[0]?.panNo,
+        })
+      );
     },
   };
 };
@@ -580,9 +657,9 @@ export async function getDefaultVal(setFormData, setPackTypeState) {
         companyBranchId: { Id: userData.branchId, Name: userData.branchName },
         shippingLineId: { Id: userData.companyId, Name: userData.companyName },
         mloId: { Id: userData.companyId, Name: userData.companyName },
-        ...restData
+        ...restData,
       }));
-      setPackTypeState(packageId)
+      setPackTypeState(packageId);
     } else {
       setFormData((prev) => ({
         ...prev,
