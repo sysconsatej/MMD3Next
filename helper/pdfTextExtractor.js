@@ -119,9 +119,7 @@ async function extractRawPdf(file) {
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
     const content = await page.getTextContent();
-    const text = content.items
-      .map((it) => ("str" in it ? it.str : ""))
-      .join(" ");
+    const text = content.items.map((it) => ("str" in it ? it.str : "")).join(" ");
     pageTexts.push(collapse(text));
   }
   const text = pageTexts.join("\n");
@@ -257,6 +255,10 @@ function parseDateFlexible(token) {
   const t = token.trim();
 
   let m = t.match(/^(\d{1,2})([A-Za-z]{3})(\d{4})$/);
+  if (m) return toISO(m[3], MONTHS[m[2].toUpperCase()], m[1]);
+
+  // ✅ ADDED: dd/Mon/yyyy like 30/Sep/2025 (also 30-Sep-2025, 30 Sep 2025)
+  m = t.match(/^(\d{1,2})[.\-\/\s]([A-Za-z]{3})[.\-\/\s](\d{4})$/);
   if (m) return toISO(m[3], MONTHS[m[2].toUpperCase()], m[1]);
 
   m = t.match(/^(\d{4})[.\-\/](\d{1,2})[.\-\/](\d{1,2})$/);
@@ -401,8 +403,7 @@ function extractIssueDate(all, p1, p2) {
     /\bDATE\b/i,
   ];
   for (const L of labels) {
-    const iso =
-      findDateNear(p1, L) || findDateNear(p2, L) || findDateNear(all, L);
+    const iso = findDateNear(p1, L) || findDateNear(p2, L) || findDateNear(all, L);
     if (iso) return iso;
   }
   const any =
@@ -419,8 +420,7 @@ function extractDueDate(all, p1, p2) {
     /(LAST\s*DATE\s*OF\s*PAYMENT|PAY\s*BY)/i,
   ];
   for (const L of labels) {
-    const iso =
-      findDateNear(p1, L) || findDateNear(p2, L) || findDateNear(all, L);
+    const iso = findDateNear(p1, L) || findDateNear(p2, L) || findDateNear(all, L);
     if (iso) return iso;
   }
   return "";
@@ -428,6 +428,16 @@ function extractDueDate(all, p1, p2) {
 
 // ---------- Customer GST ----------
 function extractCustomerGST(all, p1, p2) {
+  // ✅ ADDED: handle invoices that use "GST No." / "GSTIN" instead of "CUSTOMER GST"
+  const srcs = [p1 || "", p2 || "", all || ""];
+  for (const src of srcs) {
+    const mm =
+      src.match(
+        /\bGST\s*(?:IN|NO\.?|NO)\s*[:#\-]?\s*([0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z])\b/i
+      ) || src.match(/\bGST\s*No\.\s*[:#\-]?\s*([A-Z0-9]{15})\b/i);
+    if (mm) return collapse(mm[1]);
+  }
+
   const win = firstNonEmpty(
     sliceAround(p1, /\bCUSTOMER\s+GST\b/i),
     sliceAround(p2, /\bCUSTOMER\s+GST\b/i),
@@ -560,6 +570,39 @@ function extractTotalInvoiceAmountMulti(all) {
       if (!Number.isNaN(num)) return num;
     }
   }
+
+  // ✅ ADDED: Table-style "Total ... 98,530.00" (capture last money on the "Total" line)
+  const row = all.match(/^\s*Total\b.*?([-0-9,]+\.\d{2})\s*$/gim);
+  if (row && row.length) {
+    const lastLine = row[row.length - 1];
+    const lastAmt = lastLine.match(/([-0-9,]+\.\d{2})\s*$/);
+    if (lastAmt) {
+      const num = Number(String(lastAmt[1]).replace(/,/g, ""));
+      if (!Number.isNaN(num)) return num;
+    }
+  }
+
+  // ✅ ADDED: works even when the whole PDF page text is collapsed into one line
+  // Matches: "Total 83,500.00 7,515.00 7,515.00 98,530.00" and captures LAST amount
+  const totalRow = all.match(
+    /\bTotal\s+([-0-9,]+\.\d{2})\s+([-0-9,]+\.\d{2})\s+([-0-9,]+\.\d{2})\s+([-0-9,]+\.\d{2})\b/i
+  );
+  if (totalRow) {
+    const num = Number(String(totalRow[4]).replace(/,/g, ""));
+    if (!Number.isNaN(num)) return num;
+  }
+
+  // ✅ ADDED: fallback - pick LAST currency-like amount after the word "Total"
+  const afterTotal = all.match(/\bTotal\b([\s\S]{0,120})/i);
+  if (afterTotal) {
+    const amts = afterTotal[1].match(/[-0-9,]+\.\d{2}/g) || [];
+    if (amts.length) {
+      const num = Number(String(amts[amts.length - 1]).replace(/,/g, ""));
+      if (!Number.isNaN(num)) return num;
+    }
+  }
+
+
   return 0;
 }
 
@@ -614,7 +657,19 @@ function extractBillingPartyMulti(all, p1, p2) {
     .replace(/\bBKG\b.*$/i, "")
     .replace(/\bSAILING\b.*$/i, "")
     .replace(/\bDUE\s+DATE\b.*$/i, "")
+
+    // ✅ ADDED: stop at PoS / IRN / Invoice fields (common in e-invoice PDFs)
+    .replace(/\bPLACE\s+OF\s+SUPPLY\b.*$/i, "")
+    .replace(/\bPOS\b.*$/i, "")
+    .replace(/\bIRN\b.*$/i, "")
+    .replace(/\bIRN\s*NO\.?\b.*$/i, "")
+    .replace(/\bINVOICE\s*NO\.?\b.*$/i, "")
+    .replace(/\bINVOICE\s*DATE\b.*$/i, "")
+    .replace(/\bACK\s*NO\.?\b.*$/i, "")
+    .replace(/\bACK\s*DATE\b.*$/i, "")
+
     .trim();
+
 
   // 🔹 5️⃣ Final format normalization
   block = block.replace(/\s*\(\s*/g, " (");
