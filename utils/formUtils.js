@@ -258,6 +258,12 @@ export function formFormatThirdLevel(data) {
   let commonData = {};
 
   for (const [key, value] of Object.entries(data)) {
+    if (!Array.isArray(value)) {
+      commonData[key] = value.Id ?? value;
+    }
+  }
+
+  for (const [key, value] of Object.entries(data)) {
     if (Array.isArray(value)) {
       for (const subSection of value) {
         const tempData = {};
@@ -282,8 +288,6 @@ export function formFormatThirdLevel(data) {
           ...commonData,
         });
       }
-    } else {
-      commonData[key] = value?.Id ?? value;
     }
   }
 
