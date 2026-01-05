@@ -6,7 +6,8 @@ const fieldData = {
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "p.name + ' - ' + ISNULL(p.code,'')",
-      joins: "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+      joins:
+        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
       where: "m.name IN ('SEA PORT') and c.name = 'India'",
       orderBy: "p.name, p.code",
       foreignTable: "name,tblPort",
@@ -45,7 +46,10 @@ const fieldData = {
       idColumn: "id",
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
-      selectedConditions: [{ podVesselId: "vesselId" }],
+      selectedConditions: [
+        { podVesselId: "vesselId" },
+        { shippingLineId: "companyid" },
+      ],
       orderBy: "t.voyageNo",
       isEdit: true,
     },
@@ -58,7 +62,7 @@ const fieldData = {
     {
       label: "Upload File",
       name: "upload",
-      type: "fileupload"
+      type: "fileupload",
     },
   ],
 };
