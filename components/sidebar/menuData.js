@@ -170,11 +170,11 @@ export const navItems = [
         href: "/invoice/invoiceRequest/list",
         isShow: false,
       },
-      {
-        name: "Invoice Upload",
-        href: "/upload",
-        isShow: false,
-      },
+      // {
+      //   name: "Invoice Upload",
+      //   href: "/upload",
+      //   isShow: false,
+      // },
       {
         name: "BL Hold",
         href: "/blPartyHold",
@@ -271,7 +271,22 @@ export const navItems = [
       {
         name: "Update Line No",
         href: "/reports/customAndPort/updateLineNumber",
-        isShow: false,
+        isShow: true,
+      },
+      {
+        name: "invoiceRegisterCustomer",
+        href: "/reports/customAndPort/invoiceRegisterCustomer",
+        isShow: true,
+      },
+      {
+        name: "instantDoReport",
+        href: "/reports/customAndPort/instantDoReport",
+        isShow: true,
+      },
+      {
+        name: "invoiceRegisterLiner",
+        href: "/reports/customAndPort/invoiceRegisterLiner",
+        isShow: true,
       },
       // {
       //   name: "Update Vessel/Voyage",
@@ -317,6 +332,12 @@ export const navItems = [
       //   name: "Un Released DO",
       //   href: "/reports/customAndPort/unReleasedDo",
       //   isShow: false,
+      // },
+      // {
+      //   name: "Uploads",
+      //   icon: "file",
+      //   href: "/upload",
+      //   isShow: true,
       // },
 
       {

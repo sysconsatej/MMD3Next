@@ -445,6 +445,16 @@ export const createBlurFunc = ({
       }
       return true;
     },
+    checkMobileValidation: (event) => {
+      const { name, value } = event.target;
+      if (value.length > 10) {
+        setFormData((prevData) => ({ ...prevData, [name]: null }));
+        toast.warn("Mobile number maximum should be 10 digit!");
+      } else if (value.length < 3) {
+        setFormData((prevData) => ({ ...prevData, [name]: null }));
+        toast.warn("Mobile number minimum should be 3 digit!");
+      }
+    },
   };
 };
 

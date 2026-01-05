@@ -122,7 +122,6 @@ const fieldData = {
       name: "tdsAmount",
       type: "number",
       isEdit: true,
-      required: true,
     },
     {
       label: "Inv Payable Amt",

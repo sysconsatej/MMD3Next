@@ -20,7 +20,7 @@ import {
   formatFormData,
   getUserByCookies,
 } from "@/utils";
-import { formStore, useBackLinksStore, useBlWorkFlowData } from "@/store";
+import { formStore, useBlWorkFlowData } from "@/store";
 import {
   Dialog,
   DialogTitle,
@@ -95,8 +95,7 @@ export default function InvoiceRequest() {
 
   const userData = getUserByCookies();
   const isLiner = userData?.roleCode === "shipping"; // liner vs customer
-  const { link } = useBackLinksStore();
-  const  { setClearData  } = useBlWorkFlowData();
+  const { setClearData } = useBlWorkFlowData();
 
   /* ------------------------ FREE DAYS ------------------------ */
   const normalizeFD = (v) => {
@@ -185,7 +184,7 @@ export default function InvoiceRequest() {
           formData?.isHighSealSale === true || formData?.isHighSealSale === "Y"
             ? "Y"
             : "N",
-        locationId: userData?.location || null,    
+        locationId: userData?.location || null,
       };
 
       const payload = formatFormData(
@@ -552,7 +551,7 @@ export default function InvoiceRequest() {
             {userData?.roleCode === "customer" && (
               <CustomButton
                 text="Back"
-                href={link ? link?.blStatus : "/invoice/invoiceRequest/list"}
+                href={"/invoice/invoiceRequest/list"}
                 onClick={handleClearData}
               />
             )}
@@ -560,7 +559,7 @@ export default function InvoiceRequest() {
             {userData?.roleCode === "shipping" && (
               <CustomButton
                 text="Back"
-                href={link ? link?.blStatus : "/invoice/invoiceRelease/list"}
+                href={"/invoice/invoiceRelease/list"}
                 onClick={handleClearData}
               />
             )}

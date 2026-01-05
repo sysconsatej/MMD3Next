@@ -21,7 +21,6 @@ export const fieldData = {
     {
       label: "MBL No",
       name: "mblNo",
-      isEdit: true,
       required: true,
       blurFun: "getMblHandler",
     },
@@ -133,6 +132,7 @@ export const fieldData = {
       name: "shippingLineTelNo",
       isEdit: true,
       type: "number",
+      blurFun: "checkMobileValidation",
     },
     // {
     //   label: "Container Status",
