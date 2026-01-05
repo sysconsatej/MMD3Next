@@ -219,7 +219,12 @@ const CustomInput = ({
         return <TextAreaInput {...inputProps} />;
 
       case "checkbox":
-        return <CheckBoxInput {...inputProps} />;
+        return (
+          <CheckBoxInput
+            {...inputProps}
+            handleChangeEventFunctions={handleChangeEventFunctions}
+          />
+        );
 
       case "radio":
         return (

@@ -1,6 +1,9 @@
+import { getUserByCookies } from "@/utils";
+
+const userData = getUserByCookies();
+
 const fieldData = {
   vesselSummaryReportFields: [
-
     {
       label: "Vessel",
       name: "vesselId",
@@ -24,6 +27,7 @@ const fieldData = {
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
       selectedConditions: [{ vesselId: "vesselId" }],
+      where: `t.status = 1 and t.companyid = ${userData?.companyId}`,
       orderBy: "t.voyageNo",
       isEdit: true,
     },

@@ -37,9 +37,11 @@ import {
   checkAttachment,
   copyHandler,
   createBlurFunc,
+  createGridEventFunctions,
   createHandleChangeFunc,
   filterColumnsUpdate,
   requestStatusFun,
+  setTabDefaultVal,
   useTotalGrossAndPack,
 } from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -196,52 +198,10 @@ export default function Home() {
     }
   }
 
-  const handleGridEventFunctions = {
-    addGrid: async ({ tabIndex, gridIndex }) => {
-      console.log("Add Grid Event Triggered");
-      const obj = {
-        columns: "id as Id, name as Name , code as code , masterListName",
-        tableName: "tblMasterData",
-        whereCondition: `masterListName = 'tblSealType' and name = 'BTSL' and status = 1 OR  masterListName  =  'tblCINType' and name = 'PCIN'  OR masterListName =  'tblTypeOfShipment' and code  =  'C'  OR masterListName  =  'tblItemType' and code = 'OT' and status  = 1`,
-        orderBy: "id asc",
-      };
-      const { data } = await getDataWithCondition(obj);
-
-      const setValuesBasedOnColName = (colName, value) => {
-        switch (colName) {
-          case "tblSealType":
-            return "sealTypeId";
-          case "tblCINType":
-            return "cinType";
-          case "tblItemType":
-            return "blTypeId";
-          case "tblTypeOfShipment":
-            return "natureOfCargoId";
-          default:
-            return "";
-        }
-      };
-
-      if (Array.isArray(data)) {
-        data.map((info) => {
-          setFormData((prevData) =>
-            setInputValue({
-              prevData,
-              tabName: "tblBl",
-              gridName:
-                info?.masterListName === "tblSealType" ? "tblBlContainer" : "",
-              tabIndex,
-              containerIndex: gridIndex,
-              name: setValuesBasedOnColName(info?.masterListName),
-              value: { Id: info?.Id, Name: info?.code + "-" + info?.Name },
-            })
-          );
-        });
-      } else {
-        return [];
-      }
-    },
-  };
+  const handleGridEventFunctions = createGridEventFunctions({
+    formData,
+    setFormData,
+  });
 
   const handleChangeEventFunctions = createHandleChangeFunc({
     setFormData,
@@ -339,8 +299,7 @@ export default function Home() {
   }, [mode.formId]);
 
   useEffect(() => {
-    async function getHblStatus() {
-      // 1) Default PACKAGES for package type
+    async function initialize() {
       const obj1 = {
         columns: "id as Id, name as Name",
         tableName: "tblMasterData",
@@ -353,7 +312,6 @@ export default function Home() {
         setPackTypeState(data1[0]);
       }
 
-      // 2) HBL status master
       const obj = {
         columns: "id as Id, name as Name",
         tableName: "tblMasterData",
@@ -363,31 +321,9 @@ export default function Home() {
       if (success) {
         setHblStatus(data);
       }
-
-      // 4) 🔹 Default CIN Type = "PCIN" for NEW requests only
-      if (!mode.formId) {
-        const cinObj = {
-          columns: "m.id as Id, m.name as Name",
-          tableName: "tblMasterData m",
-          whereCondition: `
-            m.masterListName = 'tblCINType'
-            AND m.name = 'PCIN'
-          `,
-        };
-
-        const { data: cinData, success: cinSuccess } =
-          await getDataWithCondition(cinObj);
-
-        if (cinSuccess && Array.isArray(cinData) && cinData.length > 0) {
-          setFormData((prev) =>
-            // don't override if already set (edit mode / user changed)
-            prev?.cinType ? prev : { ...prev, cinType: cinData[0] }
-          );
-        }
-      }
     }
 
-    getHblStatus();
+    initialize();
   }, []);
 
   return (
@@ -474,12 +410,13 @@ export default function Home() {
                   {mode.mode !== "view" && (
                     <Tab
                       label="Add HBL"
-                      onClick={() =>
+                      onClick={() => {
                         setHblArray((prev) => [
                           ...prev,
                           prev[prev.length - 1] + 1 || 0,
-                        ])
-                      }
+                        ]);
+                        setTabDefaultVal(hblArray.length, setFormData);
+                      }}
                       icon={<AddIcon />}
                       iconPosition="end"
                     />

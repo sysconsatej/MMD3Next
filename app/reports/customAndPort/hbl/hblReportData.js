@@ -1,3 +1,7 @@
+import { getUserByCookies } from "@/utils";
+
+const userData = getUserByCookies();
+
 const fieldData = {
   hblReportsFields: [
     {
@@ -46,10 +50,11 @@ const fieldData = {
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
       selectedConditions: [{ vesselId: "vesselId" }],
+      where: `t.status = 1 and t.companyid = ${userData?.companyId}`,
       orderBy: "t.voyageNo",
       isEdit: true,
     },
-      {
+    {
       label: "POD",
       name: "pod",
       type: "dropdown",
@@ -74,8 +79,6 @@ const fieldData = {
       type: "date",
       isEdit: true,
     },
-
-
   ],
 };
 export default fieldData;
