@@ -21,7 +21,6 @@ export const fieldData = {
     {
       label: "MBL No",
       name: "mblNo",
-      isEdit: true,
       required: true,
       blurFun: "getMblHandler",
     },
