@@ -28,7 +28,7 @@ export const fieldData = {
       changeFun: "setCfsAndDpd",
     },
     {
-      label: "MBL No.",
+      label: "MBL No",
       name: "mblNo",
       type: "text",
       isEdit: true,

@@ -523,24 +523,24 @@ const DynamicReportTable = ({
             <Table
               size="small"
               stickyHeader
-              className="
-    [&_.MuiTableCell-paddingCheckbox]:!w-7
-    [&_.MuiTableCell-paddingCheckbox]:!min-w-7
-    [&_.MuiTableCell-paddingCheckbox]:!max-w-7
-    [&_.MuiTableCell-paddingCheckbox]:!px-1
+              className="table-fixed
+    [&_.MuiTableCell-root.MuiTableCell-paddingCheckbox]:!w-[36px]
+    [&_.MuiTableCell-root.MuiTableCell-paddingCheckbox]:!min-w-[36px]
+    [&_.MuiTableCell-root.MuiTableCell-paddingCheckbox]:!max-w-[36px]
+    [&_.MuiTableCell-root.MuiTableCell-paddingCheckbox]:!px-1
     [&_.MuiCheckbox-root]:!p-0
     [&_.MuiCheckbox-root_.MuiSvgIcon-root]:!w-4
     [&_.MuiCheckbox-root_.MuiSvgIcon-root]:!h-4
-     table-fixed
-    [&_th]:!w-[220px] [&_td]:!w-[220px]
-    [&_th]:!min-w-[220px] [&_td]:!min-w-[220px]
-    [&_th]:!max-w-[220px] [&_td]:!max-w-[220px]
+    [&_th:not(.MuiTableCell-paddingCheckbox)]:!w-[220px]
+    [&_td:not(.MuiTableCell-paddingCheckbox)]:!w-[220px]
+    [&_th:not(.MuiTableCell-paddingCheckbox)]:!min-w-[220px]
+    [&_td:not(.MuiTableCell-paddingCheckbox)]:!min-w-[220px]
+    [&_th:not(.MuiTableCell-paddingCheckbox)]:!max-w-[220px]
+    [&_td:not(.MuiTableCell-paddingCheckbox)]:!max-w-[220px]
     [&_th]:!whitespace-normal [&_td]:!whitespace-normal
     [&_th]:!break-words [&_td]:!break-words
     [&_th]:!overflow-visible [&_td]:!overflow-visible
     [&_td]:align-top
-
-    /* shrink numeric columns globally via data-attr */
     [&_[data-num='1']]:!w-[110px]
     [&_[data-num='1']]:!min-w-[110px]
     [&_[data-num='1']]:!max-w-[110px]
