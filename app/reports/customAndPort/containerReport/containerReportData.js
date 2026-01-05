@@ -1,3 +1,5 @@
+import { getUserByCookies } from "@/utils";
+const userData = getUserByCookies();
 const fieldData = {
   igmGenerationFields: [
     {
