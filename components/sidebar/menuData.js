@@ -318,6 +318,12 @@ export const navItems = [
       //   href: "/reports/customAndPort/unReleasedDo",
       //   isShow: false,
       // },
+      // {
+      //   name: "Uploads",
+      //   icon: "file",
+      //   href: "/upload",
+      //   isShow: true,
+      // },
 
       {
         name: "HBL",
