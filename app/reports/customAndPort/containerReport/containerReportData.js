@@ -10,6 +10,7 @@ const fieldData = {
       searchColumn: "t.name",
       orderBy: "t.name",
       isEdit: true,
+      changeFun: "handleChangeOnVessel",
     },
     {
       label: "Voyage",
@@ -17,9 +18,11 @@ const fieldData = {
       type: "dropdown",
       tableName: "tblVoyage t",
       idColumn: "id",
+      changeFun: "handleDropdownChange",
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
       selectedConditions: [{ vessel: "vesselId" }],
+      where: `t.status = 1 and t.companyid = ${userData?.companyId}`,
       orderBy: "t.voyageNo",
       isEdit: true,
     },
@@ -35,6 +38,7 @@ const fieldData = {
       searchColumn: "p.name",
       orderBy: "p.name",
       isEdit: true,
+      changeFun: "handleDropdownChange",
     },
     {
       label: "FPD",
