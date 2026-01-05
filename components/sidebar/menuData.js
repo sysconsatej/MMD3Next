@@ -170,11 +170,11 @@ export const navItems = [
         href: "/invoice/invoiceRequest/list",
         isShow: false,
       },
-      {
-        name: "Invoice Upload",
-        href: "/upload",
-        isShow: false,
-      },
+      // {
+      //   name: "Invoice Upload",
+      //   href: "/upload",
+      //   isShow: false,
+      // },
       {
         name: "BL Hold",
         href: "/blPartyHold",
@@ -332,6 +332,12 @@ export const navItems = [
       //   name: "Un Released DO",
       //   href: "/reports/customAndPort/unReleasedDo",
       //   isShow: false,
+      // },
+      // {
+      //   name: "Uploads",
+      //   icon: "file",
+      //   href: "/upload",
+      //   isShow: true,
       // },
 
       {
