@@ -13,7 +13,7 @@ import { getUserByCookies } from "@/utils";
 import { jsonToExcelFile } from "@/utils/helper";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 
-export default function ReleasedDoTat() {
+export default function InstantDoReport() {
     const [formData, setFormData] = useState({});
     const [fieldsMode, setFieldsMode] = useState("");
     const [tableData, setTableData] = useState([]);

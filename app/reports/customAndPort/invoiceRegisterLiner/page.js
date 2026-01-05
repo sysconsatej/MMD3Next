@@ -13,7 +13,7 @@ import { getUserByCookies } from "@/utils";
 import { jsonToExcelFile } from "@/utils/helper";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 
-export default function invoiceRegisterLiner() {
+export default function InvoiceRegisterLiner() {
     const [formData, setFormData] = useState({});
     const [fieldsMode, setFieldsMode] = useState("");
     const [tableData, setTableData] = useState([]);
