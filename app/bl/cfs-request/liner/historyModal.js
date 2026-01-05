@@ -17,11 +17,11 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import CropSquareIcon from "@mui/icons-material/CropSquare";
-import { fetchInvoiceReleaseHistory } from "@/apis/history";
+import { fetchHistory } from "@/apis/history";
 import { statusColor } from "../utils";
 
 export function CfsHistoryLinerModal({ historyModal, setHistoryModal }) {
-  const { toggle, value: mblNo } = historyModal;
+  const { toggle, value: recordId, mblNo } = historyModal;
 
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -37,10 +37,13 @@ export function CfsHistoryLinerModal({ historyModal, setHistoryModal }) {
   const loadHistory = async () => {
     try {
       setLoading(true);
-      const { success, data } = await fetchInvoiceReleaseHistory({ mblNo });
+      const { success, data } = await fetchHistory({
+        spName: "dbo.getCfsTrackHistory",
+        recordId,
+      });
       setRows(success ? data || [] : []);
     } catch (err) {
-      console.error("BL History Error:", err);
+      console.error("CFS History Error:", err);
       setRows([]);
     } finally {
       setLoading(false);
@@ -71,9 +74,10 @@ export function CfsHistoryLinerModal({ historyModal, setHistoryModal }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
-        <Typography sx={{ fontSize: 14, fontWeight: 600 }}>
+        <Typography fontSize={14} fontWeight={600}>
           CFS Request History
         </Typography>
 
@@ -93,9 +97,7 @@ export function CfsHistoryLinerModal({ historyModal, setHistoryModal }) {
           <IconButton
             size="small"
             sx={{ color: "#fff" }}
-            onClick={() =>
-              setHistoryModal({ toggle: false, value: null })
-            }
+            onClick={() => setHistoryModal({ toggle: false, value: null })}
           >
             <CloseIcon fontSize="inherit" />
           </IconButton>
@@ -146,12 +148,12 @@ export function CfsHistoryLinerModal({ historyModal, setHistoryModal }) {
           >
             <TableHead>
               <TableRow>
-                <TableCell className="sr-col">Sr. No.</TableCell>
+                <TableCell className="sr-col">Sr No</TableCell>
+                <TableCell>Date & Time</TableCell>
                 <TableCell>MBL Number</TableCell>
-                <TableCell>HBL Number</TableCell>
-                <TableCell>User Name</TableCell>
-                <TableCell>User ID</TableCell>
                 <TableCell>Company Name</TableCell>
+                <TableCell>User Name</TableCell>
+                <TableCell>User Id</TableCell>
                 <TableCell>Contact No</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Field Name</TableCell>
@@ -162,7 +164,7 @@ export function CfsHistoryLinerModal({ historyModal, setHistoryModal }) {
                 <TableCell>Confirmed By</TableCell>
                 <TableCell>Confirmed Date & Time</TableCell>
                 <TableCell>Rejected By</TableCell>
-                <TableCell>Rejected Date & Time</TableCell>
+                <TableCell>Rejection Date & Time</TableCell>
               </TableRow>
             </TableHead>
 
@@ -177,29 +179,32 @@ export function CfsHistoryLinerModal({ historyModal, setHistoryModal }) {
                 rows.map((r, i) => (
                   <TableRow key={i}>
                     <TableCell className="sr-col">{i + 1}</TableCell>
-                    <TableCell>{r.mblNo}</TableCell>
-                    <TableCell>{r.hblNo}</TableCell>
-                    <TableCell>{r.userName}</TableCell>
-                    <TableCell>{r.userId}</TableCell>
-                    <TableCell>{r.companyName}</TableCell>
-                    <TableCell>{r.contactNo}</TableCell>
+
+                    <TableCell>{r["Date and Time"]}</TableCell>
+                    <TableCell>{r["MBL Number"]}</TableCell>
+                    <TableCell>{r["Company Name"]}</TableCell>
+                    <TableCell>{r["User Name"]}</TableCell>
+                    <TableCell>{r["User Id"]}</TableCell>
+                    <TableCell>{r["Contact No"]}</TableCell>
+
                     <TableCell
                       sx={{
-                        color: statusColor(r.status),
+                        color: statusColor(r["Status"]),
                         fontWeight: 600,
                       }}
                     >
-                      {r.status}
+                      {r["Status"]}
                     </TableCell>
-                    <TableCell>{r.fieldName}</TableCell>
-                    <TableCell>{r.oldValue}</TableCell>
-                    <TableCell>{r.newValue}</TableCell>
-                    <TableCell>{r.rejectionRemark}</TableCell>
-                    <TableCell>{r.amendmentRemark}</TableCell>
-                    <TableCell>{r.confirmedBy}</TableCell>
-                    <TableCell>{r.confirmedDate}</TableCell>
-                    <TableCell>{r.rejectedBy}</TableCell>
-                    <TableCell>{r.rejectedDate}</TableCell>
+
+                    <TableCell>{r["Field Name"]}</TableCell>
+                    <TableCell>{r["Old Value"]}</TableCell>
+                    <TableCell>{r["New Value"]}</TableCell>
+                    <TableCell>{r["Rejection Remark"]}</TableCell>
+                    <TableCell>{r["Amendment Remark"]}</TableCell>
+                    <TableCell>{r["Confirmed By"]}</TableCell>
+                    <TableCell>{r["Confirmed Date and Time"]}</TableCell>
+                    <TableCell>{r["Rejected By"]}</TableCell>
+                    <TableCell>{r["Rejection Date and time"]}</TableCell>
                   </TableRow>
                 ))
               )}

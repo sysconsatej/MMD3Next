@@ -51,6 +51,7 @@ export default function SearchRequestCfsDpdIcd() {
   const [historyModal, setHistoryModal] = useState({
     toggle: false,
     value: null,
+    mblNo: null,
   });
 
   // toolbar checkbox states
@@ -264,7 +265,8 @@ export default function SearchRequestCfsDpdIcd() {
                           setHistoryModal((prev) => ({
                             ...prev,
                             toggle: true,
-                            value: row.mblNo,
+                            value: row.id,
+                            mblNo: row.mblNo,
                           }))
                         }
                       />

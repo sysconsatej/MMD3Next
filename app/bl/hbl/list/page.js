@@ -96,6 +96,7 @@ export default function BLList() {
   const [historyModal, setHistoryModal] = useState({
     toggle: false,
     value: null,
+    mblNo: null,
   });
   const { data } = useGetUserAccessUtils("HBL Request");
   const userData = getUserByCookies();
@@ -328,7 +329,8 @@ export default function BLList() {
                           setHistoryModal((prev) => ({
                             ...prev,
                             toggle: true,
-                            value: row.mblNo,
+                            value: row.hblId,
+                            mblNo: row.mblNo,
                           }))
                         }
                       />

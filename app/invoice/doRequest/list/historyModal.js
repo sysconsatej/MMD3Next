@@ -17,11 +17,11 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import CropSquareIcon from "@mui/icons-material/CropSquare";
-import { fetchInvoiceReleaseHistory } from "@/apis/history";
+import { fetchHistory } from "@/apis/history";
 import { statusColor } from "../utils";
 
 export function DoHistoryModal({ historyModal, setHistoryModal }) {
-  const { toggle, value: mblNo } = historyModal;
+  const { toggle, value: id, blNo } = historyModal;
 
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -37,7 +37,10 @@ export function DoHistoryModal({ historyModal, setHistoryModal }) {
   const loadHistory = async () => {
     try {
       setLoading(true);
-      const { success, data } = await fetchInvoiceReleaseHistory({ mblNo });
+      const { success, data } = await fetchHistory({
+        recordId: id,
+        spName: "dbo.getDoHistory",
+      });
       setRows(success ? data || [] : []);
     } catch (err) {
       console.error("DO History Error:", err);
@@ -82,9 +85,7 @@ export function DoHistoryModal({ historyModal, setHistoryModal }) {
             size="small"
             sx={{ color: "#fff" }}
             onClick={() =>
-              setWindowMode((p) =>
-                p === "maximized" ? "normal" : "maximized"
-              )
+              setWindowMode((p) => (p === "maximized" ? "normal" : "maximized"))
             }
           >
             <CropSquareIcon fontSize="inherit" />
@@ -93,16 +94,13 @@ export function DoHistoryModal({ historyModal, setHistoryModal }) {
           <IconButton
             size="small"
             sx={{ color: "#fff" }}
-            onClick={() =>
-              setHistoryModal({ toggle: false, value: null })
-            }
+            onClick={() => setHistoryModal({ toggle: false, value: null })}
           >
             <CloseIcon fontSize="inherit" />
           </IconButton>
         </Box>
       </Box>
 
-      {/* Content */}
       <DialogContent
         dividers
         sx={{
@@ -112,7 +110,7 @@ export function DoHistoryModal({ historyModal, setHistoryModal }) {
         }}
       >
         <Typography sx={{ fontWeight: 700, mb: 2 }}>
-          MBL No: <span style={{ fontWeight: 400 }}>{mblNo}</span>
+          MBL No: <span style={{ fontWeight: 400 }}>{blNo}</span>
         </Typography>
 
         {loading ? (
@@ -144,7 +142,6 @@ export function DoHistoryModal({ historyModal, setHistoryModal }) {
               },
             }}
           >
-            {/* ===================== TABLE HEAD ===================== */}
             <TableHead>
               <TableRow>
                 <TableCell className="sr-col">Sr. No.</TableCell>
@@ -163,11 +160,10 @@ export function DoHistoryModal({ historyModal, setHistoryModal }) {
               </TableRow>
             </TableHead>
 
-            {/* ===================== TABLE BODY ===================== */}
             <TableBody>
               {rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={15} align="center">
+                  <TableCell colSpan={13} align="center">
                     No history found
                   </TableCell>
                 </TableRow>
@@ -175,24 +171,27 @@ export function DoHistoryModal({ historyModal, setHistoryModal }) {
                 rows.map((r, i) => (
                   <TableRow key={i}>
                     <TableCell className="sr-col">{i + 1}</TableCell>
-                    <TableCell>{r.date}</TableCell>
-                    <TableCell>{r.requesterName}</TableCell>
-                    <TableCell>{r.requesterId}</TableCell>
-                    <TableCell>{r.linerName}</TableCell>
-                    <TableCell>{r.linerId}</TableCell>
-                    <TableCell>{r.contactNo}</TableCell>
-                    <TableCell>{r.fieldName}</TableCell>
-                    <TableCell>{r.oldValue}</TableCell>
-                    <TableCell>{r.newValue}</TableCell>
-                    <TableCell>{r.rejectionRemarks}</TableCell>
-                    <TableCell>{r.remark}</TableCell>
+
+                    <TableCell>{r["Date & Time"]}</TableCell>
+                    <TableCell>{r["Requester Name"]}</TableCell>
+                    <TableCell>{r["Requester Id"]}</TableCell>
+                    <TableCell>{r["Liner Name"]}</TableCell>
+                    <TableCell>{r["Liner Id"]}</TableCell>
+                    <TableCell>{r["Contact No"]}</TableCell>
+
+                    <TableCell>{r["Field Name"]}</TableCell>
+                    <TableCell>{r["Old Value"]}</TableCell>
+                    <TableCell>{r["New Value"]}</TableCell>
+                    <TableCell>{r["Rejection Remarks"]}</TableCell>
+                    <TableCell>{r["Remark"]}</TableCell>
+
                     <TableCell
                       sx={{
-                        color: statusColor(r.status),
+                        color: statusColor(r["Status"]),
                         fontWeight: 600,
                       }}
                     >
-                      {r.status}
+                      {r["Status"]}
                     </TableCell>
                   </TableRow>
                 ))

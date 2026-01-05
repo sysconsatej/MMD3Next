@@ -52,6 +52,7 @@ export default function CompanyList() {
   const [historyModal, setHistoryModal] = useState({
     toggle: false,
     value: null,
+    mblNo: null,
   });
 
   const { setMode } = formStore();
@@ -207,7 +208,8 @@ export default function CompanyList() {
                           setHistoryModal((prev) => ({
                             ...prev,
                             toggle: true,
-                            value: row.mblNo,
+                            value: row?.id,
+                            mblNo: row?.mblNo,
                           }))
                         }
                       />

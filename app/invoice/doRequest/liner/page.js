@@ -31,7 +31,7 @@ import { DoHistoryLinerModal } from "./historyModal";
 function createData(
   location,
   submittedBy,
-  mblNo,
+  blNo,
   validTill,
   isFreeDays,
   stuffDestuffId,
@@ -41,7 +41,7 @@ function createData(
   return {
     location,
     submittedBy,
-    mblNo,
+    blNo,
     validTill,
     isFreeDays,
     stuffDestuffId,
@@ -79,6 +79,7 @@ export default function BLList() {
   const [historyModal, setHistoryModal] = useState({
     toggle: false,
     value: null,
+    blNo: null,
   });
 
   // --------------------------------------------
@@ -89,7 +90,7 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "l.name location, u2.name submittedBy, b.mblNo mblNo, b.validTill validTill, b.isFreeDays isFreeDays, m2.name stuffDestuffId, m.name doStatus, b.id id",
+            "l.name location, u2.name submittedBy,ISNULL(b.hblNo, b.mblNo) blNo, b.validTill validTill, b.isFreeDays isFreeDays, m2.name stuffDestuffId, m.name doStatus, b.id id",
           tableName: "tblBl b",
           pageNo,
           pageSize,
@@ -129,8 +130,7 @@ export default function BLList() {
         createData(
           item["location"],
           item["submittedBy"],
-          item["mblNo"],
-          item["validTill"],
+          item["blNo"],
           item["isFreeDays"],
           item["stuffDestuffId"],
           item["doStatus"],
@@ -219,8 +219,7 @@ export default function BLList() {
                 </TableCell>
                 <TableCell>Location</TableCell>
                 <TableCell>Submitted By</TableCell>
-                <TableCell>mblNo</TableCell>
-                <TableCell>Valid Till</TableCell>
+                <TableCell>BL No</TableCell>
                 <TableCell>IsFreeDays</TableCell>
                 <TableCell>Stuff Destuff</TableCell>
                 <TableCell>Doc Status</TableCell>
@@ -246,8 +245,7 @@ export default function BLList() {
                     </TableCell>
                     <TableCell>{row.location}</TableCell>
                     <TableCell>{row.submittedBy}</TableCell>
-                    <TableCell>{row.mblNo}</TableCell>
-                    <TableCell>{row.validTill}</TableCell>
+                    <TableCell>{row.blNo}</TableCell>
                     <TableCell>{row.isFreeDays}</TableCell>
                     <TableCell>{row.stuffDestuffId}</TableCell>
                     <TableCell
@@ -264,7 +262,8 @@ export default function BLList() {
                         onClick={() =>
                           setHistoryModal({
                             toggle: true,
-                            value: row.mblNo,
+                            value: row.id,
+                            blNo: row.blNo,
                           })
                         }
                       />

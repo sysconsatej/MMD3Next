@@ -17,11 +17,11 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import CropSquareIcon from "@mui/icons-material/CropSquare";
-import { fetchInvoiceReleaseHistory } from "@/apis/history";
+import { fetchHistory } from "@/apis/history";
 import { statusColor } from "../utils";
 
 export function DoHistoryLinerModal({ historyModal, setHistoryModal }) {
-  const { toggle, value: mblNo } = historyModal;
+  const { toggle, value: recordId, mblNo } = historyModal;
 
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -37,7 +37,10 @@ export function DoHistoryLinerModal({ historyModal, setHistoryModal }) {
   const loadHistory = async () => {
     try {
       setLoading(true);
-      const { success, data } = await fetchInvoiceReleaseHistory({ mblNo });
+      const { success, data } = await fetchHistory({
+        spName: "dbo.getDoTrackHistory",
+        recordId,
+      });
       setRows(success ? data || [] : []);
     } catch (err) {
       console.error("DO History Error:", err);
@@ -54,12 +57,6 @@ export function DoHistoryLinerModal({ historyModal, setHistoryModal }) {
       fullScreen={windowMode === "maximized"}
       maxWidth="xl"
       fullWidth
-      PaperProps={{
-        sx: {
-          m: windowMode === "maximized" ? 0 : 4,
-          overflow: "hidden",
-        },
-      }}
     >
       {/* Header */}
       <Box
@@ -69,15 +66,15 @@ export function DoHistoryLinerModal({ historyModal, setHistoryModal }) {
           bgcolor: "#1f1f1f",
           color: "#fff",
           display: "flex",
-          alignItems: "center",
           justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
-        <Typography sx={{ fontSize: 14, fontWeight: 600 }}>
+        <Typography fontSize={14} fontWeight={600}>
           DO History
         </Typography>
 
-        <Box sx={{ display: "flex", gap: 1 }}>
+        <Box>
           <IconButton
             size="small"
             sx={{ color: "#fff" }}
@@ -93,9 +90,7 @@ export function DoHistoryLinerModal({ historyModal, setHistoryModal }) {
           <IconButton
             size="small"
             sx={{ color: "#fff" }}
-            onClick={() =>
-              setHistoryModal({ toggle: false, value: null })
-            }
+            onClick={() => setHistoryModal({ toggle: false, value: null })}
           >
             <CloseIcon fontSize="inherit" />
           </IconButton>
@@ -103,15 +98,8 @@ export function DoHistoryLinerModal({ historyModal, setHistoryModal }) {
       </Box>
 
       {/* Content */}
-      <DialogContent
-        dividers
-        sx={{
-          minHeight: 400,
-          p: 2,
-          overflow: "auto",
-        }}
-      >
-        <Typography sx={{ fontWeight: 700, mb: 2 }}>
+      <DialogContent dividers sx={{ minHeight: 400 }}>
+        <Typography fontWeight={700} mb={2}>
           MBL No: <span style={{ fontWeight: 400 }}>{mblNo}</span>
         </Typography>
 
@@ -125,29 +113,18 @@ export function DoHistoryLinerModal({ historyModal, setHistoryModal }) {
             sx={{
               tableLayout: "fixed",
               width: "100%",
-              "& th": {
+              "& th, & td": {
+                fontSize: 11,
+                padding: "4px 6px",
                 whiteSpace: "normal",
                 wordBreak: "break-word",
-                padding: "4px 6px",
-                fontSize: 11,
-                fontWeight: 700,
               },
-              "& td": {
-                whiteSpace: "normal",
-                wordBreak: "break-word",
-                padding: "4px 6px",
-                fontSize: 11,
-              },
-              "& .sr-col": {
-                width: 40,
-                maxWidth: 40,
-              },
+              "& .sr-col": { width: 40 },
             }}
           >
-            {/* ===================== TABLE HEAD ===================== */}
             <TableHead>
               <TableRow>
-                <TableCell className="sr-col">Sr. No.</TableCell>
+                <TableCell className="sr-col">Sr No</TableCell>
                 <TableCell>Date & Time</TableCell>
                 <TableCell>Requester Name</TableCell>
                 <TableCell>Requester Id</TableCell>
@@ -165,7 +142,6 @@ export function DoHistoryLinerModal({ historyModal, setHistoryModal }) {
               </TableRow>
             </TableHead>
 
-            {/* ===================== TABLE BODY ===================== */}
             <TableBody>
               {rows.length === 0 ? (
                 <TableRow>
@@ -177,26 +153,28 @@ export function DoHistoryLinerModal({ historyModal, setHistoryModal }) {
                 rows.map((r, i) => (
                   <TableRow key={i}>
                     <TableCell className="sr-col">{i + 1}</TableCell>
-                    <TableCell>{r.date}</TableCell>
-                    <TableCell>{r.requesterName}</TableCell>
-                    <TableCell>{r.requesterId}</TableCell>
-                    <TableCell>{r.companyName}</TableCell>
-                    <TableCell>{r.contactNo}</TableCell>
-                    <TableCell>{r.linerId}</TableCell>
-                    <TableCell>{r.fieldName}</TableCell>
-                    <TableCell>{r.oldValue}</TableCell>
-                    <TableCell>{r.newValue}</TableCell>
-                    <TableCell>{r.rejectionRemarks}</TableCell>
-                    <TableCell>{r.remark}</TableCell>
-                    <TableCell>{r.assignTo}</TableCell>
-                    <TableCell>{r.assignDate}</TableCell>
+
+                    <TableCell>{r["Date & Time"]}</TableCell>
+                    <TableCell>{r["Requester Name"]}</TableCell>
+                    <TableCell>{r["Requester Id"]}</TableCell>
+                    <TableCell>{r["Company Name"]}</TableCell>
+                    <TableCell>{r["Contact No"]}</TableCell>
+                    <TableCell>{r["Liner Id"]}</TableCell>
+                    <TableCell>{r["Field Name"]}</TableCell>
+                    <TableCell>{r["Old Value"]}</TableCell>
+                    <TableCell>{r["New Value"]}</TableCell>
+                    <TableCell>{r["Rejection Remarks"]}</TableCell>
+                    <TableCell>{r["Remark"]}</TableCell>
+                    <TableCell>{r["Assign To"]}</TableCell>
+                    <TableCell>{r["Assign Date & timestamp"]}</TableCell>
+
                     <TableCell
                       sx={{
-                        color: statusColor(r.status),
+                        color: statusColor(r["Status"]),
                         fontWeight: 600,
                       }}
                     >
-                      {r.status}
+                      {r["Status"]}
                     </TableCell>
                   </TableRow>
                 ))
