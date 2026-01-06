@@ -17,11 +17,11 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import CropSquareIcon from "@mui/icons-material/CropSquare";
-import { fetchInvoiceReleaseHistory } from "@/apis/history";
+import { fetchHistory, fetchInvoiceReleaseHistory } from "@/apis/history";
 import { statusColor } from "../utils";
 
 export function BLHistoryLinerModal({ historyModal, setHistoryModal }) {
-  const { toggle, value: mblNo } = historyModal;
+  const { toggle, value: hblId, mblNo } = historyModal;
 
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -37,7 +37,10 @@ export function BLHistoryLinerModal({ historyModal, setHistoryModal }) {
   const loadHistory = async () => {
     try {
       setLoading(true);
-      const { success, data } = await fetchInvoiceReleaseHistory({ mblNo });
+      const { success, data } = await fetchHistory({
+        spName: "dbo.getHblTrackHistory",
+        recordId: hblId,
+      });
       setRows(success ? data || [] : []);
     } catch (err) {
       console.error("BL History Error:", err);
@@ -82,9 +85,7 @@ export function BLHistoryLinerModal({ historyModal, setHistoryModal }) {
             size="small"
             sx={{ color: "#fff" }}
             onClick={() =>
-              setWindowMode((p) =>
-                p === "maximized" ? "normal" : "maximized"
-              )
+              setWindowMode((p) => (p === "maximized" ? "normal" : "maximized"))
             }
           >
             <CropSquareIcon fontSize="inherit" />
@@ -93,9 +94,7 @@ export function BLHistoryLinerModal({ historyModal, setHistoryModal }) {
           <IconButton
             size="small"
             sx={{ color: "#fff" }}
-            onClick={() =>
-              setHistoryModal({ toggle: false, value: null })
-            }
+            onClick={() => setHistoryModal({ toggle: false, value: null })}
           >
             <CloseIcon fontSize="inherit" />
           </IconButton>
@@ -177,29 +176,31 @@ export function BLHistoryLinerModal({ historyModal, setHistoryModal }) {
                 rows.map((r, i) => (
                   <TableRow key={i}>
                     <TableCell className="sr-col">{i + 1}</TableCell>
-                    <TableCell>{r.mblNo}</TableCell>
-                    <TableCell>{r.hblNo}</TableCell>
-                    <TableCell>{r.userName}</TableCell>
-                    <TableCell>{r.userId}</TableCell>
-                    <TableCell>{r.companyName}</TableCell>
-                    <TableCell>{r.contactNo}</TableCell>
+                    <TableCell>{r["MBL Number"]}</TableCell>
+                    <TableCell>{r["HBL Number"]}</TableCell>
+                    <TableCell>{r["User Name"]}</TableCell>
+                    <TableCell>{r["User ID"]}</TableCell>
+                    <TableCell>{r["Company Name"]}</TableCell>
+                    <TableCell>{r["Contact Number"]}</TableCell>
+
                     <TableCell
                       sx={{
-                        color: statusColor(r.status),
+                        color: statusColor(r["Status"]),
                         fontWeight: 600,
                       }}
                     >
-                      {r.status}
+                      {r["Status"]}
                     </TableCell>
-                    <TableCell>{r.fieldName}</TableCell>
-                    <TableCell>{r.oldValue}</TableCell>
-                    <TableCell>{r.newValue}</TableCell>
-                    <TableCell>{r.rejectionRemark}</TableCell>
-                    <TableCell>{r.amendmentRemark}</TableCell>
-                    <TableCell>{r.confirmedBy}</TableCell>
-                    <TableCell>{r.confirmedDate}</TableCell>
-                    <TableCell>{r.rejectedBy}</TableCell>
-                    <TableCell>{r.rejectedDate}</TableCell>
+
+                    <TableCell>{r["Field Name"]}</TableCell>
+                    <TableCell>{r["Old Value"]}</TableCell>
+                    <TableCell>{r["New Value"]}</TableCell>
+                    <TableCell>{r["Rejection Remark"]}</TableCell>
+                    <TableCell>{r["Amendment Remark"]}</TableCell>
+                    <TableCell>{r["confirmed By"]}</TableCell>
+                    <TableCell>{r["Confirmed Date and Time"]}</TableCell>
+                    <TableCell>{r["Rejected By"]}</TableCell>
+                    <TableCell>{r["Rejected Date and Time"]}</TableCell>
                   </TableRow>
                 ))
               )}

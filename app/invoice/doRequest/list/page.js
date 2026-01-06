@@ -29,7 +29,7 @@ import { useRouter } from "next/navigation";
 import HistoryIcon from "@mui/icons-material/History";
 import { DoHistoryModal } from "./historyModal";
 function createData(
-  mblNo,
+  blNo,
   validTill,
   isFreeDays,
   stuffDestuffId,
@@ -38,7 +38,7 @@ function createData(
   id
 ) {
   return {
-    mblNo,
+    blNo,
     validTill,
     isFreeDays,
     stuffDestuffId,
@@ -68,6 +68,7 @@ export default function BLList() {
   const [historyModal, setHistoryModal] = useState({
     toggle: false,
     value: null,
+    blNo: null,
   });
   // --------------------------------------------
   // 🔥 Fetch Table Data
@@ -77,7 +78,7 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "b.mblNo mblNo, b.validTill validTill, b.isFreeDays isFreeDays, m2.name stuffDestuffId, c.name linerName, m.name doStatus, b.id id",
+            "ISNULL(b.hblNo, b.mblNo) blNo, b.validTill validTill, b.isFreeDays isFreeDays, m2.name stuffDestuffId, c.name linerName, m.name doStatus, b.id id",
           tableName: "tblBl b",
           pageNo,
           pageSize,
@@ -110,8 +111,7 @@ export default function BLList() {
   const rows = blData
     ? blData.map((item) =>
         createData(
-          item["mblNo"],
-          item["validTill"],
+          item["blNo"],
           item["isFreeDays"],
           item["stuffDestuffId"],
           item["linerName"],
@@ -180,7 +180,6 @@ export default function BLList() {
                   />
                 </TableCell>
                 <TableCell>BL NO</TableCell>
-                <TableCell>Valid Till</TableCell>
                 <TableCell>Free Days</TableCell>
                 <TableCell>Stuff Destuff</TableCell>
                 <TableCell>Liner Name</TableCell>
@@ -204,8 +203,7 @@ export default function BLList() {
                         sx={{ p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } }}
                       />
                     </TableCell>
-                    <TableCell>{row.mblNo}</TableCell>
-                    <TableCell>{row.validTill}</TableCell>
+                    <TableCell>{row.blNo}</TableCell>
                     <TableCell>{row.isFreeDays}</TableCell>
                     <TableCell>{row.stuffDestuffId}</TableCell>
                     <TableCell>{row.linerName}</TableCell>
@@ -222,7 +220,8 @@ export default function BLList() {
                         onClick={() =>
                           setHistoryModal({
                             toggle: true,
-                            value: row.mblNo,
+                            value: row.id,
+                            blNo: row.blNo,
                           })
                         }
                       />

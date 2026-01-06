@@ -17,30 +17,33 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import CropSquareIcon from "@mui/icons-material/CropSquare";
-import { fetchInvoiceReleaseHistory } from "@/apis/history";
+import { fetchHistory } from "@/apis/history";
 import { statusColor } from "../utils";
 
 export function CfsHistoryModal({ historyModal, setHistoryModal }) {
-  const { toggle, value: mblNo } = historyModal;
+  const { toggle, value: recordId, mblNo } = historyModal;
 
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [windowMode, setWindowMode] = useState("normal");
 
   useEffect(() => {
-    if (toggle) {
+    if (toggle && recordId) {
       setWindowMode("normal");
       loadHistory();
     }
-  }, [toggle]);
+  }, [toggle, recordId]);
 
   const loadHistory = async () => {
     try {
       setLoading(true);
-      const { success, data } = await fetchInvoiceReleaseHistory({ mblNo });
+      const { success, data } = await fetchHistory({
+        spName: "dbo.getCfsHistory",
+        recordId,
+      });
       setRows(success ? data || [] : []);
     } catch (err) {
-      console.error("BL History Error:", err);
+      console.error("CFS History Error:", err);
       setRows([]);
     } finally {
       setLoading(false);
@@ -54,12 +57,6 @@ export function CfsHistoryModal({ historyModal, setHistoryModal }) {
       fullScreen={windowMode === "maximized"}
       maxWidth="xl"
       fullWidth
-      PaperProps={{
-        sx: {
-          m: windowMode === "maximized" ? 0 : 4,
-          overflow: "hidden",
-        },
-      }}
     >
       {/* Header */}
       <Box
@@ -69,20 +66,22 @@ export function CfsHistoryModal({ historyModal, setHistoryModal }) {
           bgcolor: "#1f1f1f",
           color: "#fff",
           display: "flex",
-          alignItems: "center",
           justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
-        <Typography sx={{ fontSize: 14, fontWeight: 600 }}>
-          BL History
+        <Typography fontSize={14} fontWeight={600}>
+          CFS History
         </Typography>
 
-        <Box sx={{ display: "flex", gap: 1 }}>
+        <Box>
           <IconButton
             size="small"
             sx={{ color: "#fff" }}
             onClick={() =>
-              setWindowMode((p) => (p === "maximized" ? "normal" : "maximized"))
+              setWindowMode((p) =>
+                p === "maximized" ? "normal" : "maximized"
+              )
             }
           >
             <CropSquareIcon fontSize="inherit" />
@@ -99,15 +98,8 @@ export function CfsHistoryModal({ historyModal, setHistoryModal }) {
       </Box>
 
       {/* Content */}
-      <DialogContent
-        dividers
-        sx={{
-          minHeight: 400,
-          p: 2,
-          overflow: "auto",
-        }}
-      >
-        <Typography sx={{ fontWeight: 700, mb: 2 }}>
+      <DialogContent dividers sx={{ minHeight: 400 }}>
+        <Typography fontWeight={700} mb={2}>
           MBL No: <span style={{ fontWeight: 400 }}>{mblNo}</span>
         </Typography>
 
@@ -119,11 +111,10 @@ export function CfsHistoryModal({ historyModal, setHistoryModal }) {
           <Table
             size="small"
             sx={{
-              tableLayout: "fixed", // ✅ SAME AS INVOICE
+              tableLayout: "fixed",
               width: "100%",
-              "& th": {
-                whiteSpace: "normal",
-                wordBreak: "break-word",
+              "& th, & td": {
+                fontSize: 11,
                 padding: "4px 6px",
                 fontSize: 11,
                 fontWeight: 700,
@@ -142,12 +133,12 @@ export function CfsHistoryModal({ historyModal, setHistoryModal }) {
           >
             <TableHead>
               <TableRow>
-                <TableCell className="sr-col">Sr. No.</TableCell>
+                <TableCell className="sr-col">Sr No</TableCell>
+                <TableCell>Date & Time</TableCell>
                 <TableCell>MBL Number</TableCell>
-                <TableCell>HBL Number</TableCell>
+                <TableCell>Shipping Line</TableCell>
                 <TableCell>User Name</TableCell>
-                <TableCell>User ID</TableCell>
-                <TableCell>Company Name</TableCell>
+                <TableCell>User Id</TableCell>
                 <TableCell>Contact No</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Field Name</TableCell>
@@ -155,17 +146,15 @@ export function CfsHistoryModal({ historyModal, setHistoryModal }) {
                 <TableCell>New Value</TableCell>
                 <TableCell>Rejection Remark</TableCell>
                 <TableCell>Amendment Remark</TableCell>
-                <TableCell>Confirmed By</TableCell>
                 <TableCell>Confirmed Date & Time</TableCell>
-                <TableCell>Rejected By</TableCell>
-                <TableCell>Rejected Date & Time</TableCell>
+                <TableCell>Rejection Date & Time</TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
               {rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={17} align="center">
+                  <TableCell colSpan={15} align="center">
                     No history found
                   </TableCell>
                 </TableRow>
@@ -173,29 +162,30 @@ export function CfsHistoryModal({ historyModal, setHistoryModal }) {
                 rows.map((r, i) => (
                   <TableRow key={i}>
                     <TableCell className="sr-col">{i + 1}</TableCell>
-                    <TableCell>{r.mblNo}</TableCell>
-                    <TableCell>{r.hblNo}</TableCell>
-                    <TableCell>{r.userName}</TableCell>
-                    <TableCell>{r.userId}</TableCell>
-                    <TableCell>{r.companyName}</TableCell>
-                    <TableCell>{r.contactNo}</TableCell>
+
+                    <TableCell>{r["Date and Time"]}</TableCell>
+                    <TableCell>{r["MBL Number"]}</TableCell>
+                    <TableCell>{r["Shipping Line"]}</TableCell>
+                    <TableCell>{r["User Name"]}</TableCell>
+                    <TableCell>{r["User Id"]}</TableCell>
+                    <TableCell>{r["Contact No"]}</TableCell>
+
                     <TableCell
                       sx={{
-                        color: statusColor(r.status),
+                        color: statusColor(r["Status"]),
                         fontWeight: 600,
                       }}
                     >
-                      {r.status}
+                      {r["Status"]}
                     </TableCell>
-                    <TableCell>{r.fieldName}</TableCell>
-                    <TableCell>{r.oldValue}</TableCell>
-                    <TableCell>{r.newValue}</TableCell>
-                    <TableCell>{r.rejectionRemark}</TableCell>
-                    <TableCell>{r.amendmentRemark}</TableCell>
-                    <TableCell>{r.confirmedBy}</TableCell>
-                    <TableCell>{r.confirmedDate}</TableCell>
-                    <TableCell>{r.rejectedBy}</TableCell>
-                    <TableCell>{r.rejectedDate}</TableCell>
+
+                    <TableCell>{r["Field Name"]}</TableCell>
+                    <TableCell>{r["Old Value"]}</TableCell>
+                    <TableCell>{r["New Value"]}</TableCell>
+                    <TableCell>{r["Rejection Remark"]}</TableCell>
+                    <TableCell>{r["Amendment Remark"]}</TableCell>
+                    <TableCell>{r["Confirmed Date and Time"]}</TableCell>
+                    <TableCell>{r["Rejection Date and time"]}</TableCell>
                   </TableRow>
                 ))
               )}

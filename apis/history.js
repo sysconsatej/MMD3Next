@@ -88,3 +88,19 @@ export const fetchHblColumnsChanges = async ({ ids }) => {
     };
   }
 };
+export const fetchHistory = async ({ recordId, spName }) => {
+  try {
+    const res = await api.get("historyData", {
+      params: { recordId, spName },
+    });
+    return res.data;
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error?.response?.data?.message || "Failed to fetch history",
+      data: [],
+    };
+  }
+};
+

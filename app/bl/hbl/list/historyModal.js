@@ -17,27 +17,30 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import CropSquareIcon from "@mui/icons-material/CropSquare";
-import { fetchInvoiceReleaseHistory } from "@/apis/history";
+import { fetchHistory, fetchInvoiceReleaseHistory } from "@/apis/history";
 import { statusColor } from "../utils";
 
 export function BLHistoryModal({ historyModal, setHistoryModal }) {
-  const { toggle, value: mblNo } = historyModal;
+  const { toggle, value: hblId, mblNo } = historyModal;
 
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [windowMode, setWindowMode] = useState("normal");
 
   useEffect(() => {
-    if (toggle && mblNo) {
+    if (toggle) {
       setWindowMode("normal");
       loadHistory();
     }
-  }, [toggle, mblNo]);
+  }, [toggle]);
 
   const loadHistory = async () => {
     try {
       setLoading(true);
-      const { success, data } = await fetchInvoiceReleaseHistory({ mblNo });
+      const { success, data } = await fetchHistory({
+        spName: "dbo.getHblHistory",
+        recordId: hblId,
+      });
       setRows(success ? data || [] : []);
     } catch (e) {
       console.error("BL History error", e);
@@ -81,9 +84,7 @@ export function BLHistoryModal({ historyModal, setHistoryModal }) {
             size="small"
             sx={{ color: "#fff" }}
             onClick={() =>
-              setWindowMode((p) =>
-                p === "maximized" ? "normal" : "maximized"
-              )
+              setWindowMode((p) => (p === "maximized" ? "normal" : "maximized"))
             }
           >
             <CropSquareIcon fontSize="inherit" />
@@ -92,9 +93,7 @@ export function BLHistoryModal({ historyModal, setHistoryModal }) {
           <IconButton
             size="small"
             sx={{ color: "#fff" }}
-            onClick={() =>
-              setHistoryModal({ toggle: false, value: null })
-            }
+            onClick={() => setHistoryModal({ toggle: false, value: null })}
           >
             <CloseIcon fontSize="inherit" />
           </IconButton>
@@ -106,7 +105,7 @@ export function BLHistoryModal({ historyModal, setHistoryModal }) {
         sx={{
           minHeight: 400,
           overflowX: "hidden", // 🚫 no horizontal scroll
-          overflowY: "auto",   // ✅ vertical scroll
+          overflowY: "auto", // ✅ vertical scroll
         }}
       >
         <Typography fontWeight={700} mb={2}>
@@ -170,32 +169,36 @@ export function BLHistoryModal({ historyModal, setHistoryModal }) {
                 ) : (
                   rows.map((r, i) => (
                     <TableRow key={i}>
-                      <TableCell>{i + 1}</TableCell>
-                      <TableCell>{r.mblNo}</TableCell>
-                      <TableCell>{r.hblNo}</TableCell>
-                      <TableCell>{r.userName}</TableCell>
-                      <TableCell>{r.userId}</TableCell>
-                      <TableCell>{r.companyName}</TableCell>
-                      <TableCell>{r.contactNo}</TableCell>
-                      <TableCell sx={{ color: statusColor(r.status) }}>
-                        {r.status}
+                      <TableCell className="sr-col">{i + 1}</TableCell>
+
+                      <TableCell>{r["MBL Number"]}</TableCell>
+                      <TableCell>{r["HBL Number"]}</TableCell>
+                      <TableCell>{r["User Name"]}</TableCell>
+                      <TableCell>{r["User ID"]}</TableCell>
+
+                      {/* Company Name nahi hai, Shipping Line hai */}
+                      <TableCell>{r["Shipping Line"]}</TableCell>
+
+                      <TableCell>{r["Contact Number"]}</TableCell>
+
+                      <TableCell
+                        sx={{
+                          color: statusColor(r["Status"]),
+                          fontWeight: 600,
+                        }}
+                      >
+                        {r["Status"]}
                       </TableCell>
 
-                      {/* text-heavy columns */}
-                      <TableCell sx={{ maxWidth: 140 }}>{r.fieldName}</TableCell>
-                      <TableCell sx={{ maxWidth: 140 }}>{r.oldValue}</TableCell>
-                      <TableCell sx={{ maxWidth: 140 }}>{r.newValue}</TableCell>
-                      <TableCell sx={{ maxWidth: 160 }}>
-                        {r.rejectionRemark}
-                      </TableCell>
-                      <TableCell sx={{ maxWidth: 160 }}>
-                        {r.amendmentRemark}
-                      </TableCell>
+                      <TableCell>{r["Field Name"]}</TableCell>
+                      <TableCell>{r["Old Value"]}</TableCell>
+                      <TableCell>{r["New Value"]}</TableCell>
+                      <TableCell>{r["Rejection Remark"]}</TableCell>
+                      <TableCell>{r["Amendment Remark"]}</TableCell>
 
-                      <TableCell>{r.confirmedBy}</TableCell>
-                      <TableCell>{r.confirmedDate}</TableCell>
-                      <TableCell>{r.rejectedBy}</TableCell>
-                      <TableCell>{r.rejectedDate}</TableCell>
+                      <TableCell>{r["Confirmed Date and Time"]}</TableCell>
+                      <TableCell>{r["Rejected By"]}</TableCell>
+                      <TableCell>{r["Rejected Date and Time"]}</TableCell>
                     </TableRow>
                   ))
                 )}
