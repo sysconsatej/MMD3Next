@@ -557,54 +557,55 @@ function extractInvoiceDateMulti(all, p1, p2) {
 
 // Total invoice amount with multiple patterns, positive/negative
 function extractTotalInvoiceAmountMulti(all) {
-  const patterns = [
-    /Total\s+Invoice\s+Value\s*\(in\s*figure\)\s*([-0-9,]+\.\d{2})/i,
-    /Grand\s+Total\s*[:#\-]?\s*([-0-9,]+\.\d{2})/i,
-    /Total\s+Amount\s*[:#\-]?\s*([-0-9,]+\.\d{2})/i,
+  if (!all) return 0;
+
+  // 1) Strong explicit labels (keep these)
+  const labeled = [
+    /Total\s+Invoice\s+Value\s*\(in\s*figure\)\s*₹?\s*([-0-9,]+\.\d{2})/i,
+    /Grand\s+Total\s*[:#\-]?\s*₹?\s*([-0-9,]+\.\d{2})/i,
+    /Total\s+Amount\s*[:#\-]?\s*₹?\s*([-0-9,]+\.\d{2})/i,
   ];
 
-  for (const re of patterns) {
+  for (const re of labeled) {
     const m = all.match(re);
-    if (m) {
-      const num = Number(m[1].replace(/,/g, ""));
+    if (m?.[1]) {
+      const num = Number(String(m[1]).replace(/,/g, ""));
       if (!Number.isNaN(num)) return num;
     }
   }
 
-  // ✅ ADDED: Table-style "Total ... 98,530.00" (capture last money on the "Total" line)
-  const row = all.match(/^\s*Total\b.*?([-0-9,]+\.\d{2})\s*$/gim);
-  if (row && row.length) {
-    const lastLine = row[row.length - 1];
-    const lastAmt = lastLine.match(/([-0-9,]+\.\d{2})\s*$/);
-    if (lastAmt) {
-      const num = Number(String(lastAmt[1]).replace(/,/g, ""));
-      if (!Number.isNaN(num)) return num;
-    }
-  }
+  // 2) BEST: "Total" table row -> take LAST amount on that row
+  // Works when line breaks exist
+  const totalLines = all.match(/(?:^|\n)\s*Total\b[^\n]*$/gim) || [];
+  for (let i = totalLines.length - 1; i >= 0; i--) {
+    const line = totalLines[i];
 
-  // ✅ ADDED: works even when the whole PDF page text is collapsed into one line
-  // Matches: "Total 83,500.00 7,515.00 7,515.00 98,530.00" and captures LAST amount
-  const totalRow = all.match(
-    /\bTotal\s+([-0-9,]+\.\d{2})\s+([-0-9,]+\.\d{2})\s+([-0-9,]+\.\d{2})\s+([-0-9,]+\.\d{2})\b/i
-  );
-  if (totalRow) {
-    const num = Number(String(totalRow[4]).replace(/,/g, ""));
-    if (!Number.isNaN(num)) return num;
-  }
+    // ignore header-ish lines like "Total Amt With Tax (INR)"
+    if (/\b(AMT|AMOUNT)\b.*\bTAX\b/i.test(line) || /\bWITH\s+TAX\b/i.test(line)) continue;
 
-  // ✅ ADDED: fallback - pick LAST currency-like amount after the word "Total"
-  const afterTotal = all.match(/\bTotal\b([\s\S]{0,120})/i);
-  if (afterTotal) {
-    const amts = afterTotal[1].match(/[-0-9,]+\.\d{2}/g) || [];
+    const amts = line.match(/[-0-9,]+\.\d{2}/g) || [];
     if (amts.length) {
       const num = Number(String(amts[amts.length - 1]).replace(/,/g, ""));
       if (!Number.isNaN(num)) return num;
     }
   }
 
+  // 3) If PDF collapses everything into one line:
+  // Match: "Total 2,000.00 180.00 180.00 2,360.00" and stop near typical next sections
+  const oneLine = all.match(
+    /\bTotal\b(?:\s+[A-Z]{3})?(?:\s+₹?\s*[-0-9,]+\.\d{2}){1,10}(?=\s+(?:Amount\s+In\s+Words|HSN\/SAC|Remarks\b|Bank\s+Details|For\s+[A-Z]|Authorised\s+Signatory|E\.\s*&\s*O\.E\.|$))/i
+  );
+  if (oneLine) {
+    const amts = oneLine[0].match(/[-0-9,]+\.\d{2}/g) || [];
+    if (amts.length) {
+      const num = Number(String(amts[amts.length - 1]).replace(/,/g, ""));
+      if (!Number.isNaN(num)) return num;
+    }
+  }
 
   return 0;
 }
+
 
 // ✅ FINAL INVOICE CATEGORY DETECTION (BUSINESS RULE BASED)
 function extractInvoiceCategoryMulti(all) {
@@ -645,10 +646,26 @@ function extractBillingPartyMulti(all, p1, p2) {
       )?.[1] || "";
   }
 
-  // 🔹 3️⃣ Cleanup garbage text if still long
   block = collapse(block);
 
+  block = block.replace(/\(([^)]*)\)/g, (_full, inside) => {
+    const s = String(inside || "").trim();
+    if (/[0-9,]/.test(s)) return "";      // drop ( ... ) if has number or comma
+    return `(${s})`;                      // keep clean (INDIA)
+  });
+
+  block = collapse(block);
+
+  const cut = block.match(
+    /^(.*?)(?=\s*(?:,|\||\b(?:ROOM|RM|FLAT|PLOT|SHOP|OFFICE|BLDG|BUILDING|FLOOR|FLR|ROAD|RD\.?|STREET|SECTOR|NAGAR|PIN|PO|POST|DIST|TAL|CITY|STATE)\b(?:\s*(?:NO|NO\.)\s*[-:]?\s*\d+)?|\b(?:NO|NO\.)\s*[-:]?\s*\d+\b|\b[A-Z]{1,3}\s*[-\/]\s*\d+[A-Z]?\b|\b\d{1,2}(?:ST|ND|RD|TH)\b))/i
+  );
+
+
+  block = (cut?.[1] || block).trim();
+  block = block.replace(/[|,]\s*$/g, "").trim();
+
   if (!block) return "";
+
 
   // 🔹 4️⃣ Remove PAN/GST if they sneak in
   block = block
@@ -712,8 +729,18 @@ function detectInvoiceType(all) {
 
 // Remarks detection based on content
 function detectRemarks(all) {
-  if (/ADDITIONAL\s+STORAGE/i.test(all)) return "ADDITIONAL STORAGE CHARGES";
-  if (/CREDIT\s+NOTE/i.test(all)) return "CREDIT NOTE";
-  if (/FREIGHT/i.test(all)) return "FREIGHT";
+  if (!all) return "";
+
+  // ✅ 1) First try: extract the actual "Remarks :" text block
+  const m = all.match(
+    /Remarks?\s*[:\-]?\s*([\s\S]*?)(?=\s*(Bank\s+Details|Account\s+Name|For\s+[A-Z]|Authorised\s+Signatory|E\.\s*&\s*O\.E\.|Terms\s+And\s+Conditions|This\s+is\s+a\s+computer\s+generated|$))/i
+  );
+  if (m && m[1]) return collapse(m[1]);
+
+  // // ✅ 2) Fallback: your old keyword mapping
+  // if (/ADDITIONAL\s+STORAGE/i.test(all)) return "ADDITIONAL STORAGE CHARGES";
+  // if (/CREDIT\s+NOTE/i.test(all)) return "CREDIT NOTE";
+  // if (/FREIGHT/i.test(all)) return "FREIGHT";
+
   return "";
 }
