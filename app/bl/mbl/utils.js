@@ -614,6 +614,18 @@ export const createGridEventFunctions = ({ setFormData }) => {
           value: dataAgentCode?.[0]?.panNo,
         })
       );
+
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          tabName: null,
+          gridName: "tblBlContainer",
+          tabIndex: null,
+          containerIndex: gridIndex,
+          name: "soc",
+          value: false,
+        })
+      );
     },
   };
 };

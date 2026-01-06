@@ -760,6 +760,18 @@ export const createGridEventFunctions = ({ formData, setFormData }) => {
           value: dataAgentCode?.[0]?.panNo,
         })
       );
+
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          tabName: "tblBl",
+          gridName: "tblBlContainer",
+          tabIndex: tabIndex,
+          containerIndex: gridIndex,
+          name: "soc",
+          value: false,
+        })
+      );
     },
   };
 };
