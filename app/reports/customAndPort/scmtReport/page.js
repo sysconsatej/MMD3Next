@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data, { metaData } from "./containerReportData";
+import data, { metaData } from "./scmtReportData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -17,6 +17,7 @@ export default function IgmGeneration() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [tableData, setTableData] = useState([]);
   const [goLoading, setGoLoading] = useState(false);
+  const [jsonData, setJsonData] = useState(data);
   const router = useRouter();
   const userData = getUserByCookies();
 
@@ -39,7 +40,7 @@ export default function IgmGeneration() {
     const transformed = transformToIds(formData);
 
     const requestBody = {
-      spName: "containerRegister",
+      spName: "scmtImportRegister",
       jsonData: {
         ...transformed,
         shippingLineId: userData.companyId,
@@ -104,7 +105,7 @@ export default function IgmGeneration() {
   //   };
   const handleChangeEventFunctions = createHandleChangeEventFunction({
     setFormData,
-    fields: data.igmGenerationFields,
+    fields: jsonData.igmGenerationFields,
   });
   return (
     <ThemeProvider theme={theme}>
@@ -112,14 +113,14 @@ export default function IgmGeneration() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0">
-              Container Report
+              SCMT Report
             </h1>
           </Box>
 
           <Box className="border border-solid border-black rounded-[4px]">
             <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black">
               <CustomInput
-                fields={data.igmGenerationFields}
+                fields={jsonData.igmGenerationFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
