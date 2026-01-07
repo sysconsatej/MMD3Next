@@ -32,7 +32,6 @@ function createData(
   location,
   submittedBy,
   blNo,
-  validTill,
   isFreeDays,
   stuffDestuffId,
   doStatus,
@@ -42,7 +41,6 @@ function createData(
     location,
     submittedBy,
     blNo,
-    validTill,
     isFreeDays,
     stuffDestuffId,
     doStatus,
@@ -250,7 +248,7 @@ export default function BLList() {
                     <TableCell>{row.stuffDestuffId}</TableCell>
                     <TableCell
                       sx={{
-                        color: statusColor(row.doStatus.replace(/\s+/g, "")),
+                        color: statusColor(row?.doStatus?.replace(/\s+/g, "")),
                       }}
                     >
                       {row.doStatus}
