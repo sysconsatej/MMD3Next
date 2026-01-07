@@ -153,8 +153,11 @@ export default function CargoArrivalNotice() {
           const html = generatedHtmlReport(item);
           const emailPayload = {
             tailwindLocalPath: "./assets/css/tailwind.min.css",
-            to: "productmgr@mastergroups.com",
+            to: item?.emailTo || "",
+            cc: item?.emailCC || "",
             htmlContent: html,
+            pdfFilename: "Pre Cargo Arrival Notice",
+            subject: "Pre Cargo Arrival Notice",
           };
 
           const resp = await sendEmail(emailPayload);

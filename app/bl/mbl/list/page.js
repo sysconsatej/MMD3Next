@@ -29,7 +29,7 @@ import TableExportButtons from "@/components/tableExportButtons/tableExportButto
 import ReportPickerModal from "@/components/ReportPickerModal/reportPickerModal";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-import HistoryIcon from "@mui/icons-material/History"; 
+import HistoryIcon from "@mui/icons-material/History";
 import BLHistoryModal from "../modal";
 
 const LIST_TABLE = "tblBl b";
@@ -43,6 +43,8 @@ const REPORTS = [
   { key: "Survey Letter", label: "Survey Letter" },
   { key: "Delivery Order", label: "Delivery Order" },
   { key: "EmptyOffLoadingLetter", label: "Empty Off-Loading Letter" },
+  { key: "CMCLetter", label: "CMC Letter" },
+  { key: "CustomsExaminationOrder", label: "Customs Examination Order" },
 ];
 const REPORT_ROUTE = "/htmlReports/rptDoLetter";
 
@@ -140,23 +142,23 @@ export default function BLList() {
 
   const rows = blData
     ? blData.map((item) =>
-        createData(
-          item["blNo"],
-          item["hblNo"],
-          item["mblDate"],
-          item["consigneeText"],
-          item["pol"],
-          item["pod"],
-          item["fpd"],
-          item["cargoMovement"],
-          item["arrivalVessel"],
-          item["arrivalVoyage"],
-          item["line"],
-          item["id"],
-          item["clientId"],
-          item["mblHblFlag"]
-        )
+      createData(
+        item["blNo"],
+        item["hblNo"],
+        item["mblDate"],
+        item["consigneeText"],
+        item["pol"],
+        item["pod"],
+        item["fpd"],
+        item["cargoMovement"],
+        item["arrivalVessel"],
+        item["arrivalVoyage"],
+        item["line"],
+        item["id"],
+        item["clientId"],
+        item["mblHblFlag"]
       )
+    )
     : [];
 
   useEffect(() => {
@@ -304,7 +306,7 @@ export default function BLList() {
                     </TableCell>
                     <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <HistoryIcon
-                        sx={{ cursor: "pointer", fontSize: "16px",color: "#1976d2" }}
+                        sx={{ cursor: "pointer", fontSize: "16px", color: "#1976d2" }}
                         onClick={() => {
                           console.log("MBL History clicked, row.id =", row.id);
                           setHistoryModal({
