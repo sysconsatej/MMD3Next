@@ -136,7 +136,7 @@ export default function CompanyList() {
             cfsStatusHandler(getData, router, setMode).handleEdit(id)
           }
           onView={(id) =>
-            cfsStatusHandler(getData, router, setMode).handleEdit(id)
+            cfsStatusHandler(getData, router, setMode).handleView(id)
           }
           onRequest={(ids) =>
             cfsStatusHandler(getData, router, setMode).handleRequest(ids)
@@ -180,21 +180,16 @@ export default function CompanyList() {
                     </TableCell>
 
                     <TableCell>{row?.locationId}</TableCell>
-                    <TableCell>{row?.shippingLineId}</TableCell>
-                    <TableCell>{row?.mblNo}</TableCell>
-                    <TableCell>{row?.mblDate}</TableCell>
-                    <TableCell>{row?.podVesselId}</TableCell>
-                    <TableCell>{row?.podVoyageId}</TableCell>
-                    <TableCell>{row?.fpdId}</TableCell>
-                    <TableCell>{row?.consigneeText}</TableCell>
-                    <TableCell>{row?.cfsTypeId}</TableCell>
-                    <TableCell>{row?.nominatedAreaId}</TableCell>
+                    <TableCell>{row?.shippingLineName}</TableCell>
+                    <TableCell>{row?.blNo}</TableCell>
+                    <TableCell>{row?.cfsType}</TableCell>
+                    <TableCell>{row?.nominatedArea}</TableCell>
                     <TableCell>{row?.dpdId}</TableCell>
                     <TableCell>{row?.customBrokerText}</TableCell>
                     <TableCell
                       sx={{
                         color: statusColor(
-                          row.cfsRequestStatusId.replace(/\s+/g, "")
+                          row.cfsRequestStatusId
                         ),
                       }}
                     >

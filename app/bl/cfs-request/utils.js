@@ -17,62 +17,62 @@ import {
 
 const userData = getUserByCookies();
 
-export const handleBlur = ({ setFormData, formData, setMode }) => {
-  return {
-    getDataBasedonLinerAndBLNo: async (event) => {
-      const { value } = event.target;
-      if (!value) {
-        setFormData((prev) => {
-          return {
-            ...prev,
-            podVoyageId: {},
-            podVesselId: {},
-            fpdId: {},
-            mblDate: "",
-          };
-        });
-        return "";
-      }
+// export const handleBlur = ({ setFormData, formData, setMode }) => {
+//   return {
+//     getDataBasedonLinerAndBLNo: async (event) => {
+//       const { value } = event.target;
+//       if (!value) {
+//         setFormData((prev) => {
+//           return {
+//             ...prev,
+//             podVoyageId: {},
+//             podVesselId: {},
+//             fpdId: {},
+//             mblDate: "",
+//           };
+//         });
+//         return "";
+//       }
 
-      if (!formData?.shippingLineId) {
-        return toast.error("Please Enter Liner");
-      }
+//       if (!formData?.shippingLineId) {
+//         return toast.error("Please Enter Liner");
+//       }
 
-      const mblNo = String(value).trim();
-      const payload = {
-        columns: "b.id",
-        tableName: "tblBl b",
-        whereCondition: `b.shippingLineId = '${formData?.shippingLineId?.Id}' and locationId='${userData?.location}' and b.mblNo='${mblNo}' and mblHblFlag = 'MBL'`,
-      };
+//       const mblNo = String(value).trim();
+//       const payload = {
+//         columns: "b.id",
+//         tableName: "tblBl b",
+//         whereCondition: `b.shippingLineId = '${formData?.shippingLineId?.Id}' and locationId='${userData?.location}' and b.mblNo='${mblNo}' and mblHblFlag = 'MBL'`,
+//       };
 
-      const res = await getDataWithCondition(payload);
-      const data = res?.data && res?.data[0];
-      const mlBlId = data && data?.id;
-      if (mlBlId) {
-        const format = formatFetchForm(
-          fieldData,
-          "tblBl",
-          mlBlId,
-          '["tblAttachment"]',
-          "blId"
-        );
-        const { success, result, message, error } = await fetchForm(format);
-        if (success) {
-          const getData = formatDataWithForm(result, fieldData);
-          setMode({ mode: "edit", formId: mlBlId });
-          setFormData((prev) => {
-            return {
-              ...prev,
-              ...getData,
-            };
-          });
-        } else {
-          toast.error(error || message);
-        }
-      }
-    },
-  };
-};
+//       const res = await getDataWithCondition(payload);
+//       const data = res?.data && res?.data[0];
+//       const mlBlId = data && data?.id;
+//       if (mlBlId) {
+//         const format = formatFetchForm(
+//           fieldData,
+//           "tblBl",
+//           mlBlId,
+//           '["tblAttachment"]',
+//           "blId"
+//         );
+//         const { success, result, message, error } = await fetchForm(format);
+//         if (success) {
+//           const getData = formatDataWithForm(result, fieldData);
+//        //   setMode({ mode: "edit", formId: mlBlId });
+//           setFormData((prev) => {
+//             return {
+//               ...prev,
+//               ...getData,
+//             };
+//           });
+//         } else {
+//           toast.error(error || message);
+//         }
+//       }
+//     },
+//   };
+// };
 
 export const handleChange = ({ setFormData, formData, setJsonData }) => {
   return {
@@ -112,7 +112,7 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
           })
         );
       } catch (error) {
-        console.log('error', error);
+        console.log("error", error);
       }
     },
     setCfsAndDpd: async (name, value) => {
@@ -143,44 +143,42 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
 
 export const tableObj = ({ pageNo, pageSize, search }) => {
   const payload = {
-    columns: `b.id  , 
-b.mblNo as mblNo,
-b.mblDate as mblDate,
-b.customBrokerText as customBrokerText,
-b.consigneeText as consigneeText,
-l.name as locationId,
-m.name as cfsRequestStatusId,
-r.name as cfsTypeId,
-p.name as nominatedAreaId,
-c.name as  dpdId,
-v.name as podVesselId,
-vy.voyageNo as podVoyageId,
-f.name as fpdId,
-c1.name as shippingLineId,
-b.createdBy,
-c1.name as companyName,
-b.cfsRejectRemarks as remark
-`,
-    tableName: "tblBl  b",
+    columns: `
+      b.id,
+      l.name AS locationId,
+      c1.name AS shippingLineName,
+      b.blNo,
+      r.name AS cfsType,
+      p.name AS nominatedArea,
+      c.name AS dpdId,
+      b.customBrokerText,
+      m.name AS cfsRequestStatusId,
+      b.cfsRejectRemarks AS remark
+    `,
+    tableName: "tblCfsRequest b",
     pageNo,
     pageSize,
     searchColumn: search.searchColumn,
     searchValue: search.searchValue,
-    joins: `left join tblLocation  l on l.id = b.locationId
-            left join tblMasterData  m on m.id  =  b.cfsRequestStatusId
-            left join tblMasterData r  on r.id  =  b.cfsTypeId  
-            left join tblPort p on p.id  =  b.nominatedAreaId
-            left join tblPort c  on  c.id  =  b.dpdId
-            left join tblVessel  v on  v.id  =  b.podVesselId
-            left join tblVoyage vy on vy.id  = b.podVoyageId
-            left join tblPort f on f.id  =  b.fpdId
-            left join tblCompany c1 on c1.id = b.shippingLineId
-            left join tblUser u1 on u1.id = ${userData?.userId}
-            left join tblUser u2 on u2.companyId = u1.companyId
-            join tblBl b2 on b2.id = b.id and b2.cfsRequestCreatedBy = u2.id and b.cfsRequestStatusId IS NOT NULL and b.locationId = ${userData?.location}`,
+    joins: `
+      left join tblLocation l on l.id = b.locationId
+      left join tblMasterData m on m.id = b.cfsRequestStatusId 
+      left join tblMasterData r on r.id = b.cfsTypeId
+      left join tblPort p on p.id = b.nominatedAreaId
+      left join tblPort c on c.id = b.dpdId
+      left join tblCompany c1 on c1.id = b.shippingLineId
+      left join tblUser u1 on u1.id = ${userData?.userId}
+      left join tblUser u2 on u2.companyId = u1.companyId
+      join tblCfsRequest b2 
+        on b2.id = b.id
+       and b2.createdBy = u2.id
+       and b.locationId = ${userData?.location}
+    `,
   };
+
   return payload;
 };
+
 
 export const cfsStatusHandler = (getData, router, setMode) => {
   return {
@@ -214,7 +212,7 @@ export const cfsStatusHandler = (getData, router, setMode) => {
             });
 
           const res = await updateStatusRows({
-            tableName: "tblBl",
+            tableName: "tblCfsRequest",
             rows: rowsPayload,
             keyColumn: "id",
           });
@@ -250,7 +248,7 @@ export const cfsStatusHandler = (getData, router, setMode) => {
             });
 
           const res = await updateStatusRows({
-            tableName: "tblBl",
+            tableName: "tblCfsRequest",
             rows: rowsPayload,
             keyColumn: "id",
           });
@@ -287,7 +285,7 @@ export const cfsStatusHandler = (getData, router, setMode) => {
             });
 
           const res = await updateStatusRows({
-            tableName: "tblBl",
+            tableName: "tblCfsRequest",
             rows: rowsPayload,
             keyColumn: "id",
           });
@@ -323,7 +321,7 @@ export const cfsStatusHandler = (getData, router, setMode) => {
             });
 
           const res = await updateStatusRows({
-            tableName: "tblBl",
+            tableName: "tblCfsRequest",
             rows: rowsPayload,
             keyColumn: "id",
           });
@@ -359,7 +357,7 @@ export const cfsStatusHandler = (getData, router, setMode) => {
             });
 
           const res = await updateStatusRows({
-            tableName: "tblBl",
+            tableName: "tblCfsRequest",
             rows: rowsPayload,
             keyColumn: "id",
           });
@@ -396,7 +394,7 @@ export const cfsStatusHandler = (getData, router, setMode) => {
             });
 
           const res = await updateStatusRows({
-            tableName: "tblBl",
+            tableName: "tblCfsRequest",
             rows: rowsPayload,
             keyColumn: "id",
           });

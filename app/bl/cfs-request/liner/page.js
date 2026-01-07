@@ -32,7 +32,7 @@ import HistoryIcon from "@mui/icons-material/History";
 import { CfsHistoryLinerModal } from "./historyModal";
 
 /* ---------------- Constants ---------------- */
-const LIST_TABLE = "tblBl b";
+const LIST_TABLE = "tblCfsRequest b";
 
 // checkbox sizing
 const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
@@ -71,41 +71,35 @@ export default function SearchRequestCfsDpdIcd() {
 
         const tableObj = {
           columns: `
-            c1.name as CompanyName,
-            b.mblNo as mblNo,
-            v.name as vesselName,
-            vy.voyageNo as voyageName,
-            p1.name as POD,
-            f.name as PlaceOfDeleverey,
-            r.name as cfsType,
-            p.name as cfs,
-            c.name as dpd,
-            b.consigneeText as consigneeName,
-            b.customBrokerText as NominatedCB,
-            l.name as locationName,
-            m.name as statusName,
-            c1.name as UserName,
-            c1.emailId as LoginId,
-            c1.telephoneNo as ContactNo,
-            b.cfsRejectRemarks as remark,
-            b.id as id
+            c1.name AS CompanyName,
+            b.blNo AS blNo,
+            r.name AS cfsType,
+            p.name AS cfs,
+            c.name AS dpd,
+            b.customBrokerText AS NominatedCB,
+            l.name AS locationName,
+            m.name AS statusName,
+            c1.name AS UserName,
+            u2.emailId AS LoginId,
+            c1.telephoneNo AS ContactNo,
+            b.cfsRejectRemarks AS remark,
+            b.id AS id
           `,
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
           joins: `
-        left join tblUser u on u.id = ${userData?.userId}
-        left join tblCompany c1 on c1.id = u.companyId 
-        left join tblLocation l on l.id = ${userData?.location}
-        join tblMasterData m on m.id = b.cfsRequestStatusId 
-        and b.cfsRequestStatusId IS NOT NULL and b.locationId = l.id and b.shippingLineId = u.companyId and m.name <> 'Pending' 
-        left join tblMasterData r on r.id = b.cfsTypeId 
-        left join tblPort p1 on p1.id = b.polId 
-        left join tblPort p on p.id = b.nominatedAreaId 
-        left join tblPort c on c.id = b.dpdId 
-        left join tblVessel v on v.id = b.podVesselId 
-        left join tblVoyage vy on vy.id = b.podVoyageId 
-        left join tblPort f on f.id = b.fpdId
+            LEFT JOIN tblUser u2 ON u2.id = b.createdBy
+            LEFT JOIN tblUser u ON u.id = ${userData?.userId}
+            LEFT JOIN tblCompany c1 ON c1.id = u2.companyId
+            LEFT JOIN tblLocation l ON l.id = ${userData?.location}
+            JOIN tblMasterData m ON m.id = b.cfsRequestStatusId
+              AND b.cfsRequestStatusId IS NOT NULL
+              AND b.locationId = l.id
+              AND b.shippingLineId = u.companyId
+            LEFT JOIN tblMasterData r ON r.id = b.cfsTypeId
+            LEFT JOIN tblPort p ON p.id = b.nominatedAreaId
+            LEFT JOIN tblPort c ON c.id = b.dpdId
           `,
         };
 
@@ -158,9 +152,6 @@ export default function SearchRequestCfsDpdIcd() {
         {/* ACTION TOOLBAR */}
         <SearchRequestToolbarActions
           selectedIds={selectedIds}
-          onEdit={(id) =>
-            cfsStatusHandler(getData, router, setMode).handleEdit(id)
-          }
           onView={(id) =>
             cfsStatusHandler(getData, router, setMode).handleView(id)
           }
@@ -202,16 +193,11 @@ export default function SearchRequestCfsDpdIcd() {
                     sx={CHECKBOX_SX}
                   />
                 </TableCell>
-
                 <TableCell>Company Name</TableCell>
-                <TableCell>MBL No.</TableCell>
-                <TableCell>Vessel</TableCell>
-                <TableCell>Voyage No</TableCell>
-                <TableCell>POD</TableCell>
-                <TableCell>Place of Delivery</TableCell>
-                <TableCell>Delivery Type</TableCell>
+                <TableCell>BL No</TableCell>
                 <TableCell>CFS Type</TableCell>
-                <TableCell>Consignee Name</TableCell>
+                <TableCell>CFS</TableCell>
+                <TableCell>DPD</TableCell>
                 <TableCell>Nominated CB</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Login Id</TableCell>
@@ -237,18 +223,14 @@ export default function SearchRequestCfsDpdIcd() {
                     </TableCell>
 
                     <TableCell>{row.CompanyName || "-"}</TableCell>
-                    <TableCell>{row.mblNo || "-"}</TableCell>
-                    <TableCell>{row.vesselName}</TableCell>
-                    <TableCell>{row.voyageName}</TableCell>
-                    <TableCell>{row.POD || "-"}</TableCell>
-                    <TableCell>{row.PlaceOfDeleverey || "-"}</TableCell>
-                    <TableCell>{row.dpd || "-"}</TableCell>
+                    <TableCell>{row.blNo || "-"}</TableCell>
                     <TableCell>{row.cfsType || "-"}</TableCell>
-                    <TableCell>{row.consigneeName || "-"}</TableCell>
+                    <TableCell>{row.cfs || "-"}</TableCell>
+                    <TableCell>{row.dpd || "-"}</TableCell>
                     <TableCell>{row.NominatedCB || "-"}</TableCell>
                     <TableCell
                       sx={{
-                        color: statusColor(row.statusName.replace(/\s+/g, "")),
+                        color: statusColor(row.statusName?.replace(/\s+/g, "")),
                       }}
                     >
                       {row.statusName || "-"}

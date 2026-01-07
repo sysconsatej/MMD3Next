@@ -27,33 +27,43 @@ export default function Company() {
   const [fieldsMode, setFieldsMode] = useState("");
   const [errorState, setErrorState] = useState({});
   const userData = getUserByCookies();
-  const [disableBtn, setDisableBtn] = useState(true);
+  const [disableSubmit, setDisableSubmit] = useState(false);
+  const [disableRequest, setDisableRequest] = useState(true);
+
   useSetDefault({ userData, setFormData, mode: mode });
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    let payloadCfs = {};
-    if (userData.roleCode === "customer") {
-      payloadCfs = { ...formData, cfsRequestCreatedBy: userData?.userId };
-    } else {
-      payloadCfs = formData;
+
+    const attachments = formData?.tblAttachment || [];
+
+    const hasValidAttachment = attachments.some(
+      (att) => att?.attachmentTypeId && att?.path
+    );
+
+    if (!hasValidAttachment) {
+      toast.error("At least one attachment is required");
+      return;
     }
-    const format = formatFormData("tblBl", payloadCfs, mode.formId, "blId");
+    const normalized = {
+      ...formData,
+      companyId: userData?.companyId,
+      companyBranchId: userData?.branchId,
+    };
+
+    const format = formatFormData(
+      "tblCfsRequest",
+      normalized,
+      mode?.formId || null,
+      "blId"
+    );
+
     const { success, error, message } = await insertUpdateForm(format);
+
     if (success) {
       toast.success(message);
-      setDisableBtn((prev) => ({ ...prev, submit: true }));
-      setJsonData((prev) => {
-        return {
-          ...prev,
-          fields: prev.fields.map((r) => {
-            return { ...r, disabled: true };
-          }),
-          tblAttachment: prev.tblAttachment.map((r) => {
-            return { ...r, disabled: true };
-          }),
-        };
-      });
+      setDisableSubmit(true);
+      setDisableRequest(false);
     } else {
       toast.error(error || message);
     }
@@ -65,82 +75,142 @@ export default function Company() {
     setJsonData,
   });
 
-  const handleBlurEventFunctions = handleBlur({
-    setFormData,
-    formData,
-    setMode,
-  });
-
-  const updateStatusToRequest = async (event) => {
-    event.preventDefault();
+  async function requestHandler() {
     try {
-      const payload = {
-        columns: "m.id , m.name",
+      const statusPayload = {
+        columns: "m.id as Id, m.name as Name",
         tableName: "tblMasterData m",
-        whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Request'`,
+        whereCondition:
+          "m.masterListName = 'tblCfsStatusType' AND m.name = 'Request'",
       };
-      const getStatusId = await getDataWithCondition(payload);
-      if (getStatusId) {
-        const rowsPayload = [
-          {
-            id: mode?.formId,
-            cfsRequestStatusId: getStatusId?.data[0]?.id,
-            updatedBy: userData.userId,
-            updatedDate: new Date(),
-          },
-        ];
-        const res = await updateStatusRows({
-          tableName: "tblBl",
-          rows: rowsPayload,
-          keyColumn: "id",
-        });
 
-        if (res?.success === true) {
-          setFormData((prev) => {
-            return {
-              ...prev,
-              cfsRequestStatusId: {
-                Id: getStatusId?.data[0]?.id,
-                Name: getStatusId?.data[0]?.name,
-              },
-            };
-          });
-          toast.success("This CFS is Requested");
-        }
+      const statusRes = await getDataWithCondition(statusPayload);
+      const requestStatusId = statusRes?.data?.[0]?.Id;
+
+      if (!requestStatusId) {
+        toast.error("Request status missing in master");
+        return;
+      }
+
+      if (!formData?.blId && !formData?.blNo) {
+        toast.error("BL No is required before sending Request");
+        return;
+      }
+
+      const checkPayload = {
+        columns: "id",
+        tableName: "tblCfsRequest",
+        whereCondition: `
+        blNo = '${formData?.blNo}'
+        AND status = 1
+        AND companyId = '${userData.companyId}'
+      `,
+      };
+
+      const { data, success, message, error } = await getDataWithCondition(
+        checkPayload
+      );
+
+      if (!success || !Array.isArray(data) || data.length === 0) {
+        toast.error(
+          message ||
+            error ||
+            "CFS Request record not found. Please submit first."
+        );
+        return;
+      }
+      const rowsPayload = data.map((row) => ({
+        id: row.id,
+        cfsRequestStatusId: requestStatusId,
+        updatedBy: userData.userId,
+        updatedDate: new Date(),
+      }));
+      const res = await updateStatusRows({
+        tableName: "tblCfsRequest",
+        keyColumn: "id",
+        rows: rowsPayload,
+      });
+      if (res?.success) {
+        toast.success("CFS Request sent successfully!");
+        setDisableRequest(true);
+        setMode((prev) => ({ ...prev, status: "Request" }));
+      } else {
+        toast.error(res?.message || "Error while sending CFS Request");
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
+      toast.error("Something went wrong while requesting CFS");
     }
-  };
+  }
 
   useEffect(() => {
     async function fetchFormHandler() {
       if (!mode?.formId) return;
 
       setFieldsMode(mode?.mode);
+
       const format = formatFetchForm(
         fieldData,
-        "tblBl",
-        mode?.formId,
+        "tblCfsRequest",
+        mode.formId,
         '["tblAttachment"]',
         "blId"
       );
+
       const { success, result, message, error } = await fetchForm(format);
-      if (success) {
-        const getData = formatDataWithForm(result, fieldData);
-        setFormData(getData);
-        setDisableBtn(false);
-        handleChangeEventFunctions?.setCfsAndDpd(
-          "shippingLineId",
-          getData?.shippingLineId
+
+      if (!success) {
+        toast.error(error || message || "Failed to fetch form");
+        return;
+      }
+
+      const getData = formatDataWithForm(result, fieldData);
+      setFormData(getData);
+
+      let currentStatusName = "";
+
+      try {
+        const statusQuery = {
+          columns: "m.name AS StatusName",
+          tableName: "tblCfsRequest b",
+          joins: "LEFT JOIN tblMasterData m ON m.id = b.cfsRequestStatusId",
+          whereCondition: `b.id = ${mode.formId}`,
+        };
+
+        const { success: stSuccess, data: stData } = await getDataWithCondition(
+          statusQuery
         );
+
+        if (stSuccess && Array.isArray(stData) && stData.length > 0) {
+          currentStatusName = String(stData[0].StatusName || "")
+            .toLowerCase()
+            .trim();
+        }
+      } catch (e) {
+        console.error("Error fetching CFS status:", e);
+      }
+
+      if (mode.mode === "view") {
+        setDisableSubmit(true);
+
+        if (!currentStatusName || currentStatusName !== "request") {
+          setDisableRequest(false);
+        } else {
+          setDisableRequest(true);
+        }
+        return;
+      }
+
+      setDisableSubmit(false);
+      if (!currentStatusName || currentStatusName !== "request") {
+        setDisableRequest(false);
       } else {
-        toast.error(error || message);
+        setDisableRequest(true);
       }
     }
 
     fetchFormHandler();
-  }, [mode]);
+  }, [mode.formId, mode.mode]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -172,7 +242,6 @@ export default function Company() {
               formData={formData}
               setFormData={setFormData}
               fieldsMode={fieldsMode}
-              handleBlurEventFunctions={handleBlurEventFunctions}
               handleChangeEventFunctions={handleChangeEventFunctions}
             />
           </Box>
@@ -192,18 +261,20 @@ export default function Company() {
             />
           </Box>
           <Box className="w-full flex mt-2 gap-3 ">
-            {fieldsMode !== "view" && (
+            {mode?.mode !== "view" && userData?.roleCode === "customer" && (
               <CustomButton
                 text={"Submit"}
                 type="submit"
-                disabled={disableBtn}
+                disabled={disableSubmit}
               />
             )}
-            <CustomButton
-              text={"Request"}
-              onClick={updateStatusToRequest}
-              disabled={disableBtn}
-            />
+            {userData?.roleCode === "customer" && (
+              <CustomButton
+                text={"Request"}
+                onClick={requestHandler}
+                disabled={disableRequest}
+              />
+            )}
           </Box>
         </section>
       </form>

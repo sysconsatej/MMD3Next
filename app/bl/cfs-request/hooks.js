@@ -17,7 +17,7 @@ export function useSetDefault({
       try {
         const payload = {
           columns:
-            "t.id as Id,t.name as Name,m.name as statusName,m.id as statusId",
+            "t.id as Id,t.name as Name",
           tableName: "tblLocation t",
           whereCondition: `t.id = '${userData.location}' and t.status = 1`,
           joins:
