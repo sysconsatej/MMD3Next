@@ -422,6 +422,11 @@ export const navItems = [
         href: "/reports/customAndPort/containerReport",
         isShow: false,
       },
+      {
+        name: "SCMT Report",
+        href: "/reports/customAndPort/scmtReport",
+        isShow: false,
+      },
     ],
   },
   {
