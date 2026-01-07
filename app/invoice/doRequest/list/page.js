@@ -30,7 +30,6 @@ import HistoryIcon from "@mui/icons-material/History";
 import { DoHistoryModal } from "./historyModal";
 function createData(
   blNo,
-  validTill,
   isFreeDays,
   stuffDestuffId,
   linerName,
@@ -39,7 +38,6 @@ function createData(
 ) {
   return {
     blNo,
-    validTill,
     isFreeDays,
     stuffDestuffId,
     linerName,
