@@ -154,7 +154,7 @@ export default function DoToolbarActions({
             label="Generate DO"
             icon={<FolderOpenIcon />}
             onClick={() => call(onGenerateDO)}
-            disabled={!hasAny || !onGenerateDO}
+            disabled={!isSingle || !onGenerateDO}
           />
         )}
 
