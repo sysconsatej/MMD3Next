@@ -23,14 +23,19 @@ import { toast, ToastContainer } from "react-toastify";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
-import { advanceSearchFields } from "../mblData";
-import { advanceSearchFilter } from "../utils";
+import { advanceSearchFields, mblFilter } from "../mblData";
+import {
+  advanceSearchFilter,
+  craeateHandleChangeEventFunction,
+  createHandleChangeEventFunctionTrackPage,
+} from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import ReportPickerModal from "@/components/ReportPickerModal/reportPickerModal";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import HistoryIcon from "@mui/icons-material/History";
 import BLHistoryModal from "../modal";
+import { CustomInput } from "@/components/customInput";
 
 const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -100,6 +105,7 @@ export default function BLList() {
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportModalForRow, setReportModalForRow] = useState(null);
   const { data } = useGetUserAccessUtils("MBL");
+  // const [formData, setFormData] = useState({});
   const userData = getUserByCookies();
 
   // ⬇️ NEW: history modal state
@@ -109,16 +115,19 @@ export default function BLList() {
   });
 
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      advanceSearchQuery = advanceSearch
+    ) => {
       try {
         const tableObj = {
-          columns:
-            `coalesce(b.hblNo, b.mblNo)  blNo, iif(b.hblNo is null, (select b2.id, b2.hblNo from tblBl b2 left join tblMasterData m3 on m3.id = b2.hblRequestStatus where b2.mblNo =  b.mblNo and b2.status = 1 and b2.mblHblFlag = 'HBL' and m3.name = 'Confirm' and b2.shippingLineId = u.companyId and b2.locationId = ${userData.location} for json path), null) hblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId, b.mblHblFlag mblHblFlag`,
+          columns: `coalesce(b.hblNo, b.mblNo)  blNo, iif(b.hblNo is null, (select b2.id, b2.hblNo from tblBl b2 left join tblMasterData m3 on m3.id = b2.hblRequestStatus where b2.mblNo =  b.mblNo and b2.status = 1 and b2.mblHblFlag = 'HBL' and m3.name = 'Confirm' and b2.shippingLineId = u.companyId and b2.locationId = ${userData.location} for json path), null) hblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId, b.mblHblFlag mblHblFlag`,
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
           joins: `left join tblPort p on p.id = b.polId left join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId left join tblUser u on u.id = ${userData.userId} left join tblMasterData m2 on m2.id = b.hblRequestStatus join tblBl b1 on (b1.id = b.id and b1.status = 1 and  b1.mblHblFlag = 'MBL' and b1.shippingLineId = u.companyId and b1.locationId = ${userData.location}) or (b1.id = b.id and b1.shippingLineId = u.companyId and b1.status = 1 and b1.mblHblFlag = 'HBL' and m2.name = 'Confirm' and b1.locationId = ${userData.location} and b1.mblNo in (select b3.mblNo from tblBl b3 where b3.mblHblFlag = 'MBL' and b3.status = 1 and b3.shippingLineId = u.companyId and b3.locationId = ${userData.location}) )`,
-          advanceSearch: advanceSearchFilter(advanceSearch),
+          advanceSearch: advanceSearchFilter(advanceSearchQuery),
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setBlData(data);
@@ -142,23 +151,23 @@ export default function BLList() {
 
   const rows = blData
     ? blData.map((item) =>
-      createData(
-        item["blNo"],
-        item["hblNo"],
-        item["mblDate"],
-        item["consigneeText"],
-        item["pol"],
-        item["pod"],
-        item["fpd"],
-        item["cargoMovement"],
-        item["arrivalVessel"],
-        item["arrivalVoyage"],
-        item["line"],
-        item["id"],
-        item["clientId"],
-        item["mblHblFlag"]
+        createData(
+          item["blNo"],
+          item["hblNo"],
+          item["mblDate"],
+          item["consigneeText"],
+          item["pol"],
+          item["pod"],
+          item["fpd"],
+          item["cargoMovement"],
+          item["arrivalVessel"],
+          item["arrivalVoyage"],
+          item["line"],
+          item["id"],
+          item["clientId"],
+          item["mblHblFlag"]
+        )
       )
-    )
     : [];
 
   useEffect(() => {
@@ -224,6 +233,13 @@ export default function BLList() {
     setReportModalForRow(null);
   };
 
+  // const handleChangeEventFunctions = createHandleChangeEventFunctionTrackPage({
+  //   setAdvanceSearch,
+  //   getData,
+  //   rowsPerPage,
+  //   setFormData,
+  // });
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -233,6 +249,13 @@ export default function BLList() {
             MBL
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
+            {/* <CustomInput
+              fields={mblFilter}
+              formData={formData}
+              setFormData={setFormData}
+              fieldsMode={""}
+              handleChangeEventFunctions={handleChangeEventFunctions}
+            /> */}
             <AdvancedSearchBar
               fields={advanceSearchFields.bl}
               advanceSearch={advanceSearch}
@@ -306,7 +329,11 @@ export default function BLList() {
                     </TableCell>
                     <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <HistoryIcon
-                        sx={{ cursor: "pointer", fontSize: "16px", color: "#1976d2" }}
+                        sx={{
+                          cursor: "pointer",
+                          fontSize: "16px",
+                          color: "#1976d2",
+                        }}
                         onClick={() => {
                           console.log("MBL History clicked, row.id =", row.id);
                           setHistoryModal({

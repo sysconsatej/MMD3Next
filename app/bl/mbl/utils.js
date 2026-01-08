@@ -53,14 +53,22 @@ export function advanceSearchFilter(advanceSearch) {
   if (Object.keys(advanceSearch).length <= 0) return null;
   const condition = [];
 
-  if (advanceSearch.blNo) {
+  if (advanceSearch?.blNo) {
     condition.push(
       `(b.mblNo = '${advanceSearch.blNo}') or (b.hblNo = '${advanceSearch.blNo}')`
     );
   }
 
-  if (advanceSearch.mblDate) {
+  if (advanceSearch?.mblDate) {
     condition.push(`b.mblDate = '${advanceSearch.mblDate}'`);
+  }
+
+  if (advanceSearch?.podVesselId) {
+    condition.push(`v1.name = '${advanceSearch.podVesselId}'`);
+  }
+
+  if (advanceSearch?.podVoyageId) {
+    condition.push(`v.voyageNo = '${advanceSearch?.podVoyageId}'`);
   }
 
   return condition.length > 0 ? condition.join(" and ") : null;
@@ -685,3 +693,70 @@ export async function getDefaultVal(setFormData, setPackTypeState) {
     console.error(e);
   }
 }
+
+export const createHandleChangeEventFunctionTrackPage = ({
+  setAdvanceSearch,
+  getData,
+  rowPerPage,
+  setFormData,
+}) => {
+  return {
+    handleFilterVessel: async (name, value) => {
+      const vesselId = value?.Id;
+
+      if (!vesselId) {
+        setAdvanceSearch((prev) => {
+          const updateFilter = {};
+          getData(1, rowPerPage, updateFilter);
+          return updateFilter;
+        });
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: null,
+            gridName: null,
+            tabIndex: null,
+            containerIndex: null,
+            name: "podVoyageId",
+            value: null,
+          })
+        );
+        return;
+      }
+
+      let filterObj = {};
+      try {
+        const obj = {
+          columns: "t.id as Id, t.voyageNo as Name",
+          tableName: "tblVoyage t",
+          whereCondition: `t.vesselId = ${vesselId} and t.status = 1 and t.companyid = ${userData?.companyId}`,
+          orderBy: "t.voyageNo",
+        };
+
+        const { data, success } = await getDataWithCondition(obj);
+
+        if (success && Array.isArray(data) && data.length === 1) {
+          setFormData((prevData) =>
+            setInputValue({
+              prevData,
+              tabName: null,
+              gridName: null,
+              tabIndex: null,
+              containerIndex: null,
+              name: "podVoyageId",
+              value: data[0],
+            })
+          );
+          filterObj = { ...filterObj, podVoyageId: data?.[0]?.Name };
+        }
+      } catch (e) {
+        console.error("handleFilterVessel error:", e);
+      }
+      setAdvanceSearch((prev) => {
+        const updateFilter = { ...prev, ...filterObj, [name]: value?.Name };
+        getData(1, rowPerPage, updateFilter);
+        return updateFilter;
+      });
+    },
+  };
+};
