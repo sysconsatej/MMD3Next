@@ -96,6 +96,25 @@ export default function Cfs() {
         return toast.error("Pan Number is invalid ");
       }
     },
+    validateCustomCode: (e) => {
+      const { name, value } = e.target;
+      const alphaNumeric10Regex = /^[A-Za-z0-9]{10}$/;
+
+      if (!alphaNumeric10Regex.test(String(value ?? "").trim())) {
+        setFormData((prev) => ({ ...prev, [name]: "" })); // or null if you want
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        toast.error("Code must be exactly 10 alphanumeric characters");
+        return false;
+      }
+
+      setErrorState((prev) => ({ ...prev, [name]: false }));
+      return true;
+    },
+    duplicateHandler_ediPortCode: async (e) => {
+      const ok = handleBlurEventFunctions.validateCustomCode(e);
+      if (!ok) return false;
+      return await handleBlurEventFunctions.duplicateHandler(e);
+    },
   };
   const handleChangeEventFunctions = {
     onReferencePortChange: (name, value, { setFormData }) => {

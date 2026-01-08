@@ -62,7 +62,7 @@ export default function CompanyList() {
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `left join tblCompany s on s.id='${userData?.companyId}' left join tblPort p on p.id=c.podId left join tblPort p1 on p1.id=c.fpdId left join tblMasterData m on m.id=c.modeId`,
+          joins: `left join tblCompany s on s.id=c.companyId left join tblPort p on p.id=c.podId left join tblPort p1 on p1.id=c.fpdId left join tblMasterData m on m.id=c.modeId join tblCarrierPort c1 on c1.id = c.id  and s.id = '${userData?.companyId}' and c1.status = 1`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setBerthData(data ?? []);

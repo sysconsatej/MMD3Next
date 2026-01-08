@@ -63,7 +63,8 @@ export default function Company() {
     }
 
     fetchFormHandler();
-  }, [mode.formId]);
+  }, [mode]);
+
   const handleChangeEventFunctions = {
     setStateCountryFromCity: async (_name, value) => {
       if (!value?.Id) return;
@@ -156,14 +157,24 @@ export default function Company() {
         return toast.error("Pan Number is invalid ");
       }
     },
-    validateGstNO: (e) => {
+    validateGstNO: (event, { containerIndex }) => {
+      const { value, name } = event.target;
       const gstinRegex =
         /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-      const value = e.target.value;
       if (gstinRegex.test(value)) {
         return true;
       } else {
-        setFormData((prev) => ({ ...prev, taxRegistrationNo: null }));
+        setFormData((prev) =>
+          setInputValue({
+            prevData: prev,
+            tabName: null,
+            tabIndex: null,
+            gridName: containerIndex ? "tblCompanyBranch" : null,
+            containerIndex: containerIndex,
+            name: name,
+            value: null,
+          })
+        );
         return toast.error("Invalid GST Number");
       }
     },
@@ -197,10 +208,10 @@ export default function Company() {
       const obj = {
         columns: name,
         tableName: "tblCompanyBranch",
-        whereCondition: ` ${name} = '${value}'  and status = 1`,
+        whereCondition: ` ${name} = '${value}'  and status = 1 and companyId = ${mode.formId}`,
       };
-      const { success } = await getDataWithCondition(obj);
-      if (success) {
+      const { success, data } = await getDataWithCondition(obj);
+      if (success && data.length > 0) {
         setErrorState((prev) => ({ ...prev, [name]: true }));
         toast.error(`Duplicate ${name}!`);
       } else {

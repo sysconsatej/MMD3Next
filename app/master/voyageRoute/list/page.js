@@ -53,7 +53,7 @@ export default function VoyageRouteList() {
       try {
         const tableObj = {
           columns:
-            "p.name portOfCall, v.voyageId voyageId, ve.name vesselNo, v.exportLocking exportLocking, v.importLocking importLocking,v.igmNo igmNo, p1.name terminal, vo.voyageNo voyageNo ,v.id",
+            "p.name portOfCall, v.voyageId voyageId, ve.name vesselNo, v.exportLocking exportLocking, v.importLocking importLocking,v.igmNo igmNo, p1.code terminal, vo.voyageNo voyageNo ,v.id",
           tableName: "tblVoyageRoute v",
           pageNo,
           pageSize,

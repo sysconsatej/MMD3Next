@@ -28,7 +28,7 @@ const fieldData = {
       label: "Custom code",
       name: "ediPortCode",
       isEdit: true,
-      blurFun: "duplicateHandler",
+      blurFun: "duplicateHandler_ediPortCode",
     },
     {
       label: "EDI Common Terminal Code",
@@ -91,11 +91,11 @@ const fieldData = {
       name: "berthId",
       type: "dropdown",
       tableName: "tblPort p",
-      foreignTable: "name,tblPort",
+      foreignTable: "code,tblPort",
       joins: "JOIN tblMasterData m ON m.id = p.portTypeId",
       where: "m.name IN ('PORT TERMINAL')",
-      displayColumn: "p.name",
-      orderBy: "p.name",
+      displayColumn: "p.code",
+      orderBy: "p.code",
       isEdit: true,
     },
     {
