@@ -16,7 +16,7 @@ import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
-import { handleBlur, handleChange } from "./utils";
+import { handleBlur, handleChange, requestHandler } from "./utils";
 import { getUserByCookies } from "@/utils";
 import { useSetDefault } from "./hooks";
 
@@ -35,16 +35,6 @@ export default function Company() {
   const submitHandler = async (event) => {
     event.preventDefault();
 
-    const attachments = formData?.tblAttachment || [];
-
-    const hasValidAttachment = attachments.some(
-      (att) => att?.attachmentTypeId && att?.path
-    );
-
-    if (!hasValidAttachment) {
-      toast.error("At least one attachment is required");
-      return;
-    }
     const normalized = {
       ...formData,
       companyId: userData?.companyId,
@@ -55,7 +45,7 @@ export default function Company() {
       "tblCfsRequest",
       normalized,
       mode?.formId || null,
-      "blId"
+      "cfsRequestId"
     );
 
     const { success, error, message } = await insertUpdateForm(format);
@@ -75,74 +65,6 @@ export default function Company() {
     setJsonData,
   });
 
-  async function requestHandler() {
-    try {
-      const statusPayload = {
-        columns: "m.id as Id, m.name as Name",
-        tableName: "tblMasterData m",
-        whereCondition:
-          "m.masterListName = 'tblCfsStatusType' AND m.name = 'Request'",
-      };
-
-      const statusRes = await getDataWithCondition(statusPayload);
-      const requestStatusId = statusRes?.data?.[0]?.Id;
-
-      if (!requestStatusId) {
-        toast.error("Request status missing in master");
-        return;
-      }
-
-      if (!formData?.blId && !formData?.blNo) {
-        toast.error("BL No is required before sending Request");
-        return;
-      }
-
-      const checkPayload = {
-        columns: "id",
-        tableName: "tblCfsRequest",
-        whereCondition: `
-        blNo = '${formData?.blNo}'
-        AND status = 1
-        AND companyId = '${userData.companyId}'
-      `,
-      };
-
-      const { data, success, message, error } = await getDataWithCondition(
-        checkPayload
-      );
-
-      if (!success || !Array.isArray(data) || data.length === 0) {
-        toast.error(
-          message ||
-            error ||
-            "CFS Request record not found. Please submit first."
-        );
-        return;
-      }
-      const rowsPayload = data.map((row) => ({
-        id: row.id,
-        cfsRequestStatusId: requestStatusId,
-        updatedBy: userData.userId,
-        updatedDate: new Date(),
-      }));
-      const res = await updateStatusRows({
-        tableName: "tblCfsRequest",
-        keyColumn: "id",
-        rows: rowsPayload,
-      });
-      if (res?.success) {
-        toast.success("CFS Request sent successfully!");
-        setDisableRequest(true);
-        setMode((prev) => ({ ...prev, status: "Request" }));
-      } else {
-        toast.error(res?.message || "Error while sending CFS Request");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Something went wrong while requesting CFS");
-    }
-  }
-
   useEffect(() => {
     async function fetchFormHandler() {
       if (!mode?.formId) return;
@@ -154,7 +76,7 @@ export default function Company() {
         "tblCfsRequest",
         mode.formId,
         '["tblAttachment"]',
-        "blId"
+        "cfsRequestId"
       );
 
       const { success, result, message, error } = await fetchForm(format);
@@ -210,7 +132,7 @@ export default function Company() {
     }
 
     fetchFormHandler();
-  }, [mode.formId, mode.mode]);
+  }, [mode]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -271,7 +193,7 @@ export default function Company() {
             {userData?.roleCode === "customer" && (
               <CustomButton
                 text={"Request"}
-                onClick={requestHandler}
+                onClick={() => requestHandler(formData, setDisableRequest)}
                 disabled={disableRequest}
               />
             )}

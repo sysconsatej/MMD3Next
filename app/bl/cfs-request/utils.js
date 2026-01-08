@@ -17,63 +17,6 @@ import {
 
 const userData = getUserByCookies();
 
-// export const handleBlur = ({ setFormData, formData, setMode }) => {
-//   return {
-//     getDataBasedonLinerAndBLNo: async (event) => {
-//       const { value } = event.target;
-//       if (!value) {
-//         setFormData((prev) => {
-//           return {
-//             ...prev,
-//             podVoyageId: {},
-//             podVesselId: {},
-//             fpdId: {},
-//             mblDate: "",
-//           };
-//         });
-//         return "";
-//       }
-
-//       if (!formData?.shippingLineId) {
-//         return toast.error("Please Enter Liner");
-//       }
-
-//       const mblNo = String(value).trim();
-//       const payload = {
-//         columns: "b.id",
-//         tableName: "tblBl b",
-//         whereCondition: `b.shippingLineId = '${formData?.shippingLineId?.Id}' and locationId='${userData?.location}' and b.mblNo='${mblNo}' and mblHblFlag = 'MBL'`,
-//       };
-
-//       const res = await getDataWithCondition(payload);
-//       const data = res?.data && res?.data[0];
-//       const mlBlId = data && data?.id;
-//       if (mlBlId) {
-//         const format = formatFetchForm(
-//           fieldData,
-//           "tblBl",
-//           mlBlId,
-//           '["tblAttachment"]',
-//           "blId"
-//         );
-//         const { success, result, message, error } = await fetchForm(format);
-//         if (success) {
-//           const getData = formatDataWithForm(result, fieldData);
-//        //   setMode({ mode: "edit", formId: mlBlId });
-//           setFormData((prev) => {
-//             return {
-//               ...prev,
-//               ...getData,
-//             };
-//           });
-//         } else {
-//           toast.error(error || message);
-//         }
-//       }
-//     },
-//   };
-// };
-
 export const handleChange = ({ setFormData, formData, setJsonData }) => {
   return {
     setCfsType: async (name, value) => {
@@ -178,7 +121,6 @@ export const tableObj = ({ pageNo, pageSize, search }) => {
 
   return payload;
 };
-
 
 export const cfsStatusHandler = (getData, router, setMode) => {
   return {
@@ -475,4 +417,69 @@ export function BlRejectModal({ modal, setModal, getData }) {
       </DialogActions>
     </Dialog>
   );
+}
+
+export async function requestHandler(formData, setDisableRequest) {
+  try {
+    const statusPayload = {
+      columns: "m.id as Id, m.name as Name",
+      tableName: "tblMasterData m",
+      whereCondition:
+        "m.masterListName = 'tblCfsStatusType' AND m.name = 'Request'",
+    };
+
+    const statusRes = await getDataWithCondition(statusPayload);
+    const requestStatusId = statusRes?.data?.[0]?.Id;
+
+    if (!requestStatusId) {
+      toast.error("Request status missing in master");
+      return;
+    }
+
+    if (!formData?.blNo) {
+      toast.error("BL No is required before sending Request");
+      return;
+    }
+
+    const checkPayload = {
+      columns: "id",
+      tableName: "tblCfsRequest",
+      whereCondition: `
+        blNo = '${formData?.blNo}'
+        AND status = 1
+        AND companyId = '${userData?.companyId}'
+      `,
+    };
+
+    const { data, success, message, error } = await getDataWithCondition(
+      checkPayload
+    );
+
+    if (!success || !Array.isArray(data) || data.length === 0) {
+      toast.error(
+        message || error || "CFS Request record not found. Please submit first."
+      );
+      return;
+    }
+    const rowsPayload = data.map((row) => ({
+      id: row.id,
+      cfsRequestStatusId: requestStatusId,
+      updatedBy: userData.userId,
+      updatedDate: new Date(),
+    }));
+    const res = await updateStatusRows({
+      tableName: "tblCfsRequest",
+      keyColumn: "id",
+      rows: rowsPayload,
+    });
+    if (res?.success) {
+      toast.success("CFS Request sent successfully!");
+      setDisableRequest(true);
+    } else {
+      toast.error(res?.message || "Error while sending CFS Request");
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Something went wrong while requesting CFS");
+  }
 }
