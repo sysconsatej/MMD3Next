@@ -195,34 +195,86 @@ export default function InvoiceReleaseList() {
     [page, rowsPerPage, advanceSearch]
   );
 
+  // const releaseHandler = async (ids) => {
+  //   if (!ids?.length) return toast.warn("Please select at least one row");
+
+  //   // Get selected row (first one only)
+  //   const selected = rows.find((r) => r.id === ids[0]);
+  //   if (!selected) return toast.error("Invalid selection");
+
+  //   const blNo = selected.blNo;
+
+  //   // Find BL Id
+  //   const q = {
+  //     columns: "TOP 1 id",
+  //     tableName: "tblBl",
+  //     whereCondition: `isnull(hblNo,mblNo) = '${blNo}' AND ISNULL(status,1)=1`,
+  //   };
+
+  //   const { success, data } = await getDataWithCondition(q);
+
+  //   if (!success || !data?.length)
+  //     return toast.error("BL not found in tblBl table");
+
+  //   const blId = data[0].id;
+
+  //   // Set ADD MODE for invoice creation
+  //   setMode({ mode: "add", formId: null });
+
+  //   // Redirect to InvoicePayment (NEW invoice creation)
+  //   router.push(`/invoice/invoiceRelease/invoiceUpload?blId=${blId}`);
+  // };
+
   const releaseHandler = async (ids) => {
-    if (!ids?.length) return toast.warn("Please select at least one row");
+    if (!ids?.length) {
+      toast.warn("Please select at least one row");
+      return;
+    }
 
-    // Get selected row (first one only)
     const selected = rows.find((r) => r.id === ids[0]);
-    if (!selected) return toast.error("Invalid selection");
+    if (!selected) {
+      toast.error("Invalid selection");
+      return;
+    }
 
-    const blNo = selected.blNo;
+    const invoiceRequestId = selected.id;
+    const blNo = selected.blNo?.trim();
 
-    // Find BL Id
-    const q = {
-      columns: "TOP 1 id",
-      tableName: "tblBl",
-      whereCondition: `isnull(hblNo,mblNo) = '${blNo}' AND ISNULL(status,1)=1`,
-    };
-
-    const { success, data } = await getDataWithCondition(q);
-
-    if (!success || !data?.length)
-      return toast.error("BL not found in tblBl table");
-
-    const blId = data[0].id;
-
-    // Set ADD MODE for invoice creation
     setMode({ mode: "add", formId: null });
 
-    // Redirect to InvoicePayment (NEW invoice creation)
-    router.push(`/invoice/invoiceRelease/invoiceUpload?blId=${blId}`);
+    // 🔹 TRY BL FLOW FIRST (if blNo exists)
+    if (blNo) {
+      const q = {
+        columns: "TOP 1 id",
+        tableName: "tblBl",
+        whereCondition: `
+        ISNULL(hblNo, mblNo) = '${blNo}'
+        AND ISNULL(status,1) = 1
+      `,
+      };
+
+      const { success, data } = await getDataWithCondition(q);
+
+      // ✅ BL FOUND → OLD FLOW
+      if (success && data?.length) {
+        const blId = data[0].id;
+
+        router.push(
+          `/invoice/invoiceRelease/invoiceUpload?blId=${blId}&invoiceRequestId=${invoiceRequestId}`
+        );
+        return;
+      }
+
+      // ⚠️ BL NOT FOUND → FALLBACK (IMPORTANT)
+      console.warn(
+        `BL No ${blNo} not found in tblBl, falling back to invoiceRequestId`
+      );
+    }
+
+    // 🔹 FINAL FALLBACK → NEW FLOW
+    router.push(
+      `/invoice/invoiceRelease/invoiceUpload?invoiceRequestId=${invoiceRequestId}`
+    );
   };
 
   const assignHandler = async (ids) => {

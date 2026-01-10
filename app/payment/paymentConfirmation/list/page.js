@@ -86,7 +86,8 @@ function createData(
   Amount,
   status,
   blId,
-  assignTo
+  assignTo,
+  invoiceRequestId
 ) {
   return {
     id,
@@ -101,6 +102,7 @@ function createData(
     status,
     blId,
     assignTo,
+    invoiceRequestId,
   };
 }
 
@@ -156,10 +158,16 @@ export default function InvoiceRequestList() {
         // 🔹 Build advanced search WHERE from UI
         const advWhere = advanceSearchFilter(advanceSearch);
 
-        // 🔹 Default: hide "Payment Rejected" when NO status filter is selected
+        // ✅ Detect if user has selected any status filter (robust)
+        const statusSelected = Array.isArray(advanceSearch?.statusId)
+          ? advanceSearch.statusId.some((x) => String(x ?? "").trim() !== "")
+          : String(advanceSearch?.statusId ?? "").trim() !== "";
+
+        // ✅ Default: hide only "Payment Rejected" when NO status filter is selected
         let finalWhere = advWhere;
-        if (!advanceSearch.statusId || advanceSearch.statusId.length === 0) {
-          const hideRejected = `ms.name = 'Payment Confirmed'`;
+
+        if (!statusSelected) {
+          const hideRejected = `(ms.name IS NULL OR ms.name <> 'Payment Rejected')`;
           finalWhere = finalWhere
             ? `${finalWhere} AND ${hideRejected}`
             : hideRejected;
@@ -167,32 +175,44 @@ export default function InvoiceRequestList() {
 
         const tableObj = {
           columns: `
-          p.id id,
-          p.blId blId,
-          p.createdDate paymentDate,
-          ISNULL(hblNo, mblNo) blNo,
-          r.isFreeDays DoExtension,
-          u1.name PayorName,
-          m.name paymentType,
-          p.bankName BankName,
-          p.referenceNo PaymentRefNo,
-          p.Amount Amount,
-          ms.name status,
-          u3.name assignTo
-        `,
-          tableName: LIST_TABLE,
-          pageNo,
-          pageSize,
-          // 🔹 pass combined WHERE (advanced + default hide rejected)
-          advanceSearch: finalWhere,
-          joins: `left join tblUser u on u.id = ${userData.userId}
-          left join tblUser u1 on u1.id = p.createdBy
-		      left join tblUser u3 on u3.id = p.assignToId
-          join tblBl b on b.id = p.blId and b.shippingLineId = u.companyId and (p.assignToId = ${userData.userId} or p.assignToId is null) and p.locationId = ${userData.location}
-          left join tblInvoiceRequest r on r.blNo = b.mblNo
-          left join tblMasterData m on m.id = p.paymentTypeId
-          left join tblMasterData ms on ms.id = p.paymentStatusId`,
-          orderBy: "order by p.createdDate desc",
+    p.id AS id,
+    p.blId AS blId,
+    p.createdDate AS paymentDate,
+    p.blNo AS blNo,
+    r.isFreeDays AS DoExtension,
+    u1.name AS PayorName,
+    m.name AS paymentType,
+    p.bankName AS BankName,
+    p.referenceNo AS PaymentRefNo,
+    p.Amount AS Amount,
+    ms.name AS status,
+    u3.name AS assignTo,
+    p.invoiceRequestId AS invoiceRequestId,
+    p.locationId AS locationId
+  `,
+          tableName: "tblInvoicePayment p",
+          joins: `
+JOIN tblUser u
+    ON u.id = ${userData.userId}
+   AND p.shippingLineId = u.companyId
+LEFT JOIN tblUser u1
+    ON u1.id = p.createdBy
+LEFT JOIN tblUser u3
+    ON u3.id = p.assignToId
+   AND (p.assignToId = ${userData.userId} OR p.assignToId IS NULL)
+LEFT JOIN tblInvoiceRequest r
+    ON r.blNo = p.blNo
+LEFT JOIN tblMasterData m
+    ON m.id = p.paymentTypeId
+LEFT JOIN tblMasterData ms
+    ON ms.id = p.paymentStatusId
+JOIN tblLocation l
+    ON l.id = p.locationId
+   AND p.locationId = ${userData.location}
+  `,
+    advanceSearch: finalWhere,
+
+          orderBy: "ORDER BY p.createdDate DESC",
         };
 
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
@@ -210,7 +230,8 @@ export default function InvoiceRequestList() {
             item["Amount"],
             item["status"],
             item["blId"],
-            item["assignTo"]
+            item["assignTo"],
+            item["invoiceRequestId"]
           )
         );
 
@@ -444,7 +465,7 @@ export default function InvoiceRequestList() {
                             .getState()
                             .setMode({ mode: "view", formId: row.id });
                           router.push(
-                            `/invoice/invoiceRelease?blId=${row.blId}`
+                            `/invoice/invoiceRelease?invoiceRequestId=${row.invoiceRequestId}`
                           );
                         }}
                         sx={{ cursor: "pointer", fontWeight: 500 }}

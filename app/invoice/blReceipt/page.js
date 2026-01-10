@@ -67,44 +67,25 @@ export default function ReceiptForm() {
       if (!blNo) return;
 
       try {
-        const blQuery = {
-          columns: "TOP 1 id",
-          tableName: "tblBl",
-          whereCondition: `ISNULL(hblNo, mblNo) = '${blNo}'
-            AND ISNULL(status,1) = 1
-            AND shippingLineId = ${userData?.companyId}`,
-        };
-
-        const { success: blSuccess, data: blData } = await getDataWithCondition(
-          blQuery
-        );
-
-        if (!blSuccess || !blData?.length) {
-          toast.error("BL not found.");
-          return;
-        }
-
-        const blId = blData[0].id;
-
+        // ✅ Fetch payments directly based on blNo from tblInvoicePayment
         const payQuery = {
           columns:
-            "i.id, i.Amount, i.createdBy, i.receiptNo, i.receiptDate, i.createdDate",
+            "i.id, i.blId, i.Amount, i.createdBy, i.receiptNo, i.receiptDate, i.createdDate, u.name AS payorName",
           tableName:
-            "tblInvoicePayment i LEFT JOIN tblMasterData m ON m.id = i.paymentStatusId",
-          whereCondition: `m.name = 'Payment Confirmed'
-            AND i.blId = ${blId}
+            "tblInvoicePayment i JOIN tblUser u ON u.id = i.createdBy LEFT JOIN tblMasterData m ON m.id = i.paymentStatusId",
+          whereCondition: `i.blNo = '${blNo}'
+            AND m.name = 'Payment Confirmed'
             AND ISNULL(i.status,1) = 1`,
           orderBy: "i.id DESC",
         };
 
-        const { data: payData } = await getDataWithCondition(payQuery);
-        const payments = Array.isArray(payData) ? payData : [];
+        const { success: paySuccess, data: payData } =
+          await getDataWithCondition(payQuery);
 
-        if (!payments.length) {
-          toast.warn("No Payment Confirmed found for this BL.");
+        if (!paySuccess || !payData?.length) {
+          toast.error("BL not found or No Payment Confirmed found.");
           setFormData((prev) => ({
             ...prev,
-            blId,
             blNo,
             payorName: null,
             tblReceipt: [],
@@ -113,20 +94,9 @@ export default function ReceiptForm() {
           return;
         }
 
-        const firstPayorId = payments[0]?.createdBy;
-        let payorObj = null;
-
-        if (firstPayorId) {
-          const payorQuery = {
-            columns: "TOP 1 id, name",
-            tableName: "tblUser",
-            whereCondition: `id = ${firstPayorId}`,
-          };
-          const { data: payorData } = await getDataWithCondition(payorQuery);
-          if (Array.isArray(payorData) && payorData.length) {
-            payorObj = { Id: payorData[0].id, Name: payorData[0].name };
-          }
-        }
+        const payments = Array.isArray(payData) ? payData : [];
+        const payorName = payments[0]?.payorName || "";
+        const blId = payments[0]?.blId;
 
         const attachmentMap = {};
         const promises = payments.map(async (p) => {
@@ -168,7 +138,7 @@ export default function ReceiptForm() {
           ...prev,
           blId,
           blNo,
-          payorName: payorObj,
+          payorName: payorName ? { Id: null, Name: payorName } : null,
           tblReceipt: nextReceipts,
         }));
 
@@ -200,11 +170,10 @@ export default function ReceiptForm() {
       const headerQuery = {
         columns: `
           TOP 1
-          ISNULL(b.hblNo, b.mblNo) AS blNo,
+          p.blNo AS blNo,
           u.name AS payorName
         `,
-        tableName:
-          "tblInvoicePayment p JOIN tblBl b ON b.id = p.blId JOIN tblUser u ON u.id = p.createdBy",
+        tableName: "tblInvoicePayment p JOIN tblUser u ON u.id = p.createdBy",
         whereCondition: `p.id = ${firstId}`,
       };
 
@@ -271,8 +240,8 @@ export default function ReceiptForm() {
       if (!paymentId) return;
       try {
         const q = {
-          columns: `TOP 1 ISNULL(b.hblNo, b.mblNo) AS blNo`,
-          tableName: "tblInvoicePayment i JOIN tblBl b ON b.id = i.blId",
+          columns: `TOP 1 p.blNo AS blNo`,
+          tableName: "tblInvoicePayment i",
           whereCondition: `i.id = ${paymentId}`,
         };
 
@@ -417,15 +386,6 @@ export default function ReceiptForm() {
                 iconPosition="end"
               />
             ))}
-
-            {fieldsMode !== "view" && (
-              <Tab
-                icon={<AddIcon />}
-                iconPosition="end"
-                label="Add Receipt"
-                onClick={handleAddReceipt}
-              />
-            )}
           </Tabs>
         </Box>
 

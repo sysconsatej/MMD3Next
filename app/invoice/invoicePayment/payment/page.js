@@ -32,7 +32,7 @@ import { cfsGridButtons } from "@/app/master/user/userData";
 
 export default function PaymentPage() {
   const searchParams = useSearchParams();
-  const blId = searchParams.get("blId");
+  const blNo = searchParams.get("blNo");
 
   const [tabValue, setTabValue] = useState(0);
   const [invoices, setInvoices] = useState([]);
@@ -113,8 +113,8 @@ export default function PaymentPage() {
   // 🧭 Fetch all invoices for current BL ID
   useEffect(() => {
     async function fetchInvoices() {
-      if (!blId) {
-        toast.error("BL ID not found.");
+      if (!blNo) {
+        toast.error("BL not found.");
         setLoading(false);
         return;
       }
@@ -128,22 +128,18 @@ export default function PaymentPage() {
             i.invoicePayableAmount,
             i.remarks,
             cat.name AS invoiceCategory,
-            ISNULL(hblNo, mblNo) AS blNo,
-            c.name AS beneficiaryName
+            i.blNo AS blNo,
+            c.name AS beneficiaryName,
+            i.blId AS blId,
+            i.shippingLineId as beneficiaryId,
+            i.invoiceRequestId as invoiceRequestId
           `,
           tableName: "tblInvoice i",
           joins: `
-            LEFT JOIN tblBl b ON b.id = i.blId
-            LEFT JOIN tblCompany c ON c.id = b.companyId
+            LEFT JOIN tblCompany c ON c.id = i.shippingLineId
             LEFT JOIN tblMasterData cat ON cat.id = i.invoiceCategoryId
           `,
-          whereCondition: `i.blId = ${blId} AND i.invoicePaymentId is null AND ISNULL(i.status,1)=1 AND i.invoiceRequestId = (
-              SELECT TOP 1 invoiceRequestId
-              FROM tblInvoice
-              WHERE blId = ${blId}
-                AND ISNULL(status,1)=1
-              ORDER BY id DESC
-            )`,
+          whereCondition: `i.blNo = '${blNo}' AND i.invoicePaymentId IS NULL AND ISNULL(i.status,1)=1`,
         };
 
         const { data, success } = await getDataWithCondition(query);
@@ -165,7 +161,7 @@ export default function PaymentPage() {
     }
 
     fetchInvoices();
-  }, [blId]);
+  }, [blNo]);
 
   const getRequestedStatusId = () => {
     if (!statusList || statusList.length === 0) return null;
@@ -302,12 +298,15 @@ export default function PaymentPage() {
 
       const normalized = {
         ...formData,
-        blId: Number(blId),
+        blId: selectedInvoices[0]?.blId || null,
+        shippingLineId: selectedInvoices[0]?.beneficiaryId || null,
+        blNo: blNo,
         invoiceIds,
         paymentStatusId,
         companyId: userData?.companyId,
         companyBranchId: userData?.branchId, // 🔥 status = Payment Confirmation Requested
         locationId: userData?.location || null,
+        invoiceRequestId: selectedInvoices[0]?.invoiceRequestId || null,
       };
 
       const payload = formatFormData(
@@ -348,7 +347,7 @@ export default function PaymentPage() {
           Payment Portal
         </Typography>
 
-        {!blId ? (
+        {!blNo ? (
           <Typography color="error">Invalid or missing BL ID.</Typography>
         ) : loading ? (
           <Typography>Loading invoice details...</Typography>
