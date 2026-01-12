@@ -401,7 +401,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
             movementCarrierId: null,
             carrierBondNo: null,
             carrierPanNo: null,
-            tgBondNo: null,
+            scmtrBondNo: null,
             postCarriageId: null,
           }));
         }
@@ -430,7 +430,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
             ...prev,
             carrierBondNo: data?.[0]?.bondNo ?? null,
             carrierPanNo: data?.[0]?.panNo ?? null,
-            tgBondNo: data?.[0]?.scmtrBondNo ?? null,
+            scmtrBondNo: data?.[0]?.scmtrBondNo ?? null,
             postCarriageId: data?.[0]?.postCarriageId ?? null,
           };
         });

@@ -330,7 +330,7 @@ export const fieldData = {
     },
     {
       label: "TG Bond No",
-      name: "tgBondNo",
+      name: "scmtrBondNo",
       isEdit: true,
       disabled: true,
     },
