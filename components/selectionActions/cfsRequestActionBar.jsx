@@ -63,13 +63,22 @@ export default function SearchRequestToolbarActions({
       };
       const { data } = await getDataWithCondition(obj);
 
-      const filterStatusEdit = cfsStatus?.filter(
-        (item) => item.Name !== "Reject" && item.Name !== "Request for Amendment"
+      if (!Array.isArray(data) || !Array.isArray(cfsStatus)) {
+        setIsDisableBtn((prev) => ({ ...prev, isEditDisable: true }));
+        return;
+      }
+
+      const blockedStatuses = cfsStatus.filter(
+        (s) => s.Name === "Request" || s.Name === "Request for Amendment"
+      );
+
+      const isEditDisabled = data.some((row) =>
+        blockedStatuses.some((status) => status.Id === row.cfsRequestStatusId)
       );
 
       setIsDisableBtn((prev) => ({
         ...prev,
-        isEditDisable: filterStatusEdit,
+        isEditDisable: isEditDisabled, // ✅ BOOLEAN
       }));
 
       const filterStatus = cfsStatus?.filter(

@@ -241,13 +241,17 @@ export const cfsStatusHandler = (getData, router, setMode) => {
         console.log(err);
       }
     },
-    handleRequestAmend: async (ids) => {
+    handleRequestAmend: async (ids, value) => {
       try {
         const payload = {
           columns: "m.id , m.name",
           tableName: "tblMasterData m",
-          whereCondition: `m.masterListName = 'tblCfsStatusType' AND m.name = 'Request for Amendment'`,
+          whereCondition: `
+        m.masterListName = 'tblCfsStatusType'
+        AND m.name = 'Request for Amendment'
+      `,
         };
+
         const getStatusId = await getDataWithCondition(payload);
 
         if (getStatusId) {
@@ -257,6 +261,7 @@ export const cfsStatusHandler = (getData, router, setMode) => {
               return {
                 id: info,
                 cfsRequestStatusId: getStatusId?.data[0]?.id,
+                cfsRequestRemarks: value, // 🔥 ADD THIS
                 updatedBy: userData.userId,
                 updatedDate: new Date(),
               };
@@ -269,7 +274,7 @@ export const cfsStatusHandler = (getData, router, setMode) => {
           });
 
           if (res?.success === true) {
-            toast.success(`Status Requested successfully!`);
+            toast.success("Request for Amendment sent successfully!");
             getData();
           }
         }
@@ -277,6 +282,7 @@ export const cfsStatusHandler = (getData, router, setMode) => {
         console.log(err);
       }
     },
+
     handleConfirmAmend: async (ids) => {
       try {
         const payload = {
@@ -368,16 +374,29 @@ export function statusColor(status) {
 
 export function BlRejectModal({ modal, setModal, getData }) {
   function handlerReject() {
-    if (modal.value) {
-      if (modal.isAmend) {
-        cfsStatusHandler(getData).handleRejectAmend(modal.ids, modal.value);
-      } else {
-        cfsStatusHandler(getData).handleReject(modal.ids, modal.value);
-      }
-      setModal((prev) => ({ ...prev, toggle: false }));
-    } else {
+    if (!modal.value) {
       toast.warn("Please enter remark!");
+      return;
     }
+
+    const handler = cfsStatusHandler(getData);
+
+    switch (modal.actionType) {
+      case "REQUEST_AMEND":
+        handler.handleRequestAmend(modal.ids, modal.value);
+        break;
+
+      case "REJECT_AMEND":
+        handler.handleRejectAmend(modal.ids, modal.value);
+        break;
+
+      case "REJECT":
+      default:
+        handler.handleReject(modal.ids, modal.value);
+        break;
+    }
+
+    setModal((prev) => ({ ...prev, toggle: false }));
   }
 
   return (
@@ -387,7 +406,12 @@ export function BlRejectModal({ modal, setModal, getData }) {
       maxWidth="xs"
       fullWidth
     >
-      <DialogTitle>Reject — Add Remarks</DialogTitle>
+      <DialogTitle>
+        {modal.actionType === "REQUEST_AMEND"
+          ? "Request for Amendment — Add Remarks"
+          : "Reject — Add Remarks"}
+      </DialogTitle>
+
       <DialogContent dividers>
         <TextField
           fullWidth
@@ -401,6 +425,7 @@ export function BlRejectModal({ modal, setModal, getData }) {
           }
         />
       </DialogContent>
+
       <DialogActions>
         <div
           className="py-1 px-3 border border-[#B5C4F0] rounded-sm text-xs cursor-pointer hover:bg-[#B5C4F0] hover:text-white"

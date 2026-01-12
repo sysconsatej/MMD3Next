@@ -186,76 +186,74 @@ export default function InvoicePayment() {
 
   const checkBlForCompany = useCallback(
     async (event) => {
-      const { value, name } = event.target;
-      const typed = (value || "").trim();
-      if (!typed) return;
+      const { value } = event.target;
+      const typedBlNo = (value || "").trim();
+      if (!typedBlNo) return;
 
-      const companyId =
-        extractId(formData?.beneficiaryName) ??
-        extractId(formData?.companyId) ??
-        extractId(formData?.beneficiaryId);
-
-      const errKey = name || "blNo";
+      const companyId = extractId(formData?.shippingLineId);
 
       if (!companyId) {
-        setErrorState((p) => ({ ...p, [errKey]: true }));
         toast.warn("Please select Beneficiary Name first.");
         return;
       }
 
       const payload = {
         columns: `
-          TOP 1 
-            b.id, 
-            ISNULL(b.hblNo, b.mblNo) AS blNo,
-            b.fpdId,
-            p.name AS fpdName
-        `,
+        TOP 1 
+          b.id, 
+          ISNULL(b.hblNo, b.mblNo) AS blNo,
+          b.fpdId,
+          p.name AS fpdName
+      `,
         tableName: "tblBl b",
         joins: "LEFT JOIN tblPort p ON p.id = b.fpdId",
         whereCondition: `
-          ISNULL(b.hblNo,b.mblNo) = '${sqlEscape(typed)}'
-          AND b.shippingLineId = ${companyId}
-          AND ISNULL(b.status, 1) = 1`,
+        ISNULL(b.hblNo,b.mblNo) = '${sqlEscape(typedBlNo)}'
+        AND b.shippingLineId = ${companyId}
+        AND ISNULL(b.status,1) = 1
+      `,
       };
 
       try {
         const { success, data } = await getDataWithCondition(payload);
+
         if (success && Array.isArray(data) && data.length > 0) {
+          // ✅ BL EXISTS → save blId + blNo
           const row = data[0];
 
-          toast.success("BL found for this Beneficiary.");
-          setFormData((p) => ({
-            ...p,
+          toast.success("BL found.");
+
+          setFormData((prev) => ({
+            ...prev,
             blId: row.id,
+            blNo: typedBlNo,
             location: row.fpdId
               ? { Id: row.fpdId, Name: row.fpdName || "" }
               : null,
           }));
-          setErrorState((p) => ({ ...p, [errKey]: false }));
 
-          // 👉 Only set containerData, DON'T create invoice tab here
           await loadBlContainersByBlId(row.id);
-          await setInvoiceRequestId(typed);
+          await setInvoiceRequestId(typedBlNo);
         } else {
-          // toast.error("BL not found for this Beneficiary.");
-          // setErrorState((p) => ({ ...p, [errKey]: true }));
-          toast.info("BL not found. Proceeding without BL.");
+          // ❌ BL NOT EXISTS → save ONLY blNo
+          toast.info("BL not found. Saving BL No only.");
 
-          setFormData((p) => ({
-            ...p,
+          setFormData((prev) => ({
+            ...prev,
             blId: null,
+            blNo: typedBlNo,
+            location: null,
           }));
 
           setContainerData([]);
-          setErrorState((p) => ({ ...p, [errKey]: false }));
+          setInvoiceReqId(null);
         }
-      } catch (e) {
-        console.error(e);
-        toast.error("Error checking BL/MBL.");
+      } catch (err) {
+        console.error(err);
+        toast.error("Error checking BL.");
       }
     },
-    [formData, extractId, sqlEscape, loadBlContainersByBlId]
+    [formData?.shippingLineId, extractId, sqlEscape, loadBlContainersByBlId]
   );
 
   const handleBlurEventFunctions = {

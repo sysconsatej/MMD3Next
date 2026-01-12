@@ -34,6 +34,7 @@ export const fieldData = {
       type: "text",
       isEdit: true,
       required: true,
+      blurFun: "duplicateHandler",
       // blurFun: "getDataBasedonLinerAndBLNo",
     },
     // {
@@ -108,6 +109,7 @@ export const fieldData = {
         "join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = null",
       isEdit: true,
       foreignTable: "name,tblPort",
+      required: true,
     },
     {
       label: "DPD",
@@ -141,11 +143,10 @@ export const fieldData = {
     // },
     {
       label: "Remark",
-      name: "cfsRejectRemarks",
+      name: "remarks",
       type: "textarea",
       gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
-      disabled: true,
     },
   ],
 
