@@ -162,7 +162,7 @@ export const getMasterByCode = async (code, masterListName) => {
 };
 
 export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
-  return {
+  const handler = {
     setCountryAndState: async (name, value) => {
       const setName = name.replace("City", "");
 
@@ -369,50 +369,72 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
             };
       }
 
-      // set data based on  pod and fpd and movementTypeId
-
-      // if (formData?.shippingLineId  &&   formData?.podId && formData?.fpdId && formData?.movementTypeId) {
-
-      //         select panNo, scmtrBondNo
-      // from tblCarrierPort
-      // where id = 7 and podId = 8567 and fpdId = 44554 and status = 1
-
-      //   const payload  =  {
-      //     columns  :  ""
-
-      //   }
-
-      //   const getCarrierData  =  await getDataWithCondition()
-
-      // }
-
-      // Final single state update
       setFormData((prev) => ({
         ...prev,
         ...updates,
       }));
+
+      if (name === "podId" || name === "fpdId") {
+        let setWhere = null;
+        if (name === "podId") {
+          setWhere = `podId = ${value?.Id} and fpdId = ${formData?.fpdId?.Id} and defaultCfs = 'Y' and status = 1`;
+        } else {
+          setWhere = `podId = ${formData?.podId?.Id} and fpdId = ${value?.Id} and defaultCfs = 'Y' and status = 1`;
+        }
+        const payload = {
+          columns: "id, name",
+          tableName: "tblCarrierPort",
+          whereCondition: setWhere,
+        };
+        const { data, success } = await getDataWithCondition(payload);
+        if (success && data?.length > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            movementCarrierId: { Id: data?.[0]?.id, Name: data?.[0]?.name },
+          }));
+          await handler.setCarrierBondAndCode("movementCarrierId", {
+            Id: data?.[0]?.id,
+          });
+        } else {
+          setFormData((prev) => ({
+            ...prev,
+            movementCarrierId: null,
+            carrierBondNo: null,
+            carrierPanNo: null,
+            tgBondNo: null,
+            postCarriageId: null,
+          }));
+        }
+      }
     },
-    setCarrierBondAndCode: async (name, value, { tabIndex }) => {
+    setCarrierBondAndCode: async (name, value) => {
       if (!value?.Id) return;
 
       const obj = {
         columns: `
       t.bondNo,
-      t.panNo
+      t.panNo,
+      t.scmtrBondNo,
+      json_query((select m.id as Id, m.name as Name for json path, without_array_wrapper)) as postCarriageId
     `,
         tableName: "tblCarrierPort t",
-        whereCondition: `t.id = ${value.Id}`,
+        joins: "left join tblMasterData m on m.id = t.modeId",
+        whereCondition: `t.id = ${value.Id} and t.defaultCfs = 'Y' and t.status = 1`,
       };
 
-      const { data } = await getDataWithCondition(obj);
+      const { data, success } = await getDataWithCondition(obj);
 
-      setFormData((prev) => {
-        return {
-          ...prev,
-          carrierBondNo: data?.[0]?.bondNo ?? null,
-          carrierPanNo: data?.[0]?.panNo ?? null,
-        };
-      });
+      if (data?.length > 0 && success) {
+        setFormData((prev) => {
+          return {
+            ...prev,
+            carrierBondNo: data?.[0]?.bondNo ?? null,
+            carrierPanNo: data?.[0]?.panNo ?? null,
+            tgBondNo: data?.[0]?.scmtrBondNo ?? null,
+            postCarriageId: data?.[0]?.postCarriageId ?? null,
+          };
+        });
+      }
     },
     handleChangeOnVessel: async (name, value) => {
       const vesselId = value?.Id || null;
@@ -494,6 +516,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
       }
     },
   };
+  return handler;
 };
 
 export const createdHandleBlurEventFunctions = ({ setFormData, formData }) => {

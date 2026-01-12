@@ -245,26 +245,6 @@ export default function Home() {
                   />
                 </Box>
               </FormHeading>
-              {/* <FormHeading text="Transit Bond Details(Required if HBLs POD is different than MBLs POD)">
-                <Box className="grid grid-cols-6 gap-2 p-2 ">
-                  <CustomInput
-                    fields={jsonData.transitFields}
-                    formData={formData}
-                    setFormData={setFormData}
-                    fieldsMode={fieldsMode}
-                  />
-                </Box>
-              </FormHeading> */}
-              <FormHeading text="Bond Details">
-                <Box className="grid grid-cols-3 gap-2 p-2 ">
-                  <CustomInput
-                    fields={jsonData.tgBondDetails}
-                    formData={formData}
-                    setFormData={setFormData}
-                    fieldsMode={fieldsMode}
-                  />
-                </Box>
-              </FormHeading>
               <FormHeading text="Consignor Details">
                 <Box className="grid grid-cols-5 gap-2 p-2 ">
                   <CustomInput
