@@ -64,6 +64,7 @@ export const fieldData = {
       name: "panNo",
       type: "text",
       isEdit: true,
+      blurFun: "validatePanCard",
     },
     {
       label: "Bond No",
@@ -72,7 +73,7 @@ export const fieldData = {
       isEdit: true,
     },
     {
-      label: "Deafult CFS",
+      label: "Default ICD",
       name: "defaultCfs",
       type: "radio",
       radioData: [

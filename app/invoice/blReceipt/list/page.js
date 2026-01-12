@@ -62,7 +62,7 @@ export default function ReceiptList() {
           MIN(p.id) AS id,                                 
           STRING_AGG(p.receiptNo, ', ') AS receiptNo,      
           MAX(p.receiptDate) AS receiptDate,               
-          ISNULL(b.hblNo, b.mblNo) AS blNo,                
+          p.blNo AS blNo,                
           u1.name AS payorName,                            
           SUM(p.Amount) AS Amount,
           STRING_AGG(p.id, ',') AS receiptIds   
@@ -75,12 +75,12 @@ export default function ReceiptList() {
           advanceSearch: advanceSearchFilter(advanceSearch),
 
           joins: `
-            LEFT JOIN tblUser u ON u.id = ${userData.userId}
-            JOIN tblBl b ON b.id = p.blId AND b.shippingLineId = u.companyId and p.locationId = ${userData.location}
+            LEFT JOIN tblUser u ON u.id = ${userData.userId} and p.shippingLineId = u.companyId 
+            join tblLocation l on l.id =p.locationId and p.locationId = ${userData.location}
             LEFT JOIN tblUser u1 ON u1.id = p.createdBy
             JOIN tblMasterData ms ON ms.id = p.paymentStatusId and ms.name='Payment Confirmed'
           `,
-          groupBy: `GROUP BY ISNULL(b.hblNo, b.mblNo), u1.name`,
+          groupBy: `GROUP BY p.blNo, u1.name`,
           orderBy: "ORDER BY MAX(p.createdDate) DESC",
         };
 

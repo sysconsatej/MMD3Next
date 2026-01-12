@@ -63,6 +63,7 @@ async function matchDropdownValue(masterListName, rawValue) {
 export default function InvoiceUpload() {
   const searchParams = useSearchParams();
   const blIdFromQS = searchParams.get("blId");
+  const invoiceRequestIdFromQS = searchParams.get("invoiceRequestId");
   const userData = getUserByCookies();
 
   const { mode } = formStore();
@@ -189,35 +190,81 @@ export default function InvoiceUpload() {
   }, [formData?.tblInvoice]);
 
   /* ⭐ CHANGE 1 — Load BL No using ISNULL(hblNo, mblNo) */
+  // useEffect(() => {
+  //   async function loadBL() {
+  //     if (!blIdFromQS) return;
+
+  //     const blIdNum = Number(blIdFromQS);
+
+  //     const q = {
+  //       columns: "ISNULL(hblNo, mblNo) AS blNo",
+  //       tableName: "tblBl",
+  //       whereCondition: `id=${blIdNum}`,
+  //     };
+
+  //     const { success, data: blData } = await getDataWithCondition(q);
+  //     if (success && blData.length) {
+  //       const currentBlNo = blData[0].blNo; // ← correct field now
+  //       setBlNo(currentBlNo);
+  //       await fetchInvoiceRequestIdByBlNo(currentBlNo);
+  //     }
+
+  //     await loadBlContainersByBlId(blIdNum);
+
+  //     setFormData((p) => ({
+  //       ...p,
+  //       blId: blIdNum,
+  //     }));
+  //   }
+
+  //   loadBL();
+  // }, [blIdFromQS, fetchInvoiceRequestIdByBlNo, loadBlContainersByBlId]);
+
   useEffect(() => {
-    async function loadBL() {
-      if (!blIdFromQS) return;
-
-      const blIdNum = Number(blIdFromQS);
-
-      const q = {
-        columns: "ISNULL(hblNo, mblNo) AS blNo",
-        tableName: "tblBl",
-        whereCondition: `id=${blIdNum}`,
-      };
-
-      const { success, data: blData } = await getDataWithCondition(q);
-      if (success && blData.length) {
-        const currentBlNo = blData[0].blNo; // ← correct field now
-        setBlNo(currentBlNo);
-        await fetchInvoiceRequestIdByBlNo(currentBlNo);
+    async function init() {
+      // 🔑 InvoiceRequestId is mandatory
+      if (!invoiceRequestIdFromQS) {
+        toast.error("Invoice Request Id missing.");
+        return;
       }
 
-      await loadBlContainersByBlId(blIdNum);
+      const reqId = Number(invoiceRequestIdFromQS);
+      setInvoiceReqId(reqId);
 
-      setFormData((p) => ({
-        ...p,
-        blId: blIdNum,
-      }));
+      /* ✅ 1. Get BL No from InvoiceRequest (SOURCE OF TRUTH) */
+      const reqQ = {
+        columns: "blNo",
+        tableName: "tblInvoiceRequest",
+        whereCondition: `id=${reqId} AND ISNULL(status,1)=1`,
+      };
+
+      const { success, data } = await getDataWithCondition(reqQ);
+      const requestBlNo = success && data?.length ? data[0].blNo : "";
+
+      setBlNo(requestBlNo);
+
+      /* ✅ 2. EXISTING BL FLOW (containers only) */
+      if (blIdFromQS) {
+        const blIdNum = Number(blIdFromQS);
+
+        await loadBlContainersByBlId(blIdNum);
+
+        setFormData((p) => ({
+          ...p,
+          blId: blIdNum,
+        }));
+      } else {
+        /* ✅ 3. NO-BL FLOW */
+        setContainerData([]);
+        setFormData((p) => ({
+          ...p,
+          blId: null,
+        }));
+      }
     }
 
-    loadBL();
-  }, [blIdFromQS, fetchInvoiceRequestIdByBlNo, loadBlContainersByBlId]);
+    init();
+  }, [blIdFromQS, invoiceRequestIdFromQS, loadBlContainersByBlId]);
 
   /* ⭐ CHANGE 2 — Edit mode BL No using ISNULL(hblNo, mblNo) */
   useEffect(() => {
@@ -369,24 +416,109 @@ export default function InvoiceUpload() {
     }
   };
 
+  // const submitHandler = async (e) => {
+  //   e.preventDefault();
+
+  //   const blId = formData.blId;
+  //   if (!blId) return toast.error("BL ID missing!");
+
+  //   if (!invoices.length)
+  //     return toast.error("Please add at least one invoice.");
+
+  //   let currentInvoiceReqId = invoiceReqId;
+  //   if (!currentInvoiceReqId && blNo) {
+  //     currentInvoiceReqId = await fetchInvoiceRequestIdByBlNo(blNo);
+  //   }
+
+  //   if (!currentInvoiceReqId) {
+  //     toast.error(
+  //       "Invoice Request not found for this BL (invoiceReqId missing)."
+  //     );
+  //     return;
+  //   }
+
+  //   let ok = true;
+
+  //   await Promise.allSettled(
+  //     invoices.map(async (row, idx) => {
+  //       const id = row.id ?? null;
+
+  //       const formatted = formatFormData(
+  //         "tblInvoice",
+  //         {
+  //           ...row,
+  //           blId,
+  //           invoiceRequestId: currentInvoiceReqId,
+  //           companyId: userData?.companyId,
+  //           companyBranchId: userData?.branchId,
+  //           tblInvoiceRequestContainer: row.tblInvoiceRequestContainer || [],
+  //           tblAttachment: row.tblAttachment || [],
+  //           locationId: userData?.location || null,
+  //         },
+  //         id,
+  //         "invoiceRequestId"
+  //       );
+
+  //       const res = await insertUpdateForm(formatted);
+  //       if (!res.success) {
+  //         ok = false;
+  //         toast.error(res.error || res.message || `Invoice ${idx + 1} failed.`);
+  //       }
+  //     })
+  //   );
+
+  //   if (!ok) return;
+
+  //   try {
+  //     const releasedStatusId = statusList.find(
+  //       (x) => x.Name === "Released"
+  //     )?.Id;
+
+  //     if (!releasedStatusId) {
+  //       toast.error("Released status not found in tblMasterData.");
+  //       return;
+  //     }
+
+  //     const payload = {
+  //       tableName: "tblInvoiceRequest",
+  //       keyColumn: "id",
+  //       rows: [
+  //         {
+  //           id: currentInvoiceReqId,
+  //           invoiceRequestStatusId: releasedStatusId,
+  //           updatedBy: userData.userId,
+  //           updatedDate: new Date(),
+  //         },
+  //       ],
+  //     };
+
+  //     const res2 = await updateStatusRows(payload);
+
+  //     if (!res2.success) {
+  //       toast.error(res2.message || "Status update failed.");
+  //       return;
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Error updating invoice request status.");
+  //     return;
+  //   }
+
+  //   setIsSubmitted(true);
+
+  //   toast.success("Invoices uploaded & status updated successfully!");
+  // };
+
   const submitHandler = async (e) => {
     e.preventDefault();
 
-    const blId = formData.blId;
-    if (!blId) return toast.error("BL ID missing!");
-
-    if (!invoices.length)
-      return toast.error("Please add at least one invoice.");
-
-    let currentInvoiceReqId = invoiceReqId;
-    if (!currentInvoiceReqId && blNo) {
-      currentInvoiceReqId = await fetchInvoiceRequestIdByBlNo(blNo);
+    if (!invoiceReqId) {
+      toast.error("Invoice Request Id missing.");
+      return;
     }
 
-    if (!currentInvoiceReqId) {
-      toast.error(
-        "Invoice Request not found for this BL (invoiceReqId missing)."
-      );
+    if (!invoices.length) {
+      toast.error("Please add at least one invoice.");
       return;
     }
 
@@ -396,70 +528,56 @@ export default function InvoiceUpload() {
       invoices.map(async (row, idx) => {
         const id = row.id ?? null;
 
-        const formatted = formatFormData(
+        const payload = formatFormData(
           "tblInvoice",
           {
             ...row,
-            blId,
-            invoiceRequestId: currentInvoiceReqId,
-            companyId: userData?.companyId,
-            companyBranchId: userData?.branchId,
-            tblInvoiceRequestContainer: row.tblInvoiceRequestContainer || [],
+            invoiceRequestId: invoiceReqId, // 🔑 PRIMARY LINK
+            blId: formData.blId || null, // 🔑 OPTIONAL
+            blNo: blNo || null, // 🔑 ALWAYS STORE
+            shippingLineId: userData.companyId,
+            companyId: userData.companyId,
+            companyBranchId: userData.branchId,
+            locationId: userData.location,
+            tblInvoiceRequestContainer: formData.blId
+              ? row.tblInvoiceRequestContainer || []
+              : [],
             tblAttachment: row.tblAttachment || [],
-            locationId: userData?.location || null,
           },
           id,
           "invoiceRequestId"
         );
 
-        const res = await insertUpdateForm(formatted);
-        if (!res.success) {
+        const res = await insertUpdateForm(payload);
+
+        if (!res?.success) {
           ok = false;
-          toast.error(res.error || res.message || `Invoice ${idx + 1} failed.`);
+          toast.error(res.message || `Invoice ${idx + 1} failed`);
         }
       })
     );
 
     if (!ok) return;
 
-    try {
-      const releasedStatusId = statusList.find(
-        (x) => x.Name === "Released"
-      )?.Id;
+    /* Known good status update */
+    const releasedId = statusList.find((x) => x.Name === "Released")?.Id;
 
-      if (!releasedStatusId) {
-        toast.error("Released status not found in tblMasterData.");
-        return;
-      }
-
-      const payload = {
+    if (releasedId) {
+      await updateStatusRows({
         tableName: "tblInvoiceRequest",
         keyColumn: "id",
         rows: [
           {
-            id: currentInvoiceReqId,
-            invoiceRequestStatusId: releasedStatusId,
+            id: invoiceReqId,
+            invoiceRequestStatusId: releasedId,
             updatedBy: userData.userId,
             updatedDate: new Date(),
           },
         ],
-      };
-
-      const res2 = await updateStatusRows(payload);
-
-      if (!res2.success) {
-        toast.error(res2.message || "Status update failed.");
-        return;
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Error updating invoice request status.");
-      return;
+      });
     }
 
-    setIsSubmitted(true);
-
-    toast.success("Invoices uploaded & status updated successfully!");
+    toast.success("Invoices uploaded successfully!");
   };
 
   return (

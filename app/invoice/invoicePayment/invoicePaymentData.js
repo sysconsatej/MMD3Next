@@ -6,7 +6,7 @@ const fieldData = {
   igmFields: [
     {
       label: "Beneficiary Name",
-      name: "beneficiaryName",
+      name: "shippingLineId",
       type: "dropdown",
       tableName: "tblCompany c",
       displayColumn: "c.name",
@@ -22,16 +22,16 @@ const fieldData = {
       required: true,
       blurFun: "checkBlForCompany",
     },
-    {
-      label: "Location",
-      name: "location",
-      type: "dropdown",
-      tableName: "tblPort p",
-      displayColumn: "p.name",
-      orderBy: "p.name",
-      foreignTable: "name,tblPort",
-      isEdit: true,
-    },
+    // {
+    //   label: "Location",
+    //   name: "location",
+    //   type: "dropdown",
+    //   tableName: "tblPort p",
+    //   displayColumn: "p.name",
+    //   orderBy: "p.name",
+    //   foreignTable: "name,tblPort",
+    //   isEdit: true,
+    // },
 
     // {
     //   label: "Type",
@@ -129,7 +129,7 @@ const fieldData = {
       name: "invoicePayableAmount",
       type: "number",
       required: true,
-      disabled: true
+      disabled: true,
     },
   ],
 

@@ -63,7 +63,7 @@ export default function CompanyList() {
       try {
         const tableObj = {
           columns:
-            "c.name as agentId,p.name  as berthId,b.agentCode as agentCode,b.lineCode as lineCode,b.portEdiAgentCode as portEdiAgentCode,b.senderId as senderId, b.id as id",
+            "c.name as agentId,p.code  as berthId,b.agentCode as agentCode,b.lineCode as lineCode,b.portEdiAgentCode as portEdiAgentCode,b.senderId as senderId, b.id as id",
           tableName: "tblBerthAgentCode b",
           pageNo,
           pageSize,

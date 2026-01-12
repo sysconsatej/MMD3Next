@@ -30,12 +30,16 @@ function CustomTabPanel({ children, value, index }) {
 
 export default function InvoiceReleasePage() {
   const { link } = useBackLinksStore();
-  const  { setClearData  } = useBlWorkFlowData();
+  const { setClearData } = useBlWorkFlowData();
   const searchParams = useSearchParams();
   const { mode } = formStore();
-  const blIdFromQS = searchParams.get("blId");
-  const blIdFromStore = mode?.formId;
-  const blIdResolved = blIdFromQS || blIdFromStore;
+  // const blIdFromQS = searchParams.get("blId");
+  // const blIdFromStore = mode?.formId;
+  // const blIdResolved = blIdFromQS || blIdFromStore;
+  const invoiceRequestIdFromQS = searchParams.get("invoiceRequestId");
+  const invoiceRequestIdFromStore = mode?.formId;
+  const invoiceRequestIdResolved =
+    invoiceRequestIdFromQS || invoiceRequestIdFromStore;
 
   const [formData, setFormData] = useState({});
   const [formDataRequest, setFormDataRequest] = useState({});
@@ -54,61 +58,223 @@ export default function InvoiceReleasePage() {
     if (tabValue >= index && tabValue > 0) setTabValue(tabValue - 1);
   };
 
+  // useEffect(() => {
+  //   async function loadByBl() {
+  //     if (!blIdResolved) return;
+
+  //     try {
+  //       setLoading(true);
+
+  //       // ⭐ CHANGE 1 → ISNULL(hblNo, mblNo) AS blNo
+  //       // const blQ = {
+  //       //   columns: `
+  //       //     b.id AS blId,
+  //       //     ISNULL(b.hblNo, b.mblNo) AS blNo,
+  //       //     c.id AS beneficiaryId,
+  //       //     c.name AS beneficiaryName
+  //       //   `,
+  //       //   tableName: "tblBl b",
+  //       //   joins: "LEFT JOIN tblCompany c ON c.id = b.companyId",
+  //       //   whereCondition: `b.id = ${Number(
+  //       //     blIdResolved
+  //       //   )} AND ISNULL(b.status,1)=1`,
+  //       // };
+  //       // const { success: blOk, data: blRes } = await getDataWithCondition(blQ);
+  //       // if (!blOk || !blRes?.length) {
+  //       //   toast.error("BL not found.");
+  //       //   return;
+  //       // }
+
+  //       // const { blId, blNo, beneficiaryId, beneficiaryName } = blRes[0];
+
+  //       // 2️⃣ Invoices
+  //       const invQ = {
+  //         columns: "id",
+  //         tableName: "tblInvoice",
+  //         whereCondition: `blId in (${blId}) AND status = 1`,
+  //       };
+  //       const { success: invOk, data: invRows } = await getDataWithCondition(
+  //         invQ
+  //       );
+  //       const collected = [];
+
+  //       if (invOk && invRows?.length) {
+  //         const invoiceIds = invRows.map((r) => r.id);
+
+  //         await Promise.allSettled(
+  //           invoiceIds.map(async (invoiceId) => {
+  //             const fmt = formatFetchForm(
+  //               fieldData,
+  //               "tblInvoice",
+  //               invoiceId,
+  //               '["tblInvoiceRequestContainer","tblAttachment"]',
+  //               "invoiceRequestId"
+  //             );
+  //             const { success, result } = await fetchForm(fmt);
+  //             if (success)
+  //               collected.push(formatDataWithForm(result, fieldData));
+  //           })
+  //         );
+  //       }
+
+  //       const normalized = collected.length
+  //         ? formatDataWithFormThirdLevel(
+  //             collected,
+  //             [...fieldData.igmFields],
+  //             "tblInvoice"
+  //           )
+  //         : {};
+
+  //       setFormData({
+  //         ...normalized,
+  //         blId,
+  //         blNo,
+  //         beneficiaryName: { Id: beneficiaryId, Name: beneficiaryName },
+  //       });
+
+  //       setInvoiceArray(
+  //         Array.from(
+  //           { length: (normalized.tblInvoice || []).length || 1 },
+  //           (_, i) => i
+  //         )
+  //       );
+
+  //       setFieldsMode("view");
+  //       setTabValue(0);
+
+  //       // ⭐ CHANGE 2 → Match BL using ISNULL(hblNo, mblNo)
+  //       const reqQ = {
+  //         columns: "r.id",
+  //         tableName: "tblInvoiceRequest r",
+  //         joins: "JOIN tblBl b ON ISNULL(b.hblNo, b.mblNo) = r.blNo",
+  //         whereCondition: `b.id = ${blId}`,
+  //       };
+
+  //       const { success: reqOk, data: reqRes } = await getDataWithCondition(
+  //         reqQ
+  //       );
+  //       if (reqOk && reqRes?.length > 0) {
+  //         const reqId = reqRes[0].id;
+  //         const format = formatFetchForm(
+  //           invoiceRequestData,
+  //           "tblInvoiceRequest",
+  //           reqId,
+  //           '["tblInvoiceRequestContainer","tblAttachment"]',
+  //           "invoiceRequestId"
+  //         );
+
+  //         const { success, result } = await fetchForm(format);
+  //         if (success) {
+  //           const reqData = formatDataWithForm(result, invoiceRequestData);
+  //           setFormDataRequest(reqData);
+  //         }
+  //       } else {
+  //         setFormDataRequest({});
+  //         toast.info("No linked Invoice Request found for this BL.");
+  //       }
+  //     } catch (err) {
+  //       console.error("InvoiceRelease load error:", err);
+  //       toast.error("Error loading Invoice Release data.");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
+
+  //   loadByBl();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [blIdResolved]);
   useEffect(() => {
-    async function loadByBl() {
-      if (!blIdResolved) return;
+    async function loadByInvoiceRequest() {
+      if (!invoiceRequestIdResolved) return;
 
       try {
         setLoading(true);
 
-        // ⭐ CHANGE 1 → ISNULL(hblNo, mblNo) AS blNo
-        const blQ = {
+        /* 1️⃣ FETCH INVOICE REQUEST + DERIVE BL */
+        const reqQ = {
           columns: `
-            b.id AS blId,
-            ISNULL(b.hblNo, b.mblNo) AS blNo,
-            c.id AS beneficiaryId,
-            c.name AS beneficiaryName
-          `,
-          tableName: "tblBl b",
-          joins: "LEFT JOIN tblCompany c ON c.id = b.companyId",
-          whereCondition: `b.id = ${Number(
-            blIdResolved
-          )} AND ISNULL(b.status,1)=1`,
+          r.id AS invoiceRequestId,
+          r.blNo As blNo,
+          r.shippingLineId AS beneficiaryId,
+          c.name AS beneficiaryName
+        `,
+          tableName: "tblInvoiceRequest r",
+          joins: `
+          LEFT JOIN tblCompany c ON c.id = r.shippingLineId
+        `,
+          whereCondition: `
+          r.id = ${Number(invoiceRequestIdResolved)}
+          AND ISNULL(r.status,1)=1
+        `,
         };
-        const { success: blOk, data: blRes } = await getDataWithCondition(blQ);
-        if (!blOk || !blRes?.length) {
-          toast.error("BL not found.");
+
+        const { success: reqOk, data: reqRes } = await getDataWithCondition(
+          reqQ
+        );
+
+        if (!reqOk || !reqRes?.length) {
+          toast.error("Invoice Request not found.");
           return;
         }
 
-        const { blId, blNo, beneficiaryId, beneficiaryName } = blRes[0];
+        const {
+          invoiceRequestId,
+          blId,
+          blNo,
+          beneficiaryId,
+          beneficiaryName,
+        } = reqRes[0];
 
-        // 2️⃣ Invoices
+        /* 2️⃣ FETCH INVOICE REQUEST FORM */
+        const reqFormat = formatFetchForm(
+          invoiceRequestData,
+          "tblInvoiceRequest",
+          invoiceRequestId,
+          '["tblInvoiceRequestContainer","tblAttachment"]',
+          "invoiceRequestId"
+        );
+
+        const { success: reqFormOk, result: reqFormRes } = await fetchForm(
+          reqFormat
+        );
+
+        if (reqFormOk) {
+          setFormDataRequest(
+            formatDataWithForm(reqFormRes, invoiceRequestData)
+          );
+        }
+
+        /* 3️⃣ FETCH INVOICES BASED ON invoiceRequestId */
         const invQ = {
           columns: "id",
           tableName: "tblInvoice",
-          whereCondition: `blId in (${blId}) AND status = 1`,
+          whereCondition: `
+          invoiceRequestId = ${invoiceRequestId}
+          AND status = 1
+        `,
         };
+
         const { success: invOk, data: invRows } = await getDataWithCondition(
           invQ
         );
+
         const collected = [];
 
         if (invOk && invRows?.length) {
-          const invoiceIds = invRows.map((r) => r.id);
-
           await Promise.allSettled(
-            invoiceIds.map(async (invoiceId) => {
+            invRows.map(async ({ id }) => {
               const fmt = formatFetchForm(
                 fieldData,
                 "tblInvoice",
-                invoiceId,
+                id,
                 '["tblInvoiceRequestContainer","tblAttachment"]',
                 "invoiceRequestId"
               );
+
               const { success, result } = await fetchForm(fmt);
-              if (success)
+              if (success) {
                 collected.push(formatDataWithForm(result, fieldData));
+              }
             })
           );
         }
@@ -121,11 +287,15 @@ export default function InvoiceReleasePage() {
             )
           : {};
 
+        /* 4️⃣ FINAL STATE SET */
         setFormData({
           ...normalized,
           blId,
-          blNo,
-          beneficiaryName: { Id: beneficiaryId, Name: beneficiaryName },
+          blNo: blNo,
+          beneficiaryName: {
+            Id: beneficiaryId,
+            Name: beneficiaryName,
+          },
         });
 
         setInvoiceArray(
@@ -135,39 +305,8 @@ export default function InvoiceReleasePage() {
           )
         );
 
-        setFieldsMode("view");
         setTabValue(0);
-
-        // ⭐ CHANGE 2 → Match BL using ISNULL(hblNo, mblNo)
-        const reqQ = {
-          columns: "r.id",
-          tableName: "tblInvoiceRequest r",
-          joins: "JOIN tblBl b ON ISNULL(b.hblNo, b.mblNo) = r.blNo",
-          whereCondition: `b.id = ${blId}`,
-        };
-
-        const { success: reqOk, data: reqRes } = await getDataWithCondition(
-          reqQ
-        );
-        if (reqOk && reqRes?.length > 0) {
-          const reqId = reqRes[0].id;
-          const format = formatFetchForm(
-            invoiceRequestData,
-            "tblInvoiceRequest",
-            reqId,
-            '["tblInvoiceRequestContainer","tblAttachment"]',
-            "invoiceRequestId"
-          );
-
-          const { success, result } = await fetchForm(format);
-          if (success) {
-            const reqData = formatDataWithForm(result, invoiceRequestData);
-            setFormDataRequest(reqData);
-          }
-        } else {
-          setFormDataRequest({});
-          toast.info("No linked Invoice Request found for this BL.");
-        }
+        setFieldsMode("view");
       } catch (err) {
         console.error("InvoiceRelease load error:", err);
         toast.error("Error loading Invoice Release data.");
@@ -176,9 +315,8 @@ export default function InvoiceReleasePage() {
       }
     }
 
-    loadByBl();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [blIdResolved]);
+    loadByInvoiceRequest();
+  }, [invoiceRequestIdResolved]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -209,8 +347,8 @@ export default function InvoiceReleasePage() {
 
           <CustomButton
             text="Back"
-            href={link ? link?.blStatus : "/payment/paymentConfirmation/list"}
-            onClick={() => setClearData([])}
+            href={ "/payment/paymentConfirmation/list"}
+            // onClick={() => setClearData([])}
           />
         </Box>
 

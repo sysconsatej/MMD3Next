@@ -238,8 +238,17 @@ export default function InvoicePayment() {
           await loadBlContainersByBlId(row.id);
           await setInvoiceRequestId(typed);
         } else {
-          toast.error("BL not found for this Beneficiary.");
-          setErrorState((p) => ({ ...p, [errKey]: true }));
+          // toast.error("BL not found for this Beneficiary.");
+          // setErrorState((p) => ({ ...p, [errKey]: true }));
+          toast.info("BL not found. Proceeding without BL.");
+
+          setFormData((p) => ({
+            ...p,
+            blId: null,
+          }));
+
+          setContainerData([]);
+          setErrorState((p) => ({ ...p, [errKey]: false }));
         }
       } catch (e) {
         console.error(e);
@@ -392,11 +401,17 @@ export default function InvoicePayment() {
       return;
     }
     try {
-      const blId = formData?.blId;
-      if (!blId) {
-        toast.error("BL not found. Please check BL No first.");
+      // const blId = formData?.blId;
+      // if (!blId) {
+      //   toast.error("BL not found. Please check BL No first.");
+      //   return;
+      // }
+      if (!invoiceReqId) {
+        toast.error("Invoice Request not found.");
         return;
       }
+
+      const blId = formData?.blId || null;
 
       const invoiceTabs = formData?.tblInvoice || [];
 
@@ -425,6 +440,7 @@ export default function InvoicePayment() {
           {
             ...cleanInvoice,
             invoiceRequestId: invoiceReqId,
+            locationId: userData?.location,
             blId,
             companyId: userData?.companyId,
             companyBranchId: userData?.branchId,
@@ -474,13 +490,26 @@ export default function InvoicePayment() {
     }
   };
 
+  // const quickPayHandler = () => {
+  //   const blId = formData?.blId;
+  //   if (!blId) {
+  //     toast.error("Please select a BL first!");
+  //     return;
+  //   }
+  //   router.push(`/invoice/invoicePayment/payment?blId=${blId}`);
+  // };
   const quickPayHandler = () => {
     const blId = formData?.blId;
-    if (!blId) {
-      toast.error("Please select a BL first!");
-      return;
+
+    if (blId) {
+      router.push(`/invoice/invoicePayment/payment?blId=${blId}`);
+    } else if (invoiceReqId) {
+      router.push(
+        `/invoice/invoicePayment/payment?invoiceRequestId=${invoiceReqId}`
+      );
+    } else {
+      toast.error("Nothing to pay.");
     }
-    router.push(`/invoice/invoicePayment/payment?blId=${blId}`);
   };
 
   const handleFilesChange = async (fileList) => {

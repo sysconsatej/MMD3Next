@@ -125,7 +125,7 @@ export default function InvoicePaymentList() {
           tableName: "tblInvoice i",
           joins: `
     LEFT JOIN tblBl b ON b.id = i.blId
-    LEFT JOIN tblCompany c ON c.id = b.companyId
+    LEFT JOIN tblCompany c ON c.id = i.shippingLineId
     LEFT JOIN tblMasterData cat ON cat.id = i.invoiceCategoryId
     LEFT JOIN tblUser u ON u.id = ${userData.userId}
     JOIN tblInvoiceRequest ir on  ir.id = i.invoiceRequestId and ir.companyId = u.companyId and ir.companyBranchId = u.branchId and i.locationId = ${userData.location}
@@ -226,24 +226,50 @@ export default function InvoicePaymentList() {
   }
 
   // === PAY HANDLER ===
+  // const handlePay = async (recordId) => {
+  //   try {
+  //     const query = {
+  //       columns: "TOP 1 b.id AS blId",
+  //       tableName: "tblInvoice i",
+  //       joins: "LEFT JOIN tblBl b ON b.id = i.blId",
+  //       whereCondition: `i.id = ${recordId}`,
+  //     };
+  //     const { success, data } = await getDataWithCondition(query);
+  //     if (success && data?.length > 0) {
+  //       const blId = data[0].blId;
+  //       router.push(`/invoice/invoicePayment/payment?blId=${blId}`);
+  //     } else {
+  //       toast.error("BL ID not found for this invoice.");
+  //     }
+  //   } catch (err) {
+  //     console.error("Error fetching BL ID:", err);
+  //     toast.error("Unable to fetch BL ID.");
+  //   }
+  // };
   const handlePay = async (recordId) => {
     try {
       const query = {
-        columns: "TOP 1 b.id AS blId",
-        tableName: "tblInvoice i",
-        joins: "LEFT JOIN tblBl b ON b.id = i.blId",
-        whereCondition: `i.id = ${recordId}`,
+        columns: "blNo",
+        tableName: "tblInvoice",
+        whereCondition: `id = ${recordId}`,
       };
+
       const { success, data } = await getDataWithCondition(query);
-      if (success && data?.length > 0) {
-        const blId = data[0].blId;
-        router.push(`/invoice/invoicePayment/payment?blId=${blId}`);
-      } else {
-        toast.error("BL ID not found for this invoice.");
+
+      if (!success || !data?.length || !data[0].blNo) {
+        toast.error("BL No not found for this invoice.");
+        return;
       }
+
+      const blNo = data[0].blNo;
+
+      // ✅ SINGLE SOURCE OF TRUTH
+      router.push(
+        `/invoice/invoicePayment/payment?blNo=${encodeURIComponent(blNo)}`
+      );
     } catch (err) {
-      console.error("Error fetching BL ID:", err);
-      toast.error("Unable to fetch BL ID.");
+      console.error("Error opening payment page:", err);
+      toast.error("Unable to open payment page.");
     }
   };
 
