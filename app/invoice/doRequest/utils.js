@@ -1,5 +1,5 @@
-import { getDataWithCondition, updateStatusRows } from "@/apis";
-import { getUserByCookies } from "@/utils";
+import { fetchForm, getDataWithCondition, updateStatusRows } from "@/apis";
+import { formatDataWithForm, formatFetchForm, getUserByCookies } from "@/utils";
 import { toast } from "react-toastify";
 
 export const doStatusHandler = (getData, router, setMode) => {
@@ -17,37 +17,49 @@ export const doStatusHandler = (getData, router, setMode) => {
     handleViewBL: async (ids) => {
       const id = ids[0];
       const obj = {
-        columns: "mblHblFlag",
-        tableName: "tblBl",
-        whereCondition: `id = ${id} and status = 1`,
+        columns: "b.id id, b.mblHblFlag mblHblFlag",
+        tableName: "tblDoRequest d",
+        joins: `
+          left join tblBl b on b.id = d.blId  and b.status = 1
+        `,
+        whereCondition: `d.id = ${id} and d.status = 1`,
       };
-      const { data, success } = await getDataWithCondition(obj);
-      if (success) {
+      const { data, success, error } = await getDataWithCondition(obj);
+      if (data?.length > 0 && success) {
         if (data?.[0]?.mblHblFlag === "HBL") {
-          setMode({ mode: "view", formId: `${id}` });
+          setMode({ mode: "view", formId: `${data?.[0]?.id}` });
           router.push("/bl/hbl");
         } else {
-          setMode({ mode: "view", formId: id });
+          setMode({ mode: "view", formId: data?.[0]?.id });
           router.push("/bl/mbl");
         }
+      } else {
+        console.log("error", error);
+        toast.error(error);
       }
     },
     handleEditBL: async (ids) => {
       const id = ids[0];
       const obj = {
-        columns: "mblHblFlag",
-        tableName: "tblBl",
-        whereCondition: `id = ${id} and status = 1`,
+        columns: "b.id id, b.mblHblFlag mblHblFlag",
+        tableName: "tblDoRequest d",
+        joins: `
+          left join tblBl b on b.id = d.blId  and b.status = 1
+        `,
+        whereCondition: `d.id = ${id} and d.status = 1`,
       };
-      const { data, success } = await getDataWithCondition(obj);
-      if (success) {
+      const { data, success, error } = await getDataWithCondition(obj);
+      if (data?.length > 0 && success) {
         if (data?.[0]?.mblHblFlag === "HBL") {
-          setMode({ mode: "edit", formId: `${id}` });
+          setMode({ mode: "edit", formId: `${data?.[0]?.id}` });
           router.push("/bl/hbl");
         } else {
-          setMode({ mode: "edit", formId: id });
+          setMode({ mode: "edit", formId: data?.[0]?.id });
           router.push("/bl/mbl");
         }
+      } else {
+        console.log("error", error);
+        toast.error(error);
       }
     },
     handleRequestDO: async (ids) => {
@@ -61,15 +73,15 @@ export const doStatusHandler = (getData, router, setMode) => {
         const rowsPayload = ids?.map((id) => {
           return {
             id: id,
-            dostatusId: data?.[0]?.Id,
-            hblRequestRemarks: null,
+            doRequestStatusId: data?.[0]?.Id,
+            doRejectRemarks: null,
             updatedBy: userData?.userId,
             updatedDate: new Date(),
           };
         });
 
         const res = await updateStatusRows({
-          tableName: "tblBl",
+          tableName: "tblDoRequest",
           rows: rowsPayload,
           keyColumn: "id",
         });
@@ -93,15 +105,15 @@ export const doStatusHandler = (getData, router, setMode) => {
         const rowsPayload = ids?.map((id) => {
           return {
             id: id,
-            dostatusId: data?.[0]?.Id,
-            hblRequestRemarks: null,
+            doRequestStatusId: data?.[0]?.Id,
+            doRejectRemarks: null,
             updatedBy: userData?.userId,
             updatedDate: new Date(),
           };
         });
 
         const res = await updateStatusRows({
-          tableName: "tblBl",
+          tableName: "tblDoRequest",
           rows: rowsPayload,
           keyColumn: "id",
         });
@@ -125,15 +137,15 @@ export const doStatusHandler = (getData, router, setMode) => {
         const rowsPayload = ids?.map((id) => {
           return {
             id: id,
-            dostatusId: data?.[0]?.Id,
-            hblRequestRemarks: null,
+            doRequestStatusId: data?.[0]?.Id,
+            doRejectRemarks: null,
             updatedBy: userData?.userId,
             updatedDate: new Date(),
           };
         });
 
         const res = await updateStatusRows({
-          tableName: "tblBl",
+          tableName: "tblDoRequest",
           rows: rowsPayload,
           keyColumn: "id",
         });
@@ -158,3 +170,120 @@ export function statusColor(status) {
   };
   return color[status];
 }
+
+export const BlurEventFunctions = ({ formData, setFormData, jsonData }) => {
+  return {
+    fetchInvoicePaymentByBlAndLiner: async (event) => {
+      const { name, value } = event.target;
+      const blNo = value?.trim();
+
+      if (!blNo) return;
+
+      const linerId = formData?.shippingLineId?.Id;
+
+      if (!linerId) {
+        toast.warn("Select Liner first.");
+        return;
+      }
+
+      try {
+        const blQuery = {
+          columns: "TOP 1 id, mblHblFlag",
+          tableName: "tblBl",
+          whereCondition: `
+               ISNULL(hblNo, mblNo) = '${blNo.replace(
+                 /'/g,
+                 "''"
+               )}' AND 1 = 1 AND shippingLineId = ${linerId}
+             `,
+        };
+
+        const { success: blSuccess, data: blData } = await getDataWithCondition(
+          blQuery
+        );
+
+        if (!blSuccess || !Array.isArray(blData) || !blData.length) {
+          toast.error("BL not found for selected Liner.");
+          setFormData({});
+          return;
+        }
+        const blId = blData?.[0]?.id;
+
+        const format = formatFetchForm(
+          jsonData,
+          "tblBl",
+          blId,
+          '["tblInvoicePayment", "tblBlContainer"]',
+          "blId"
+        );
+        const { result } = await fetchForm(format);
+        const getData = formatDataWithForm(result, jsonData);
+        const convertData = {};
+        for (let [key, value] of Object.entries(getData)) {
+          if (value) {
+            convertData[key] = value;
+          }
+        }
+        const updateTblContainer = getData?.tblBlContainer?.map((subItem) => {
+          return { ...subItem, selectForDO: true };
+        });
+        setFormData({
+          ...convertData,
+          blNo: value,
+          blId: blId,
+          tblBlContainer: updateTblContainer,
+        });
+      } catch (e) {
+        console.error(e);
+        toast.error("Error fetching payment details.");
+        setFormData({});
+      }
+    },
+  };
+};
+
+export const changeEventFunctions = ({ mode, setFormData, formData }) => {
+  return {
+    freeDaysChangeHandler: async (name, value) => {
+      if (value === "F") {
+        try {
+          const obj = {
+            columns: "vor.arrivalDate",
+            tableName: "tblBl b",
+            joins:
+              "inner join tblVoyageRoute vor on vor.voyageId = b.podVoyageId and vor.portOfCallId = b.podId",
+            whereCondition: `isnull(b.hblNo, b.mblNo) = '${formData?.blNo}' and b.status = 1`,
+          };
+          const { data, success } = await getDataWithCondition(obj);
+          if (success && data.length > 0) {
+            setFormData((prev) => {
+              const updateTblBlContainer = prev?.tblBlContainer?.map(
+                (item) => ({
+                  ...item,
+                  doValidityDate: data?.[0]?.arrivalDate,
+                })
+              );
+              return {
+                ...prev,
+                tblBlContainer: updateTblBlContainer,
+              };
+            });
+          }
+        } catch (e) {
+          console.log("error", e.message);
+        }
+      } else {
+        setFormData((prev) => {
+          const updateTblBlContainer = prev?.tblBlContainer?.map((item) => ({
+            ...item,
+            doValidityDate: null,
+          }));
+          return {
+            ...prev,
+            tblBlContainer: updateTblBlContainer,
+          };
+        });
+      }
+    },
+  };
+};

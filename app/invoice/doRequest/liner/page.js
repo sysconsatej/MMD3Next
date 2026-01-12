@@ -101,18 +101,18 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "l.name location, u2.name submittedBy,ISNULL(b.hblNo, b.mblNo) blNo, b.validTill validTill, b.isFreeDays isFreeDays, m2.name stuffDestuffId, m.name doStatus, b.id id",
-          tableName: "tblBl b",
+            "l.name location, u2.name submittedBy, d.blNo blNo, d.isFreeDays isFreeDays, m2.name stuffDestuffId, m.name doStatus, d.id id",
+          tableName: "tblDoRequest d",
           pageNo,
           pageSize,
           joins: `
-            left join tblMasterData m on m.id = b.dostatusId
-            left join tblMasterData m2 on m2.id = b.stuffDestuffId
-            left join tblLocation l on l.id = b.locationId
-            left join tblUser u2 on u2.id = b.updatedBy
+            left join tblMasterData m on m.id = d.doRequestStatusId
+            left join tblMasterData m2 on m2.id = d.stuffDestuffId
+            left join tblLocation l on l.id = d.locationId
+            left join tblUser u2 on u2.id = d.updatedBy
             left join tblUser u on u.id = ${userData.userId}
-            join tblBl b2 on b2.id = b.id and b.dostatusId is not null and m.name <> 'Pending for DO' 
-            and b.locationId = ${userData.location} and b.shippingLineId = u.companyId
+            join tblDoRequest d2 on d2.id = d.id and d.doRequestStatusId is not null 
+            and d.locationId = ${userData.location} and d.shippingLineId = u.companyId
           `,
         };
 
@@ -210,9 +210,9 @@ export default function BLList() {
             onEdit={(ids) =>
               doStatusHandler(getData, router, setMode).handleEdit(ids)
             }
-            onEditBL={(ids) =>
-              doStatusHandler(getData, router, setMode).handleEditBL(ids)
-            }
+            // onEditBL={(ids) =>
+            //   doStatusHandler(getData, router, setMode).handleEditBL(ids)
+            // }
             onViewBL={(ids) =>
               doStatusHandler(getData, router, setMode).handleViewBL(ids)
             }
