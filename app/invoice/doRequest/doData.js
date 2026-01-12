@@ -19,8 +19,7 @@ export const fieldData = {
     },
     {
       label: "BL No",
-      name: "mblNo",
-      isEdit: true,
+      name: "blNo",
       required: true,
       blurFun: "fetchInvoicePaymentByBlAndLiner",
     },
@@ -196,7 +195,7 @@ export const fieldData = {
       name: "containerNo",
       isEdit: true,
       required: true,
-      blurFun: "containerNumberHandler",
+      disabled: true,
     },
     {
       label: "Size",
@@ -209,6 +208,7 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
       changeFun: "setISOBySize",
+      disabled: true,
     },
     {
       label: "Type",
@@ -221,6 +221,7 @@ export const fieldData = {
       foreignTable: "code-name,tblMasterData",
       isEdit: true,
       changeFun: "setISOByType",
+      disabled: true,
     },
     {
       label: " Valid Till",

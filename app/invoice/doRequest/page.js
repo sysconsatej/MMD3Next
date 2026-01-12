@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import { cfsGridButtons, fieldData } from "./doData";
 import { CustomInput } from "@/components/customInput";
@@ -9,7 +9,7 @@ import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import FormHeading from "@/components/formHeading/formHeading";
-import { formStore, useBackLinksStore } from "@/store";
+import { formStore } from "@/store";
 import {
   fetchForm,
   getDataWithCondition,
@@ -22,9 +22,9 @@ import {
   formatFormData,
   getUserByCookies,
 } from "@/utils";
+import { BlurEventFunctions, changeEventFunctions } from "./utils";
 
 export default function Home() {
-  const { link } = useBackLinksStore();
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(fieldData);
@@ -35,21 +35,19 @@ export default function Home() {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    const requestStatus = doStatus.filter(
-      (item) => item.Name === "Pending for DO"
-    );
-    let payloadDO = {};
-    if (userData.roleCode === "customer") {
-      payloadDO = {
-        ...formData,
-        dostatusId: requestStatus?.[0]?.Id,
-        doRequestCreatedBy: userData?.userId,
-      };
-    } else {
-      payloadDO = formData;
-    }
+    const { tblInvoicePayment, tblBlContainer, ...restData } = formData;
 
-    const format = formatFormData("tblBl", payloadDO, mode.formId, "blId");
+    const format = formatFormData(
+      "tblDoRequest",
+      {
+        ...restData,
+        locationId: userData?.location,
+        companyId: userData?.companyId,
+        companyBranchId: userData?.branchId,
+      },
+      mode.formId,
+      "doRequestId"
+    );
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
@@ -57,118 +55,45 @@ export default function Home() {
     } else {
       toast.error(error || message);
     }
-  };
 
-  const handleBlurEventFunctions = {
-    fetchInvoicePaymentByBlAndLiner: async (eventOrValue) => {
-      const blNo =
-        typeof eventOrValue === "string"
-          ? eventOrValue.trim()
-          : eventOrValue?.target?.value?.trim();
-
-      if (!blNo) return;
-
-      const linerId =
-        formData?.shippingLineId?.Id ?? formData?.shippingLineId ?? null;
-
-      if (!linerId) {
-        toast.warn("Select Liner first.");
-        return;
-      }
-
-      try {
-        const blQuery = {
-          columns: "TOP 1 id, mblHblFlag",
-          tableName: "tblBl",
-          whereCondition: `
-            ISNULL(hblNo, mblNo) = '${blNo.replace(
-              /'/g,
-              "''"
-            )}' AND 1 = 1 AND shippingLineId = ${linerId}
-          `,
+    if (tblBlContainer?.length > 0) {
+      const rowsPayload = tblBlContainer?.map((item) => {
+        return {
+          id: item?.id,
+          selectForDO: item?.selectForDO,
+          doValidityDate: item?.doValidityDate,
+          updatedBy: userData?.userId,
+          updatedDate: new Date(),
         };
+      });
 
-        const { success: blSuccess, data: blData } = await getDataWithCondition(
-          blQuery
-        );
+      const res = await updateStatusRows({
+        tableName: "tblBlContainer",
+        rows: rowsPayload,
+        keyColumn: "id",
+      });
 
-        if (!blSuccess || !Array.isArray(blData) || !blData.length) {
-          toast.error("BL not found for selected Liner.");
-          setFormData({});
-          return;
-        }
-        const blId = blData?.[0]?.id;
-
-        setJsonData((prev) => {
-          const updateDoRequestFields = prev?.doRequestFields?.map((item) => {
-            if (item.name === "mblNo") {
-              if (blData?.[0]?.mblHblFlag === "HBL") {
-                return { ...item, name: "hblNo" };
-              } else {
-                return { ...item, name: "mblNo" };
-              }
-            }
-            return item;
-          });
-
-          return {
-            ...prev,
-            doRequestFields: updateDoRequestFields,
-          };
-        });
-
-        setMode({ mode: null, formId: blId });
-      } catch (e) {
-        console.error(e);
-        toast.error("Error fetching payment details.");
-        setFormData({});
-      }
-    },
-  };
-
-  const handleChangeEventFunctions = {
-    freeDaysChangeHandler: async (name, value) => {
-      if (value === "F") {
-        try {
-          const obj = {
-            columns: "vor.arrivalDate",
-            tableName: "tblBl b",
-            joins:
-              "inner join tblVoyageRoute vor on vor.voyageId = b.podVoyageId and vor.portOfCallId = b.podId",
-            whereCondition: `b.id = ${mode.formId} and b.status = 1`,
-          };
-          const { data, success } = await getDataWithCondition(obj);
-          if (success && data.length > 0) {
-            setFormData((prev) => {
-              const updateTblBlContainer = prev?.tblBlContainer?.map(
-                (item) => ({
-                  ...item,
-                  doValidityDate: data?.[0]?.arrivalDate,
-                })
-              );
-              return {
-                ...prev,
-                tblBlContainer: updateTblBlContainer,
-              };
-            });
-          }
-        } catch (e) {
-          console.log("error", e.message);
-        }
+      const { success, message } = res || {};
+      if (!success) {
+        toast.error(message || "Container update failed");
+        return;
       } else {
-        setFormData((prev) => {
-          const updateTblBlContainer = prev?.tblBlContainer?.map((item) => ({
-            ...item,
-            doValidityDate: null,
-          }));
-          return {
-            ...prev,
-            tblBlContainer: updateTblBlContainer,
-          };
-        });
+        toast.success("Container updated successfully!");
       }
-    },
+    }
   };
+
+  const handleBlurEventFunctions = BlurEventFunctions({
+    formData,
+    setFormData,
+    jsonData,
+  });
+
+  const handleChangeEventFunctions = changeEventFunctions({
+    setFormData,
+    mode,
+    formData,
+  });
 
   async function requestHandler() {
     const requestStatus = doStatus.filter(
@@ -177,14 +102,14 @@ export default function Home() {
     const rowsPayload = [
       {
         id: mode?.formId,
-        dostatusId: requestStatus?.[0]?.Id,
-        hblRequestRemarks: null,
+        doRequestStatusId: requestStatus?.[0]?.Id,
+        doRejectRemarks: null,
         updatedBy: userData?.userId,
         updatedDate: new Date(),
       },
     ];
     const res = await updateStatusRows({
-      tableName: "tblBl",
+      tableName: "tblDoRequest",
       rows: rowsPayload,
       keyColumn: "id",
     });
@@ -200,22 +125,47 @@ export default function Home() {
     async function getBl() {
       const format = formatFetchForm(
         jsonData,
-        "tblBl",
+        "tblDoRequest",
         mode.formId,
-        '["tblInvoicePayment", "tblAttachment", "tblBlContainer"]',
-        "blId"
+        '["tblAttachment"]',
+        "doRequestId"
       );
       const { result } = await fetchForm(format);
       const getData = formatDataWithForm(result, jsonData);
+      const obj = {
+        columns: "id as id",
+        tableName: "tblBl",
+        whereCondition: `isnull(hblNo, mblNo) = '${getData.blNo}' and status = 1`,
+      };
+      const { data, success } = await getDataWithCondition(obj);
+      const format2 = formatFetchForm(
+        jsonData,
+        "tblBl",
+        data?.[0]?.id,
+        '["tblInvoicePayment", "tblBlContainer"]',
+        "blId"
+      );
+      const { result: result2 } = await fetchForm(format2);
+      const getData2 = formatDataWithForm(result2, jsonData);
       if (mode.mode !== "edit" && mode.mode !== "view") {
-        const updateTblContainer = getData?.tblBlContainer?.map((subItem) => {
+        const updateTblContainer = getData2?.tblBlContainer?.map((subItem) => {
           return { ...subItem, selectForDO: true };
         });
-        setFormData({ ...getData, tblBlContainer: updateTblContainer });
+        setFormData({
+          ...getData,
+          blId: result?.blId,
+          tblBlContainer: updateTblContainer,
+          tblInvoicePayment: getData2?.tblInvoicePayment ?? [],
+        });
+        setFieldsMode(mode.mode);
       } else {
-        setFormData(getData);
+        setFormData({
+          ...getData,
+          blId: result?.blId,
+          tblBlContainer: getData2?.tblBlContainer ?? [],
+          tblInvoicePayment: getData2?.tblInvoicePayment ?? [],
+        });
       }
-      setFieldsMode(mode.mode);
     }
     getBl();
   }, [mode]);
@@ -309,7 +259,6 @@ export default function Home() {
               />
             </Box>
           </Box>
-
           <Box className="w-full flex mt-2 gap-2">
             {fieldsMode !== "view" && (
               <CustomButton text={"Submit"} type="submit" />
@@ -326,7 +275,6 @@ export default function Home() {
           </Box>
         </section>
       </form>
-
       <ToastContainer />
     </ThemeProvider>
   );

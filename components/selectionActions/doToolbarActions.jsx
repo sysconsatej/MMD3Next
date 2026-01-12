@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Box, Tooltip } from "@mui/material";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping"; // Release DO
 import EditIcon from "@mui/icons-material/Edit"; // Edit BL Docs
@@ -12,6 +12,7 @@ import CloseIcon from "@mui/icons-material/Close"; // Reject
 import WorkIcon from "@mui/icons-material/Work"; // Security Slip
 import PageviewIcon from "@mui/icons-material/Pageview";
 import RequestPageIcon from "@mui/icons-material/RequestPage";
+import { getDataWithCondition } from "@/apis";
 
 export default function DoToolbarActions({
   selectedIds = [],
@@ -26,8 +27,14 @@ export default function DoToolbarActions({
   onView,
   onEdit,
   onRequestDO,
-  allowBulk = true, // global bulk toggle
+  allowBulk = true,
 }) {
+  const [doStatus, setDoStatus] = useState(null);
+  const [isDisableBtn, setIsDisableBtn] = useState({
+    isRequestDisable: false,
+    isRejAndConfDisable: false,
+  });
+
   const ids = useMemo(
     () =>
       (Array.isArray(selectedIds) ? selectedIds : [])
@@ -65,6 +72,58 @@ export default function DoToolbarActions({
     </Tooltip>
   );
 
+  useEffect(() => {
+    async function checkStatus() {
+      const obj = {
+        columns: "doRequestStatusId",
+        tableName: "tblDoRequest",
+        whereCondition: `id in (${ids.join(",")}) and status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+
+      console.log('doStatus', doStatus);
+      console.log('data', data);
+      const filterStatus = doStatus?.filter(
+        (item) => item?.Name !== "Reject for DO"
+      );
+      const filterCheckReq = data?.some((item) =>
+        filterStatus?.some((status) => status.Id === item.doRequestStatusId)
+      );
+      setIsDisableBtn((prev) => ({
+        ...prev,
+        isRequestDisable: filterCheckReq,
+      }));
+
+      // const filterStatusAprAndRej = doStatus?.filter(
+      //   (item) => item.Name !== "Request"
+      // );
+      // const filterCheckAprAndRej = data?.some((item) =>
+      //   filterStatusAprAndRej?.some(
+      //     (status) => status.Id === item.doRequestStatusId
+      //   )
+      // );
+      // setIsDisableBtn((prev) => ({
+      //   ...prev,
+      //   isRejAndConfDisable: filterCheckAprAndRej,
+      // }));
+    }
+    checkStatus();
+  }, [ids]);
+
+  useEffect(() => {
+    async function getDoStatus() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblDoStatus' and status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      setDoStatus(data);
+    }
+
+    getDoStatus();
+  }, []);
+
   return (
     <Box className="w-full flex items-center gap-2 flex-wrap">
       <div className="flex items-center gap-1.5 flex-wrap">
@@ -84,7 +143,7 @@ export default function DoToolbarActions({
             label="Edit"
             icon={<EditIcon />}
             onClick={() => call(onEdit)}
-            disabled={!isSingle}
+            disabled={!isSingle || isDisableBtn?.isRequestDisable}
           />
         )}
 
@@ -94,7 +153,7 @@ export default function DoToolbarActions({
             label="Request DO"
             icon={<RequestPageIcon />}
             onClick={() => call(onRequestDO)}
-            disabled={!hasAny || !onRequestDO}
+            disabled={!hasAny || isDisableBtn?.isRequestDisable}
           />
         )}
 

@@ -33,7 +33,7 @@ function createData(
   isFreeDays,
   stuffDestuffId,
   linerName,
-  doStatus,
+  doRequestStatusId,
   id
 ) {
   return {
@@ -41,7 +41,7 @@ function createData(
     isFreeDays,
     stuffDestuffId,
     linerName,
-    doStatus,
+    doRequestStatusId,
     id,
   };
 }
@@ -76,17 +76,17 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "ISNULL(b.hblNo, b.mblNo) blNo, b.validTill validTill, b.isFreeDays isFreeDays, m2.name stuffDestuffId, c.name linerName, m.name doStatus, b.id id",
-          tableName: "tblBl b",
+            "d.blNo blNo, d.isFreeDays isFreeDays, m2.name stuffDestuffId, c.name linerName, m.name doRequestStatusId, d.id id",
+          tableName: "tblDoRequest d",
           pageNo,
           pageSize,
           joins: `
-            left join tblCompany c on c.id = b.shippingLineId
-            left join tblMasterData m on m.id = b.dostatusId
-            left join tblMasterData m2 on m2.id = b.stuffDestuffId
+            left join tblCompany c on c.id = d.shippingLineId
+            left join tblMasterData m on m.id = d.doRequestStatusId
+            left join tblMasterData m2 on m2.id = d.stuffDestuffId
             left join tblUser u on u.id = ${userData.userId}
             left join tblUser u2 on u2.companyId = u.companyId
-            join tblBl b2 on b2.id = b.id and b.dostatusId is not null and b.locationId = ${userData.location} and b.doRequestCreatedBy = u2.id and m.name <> 'Confirm for DO'
+            join tblDoRequest d2 on d2.id = d.id and d.locationId = ${userData.location} and d.createdBy = u2.id
           `,
         };
 
@@ -113,7 +113,7 @@ export default function BLList() {
           item["isFreeDays"],
           item["stuffDestuffId"],
           item["linerName"],
-          item["doStatus"],
+          item["doRequestStatusId"],
           item["id"]
         )
       )
@@ -207,10 +207,10 @@ export default function BLList() {
                     <TableCell>{row.linerName}</TableCell>
                     <TableCell
                       sx={{
-                        color: statusColor(row.doStatus.replace(/\s+/g, "")),
+                        color: statusColor(row?.doRequestStatusId?.replace(/\s+/g, "")),
                       }}
                     >
-                      {row.doStatus}
+                      {row.doRequestStatusId}
                     </TableCell>
                     <TableCell>
                       <HistoryIcon
