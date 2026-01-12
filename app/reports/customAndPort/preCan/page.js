@@ -240,7 +240,7 @@ export default function CargoArrivalNotice() {
      </div>
     <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
            <span style="font-weight:700;">E.T.A:</span>
-           <span>${item?.arrivalDate || ""}</span>
+           <span>${item?.eta || ""}</span>
      </div>
       <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
            <span style="font-weight:700;">Port of Loading:</span>
@@ -283,7 +283,7 @@ export default function CargoArrivalNotice() {
           <th style="border:1px solid #000; padding:5px; text-align:right;">Container Gross Wt</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody> 
         ${Array.isArray(item?.tblBlContainer) && item.tblBlContainer.length
         ? item.tblBlContainer.map((c) => `
               <tr>
@@ -294,7 +294,7 @@ export default function CargoArrivalNotice() {
                 <td style="border:1px solid #000; padding:5px; text-align:left;">${c?.package ?? ""}</td>
                 <td style="border:1px solid #000; padding:5px; text-align:left;">${c?.type ?? ""}</td>
                 <td style="border:1px solid #000; padding:5px; text-align:right;">${c?.grossWt ?? ""}</td>
-                <td style="border:1px solid #000; padding:5px; text-align:right;">${c?.vgm ?? ""}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">${c?.grossWt ?? ""}</td>
               </tr>
             `).join("")
         : `

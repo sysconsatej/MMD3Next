@@ -255,23 +255,23 @@ export default function CargoArrivalNotice() {
      </div>
       <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
            <span style="font-weight:700;">Line No.:</span>
-           <span>${""}</span>
+           <span>${item?.itemNo || ""}</span>
      </div>
      <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
            <span style="font-weight:700;">CIN Type/No:</span>
-           <span>${""}</span>
+           <span>${item?.cinType || ""} / ${item?.cinNo || ""}</span>
      </div>
      <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
            <span style="font-weight:700;">CSN No:</span>
-           <span>${""}</span>
+           <span>${item?.csnNo || ""}</span>
      </div>
      <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
            <span style="font-weight:700;">CSN Date:</span>
-           <span>${""}</span>
+           <span>${item?.csnDate || ""}</span>
      </div>
       <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
            <span style="font-weight:700;">E.T.A:</span>
-           <span>${item?.arrivalDate || ""}</span>
+           <span>${item?.eta || ""}</span>
      </div>
       <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
            <span style="font-weight:700;">Port of Loading:</span>
@@ -287,15 +287,15 @@ export default function CargoArrivalNotice() {
      </div>
       <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
            <span style="font-weight:700;">Type of Delivery:</span>
-           <span>${""}</span>
+           <span>${item?.cargoTypeName || ""}</span>
      </div>
       <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
            <span style="font-weight:700;">Bond Number:</span>
-           <span>${""}</span>
+           <span>${item?.carrierBondNo || ""}</span>
      </div>
       <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
            <span style="font-weight:700;">Vendor:</span>
-           <span>${""}</span>
+           <span>${item?.movementCarrierName || ""}</span>
      </div>
      <div style="display:flex; gap:6px; font-size:14px; line-height:1.2; color:#000;">
            <span style="font-weight:700;">Mode of Transport:</span>
@@ -349,7 +349,7 @@ export default function CargoArrivalNotice() {
                 <td style="border:1px solid #000; padding:5px; text-align:left;">${c?.package ?? ""}</td>
                 <td style="border:1px solid #000; padding:5px; text-align:left;">${c?.type ?? ""}</td>
                 <td style="border:1px solid #000; padding:5px; text-align:right;">${c?.grossWt ?? ""}</td>
-                <td style="border:1px solid #000; padding:5px; text-align:right;">${c?.vgm ?? ""}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">${c?.grossWt ?? ""}</td>
               </tr>
             `).join("")
                 : `

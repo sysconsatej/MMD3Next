@@ -47,7 +47,12 @@ export default function SearchRequestCfsDpdIcd() {
   const [blData, setBlData] = useState([]);
   const [loadingState, setLoadingState] = useState("NO DATA...");
   const [selectedIds, setSelectedIds] = useState([]);
-  const [modal, setModal] = useState({ toggle: false, value: null, ids: [] });
+  const [modal, setModal] = useState({
+    toggle: false,
+    value: null,
+    ids: [],
+    actionType: null,
+  });
   const [historyModal, setHistoryModal] = useState({
     toggle: false,
     value: null,
@@ -160,7 +165,7 @@ export default function SearchRequestCfsDpdIcd() {
               ...prev,
               toggle: true,
               ids: ids,
-              isAmend: false,
+              actionType: "REJECT",
             }))
           }
           onConfirm={(ids) =>
@@ -171,7 +176,7 @@ export default function SearchRequestCfsDpdIcd() {
               ...prev,
               toggle: true,
               ids: ids,
-              isAmend: true,
+              actionType: "REJECT_AMEND",
             }))
           }
           onConfirmAmendment={(ids) =>

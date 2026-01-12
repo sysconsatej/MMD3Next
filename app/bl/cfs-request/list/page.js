@@ -26,7 +26,12 @@ import { useRouter } from "next/navigation";
 import { fieldData, tblColsLables } from "../fieldsData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-import { cfsStatusHandler, statusColor, tableObj } from "../utils";
+import {
+  BlRejectModal,
+  cfsStatusHandler,
+  statusColor,
+  tableObj,
+} from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import SearchRequestToolbarActions from "@/components/selectionActions/cfsRequestActionBar";
@@ -53,6 +58,12 @@ export default function CompanyList() {
     toggle: false,
     value: null,
     mblNo: null,
+  });
+  const [rejectModal, setRejectModal] = useState({
+    toggle: false,
+    value: "",
+    ids: [],
+    actionType: null,
   });
 
   const { setMode } = formStore();
@@ -142,7 +153,12 @@ export default function CompanyList() {
             cfsStatusHandler(getData, router, setMode).handleRequest(ids)
           }
           onRequestAmendment={(ids) =>
-            cfsStatusHandler(getData, router, setMode).handleRequestAmend(ids)
+            setRejectModal({
+              toggle: true,
+              value: "",
+              ids,
+              actionType: "REQUEST_AMEND", // 🔥 THIS is the key
+            })
           }
         />
         <TableContainer component={Paper} className="mt-2" ref={tableWrapRef}>
@@ -188,9 +204,7 @@ export default function CompanyList() {
                     <TableCell>{row?.customBrokerText}</TableCell>
                     <TableCell
                       sx={{
-                        color: statusColor(
-                          row.cfsRequestStatusId
-                        ),
+                        color: statusColor(row.cfsRequestStatusId?.replace(/\s+/g, "")),
                       }}
                     >
                       {row.cfsRequestStatusId}
@@ -241,6 +255,11 @@ export default function CompanyList() {
       <CfsHistoryModal
         historyModal={historyModal}
         setHistoryModal={setHistoryModal}
+      />
+      <BlRejectModal
+        modal={rejectModal}
+        setModal={setRejectModal}
+        getData={getData}
       />
 
       <ToastContainer />
