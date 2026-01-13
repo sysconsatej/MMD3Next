@@ -503,6 +503,10 @@ export default function InvoiceRequest() {
 
   /* ------------------------ REJECT (Liner) ------------------------ */
   async function rejectHandler() {
+    if (!rejectState.value?.trim()) {
+      toast.warn("Remarks are required to reject the request");
+      return;
+    }
     const rejectedStatusId = statusList.find((x) => x.Name === "Rejected")?.Id;
     if (!rejectedStatusId) return toast.error("Rejected status missing");
 

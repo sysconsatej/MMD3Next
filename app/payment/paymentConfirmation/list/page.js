@@ -210,7 +210,7 @@ JOIN tblLocation l
     ON l.id = p.locationId
    AND p.locationId = ${userData.location}
   `,
-    advanceSearch: finalWhere,
+          advanceSearch: finalWhere,
 
           orderBy: "ORDER BY p.createdDate DESC",
         };
@@ -269,6 +269,10 @@ JOIN tblLocation l
   };
 
   const rejectHandlerFinal = async () => {
+    if (!rejectState.value?.trim()) {
+      toast.warn("Remarks are required to reject the payment");
+      return;
+    }
     const id = statusList.find((x) => x.Name === "Payment Rejected")?.Id;
     if (!id) return toast.error("Payment Rejected status missing");
 
