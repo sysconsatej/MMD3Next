@@ -326,6 +326,13 @@ export const fieldData = {
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
       isEdit: true,
+      disabled: true,
+    },
+    {
+      label: "TG Bond No",
+      name: "scmtrBondNo",
+      isEdit: true,
+      disabled: true,
     },
   ],
   hblBottomFields: [
@@ -671,24 +678,6 @@ export const fieldData = {
       gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
       required: true,
-    },
-  ],
-  tgBondDetails: [
-    {
-      label: "TG Carrier",
-      name: "tgCarrierId",
-      type: "dropdown",
-      isEdit: true,
-    },
-    {
-      label: "TG Bond No",
-      name: "tgBondNo",
-      isEdit: true,
-    },
-    {
-      label: "TG Carrier Code",
-      name: "tgCarrierCode",
-      isEdit: true,
     },
   ],
   tblBlContainer: [
