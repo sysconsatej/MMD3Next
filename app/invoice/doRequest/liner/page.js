@@ -64,27 +64,14 @@ export default function BLList() {
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
   const [blData, setBlData] = useState([]);
-  const [advanceSearch, setAdvanceSearch] = useState({});
   const [loadingState, setLoadingState] = useState("NO DATA...");
   const { setMode } = formStore();
   const tableWrapRef = useRef(null);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [rowClientId, selectedRowClientId] = useState(null);
-  const [idsOnPage, setIdsOnPage] = useState([]);
   const userData = getUserByCookies();
   const [allChecked, setAllChecked] = useState(false);
   const [someChecked, setSomeChecked] = useState(false);
-  const { data } = useGetUserAccessUtils("HBL Request");
   const router = useRouter();
-  const [statusValues, setStatusValues] = useState({
-    advanceBL: false,
-    notificationHistory: false,
-    remarksHold: false,
-    reRequest: false,
-    seawayBL: false,
-    attachments: false,
-    autoDoRequest: false,
-  });
   const [historyModal, setHistoryModal] = useState({
     toggle: false,
     value: null,
@@ -132,22 +119,18 @@ export default function BLList() {
     [page, rowsPerPage]
   );
 
-  const updateStatus = (key, value) => {
-    setStatusValues((prev) => ({ ...prev, [key]: value }));
-  };
-
   const rows = blData
     ? blData.map((item) =>
-      createData(
-        item["location"],
-        item["submittedBy"],
-        item["blNo"],
-        item["isFreeDays"],
-        item["stuffDestuffId"],
-        item["doStatus"],
-        item["id"]
+        createData(
+          item["location"],
+          item["submittedBy"],
+          item["blNo"],
+          item["isFreeDays"],
+          item["stuffDestuffId"],
+          item["doStatus"],
+          item["id"]
+        )
       )
-    )
     : [];
 
   // ---------------- Checkbox Logic ----------------
@@ -165,7 +148,7 @@ export default function BLList() {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
-    selectedRowClientId(row?.clientId || 1)
+    selectedRowClientId(row?.clientId || 1);
   };
 
   // --------------------------------------------
@@ -173,11 +156,6 @@ export default function BLList() {
   // --------------------------------------------
   const handleSecuritySlip = (ids) => console.log("Security Slip:", ids);
   const handleNotify = (ids) => console.log("Notify:", ids);
-  const handleGenerateDO = (ids) => {
-    setReportModalForRow({ ids });
-    setReportModalForRow({ id: ids[0], clientId: 1 });
-    setReportModalOpen(true);
-  }
   const handlePCS = (ids) => console.log("PCS:", ids);
 
   useEffect(() => {
@@ -218,10 +196,16 @@ export default function BLList() {
             }
             onConfirm={(ids) => doStatusHandler(getData).handleConfirm(ids)}
             onReject={(ids) => doStatusHandler(getData).handleReject(ids)}
-            onGenerateDO={(ids) => handleGenerateDO(ids)}
-          // onNotify={handleNotify}
-          // onPCS={handlePCS}
-          // onSecuritySlip={handleSecuritySlip}
+            onGenerateDO={(ids) =>
+              doStatusHandler(getData).handleGenerateDO(
+                ids,
+                setReportModalForRow,
+                setReportModalOpen
+              )
+            }
+            // onNotify={handleNotify}
+            // onPCS={handlePCS}
+            // onSecuritySlip={handleSecuritySlip}
           />
           <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
             <Table size="small">
@@ -262,7 +246,10 @@ export default function BLList() {
                           size="small"
                           checked={selectedIds.includes(row.id)}
                           onChange={() => toggleOne(row.id, row)}
-                          sx={{ p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } }}
+                          sx={{
+                            p: 0.25,
+                            "& .MuiSvgIcon-root": { fontSize: 18 },
+                          }}
                         />
                       </TableCell>
                       <TableCell>{row.location}</TableCell>
@@ -272,7 +259,9 @@ export default function BLList() {
                       <TableCell>{row.stuffDestuffId}</TableCell>
                       <TableCell
                         sx={{
-                          color: statusColor(row?.doStatus?.replace(/\s+/g, "")),
+                          color: statusColor(
+                            row?.doStatus?.replace(/\s+/g, "")
+                          ),
                         }}
                       >
                         {row.doStatus}
