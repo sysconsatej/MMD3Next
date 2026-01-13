@@ -184,8 +184,13 @@ export default function InvoicePayment() {
     }
   }
 
-  const checkBlForCompany = useCallback(
-    async (event) => {
+  // const checkBlForCompany = useCallback(
+  //   async (event) => ,
+  //   [formData?.shippingLineId, extractId, sqlEscape, loadBlContainersByBlId]
+  // );
+
+  const handleBlurEventFunctions = {
+    checkBlForCompany: async (event) => {
       const { value } = event.target;
       const typedBlNo = (value || "").trim();
       if (!typedBlNo) return;
@@ -238,6 +243,8 @@ export default function InvoicePayment() {
           // ❌ BL NOT EXISTS → save ONLY blNo
           toast.info("BL not found. Saving BL No only.");
 
+          await setInvoiceRequestId(typedBlNo);
+
           setFormData((prev) => ({
             ...prev,
             blId: null,
@@ -246,18 +253,12 @@ export default function InvoicePayment() {
           }));
 
           setContainerData([]);
-          setInvoiceReqId(null);
         }
       } catch (err) {
         console.error(err);
         toast.error("Error checking BL.");
       }
     },
-    [formData?.shippingLineId, extractId, sqlEscape, loadBlContainersByBlId]
-  );
-
-  const handleBlurEventFunctions = {
-    checkBlForCompany,
   };
 
   // 🔹 Load existing invoices (EDIT mode)
@@ -268,19 +269,15 @@ export default function InvoicePayment() {
       try {
         const blQuery = {
           columns: `
-            b.id AS blId,
-            ISNULL(b.hblNo,b.mblNo) AS blNo,
+            i.blId AS blId,
+            i.blNo AS blNo,
             c.name AS beneficiaryName,
-            c.id AS beneficiaryId,
-            b.fpdId,
-            p.name AS fpdName,
+            i.shippingLineId AS beneficiaryId,
             i.invoicePaymentId as invoicePaymentId
           `,
           tableName: "tblInvoice i",
           joins: `
-            LEFT JOIN tblBl b ON b.id = i.blId
-            LEFT JOIN tblCompany c ON c.id = b.companyId
-            LEFT JOIN tblPort p ON p.id = b.fpdId
+            LEFT JOIN tblCompany c ON c.id = i.shippingLineId
           `,
           whereCondition: `i.id = ${mode.formId}`,
         };
@@ -296,15 +293,18 @@ export default function InvoicePayment() {
         await loadBlContainersByBlId(blId);
         await setInvoiceRequestId(blData?.[0]?.blNo);
 
+        const blNo = blData[0].blNo;
+
         const allInvoicesQuery = {
           columns: "id,invoiceRequestId",
           tableName: "tblInvoice",
-          whereCondition: `blId = ${blId} and invoicePaymentId  ${
+          whereCondition: `blNo = '${blNo}' and invoicePaymentId ${
             blData?.[0]?.invoicePaymentId
               ? "= " + blData?.[0]?.invoicePaymentId
               : "is null"
           } AND status=1`,
         };
+
         const { data: invoiceList, success: invSuccess } =
           await getDataWithCondition(allInvoicesQuery);
         if (!invSuccess || !invoiceList?.length) return;
@@ -346,9 +346,6 @@ export default function InvoicePayment() {
             Id: blData[0].beneficiaryId,
             Name: blData[0].beneficiaryName,
           },
-          location: blData[0].fpdId
-            ? { Id: blData[0].fpdId, Name: blData[0].fpdName || "" }
-            : null,
         });
 
         setFieldsMode(mode.mode || "");
@@ -424,7 +421,6 @@ export default function InvoicePayment() {
         const invoiceId = invoice?.id ?? null;
 
         const {
-          blNo,
           beneficiaryName,
           companyName,
           id: _ignoreId,
@@ -439,6 +435,8 @@ export default function InvoicePayment() {
             ...cleanInvoice,
             invoiceRequestId: invoiceReqId,
             locationId: userData?.location,
+            blNo: formData?.blNo || "",
+            shippingLineId: extractId(formData?.shippingLineId),
             blId,
             companyId: userData?.companyId,
             companyBranchId: userData?.branchId,

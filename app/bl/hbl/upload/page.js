@@ -12,6 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 import fieldData from "./uploadData";
 import { uploads, getDataWithCondition } from "@/apis";
 import { getUserByCookies } from "@/utils";
+import ErrorList from "@/components/errorTable/errorList";
 let vesselChangeReq = 0;
 const BASE_URL =
   (process.env.NEXT_PUBLIC_BACKEND_URL || "").replace(/\/+$/, "") + "/";
@@ -162,6 +163,8 @@ export default function hblUpload() {
   const [busy, setBusy] = useState(false);
   const [objectToRemove, setObjectsToRemove] = useState(1);
   const userData = getUserByCookies();
+  const [isErrorListVisible, setIsErrorListVisible] = useState(false);
+  const [ErrorListData, setErrorListData] = useState([]);
   const getSelectedTemplateName = () => "HBLMaster";
 
   const handleDownloadTemplate = async () => {
@@ -298,9 +301,13 @@ export default function hblUpload() {
       };
 
       const resp = await uploads(payload);
-      if (resp?.success)
+      if (resp?.data?.[0]?.success)
         toast.success(resp?.message || "Uploaded successfully");
-      else toast.warn(resp?.message || "No data returned from SP");
+      else {
+        setIsErrorListVisible(true);
+        setErrorListData(resp?.data[0]?.message || []);
+        toast.warn("Errors found during upload. Please check the error list.");
+      };
     } catch (err) {
       toast.error(err?.message || "Failed to upload");
     } finally {
@@ -343,7 +350,6 @@ export default function hblUpload() {
     },
   };
 
-
   return (
     <ThemeProvider theme={theme}>
       <form>
@@ -382,6 +388,12 @@ export default function hblUpload() {
         </section>
       </form>
       <ToastContainer position="top-right" autoClose={3500} />
+      {isErrorListVisible && (
+        <ErrorList
+          errorGrid={ErrorListData || []}
+          fileName="HBL_Upload_Errors"
+        />
+      )}
     </ThemeProvider>
   );
 }
