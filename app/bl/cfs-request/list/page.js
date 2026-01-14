@@ -218,7 +218,7 @@ export default function CompanyList() {
                             ...prev,
                             toggle: true,
                             value: row?.id,
-                            mblNo: row?.mblNo,
+                            mblNo: row?.blNo,
                           }))
                         }
                       />

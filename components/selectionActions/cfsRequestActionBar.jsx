@@ -69,7 +69,10 @@ export default function SearchRequestToolbarActions({
       }
 
       const blockedStatuses = cfsStatus.filter(
-        (s) => s.Name === "Request" || s.Name === "Request for Amendment"
+        (s) =>
+          s.Name !== "Request" &&
+          s.Name !== "Request for Amendment" &&
+          s.Name !== "Confirm"
       );
 
       const isEditDisabled = data.some((row) =>
@@ -83,9 +86,7 @@ export default function SearchRequestToolbarActions({
 
       const filterStatus = cfsStatus?.filter(
         (item) =>
-          item.Name !== "Reject" &&
-          item.Name !== "Confirm for Amendment" &&
-          item.Name !== "Pending"
+          item.Name !== "Reject" && item.Name !== "Confirm for Amendment"
       );
       const filterCheckReq = data?.some((item) =>
         filterStatus?.some((status) => status.Id === item.cfsRequestStatusId)
@@ -171,7 +172,7 @@ export default function SearchRequestToolbarActions({
             label="Edit"
             icon={<EditIcon />}
             onClick={() => onEdit?.(ids[0])}
-            disabled={!isSingle || isDisableBtn?.isEditDisable}
+            disabled={!isSingle || !isDisableBtn?.isEditDisable}
           />
         )}
         {onRequest && (

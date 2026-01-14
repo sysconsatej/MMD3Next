@@ -182,7 +182,7 @@ export function PaymentHistoryModal({ historyModal, setHistoryModal }) {
                     <TableCell>{r.lineName}</TableCell>
                     <TableCell
                       sx={{
-                        color: paymentStatusColor(r.status),
+                        color: paymentStatusColor(r["Status"]?.replace(/\s+/g, "")),
                         fontWeight: 600,
                       }}
                     >

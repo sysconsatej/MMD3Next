@@ -79,9 +79,7 @@ export function CfsHistoryModal({ historyModal, setHistoryModal }) {
             size="small"
             sx={{ color: "#fff" }}
             onClick={() =>
-              setWindowMode((p) =>
-                p === "maximized" ? "normal" : "maximized"
-              )
+              setWindowMode((p) => (p === "maximized" ? "normal" : "maximized"))
             }
           >
             <CropSquareIcon fontSize="inherit" />
@@ -172,7 +170,7 @@ export function CfsHistoryModal({ historyModal, setHistoryModal }) {
 
                     <TableCell
                       sx={{
-                        color: statusColor(r["Status"]),
+                        color: statusColor(r["Status"]?.replace(/\s+/g, "")),
                         fontWeight: 600,
                       }}
                     >

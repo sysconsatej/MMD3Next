@@ -187,7 +187,7 @@ export function DoHistoryModal({ historyModal, setHistoryModal }) {
 
                     <TableCell
                       sx={{
-                        color: statusColor(r["Status"]),
+                        color: statusColor(r["Status"]?.replace(/\s+/g, "")),
                         fontWeight: 600,
                       }}
                     >
