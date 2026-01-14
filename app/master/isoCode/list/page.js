@@ -25,8 +25,8 @@ import { useRouter } from "next/navigation";
 import { isoCode } from "../isoCodeData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(size, type, code, id) {
-  return { size, type, code, id };
+function createData(size, type, code, updatedBy, updateDate, id) {
+  return { size, type, code, updatedBy, updateDate, id };
 }
 
 export default function IsoCodeList() {
@@ -45,14 +45,14 @@ export default function IsoCodeList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "i.isoCode code,sizeData.name size,typeData.name type,i.id",
+          columns: "i.isoCode code,sizeData.name size,typeData.name type,u.name updatedBy,i.updatedDate updateDate,i.id",
           tableName: "tblIsocode i",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
           joins:
-            "LEFT JOIN tblMasterData  sizeData ON sizeData.id = i.sizeId LEFT JOIN tblMasterData  typeData ON typeData.id = i.typeId",
+            "LEFT JOIN tblMasterData  sizeData ON sizeData.id = i.sizeId LEFT JOIN tblMasterData  typeData ON typeData.id = i.typeId LEFT JOIN tblUser u ON u.id = i.updatedBy",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setIsoCodeData(data);
@@ -74,7 +74,7 @@ export default function IsoCodeList() {
 
   const rows = isoCodeData
     ? isoCodeData.map((item) =>
-        createData(item["size"], item["type"], item["code"], item["id"])
+        createData(item["size"], item["type"], item["code"], item["updatedBy"], item["updateDate"], item["id"])
       )
     : [];
 
@@ -141,6 +141,8 @@ export default function IsoCodeList() {
                 <TableCell> Size</TableCell>
                 <TableCell>Type</TableCell>
                 <TableCell> IsoCode</TableCell>
+                <TableCell> Updated By</TableCell>
+                <TableCell> Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -154,6 +156,8 @@ export default function IsoCodeList() {
                     <TableCell>{row.size}</TableCell>
                     <TableCell>{row.type}</TableCell>
                     <TableCell>{row.code}</TableCell>
+                    <TableCell>{row.updatedBy}</TableCell>
+                    <TableCell>{row.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

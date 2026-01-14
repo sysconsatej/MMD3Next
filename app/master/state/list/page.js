@@ -25,8 +25,8 @@ import { useRouter } from "next/navigation";
 import { state } from "../stateData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(code, taxStateCode, name, countryName, id) {
-  return { code, taxStateCode, name, countryName, id };
+function createData(code, taxStateCode, name, countryName, updatedBy, updateDate, id) {
+  return { code, taxStateCode, name, countryName, updatedBy, updateDate, id };
 }
 
 export default function StateList() {
@@ -46,13 +46,13 @@ export default function StateList() {
       try {
         const tableObj = {
           columns:
-            "s.code code, s.taxStateCode taxStateCode, s.name name, c.name countryName, s.id",
+            "s.code code, s.taxStateCode taxStateCode, s.name name, c.name countryName, u.name updatedBy, s.updatedDate updateDate, s.id",
           tableName: "tblState s",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: "left join tblCountry c on c.id = s.countryID",
+          joins: "left join tblCountry c on c.id = s.countryID left join tblUser u on u.id = s.updatedBy",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setStateData(data);
@@ -79,6 +79,8 @@ export default function StateList() {
           item["taxStateCode"],
           item["name"],
           item["countryName"],
+          item["updatedBy"],
+          item["updateDate"],
           item["id"]
         )
       )
@@ -149,6 +151,8 @@ export default function StateList() {
                 <TableCell>Name</TableCell>
                 <TableCell>Tax State Code</TableCell>
                 <TableCell>Country</TableCell>
+                <TableCell> Updated By</TableCell>
+                <TableCell> Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -163,6 +167,8 @@ export default function StateList() {
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.taxStateCode}</TableCell>
                     <TableCell>{row.countryName}</TableCell>
+                    <TableCell>{row.updatedBy}</TableCell>
+                    <TableCell>{row.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

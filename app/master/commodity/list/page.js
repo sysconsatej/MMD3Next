@@ -25,8 +25,8 @@ import { useRouter } from "next/navigation";
 import { Commodity } from "../commodityData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(code, name, id) {
-  return { code, name, id };
+function createData(code, name, updatedBy, updateDate, id) {
+  return { code, name, updatedBy, updateDate, id };
 }
 
 export default function CommodityList() {
@@ -45,13 +45,13 @@ export default function CommodityList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: " m.code code,m.name name,m.id",
+          columns: " m.code code,m.name name,u.name updatedBy,m.updatedDate updateDate,m.id",
           tableName: "tblMasterData m",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: ` join tblMasterData m1 on m1.id = m.id and m.masterListName = 'tblCommodityType'`,
+          joins: ` join tblMasterData m1 on m1.id = m.id and m.masterListName = 'tblCommodityType' left join tblUser u on u.id= m.updatedBy`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setCommodityData(data);
@@ -74,7 +74,7 @@ export default function CommodityList() {
 
   const rows = commodityData
     ? commodityData.map((item) =>
-        createData(item["code"], item["name"], item["id"])
+        createData(item["code"], item["name"], item["updatedBy"], item["updateDate"], item["id"])
       )
     : [];
 
@@ -140,6 +140,8 @@ export default function CommodityList() {
               <TableRow>
                 <TableCell> HSN Code</TableCell>
                 <TableCell>Name</TableCell>
+                <TableCell>Updated By</TableCell>
+                <TableCell>Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -152,6 +154,8 @@ export default function CommodityList() {
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.updatedBy}</TableCell>
+                    <TableCell>{row.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

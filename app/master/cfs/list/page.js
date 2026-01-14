@@ -31,6 +31,8 @@ function createData(
   address,
   ediPortCode,
   ediCommonTerminalCode,
+  updatedBy,
+  updateDate,
   id
 ) {
   return {
@@ -39,6 +41,8 @@ function createData(
     address,
     ediPortCode,
     ediCommonTerminalCode,
+    updatedBy,
+    updateDate,
     id,
   };
 }
@@ -60,13 +64,13 @@ export default function CfsList() {
       try {
         const tableObj = {
           columns:
-            "p.code code,p.name name,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,p.id",
+            "p.code code,p.name name,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,u.name updatedBy,p.updatedDate updateDate,p.id",
           tableName: "tblPort p ",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `join tblMasterData m on m.id = p.portTypeId and m.name = 'CONTAINER FREIGHT STATION'  and masterListName = 'tblPortType' and p.companyId = ${userData?.companyId}`,
+          joins: `join tblMasterData m on m.id = p.portTypeId and m.name = 'CONTAINER FREIGHT STATION'  and masterListName = 'tblPortType' and p.companyId = ${userData?.companyId} left join tblUser u on u.id = p.updatedBy`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -96,6 +100,8 @@ export default function CfsList() {
           item["address"],
           item["ediPortCode"],
           item["ediCommonTerminalCode"],
+          item["updatedBy"],
+          item["updateDate"],
           item["id"]
         )
       )
@@ -167,6 +173,8 @@ export default function CfsList() {
                 <TableCell>Address</TableCell>
                 <TableCell>Custom code</TableCell>
                 <TableCell>EDI Common Terminal Code</TableCell>
+                <TableCell>Updated By</TableCell>
+                <TableCell>Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -178,6 +186,8 @@ export default function CfsList() {
                     <TableCell>{row.address}</TableCell>
                     <TableCell>{row.ediPortCode}</TableCell>
                     <TableCell>{row.ediCommonTerminalCode}</TableCell>
+                    <TableCell>{row.updatedBy}</TableCell>
+                    <TableCell>{row.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

@@ -25,8 +25,8 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { city } from "../cityData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(countryName, stateName, cityName, id) {
-  return { countryName, stateName, cityName, id };
+function createData(countryName, stateName, cityName, updatedBy, updateDate, id) {
+  return { countryName, stateName, cityName, updatedBy, updateDate, id };
 }
 
 export default function CityList() {
@@ -47,14 +47,14 @@ export default function CityList() {
       try {
         const tableObj = {
           columns:
-            "c.name cityName, s.name stateName, co.name countryName,c.id",
+            "c.name cityName, s.name stateName, co.name countryName,u.name updatedBy,c.updatedDate updateDate,c.id",
           tableName: "tblCity c",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
           joins:
-            "left join tblState s on s.id = c.stateId left join tblCountry co on co.id = c.countryId",
+            "left join tblState s on s.id = c.stateId left join tblCountry co on co.id = c.countryId left join tblUser u on u.id = c.updatedBy",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setCityData(data);
@@ -81,6 +81,8 @@ export default function CityList() {
           item["countryName"],
           item["stateName"],
           item["cityName"],
+          item["updatedBy"],
+          item["updateDate"],
           item["id"]
         )
       )
@@ -150,6 +152,8 @@ export default function CityList() {
                 <TableCell>Country</TableCell>
                 <TableCell>State</TableCell>
                 <TableCell>City</TableCell>
+                <TableCell>Updated By</TableCell>
+                <TableCell>Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -159,6 +163,8 @@ export default function CityList() {
                     <TableCell>{row.countryName}</TableCell>
                     <TableCell>{row.stateName}</TableCell>
                     <TableCell>{row.cityName}</TableCell>
+                    <TableCell>{row.updatedBy}</TableCell>
+                    <TableCell>{row.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

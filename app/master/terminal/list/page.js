@@ -25,8 +25,8 @@ import { useRouter } from "next/navigation";
 import { terminal } from "../terminalData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(code, terminal, port, id) {
-  return { code, terminal, port, id };
+function createData(code, terminal, port, updatedBy, updateDate, id) {
+  return { code, terminal, port, updatedBy, updateDate, id };
 }
 
 export default function TerminalList() {
@@ -45,13 +45,13 @@ export default function TerminalList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "p.code, p.name terminal,m.name port,p.id",
+          columns: "p.code, p.name terminal,m.name port,u.name updatedBy, p.updatedDate updateDate, p.id",
           tableName: "tblPort p ",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `join tblMasterData m on m.id = p.portTypeId and m.name ='PORT TERMINAL'`,
+          joins: `join tblMasterData m on m.id = p.portTypeId and m.name ='PORT TERMINAL' left join tblUser u on u.id = p.updatedBy`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setTerminalData(data);
@@ -73,7 +73,7 @@ export default function TerminalList() {
 
   const rows = terminalData
     ? terminalData.map((item) =>
-        createData(item["code"], item["terminal"], item["port"], item["id"])
+        createData(item["code"], item["terminal"], item["port"], item["updatedBy"], item["updateDate"], item["id"])
       )
     : [];
 
@@ -139,6 +139,8 @@ export default function TerminalList() {
               <TableRow>
                 <TableCell>Code</TableCell>
                 <TableCell> Terminal</TableCell>
+                <TableCell> Updated By</TableCell>
+                <TableCell> Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -151,6 +153,8 @@ export default function TerminalList() {
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.terminal}</TableCell>
+                    <TableCell>{row.updatedBy}</TableCell>
+                    <TableCell>{row.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

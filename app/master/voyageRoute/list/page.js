@@ -25,13 +25,15 @@ import { useRouter } from "next/navigation";
 import { VoyageRoute } from "../voyageRouteData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(portOfCall, vesselNo, voyageNo, igmNo, terminal, id) {
+function createData(portOfCall, vesselNo, voyageNo, igmNo, terminal, updatedBy, updatedDate, id) {
   return {
     portOfCall,
     vesselNo,
     voyageNo,
     igmNo,
     terminal,
+    updatedBy,
+    updatedDate,
     id,
   };
 }
@@ -53,13 +55,13 @@ export default function VoyageRouteList() {
       try {
         const tableObj = {
           columns:
-            "p.name portOfCall, v.voyageId voyageId, ve.name vesselNo, v.exportLocking exportLocking, v.importLocking importLocking,v.igmNo igmNo, p1.code terminal, vo.voyageNo voyageNo ,v.id",
+            "p.name portOfCall, v.voyageId voyageId, ve.name vesselNo, v.exportLocking exportLocking, v.importLocking importLocking,v.igmNo igmNo, p1.code terminal, vo.voyageNo voyageNo,u.name updatedBy,v.updatedDate as updatedDate,v.id",
           tableName: "tblVoyageRoute v",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `left join tblPort p on v.portOfCallId = p.id left join tblPort p1 on v.berthId = p1.id left join tblVessel ve on v.vesselId = ve.id   join tblVoyage vo on vo.id=v.voyageId and v.companyid=${userData?.companyId}
+          joins: `left join tblPort p on v.portOfCallId = p.id left join tblPort p1 on v.berthId = p1.id left join tblVessel ve on v.vesselId = ve.id   join tblVoyage vo on vo.id=v.voyageId and v.companyid=${userData?.companyId} left join tblUser u on u.id = v.updatedBy
 `,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
@@ -90,6 +92,8 @@ export default function VoyageRouteList() {
           item["voyageNo"],
           item["igmNo"],
           item["terminal"],
+          item["updatedBy"],
+          item["updatedDate"],
           item["id"]
         )
       )
@@ -161,6 +165,8 @@ export default function VoyageRouteList() {
                 <TableCell>Voyage</TableCell>
                 <TableCell>IGM No</TableCell>
                 <TableCell>Terminal</TableCell>
+                <TableCell>Updated By</TableCell>
+                <TableCell>Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -172,6 +178,8 @@ export default function VoyageRouteList() {
                     <TableCell>{row.voyageNo}</TableCell>
                     <TableCell>{row.igmNo}</TableCell>
                     <TableCell>{row.terminal}</TableCell>
+                    <TableCell>{row.updatedBy}</TableCell>
+                    <TableCell>{row.updatedDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

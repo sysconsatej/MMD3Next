@@ -25,8 +25,8 @@ import { useRouter } from "next/navigation";
 import { depot } from "../depotData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(depotName, location, code, address, id) {
-  return { depotName, location, code, address, id };
+function createData(depotName, location, code, address, updatedBy, updateDate, id) {
+  return { depotName, location, code, address, updatedBy, updateDate, id };
 }
 
 export default function DepotList() {
@@ -46,13 +46,13 @@ export default function DepotList() {
       try {
         const tableObj = {
           columns:
-            "p.name depotName ,m.name location,p.code code,p.address address,p.id",
+            "p.name depotName ,m.name location,p.code code,p.address address,u.name updatedBy,p.updatedDate updateDate,p.id",
           tableName: "tblPort p",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `join tblMasterData m on m.id = p.portTypeId and m.name = 'DEPOT'`,
+          joins: `join tblMasterData m on m.id = p.portTypeId and m.name = 'DEPOT' left join tblUser u on u.id = p.updatedBy`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setDepotData(data);
@@ -79,6 +79,8 @@ export default function DepotList() {
           item["location"],
           item["code"],
           item["address"],
+          item["updatedBy"],
+          item["updateDate"],
           item["id"]
         )
       )
@@ -148,6 +150,8 @@ export default function DepotList() {
                 <TableCell>Code</TableCell>
                 <TableCell>Empty Yard/Empty Depot</TableCell>
                 <TableCell>Address</TableCell>
+                <TableCell>Updated By</TableCell>
+                <TableCell>Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -157,6 +161,8 @@ export default function DepotList() {
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.depotName}</TableCell>
                     <TableCell>{row.address}</TableCell>
+                    <TableCell>{row.updatedBy}</TableCell>
+                    <TableCell>{row.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}
