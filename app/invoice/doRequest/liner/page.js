@@ -20,7 +20,6 @@ import { fetchTableValues } from "@/apis";
 import { ToastContainer } from "react-toastify";
 import { formStore } from "@/store";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
-import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import DoToolbarActions from "@/components/selectionActions/doToolbarActions";
 import { doStatusHandler, statusColor } from "../utils";
@@ -28,6 +27,7 @@ import { useRouter } from "next/navigation";
 import HistoryIcon from "@mui/icons-material/History";
 import { DoHistoryLinerModal } from "./historyModal";
 import ReportPickerModal from "@/components/ReportPickerModal/reportPickerModal";
+import { RejectModal } from "../modal";
 
 const REPORTS = [
   { key: "Survey Letter", label: "Survey Letter" },
@@ -45,6 +45,7 @@ function createData(
   isFreeDays,
   stuffDestuffId,
   doStatus,
+  doRejectRemarks,
   id
 ) {
   return {
@@ -54,6 +55,7 @@ function createData(
     isFreeDays,
     stuffDestuffId,
     doStatus,
+    doRejectRemarks,
     id,
   };
 }
@@ -79,6 +81,10 @@ export default function BLList() {
   });
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportModalForRow, setReportModalForRow] = useState(null);
+  const [rejectState, setRejectState] = useState({
+    toggle: false,
+    value: null,
+  });
 
   // --------------------------------------------
   // 🔥 Fetch Table Data
@@ -88,7 +94,7 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "l.name location, u2.name submittedBy, d.blNo blNo, d.isFreeDays isFreeDays, m2.name stuffDestuffId, m.name doStatus, d.id id",
+            "l.name location, u2.name submittedBy, d.blNo blNo, d.isFreeDays isFreeDays, m2.name stuffDestuffId, m.name doStatus, d.doRejectRemarks doRejectRemarks, d.id id",
           tableName: "tblDoRequest d",
           pageNo,
           pageSize,
@@ -96,7 +102,7 @@ export default function BLList() {
             left join tblMasterData m on m.id = d.doRequestStatusId
             left join tblMasterData m2 on m2.id = d.stuffDestuffId
             left join tblLocation l on l.id = d.locationId
-            left join tblUser u2 on u2.id = d.updatedBy
+            left join tblUser u2 on u2.id = d.createdBy
             left join tblUser u on u.id = ${userData.userId}
             join tblDoRequest d2 on d2.id = d.id and d.doRequestStatusId is not null 
             and d.locationId = ${userData.location} and d.shippingLineId = u.companyId
@@ -128,6 +134,7 @@ export default function BLList() {
           item["isFreeDays"],
           item["stuffDestuffId"],
           item["doStatus"],
+          item["doRejectRemarks"],
           item["id"]
         )
       )
@@ -188,14 +195,17 @@ export default function BLList() {
             onEdit={(ids) =>
               doStatusHandler(getData, router, setMode).handleEdit(ids)
             }
-            // onEditBL={(ids) =>
-            //   doStatusHandler(getData, router, setMode).handleEditBL(ids)
-            // }
             onViewBL={(ids) =>
               doStatusHandler(getData, router, setMode).handleViewBL(ids)
             }
             onConfirm={(ids) => doStatusHandler(getData).handleConfirm(ids)}
-            onReject={(ids) => doStatusHandler(getData).handleReject(ids)}
+            onReject={(ids) =>
+              setRejectState((prev) => ({
+                ...prev,
+                toggle: true,
+                ids: ids,
+              }))
+            }
             onGenerateDO={(ids) =>
               doStatusHandler(getData).handleGenerateDO(
                 ids,
@@ -229,6 +239,7 @@ export default function BLList() {
                   <TableCell>IsFreeDays</TableCell>
                   <TableCell>Stuff Destuff</TableCell>
                   <TableCell>Doc Status</TableCell>
+                  <TableCell>Reject Remark</TableCell>
                   <TableCell>Assigned To</TableCell>
                   <TableCell>History</TableCell>
                 </TableRow>
@@ -266,6 +277,7 @@ export default function BLList() {
                       >
                         {row.doStatus}
                       </TableCell>
+                      <TableCell>{row.doRejectRemarks}</TableCell>
                       <TableCell></TableCell>
                       <TableCell>
                         <HistoryIcon
@@ -330,6 +342,13 @@ export default function BLList() {
         clientId={reportModalForRow?.clientId}
         reportRoute={REPORT_ROUTE}
         tableName={"tblBl"}
+      />
+      <RejectModal
+        rejectState={rejectState}
+        setRejectState={setRejectState}
+        rejectHandler={() =>
+          doStatusHandler(getData).handleReject(rejectState, setRejectState)
+        }
       />
     </>
   );

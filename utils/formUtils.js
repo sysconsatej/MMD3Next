@@ -259,7 +259,7 @@ export function formFormatThirdLevel(data) {
 
   for (const [key, value] of Object.entries(data)) {
     if (!Array.isArray(value)) {
-      commonData[key] = value.Id ?? value;
+      commonData[key] = value?.Id ?? value;
     }
   }
 

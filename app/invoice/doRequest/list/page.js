@@ -34,6 +34,8 @@ function createData(
   stuffDestuffId,
   linerName,
   doRequestStatusId,
+  doRejectRemarks,
+  submittedBy,
   id
 ) {
   return {
@@ -42,6 +44,8 @@ function createData(
     stuffDestuffId,
     linerName,
     doRequestStatusId,
+    doRejectRemarks,
+    submittedBy,
     id,
   };
 }
@@ -76,7 +80,7 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "d.blNo blNo, d.isFreeDays isFreeDays, m2.name stuffDestuffId, c.name linerName, m.name doRequestStatusId, d.id id",
+            "d.blNo blNo, d.isFreeDays isFreeDays, m2.name stuffDestuffId, c.name linerName, m.name doRequestStatusId, d.doRejectRemarks doRejectRemarks, u3.name submittedBy, d.id id",
           tableName: "tblDoRequest d",
           pageNo,
           pageSize,
@@ -84,6 +88,7 @@ export default function BLList() {
             left join tblCompany c on c.id = d.shippingLineId
             left join tblMasterData m on m.id = d.doRequestStatusId
             left join tblMasterData m2 on m2.id = d.stuffDestuffId
+            left join tblUser u3 on u3.id = d.createdBy
             left join tblUser u on u.id = ${userData.userId}
             left join tblUser u2 on u2.companyId = u.companyId
             join tblDoRequest d2 on d2.id = d.id and d.locationId = ${userData.location} and d.createdBy = u2.id
@@ -114,6 +119,8 @@ export default function BLList() {
           item["stuffDestuffId"],
           item["linerName"],
           item["doRequestStatusId"],
+          item["doRejectRemarks"],
+          item["submittedBy"],
           item["id"]
         )
       )
@@ -182,6 +189,8 @@ export default function BLList() {
                 <TableCell>Stuff Destuff</TableCell>
                 <TableCell>Liner Name</TableCell>
                 <TableCell>Do Status</TableCell>
+                <TableCell>Reject Remark</TableCell>
+                <TableCell>Submitted By</TableCell>
                 <TableCell>History</TableCell>
               </TableRow>
             </TableHead>
@@ -207,11 +216,15 @@ export default function BLList() {
                     <TableCell>{row.linerName}</TableCell>
                     <TableCell
                       sx={{
-                        color: statusColor(row?.doRequestStatusId?.replace(/\s+/g, "")),
+                        color: statusColor(
+                          row?.doRequestStatusId?.replace(/\s+/g, "")
+                        ),
                       }}
                     >
                       {row.doRequestStatusId}
                     </TableCell>
+                    <TableCell>{row.doRejectRemarks}</TableCell>
+                    <TableCell>{row.submittedBy}</TableCell>
                     <TableCell>
                       <HistoryIcon
                         sx={{ cursor: "pointer", fontSize: 16 }}
