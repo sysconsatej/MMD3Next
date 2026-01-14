@@ -175,7 +175,8 @@ export default function MblUpload() {
   const [busy, setBusy] = useState(false);
   const [objectToRemove, setObjectsToRemove] = useState(1);
   const userData = getUserByCookies();
-  const [errorGrid, setErrorGrid] = useState([]);
+  const [isErrorListVisible, setIsErrorListVisible] = useState(false);
+  const [ErrorListData, setErrorListData] = useState([]);
 
   const getSelectedTemplateName = () =>
     formData?.template?.Name ||
@@ -326,13 +327,13 @@ export default function MblUpload() {
       };
 
       const resp = await uploads(payload);
-      if (resp?.data?.length > 0) {
-        const jsonVal = "[" + Object.values(resp?.data?.[0])[0] + "]";
-        setErrorGrid(JSON.parse(jsonVal));
-      }
-      if (resp?.success)
+      if (resp?.data?.[0]?.success)
         toast.success(resp?.message || "Uploaded successfully");
-      else toast.warn(resp?.message || "No data returned from SP");
+      else {
+        setIsErrorListVisible(true);
+        setErrorListData(resp?.data?.[0]?.message || []);
+        toast.warn("Errors found during upload. Please check the error list.");
+      };
     } catch (err) {
       toast.error(err?.message || "Failed to upload");
     } finally {
@@ -341,12 +342,11 @@ export default function MblUpload() {
   };
 
   useEffect(() => {
-    setFormData((prev) => ({
-      ...prev,
-      upload: null,
-    }));
-    setErrorGrid([]);
+    setFormData((prev) => ({ ...prev, upload: null }));
+    setIsErrorListVisible(false);
+    setErrorListData([]);
   }, [formData?.template]);
+
   const handleChangeEventFunctions = {
     handleChangeOnVessel: async (name, value) => {
       const reqId = ++vesselChangeReq;
@@ -422,6 +422,12 @@ export default function MblUpload() {
         </section>
       </form>
       <ToastContainer position="top-right" autoClose={3500} />
+      {isErrorListVisible && (
+        <ErrorList
+          errorGrid={ErrorListData || []}
+          fileName="MBL_Upload_Errors"
+        />
+      )}
     </ThemeProvider>
   );
 }

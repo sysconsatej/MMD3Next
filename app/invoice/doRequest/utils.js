@@ -158,6 +158,31 @@ export const doStatusHandler = (getData, router, setMode) => {
         getData();
       }
     },
+    handleGenerateDO: async (ids, setReportModalForRow, setReportModalOpen) => {
+      try {
+        const blQuery = {
+          columns: "b.id, b.mblHblFlag",
+          tableName: "tblDoRequest d",
+          joins: `
+             left join tblBl b on isnull(b.hblNo, b.mblNo) = d.blNo
+            `,
+          whereCondition: `d.id = ${ids?.[0]} and b.status = 1 and d.status = 1`,
+        };
+
+        const { success, data } = await getDataWithCondition(blQuery);
+
+        console.log("data", data);
+
+        if (success && data?.length > 0) {
+          setReportModalForRow({ id: data?.[0]?.id, clientId: 1 });
+          setReportModalOpen(true);
+        } else {
+          toast.warn("Again this DO Request does not have Bl in system!");
+        }
+      } catch (error) {
+        console.log("error", error);
+      }
+    },
   };
 };
 
