@@ -278,7 +278,11 @@ function TableGrid({
                                     </Link>
                                   )
                                 ) : typeof value === "boolean" ? (
-                                  String(value)
+                                  value ? (
+                                    "Y"
+                                  ) : (
+                                    "N"
+                                  )
                                 ) : (
                                   value ?? ""
                                 )}

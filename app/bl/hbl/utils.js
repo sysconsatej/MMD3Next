@@ -807,16 +807,9 @@ export const setTabDefaultVal = async (tabIndex, setFormData) => {
   const { data } = await getDataWithCondition(obj);
 
   setFormData((prev) => {
-    const updateTblBl = prev?.tblBl?.map((item, index) => {
-      if (index === tabIndex) {
-        return { ...item, ...data?.[0]?.data };
-      }
-      return item;
-    });
-
     return {
       ...prev,
-      tblBl: updateTblBl,
+      tblBl: [...(prev.tblBl ?? []), { ...data?.[0]?.data }],
     };
   });
 };
