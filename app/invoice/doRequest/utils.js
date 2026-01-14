@@ -229,7 +229,6 @@ export const BlurEventFunctions = ({ formData, setFormData, jsonData }) => {
 
         if (!blSuccess || !Array.isArray(blData) || !blData.length) {
           toast.error("BL not found for selected Liner.");
-          setFormData({});
           return;
         }
         const blId = blData?.[0]?.id;
@@ -312,3 +311,42 @@ export const changeEventFunctions = ({ mode, setFormData, formData }) => {
     },
   };
 };
+
+export async function requestHandler(doStatus, blNo) {
+  const userData = getUserByCookies();
+
+  const requestStatus = doStatus.filter(
+    (item) => item.Name === "Request for DO"
+  );
+  const obj = {
+    columns: "id",
+    tableName: "tblDoRequest",
+    whereCondition: `blNo = '${blNo}' and status = 1`,
+  };
+  const { data, success: success2 } = await getDataWithCondition(obj);
+
+  if (success2 && data.length > 0) {
+    const rowsPayload = [
+      {
+        id: data?.[0]?.id,
+        doRequestStatusId: requestStatus?.[0]?.Id,
+        doRejectRemarks: null,
+        updatedBy: userData?.userId,
+        updatedDate: new Date(),
+      },
+    ];
+    const res = await updateStatusRows({
+      tableName: "tblDoRequest",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Request updated successfully!");
+  } else {
+    toast.warn("Do Request Id  not fund again this form!");
+  }
+}

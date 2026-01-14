@@ -22,7 +22,11 @@ import {
   formatFormData,
   getUserByCookies,
 } from "@/utils";
-import { BlurEventFunctions, changeEventFunctions } from "./utils";
+import {
+  BlurEventFunctions,
+  changeEventFunctions,
+  requestHandler,
+} from "./utils";
 
 export default function Home() {
   const [formData, setFormData] = useState({});
@@ -95,32 +99,6 @@ export default function Home() {
     formData,
   });
 
-  async function requestHandler() {
-    const requestStatus = doStatus.filter(
-      (item) => item.Name === "Request for DO"
-    );
-    const rowsPayload = [
-      {
-        id: mode?.formId,
-        doRequestStatusId: requestStatus?.[0]?.Id,
-        doRejectRemarks: null,
-        updatedBy: userData?.userId,
-        updatedDate: new Date(),
-      },
-    ];
-    const res = await updateStatusRows({
-      tableName: "tblDoRequest",
-      rows: rowsPayload,
-      keyColumn: "id",
-    });
-    const { success, message } = res || {};
-    if (!success) {
-      toast.error(message || "Update failed");
-      return;
-    }
-    toast.success("Request updated successfully!");
-  }
-
   useEffect(() => {
     async function getBl() {
       const format = formatFetchForm(
@@ -138,33 +116,39 @@ export default function Home() {
         whereCondition: `isnull(hblNo, mblNo) = '${getData.blNo}' and status = 1`,
       };
       const { data, success } = await getDataWithCondition(obj);
-      const format2 = formatFetchForm(
-        jsonData,
-        "tblBl",
-        data?.[0]?.id,
-        '["tblInvoicePayment", "tblBlContainer"]',
-        "blId"
-      );
-      const { result: result2 } = await fetchForm(format2);
-      const getData2 = formatDataWithForm(result2, jsonData);
-      if (mode.mode !== "edit" && mode.mode !== "view") {
-        const updateTblContainer = getData2?.tblBlContainer?.map((subItem) => {
-          return { ...subItem, selectForDO: true };
-        });
-        setFormData({
-          ...getData,
-          blId: result?.blId,
-          tblBlContainer: updateTblContainer,
-          tblInvoicePayment: getData2?.tblInvoicePayment ?? [],
-        });
-        setFieldsMode(mode.mode);
+      if (data?.length > 0 && success) {
+        const format2 = formatFetchForm(
+          jsonData,
+          "tblBl",
+          data?.[0]?.id,
+          '["tblInvoicePayment", "tblBlContainer"]',
+          "blId"
+        );
+        const { result: result2 } = await fetchForm(format2);
+        const getData2 = formatDataWithForm(result2, jsonData);
+        if (mode.mode !== "edit" && mode.mode !== "view") {
+          const updateTblContainer = getData2?.tblBlContainer?.map(
+            (subItem) => {
+              return { ...subItem, selectForDO: true };
+            }
+          );
+          setFormData({
+            ...getData,
+            blId: result?.blId,
+            tblBlContainer: updateTblContainer,
+            tblInvoicePayment: getData2?.tblInvoicePayment ?? [],
+          });
+          setFieldsMode(mode.mode);
+        } else {
+          setFormData({
+            ...getData,
+            blId: result?.blId,
+            tblBlContainer: getData2?.tblBlContainer ?? [],
+            tblInvoicePayment: getData2?.tblInvoicePayment ?? [],
+          });
+        }
       } else {
-        setFormData({
-          ...getData,
-          blId: result?.blId,
-          tblBlContainer: getData2?.tblBlContainer ?? [],
-          tblInvoicePayment: getData2?.tblInvoicePayment ?? [],
-        });
+        setFormData(getData);
       }
     }
     getBl();
@@ -266,7 +250,7 @@ export default function Home() {
             {userData?.roleCode === "customer" && (
               <CustomButton
                 text={"Request"}
-                onClick={requestHandler}
+                onClick={() => requestHandler(doStatus, formData?.blNo)}
                 disabled={
                   fieldsMode !== "view" && fieldsMode !== "edit" && requestBtn
                 }
