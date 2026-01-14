@@ -253,7 +253,7 @@ export default function SearchRequestCfsDpdIcd() {
                             ...prev,
                             toggle: true,
                             value: row.id,
-                            mblNo: row.mblNo,
+                            mblNo: row.blNo,
                           }))
                         }
                       />

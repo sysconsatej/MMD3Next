@@ -82,9 +82,7 @@ export function PaymentHistoryModal({ historyModal, setHistoryModal }) {
             size="small"
             sx={{ color: "#fff" }}
             onClick={() =>
-              setWindowMode((p) =>
-                p === "maximized" ? "normal" : "maximized"
-              )
+              setWindowMode((p) => (p === "maximized" ? "normal" : "maximized"))
             }
           >
             <CropSquareIcon fontSize="inherit" />
@@ -93,9 +91,7 @@ export function PaymentHistoryModal({ historyModal, setHistoryModal }) {
           <IconButton
             size="small"
             sx={{ color: "#fff" }}
-            onClick={() =>
-              setHistoryModal({ toggle: false, value: null })
-            }
+            onClick={() => setHistoryModal({ toggle: false, value: null })}
           >
             <CloseIcon fontSize="inherit" />
           </IconButton>
@@ -185,7 +181,10 @@ export function PaymentHistoryModal({ historyModal, setHistoryModal }) {
 
                     <TableCell
                       sx={{
-                        color: paymentStatusColor(r.status),
+                        color: paymentStatusColor(
+                          r["Status"]?.replace(/\s+/g, "")
+                        ),
+
                         fontWeight: 600,
                       }}
                     >
