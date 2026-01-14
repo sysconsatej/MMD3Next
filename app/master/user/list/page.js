@@ -26,8 +26,8 @@ import { deleteRecord } from "@/apis";
 import { user } from "../userData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
-function createData(name, emailId, companyId, branchId, roles, roleCount, id) {
-  return { name, emailId, companyId, branchId, roles, roleCount, id };
+function createData(name, emailId, companyId, branchId, roles, roleCount, updatedBy, updatedDate, id) {
+  return { name, emailId, companyId, branchId, roles, roleCount, updatedBy, updatedDate, id };
 }
 
 export default function UserList() {
@@ -47,7 +47,7 @@ export default function UserList() {
       try {
         const tableObj = {
           columns:
-            "u.name name,u.emailId emailId,c.name companyId,b.name branchId,string_agg(u2.name,',') as roles,COUNT(DISTINCT u2.id) as roleCount,u.id",
+            "u.name name,u.emailId emailId,c.name companyId,b.name branchId,string_agg(u2.name,',') as roles,COUNT(DISTINCT u2.id) as roleCount, max(u3.name) updatedBy,max(u.updatedDate) as updatedDate,u.id",
           tableName: "tblUser u",
           pageNo,
           pageSize,
@@ -57,7 +57,8 @@ export default function UserList() {
                 left join tblCompany c on c.id=u.companyId
                 left join tblCompanyBranch b on b.id=u.branchId
                 left join tblUserRoleMapping m on m.userId = u.id 
-                left join tblUser u2 on u2.id = m.roleId and m.status = 1`,
+                left join tblUser u2 on u2.id = m.roleId and m.status = 1
+                left join tblUser u3 on u3.id = u.updatedBy`,
           groupBy: "GROUP BY u.id, u.name, u.emailId, c.name, b.name",
           orderBy: "ORDER BY u.name",
         };
@@ -88,6 +89,8 @@ export default function UserList() {
           item["branchId"],
           item["roles"],
           item["roleCount"],
+          item["updatedBy"],
+          item["updatedDate"],
           item["id"]
         )
       )
@@ -152,6 +155,8 @@ export default function UserList() {
                 <TableCell> Company Branch </TableCell>
                 <TableCell> Role </TableCell>
                 <TableCell>Role Count </TableCell>
+                <TableCell> Updated By</TableCell>
+                <TableCell> Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -168,6 +173,8 @@ export default function UserList() {
                     <TableCell>{row.branchId}</TableCell>
                     <TableCell>{row.roles}</TableCell>
                     <TableCell>{row.roleCount}</TableCell>
+                    <TableCell>{row.updatedBy}</TableCell>
+                    <TableCell>{row.updatedDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

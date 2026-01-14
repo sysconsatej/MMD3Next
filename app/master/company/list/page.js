@@ -35,6 +35,8 @@ function createData(
   emailId,
   panNO,
   gstInNo,
+  updatedBy,
+  updateDate,
   id
 ) {
   return {
@@ -47,6 +49,8 @@ function createData(
     emailId,
     panNO,
     gstInNo,
+    updatedBy,
+    updateDate,
     id,
   };
 }
@@ -68,14 +72,14 @@ export default function CompanyList() {
       try {
         const tableObj = {
           columns:
-            "co.code code ,co.name name, c.name countryName,s.name stateName,ci.name cityName, co.telephoneNo phoneNo,co.emailId emailId,co.panNo panNO,co.taxRegistrationNo gstInNo,co.id ",
+            "co.code code ,co.name name, c.name countryName,s.name stateName,ci.name cityName, co.telephoneNo phoneNo,co.emailId emailId,co.panNo panNO,co.taxRegistrationNo gstInNo,u.name updatedBy,co.updatedDate updateDate,co.id ",
           tableName: "tblCompany co ",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
           joins:
-            " left join tblCountry c on co.countryId = c.id  left join tblState s on co.stateId = s.id left join tblCity ci on co.cityId = ci.id",
+            " left join tblCountry c on co.countryId = c.id  left join tblState s on co.stateId = s.id left join tblCity ci on co.cityId = ci.id left join tblUser u on u.id = co.updatedBy",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -109,6 +113,8 @@ export default function CompanyList() {
           item["emailId"],
           item["panNO"],
           item["gstInNo"],
+          item["updatedBy"],
+          item["updateDate"],
           item["id"]
         )
       )
@@ -184,6 +190,8 @@ export default function CompanyList() {
                 <TableCell>Email Id</TableCell>
                 <TableCell>Pan No</TableCell>
                 <TableCell>GSTIN No</TableCell>
+                <TableCell>Updated By</TableCell>
+                <TableCell>Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -199,6 +207,8 @@ export default function CompanyList() {
                     <TableCell>{row.emailId}</TableCell>
                     <TableCell>{row.panNO}</TableCell>
                     <TableCell>{row.gstInNo}</TableCell>
+                    <TableCell>{row.updatedBy}</TableCell>
+                    <TableCell>{row.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

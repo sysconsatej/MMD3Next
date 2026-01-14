@@ -26,7 +26,7 @@ import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { fieldData, searchDataAray } from "../carrierPortData";
 import { getUserByCookies } from "@/utils";
 
-function createData(companyId, name, podId, fpdId, modeId, panNo, bondNo, id) {
+function createData(companyId, name, podId, fpdId, modeId, panNo, bondNo, updatedBy, updateDate, id) {
   return {
     companyId,
     name,
@@ -35,6 +35,8 @@ function createData(companyId, name, podId, fpdId, modeId, panNo, bondNo, id) {
     modeId,
     panNo,
     bondNo,
+    updatedBy,
+    updateDate,
     id,
   };
 }
@@ -56,13 +58,13 @@ export default function CompanyList() {
       try {
         const tableObj = {
           columns:
-            "s.name as companyId,c.name as name,p.name as podId,p1.name as fpdId,m.name as modeId,c.panNo,c.bondNo , c.id as id",
+            "s.name as companyId,c.name as name,p.name as podId,p1.name as fpdId,m.name as modeId,c.panNo,c.bondNo ,u.name as updatedBy,c.updatedDate as updateDate,c.id as id",
           tableName: "tblCarrierPort c",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `left join tblCompany s on s.id=c.companyId left join tblPort p on p.id=c.podId left join tblPort p1 on p1.id=c.fpdId left join tblMasterData m on m.id=c.modeId join tblCarrierPort c1 on c1.id = c.id  and s.id = '${userData?.companyId}' and c1.status = 1`,
+          joins: `left join tblCompany s on s.id=c.companyId left join tblPort p on p.id=c.podId left join tblPort p1 on p1.id=c.fpdId left join tblMasterData m on m.id=c.modeId join tblCarrierPort c1 on c1.id = c.id  and s.id = '${userData?.companyId}' and c1.status = 1 left join tblUser u on u.id= c.updatedBy`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setBerthData(data ?? []);
@@ -94,6 +96,8 @@ export default function CompanyList() {
           item["modeId"],
           item["panNo"],
           item["bondNo"],
+          item["updatedBy"],
+          item["updateDate"],
           item["id"]
         )
       )
@@ -166,6 +170,8 @@ export default function CompanyList() {
                   ?.map((item) => (
                     <TableCell key={item.name}>{item.label}</TableCell>
                   ))}
+                  <TableCell>Updated By</TableCell>
+                  <TableCell>Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -179,6 +185,8 @@ export default function CompanyList() {
                     <TableCell>{row?.modeId}</TableCell>
                     <TableCell>{row?.panNo}</TableCell>
                     <TableCell>{row?.bondNo}</TableCell>
+                    <TableCell>{row?.updatedBy}</TableCell>
+                    <TableCell>{row?.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

@@ -25,8 +25,8 @@ import { useRouter } from "next/navigation";
 import { vessel } from "../vesselData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(code, name, nationality, callSign, imoCode, id) {
-  return { code, name, nationality, callSign, imoCode, id };
+function createData(code, name, nationality, callSign, imoCode, updatedBy, updatedDate, id) {
+  return { code, name, nationality, callSign, imoCode, updatedBy, updatedDate, id };
 }
 export default function VesselList() {
   const [page, setPage] = useState(1);
@@ -45,13 +45,13 @@ export default function VesselList() {
       try {
         const tableObj = {
           columns:
-            "v.code,v.name,c.name nationality,v.callSign,v.imoCode, v.id",
+            "v.code,v.name,c.name nationality,v.callSign,v.imoCode,u.name updatedBy,v.updatedDate as updatedDate,v.id",
           tableName: "tblVessel v",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: "left join tblCountry c on c.id = v.nationalityId",
+          joins: "left join tblCountry c on c.id = v.nationalityId left join tblUser u on u.id = v.updatedBy",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setVesselData(data);
@@ -79,6 +79,8 @@ export default function VesselList() {
           item["nationality"],
           item["callSign"],
           item["imoCode"],
+          item["updatedBy"],
+          item["updatedDate"],
           item["id"]
         )
       )
@@ -147,6 +149,8 @@ export default function VesselList() {
                 <TableCell>Nationality</TableCell>
                 <TableCell>CallSign</TableCell>
                 <TableCell>ImoCode</TableCell>
+                <TableCell>Updated By</TableCell>
+                <TableCell>Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -161,6 +165,8 @@ export default function VesselList() {
                     <TableCell>{row.nationality}</TableCell>
                     <TableCell>{row.callSign}</TableCell>
                     <TableCell>{row.imoCode}</TableCell>
+                    <TableCell>{row.updatedBy}</TableCell>
+                    <TableCell>{row.updatedDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

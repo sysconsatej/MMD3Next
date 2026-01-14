@@ -25,8 +25,8 @@ import { useRouter } from "next/navigation";
 import { unitType } from "../unitTypeData";
 import { getUserByCookies } from "@/utils";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
-function createData(code, name, id) {
-  return { code, name, id };
+function createData(code, name, updatedBy, updateDate, id) {
+  return { code, name, updatedBy, updateDate, id };
 }
 
 export default function UnitTypeList() {
@@ -45,13 +45,13 @@ export default function UnitTypeList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "m.code,m.name,m.id",
+          columns: "m.code,m.name,u.name updatedBy, m.updatedDate updateDate, m.id",
           tableName: "tblMasterData m",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `join tblMasterData m1 on m1.id = m.id and m.masterListName = 'tblUnitType'`,
+          joins: `join tblMasterData m1 on m1.id = m.id and m.masterListName = 'tblUnitType' left join tblUser u on u.id = m.updatedBy`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setUnitTypeData(data);
@@ -73,7 +73,7 @@ export default function UnitTypeList() {
 
   const rows = unitTypeData
     ? unitTypeData.map((item) =>
-        createData(item["code"], item["name"], item["id"])
+        createData(item["code"], item["name"], item["updatedBy"], item["updateDate"], item["id"])
       )
     : [];
 
@@ -138,6 +138,8 @@ export default function UnitTypeList() {
               <TableRow>
                 <TableCell> Code</TableCell>
                 <TableCell> Name</TableCell>
+                <TableCell> Updated By</TableCell>  
+                <TableCell> Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -150,6 +152,8 @@ export default function UnitTypeList() {
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.updatedBy}</TableCell>
+                    <TableCell>{row.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

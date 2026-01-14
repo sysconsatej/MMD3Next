@@ -25,8 +25,8 @@ import { useRouter } from "next/navigation";
 import { port } from "../portData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(code, portName, activeInactive, portTypeName, country, id) {
-  return { code, portName, activeInactive, portTypeName, country, id };
+function createData(code, portName, activeInactive, portTypeName, country, updatedBy, updateDate, id) {
+  return { code, portName, activeInactive, portTypeName, country, updatedBy, updateDate, id };
 }
 
 export default function PortList() {
@@ -46,14 +46,14 @@ export default function PortList() {
       try {
         const tableObj = {
           columns:
-            "p.name portName, p.code code, p.activeInactive activeInactive, m.name portTypeName, c.name country,p.id",
+            "p.name portName, p.code code, p.activeInactive activeInactive, m.name portTypeName, c.name country,u.name updatedBy,p.updatedDate updateDate,p.id",
           tableName: "tblPort p",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
           joins:
-            "join tblMasterData m on m.id = p.portTypeId and m.name in ('INLAND PORT','SEA PORT') left join tblCountry c on c.id = p.countryId",
+            "join tblMasterData m on m.id = p.portTypeId and m.name in ('INLAND PORT','SEA PORT') left join tblCountry c on c.id = p.countryId left join tblUser u on u.id = p.updatedBy",
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setPortData(data);
@@ -81,6 +81,8 @@ export default function PortList() {
           item["activeInactive"],
           item["portTypeName"],
           item["country"],
+          item["updatedBy"],
+          item["updateDate"],
           item["id"]
         )
       )
@@ -151,6 +153,8 @@ export default function PortList() {
                 <TableCell>ActiveInactive</TableCell>
                 <TableCell>Port Type </TableCell>
                 <TableCell>Country Name</TableCell>
+                <TableCell> Updated By</TableCell>
+                <TableCell> Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -166,6 +170,8 @@ export default function PortList() {
                     <TableCell>{row.activeInactive}</TableCell>
                     <TableCell>{row.portTypeName}</TableCell>
                     <TableCell>{row.country}</TableCell>
+                    <TableCell>{row.updatedBy}</TableCell>
+                    <TableCell>{row.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

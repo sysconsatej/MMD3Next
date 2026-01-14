@@ -25,8 +25,8 @@ import { useRouter } from "next/navigation";
 import { imo } from "../imoData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(unNo, Class, properShippingName, id) {
-  return { unNo, Class, properShippingName, id };
+function createData(unNo, Class, properShippingName, updatedBy, updateDate, id) {
+  return { unNo, Class, properShippingName, updatedBy, updateDate, id };
 }
 
 export default function ImoList() {
@@ -45,12 +45,13 @@ export default function ImoList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "i.unNo unNo,i.class Class,i.properShippingName,i.id",
+          columns: "i.unNo unNo,i.class Class,i.properShippingName,u.name updatedBy,i.updatedDate updateDate,i.id",
           tableName: "tblImo i",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
+          joins: ` left join tblUser u on u.id = i.updatedBy`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setImoData(data);
@@ -76,6 +77,8 @@ export default function ImoList() {
           item["unNo"],
           item["Class"],
           item["properShippingName"],
+          item["updatedBy"],
+          item["updateDate"],
           item["id"]
         )
       )
@@ -144,6 +147,8 @@ export default function ImoList() {
                 <TableCell> UN No</TableCell>
                 <TableCell> Class</TableCell>
                 <TableCell>Product Name</TableCell>
+                <TableCell> Updated By</TableCell>
+                <TableCell> Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -157,6 +162,8 @@ export default function ImoList() {
                     <TableCell>{row.unNo}</TableCell>
                     <TableCell>{row.Class}</TableCell>
                     <TableCell>{row.properShippingName}</TableCell>
+                    <TableCell>{row.updatedBy}</TableCell>
+                    <TableCell>{row.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

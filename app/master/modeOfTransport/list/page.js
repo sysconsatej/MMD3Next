@@ -25,8 +25,8 @@ import { useRouter } from "next/navigation";
 import { modeOfTransport } from "../modeData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(code, name, id) {
-  return { code, name, id };
+function createData(code, name, updatedBy, updateDate, id) {
+  return { code, name, updatedBy, updateDate, id };
 }
 
 export default function ModeOfTransportList() {
@@ -45,13 +45,13 @@ export default function ModeOfTransportList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: " m.code code,m.name name,m.id",
+          columns: " m.code code,m.name name,u.name updatedBy,m.updatedDate updateDate,m.id",
           tableName: "tblMasterData m",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: ` join tblMasterData m1 on m1.id = m.id and m.masterListName = 'tblMode'`,
+          joins: ` join tblMasterData m1 on m1.id = m.id and m.masterListName = 'tblMode' left join tblUser u on u.id = m.updatedBy`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setModeOfTransportData(data);
@@ -73,7 +73,7 @@ export default function ModeOfTransportList() {
 
   const rows = modeOfTransportData
     ? modeOfTransportData.map((item) =>
-        createData(item["code"], item["name"], item["id"])
+        createData(item["code"], item["name"], item["updatedBy"], item["updateDate"], item["id"])
       )
     : [];
 
@@ -139,6 +139,8 @@ export default function ModeOfTransportList() {
               <TableRow>
                 <TableCell> Code</TableCell>
                 <TableCell> Name</TableCell>
+                <TableCell> Updated By</TableCell>
+                <TableCell> Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -151,6 +153,8 @@ export default function ModeOfTransportList() {
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.updatedBy}</TableCell>
+                    <TableCell>{row.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

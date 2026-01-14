@@ -33,6 +33,8 @@ function createData(
   lineCode,
   senderId,
   portEdiAgentCode,
+  updatedBy,
+  updateDate,
   id
 ) {
   return {
@@ -42,6 +44,8 @@ function createData(
     lineCode,
     senderId,
     portEdiAgentCode,
+    updatedBy,
+    updateDate,
     id,
   };
 }
@@ -63,13 +67,14 @@ export default function CompanyList() {
       try {
         const tableObj = {
           columns:
-            "c.name as agentId,p.code  as berthId,b.agentCode as agentCode,b.lineCode as lineCode,b.portEdiAgentCode as portEdiAgentCode,b.senderId as senderId, b.id as id",
+            "c.name as agentId,p.code  as berthId,b.agentCode as agentCode,b.lineCode as lineCode,b.portEdiAgentCode as portEdiAgentCode,b.senderId as senderId,u.name as updatedBy ,b.updatedDate as updateDate, b.id as id",
           tableName: "tblBerthAgentCode b",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `left join tblCompany c on c.id='${userData?.companyId}' left join tblPort p on p.id=b.berthId`,
+          joins: `left join tblCompany c on c.id='${userData?.companyId}' left join tblPort p on p.id=b.berthId left join tblUser u on u.id=b.updatedBy
+`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setBerthData(data ?? []);
@@ -100,6 +105,8 @@ export default function CompanyList() {
           item["lineCode"],
           item["senderId"],
           item["portEdiAgentCode"],
+          item["updatedBy"],
+          item["updateDate"],
           item["id"]
         )
       )
@@ -170,6 +177,8 @@ export default function CompanyList() {
                 {fieldData.berthAgentFields.map((item) => (
                   <TableCell key={item.name}>{item.label}</TableCell>
                 ))}
+                <TableCell>Updated By</TableCell>
+                <TableCell>Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -182,6 +191,8 @@ export default function CompanyList() {
                     <TableCell>{row?.lineCode}</TableCell>
                     <TableCell>{row?.senderId}</TableCell>
                     <TableCell>{row?.portEdiAgentCode}</TableCell>
+                    <TableCell>{row?.updatedBy}</TableCell>
+                    <TableCell>{row?.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

@@ -26,8 +26,8 @@ import { voyage } from "../voyageData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 
-function createData(vesselName, voyageNO, id) {
-  return { vesselName, voyageNO, id };
+function createData(vesselName, voyageNO, updatedBy, updatedDate, id) {
+  return { vesselName, voyageNO, updatedBy, updatedDate, id };
 }
 
 export default function VoyageList() {
@@ -47,13 +47,13 @@ export default function VoyageList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: " v1.name vesselName,v.voyageNo voyageNO,v.id",
+          columns: " v1.name vesselName,v.voyageNo voyageNO,u.name updatedBy,v.updatedDate as updatedDate,v.id",
           tableName: "tblVoyage v",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `join tblVessel v1  on v1.id = v.vesselId and v.companyid=${userData?.companyId}` ,
+          joins: `join tblVessel v1  on v1.id = v.vesselId and v.companyid=${userData?.companyId} left join tblUser u on u.id = v.updatedBy`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setVoyageData(data);
@@ -75,7 +75,7 @@ export default function VoyageList() {
 
   const rows = voyageData
     ? voyageData.map((item) =>
-        createData(item["vesselName"], item["voyageNO"], item["id"])
+        createData(item["vesselName"], item["voyageNO"], item["updatedBy"], item["updatedDate"], item["id"])
       )
     : [];
 
@@ -138,6 +138,8 @@ export default function VoyageList() {
               <TableRow>
                 <TableCell> Vessel Name</TableCell>
                 <TableCell> Voyage No</TableCell>
+                <TableCell> Updated By</TableCell>
+                <TableCell> Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -150,6 +152,8 @@ export default function VoyageList() {
                   <TableRow key={index} hover className="relative group ">
                     <TableCell>{row.vesselName}</TableCell>
                     <TableCell>{row.voyageNO}</TableCell>
+                    <TableCell>{row.updatedBy}</TableCell>
+                    <TableCell>{row.updatedDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}
