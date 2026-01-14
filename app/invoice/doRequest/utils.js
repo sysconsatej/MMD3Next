@@ -126,36 +126,41 @@ export const doStatusHandler = (getData, router, setMode) => {
         getData();
       }
     },
-    handleReject: async (ids) => {
-      const obj = {
-        columns: "id as Id, name as Name",
-        tableName: "tblMasterData",
-        whereCondition: `masterListName = 'tblDoStatus' and status = 1 and name = 'Reject for DO'`,
-      };
-      const { data, success } = await getDataWithCondition(obj);
-      if (success) {
-        const rowsPayload = ids?.map((id) => {
-          return {
-            id: id,
-            doRequestStatusId: data?.[0]?.Id,
-            doRejectRemarks: null,
-            updatedBy: userData?.userId,
-            updatedDate: new Date(),
-          };
-        });
+    handleReject: async (rejectState, setRejectState) => {
+      if (rejectState.value) {
+        const obj = {
+          columns: "id as Id, name as Name",
+          tableName: "tblMasterData",
+          whereCondition: `masterListName = 'tblDoStatus' and status = 1 and name = 'Reject for DO'`,
+        };
+        const { data, success } = await getDataWithCondition(obj);
+        if (success) {
+          const rowsPayload = rejectState?.ids?.map((id) => {
+            return {
+              id: id,
+              doRequestStatusId: data?.[0]?.Id,
+              doRejectRemarks: rejectState?.value,
+              updatedBy: userData?.userId,
+              updatedDate: new Date(),
+            };
+          });
 
-        const res = await updateStatusRows({
-          tableName: "tblDoRequest",
-          rows: rowsPayload,
-          keyColumn: "id",
-        });
-        const { success, message } = res || {};
-        if (!success) {
-          toast.error(message || "Update failed");
-          return;
+          const res = await updateStatusRows({
+            tableName: "tblDoRequest",
+            rows: rowsPayload,
+            keyColumn: "id",
+          });
+          const { success, message } = res || {};
+          if (!success) {
+            toast.error(message || "Update failed");
+            return;
+          }
+          toast.success("Reject updated successfully!");
+          setRejectState((prev) => ({ ...prev, toggle: false, value: null }));
+          getData();
         }
-        toast.success("Request updated successfully!");
-        getData();
+      } else {
+        toast.warn("Please enter reject remark!");
       }
     },
     handleGenerateDO: async (ids, setReportModalForRow, setReportModalOpen) => {
@@ -269,7 +274,7 @@ export const BlurEventFunctions = ({ formData, setFormData, jsonData }) => {
 export const changeEventFunctions = ({ mode, setFormData, formData }) => {
   return {
     freeDaysChangeHandler: async (name, value) => {
-      if (value === "F") {
+      if (value === "Y") {
         try {
           const obj = {
             columns: "vor.arrivalDate",

@@ -138,7 +138,6 @@ export default function Home() {
             tblBlContainer: updateTblContainer,
             tblInvoicePayment: getData2?.tblInvoicePayment ?? [],
           });
-          setFieldsMode(mode.mode);
         } else {
           setFormData({
             ...getData,
@@ -150,6 +149,7 @@ export default function Home() {
       } else {
         setFormData(getData);
       }
+      setFieldsMode(mode.mode);
     }
     getBl();
   }, [mode]);
@@ -169,10 +169,14 @@ export default function Home() {
       if (userData?.roleCode === "shipping") {
         setJsonData((prev) => {
           const updateDoRequestFields = prev.doRequestFields.map((item) => {
-            if (item.name === "surveyorText" || item.name === "emptyDepotId") {
+            if (
+              item.name === "surveyorText" ||
+              item.name === "emptyDepotId" ||
+              item.name === "nominatedAreaId"
+            ) {
               return { ...item, disabled: false };
             }
-            return item;
+            return { ...item, disabled: true };
           });
 
           return {
@@ -245,7 +249,11 @@ export default function Home() {
           </Box>
           <Box className="w-full flex mt-2 gap-2">
             {fieldsMode !== "view" && (
-              <CustomButton text={"Submit"} type="submit" />
+              <CustomButton
+                text={"Submit"}
+                type="submit"
+                disabled={!requestBtn}
+              />
             )}
             {userData?.roleCode === "customer" && (
               <CustomButton
