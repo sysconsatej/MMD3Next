@@ -216,16 +216,29 @@ export const BlurEventFunctions = ({ formData, setFormData, jsonData }) => {
         return;
       }
 
+      const blCheckQuery = {
+        columns: "id",
+        tableName: "tblDoRequest",
+        whereCondition: `blNo = '${blNo}' AND status = 1 AND shippingLineId = ${linerId}`,
+      };
+
+      const { success: blCheckSuccess, data: blCheckData } =
+        await getDataWithCondition(blCheckQuery);
+
+      if (blCheckSuccess && blCheckData?.length > 0) {
+        toast.warn("This blNo already exist in DO request!");
+        setFormData((prev) => ({
+          shippingLineId: formData?.shippingLineId,
+          blNo: null,
+        }));
+        return;
+      }
+
       try {
         const blQuery = {
           columns: "TOP 1 id, mblHblFlag",
           tableName: "tblBl",
-          whereCondition: `
-               ISNULL(hblNo, mblNo) = '${blNo.replace(
-                 /'/g,
-                 "''"
-               )}' AND 1 = 1 AND shippingLineId = ${linerId}
-             `,
+          whereCondition: `ISNULL(hblNo, mblNo) = '${blNo}' AND 1 = 1 AND shippingLineId = ${linerId}`,
         };
 
         const { success: blSuccess, data: blData } = await getDataWithCondition(
@@ -234,38 +247,59 @@ export const BlurEventFunctions = ({ formData, setFormData, jsonData }) => {
 
         if (!blSuccess || !Array.isArray(blData) || !blData.length) {
           toast.error("BL not found for selected Liner.");
-          return;
-        }
-        const blId = blData?.[0]?.id;
-
-        const format = formatFetchForm(
-          jsonData,
-          "tblBl",
-          blId,
-          '["tblInvoicePayment", "tblBlContainer"]',
-          "blId"
-        );
-        const { result } = await fetchForm(format);
-        const getData = formatDataWithForm(result, jsonData);
-        const convertData = {};
-        for (let [key, value] of Object.entries(getData)) {
-          if (value) {
-            convertData[key] = value;
+        } else {
+          const blId = blData?.[0]?.id;
+          const format = formatFetchForm(
+            jsonData,
+            "tblBl",
+            blId,
+            '["tblBlContainer"]',
+            "blId"
+          );
+          const { result } = await fetchForm(format);
+          const getData = formatDataWithForm(result, jsonData);
+          const convertData = {};
+          for (let [key, value] of Object.entries(getData)) {
+            if (value) {
+              convertData[key] = value;
+            }
           }
+          const updateTblContainer = getData?.tblBlContainer?.map((subItem) => {
+            return { ...subItem, selectForDO: true };
+          });
+          setFormData({
+            ...convertData,
+            blNo: value,
+            blId: blId,
+            tblBlContainer: updateTblContainer,
+          });
         }
-        const updateTblContainer = getData?.tblBlContainer?.map((subItem) => {
-          return { ...subItem, selectForDO: true };
-        });
-        setFormData({
-          ...convertData,
-          blNo: value,
-          blId: blId,
-          tblBlContainer: updateTblContainer,
-        });
       } catch (e) {
         console.error(e);
         toast.error("Error fetching payment details.");
         setFormData({});
+      }
+
+      try {
+        const invoiceQuery = {
+          columns:
+            "m2.name paymentTypeId, i.Amount Amount, i.bankName bankName, i.bankBranchName bankBranchName, i.referenceNo referenceNo, i.referenceDate referenceDate, m.name paymentStatusId, (select string_agg(i2.invoiceNo, ',') from tblInvoice i2 where  i2.id in (select try_cast(value as int) from string_split(i.invoiceIds, ','))) invoiceIds",
+          tableName: "tblInvoicePayment i",
+          joins: `left join tblMasterData m on m.id = i.paymentStatusId
+                  left join tblMasterData m2 on m2.id = i.paymentTypeId `,
+          whereCondition: `i.blNo = '${blNo}' and i.status = 1 and i.status = 1 and m.name = 'Payment Confirmed'`,
+        };
+
+        const { success: invoiceSuccess, data: invoiceData } =
+          await getDataWithCondition(invoiceQuery);
+        if (invoiceSuccess && invoiceData.length > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            tblInvoicePayment: invoiceData,
+          }));
+        }
+      } catch (error) {
+        console.log("error", error);
       }
     },
   };
@@ -354,4 +388,78 @@ export async function requestHandler(doStatus, blNo) {
   } else {
     toast.warn("Do Request Id  not fund again this form!");
   }
+}
+
+export async function getDORequest({
+  setFormData,
+  setFieldsMode,
+  mode,
+  jsonData,
+}) {
+  const format = formatFetchForm(
+    jsonData,
+    "tblDoRequest",
+    mode.formId,
+    '["tblAttachment"]',
+    "doRequestId"
+  );
+  const { result } = await fetchForm(format);
+  const getData = formatDataWithForm(result, jsonData);
+  const obj = {
+    columns: "id as id",
+    tableName: "tblBl",
+    whereCondition: `isnull(hblNo, mblNo) = '${getData.blNo}' and status = 1`,
+  };
+  const { data, success } = await getDataWithCondition(obj);
+
+  const invoiceQuery = {
+    columns:
+      "m2.name paymentTypeId, i.Amount Amount, i.bankName bankName, i.bankBranchName bankBranchName, i.referenceNo referenceNo, i.referenceDate referenceDate, m.name paymentStatusId, (select string_agg(i2.invoiceNo, ',') from tblInvoice i2 where  i2.id in (select try_cast(value as int) from string_split(i.invoiceIds, ','))) invoiceIds",
+    tableName: "tblInvoicePayment i",
+    joins: `left join tblMasterData m on m.id = i.paymentStatusId
+                  left join tblMasterData m2 on m2.id = i.paymentTypeId `,
+    whereCondition: `i.blNo = '${getData.blNo}' and i.status = 1 and i.status = 1 and m.name = 'Payment Confirmed'`,
+  };
+
+  const { success: invoiceSuccess, data: invoiceData } =
+    await getDataWithCondition(invoiceQuery);
+
+  if (data?.length > 0 && success) {
+    const format2 = formatFetchForm(
+      jsonData,
+      "tblBl",
+      data?.[0]?.id,
+      '["tblBlContainer"]',
+      "blId"
+    );
+    const { result: result2 } = await fetchForm(format2);
+    const getData2 = formatDataWithForm(result2, jsonData);
+    if (mode.mode !== "edit" && mode.mode !== "view") {
+      const updateTblContainer = getData2?.tblBlContainer?.map((subItem) => {
+        return { ...subItem, selectForDO: true };
+      });
+      setFormData({
+        ...getData,
+        blId: result?.blId,
+        tblBlContainer: updateTblContainer,
+      });
+    } else {
+      setFormData({
+        ...getData,
+        blId: result?.blId,
+        tblBlContainer: getData2?.tblBlContainer ?? [],
+      });
+    }
+  } else {
+    setFormData(getData);
+  }
+
+  if (invoiceSuccess && invoiceData.length > 0) {
+    setFormData((prev) => ({
+      ...prev,
+      tblInvoicePayment: invoiceData,
+    }));
+  }
+
+  setFieldsMode(mode.mode);
 }

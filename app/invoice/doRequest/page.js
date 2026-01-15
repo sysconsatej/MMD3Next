@@ -11,20 +11,15 @@ import TableGrid from "@/components/tableGrid/tableGrid";
 import FormHeading from "@/components/formHeading/formHeading";
 import { formStore } from "@/store";
 import {
-  fetchForm,
   getDataWithCondition,
   insertUpdateForm,
   updateStatusRows,
 } from "@/apis";
-import {
-  formatDataWithForm,
-  formatFetchForm,
-  formatFormData,
-  getUserByCookies,
-} from "@/utils";
+import { formatFormData, getUserByCookies } from "@/utils";
 import {
   BlurEventFunctions,
   changeEventFunctions,
+  getDORequest,
   requestHandler,
 } from "./utils";
 
@@ -100,58 +95,7 @@ export default function Home() {
   });
 
   useEffect(() => {
-    async function getBl() {
-      const format = formatFetchForm(
-        jsonData,
-        "tblDoRequest",
-        mode.formId,
-        '["tblAttachment"]',
-        "doRequestId"
-      );
-      const { result } = await fetchForm(format);
-      const getData = formatDataWithForm(result, jsonData);
-      const obj = {
-        columns: "id as id",
-        tableName: "tblBl",
-        whereCondition: `isnull(hblNo, mblNo) = '${getData.blNo}' and status = 1`,
-      };
-      const { data, success } = await getDataWithCondition(obj);
-      if (data?.length > 0 && success) {
-        const format2 = formatFetchForm(
-          jsonData,
-          "tblBl",
-          data?.[0]?.id,
-          '["tblInvoicePayment", "tblBlContainer"]',
-          "blId"
-        );
-        const { result: result2 } = await fetchForm(format2);
-        const getData2 = formatDataWithForm(result2, jsonData);
-        if (mode.mode !== "edit" && mode.mode !== "view") {
-          const updateTblContainer = getData2?.tblBlContainer?.map(
-            (subItem) => {
-              return { ...subItem, selectForDO: true };
-            }
-          );
-          setFormData({
-            ...getData,
-            blId: result?.blId,
-            tblBlContainer: updateTblContainer,
-            tblInvoicePayment: getData2?.tblInvoicePayment ?? [],
-          });
-        } else {
-          setFormData({
-            ...getData,
-            blId: result?.blId,
-            tblBlContainer: getData2?.tblBlContainer ?? [],
-            tblInvoicePayment: getData2?.tblInvoicePayment ?? [],
-          });
-        }
-      } else {
-        setFormData(getData);
-      }
-      setFieldsMode(mode.mode);
-    }
-    getBl();
+    getDORequest({ setFormData, setFieldsMode, mode, jsonData });
   }, [mode]);
 
   useEffect(() => {
