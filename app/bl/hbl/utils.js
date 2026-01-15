@@ -787,7 +787,7 @@ export const filterColumnsUpdate = (arr) => {
   return result;
 };
 
-export const setTabDefaultVal = async (tabIndex, setFormData) => {
+export const setTabDefaultVal = async (tabIndex, setFormData, mode) => {
   const obj = {
     columns: `json_object(
      'cinType': json_object('Id':cin.id, 'Name':concat(cin.code, ' - ', cin.name)),
@@ -806,10 +806,25 @@ export const setTabDefaultVal = async (tabIndex, setFormData) => {
   };
   const { data } = await getDataWithCondition(obj);
 
-  setFormData((prev) => {
-    return {
-      ...prev,
-      tblBl: [...(prev.tblBl ?? []), { ...data?.[0]?.data }],
-    };
-  });
+  if (mode.mode === "edit") {
+    setFormData((prev) => {
+      return {
+        ...prev,
+        tblBl: [...(prev.tblBl ?? []), { ...data?.[0]?.data }],
+      };
+    });
+  } else {
+    setFormData((prev) => {
+      const updateTblBl = prev?.tblBl?.map((item, index) => {
+        if (index === tabIndex) {
+          return { ...item, ...data?.[0]?.data };
+        }
+        return item;
+      });
+      return {
+        ...prev,
+        tblBl: updateTblBl,
+      };
+    });
+  }
 };
