@@ -57,6 +57,7 @@ function createData(
   category,
   remark,
   status,
+  invoicePaymentId,
   isEdit
 ) {
   return {
@@ -69,6 +70,7 @@ function createData(
     category,
     remark,
     status,
+    invoicePaymentId,
     isEdit,
   };
 }
@@ -89,6 +91,7 @@ export default function InvoicePaymentList() {
   const [historyModal, setHistoryModal] = useState({
     toggle: false,
     value: null,
+    mblNo: null,
   });
   const userData = getUserByCookies();
 
@@ -120,7 +123,8 @@ export default function InvoicePaymentList() {
     MAX(cat.name) AS category,
     MAX(ipAgg.remarks) AS remark,
     iif(min(i.invoicePaymentId) = max(i.invoicePaymentId), max(ipAgg.statusName), null) AS status,
-    case when max(u3.roleCode) = 'shipping' then cast(0 as bit) else cast(1 as bit) end as isEdit
+    MAX(i.invoicePaymentId) AS invoicePaymentId,
+   case when max(u3.roleCode) = 'shipping' then cast(0 as bit) else cast(1 as bit) end as isEdit
   `,
           tableName: "tblInvoice i",
           joins: `
@@ -171,6 +175,7 @@ export default function InvoicePaymentList() {
             item["category"],
             item["remark"],
             item["status"],
+            item["invoicePaymentId"],
             item["isEdit"]
           )
         );
@@ -273,6 +278,8 @@ export default function InvoicePaymentList() {
     }
   };
 
+  console.log('rows', rows);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -370,7 +377,8 @@ export default function InvoicePaymentList() {
                         onClick={() =>
                           setHistoryModal({
                             toggle: true,
-                            value: row.blNo,
+                            value: row.invoicePaymentId,
+                            mblNo: row.blNo,
                           })
                         }
                       />

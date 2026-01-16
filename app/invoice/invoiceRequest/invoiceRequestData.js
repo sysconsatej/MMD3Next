@@ -19,7 +19,7 @@ const fieldData = {
       label: "BL NO",
       name: "blNo",
       required: true,
-      isEdit: true,
+      // isEdit: true,
       blurFun: "duplicateHandler",
     },
 
