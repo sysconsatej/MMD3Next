@@ -415,7 +415,7 @@ export default function Home() {
                           ...prev,
                           prev[prev.length - 1] + 1 || 0,
                         ]);
-                        setTabDefaultVal(hblArray.length, setFormData);
+                        setTabDefaultVal(hblArray.length, setFormData, mode);
                       }}
                       icon={<AddIcon />}
                       iconPosition="end"
