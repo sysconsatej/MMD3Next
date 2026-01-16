@@ -60,6 +60,7 @@ export const fieldData = {
       foreignTable: "name,tblVessel",
       changeFun: "handleChangeOnVessel",
       isEdit: true,
+      required: true,
     },
     {
       label: "Voyage",
@@ -74,6 +75,7 @@ export const fieldData = {
       orderBy: "t.voyageNo",
       foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
+      required: true,
     },
   ],
   csnFields: [
