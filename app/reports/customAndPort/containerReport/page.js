@@ -11,6 +11,8 @@ import { fetchDynamicReportData } from "@/apis/dynamicReport";
 import { useRouter } from "next/navigation";
 import { getUserByCookies } from "@/utils";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
+import DynamicReportDownloadCsvButton from "@/components/dynamicReportExcelDownload/page";
+
 
 export default function IgmGeneration() {
   const [formData, setFormData] = useState({});
@@ -134,12 +136,12 @@ export default function IgmGeneration() {
               type="submit"
               disabled={goLoading}
             />
-            {/* <CustomButton
-              text="GENERATE REPORT"
-              type="button"
-              onClick={handleGenerateReport}
-              title={!tableData.length ? "No data to export" : ""}
-            /> */}
+            <DynamicReportDownloadCsvButton
+              rows={tableFormData} // ✅ only checked rows
+              metaData={metaData}
+              fileName={`Container_Selected_${new Date().toISOString().slice(0, 10)}.csv`}
+              disabled={!tableFormData.length}
+            />
             <CustomButton
               text="Cancel"
               buttonStyles="!text-[white] !bg-[#f5554a] !text-[11px]"
@@ -151,7 +153,11 @@ export default function IgmGeneration() {
       </form>
 
       <Box className="p-0">
-        <DynamicReportTable data={tableData} metaData={metaData} />
+        <DynamicReportTable
+          data={tableData}
+          metaData={metaData}
+          onSelectedEditedChange={setTableFormData}
+        />
       </Box>
 
       <ToastContainer />

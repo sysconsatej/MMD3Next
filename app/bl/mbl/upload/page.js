@@ -17,6 +17,15 @@ let vesselChangeReq = 0;
 const BASE_URL =
   (process.env.NEXT_PUBLIC_BACKEND_URL || "").replace(/\/+$/, "") + "/";
 
+const asArray = (v) => {
+  if (!v) return [];
+  if (Array.isArray(v)) return v;
+  if (typeof v === "string") return v.trim() ? [{ message: v }] : [];
+  if (typeof v === "object") return [v];
+  return [{ message: String(v) }];
+};
+
+
 const canon = (s = "") =>
   String(s)
     .normalize("NFKC")
@@ -228,6 +237,8 @@ export default function MblUpload() {
     }
 
     setBusy(true);
+    setIsErrorListVisible(false);
+    setErrorListData([]);
     try {
       const rows = await parseFile(file);
       if (!rows?.length) throw new Error("No data rows found");
@@ -327,11 +338,13 @@ export default function MblUpload() {
       };
 
       const resp = await uploads(payload);
-      if (resp?.data?.[0]?.success)
+      if (resp?.data?.[0]?.success) {
+        setIsErrorListVisible(false);
+        setErrorListData([]);
         toast.success(resp?.message || "Uploaded successfully");
-      else {
+      } else {
         setIsErrorListVisible(true);
-        setErrorListData(resp?.data?.[0]?.message || []);
+        setErrorListData(asArray(resp?.data?.[0]?.message));
         toast.warn("Errors found during upload. Please check the error list.");
       };
     } catch (err) {
@@ -424,7 +437,7 @@ export default function MblUpload() {
       <ToastContainer position="top-right" autoClose={3500} />
       {isErrorListVisible && (
         <ErrorList
-          errorGrid={ErrorListData || []}
+          errorGrid={Array.isArray(ErrorListData) ? ErrorListData : asArray(ErrorListData)}
           fileName="MBL_Upload_Errors"
         />
       )}
