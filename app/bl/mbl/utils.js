@@ -408,8 +408,6 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
       }
     },
     setCarrierBondAndCode: async (name, value) => {
-      if (!value?.Id) return;
-
       const obj = {
         columns: `
       t.bondNo,
@@ -419,7 +417,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
     `,
         tableName: "tblCarrierPort t",
         joins: "left join tblMasterData m on m.id = t.modeId",
-        whereCondition: `t.id = ${value.Id} and t.defaultCfs = 'Y' and t.status = 1`,
+        whereCondition: `t.id = ${value?.Id} and t.defaultCfs = 'Y' and t.status = 1`,
       };
 
       const { data, success } = await getDataWithCondition(obj);
@@ -432,6 +430,16 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
             carrierPanNo: data?.[0]?.panNo ?? null,
             scmtrBondNo: data?.[0]?.scmtrBondNo ?? null,
             postCarriageId: data?.[0]?.postCarriageId ?? null,
+          };
+        });
+      } else {
+        setFormData((prev) => {
+          return {
+            ...prev,
+            carrierBondNo: null,
+            carrierPanNo: null,
+            scmtrBondNo: null,
+            postCarriageId: null,
           };
         });
       }
