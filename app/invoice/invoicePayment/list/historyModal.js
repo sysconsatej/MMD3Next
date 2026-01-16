@@ -17,11 +17,11 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import CropSquareIcon from "@mui/icons-material/CropSquare";
-import { fetchInvoiceReleaseHistory } from "@/apis/history";
+import { fetchHistory, fetchInvoiceReleaseHistory } from "@/apis/history";
 import { paymentStatusColor } from "../invoicePaymentData";
 
 export function PaymentHistoryModal({ historyModal, setHistoryModal }) {
-  const { toggle, value: blNo } = historyModal;
+  const { toggle, value: recordId, blNo } = historyModal;
 
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -37,7 +37,10 @@ export function PaymentHistoryModal({ historyModal, setHistoryModal }) {
   const loadHistory = async () => {
     try {
       setLoading(true);
-      const { success, data } = await fetchInvoiceReleaseHistory({ blNo });
+      const { success, data } = await fetchHistory({
+        spName: "dbo.getInvoicePaymentHistory",
+        recordId, // ✅ paymentId ONLY
+      });
       setRows(success ? data || [] : []);
     } catch (err) {
       console.error("Payment History Error:", err);
@@ -50,7 +53,13 @@ export function PaymentHistoryModal({ historyModal, setHistoryModal }) {
   return (
     <Dialog
       open={toggle}
-      onClose={() => setHistoryModal({ toggle: false, value: null })}
+      onClose={() =>
+        setHistoryModal({
+          toggle: false,
+          value: null,
+          mblNo: null,
+        })
+      }
       fullScreen={windowMode === "maximized"}
       maxWidth="xl"
       fullWidth
@@ -82,9 +91,7 @@ export function PaymentHistoryModal({ historyModal, setHistoryModal }) {
             size="small"
             sx={{ color: "#fff" }}
             onClick={() =>
-              setWindowMode((p) =>
-                p === "maximized" ? "normal" : "maximized"
-              )
+              setWindowMode((p) => (p === "maximized" ? "normal" : "maximized"))
             }
           >
             <CropSquareIcon fontSize="inherit" />
@@ -94,7 +101,11 @@ export function PaymentHistoryModal({ historyModal, setHistoryModal }) {
             size="small"
             sx={{ color: "#fff" }}
             onClick={() =>
-              setHistoryModal({ toggle: false, value: null })
+              setHistoryModal({
+                toggle: false,
+                value: null,
+                mblNo: null,
+              })
             }
           >
             <CloseIcon fontSize="inherit" />
@@ -175,25 +186,25 @@ export function PaymentHistoryModal({ historyModal, setHistoryModal }) {
                 rows.map((r, i) => (
                   <TableRow key={i}>
                     <TableCell className="sr-col">{i + 1}</TableCell>
-                    <TableCell>{r.date}</TableCell>
-                    <TableCell>{r.userName}</TableCell>
-                    <TableCell>{r.userId}</TableCell>
-                    <TableCell>{r.contactNumber}</TableCell>
-                    <TableCell>{r.lineName}</TableCell>
+                    <TableCell>{r["Date"]}</TableCell>
+                    <TableCell>{r["User Name"]}</TableCell>
+                    <TableCell>{r["User ID"]}</TableCell>
+                    <TableCell>{r["Contact Number"]}</TableCell>
+                    <TableCell>{r["Line Name"]}</TableCell>
                     <TableCell
                       sx={{
-                        color: paymentStatusColor(r["Status"]?.replace(/\s+/g, "")),
+                        color: paymentStatusColor(r["Status"]),
                         fontWeight: 600,
                       }}
                     >
-                      {r.status}
+                      {r["Status"]}
                     </TableCell>
-                    <TableCell>{r.fieldName}</TableCell>
-                    <TableCell>{r.oldValue}</TableCell>
-                    <TableCell>{r.newValue}</TableCell>
-                    <TableCell>{r.rejectionRemarks}</TableCell>
-                    <TableCell>{r.rejectionDateTime}</TableCell>
-                    <TableCell>{r.confirmedDateTime}</TableCell>
+                    <TableCell>{r["Field Name"]}</TableCell>
+                    <TableCell>{r["Old Value"]}</TableCell>
+                    <TableCell>{r["New Value"]}</TableCell>
+                    <TableCell>{r["Rejection Remarks"]}</TableCell>
+                    <TableCell>{r["Rejected Date and Time"]}</TableCell>
+                    <TableCell>{r["Confrimed Date and Time"]}</TableCell>
                   </TableRow>
                 ))
               )}
