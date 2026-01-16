@@ -138,6 +138,7 @@ export default function InvoiceRequestList() {
   const [historyModal, setHistoryModal] = useState({
     toggle: false,
     value: null,
+    mblNo: null,
   });
 
   const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
@@ -497,7 +498,8 @@ JOIN tblLocation l
                           setModal((prev) => ({
                             ...prev,
                             toggle: true,
-                            value: row.id, // paymentId
+                            value: row.id,
+                            blNo: row.blNo, // paymentId
                           }))
                         }
                       />
@@ -517,7 +519,8 @@ JOIN tblLocation l
                         onHistory={() => {
                           setHistoryModal({
                             toggle: true,
-                            value: row.blNo, // paymentId
+                            value: row.id, // ✅ paymentId ONLY
+                            mblNo: row.blNo, // ✅ display only
                           });
                         }}
                         onApprove={() => approveHandler(row.id)}
