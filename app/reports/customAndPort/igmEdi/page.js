@@ -1,6 +1,6 @@
 "use client";
 
-import { useState,useMemo } from "react";
+import { useState, useMemo } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { metaData } from "./igmData";
 import { CustomInput } from "@/components/customInput";
@@ -16,6 +16,7 @@ import {
 } from "@/apis/dynamicReport";
 import { exportText, getUserByCookies } from "@/utils";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
+import DynamicReportDownloadCsvButton from "@/components/dynamicReportExcelDownload/page";
 import { company } from "faker/lib/locales/az";
 
 export default function IGMEDI() {
@@ -166,6 +167,14 @@ export default function IGMEDI() {
               title={
                 !tableFormData.length ? "Select & edit at least one row" : ""
               }
+            />
+            <DynamicReportDownloadCsvButton
+              rows={tableFormData} // ✅ ONLY checked rows
+              metaData={metaData}
+              fileName={`IGMEdi_Selected_${new Date().toISOString().slice(0, 10)}.csv`}
+              text="DOWNLOAD EXCEL"
+              buttonStyles="custom-btn"
+              disabled={!tableFormData.length} // ✅ disabled until at least 1 row checked
             />
             <CustomButton
               text="Cancel"
