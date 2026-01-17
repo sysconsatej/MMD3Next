@@ -48,6 +48,18 @@ const fieldData = {
       isEdit: "true",
       required: true,
     },
+    {
+      label: "SEZ",
+      name: "sez",
+      type: "radio",
+      radioData: [
+        { label: "Yes", value: "Y" },
+        { label: "No", value: "N" },
+      ],
+      defaultValue: "Y", // 👈 add this
+
+      isEdit: "true",
+    },
   ],
 };
 
