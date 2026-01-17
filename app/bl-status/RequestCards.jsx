@@ -28,8 +28,8 @@ const RequestCard = ({ item }) => {
   const buildLink = (keyName, referenceId, link, invoiceId, paymentId) => {
     const linkMappings = {
       invoiceRequest: link,
-      invoice: invoiceId ? `${link}?blId=${referenceId}` : "#",
-      invoicePayment: paymentId ? `${link}?blId=${referenceId}` : "#",
+      invoice: invoiceId ? `${link}?invoiceRequestId=${referenceId}` : "#",
+      invoicePayment: paymentId ? `${link}?invoiceRequestId=${referenceId}` : "#",
       do: link,
       receipt: link,
     };

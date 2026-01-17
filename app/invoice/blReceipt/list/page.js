@@ -76,9 +76,9 @@ export default function ReceiptList() {
 
           joins: `
             LEFT JOIN tblUser u ON u.id = ${userData.userId} and p.shippingLineId = u.companyId 
-            join tblLocation l on l.id =p.locationId and p.locationId = ${userData.location}
+            left join tblLocation l on l.id =p.locationId and p.locationId = ${userData.location}
             LEFT JOIN tblUser u1 ON u1.id = p.createdBy
-            JOIN tblMasterData ms ON ms.id = p.paymentStatusId and ms.name='Payment Confirmed'
+            JOIN tblMasterData ms ON ms.id = p.paymentStatusId and ms.name='Payment Confirmed' and p.receiptNo is not null
           `,
           groupBy: `GROUP BY p.blNo, u1.name`,
           orderBy: "ORDER BY MAX(p.createdDate) DESC",
