@@ -25,8 +25,8 @@ import { useRouter } from "next/navigation";
 import { port } from "../portData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(code, portName, activeInactive, portTypeName, country, updatedBy, updateDate, id) {
-  return { code, portName, activeInactive, portTypeName, country, updatedBy, updateDate, id };
+function createData(code, portName, activeInactive, sez, portTypeName, country, updatedBy, updateDate, id) {
+  return { code, portName, activeInactive, sez, portTypeName, country, updatedBy, updateDate, id };
 }
 
 export default function PortList() {
@@ -46,7 +46,7 @@ export default function PortList() {
       try {
         const tableObj = {
           columns:
-            "p.name portName, p.code code, p.activeInactive activeInactive, m.name portTypeName, c.name country,u.name updatedBy,p.updatedDate updateDate,p.id",
+            "p.name portName, p.code code, p.activeInactive activeInactive,p.sez sez, m.name portTypeName, c.name country,u.name updatedBy,p.updatedDate updateDate,p.id",
           tableName: "tblPort p",
           pageNo,
           pageSize,
@@ -79,6 +79,7 @@ export default function PortList() {
           item["code"],
           item["portName"],
           item["activeInactive"],
+          item["sez"],
           item["portTypeName"],
           item["country"],
           item["updatedBy"],
@@ -151,6 +152,7 @@ export default function PortList() {
                 <TableCell>Code</TableCell>
                 <TableCell>Port Name</TableCell>
                 <TableCell>ActiveInactive</TableCell>
+                <TableCell>SEZ</TableCell>
                 <TableCell>Port Type </TableCell>
                 <TableCell>Country Name</TableCell>
                 <TableCell> Updated By</TableCell>
@@ -168,6 +170,7 @@ export default function PortList() {
                     <TableCell>{row.code}</TableCell>
                     <TableCell>{row.portName}</TableCell>
                     <TableCell>{row.activeInactive}</TableCell>
+                    <TableCell>{row.sez}</TableCell>
                     <TableCell>{row.portTypeName}</TableCell>
                     <TableCell>{row.country}</TableCell>
                     <TableCell>{row.updatedBy}</TableCell>
