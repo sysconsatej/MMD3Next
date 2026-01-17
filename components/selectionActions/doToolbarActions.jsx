@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import { Box, Tooltip } from "@mui/material";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping"; // Release DO
 import EditIcon from "@mui/icons-material/Edit"; // Edit BL Docs
 import SearchIcon from "@mui/icons-material/Search"; // View BL Docs
 import CheckIcon from "@mui/icons-material/Check"; // Confirm
@@ -13,6 +12,7 @@ import WorkIcon from "@mui/icons-material/Work"; // Security Slip
 import PageviewIcon from "@mui/icons-material/Pageview";
 import RequestPageIcon from "@mui/icons-material/RequestPage";
 import { getDataWithCondition } from "@/apis";
+import { getUserByCookies } from "@/utils";
 
 export default function DoToolbarActions({
   selectedIds = [],
@@ -32,8 +32,9 @@ export default function DoToolbarActions({
   const [doStatus, setDoStatus] = useState(null);
   const [isDisableBtn, setIsDisableBtn] = useState({
     isRequestDisable: false,
-    isRejAndConfDisable: false,
+    isEditDisable: false,
   });
+  const userData = getUserByCookies();
 
   const ids = useMemo(
     () =>
@@ -80,9 +81,6 @@ export default function DoToolbarActions({
         whereCondition: `id in (${ids.join(",")}) and status = 1`,
       };
       const { data } = await getDataWithCondition(obj);
-
-      console.log('doStatus', doStatus);
-      console.log('data', data);
       const filterStatus = doStatus?.filter(
         (item) => item?.Name !== "Reject for DO"
       );
@@ -94,18 +92,19 @@ export default function DoToolbarActions({
         isRequestDisable: filterCheckReq,
       }));
 
-      // const filterStatusAprAndRej = doStatus?.filter(
-      //   (item) => item.Name !== "Request"
-      // );
-      // const filterCheckAprAndRej = data?.some((item) =>
-      //   filterStatusAprAndRej?.some(
-      //     (status) => status.Id === item.doRequestStatusId
-      //   )
-      // );
-      // setIsDisableBtn((prev) => ({
-      //   ...prev,
-      //   isRejAndConfDisable: filterCheckAprAndRej,
-      // }));
+      const filterEditStatus = doStatus?.filter(
+        (item) =>
+          (item?.Name !== "Reject for DO" &&
+            userData?.roleCode === "customer") ||
+          (item?.Name !== "Request for DO" && userData?.roleCode === "shipping")
+      );
+      const filterEditCheckReq = data?.some((item) =>
+        filterEditStatus?.some((status) => status.Id === item.doRequestStatusId)
+      );
+      setIsDisableBtn((prev) => ({
+        ...prev,
+        isEditDisable: filterEditCheckReq,
+      }));
     }
     checkStatus();
   }, [ids]);
@@ -143,7 +142,7 @@ export default function DoToolbarActions({
             label="Edit"
             icon={<EditIcon />}
             onClick={() => call(onEdit)}
-            disabled={!isSingle || isDisableBtn?.isRequestDisable}
+            disabled={!isSingle || isDisableBtn?.isEditDisable}
           />
         )}
 

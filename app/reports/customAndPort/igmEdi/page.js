@@ -17,7 +17,6 @@ import {
 import { exportText, getUserByCookies } from "@/utils";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 import DynamicReportDownloadCsvButton from "@/components/dynamicReportExcelDownload/page";
-import { company } from "faker/lib/locales/az";
 
 export default function IGMEDI() {
   const [formData, setFormData] = useState({});
