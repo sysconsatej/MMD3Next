@@ -298,7 +298,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         columns: "m.id Id, name Name, m.code code, m.masterListName",
         tableName: "tblMasterData m",
         whereCondition:
-          "(m.masterListName = 'tblServiceType' OR m.masterListName = 'tblMovementType') AND m.status = 1",
+          "(m.masterListName = 'tblServiceType' OR m.masterListName = 'tblMovementType' OR m.masterListName = 'tblMode') AND m.status = 1",
       };
 
       const res = await getDataWithCondition(payload);
@@ -309,6 +309,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
       // Create lookup maps
       const cargoMap = {};
       const movementMap = {};
+      const modeMap = {};
 
       data.forEach((item) => {
         if (item.masterListName === "tblServiceType") {
@@ -316,6 +317,9 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         }
         if (item.masterListName === "tblMovementType") {
           movementMap[item.code] = item;
+        }
+        if (item.masterListName === "tblMode") {
+          modeMap[item.code] = item;
         }
       });
 
@@ -351,6 +355,8 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         };
       }
 
+      let setPostCarriageId = null;
+
       if (podId === "IN" && fpdId === "IN") {
         const filtered = storeApiResult.filter(
           (i) => i.inputName === "podId" || i.inputName === "fpdId"
@@ -367,12 +373,19 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
               Id: movementMap.TI.Id,
               Name: movementMap.TI.code,
             };
-      }
 
-      setFormData((prev) => ({
-        ...prev,
-        ...updates,
-      }));
+        if (isSamePort && modeMap?.L) {
+          setPostCarriageId = {
+            Id: modeMap.L.Id,
+            Name: modeMap.L.Name,
+          };
+        }
+
+        setFormData((prev) => ({
+          ...prev,
+          ...updates,
+        }));
+      }
 
       if (name === "podId" || name === "fpdId") {
         let setWhere = null;
@@ -402,7 +415,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
             carrierBondNo: null,
             carrierPanNo: null,
             scmtrBondNo: null,
-            postCarriageId: null,
+            postCarriageId: setPostCarriageId,
           }));
         }
       }
