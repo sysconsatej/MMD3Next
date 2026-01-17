@@ -33,6 +33,7 @@ export default function Port() {
     duplicateHandler: async (event) => {
       const { name, value } = event.target;
       const normalized = String(value ?? "").trim();
+
       if (name === "code" && /[^A-Za-z0-9]/.test(normalized)) {
         setErrorState((prev) => ({ ...prev, [name]: true }));
         setFormData((prev) => ({ ...prev, [name]: "" }));
@@ -41,17 +42,31 @@ export default function Port() {
         );
         return false;
       }
+
       const literal = normalized.replace(/'/g, "''");
+
+      let whereDup = `
+    UPPER(${name}) = '${literal.toUpperCase()}'
+    AND portTypeId IN (
+      SELECT id FROM tblMasterData 
+      WHERE name IN ('SEA PORT','INLAND PORT')
+    )
+    AND status = 1
+  `;
+
+      // ✅ ONLY ADD THIS BLOCK (same as your reference)
+      if (mode?.formId) {
+        whereDup += ` AND id <> ${mode.formId}`;
+      }
+
       const obj = {
         columns: name,
         tableName: "tblPort",
-        whereCondition: `
-        UPPER(${name}) = '${literal.toUpperCase()}'
-        AND portTypeId IN (SELECT id FROM tblMasterData WHERE name in ('SEA PORT','INLAND PORT'))
-        AND status = 1
-      `,
+        whereCondition: whereDup,
       };
+
       const resp = await getDataWithCondition(obj);
+
       const isDuplicate =
         resp?.success === true ||
         (Array.isArray(resp?.data) && resp.data.length > 0);
