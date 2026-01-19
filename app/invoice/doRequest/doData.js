@@ -241,7 +241,37 @@ export const fieldData = {
       displayColumn: "m.name",
       searchColumn: "m.name",
       orderBy: "m.name",
-      where: "m.masterListName = 'tblInvoiceAttachmentType' and m.name <> 'DO Released' and m.name <> 'Empty Letter'",
+      where:
+        "m.masterListName = 'tblInvoiceAttachmentType' and m.name <> 'DO Released' and m.name <> 'Empty Letter'",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+    },
+    {
+      label: "Upload",
+      name: "path",
+      type: "fileupload",
+      isEdit: true,
+      required: true,
+    },
+    {
+      label: "Remarks",
+      name: "remarks",
+      isEdit: true,
+    },
+  ],
+
+  tblAttachmentRelease: [
+    {
+      label: "Select",
+      name: "attachmentTypeId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      idColumn: "id",
+      displayColumn: "m.name",
+      searchColumn: "m.name",
+      orderBy: "m.name",
+      where:
+        "m.masterListName = 'tblInvoiceAttachmentType' and m.name = 'DO Released' or m.name = 'Empty Letter'",
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },

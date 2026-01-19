@@ -26,6 +26,7 @@ import {
 
 export default function Home() {
   const [formData, setFormData] = useState({});
+  const [releaseAttachment, setReleaseAttachment] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(fieldData);
   const { mode, setMode } = formStore();
@@ -35,7 +36,17 @@ export default function Home() {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    const { tblInvoicePayment, tblBlContainer, ...restData } = formData;
+    let { tblInvoicePayment, tblBlContainer, ...restData } = formData;
+
+    if (
+      userData?.roleCode === "shipping" &&
+      releaseAttachment?.tblAttachmentRelease?.length > 0
+    ) {
+      restData.tblAttachment = [
+        ...restData?.tblAttachment,
+        ...releaseAttachment?.tblAttachmentRelease,
+      ];
+    }
 
     const format = formatFormData(
       "tblDoRequest",
@@ -96,7 +107,14 @@ export default function Home() {
   });
 
   useEffect(() => {
-    getDORequest({ setFormData, setFieldsMode, mode, jsonData, setJsonData });
+    getDORequest({
+      setFormData,
+      setFieldsMode,
+      mode,
+      jsonData,
+      setJsonData,
+      setReleaseAttachment,
+    });
   }, [mode]);
 
   useEffect(() => {
@@ -188,9 +206,26 @@ export default function Home() {
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
                 gridName={"tblAttachment"}
-                buttons={cfsGridButtons}
+                buttons={
+                  userData?.roleCode === "customer" ? cfsGridButtons : []
+                }
               />
             </Box>
+            {((releaseAttachment?.tblAttachmentRelease?.length > 0 &&
+              userData?.roleCode === "customer") ||
+              userData?.roleCode === "shipping") && (
+              <Box className="mt-4 border">
+                <FormHeading text="DO Released" variant="body2" />
+                <TableGrid
+                  fields={jsonData.tblAttachmentRelease}
+                  formData={releaseAttachment}
+                  setFormData={setReleaseAttachment}
+                  fieldsMode={fieldsMode}
+                  gridName={"tblAttachmentRelease"}
+                  buttons={cfsGridButtons}
+                />
+              </Box>
+            )}
           </Box>
           <Box className="w-full flex mt-2 gap-2">
             {fieldsMode !== "view" && (
@@ -221,7 +256,10 @@ export default function Home() {
                     status: "Confirm for DO",
                   });
                 }}
-                disabled={mode.status === "Confirm for DO"}
+                disabled={
+                  mode.status === "Confirm for DO" ||
+                  mode.status === "Released for DO"
+                }
               />
             )}
 
@@ -229,7 +267,10 @@ export default function Home() {
               <CustomButton
                 text={"DO Release"}
                 onClick={() => {
-                  doStatusHandler().handleRelease([mode.formId]);
+                  doStatusHandler().handleRelease(
+                    [mode.formId],
+                    releaseAttachment,
+                  );
                 }}
                 disabled={mode.status !== "Confirm for DO"}
               />

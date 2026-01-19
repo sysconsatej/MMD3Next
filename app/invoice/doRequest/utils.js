@@ -126,7 +126,11 @@ export const doStatusHandler = (getData, router, setMode) => {
         getData();
       }
     },
-    handleRelease: async (ids) => {
+    handleRelease: async (ids, releaseAttachment) => {
+      if (releaseAttachment?.tblAttachmentRelease?.length <= 0) {
+        toast.warn("Please DO Release Attach first for DO Release!");
+        return;
+      }
       const obj = {
         columns: "id as Id, name as Name",
         tableName: "tblMasterData",
@@ -426,10 +430,8 @@ export async function getDORequest({
   setFieldsMode,
   mode,
   jsonData,
-  setJsonData,
+  setReleaseAttachment,
 }) {
-  const userData = getUserByCookies();
-
   const format = formatFetchForm(
     jsonData,
     "tblDoRequest",
@@ -482,10 +484,32 @@ export async function getDORequest({
         ...getData,
         blId: result?.blId,
         tblBlContainer: getData2?.tblBlContainer ?? [],
+        tblAttachment: getData?.tblAttachment?.filter(
+          (subItem) =>
+            subItem.attachmentTypeId?.Name !== "DO Released" &&
+            subItem.attachmentTypeId?.Name !== "Empty Letter",
+        ),
       });
+      const setReleasedAttach = getData?.tblAttachment?.filter(
+        (subItem) =>
+          subItem.attachmentTypeId?.Name === "DO Released" ||
+          subItem.attachmentTypeId?.Name === "Empty Letter",
+      );
+      setReleaseAttachment({ tblAttachmentRelease: setReleasedAttach });
     }
   } else {
-    setFormData(getData);
+    const updateAttach = getData?.tblAttachment?.filter(
+      (subItem) =>
+        subItem.attachmentTypeId?.Name !== "DO Released" &&
+        subItem.attachmentTypeId?.Name !== "Empty Letter",
+    );
+    setFormData({ ...getData, tblAttachment: updateAttach });
+    const setReleasedAttach = getData?.tblAttachment?.filter(
+      (subItem) =>
+        subItem.attachmentTypeId?.Name === "DO Released" ||
+        subItem.attachmentTypeId?.Name === "Empty Letter",
+    );
+    setReleaseAttachment({ tblAttachmentRelease: setReleasedAttach });
   }
 
   if (invoiceSuccess && invoiceData.length > 0) {
@@ -496,21 +520,4 @@ export async function getDORequest({
   }
 
   setFieldsMode(mode.mode);
-
-  if (userData?.roleCode === "shipping") {
-    setJsonData((prev) => {
-      const updateTblAttachment = prev?.tblAttachment?.map((item) => {
-        return {
-          ...item,
-          where:
-            "m.masterListName = 'tblInvoiceAttachmentType' and m.name = 'DO Released' or m.name = 'Empty Letter'",
-        };
-      });
-
-      return {
-        ...prev,
-        tblAttachment: updateTblAttachment,
-      };
-    });
-  }
 }
