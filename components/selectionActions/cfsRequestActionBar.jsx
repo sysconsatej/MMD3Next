@@ -30,7 +30,7 @@ export default function SearchRequestToolbarActions({
 
   const ids = useMemo(
     () => (Array.isArray(selectedIds) ? selectedIds.filter(Boolean) : []),
-    [selectedIds]
+    [selectedIds],
   );
 
   const count = ids.length;
@@ -70,26 +70,28 @@ export default function SearchRequestToolbarActions({
 
       const blockedStatuses = cfsStatus.filter(
         (s) =>
-          s.Name !== "Request" &&
-          s.Name !== "Request for Amendment" &&
-          s.Name !== "Confirm"
+          s.Name === "Request" ||
+          s.Name === "Request for Amendment" ||
+          s.Name === "Confirm",
       );
 
-      const isEditDisabled = data.some((row) =>
-        blockedStatuses.some((status) => status.Id === row.cfsRequestStatusId)
+      const isEditDisabled = data?.some((row) =>
+        blockedStatuses?.some(
+          (status) => status?.Id === row?.cfsRequestStatusId,
+        ),
       );
 
       setIsDisableBtn((prev) => ({
         ...prev,
-        isEditDisable: isEditDisabled, // ✅ BOOLEAN
+        isEditDisable: isEditDisabled,
       }));
 
       const filterStatus = cfsStatus?.filter(
         (item) =>
-          item.Name !== "Reject" && item.Name !== "Confirm for Amendment"
+          item.Name !== "Reject" && item.Name !== "Confirm for Amendment",
       );
       const filterCheckReq = data?.some((item) =>
-        filterStatus?.some((status) => status.Id === item.cfsRequestStatusId)
+        filterStatus?.some((status) => status.Id === item.cfsRequestStatusId),
       );
       setIsDisableBtn((prev) => ({
         ...prev,
@@ -98,11 +100,13 @@ export default function SearchRequestToolbarActions({
 
       const filterStatusAmd = cfsStatus?.filter(
         (item) =>
-          item.Name !== "Confirm" && item.Name !== "Reject for Amendment"
+          item.Name !== "Confirm" && item.Name !== "Reject for Amendment",
       );
       const hasNonEmpty = data?.every((obj) => Object.keys(obj).length > 0);
       let filterCheckReqAmd = data?.some((item) =>
-        filterStatusAmd?.some((status) => status.Id === item.cfsRequestStatusId)
+        filterStatusAmd?.some(
+          (status) => status.Id === item.cfsRequestStatusId,
+        ),
       );
       if (!hasNonEmpty) {
         filterCheckReqAmd = true;
@@ -113,12 +117,12 @@ export default function SearchRequestToolbarActions({
       }));
 
       const filterStatusAprAndRejAmd = cfsStatus?.filter(
-        (item) => item.Name !== "Request for Amendment"
+        (item) => item.Name !== "Request for Amendment",
       );
       const filterCheckAprAndRejAmd = data?.some((item) =>
         filterStatusAprAndRejAmd?.some(
-          (status) => status.Id === item.cfsRequestStatusId
-        )
+          (status) => status.Id === item.cfsRequestStatusId,
+        ),
       );
       setIsDisableBtn((prev) => ({
         ...prev,
@@ -126,12 +130,12 @@ export default function SearchRequestToolbarActions({
       }));
 
       const filterStatusAprAndRej = cfsStatus?.filter(
-        (item) => item.Name !== "Request"
+        (item) => item.Name !== "Request",
       );
       const filterCheckAprAndRej = data?.some((item) =>
         filterStatusAprAndRej?.some(
-          (status) => status.Id === item.cfsRequestStatusId
-        )
+          (status) => status.Id === item.cfsRequestStatusId,
+        ),
       );
       setIsDisableBtn((prev) => ({
         ...prev,
@@ -172,7 +176,7 @@ export default function SearchRequestToolbarActions({
             label="Edit"
             icon={<EditIcon />}
             onClick={() => onEdit?.(ids[0])}
-            disabled={!isSingle || !isDisableBtn?.isEditDisable}
+            disabled={!isSingle || isDisableBtn?.isEditDisable}
           />
         )}
         {onRequest && (

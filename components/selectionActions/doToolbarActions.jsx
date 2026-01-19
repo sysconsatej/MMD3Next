@@ -85,7 +85,7 @@ export default function DoToolbarActions({
         (item) => item?.Name !== "Reject for DO",
       );
       const filterCheckReq = data?.some((item) =>
-        filterStatus?.some((status) => status.Id === item.doRequestStatusId),
+        filterStatus?.some((status) => status?.Id === item?.doRequestStatusId),
       );
       setIsDisableBtn((prev) => ({
         ...prev,
@@ -106,7 +106,7 @@ export default function DoToolbarActions({
       });
       const filterEditCheckReq = data?.some((item) =>
         filterEditStatus?.some(
-          (status) => status.Id === item.doRequestStatusId,
+          (status) => status?.Id === item?.doRequestStatusId,
         ),
       );
       setIsDisableBtn((prev) => ({
