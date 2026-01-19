@@ -6,12 +6,12 @@ export const doStatusHandler = (getData, router, setMode) => {
   const userData = getUserByCookies();
 
   return {
-    handleView: (id) => {
-      setMode({ mode: "view", formId: id?.[0] });
+    handleView: (id, status) => {
+      setMode({ mode: "view", formId: id?.[0], status: status });
       router.push("/invoice/doRequest");
     },
-    handleEdit: (id) => {
-      setMode({ mode: "edit", formId: id?.[0] });
+    handleEdit: (id, status) => {
+      setMode({ mode: "edit", formId: id?.[0], status: status });
       router.push("/invoice/doRequest");
     },
     handleViewBL: async (ids) => {
@@ -126,6 +126,37 @@ export const doStatusHandler = (getData, router, setMode) => {
         getData();
       }
     },
+    handleRelease: async (ids) => {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblDoStatus' and status = 1 and name = 'Released for DO'`,
+      };
+      const { data, success } = await getDataWithCondition(obj);
+      if (success) {
+        const rowsPayload = ids?.map((id) => {
+          return {
+            id: id,
+            doRequestStatusId: data?.[0]?.Id,
+            doRejectRemarks: null,
+            updatedBy: userData?.userId,
+            updatedDate: new Date(),
+          };
+        });
+
+        const res = await updateStatusRows({
+          tableName: "tblDoRequest",
+          rows: rowsPayload,
+          keyColumn: "id",
+        });
+        const { success, message } = res || {};
+        if (!success) {
+          toast.error(message || "Update failed");
+          return;
+        }
+        toast.success("DO Released successfully!");
+      }
+    },
     handleReject: async (rejectState, setRejectState) => {
       if (rejectState.value) {
         const obj = {
@@ -197,6 +228,7 @@ export function statusColor(status) {
     RequestforDO: "#4E61D3",
     ConfirmforDO: "green",
     PendingforDO: "#F4B342",
+    ReleasedforDO: "#007E6E",
   };
   return color[status];
 }
@@ -241,9 +273,8 @@ export const BlurEventFunctions = ({ formData, setFormData, jsonData }) => {
           whereCondition: `ISNULL(hblNo, mblNo) = '${blNo}' AND 1 = 1 AND shippingLineId = ${linerId}`,
         };
 
-        const { success: blSuccess, data: blData } = await getDataWithCondition(
-          blQuery
-        );
+        const { success: blSuccess, data: blData } =
+          await getDataWithCondition(blQuery);
 
         if (!blSuccess || !Array.isArray(blData) || !blData.length) {
           toast.error("BL not found for selected Liner.");
@@ -254,7 +285,7 @@ export const BlurEventFunctions = ({ formData, setFormData, jsonData }) => {
             "tblBl",
             blId,
             '["tblBlContainer"]',
-            "blId"
+            "blId",
           );
           const { result } = await fetchForm(format);
           const getData = formatDataWithForm(result, jsonData);
@@ -324,7 +355,7 @@ export const changeEventFunctions = ({ mode, setFormData, formData }) => {
                 (item) => ({
                   ...item,
                   doValidityDate: data?.[0]?.arrivalDate,
-                })
+                }),
               );
               return {
                 ...prev,
@@ -355,7 +386,7 @@ export async function requestHandler(doStatus, blNo) {
   const userData = getUserByCookies();
 
   const requestStatus = doStatus.filter(
-    (item) => item.Name === "Request for DO"
+    (item) => item.Name === "Request for DO",
   );
   const obj = {
     columns: "id",
@@ -395,13 +426,16 @@ export async function getDORequest({
   setFieldsMode,
   mode,
   jsonData,
+  setJsonData,
 }) {
+  const userData = getUserByCookies();
+
   const format = formatFetchForm(
     jsonData,
     "tblDoRequest",
     mode.formId,
     '["tblAttachment"]',
-    "doRequestId"
+    "doRequestId",
   );
   const { result } = await fetchForm(format);
   const getData = formatDataWithForm(result, jsonData);
@@ -430,7 +464,7 @@ export async function getDORequest({
       "tblBl",
       data?.[0]?.id,
       '["tblBlContainer"]',
-      "blId"
+      "blId",
     );
     const { result: result2 } = await fetchForm(format2);
     const getData2 = formatDataWithForm(result2, jsonData);
@@ -462,4 +496,21 @@ export async function getDORequest({
   }
 
   setFieldsMode(mode.mode);
+
+  if (userData?.roleCode === "shipping") {
+    setJsonData((prev) => {
+      const updateTblAttachment = prev?.tblAttachment?.map((item) => {
+        return {
+          ...item,
+          where:
+            "m.masterListName = 'tblInvoiceAttachmentType' and m.name = 'DO Released' or m.name = 'Empty Letter'",
+        };
+      });
+
+      return {
+        ...prev,
+        tblAttachment: updateTblAttachment,
+      };
+    });
+  }
 }

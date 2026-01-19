@@ -241,7 +241,7 @@ export const fieldData = {
       displayColumn: "m.name",
       searchColumn: "m.name",
       orderBy: "m.name",
-      where: "m.masterListName = 'tblInvoiceAttachmentType'",
+      where: "m.masterListName = 'tblInvoiceAttachmentType' and m.name <> 'DO Released' and m.name <> 'Empty Letter'",
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },

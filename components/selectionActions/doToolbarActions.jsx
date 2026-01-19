@@ -41,7 +41,7 @@ export default function DoToolbarActions({
       (Array.isArray(selectedIds) ? selectedIds : [])
         .map((v) => (typeof v === "string" ? v.trim() : v))
         .filter((v) => v !== "" && v !== null && v !== undefined),
-    [selectedIds]
+    [selectedIds],
   );
 
   const count = ids.length;
@@ -82,24 +82,32 @@ export default function DoToolbarActions({
       };
       const { data } = await getDataWithCondition(obj);
       const filterStatus = doStatus?.filter(
-        (item) => item?.Name !== "Reject for DO"
+        (item) => item?.Name !== "Reject for DO",
       );
       const filterCheckReq = data?.some((item) =>
-        filterStatus?.some((status) => status.Id === item.doRequestStatusId)
+        filterStatus?.some((status) => status.Id === item.doRequestStatusId),
       );
       setIsDisableBtn((prev) => ({
         ...prev,
         isRequestDisable: filterCheckReq,
       }));
 
-      const filterEditStatus = doStatus?.filter(
-        (item) =>
-          (item?.Name !== "Reject for DO" &&
-            userData?.roleCode === "customer") ||
-          (item?.Name !== "Request for DO" && userData?.roleCode === "shipping")
-      );
+      const filterEditStatus = doStatus?.filter((item) => {
+        if (userData?.roleCode === "customer") {
+          return item?.Name !== "Reject for DO";
+        }
+
+        if (userData?.roleCode === "shipping") {
+          return (
+            item?.Name !== "Request for DO" && item?.Name !== "Confirm for DO"
+          );
+        }
+        return true;
+      });
       const filterEditCheckReq = data?.some((item) =>
-        filterEditStatus?.some((status) => status.Id === item.doRequestStatusId)
+        filterEditStatus?.some(
+          (status) => status.Id === item.doRequestStatusId,
+        ),
       );
       setIsDisableBtn((prev) => ({
         ...prev,

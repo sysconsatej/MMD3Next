@@ -36,7 +36,7 @@ function createData(
   doRequestStatusId,
   doRejectRemarks,
   submittedBy,
-  id
+  id,
 ) {
   return {
     blNo,
@@ -108,7 +108,7 @@ export default function BLList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage]
+    [page, rowsPerPage],
   );
 
   const rows = blData
@@ -121,8 +121,8 @@ export default function BLList() {
           item["doRequestStatusId"],
           item["doRejectRemarks"],
           item["submittedBy"],
-          item["id"]
-        )
+          item["id"],
+        ),
       )
     : [];
 
@@ -139,7 +139,7 @@ export default function BLList() {
 
   const toggleOne = (id) => {
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
 
@@ -161,10 +161,16 @@ export default function BLList() {
         <DoToolbarActions
           selectedIds={selectedIds}
           onView={(ids) =>
-            doStatusHandler(getData, router, setMode).handleView(ids)
+            doStatusHandler(getData, router, setMode).handleView(
+              ids,
+              rows.filter((row) => row.id === ids?.[0])?.[0]?.doRequestStatusId,
+            )
           }
           onEdit={(ids) =>
-            doStatusHandler(getData, router, setMode).handleEdit(ids)
+            doStatusHandler(getData, router, setMode).handleEdit(
+              ids,
+              rows.filter((row) => row.id === ids?.[0])?.[0]?.doRequestStatusId,
+            )
           }
           onRequestDO={(ids) => doStatusHandler(getData).handleRequestDO(ids)}
         />
@@ -217,7 +223,7 @@ export default function BLList() {
                     <TableCell
                       sx={{
                         color: statusColor(
-                          row?.doRequestStatusId?.replace(/\s+/g, "")
+                          row?.doRequestStatusId?.replace(/\s+/g, ""),
                         ),
                       }}
                     >

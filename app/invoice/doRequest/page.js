@@ -19,6 +19,7 @@ import { formatFormData, getUserByCookies } from "@/utils";
 import {
   BlurEventFunctions,
   changeEventFunctions,
+  doStatusHandler,
   getDORequest,
   requestHandler,
 } from "./utils";
@@ -45,7 +46,7 @@ export default function Home() {
         companyBranchId: userData?.branchId,
       },
       mode.formId,
-      "doRequestId"
+      "doRequestId",
     );
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
@@ -95,7 +96,7 @@ export default function Home() {
   });
 
   useEffect(() => {
-    getDORequest({ setFormData, setFieldsMode, mode, jsonData });
+    getDORequest({ setFormData, setFieldsMode, mode, jsonData, setJsonData });
   }, [mode]);
 
   useEffect(() => {
@@ -199,13 +200,38 @@ export default function Home() {
                 disabled={!requestBtn}
               />
             )}
-            {userData?.roleCode === "customer" && (
+            {userData?.roleCode === "customer" &&
+              (!mode?.status || mode?.status === "Reject for DO") && (
+                <CustomButton
+                  text={"Request"}
+                  onClick={() => requestHandler(doStatus, formData?.blNo)}
+                  disabled={
+                    fieldsMode !== "view" && fieldsMode !== "edit" && requestBtn
+                  }
+                />
+              )}
+            {userData?.roleCode === "shipping" && (
               <CustomButton
-                text={"Request"}
-                onClick={() => requestHandler(doStatus, formData?.blNo)}
-                disabled={
-                  fieldsMode !== "view" && fieldsMode !== "edit" && requestBtn
-                }
+                text={"Confirm"}
+                onClick={() => {
+                  doStatusHandler(() => {}).handleConfirm([mode.formId]);
+                  setMode({
+                    mode: mode?.mode,
+                    formId: mode?.formId,
+                    status: "Confirm for DO",
+                  });
+                }}
+                disabled={mode.status === "Confirm for DO"}
+              />
+            )}
+
+            {userData?.roleCode === "shipping" && (
+              <CustomButton
+                text={"DO Release"}
+                onClick={() => {
+                  doStatusHandler().handleRelease([mode.formId]);
+                }}
+                disabled={mode.status !== "Confirm for DO"}
               />
             )}
           </Box>

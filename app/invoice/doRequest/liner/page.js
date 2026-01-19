@@ -46,7 +46,7 @@ function createData(
   stuffDestuffId,
   doStatus,
   doRejectRemarks,
-  id
+  id,
 ) {
   return {
     location,
@@ -122,7 +122,7 @@ export default function BLList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage]
+    [page, rowsPerPage],
   );
 
   const rows = blData
@@ -135,8 +135,8 @@ export default function BLList() {
           item["stuffDestuffId"],
           item["doStatus"],
           item["doRejectRemarks"],
-          item["id"]
-        )
+          item["id"],
+        ),
       )
     : [];
 
@@ -153,7 +153,7 @@ export default function BLList() {
 
   const toggleOne = (id, row) => {
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
     selectedRowClientId(row?.clientId || 1);
   };
@@ -190,10 +190,16 @@ export default function BLList() {
           <DoToolbarActions
             selectedIds={selectedIds}
             onView={(ids) =>
-              doStatusHandler(getData, router, setMode).handleView(ids)
+              doStatusHandler(getData, router, setMode).handleView(
+                ids,
+                rows.filter((row) => row.id === ids?.[0])?.[0]?.doStatus,
+              )
             }
             onEdit={(ids) =>
-              doStatusHandler(getData, router, setMode).handleEdit(ids)
+              doStatusHandler(getData, router, setMode).handleEdit(
+                ids,
+                rows.filter((row) => row.id === ids?.[0])?.[0]?.doStatus,
+              )
             }
             onViewBL={(ids) =>
               doStatusHandler(getData, router, setMode).handleViewBL(ids)
@@ -210,7 +216,7 @@ export default function BLList() {
               doStatusHandler(getData).handleGenerateDO(
                 ids,
                 setReportModalForRow,
-                setReportModalOpen
+                setReportModalOpen,
               )
             }
             // onNotify={handleNotify}
@@ -271,7 +277,7 @@ export default function BLList() {
                       <TableCell
                         sx={{
                           color: statusColor(
-                            row?.doStatus?.replace(/\s+/g, "")
+                            row?.doStatus?.replace(/\s+/g, ""),
                           ),
                         }}
                       >
