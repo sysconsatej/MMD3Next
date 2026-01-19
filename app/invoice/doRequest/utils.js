@@ -126,7 +126,7 @@ export const doStatusHandler = (getData, router, setMode) => {
         getData();
       }
     },
-    handleRelease: async (ids, releaseAttachment) => {
+    handleRelease: async (ids, releaseAttachment, submitHandler) => {
       if (releaseAttachment?.tblAttachmentRelease?.length <= 0) {
         toast.warn("Please DO Release Attach first for DO Release!");
         return;
@@ -158,6 +158,7 @@ export const doStatusHandler = (getData, router, setMode) => {
           toast.error(message || "Update failed");
           return;
         }
+        submitHandler();
         toast.success("DO Released successfully!");
       }
     },

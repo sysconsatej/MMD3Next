@@ -35,7 +35,7 @@ export default function Home() {
   const userData = getUserByCookies();
 
   const submitHandler = async (e) => {
-    e.preventDefault();
+    e?.preventDefault();
     let { tblInvoicePayment, tblBlContainer, ...restData } = formData;
 
     if (
@@ -270,6 +270,7 @@ export default function Home() {
                   doStatusHandler().handleRelease(
                     [mode.formId],
                     releaseAttachment,
+                    submitHandler,
                   );
                 }}
                 disabled={mode.status !== "Confirm for DO"}
