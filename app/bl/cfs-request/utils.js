@@ -23,9 +23,9 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
       try {
         let setWhere = "";
         if (value.Name === "Liner Empanelled CFS") {
-          setWhere = `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${formData?.shippingLineId?.Id} and p.cfsTypeId = ${value?.Id}`;
+          setWhere = `left join tblLocation l on l.id = ${userData?.location} left join tblPort p2 on p2.id = p.referencePortId left join tblCountry c on c.id = p2.countryId left join tblMasterData m2 on m2.id = p2.portTypeId and m2.name IN ('SEA PORT','INLAND PORT') join tblMasterData m on m.id = p.portTypeId and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${formData?.shippingLineId?.Id} and p.cfsTypeId = ${value?.Id} and l.name = p2.name`;
         } else {
-          setWhere = `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${formData?.shippingLineId?.Id}`;
+          setWhere = `left join tblLocation l on l.id = ${userData?.location} left join tblPort p2 on p2.id = p.referencePortId left join tblCountry c on c.id = p2.countryId left join tblMasterData m2 on m2.id = p2.portTypeId and m2.name IN ('SEA PORT','INLAND PORT') join tblMasterData m on m.id = p.portTypeId and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${formData?.shippingLineId?.Id} and p.cfsTypeId = ${value?.Id} and l.name = p2.name`;
         }
         setJsonData((prev) => {
           const updateFields = prev.fields.map((item) => {
@@ -52,7 +52,7 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
             containerIndex: null,
             name: "nominatedAreaId",
             value: null,
-          })
+          }),
         );
       } catch (error) {
         console.log("error", error);
@@ -476,13 +476,14 @@ export async function requestHandler(formData, setDisableRequest) {
       `,
     };
 
-    const { data, success, message, error } = await getDataWithCondition(
-      checkPayload
-    );
+    const { data, success, message, error } =
+      await getDataWithCondition(checkPayload);
 
     if (!success || !Array.isArray(data) || data.length === 0) {
       toast.error(
-        message || error || "CFS Request record not found. Please submit first."
+        message ||
+          error ||
+          "CFS Request record not found. Please submit first.",
       );
       return;
     }
