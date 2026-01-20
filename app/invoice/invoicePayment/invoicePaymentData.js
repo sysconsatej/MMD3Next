@@ -118,19 +118,19 @@ const fieldData = {
       isEdit: true,
       required: true,
     },
-    {
-      label: "Inv Tds Amt",
-      name: "tdsAmount",
-      type: "number",
-      isEdit: true,
-    },
-    {
-      label: "Inv Payable Amt",
-      name: "invoicePayableAmount",
-      type: "number",
-      required: true,
-      disabled: true,
-    },
+    // {
+    //   label: "Inv Tds Amt",
+    //   name: "tdsAmount",
+    //   type: "number",
+    //   isEdit: true,
+    // },
+    // {
+    //   label: "Inv Payable Amt",
+    //   name: "invoicePayableAmount",
+    //   type: "number",
+    //   required: true,
+    //   disabled: true,
+    // },
   ],
 
   // Uploads (HBL-style grid)

@@ -15,6 +15,12 @@ const fieldData = {
       isEdit: true,
     },
     {
+      label: "TDS Amount",
+      name: "tdsAmount",
+      type: "number",
+      isEdit: true,
+    },
+    {
       label: "Amount",
       name: "Amount",
       type: "number",
@@ -62,7 +68,7 @@ const fieldData = {
       displayColumn: "m.name",
       searchColumn: "m.name",
       orderBy: "m.name",
-      where: "m.masterListName = 'tblPaymentType'",
+      where: "m.masterListName = 'tblPaymentType' and m.name <> 'Receipt'",
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },

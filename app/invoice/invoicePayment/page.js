@@ -241,7 +241,7 @@ export default function InvoicePayment() {
           await setInvoiceRequestId(typedBlNo);
         } else {
           // ❌ BL NOT EXISTS → save ONLY blNo
-          toast.info("BL not found. Saving BL No only.");
+          toast.info("BL not found. Please check the number entered.");
 
           await setInvoiceRequestId(typedBlNo);
 
@@ -359,34 +359,34 @@ export default function InvoicePayment() {
     fetchInvoiceData();
   }, [mode.formId, mode.mode, data, loadBlContainersByBlId]);
 
-  useEffect(() => {
-    if (!Array.isArray(formData?.tblInvoice)) return;
+  // useEffect(() => {
+  //   if (!Array.isArray(formData?.tblInvoice)) return;
 
-    let updated = false;
+  //   let updated = false;
 
-    const nextInvoices = formData.tblInvoice.map((inv) => {
-      const invAmt = Number(inv?.totalInvoiceAmount) || 0;
-      const tdsAmt = Number(inv?.tdsAmount) || 0;
-      const payable = invAmt - tdsAmt;
+  //   const nextInvoices = formData.tblInvoice.map((inv) => {
+  //     const invAmt = Number(inv?.totalInvoiceAmount) || 0;
+  //     const tdsAmt = Number(inv?.tdsAmount) || 0;
+  //     const payable = invAmt - tdsAmt;
 
-      // prevent infinite loop
-      if (Number(inv?.invoicePayableAmount) !== payable) {
-        updated = true;
-        return {
-          ...inv,
-          invoicePayableAmount: payable,
-        };
-      }
-      return inv;
-    });
+  //     // prevent infinite loop
+  //     if (Number(inv?.invoicePayableAmount) !== payable) {
+  //       updated = true;
+  //       return {
+  //         ...inv,
+  //         invoicePayableAmount: payable,
+  //       };
+  //     }
+  //     return inv;
+  //   });
 
-    if (updated) {
-      setFormData((prev) => ({
-        ...prev,
-        tblInvoice: nextInvoices,
-      }));
-    }
-  }, [formData?.tblInvoice]);
+  //   if (updated) {
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       tblInvoice: nextInvoices,
+  //     }));
+  //   }
+  // }, [formData?.tblInvoice]);
 
   const submitHandler = async (e) => {
     e.preventDefault();

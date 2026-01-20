@@ -58,7 +58,7 @@ function createData(
   remark,
   status,
   invoicePaymentId,
-  isEdit
+  isEdit,
 ) {
   return {
     id,
@@ -105,7 +105,7 @@ export default function InvoicePaymentList() {
   const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
   const toggleOne = (id) =>
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
 
   // === FETCH DATA ===
@@ -118,7 +118,7 @@ export default function InvoicePaymentList() {
     ir.blNo AS blNo,
     STRING_AGG(i.invoiceNo, ', ') AS invoiceNos,
     CONVERT(VARCHAR, MAX(i.invoiceDate), 103) AS latestInvoiceDate,
-    SUM(i.invoicePayableAmount) AS totalInvoiceAmount,
+    SUM(i.totalInvoiceAmount) AS totalInvoiceAmount,
     c.name AS beneficiary,
     MAX(cat.name) AS category,
     MAX(ipAgg.remarks) AS remark,
@@ -176,8 +176,8 @@ export default function InvoicePaymentList() {
             item["remark"],
             item["status"],
             item["invoicePaymentId"],
-            item["isEdit"]
-          )
+            item["isEdit"],
+          ),
         );
 
         setRows(mapped);
@@ -191,7 +191,7 @@ export default function InvoicePaymentList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch]
+    [page, rowsPerPage, advanceSearch],
   );
 
   useEffect(() => {
@@ -212,7 +212,7 @@ export default function InvoicePaymentList() {
       setMode({ mode: mode || null, formId });
       router.push("/invoice/invoicePayment");
     },
-    [router, setMode, rows]
+    [router, setMode, rows],
   );
 
   // === PAY DISABLE LOGIC ===
@@ -270,15 +270,13 @@ export default function InvoicePaymentList() {
 
       // ✅ SINGLE SOURCE OF TRUTH
       router.push(
-        `/invoice/invoicePayment/payment?blNo=${encodeURIComponent(blNo)}`
+        `/invoice/invoicePayment/payment?blNo=${encodeURIComponent(blNo)}`,
       );
     } catch (err) {
       console.error("Error opening payment page:", err);
       toast.error("Unable to open payment page.");
     }
   };
-
-  console.log('rows', rows);
 
   return (
     <ThemeProvider theme={theme}>

@@ -73,7 +73,7 @@ export default function PaymentPage() {
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
     setFormData((prev) =>
-      prev.referenceDate ? prev : { ...prev, referenceDate: today }
+      prev.referenceDate ? prev : { ...prev, referenceDate: today },
     );
   }, []);
 
@@ -90,7 +90,7 @@ export default function PaymentPage() {
         const { success, data } = await getDataWithCondition(obj);
         if (success && Array.isArray(data)) {
           const neftRow = data.find(
-            (x) => String(x.Name || "").toLowerCase() === "neft"
+            (x) => String(x.Name || "").toLowerCase() === "neft",
           );
           if (neftRow) {
             setFormData((prev) =>
@@ -99,7 +99,7 @@ export default function PaymentPage() {
                 : {
                     ...prev,
                     paymentTypeId: { Id: neftRow.Id, Name: neftRow.Name },
-                  }
+                  },
             );
           }
         }
@@ -125,7 +125,7 @@ export default function PaymentPage() {
             i.id AS invoiceId,
             i.invoiceNo,
             CONVERT(VARCHAR, i.invoiceDate, 103) AS invoiceDate,
-            i.invoicePayableAmount,
+            i.totalInvoiceAmount,
             i.remarks,
             cat.name AS invoiceCategory,
             i.blNo AS blNo,
@@ -169,7 +169,7 @@ export default function PaymentPage() {
     const row = statusList.find(
       (s) =>
         s.Name?.toLowerCase().trim() ===
-        "Payment Confirmation Requested".toLowerCase()
+        "Payment Confirmation Requested".toLowerCase(),
     );
 
     return row?.Id || null;
@@ -180,7 +180,7 @@ export default function PaymentPage() {
     setSelectedInvoiceIds((prev) =>
       prev.includes(invoiceId)
         ? prev.filter((id) => id !== invoiceId)
-        : [...prev, invoiceId]
+        : [...prev, invoiceId],
     );
   };
 
@@ -201,16 +201,33 @@ export default function PaymentPage() {
   };
 
   // 🔹 NEW: keep Amount in formData = total of selected invoices
-  useEffect(() => {
-    const total = invoices
-      .filter((inv) => selectedInvoiceIds.includes(inv.invoiceId))
-      .reduce((sum, inv) => sum + Number(inv.invoicePayableAmount || 0), 0);
+  // useEffect(() => {
+  //   const total = invoices
+  //     .filter((inv) => selectedInvoiceIds.includes(inv.invoiceId))
+  //     .reduce((sum, inv) => sum + Number(inv.totalInvoiceAmount || 0), 0);
 
-    setFormData((prev) => ({
-      ...prev,
-      Amount: total.toFixed(2),
-    }));
-  }, [invoices, selectedInvoiceIds]);
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     Amount: total.toFixed(2),
+  //   }));
+  // }, [invoices, selectedInvoiceIds]);
+  useEffect(() => {
+    const totalInvoiceAmount = invoices
+      .filter((inv) => selectedInvoiceIds.includes(inv.invoiceId))
+      .reduce((sum, inv) => sum + Number(inv.totalInvoiceAmount || 0), 0);
+
+    const tds = Number(formData?.tdsAmount || 0);
+    const netAmount = totalInvoiceAmount - tds;
+
+    const finalAmount = netAmount >= 0 ? netAmount : 0;
+
+    if (Number(formData?.Amount) !== Number(finalAmount.toFixed(2))) {
+      setFormData((prev) => ({
+        ...prev,
+        Amount: finalAmount.toFixed(2),
+      }));
+    }
+  }, [invoices, selectedInvoiceIds, formData?.tdsAmount]);
 
   // 🟢 Handle modal close
   const handleClosePay = () => {
@@ -224,7 +241,7 @@ export default function PaymentPage() {
   const quickPayHandler = async () => {
     try {
       const selectedInvoices = invoices.filter((inv) =>
-        selectedInvoiceIds.includes(inv.invoiceId)
+        selectedInvoiceIds.includes(inv.invoiceId),
       );
 
       if (!selectedInvoices.length) {
@@ -237,8 +254,8 @@ export default function PaymentPage() {
       setIframeError(false);
 
       const totalAmount = selectedInvoices.reduce(
-        (sum, inv) => sum + Number(inv.invoicePayableAmount || 0),
-        0
+        (sum, inv) => sum + Number(inv.totalInvoiceAmount || 0),
+        0,
       );
 
       const res = await payment(totalAmount.toFixed(2));
@@ -263,7 +280,7 @@ export default function PaymentPage() {
     e.preventDefault();
 
     const selectedInvoices = invoices.filter((inv) =>
-      selectedInvoiceIds.includes(inv.invoiceId)
+      selectedInvoiceIds.includes(inv.invoiceId),
     );
 
     if (selectedInvoices.length === 0) {
@@ -280,6 +297,12 @@ export default function PaymentPage() {
 
     if (emptyFields.length > 0) {
       toast.error("Please fill all required fields");
+      return;
+    }
+
+    // 🔴 TDS validation (ADD HERE)
+    if (Number(formData?.tdsAmount || 0) > Number(formData?.Amount || 0)) {
+      toast.error("TDS amount cannot be greater than Total amount");
       return;
     }
 
@@ -313,7 +336,7 @@ export default function PaymentPage() {
         "tblInvoicePayment",
         normalized,
         null,
-        "invoicePaymentId"
+        "invoicePaymentId",
       );
 
       const { success, message, error } = await insertUpdateForm(payload);
@@ -335,7 +358,7 @@ export default function PaymentPage() {
   // ✅ Total only from selected invoices
   const grandTotal = invoices
     .filter((inv) => selectedInvoiceIds.includes(inv.invoiceId))
-    .reduce((sum, inv) => sum + Number(inv.invoicePayableAmount || 0), 0);
+    .reduce((sum, inv) => sum + Number(inv.totalInvoiceAmount || 0), 0);
 
   return (
     <ThemeProvider theme={theme}>
@@ -409,7 +432,7 @@ export default function PaymentPage() {
                             <Checkbox
                               size="small"
                               checked={selectedInvoiceIds.includes(
-                                inv.invoiceId
+                                inv.invoiceId,
                               )}
                               onChange={() => toggleInvoice(inv.invoiceId)}
                             />
@@ -422,7 +445,7 @@ export default function PaymentPage() {
                             {inv.invoiceCategory}
                           </td>
                           <td className="border px-3 py-2 text-right">
-                            ₹{inv.invoicePayableAmount}
+                            ₹{inv.totalInvoiceAmount}
                           </td>
                           <td className="border px-3 py-2">
                             {inv.remarks || "-"}
@@ -490,7 +513,7 @@ export default function PaymentPage() {
                             <Checkbox
                               size="small"
                               checked={selectedInvoiceIds.includes(
-                                inv.invoiceId
+                                inv.invoiceId,
                               )}
                               onChange={() => toggleInvoice(inv.invoiceId)}
                             />
@@ -503,7 +526,7 @@ export default function PaymentPage() {
                             {inv.invoiceCategory}
                           </td>
                           <td className="border px-3 py-2 text-right">
-                            ₹{inv.invoicePayableAmount}
+                            ₹{inv.totalInvoiceAmount}
                           </td>
                           <td className="border px-3 py-2">
                             {inv.remarks || "-"}
