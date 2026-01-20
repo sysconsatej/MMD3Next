@@ -32,6 +32,7 @@ function createData(
   ediPortCode,
   ediCommonTerminalCode,
   referencePort,
+  cfsType,
   updatedBy,
   updateDate,
   id,
@@ -43,6 +44,7 @@ function createData(
     ediPortCode,
     ediCommonTerminalCode,
     referencePort,
+    cfsType,
     updatedBy,
     updateDate,
     id,
@@ -66,13 +68,14 @@ export default function CfsList() {
       try {
         const tableObj = {
           columns:
-            "p.code code,p.name name,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,ref.name referencePort,u.name updatedBy,p.updatedDate updateDate,p.id",
+            "p.code code,p.name name,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,ref.name referencePort,cfsType.name cfsType,u.name updatedBy,p.updatedDate updateDate,p.id",
           tableName: "tblPort p ",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
           joins: `join tblMasterData m on m.id = p.portTypeId and m.name = 'CONTAINER FREIGHT STATION'  and masterListName = 'tblPortType' and p.companyId = ${userData?.companyId} left join tblUser u on u.id = p.updatedBy left join tblPort ref on p.referencePortId =ref.id
+                  left join tblMasterData cfsType on cfsType.id=p.cfsTypeId
 `,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
@@ -104,6 +107,7 @@ export default function CfsList() {
           item["ediPortCode"],
           item["ediCommonTerminalCode"],
           item["referencePort"],
+          item["cfsType"],
           item["updatedBy"],
           item["updateDate"],
           item["id"],
@@ -178,6 +182,7 @@ export default function CfsList() {
                 <TableCell>Custom code</TableCell>
                 <TableCell>EDI Common Terminal Code</TableCell>
                 <TableCell>Reference Port</TableCell>
+                <TableCell>CFS Type</TableCell>
                 <TableCell>Updated By</TableCell>
                 <TableCell>Updated Date</TableCell>
               </TableRow>
@@ -192,6 +197,7 @@ export default function CfsList() {
                     <TableCell>{row.ediPortCode}</TableCell>
                     <TableCell>{row.ediCommonTerminalCode}</TableCell>
                     <TableCell>{row.referencePort}</TableCell>
+                    <TableCell>{row.cfsType}</TableCell>
                     <TableCell>{row.updatedBy}</TableCell>
                     <TableCell>{row.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
