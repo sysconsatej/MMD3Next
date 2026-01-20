@@ -119,6 +119,7 @@ export const cfs = [
   { label: "Bond No", value: "p.bondNo" },
   { label: "Address", value: "p.address" },
   { label: "Reference Port", value: "ref.name" },
+  { label: "CFS Type", value: "cfsType.name" },
 ];
 
 export default fieldData;
