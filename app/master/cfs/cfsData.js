@@ -118,6 +118,7 @@ export const cfs = [
   { label: "Terminal Code", value: "p.ediCommonTerminalCode" },
   { label: "Bond No", value: "p.bondNo" },
   { label: "Address", value: "p.address" },
+  { label: "Reference Port", value: "ref.name" },
 ];
 
 export default fieldData;
