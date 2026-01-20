@@ -31,7 +31,6 @@ const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblCountry",
       isEdit: true,
-      required: true,
     },
     // coomented out
     // {
