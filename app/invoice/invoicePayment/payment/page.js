@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   ThemeProvider,
@@ -16,11 +16,16 @@ import {
   CircularProgress,
   Button,
   Checkbox,
+  TextField,
 } from "@mui/material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { ToastContainer, toast } from "react-toastify";
 import { theme } from "@/styles";
-import { getDataWithCondition, insertUpdateForm } from "@/apis";
+import {
+  getDataWithCondition,
+  insertUpdateForm,
+  updateStatusRows,
+} from "@/apis"; // ✅ add updateStatusRows
 import { payment } from "@/apis/payment";
 import { formatFormData, getUserByCookies } from "@/utils";
 import { CustomInput } from "@/components/customInput";
@@ -42,10 +47,9 @@ export default function PaymentPage() {
   const [statusList, setStatusList] = useState([]);
   const userData = getUserByCookies();
 
-  // ✅ selected invoices for payment
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState([]);
+  const [invoiceEdits, setInvoiceEdits] = useState({});
 
-  // 🟢 Payment Modal States
   const [paying, setPaying] = useState(false);
   const [payOpen, setPayOpen] = useState(false);
   const [payUrl, setPayUrl] = useState(null);
@@ -64,20 +68,20 @@ export default function PaymentPage() {
       };
 
       const { success, data } = await getDataWithCondition(obj);
-      if (success) setStatusList(data);
+      if (success) setStatusList(data || []);
     }
     fetchStatus();
   }, []);
 
-  // 🔹 NEW: set default Instrument Date = today on first load
+  // default Instrument Date = today
   useEffect(() => {
-    const today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
+    const today = new Date().toISOString().slice(0, 10);
     setFormData((prev) =>
-      prev.referenceDate ? prev : { ...prev, referenceDate: today }
+      prev.referenceDate ? prev : { ...prev, referenceDate: today },
     );
   }, []);
 
-  // 🔹 NEW: set default Payment Type = NEFT
+  // default Payment Type = NEFT
   useEffect(() => {
     async function setDefaultPaymentType() {
       try {
@@ -90,7 +94,10 @@ export default function PaymentPage() {
         const { success, data } = await getDataWithCondition(obj);
         if (success && Array.isArray(data)) {
           const neftRow = data.find(
-            (x) => String(x.Name || "").toLowerCase() === "neft"
+            (x) =>
+              String(x.Name || "")
+                .toLowerCase()
+                .trim() === "neft",
           );
           if (neftRow) {
             setFormData((prev) =>
@@ -99,7 +106,7 @@ export default function PaymentPage() {
                 : {
                     ...prev,
                     paymentTypeId: { Id: neftRow.Id, Name: neftRow.Name },
-                  }
+                  },
             );
           }
         }
@@ -110,7 +117,7 @@ export default function PaymentPage() {
     setDefaultPaymentType();
   }, []);
 
-  // 🧭 Fetch all invoices for current BL ID
+  // Fetch invoices
   useEffect(() => {
     async function fetchInvoices() {
       if (!blNo) {
@@ -120,19 +127,23 @@ export default function PaymentPage() {
       }
 
       try {
+        setLoading(true);
+
         const query = {
           columns: `
             i.id AS invoiceId,
             i.invoiceNo,
             CONVERT(VARCHAR, i.invoiceDate, 103) AS invoiceDate,
-            i.invoicePayableAmount,
+            i.totalInvoiceAmount,
             i.remarks,
             cat.name AS invoiceCategory,
             i.blNo AS blNo,
             c.name AS beneficiaryName,
             i.blId AS blId,
             i.shippingLineId as beneficiaryId,
-            i.invoiceRequestId as invoiceRequestId
+            i.invoiceRequestId as invoiceRequestId,
+            ISNULL(i.tdsAmount, 0) AS tdsAmount,
+            ISNULL(i.invoicePayableAmount, 0) AS invoicePayableAmount
           `,
           tableName: "tblInvoice i",
           joins: `
@@ -142,14 +153,37 @@ export default function PaymentPage() {
           whereCondition: `i.blNo = '${blNo}' AND i.invoicePaymentId IS NULL AND ISNULL(i.status,1)=1`,
         };
 
-        const { data, success } = await getDataWithCondition(query);
+        const res = await getDataWithCondition(query);
+        const { data, success } = res || {};
 
         if (success && Array.isArray(data) && data.length > 0) {
           const sorted = data.sort((a, b) => b.invoiceId - a.invoiceId);
           setInvoices(sorted);
-          // ✅ by default select all invoices
           setSelectedInvoiceIds(sorted.map((inv) => inv.invoiceId));
+
+          const nextEdits = {};
+          sorted.forEach((inv) => {
+            const total = Number(inv.totalInvoiceAmount || 0);
+            const dbTds = Number(inv.tdsAmount || 0);
+            const dbPayable = Number(inv.invoicePayableAmount || 0);
+
+            let payable = dbPayable;
+            let tds = dbTds;
+
+            if (!dbPayable && total > 0) payable = Math.max(0, total - dbTds);
+            if (dbPayable && total >= 0) tds = Math.max(0, total - dbPayable);
+
+            nextEdits[inv.invoiceId] = {
+              tdsAmount: Number.isFinite(tds) ? tds : 0,
+              payableAmount: Number.isFinite(payable) ? payable : total,
+            };
+          });
+
+          setInvoiceEdits(nextEdits);
         } else {
+          setInvoices([]);
+          setSelectedInvoiceIds([]);
+          setInvoiceEdits({});
           toast.warn("No invoices found for this BL.");
         }
       } catch (err) {
@@ -168,19 +202,19 @@ export default function PaymentPage() {
 
     const row = statusList.find(
       (s) =>
-        s.Name?.toLowerCase().trim() ===
-        "Payment Confirmation Requested".toLowerCase()
+        String(s.Name || "")
+          .toLowerCase()
+          .trim() === "payment confirmation requested".toLowerCase(),
     );
-
     return row?.Id || null;
   };
 
-  // ✅ Checkbox helpers
+  // Checkbox helpers
   const toggleInvoice = (invoiceId) => {
     setSelectedInvoiceIds((prev) =>
       prev.includes(invoiceId)
         ? prev.filter((id) => id !== invoiceId)
-        : [...prev, invoiceId]
+        : [...prev, invoiceId],
     );
   };
 
@@ -193,26 +227,89 @@ export default function PaymentPage() {
     selectedInvoiceIds.length > 0 && !allSelectedOnPage;
 
   const toggleAllOnPage = () => {
-    if (allSelectedOnPage) {
-      setSelectedInvoiceIds([]);
-    } else {
-      setSelectedInvoiceIds(invoices.map((inv) => inv.invoiceId));
-    }
+    if (allSelectedOnPage) setSelectedInvoiceIds([]);
+    else setSelectedInvoiceIds(invoices.map((inv) => inv.invoiceId));
   };
 
-  // 🔹 NEW: keep Amount in formData = total of selected invoices
-  useEffect(() => {
-    const total = invoices
-      .filter((inv) => selectedInvoiceIds.includes(inv.invoiceId))
-      .reduce((sum, inv) => sum + Number(inv.invoicePayableAmount || 0), 0);
+  const safeNum = (v) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  };
 
-    setFormData((prev) => ({
+  const setInvoiceRowEdit = (invoiceId, patch) => {
+    setInvoiceEdits((prev) => ({
       ...prev,
-      Amount: total.toFixed(2),
+      [invoiceId]: {
+        ...(prev[invoiceId] || { tdsAmount: 0, payableAmount: 0 }),
+        ...patch,
+      },
     }));
-  }, [invoices, selectedInvoiceIds]);
+  };
 
-  // 🟢 Handle modal close
+  const onTdsChange = (invoiceId, rawValue) => {
+    const inv = invoices.find((x) => x.invoiceId === invoiceId);
+    const total = safeNum(inv?.totalInvoiceAmount);
+    let tds = safeNum(rawValue);
+
+    if (tds < 0) tds = 0;
+    if (tds > total) tds = total;
+
+    const payable = Math.max(0, total - tds);
+    setInvoiceRowEdit(invoiceId, { tdsAmount: tds, payableAmount: payable });
+  };
+
+  const onPayableChange = (invoiceId, rawValue) => {
+    const inv = invoices.find((x) => x.invoiceId === invoiceId);
+    const total = safeNum(inv?.totalInvoiceAmount);
+    let payable = safeNum(rawValue);
+
+    if (payable < 0) payable = 0;
+    if (payable > total) payable = total;
+
+    const tds = Math.max(0, total - payable);
+    setInvoiceRowEdit(invoiceId, { payableAmount: payable, tdsAmount: tds });
+  };
+
+  const totals = useMemo(() => {
+    const selected = invoices.filter((inv) =>
+      selectedInvoiceIds.includes(inv.invoiceId),
+    );
+
+    const totalInvoiceAmount = selected.reduce(
+      (sum, inv) => sum + safeNum(inv.totalInvoiceAmount),
+      0,
+    );
+
+    const totalTds = selected.reduce((sum, inv) => {
+      const row = invoiceEdits[inv.invoiceId];
+      return sum + safeNum(row?.tdsAmount);
+    }, 0);
+
+    const totalPayable = selected.reduce((sum, inv) => {
+      const row = invoiceEdits[inv.invoiceId];
+      const payable = row
+        ? safeNum(row.payableAmount)
+        : safeNum(inv.totalInvoiceAmount);
+      return sum + payable;
+    }, 0);
+
+    return { totalInvoiceAmount, totalTds, totalPayable };
+  }, [invoices, selectedInvoiceIds, invoiceEdits]);
+
+  // keep offline form Amount + tdsAmount synced
+  useEffect(() => {
+    const nextAmount = Number(totals.totalPayable || 0).toFixed(2);
+    const nextTds = Number(totals.totalTds || 0).toFixed(2);
+
+    setFormData((prev) => {
+      const curAmt = String(prev?.Amount ?? "");
+      const curTds = String(prev?.tdsAmount ?? "");
+      if (curAmt === nextAmount && curTds === nextTds) return prev;
+      return { ...prev, Amount: nextAmount, tdsAmount: nextTds };
+    });
+  }, [totals.totalPayable, totals.totalTds]);
+
+  // modal close
   const handleClosePay = () => {
     setPayOpen(false);
     setPayUrl(null);
@@ -220,11 +317,57 @@ export default function PaymentPage() {
     setIframeError(false);
   };
 
-  // 🟢 Online payment logic
+  // ✅ validate edits
+  const validateSelectedInvoices = (selectedInvoices) => {
+    for (const inv of selectedInvoices) {
+      const total = safeNum(inv.totalInvoiceAmount);
+      const row = invoiceEdits[inv.invoiceId] || {};
+      const tds = safeNum(row.tdsAmount);
+      const payable = safeNum(row.payableAmount);
+
+      if (tds > total) {
+        toast.error(
+          `TDS cannot be greater than Total for invoice ${inv.invoiceNo}`,
+        );
+        return false;
+      }
+      if (payable < 0 || payable > total) {
+        toast.error(`Payable invalid for invoice ${inv.invoiceNo}`);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  // ✅ IMPORTANT: persist edits to tblInvoice using updateStatusRows
+  const persistInvoiceEdits = async (selectedInvoices) => {
+    const rows = selectedInvoices.map((inv) => {
+      const row = invoiceEdits[inv.invoiceId] || {};
+      return {
+        id: inv.invoiceId, // keyColumn = id
+        tdsAmount: Number(safeNum(row.tdsAmount)).toFixed(2),
+        invoicePayableAmount: Number(safeNum(row.payableAmount)).toFixed(2),
+      };
+    });
+
+    const res = await updateStatusRows({
+      tableName: "tblInvoice",
+      rows,
+      keyColumn: "id",
+    });
+
+    if (!res?.success) {
+      toast.error(res?.error || res?.message || "Failed to update invoices.");
+      return false;
+    }
+    return true;
+  };
+
+  // ✅ ONLINE: update tblInvoice then create payment link
   const quickPayHandler = async () => {
     try {
       const selectedInvoices = invoices.filter((inv) =>
-        selectedInvoiceIds.includes(inv.invoiceId)
+        selectedInvoiceIds.includes(inv.invoiceId),
       );
 
       if (!selectedInvoices.length) {
@@ -232,16 +375,20 @@ export default function PaymentPage() {
         return;
       }
 
+      if (!validateSelectedInvoices(selectedInvoices)) return;
+
       setPaying(true);
       setIframeLoaded(false);
       setIframeError(false);
 
-      const totalAmount = selectedInvoices.reduce(
-        (sum, inv) => sum + Number(inv.invoicePayableAmount || 0),
-        0
-      );
+      // ✅ 1) update tblInvoice first
+      const ok = await persistInvoiceEdits(selectedInvoices);
+      if (!ok) return;
 
-      const res = await payment(totalAmount.toFixed(2));
+      // ✅ 2) start online payment with PAYABLE total
+      const payableTotal = totals.totalPayable || 0;
+      const res = await payment(Number(payableTotal).toFixed(2));
+
       const link =
         res?.data?.link || res?.data?.url || res?.link || res?.url || null;
 
@@ -259,19 +406,19 @@ export default function PaymentPage() {
     }
   };
 
+  // ✅ OFFLINE: update tblInvoice then insert tblInvoicePayment
   const handleOfflineSubmit = async (e) => {
     e.preventDefault();
 
     const selectedInvoices = invoices.filter((inv) =>
-      selectedInvoiceIds.includes(inv.invoiceId)
+      selectedInvoiceIds.includes(inv.invoiceId),
     );
 
-    if (selectedInvoices.length === 0) {
+    if (!selectedInvoices.length) {
       toast.warn("Please select at least one invoice for offline payment.");
       return;
     }
 
-    // Validate required offline payment fields
     const requiredFields = data.paymentOfflineFields.filter((f) => f.required);
     const emptyFields = requiredFields.filter((f) => {
       const val = formData[f.name];
@@ -283,9 +430,9 @@ export default function PaymentPage() {
       return;
     }
 
-    // 🔥 Get Payment Confirmation Requested Status ID
-    const paymentStatusId = getRequestedStatusId();
+    if (!validateSelectedInvoices(selectedInvoices)) return;
 
+    const paymentStatusId = getRequestedStatusId();
     if (!paymentStatusId) {
       toast.error("Payment status not found in master data.");
       return;
@@ -294,6 +441,11 @@ export default function PaymentPage() {
     try {
       setLoading(true);
 
+      // ✅ 1) update tblInvoice first
+      const ok = await persistInvoiceEdits(selectedInvoices);
+      if (!ok) return;
+
+      // ✅ 2) insert tblInvoicePayment
       const invoiceIds = selectedInvoices.map((inv) => inv.invoiceId).join(",");
 
       const normalized = {
@@ -304,7 +456,7 @@ export default function PaymentPage() {
         invoiceIds,
         paymentStatusId,
         companyId: userData?.companyId,
-        companyBranchId: userData?.branchId, // 🔥 status = Payment Confirmation Requested
+        companyBranchId: userData?.branchId,
         locationId: userData?.location || null,
         invoiceRequestId: selectedInvoices[0]?.invoiceRequestId || null,
       };
@@ -313,7 +465,7 @@ export default function PaymentPage() {
         "tblInvoicePayment",
         normalized,
         null,
-        "invoicePaymentId"
+        "invoicePaymentId",
       );
 
       const { success, message, error } = await insertUpdateForm(payload);
@@ -321,6 +473,7 @@ export default function PaymentPage() {
       if (success) {
         toast.success(message || "Offline payment submitted!");
         setFormData({});
+        setSelectedInvoiceIds([]);
       } else {
         toast.error(error || message || "Failed to submit offline payment.");
       }
@@ -332,10 +485,103 @@ export default function PaymentPage() {
     }
   };
 
-  // ✅ Total only from selected invoices
-  const grandTotal = invoices
-    .filter((inv) => selectedInvoiceIds.includes(inv.invoiceId))
-    .reduce((sum, inv) => sum + Number(inv.invoicePayableAmount || 0), 0);
+  const renderInvoiceTable = () => {
+    return (
+      <Box className="overflow-x-auto mt-3">
+        <table className="w-full border text-sm">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border px-3 py-2 text-center">
+                <Checkbox
+                  size="small"
+                  checked={allSelectedOnPage}
+                  indeterminate={someSelectedOnPage}
+                  onChange={toggleAllOnPage}
+                />
+              </th>
+              <th className="border px-3 py-2 text-left">Invoice No</th>
+              <th className="border px-3 py-2 text-left">Date</th>
+              <th className="border px-3 py-2 text-left">Category</th>
+              <th className="border px-3 py-2 text-right">Total (INR)</th>
+              <th className="border px-3 py-2 text-right">TDS (INR)</th>
+              <th className="border px-3 py-2 text-right">Payable (INR)</th>
+              <th className="border px-3 py-2 text-left">Remarks</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {invoices.map((inv) => {
+              const row = invoiceEdits[inv.invoiceId] || {
+                tdsAmount: 0,
+                payableAmount: safeNum(inv.totalInvoiceAmount),
+              };
+
+              const isSelected = selectedInvoiceIds.includes(inv.invoiceId);
+              const total = safeNum(inv.totalInvoiceAmount);
+
+              return (
+                <tr
+                  key={inv.invoiceId}
+                  className={isSelected ? "bg-blue-50/40" : ""}
+                >
+                  <td className="border px-3 py-2 text-center">
+                    <Checkbox
+                      size="small"
+                      checked={isSelected}
+                      onChange={() => toggleInvoice(inv.invoiceId)}
+                    />
+                  </td>
+
+                  <td className="border px-3 py-2">{inv.invoiceNo}</td>
+                  <td className="border px-3 py-2">{inv.invoiceDate}</td>
+                  <td className="border px-3 py-2">{inv.invoiceCategory}</td>
+                  <td className="border px-3 py-2 text-right">
+                    ₹{total.toFixed(2)}
+                  </td>
+
+                  <td className="border px-3 py-2 text-right">
+                    <TextField
+                      size="small"
+                      type="number"
+                      value={row.tdsAmount}
+                      onChange={(e) =>
+                        onTdsChange(inv.invoiceId, e.target.value)
+                      }
+                      inputProps={{ min: 0, step: "0.01" }}
+                      sx={{
+                        width: 130,
+                        "& input": { textAlign: "right", padding: "6px 10px" },
+                      }}
+                      disabled={!isSelected}
+                    />
+                  </td>
+
+                  <td className="border px-3 py-2 text-right">
+                    <TextField
+                      size="small"
+                      type="number"
+                      value={row.payableAmount}
+                      onChange={(e) =>
+                        onPayableChange(inv.invoiceId, e.target.value)
+                      }
+                      inputProps={{ min: 0, step: "0.01" }}
+                      sx={{
+                        width: 140,
+                        "& input": { textAlign: "right", padding: "6px 10px" },
+                      }}
+                      disabled={!isSelected}
+                    />
+                  </td>
+
+                  <td className="border px-3 py-2">{inv.remarks || "-"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </Box>
+    );
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -355,7 +601,6 @@ export default function PaymentPage() {
           <Typography>No invoices available for this BL.</Typography>
         ) : (
           <>
-            {/* 🔹 Header Info */}
             <Paper className="border rounded-md p-4 mb-4 bg-gray-50">
               <Typography variant="body2" className="mb-1">
                 <b>BL No:</b> {invoices[0].blNo}
@@ -363,81 +608,37 @@ export default function PaymentPage() {
               <Typography variant="body2" className="mb-1">
                 <b>Beneficiary:</b> {invoices[0].beneficiaryName}
               </Typography>
+
+              <Typography variant="body2" className="mb-1">
+                <b>Total (Selected):</b> ₹
+                {Number(totals.totalInvoiceAmount || 0).toFixed(2)}
+              </Typography>
+              <Typography variant="body2" className="mb-1">
+                <b>TDS (Selected):</b> ₹
+                {Number(totals.totalTds || 0).toFixed(2)}
+              </Typography>
               <Typography variant="body2">
-                <b>Total Amount:</b> ₹{grandTotal.toFixed(2)}
+                <b>Payable (Selected):</b> ₹
+                {Number(totals.totalPayable || 0).toFixed(2)}
               </Typography>
             </Paper>
 
-            {/* 🔹 Tabs */}
             <Tabs value={tabValue} onChange={handleChangeTab}>
               <Tab label="Pay Online" />
               <Tab label="Pay Offline" />
             </Tabs>
 
-            {/* === Pay Online Section === */}
             {tabValue === 0 && (
               <Box className="mt-4 border rounded-md bg-white shadow-sm p-4">
                 <FormHeading text="Pay Online" variant="body2" />
 
-                <Box className="overflow-x-auto mt-3">
-                  <table className="w-full border text-sm">
-                    <thead className="bg-gray-100">
-                      <tr>
-                        <th className="border px-3 py-2 text-center">
-                          <Checkbox
-                            size="small"
-                            checked={allSelectedOnPage}
-                            indeterminate={someSelectedOnPage}
-                            onChange={toggleAllOnPage}
-                          />
-                        </th>
-                        <th className="border px-3 py-2 text-left">
-                          Invoice No
-                        </th>
-                        <th className="border px-3 py-2 text-left">Date</th>
-                        <th className="border px-3 py-2 text-left">Category</th>
-                        <th className="border px-3 py-2 text-right">
-                          Amount (INR)
-                        </th>
-                        <th className="border px-3 py-2 text-left">Remarks</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {invoices.map((inv) => (
-                        <tr key={inv.invoiceId}>
-                          <td className="border px-3 py-2 text-center">
-                            <Checkbox
-                              size="small"
-                              checked={selectedInvoiceIds.includes(
-                                inv.invoiceId
-                              )}
-                              onChange={() => toggleInvoice(inv.invoiceId)}
-                            />
-                          </td>
-                          <td className="border px-3 py-2">{inv.invoiceNo}</td>
-                          <td className="border px-3 py-2">
-                            {inv.invoiceDate}
-                          </td>
-                          <td className="border px-3 py-2">
-                            {inv.invoiceCategory}
-                          </td>
-                          <td className="border px-3 py-2 text-right">
-                            ₹{inv.invoicePayableAmount}
-                          </td>
-                          <td className="border px-3 py-2">
-                            {inv.remarks || "-"}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </Box>
+                {renderInvoiceTable()}
 
                 <Typography
                   variant="body1"
                   className="font-semibold mt-3 text-right"
                 >
-                  Grand Total: ₹{grandTotal.toFixed(2)}
+                  Payable Total: ₹{Number(totals.totalPayable || 0).toFixed(2)}
                 </Typography>
 
                 <Box className="mt-6 flex justify-center gap-3">
@@ -454,74 +655,21 @@ export default function PaymentPage() {
               </Box>
             )}
 
-            {/* === Pay Offline Section === */}
             {tabValue === 1 && (
               <Box className="mt-4 border rounded-md bg-white shadow-sm p-4">
                 <FormHeading text="Pay Offline" variant="body2" />
 
-                {/* Invoice List */}
-                <Box className="overflow-x-auto mt-3">
-                  <table className="w-full border text-sm">
-                    <thead className="bg-gray-100">
-                      <tr>
-                        <th className="border px-3 py-2 text-center">
-                          <Checkbox
-                            size="small"
-                            checked={allSelectedOnPage}
-                            indeterminate={someSelectedOnPage}
-                            onChange={toggleAllOnPage}
-                          />
-                        </th>
-                        <th className="border px-3 py-2 text-left">
-                          Invoice No
-                        </th>
-                        <th className="border px-3 py-2 text-left">Date</th>
-                        <th className="border px-3 py-2 text-left">Category</th>
-                        <th className="border px-3 py-2 text-right">
-                          Amount (INR)
-                        </th>
-                        <th className="border px-3 py-2 text-left">Remarks</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {invoices.map((inv) => (
-                        <tr key={inv.invoiceId}>
-                          <td className="border px-3 py-2 text-center">
-                            <Checkbox
-                              size="small"
-                              checked={selectedInvoiceIds.includes(
-                                inv.invoiceId
-                              )}
-                              onChange={() => toggleInvoice(inv.invoiceId)}
-                            />
-                          </td>
-                          <td className="border px-3 py-2">{inv.invoiceNo}</td>
-                          <td className="border px-3 py-2">
-                            {inv.invoiceDate}
-                          </td>
-                          <td className="border px-3 py-2">
-                            {inv.invoiceCategory}
-                          </td>
-                          <td className="border px-3 py-2 text-right">
-                            ₹{inv.invoicePayableAmount}
-                          </td>
-                          <td className="border px-3 py-2">
-                            {inv.remarks || "-"}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </Box>
+                {renderInvoiceTable()}
 
                 <Typography
                   variant="body1"
                   className="font-semibold mt-3 text-right"
                 >
-                  Grand Total: ₹{grandTotal.toFixed(2)}
+                  Payable Total: ₹{Number(totals.totalPayable || 0).toFixed(2)}
                 </Typography>
 
                 <FormHeading text="Offline Payment Details" variant="body2" />
+
                 <Box className="grid grid-cols-3 gap-2 p-2 mt-1">
                   <CustomInput
                     fields={data.paymentOfflineFields}
@@ -530,6 +678,7 @@ export default function PaymentPage() {
                     fieldsMode={fieldsMode}
                   />
                 </Box>
+
                 <Box className="mt-2">
                   <TableGrid
                     fields={data.tblAttachment}
@@ -556,7 +705,6 @@ export default function PaymentPage() {
           </>
         )}
 
-        {/* 🟢 Payment Modal */}
         <Dialog open={payOpen} onClose={handleClosePay} fullWidth maxWidth="xl">
           <DialogTitle
             sx={{
@@ -574,6 +722,7 @@ export default function PaymentPage() {
               <CloseRoundedIcon />
             </IconButton>
           </DialogTitle>
+
           <DialogContent dividers>
             {!payUrl ? (
               <Box

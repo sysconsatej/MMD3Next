@@ -1,5 +1,6 @@
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
+
 // paymentData.js
 const fieldData = {
   paymentOfflineFields: [
@@ -15,11 +16,18 @@ const fieldData = {
       isEdit: true,
     },
     {
+      label: "TDS Amount",
+      name: "tdsAmount",
+      type: "number",
+      isEdit: true,
+      disabled: true, // ✅ now auto-total from invoice rows
+    },
+    {
       label: "Amount",
       name: "Amount",
       type: "number",
       required: true,
-      disabled: true, // 🔹 read-only amount
+      disabled: true, // ✅ read-only (sum of payable)
       isEdit: true,
     },
     {
@@ -58,12 +66,10 @@ const fieldData = {
       name: "attachmentTypeId",
       type: "dropdown",
       tableName: "tblMasterData m",
-      idColumn: "id",
+      where: "m.masterListName = 'tblPaymentType' AND m.name <> 'Receipt'",
       displayColumn: "m.name",
-      searchColumn: "m.name",
-      orderBy: "m.name",
-      where: "m.masterListName = 'tblPaymentType'",
       foreignTable: "name,tblMasterData",
+      required: true,
       isEdit: true,
     },
     {
@@ -83,6 +89,7 @@ const fieldData = {
 };
 
 export default fieldData;
+
 export const cfsGridButtons = [
   { text: "Add", icon: <AddIcon />, func: "gridAddHandler" },
   { text: "Delete", icon: <CloseIcon />, func: "gridDeleteHandler" },
