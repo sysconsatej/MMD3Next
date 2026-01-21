@@ -61,6 +61,7 @@ export default function Home() {
       tableName: "tblBl",
       labelField: `mblNo curName, id  curId, lag(mblNo) over (order by createdDate desc) as prevName, lag(id) over (order by createdDate desc) as prevId, lead(mblNo) over (order by createdDate desc) as nextName, lead(id) over (order by createdDate desc) as nextId, createdDate createdDate`,
       orderBy: "createdDate desc",
+      locationId: userData?.location,
     });
 
   const submitHandler = async (event) => {
@@ -82,7 +83,7 @@ export default function Home() {
         locationId: userData?.location || null,
       },
       mode.formId,
-      "blId"
+      "blId",
     );
 
     const { success, error, message } = await insertUpdateForm(format);
@@ -127,7 +128,7 @@ export default function Home() {
           }
           return sum;
         },
-        { grossWt: 0, noOfPackages: 0, packType: packType, netWt: 0 }
+        { grossWt: 0, noOfPackages: 0, packType: packType, netWt: 0 },
       );
       const updateForm = {
         ...formData,
@@ -150,7 +151,7 @@ export default function Home() {
         "tblBl",
         mode.formId,
         '["tblBlContainer","tblBlPackingList"]',
-        "blId"
+        "blId",
       );
       const { success, result, message, error } = await fetchForm(format);
       if (success) {
@@ -268,7 +269,7 @@ export default function Home() {
                         setFormData,
                         "left",
                         mappingConsigneeToNotify,
-                        "Notify details copied to Consignee!"
+                        "Notify details copied to Consignee!",
                       ),
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
@@ -303,7 +304,7 @@ export default function Home() {
                         setFormData,
                         "right",
                         mapping,
-                        "Consignee details copied to Notify!"
+                        "Consignee details copied to Notify!",
                       );
                     },
                     icon: <ContentCopyIcon fontSize="small" />,

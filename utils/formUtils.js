@@ -25,7 +25,7 @@ export function formatFormData(
   tableName,
   stateData,
   formId,
-  parentColumnName = null
+  parentColumnName = null,
 ) {
   const formData = new FormData();
   const data = {};
@@ -98,7 +98,7 @@ export function formatFetchForm(
   parentTableName,
   recordId,
   childTableNames = null,
-  parentTableColumnName = null
+  parentTableColumnName = null,
 ) {
   const dropdownFields = [];
 
@@ -119,7 +119,7 @@ export function formatFetchForm(
           fieldname: data[key][key1].name,
         };
         const exists = dropdownFields.some(
-          (item) => item.fieldname === data[key][key1].name
+          (item) => item.fieldname === data[key][key1].name,
         );
         if (!exists) dropdownFields.push(obj);
       }
@@ -168,7 +168,7 @@ export const copyHandler = (
   setFormData,
   direction,
   mapping,
-  toastMessage
+  toastMessage,
 ) => {
   const updatedFormData = { ...formData };
 
@@ -193,6 +193,7 @@ export function useNextPrevData({
   labelField = "status",
   orderBy = "id",
   groupBy = "",
+  locationId = 0,
 }) {
   const [neighbors, setNeighbors] = useState({});
 
@@ -206,6 +207,7 @@ export function useNextPrevData({
         tableName: tableName,
         orderBy: orderBy,
         groupBy: groupBy,
+        locationId: locationId,
       };
 
       const { data } = await getNextPrevData(getDataObj);
