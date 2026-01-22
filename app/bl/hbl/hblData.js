@@ -955,7 +955,7 @@ export const hblPrevNextObj = (mode) => {
       where: `b.status = 1 and b.mblHblFlag = 'HBL' and b.locationId = ${userData?.location} and b.createdBy = u2.id`,
     },
     shipping: {
-      currentId: mode.formId,
+      currentId: mode?.formId,
       tableName: "tblBl b",
       labelField: `b.mblNo curName, string_agg(b.id, ',')  curId,
                    lag(b.mblNo) over (order by  min(case m1.name when 'Request' then 1 when 'Request for Amendment' then 2 when 'Reject' then 3 when 'Reject for Amendment' then 4 when 'Confirm' then 5 when 'Approved for Amendment' then 6 end),  max(b.createdDate) asc, b.mblNo) as prevName,
