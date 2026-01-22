@@ -944,7 +944,7 @@ export const hblPrevNextObj = (mode) => {
 
   return {
     customer: {
-      currentId: mode.formId,
+      currentId: mode?.formId,
       tableName: "tblBl b",
       labelField: `b.mblNo curName, string_agg(b.id, ',')  curId,
                    lag(b.mblNo) over (order by max(b.createdDate) desc) as prevName, lag(string_agg(b.id, ',')) over (order by max(b.createdDate) desc) as prevId,
