@@ -37,7 +37,7 @@ export default function ImportAdvanceList() {
           return [key, value.Id];
         }
         return [key, value];
-      })
+      }),
     );
   };
 
@@ -57,6 +57,7 @@ export default function ImportAdvanceList() {
           ...transformed,
           clientId: 1,
           userId: userData.userId,
+          shippingLineId: userData.companyId,
           data: rows,
         },
       }),
@@ -100,7 +101,7 @@ export default function ImportAdvanceList() {
         } else {
           setError(errText || "Request failed.");
           toast.error(
-            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`
+            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`,
           );
         }
       }
@@ -129,7 +130,7 @@ export default function ImportAdvanceList() {
         setFormData,
         fields: jsonData.igmEdiFields,
       }),
-    [setFormData, jsonData.igmEdiFields]
+    [setFormData, jsonData.igmEdiFields],
   );
   return (
     <ThemeProvider theme={theme}>

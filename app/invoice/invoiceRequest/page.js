@@ -107,7 +107,7 @@ export default function InvoiceRequest() {
 
   const radioFD = useMemo(
     () => normalizeFD(formData?.isFreeDays),
-    [formData?.isFreeDays]
+    [formData?.isFreeDays],
   );
 
   const hideContainers = radioFD === "F";
@@ -148,7 +148,7 @@ export default function InvoiceRequest() {
     for (const att of attachments) {
       const obj = att || {};
       const values = Object.values(obj).map((v) =>
-        v === null || v === undefined ? "" : String(v).trim()
+        v === null || v === undefined ? "" : String(v).trim(),
       );
 
       const anyValue = values.some((v) => v !== "");
@@ -171,6 +171,30 @@ export default function InvoiceRequest() {
       toast.error("Please add and upload at least one attachment.");
       return;
     }
+    if (!hideContainers) {
+      const containers = Array.isArray(formData?.tblInvoiceRequestContainer)
+        ? formData.tblInvoiceRequestContainer
+        : [];
+      let hasAnyContainerRow = false;
+      for (const cont of containers) {
+        const obj = cont || {};
+        const values = Object.values(obj).map((v) =>
+          v === null || v === undefined ? "" : String(v).trim(),
+        );
+        const anyValue = values.some((v) => v !== "");
+        if (!anyValue) continue;
+        hasAnyContainerRow = true;
+        if (!obj.containerNo || !obj.sizeId) {
+          toast.error("Please fill all required container details.");
+          return;
+        }
+      }
+
+      if (!hasAnyContainerRow) {
+        toast.error("Please add at least one container.");
+        return;
+      }
+    }
 
     try {
       setLoading(true);
@@ -191,7 +215,7 @@ export default function InvoiceRequest() {
         "tblInvoiceRequest",
         normalized,
         mode?.formId || undefined,
-        "invoiceRequestId"
+        "invoiceRequestId",
       );
 
       const res = await insertUpdateForm(payload);
@@ -244,6 +268,10 @@ export default function InvoiceRequest() {
           toast.warn("BL not found.");
         }
         console.error("BL lookup error:", blErr || blMsg);
+        setFormData((prev) => ({
+          ...prev,
+          tblInvoiceRequestContainer: [],
+        }));
         return;
       }
 
@@ -285,7 +313,7 @@ export default function InvoiceRequest() {
         tblInvoiceRequestContainer: containers,
       }));
     },
-    [fieldsMode]
+    [fieldsMode],
   );
 
   /* ✅ auto-load containers when radio changes to "Do Extension" (D)
@@ -368,7 +396,7 @@ export default function InvoiceRequest() {
         "tblInvoiceRequest",
         mode.formId,
         '["tblInvoiceRequestContainer","tblAttachment"]',
-        "invoiceRequestId"
+        "invoiceRequestId",
       );
 
       const { success, result, message, error } = await fetchForm(format);
@@ -454,7 +482,7 @@ export default function InvoiceRequest() {
       toast.error(
         message ||
           error ||
-          "Invoice Request record not found. Please save first."
+          "Invoice Request record not found. Please save first.",
       );
       return;
     }
