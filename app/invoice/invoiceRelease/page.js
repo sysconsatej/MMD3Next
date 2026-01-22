@@ -208,22 +208,16 @@ export default function InvoiceReleasePage() {
         `,
         };
 
-        const { success: reqOk, data: reqRes } = await getDataWithCondition(
-          reqQ
-        );
+        const { success: reqOk, data: reqRes } =
+          await getDataWithCondition(reqQ);
 
         if (!reqOk || !reqRes?.length) {
           toast.error("Invoice Request not found.");
           return;
         }
 
-        const {
-          invoiceRequestId,
-          blId,
-          blNo,
-          beneficiaryId,
-          beneficiaryName,
-        } = reqRes[0];
+        const { invoiceRequestId, blId, blNo, beneficiaryId, beneficiaryName } =
+          reqRes[0];
 
         /* 2️⃣ FETCH INVOICE REQUEST FORM */
         const reqFormat = formatFetchForm(
@@ -231,16 +225,15 @@ export default function InvoiceReleasePage() {
           "tblInvoiceRequest",
           invoiceRequestId,
           '["tblInvoiceRequestContainer","tblAttachment"]',
-          "invoiceRequestId"
+          "invoiceRequestId",
         );
 
-        const { success: reqFormOk, result: reqFormRes } = await fetchForm(
-          reqFormat
-        );
+        const { success: reqFormOk, result: reqFormRes } =
+          await fetchForm(reqFormat);
 
         if (reqFormOk) {
           setFormDataRequest(
-            formatDataWithForm(reqFormRes, invoiceRequestData)
+            formatDataWithForm(reqFormRes, invoiceRequestData),
           );
         }
 
@@ -249,14 +242,13 @@ export default function InvoiceReleasePage() {
           columns: "id",
           tableName: "tblInvoice",
           whereCondition: `
-          invoiceRequestId = ${invoiceRequestId}
-          AND status = 1
+            invoiceRequestId = ${invoiceRequestId}
+            AND status = 1
         `,
         };
 
-        const { success: invOk, data: invRows } = await getDataWithCondition(
-          invQ
-        );
+        const { success: invOk, data: invRows } =
+          await getDataWithCondition(invQ);
 
         const collected = [];
 
@@ -268,14 +260,31 @@ export default function InvoiceReleasePage() {
                 "tblInvoice",
                 id,
                 '["tblInvoiceRequestContainer","tblAttachment"]',
-                "invoiceRequestId"
+                "invoiceRequestId",
               );
 
-              const { success, result } = await fetchForm(fmt);
+              let { success, result } = await fetchForm(fmt);
+
+              const invStatus = {
+                columns: "m.name",
+                tableName: "tblInvoice i",
+                joins: `left join tblInvoicePayment p on p.id = i.invoicePaymentId
+                        left join tblMasterData m on m.id = p.paymentStatusId`,
+                whereCondition: ` i.id = ${result.id} AND i.status = 1
+        `,
+              };
+
+              const { success: stsSuccess, data: stsData } =
+                await getDataWithCondition(invStatus);
+
+              if (stsSuccess && stsData.length > 0) {
+                result.invoicePaymentId = stsData[0].name;
+              }
+
               if (success) {
                 collected.push(formatDataWithForm(result, fieldData));
               }
-            })
+            }),
           );
         }
 
@@ -283,7 +292,7 @@ export default function InvoiceReleasePage() {
           ? formatDataWithFormThirdLevel(
               collected,
               [...fieldData.igmFields],
-              "tblInvoice"
+              "tblInvoice",
             )
           : {};
 
@@ -301,8 +310,8 @@ export default function InvoiceReleasePage() {
         setInvoiceArray(
           Array.from(
             { length: (normalized.tblInvoice || []).length || 1 },
-            (_, i) => i
-          )
+            (_, i) => i,
+          ),
         );
 
         setTabValue(0);
@@ -347,7 +356,7 @@ export default function InvoiceReleasePage() {
 
           <CustomButton
             text="Back"
-            href={ "/payment/paymentConfirmation/list"}
+            href={"/payment/paymentConfirmation/list"}
             // onClick={() => setClearData([])}
           />
         </Box>

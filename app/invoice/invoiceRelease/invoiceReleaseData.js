@@ -96,6 +96,11 @@ const fieldData = {
     { label: "Bill To Party", name: "billingParty", isEdit: true },
     { label: "GSTIN", name: "billingPartyGstinNo", isEdit: true },
     {
+      label: "Status",
+      name: "invoicePaymentId",
+      isEdit: true,
+    },
+    {
       label: "Remarks",
       name: "invoiceRemarks",
       type: "textarea",
@@ -227,7 +232,7 @@ export function advanceSearchFilter(advanceSearch) {
     condition.push(
       `i.invoiceRequestStatusId in (${advanceSearch.statusId
         .map((item) => item.Id)
-        .join(",")})`
+        .join(",")})`,
     );
   }
   if (advanceSearch.deliveryTypeId?.Id) {
@@ -235,7 +240,7 @@ export function advanceSearchFilter(advanceSearch) {
   }
   if (advanceSearch.fromDate && advanceSearch.toDate) {
     condition.push(
-      `i.createdDate BETWEEN '${advanceSearch.fromDate}' AND '${advanceSearch.toDate}'`
+      `i.createdDate BETWEEN '${advanceSearch.fromDate}' AND '${advanceSearch.toDate}'`,
     );
   }
   return condition.length > 0 ? condition.join(" and ") : null;
