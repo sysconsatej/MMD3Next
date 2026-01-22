@@ -1,12 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ThemeProvider, Box, Typography } from "@mui/material";
+import { ThemeProvider, Box } from "@mui/material";
 import {
   mappingConsigneeToNotify,
   mappingConsigneeToNotifyNoPan,
   totalFieldData,
   gridButtons,
   fieldData,
+  mblNextPrev,
 } from "./mblData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
@@ -21,12 +22,9 @@ import {
   formatFetchForm,
   formatFormData,
   getUserByCookies,
-  setInputValue,
   useNextPrevData,
-  validatePanCard,
-  validPinCode,
 } from "@/utils";
-import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
+import { fetchForm, insertUpdateForm } from "@/apis";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import {
   checkNoPackages,
@@ -34,9 +32,6 @@ import {
   createdHandleBlurEventFunctions,
   createGridEventFunctions,
   getDefaultVal,
-  getPortBasedOnCountry,
-  removePrevInputName,
-  storeApiResult,
   useTotalGrossAndPack,
 } from "./utils";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -56,14 +51,9 @@ export default function Home() {
 
   useTotalGrossAndPack(formData, setTotals);
   const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
-    useNextPrevData({
-      currentId: mode.formId,
-      tableName: "tblBl",
-      labelField: `mblNo curName, id  curId, lag(mblNo) over (order by createdDate desc) as prevName, lag(id) over (order by createdDate desc) as prevId, lead(mblNo) over (order by createdDate desc) as nextName, lead(id) over (order by createdDate desc) as nextId, createdDate createdDate`,
-      orderBy: "createdDate desc",
-      locationId: userData?.location,
-      shippingLineId: userData?.companyId,
-    });
+    useNextPrevData(
+      mblNextPrev(mode?.formId)?.[userData?.roleCode ?? "shipping"],
+    );
 
   const submitHandler = async (event) => {
     event.preventDefault();

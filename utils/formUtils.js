@@ -188,18 +188,18 @@ export const copyHandler = (
 };
 
 export function useNextPrevData({
-  currentId,
+  currentId = null,
   tableName = "tblUser",
   labelField = "status",
   orderBy = "id",
   groupBy = "",
-  locationId = 0,
-  shippingLineId = 0,
+  where = "",
+  joins = "",
 }) {
   const [neighbors, setNeighbors] = useState({});
 
   const refresh = useCallback(async () => {
-    if (currentId == null) return;
+    if (currentId == null || currentId === undefined) return;
 
     try {
       const getDataObj = {
@@ -208,8 +208,8 @@ export function useNextPrevData({
         tableName: tableName,
         orderBy: orderBy,
         groupBy: groupBy,
-        locationId: locationId,
-        shippingLineId: shippingLineId,
+        where: where,
+        joins: joins,
       };
 
       const { data } = await getNextPrevData(getDataObj);

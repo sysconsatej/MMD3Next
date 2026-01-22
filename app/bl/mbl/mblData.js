@@ -1016,3 +1016,18 @@ export const mblFilter = [
     isEdit: true,
   },
 ];
+
+export const mblNextPrev = (formId = null) => {
+  const userData = getUserByCookies();
+  return {
+    shipping: {
+      currentId: formId,
+      labelField: `mblNo curName, id  curId,
+      lag(mblNo) over (order by createdDate desc) as prevName, lag(id) over (order by createdDate desc) as prevId,
+      lead(mblNo) over (order by createdDate desc) as nextName, lead(id) over (order by createdDate desc) as nextId, createdDate createdDate`,
+      tableName: "tblBl",
+      where: `status = 1 and mblHblFlag = 'MBL' and locationId = ${userData?.location} and shippingLineId = ${userData?.companyId}`,
+      orderBy: "createdDate desc",
+    },
+  };
+};

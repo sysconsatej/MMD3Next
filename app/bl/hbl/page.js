@@ -7,6 +7,7 @@ import {
   gridButtons,
   fieldData,
   gridButtonsWithoutExcel,
+  hblPrevNextObj,
 } from "./hblData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
@@ -108,13 +109,9 @@ export default function Home() {
 
   useTotalGrossAndPack(formData, setTotals);
   const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
-    useNextPrevData({
-      currentId: mode.formId,
-      tableName: "tblBl",
-      labelField: `mblNo curName, string_agg(id, ',')  curId, lag(mblNo) over (order by max(createdDate) desc) as prevName, lag(string_agg(id, ',')) over (order by max(createdDate) desc) as prevId, lead(mblNo) over (order by max(createdDate) desc) as nextName, lead(string_agg(id, ',')) over (order by max(createdDate) desc) as nextId, max(createdDate) createdDate`,
-      orderBy: "createdDate desc",
-      groupBy: "group by mblNo",
-    });
+    useNextPrevData(
+      hblPrevNextObj(mode?.formId)?.[userData?.roleCode ?? "customer"],
+    );
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -152,7 +149,7 @@ export default function Home() {
           companyBranchId: userData?.branchId,
         },
         formId,
-        "blId"
+        "blId",
       );
       const { success, error, message } = await insertUpdateForm(formatItem);
       if (!success) {
@@ -187,11 +184,11 @@ export default function Home() {
   };
 
   function handleRemove(index) {
-    setHblArray((prev) => prev.filter((num, indexArr) => indexArr !== index)),
+    (setHblArray((prev) => prev.filter((num, indexArr) => indexArr !== index)),
       setFormData((prev) => ({
         ...prev,
         tblBl: prev?.tblBl?.filter((num, indexArr) => indexArr !== index),
-      }));
+      })));
 
     if (formData?.tblBl?.[index]?.id) {
       setBlDelete((prev) => [...prev, formData?.tblBl?.[index]?.id]);
@@ -235,7 +232,7 @@ export default function Home() {
           }
           return sum;
         },
-        { grossWt: 0, noOfPackages: 0, packType: packType }
+        { grossWt: 0, noOfPackages: 0, packType: packType },
       );
       const updateForm = { ...formData };
       updateForm.tblBl = [...(updateForm?.tblBl || [])];
@@ -261,7 +258,7 @@ export default function Home() {
           "tblBl",
           id,
           '["tblBlContainer", "tblBlPackingList", "tblAttachment"]',
-          "blId"
+          "blId",
         );
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
@@ -277,11 +274,11 @@ export default function Home() {
       const formatState = formatDataWithFormThirdLevel(
         resArray,
         [...jsonData.mblFields],
-        "tblBl"
+        "tblBl",
       );
       setFormData(formatState);
       setHblArray(
-        Array.from({ length: formatState.tblBl.length }, (_, i) => i)
+        Array.from({ length: formatState.tblBl.length }, (_, i) => i),
       );
 
       if (mode.status === "Request" && userData.roleCode === "shipping") {
@@ -290,7 +287,7 @@ export default function Home() {
         const changeFormatState = formatDataWithFormThirdLevel(
           res,
           [...jsonData.mblFields],
-          "tblBl"
+          "tblBl",
         );
         setHightLightForm(changeFormatState);
       }
@@ -305,9 +302,8 @@ export default function Home() {
         tableName: "tblMasterData",
         whereCondition: `masterListName = 'tblPackage' and name = 'PACKAGES' and status = 1`,
       };
-      const { data: data1, success: success1 } = await getDataWithCondition(
-        obj1
-      );
+      const { data: data1, success: success1 } =
+        await getDataWithCondition(obj1);
       if (success1) {
         setPackTypeState(data1[0]);
       }
@@ -467,7 +463,7 @@ export default function Home() {
                                 "left",
                                 mapping,
                                 "Notify details copied to Consignee!",
-                                index
+                                index,
                               ),
                             icon: <ContentCopyIcon fontSize="small" />,
                           },
@@ -501,7 +497,7 @@ export default function Home() {
                                 "right",
                                 mapping,
                                 "Consignee details copied to Notify!",
-                                index
+                                index,
                               ),
                             icon: <ContentCopyIcon fontSize="small" />,
                           },
@@ -695,13 +691,13 @@ export default function Home() {
                 mode,
                 hblStatus,
                 rejectState,
-                setRejectState
+                setRejectState,
               )
             : requestStatusFun.rejectHandler(
                 mode,
                 hblStatus,
                 rejectState,
-                setRejectState
+                setRejectState,
               )
         }
       />

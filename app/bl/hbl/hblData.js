@@ -1,3 +1,4 @@
+import { getUserByCookies } from "@/utils";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
@@ -937,3 +938,35 @@ export const gridButtonsWithoutExcel = [
     func: "gridCopyHandler",
   },
 ];
+
+export const hblPrevNextObj = (formId = null) => {
+  const userData = getUserByCookies();
+
+  return {
+    customer: {
+      currentId: formId,
+      tableName: "tblBl b",
+      labelField: `b.mblNo curName, string_agg(b.id, ',')  curId,
+                   lag(b.mblNo) over (order by max(b.createdDate) desc) as prevName, lag(string_agg(b.id, ',')) over (order by max(b.createdDate) desc) as prevId,
+                   lead(b.mblNo) over (order by max(b.createdDate) desc) as nextName, lead(string_agg(b.id, ',')) over (order by max(b.createdDate) desc) as nextId, max(b.createdDate) createdDate`,
+      orderBy: "createdDate desc",
+      groupBy: "group by b.mblNo",
+      joins: `left join tblUser u on u.id = ${userData?.userId} left join tblUser u2 on u2.companyId = u.companyId`,
+      where: `b.status = 1 and b.mblHblFlag = 'HBL' and b.locationId = ${userData?.location} and b.createdBy = u2.id`,
+    },
+    shipping: {
+      currentId: formId,
+      tableName: "tblBl b",
+      labelField: `b.mblNo curName, string_agg(b.id, ',')  curId,
+                   lag(b.mblNo) over (order by  min(case m1.name when 'Request' then 1 when 'Request for Amendment' then 2 when 'Reject' then 3 when 'Reject for Amendment' then 4 when 'Confirm' then 5 when 'Approved for Amendment' then 6 end),  max(b.createdDate) asc, b.mblNo) as prevName,
+                   lag(string_agg(b.id, ',')) over (order by  min(case m1.name when 'Request' then 1 when 'Request for Amendment' then 2 when 'Reject' then 3 when 'Reject for Amendment' then 4 when 'Confirm' then 5 when 'Approved for Amendment' then 6 end),  max(b.createdDate) asc, b.mblNo) as prevId,
+                   lead(b.mblNo) over (order by  min(case m1.name when 'Request' then 1 when 'Request for Amendment' then 2 when 'Reject' then 3 when 'Reject for Amendment' then 4 when 'Confirm' then 5 when 'Approved for Amendment' then 6 end),  max(b.createdDate) asc, b.mblNo) as nextName,
+                   lead(string_agg(b.id, ',')) over (order by  min(case m1.name when 'Request' then 1 when 'Request for Amendment' then 2 when 'Reject' then 3 when 'Reject for Amendment' then 4 when 'Confirm' then 5 when 'Approved for Amendment' then 6 end),  max(b.createdDate) asc, b.mblNo) as nextId,
+                   max(b.createdDate) createdDate`,
+      orderBy: "createdDate desc",
+      groupBy: "group by b.mblNo",
+      joins: `left join tblMasterData m1 on m1.id = b.hblRequestStatus`,
+      where: `b.status = 1 and b.mblHblFlag = 'HBL' and b.locationId = ${userData?.location} and b.shippingLineId = ${userData?.companyId} and b.hblRequestStatus is not null`,
+    },
+  };
+};
