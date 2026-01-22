@@ -1017,11 +1017,11 @@ export const mblFilter = [
   },
 ];
 
-export const mblNextPrev = (mode) => {
+export const mblNextPrev = (formId = null) => {
   const userData = getUserByCookies();
   return {
     shipping: {
-      currentId: mode?.formId ?? null,
+      currentId: formId,
       labelField: `mblNo curName, id  curId,
       lag(mblNo) over (order by createdDate desc) as prevName, lag(id) over (order by createdDate desc) as prevId,
       lead(mblNo) over (order by createdDate desc) as nextName, lead(id) over (order by createdDate desc) as nextId, createdDate createdDate`,
