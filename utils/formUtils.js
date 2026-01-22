@@ -188,7 +188,7 @@ export const copyHandler = (
 };
 
 export function useNextPrevData({
-  currentId,
+  currentId = null,
   tableName = "tblUser",
   labelField = "status",
   orderBy = "id",
