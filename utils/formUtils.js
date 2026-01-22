@@ -199,7 +199,7 @@ export function useNextPrevData({
   const [neighbors, setNeighbors] = useState({});
 
   const refresh = useCallback(async () => {
-    if (currentId == null) return;
+    if (currentId == null || currentId === undefined) return;
 
     try {
       const getDataObj = {

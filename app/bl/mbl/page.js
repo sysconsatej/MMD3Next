@@ -51,7 +51,9 @@ export default function Home() {
 
   useTotalGrossAndPack(formData, setTotals);
   const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
-    useNextPrevData(mblNextPrev(mode?.formId)?.[userData?.roleCode]);
+    useNextPrevData(
+      mblNextPrev(mode?.formId)?.[userData?.roleCode ?? "shipping"],
+    );
 
   const submitHandler = async (event) => {
     event.preventDefault();
