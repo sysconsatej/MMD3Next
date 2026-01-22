@@ -194,6 +194,7 @@ export function useNextPrevData({
   orderBy = "id",
   groupBy = "",
   locationId = 0,
+  shippingLineId = 0,
 }) {
   const [neighbors, setNeighbors] = useState({});
 
@@ -208,6 +209,7 @@ export function useNextPrevData({
         orderBy: orderBy,
         groupBy: groupBy,
         locationId: locationId,
+        shippingLineId: shippingLineId,
       };
 
       const { data } = await getNextPrevData(getDataObj);

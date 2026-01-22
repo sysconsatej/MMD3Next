@@ -205,14 +205,12 @@ export const doStatusHandler = (getData, router, setMode) => {
           columns: "b.id, b.mblHblFlag",
           tableName: "tblDoRequest d",
           joins: `
-             left join tblBl b on isnull(b.hblNo, b.mblNo) = d.blNo
+             left join tblBl b on isnull(b.hblNo, b.mblNo) = d.blNo and b.shippingLineId = d.shippingLineId
             `,
           whereCondition: `d.id = ${ids?.[0]} and b.status = 1 and d.status = 1`,
         };
 
         const { success, data } = await getDataWithCondition(blQuery);
-
-        console.log("data", data);
 
         if (success && data?.length > 0) {
           setReportModalForRow({ id: data?.[0]?.id, clientId: 1 });

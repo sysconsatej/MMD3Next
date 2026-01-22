@@ -62,6 +62,7 @@ export default function Home() {
       labelField: `mblNo curName, id  curId, lag(mblNo) over (order by createdDate desc) as prevName, lag(id) over (order by createdDate desc) as prevId, lead(mblNo) over (order by createdDate desc) as nextName, lead(id) over (order by createdDate desc) as nextId, createdDate createdDate`,
       orderBy: "createdDate desc",
       locationId: userData?.location,
+      shippingLineId: userData?.companyId,
     });
 
   const submitHandler = async (event) => {
