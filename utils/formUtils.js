@@ -193,8 +193,8 @@ export function useNextPrevData({
   labelField = "status",
   orderBy = "id",
   groupBy = "",
-  locationId = 0,
-  shippingLineId = 0,
+  where = "",
+  joins = "",
 }) {
   const [neighbors, setNeighbors] = useState({});
 
@@ -208,8 +208,8 @@ export function useNextPrevData({
         tableName: tableName,
         orderBy: orderBy,
         groupBy: groupBy,
-        locationId: locationId,
-        shippingLineId: shippingLineId,
+        where: where,
+        joins: joins,
       };
 
       const { data } = await getNextPrevData(getDataObj);
