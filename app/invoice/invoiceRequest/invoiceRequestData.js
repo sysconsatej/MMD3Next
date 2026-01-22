@@ -59,7 +59,7 @@ const fieldData = {
       displayColumn: "m.name",
       searchColumn: "m.name",
       orderBy: "m.name",
-      where: "m.masterListName = 'tblStuffingDestuffingType'",
+      where: "m.masterListName = 'tblStuffingDestuffingType' and m.name in ('Dock','Factory')",
       foreignTable: "name,tblMasterData",
       isEdit: true,
       required: true,
@@ -172,6 +172,7 @@ const fieldData = {
       label: "Container No",
       name: "containerNo",
       isEdit: true,
+      required: true,
     },
     {
       label: "Container Size",
@@ -185,6 +186,7 @@ const fieldData = {
       where: "m.masterListName = 'tblSize'",
       foreignTable: "name,tblMasterData",
       isEdit: true,
+      required: true,
     },
     {
       label: " Valid Till",

@@ -65,6 +65,7 @@ function createData(
   remarks,
   date,
   requester,
+  ReqCompanyName,
   status,
   assignTo
 ) {
@@ -78,6 +79,7 @@ function createData(
     remarks,
     date,
     requester,
+    ReqCompanyName,
     status,
     assignTo,
   };
@@ -134,6 +136,7 @@ export default function InvoiceReleaseList() {
             i.remarks,
             i.createdDate AS date,
             u3.name AS requester,
+            c1.name As ReqCompanyName,
             st.name AS status,
             u2.name as assignTo
           `,
@@ -147,7 +150,8 @@ export default function InvoiceReleaseList() {
           LEFT JOIN tblUser u ON u.id = ${userData.userId}
           left join tblUser u2 on u2.id = i.assignToId
           left join tblUser u3 on u3.id = i.createdBy
-           LEFT JOIN tblCompany c ON c.id = u.companyId
+          Left Join tblCompany c1 on c1.id=i.companyId
+          LEFT JOIN tblCompany c ON c.id = u.companyId
           JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId and i.invoiceRequestStatusId IS NOT NULL and i.shippingLineId = u.companyId and i.locationId = ${userData.location}
           and (i.assignToId is null or i.assignToId = ${userData.userId})
           `,
@@ -176,6 +180,7 @@ export default function InvoiceReleaseList() {
             item.remarks,
             item.date,
             item.requester,
+            item.ReqCompanyName,
             item.status,
             item.assignTo
           )
@@ -398,6 +403,7 @@ export default function InvoiceReleaseList() {
                 <TableCell>Remarks</TableCell>
                 <TableCell>Request Date</TableCell>
                 <TableCell>Requester Name</TableCell>
+                <TableCell>Requester Company Name</TableCell>
                 <TableCell>Assign To</TableCell>
                 <TableCell>Attachment</TableCell>
                 <TableCell>History</TableCell>
@@ -430,13 +436,14 @@ export default function InvoiceReleaseList() {
                     </TableCell>
                     <TableCell>{row.type}</TableCell>
                     <TableCell>{toFreeDaysLabel(row.freeDays)}</TableCell>
-                    <TableCell>{toYesNo(row.highSeaSale)}</TableCell>
+                    <TableCell>{toYesNo(row.highSealSale)}</TableCell>
                     <TableCell sx={{ color: statusColor(row.status) }}>
                       {row.status}
                     </TableCell>
                     <TableCell>{row.remarks}</TableCell>
                     <TableCell>{row.date}</TableCell>
                     <TableCell>{row.requester}</TableCell>
+                    <TableCell>{row.ReqCompanyName}</TableCell>
                     <TableCell>{row.assignTo}</TableCell>
                     <TableCell>
                       <AttachFileIcon
