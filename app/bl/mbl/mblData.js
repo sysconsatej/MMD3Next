@@ -1021,7 +1021,7 @@ export const mblNextPrev = (mode) => {
   const userData = getUserByCookies();
   return {
     shipping: {
-      currentId: mode?.formId,
+      currentId: mode?.formId ?? null,
       labelField: `mblNo curName, id  curId,
       lag(mblNo) over (order by createdDate desc) as prevName, lag(id) over (order by createdDate desc) as prevId,
       lead(mblNo) over (order by createdDate desc) as nextName, lead(id) over (order by createdDate desc) as nextId, createdDate createdDate`,
