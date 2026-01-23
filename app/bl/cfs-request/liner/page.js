@@ -18,18 +18,23 @@ import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
 import {
   fetchTableValues,
-  getDataWithCondition,
-  updateStatusRows,
 } from "@/apis";
 import { toast, ToastContainer } from "react-toastify";
 import { formStore } from "@/store";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { getUserByCookies } from "@/utils";
 import SearchRequestToolbarActions from "@/components/selectionActions/cfsRequestActionBar";
-import { BlRejectModal, cfsStatusHandler, statusColor } from "../utils";
+import {
+  advanceSearchFilter,
+  BlRejectModal,
+  cfsStatusHandler,
+  statusColor,
+} from "../utils";
 import { useRouter } from "next/navigation";
 import HistoryIcon from "@mui/icons-material/History";
 import { CfsHistoryLinerModal } from "./historyModal";
+import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
+import { advanceSearchFields } from "../fieldsData";
 
 /* ---------------- Constants ---------------- */
 const LIST_TABLE = "tblCfsRequest b";
@@ -58,6 +63,7 @@ export default function SearchRequestCfsDpdIcd() {
     value: null,
     mblNo: null,
   });
+  const [advanceSearch, setAdvanceSearch] = useState({});
 
   // toolbar checkbox states
   const [amendment, setAmendment] = useState(false);
@@ -93,6 +99,7 @@ export default function SearchRequestCfsDpdIcd() {
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
+          advanceSearch: advanceSearchFilter(advanceSearch),
           joins: `
             LEFT JOIN tblUser u2 ON u2.id = b.createdBy
             LEFT JOIN tblUser u ON u.id = ${userData?.userId}
@@ -125,7 +132,7 @@ export default function SearchRequestCfsDpdIcd() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, userData?.userId, userData?.location]
+    [page, rowsPerPage, advanceSearch],
   );
 
   const idsOnPage = blData.map((r) => r.id);
@@ -137,7 +144,7 @@ export default function SearchRequestCfsDpdIcd() {
   const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
   const toggleOne = (id) =>
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
 
   useEffect(() => {
@@ -149,10 +156,19 @@ export default function SearchRequestCfsDpdIcd() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
 
-      <Box className="sm:px-4 py-1">
-        <Typography variant="body1" className="pb-1">
-          Search Request for CFS / DPD / ICD
-        </Typography>
+      <Box className="sm:px-4 py-1 w-full">
+        <Box className="flex gap-4 w-full justify-between ">
+          <Typography variant="body1" className="pb-1">
+            Search Request for CFS / DPD / ICD
+          </Typography>
+          <AdvancedSearchBar
+            fields={advanceSearchFields.shipBl}
+            advanceSearch={advanceSearch}
+            setAdvanceSearch={setAdvanceSearch}
+            getData={getData}
+            rowsPerPage={rowsPerPage}
+          />
+        </Box>
 
         {/* ACTION TOOLBAR */}
         <SearchRequestToolbarActions

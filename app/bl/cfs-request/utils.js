@@ -116,6 +116,14 @@ export function advanceSearchFilter(advanceSearch) {
     );
   }
 
+  if (advanceSearch?.companyId) {
+    condition.push(
+      `c1.name in (${advanceSearch?.companyId
+        .map((item) => `'${item.Name}'`)
+        .join(",")})`,
+    );
+  }
+
   return condition.length > 0 ? condition.join(" and ") : null;
 }
 

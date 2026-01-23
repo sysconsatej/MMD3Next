@@ -520,3 +520,39 @@ export async function getDORequest({
 
   setFieldsMode(mode.mode);
 }
+
+export function advanceSearchFilter(advanceSearch) {
+  if (Object.keys(advanceSearch).length <= 0) return null;
+  const condition = [];
+
+  if (advanceSearch?.blNo) {
+    condition.push(`d.blNo = '${advanceSearch?.blNo}'`);
+  }
+
+  if (advanceSearch?.doRequestStatusId) {
+    condition.push(
+      `d.doRequestStatusId in (${advanceSearch?.doRequestStatusId
+        .map((item) => item.Id)
+        .join(",")})`,
+    );
+  }
+
+  if (advanceSearch.shippingLineId) {
+    condition.push(
+      `d.shippingLineId in (${advanceSearch.shippingLineId
+        .map((item) => item.Id)
+        .join(",")})`,
+    );
+  }
+
+
+  if (advanceSearch?.companyId) {
+    condition.push(
+      `c1.name in (${advanceSearch?.companyId
+        .map((item) => `'${item.Name}'`)
+        .join(",")})`,
+    );
+  }
+
+  return condition.length > 0 ? condition.join(" and ") : null;
+}

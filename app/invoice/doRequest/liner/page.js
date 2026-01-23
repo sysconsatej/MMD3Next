@@ -22,12 +22,14 @@ import { formStore } from "@/store";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { getUserByCookies } from "@/utils";
 import DoToolbarActions from "@/components/selectionActions/doToolbarActions";
-import { doStatusHandler, statusColor } from "../utils";
+import { advanceSearchFilter, doStatusHandler, statusColor } from "../utils";
 import { useRouter } from "next/navigation";
 import HistoryIcon from "@mui/icons-material/History";
 import { DoHistoryLinerModal } from "./historyModal";
 import ReportPickerModal from "@/components/ReportPickerModal/reportPickerModal";
 import { RejectModal } from "../modal";
+import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
+import { advanceSearchFields } from "../doData";
 
 const REPORTS = [
   { key: "Survey Letter", label: "Survey Letter" },
@@ -85,6 +87,7 @@ export default function BLList() {
     toggle: false,
     value: null,
   });
+  const [advanceSearch, setAdvanceSearch] = useState({});
 
   // --------------------------------------------
   // 🔥 Fetch Table Data
@@ -98,6 +101,7 @@ export default function BLList() {
           tableName: "tblDoRequest d",
           pageNo,
           pageSize,
+          advanceSearch: advanceSearchFilter(advanceSearch),
           joins: `
             left join tblMasterData m on m.id = d.doRequestStatusId
             left join tblMasterData m2 on m2.id = d.stuffDestuffId
@@ -122,7 +126,7 @@ export default function BLList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage],
+    [page, rowsPerPage, advanceSearch],
   );
 
   const rows = blData
@@ -184,6 +188,13 @@ export default function BLList() {
             <Typography variant="body1" className="text-left flex items-center">
               Do Request List
             </Typography>
+            <AdvancedSearchBar
+              fields={advanceSearchFields.shipBl}
+              advanceSearch={advanceSearch}
+              setAdvanceSearch={setAdvanceSearch}
+              getData={getData}
+              rowsPerPage={rowsPerPage}
+            />
           </Box>
 
           {/* 🔥 TOOLBAR ADDED HERE */}
