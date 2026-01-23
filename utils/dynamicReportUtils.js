@@ -4,7 +4,7 @@ const pad = (n) => String(n).padStart(2, "0");
 const timestamp = () => {
   const d = new Date();
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(
-    d.getHours()
+    d.getHours(),
   )}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
 };
 
@@ -61,12 +61,12 @@ export async function runUpdate({
 }) {
   const source = Array.isArray(tableFormData) ? tableFormData : [];
   const rows = (filterDirty ? source.filter((r) => r?.__dirty) : source).map(
-    mapRow
+    mapRow,
   );
 
   if (!rows.length) {
     toast?.info?.(
-      filterDirty ? "No edited rows to update." : "Select rows to update."
+      filterDirty ? "No edited rows to update." : "Select rows to update.",
     );
     return null;
   }
@@ -92,6 +92,32 @@ export async function runUpdate({
   }
 }
 
+// export async function jsonExport({
+//   filenamePrefix = "Export",
+//   jsonPayload,
+//   ...runnerArgs
+// }) {
+//   const res = await runUpdate(runnerArgs);
+//   if (!res) return;
+//   const { ok, failed } = res;
+
+//   if (!ok.length && !failed.length) {
+//     runnerArgs.toast?.info?.("Nothing to export.");
+//     return;
+//   }
+
+//   const payload =
+//     typeof jsonPayload === "function"
+//       ? jsonPayload({ ok, failed })
+//       : { results: ok, failed, generatedAt: new Date().toISOString() };
+
+//   download(
+//     `${filenamePrefix} ${timestamp()}.json`,
+//     payload,
+//     "application/json"
+//   );
+//   runnerArgs.toast?.success?.("JSON file downloaded.");
+// }
 export async function jsonExport({
   filenamePrefix = "Export",
   jsonPayload,
@@ -99,23 +125,21 @@ export async function jsonExport({
 }) {
   const res = await runUpdate(runnerArgs);
   if (!res) return;
+
   const { ok, failed } = res;
 
   if (!ok.length && !failed.length) {
     runnerArgs.toast?.info?.("Nothing to export.");
     return;
   }
-
+  const fileNameFromSP = ok?.[0]?.generatedFileName || filenamePrefix;
+  const cleanOk = ok.map(({ generatedFileName, ...actualJson }) => actualJson);
   const payload =
     typeof jsonPayload === "function"
-      ? jsonPayload({ ok, failed })
-      : { results: ok, failed, generatedAt: new Date().toISOString() };
+      ? jsonPayload({ ok: cleanOk, failed })
+      : cleanOk;
+  download(`${fileNameFromSP}.json`, payload, "application/json");
 
-  download(
-    `${filenamePrefix} ${timestamp()}.json`,
-    payload,
-    "application/json"
-  );
   runnerArgs.toast?.success?.("JSON file downloaded.");
 }
 
@@ -158,7 +182,7 @@ export async function exportText({
   download(
     `${filenamePrefix}_${timestamp()}.${fileExt}`,
     lines.join(join),
-    mime
+    mime,
   );
   runnerArgs.toast?.success?.("Text file downloaded.");
 }
@@ -223,7 +247,7 @@ export async function exportExcel({
 
 const toCSV = (
   rows = [],
-  { delimiter = ",", eol = "\r\n", includeHeader = true, headerOrder } = {}
+  { delimiter = ",", eol = "\r\n", includeHeader = true, headerOrder } = {},
 ) => {
   if (!Array.isArray(rows) || rows.length === 0) return "";
 
@@ -234,7 +258,7 @@ const toCSV = (
           rows.reduce((set, r) => {
             Object.keys(r || {}).forEach((k) => set.add(k));
             return set;
-          }, new Set())
+          }, new Set()),
         );
 
   const esc = (v) => {
@@ -276,7 +300,7 @@ export async function exportCSV({
     download(
       `${filenamePrefix}${timestamp()}_${fileOkSuffix}.csv`,
       csvOk,
-      "text/csv"
+      "text/csv",
     );
   }
 
@@ -290,11 +314,11 @@ export async function exportCSV({
     download(
       `${filenamePrefix}${timestamp()}_${fileFailedSuffix}.csv`,
       csvFailed,
-      "text/csv"
+      "text/csv",
     );
   }
 
   toast?.success?.(
-    ok.length && failed.length ? "CSV files downloaded." : "CSV downloaded."
+    ok.length && failed.length ? "CSV files downloaded." : "CSV downloaded.",
   );
 }
