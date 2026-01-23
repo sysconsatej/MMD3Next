@@ -84,7 +84,42 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
   };
 };
 
-export const tableObj = ({ pageNo, pageSize, search }) => {
+export function advanceSearchFilter(advanceSearch) {
+  if (Object.keys(advanceSearch).length <= 0) return null;
+  const condition = [];
+
+  if (advanceSearch?.blNo) {
+    condition.push(`b.blNo = '${advanceSearch?.blNo}'`);
+  }
+
+  if (advanceSearch?.cfsRequestStatusId) {
+    condition.push(
+      `b.cfsRequestStatusId in (${advanceSearch?.cfsRequestStatusId
+        .map((item) => item.Id)
+        .join(",")})`,
+    );
+  }
+
+  if (advanceSearch.shippingLineId) {
+    condition.push(
+      `b.shippingLineId in (${advanceSearch.shippingLineId
+        .map((item) => item.Id)
+        .join(",")})`,
+    );
+  }
+
+  if (advanceSearch.nominatedAreaId) {
+    condition.push(
+      `b.nominatedAreaId in (${advanceSearch.nominatedAreaId
+        .map((item) => item.Id)
+        .join(",")})`,
+    );
+  }
+
+  return condition.length > 0 ? condition.join(" and ") : null;
+}
+
+export const tableObj = ({ pageNo, pageSize, advanceSearch }) => {
   const payload = {
     columns: `
       b.id,
@@ -101,8 +136,7 @@ export const tableObj = ({ pageNo, pageSize, search }) => {
     tableName: "tblCfsRequest b",
     pageNo,
     pageSize,
-    searchColumn: search.searchColumn,
-    searchValue: search.searchValue,
+    advanceSearch: advanceSearchFilter(advanceSearch),
     joins: `
       left join tblLocation l on l.id = b.locationId
       left join tblMasterData m on m.id = b.cfsRequestStatusId 
