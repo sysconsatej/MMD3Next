@@ -85,7 +85,7 @@ export default function SearchRequestCfsDpdIcd() {
             c1.name AS CompanyName,
             b.blNo AS blNo,
             r.name AS cfsType,
-            p.name AS cfs,
+           ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'') AS cfs,
             c.name AS dpd,
             b.customBrokerText AS NominatedCB,
             l.name AS locationName,
