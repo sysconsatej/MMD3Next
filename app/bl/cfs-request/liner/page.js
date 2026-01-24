@@ -79,7 +79,7 @@ export default function SearchRequestCfsDpdIcd() {
             c1.name AS CompanyName,
             b.blNo AS blNo,
             r.name AS cfsType,
-            p.name AS cfs,
+           ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'') AS cfs,
             c.name AS dpd,
             b.customBrokerText AS NominatedCB,
             l.name AS locationName,
@@ -125,7 +125,7 @@ export default function SearchRequestCfsDpdIcd() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, userData?.userId, userData?.location]
+    [page, rowsPerPage, userData?.userId, userData?.location],
   );
 
   const idsOnPage = blData.map((r) => r.id);
@@ -137,7 +137,7 @@ export default function SearchRequestCfsDpdIcd() {
   const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
   const toggleOne = (id) =>
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
 
   useEffect(() => {

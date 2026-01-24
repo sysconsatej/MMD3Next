@@ -310,17 +310,17 @@ export default function InvoiceUpload() {
             "tblInvoice",
             id,
             '["tblInvoiceRequestContainer","tblAttachment"]',
-            "invoiceRequestId"
+            "invoiceRequestId",
           );
           const { success, result } = await fetchForm(fmt);
           if (success) out.push(formatDataWithForm(result, data));
-        })
+        }),
       );
 
       const combined = formatDataWithFormThirdLevel(
         out,
         [...data.igmFields],
-        "tblInvoice"
+        "tblInvoice",
       );
 
       setFormData({
@@ -377,18 +377,18 @@ export default function InvoiceUpload() {
 
           const invoiceTypeObj = await matchDropdownValue(
             "tblInvoiceType",
-            invoiceTypeRaw
+            invoiceTypeRaw,
           );
 
           const invoiceCategoryObj = await matchDropdownValue(
             "tblInvoiceCategory",
-            invoiceCategoryRaw
+            invoiceCategoryRaw,
           );
           const defaultAttachment = row.tblAttachment?.length
             ? row.tblAttachment
             : file
-            ? [{ uploadInvoice: file.name, path: file.name }]
-            : [];
+              ? [{ uploadInvoice: file.name, path: file.name }]
+              : [];
 
           const { id: _ignore, ...restRow } = row;
 
@@ -399,7 +399,7 @@ export default function InvoiceUpload() {
             tblInvoiceRequestContainer: containers,
             tblAttachment: defaultAttachment,
           };
-        })
+        }),
       );
 
       setFormData((prev) => ({
@@ -511,6 +511,8 @@ export default function InvoiceUpload() {
 
   const submitHandler = async (e) => {
     e.preventDefault();
+    if (isSubmitted) return;
+    setIsSubmitted(true);
 
     if (!invoiceReqId) {
       toast.error("Invoice Request Id missing.");
@@ -545,7 +547,7 @@ export default function InvoiceUpload() {
             tblAttachment: row.tblAttachment || [],
           },
           id,
-          "invoiceRequestId"
+          "invoiceRequestId",
         );
 
         const res = await insertUpdateForm(payload);
@@ -554,10 +556,13 @@ export default function InvoiceUpload() {
           ok = false;
           toast.error(res.message || `Invoice ${idx + 1} failed`);
         }
-      })
+      }),
     );
 
-    if (!ok) return;
+    if (!ok) {
+      setIsSubmitted(false);
+      return;
+    }
 
     /* Known good status update */
     const releasedId = statusList.find((x) => x.Name === "Released")?.Id;
@@ -578,6 +583,7 @@ export default function InvoiceUpload() {
     }
 
     toast.success("Invoices uploaded successfully!");
+    setIsSubmitted(true);
   };
 
   return (

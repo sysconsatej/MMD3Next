@@ -92,7 +92,7 @@ export const tableObj = ({ pageNo, pageSize, search }) => {
       c1.name AS shippingLineName,
       b.blNo,
       r.name AS cfsType,
-      p.name AS nominatedArea,
+      ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'') AS nominatedArea,
       c.name AS dpdId,
       b.customBrokerText,
       m.name AS cfsRequestStatusId,

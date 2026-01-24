@@ -104,11 +104,11 @@ export const fieldData = {
       name: "nominatedAreaId",
       type: "dropdown",
       tableName: "tblPort p",
-      displayColumn: "p.name",
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
       joins:
         "join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = null",
       isEdit: true,
-      foreignTable: "name,tblPort",
+      foreignTable: "code-name,tblPort",
       required: true,
     },
     {
