@@ -189,3 +189,76 @@ export const cfsGridButtons = [
   { text: "Add", icon: <AddIcon />, func: "gridAddHandler" },
   { text: "Delete", icon: <CloseIcon />, func: "gridDeleteHandler" },
 ];
+
+export const advanceSearchFields = {
+  bl: [
+    {
+      label: "Liner",
+      name: "shippingLineId",
+      type: "multiselect",
+      tableName: "tblCompany t",
+      displayColumn: "t.name",
+      orderBy: "t.name",
+      isEdit: true,
+    },
+    {
+      label: "BL No",
+      name: "blNo",
+      isEdit: true,
+    },
+    {
+      label: "CFS",
+      name: "nominatedAreaId",
+      type: "multiselect",
+      tableName: "tblPort p",
+      displayColumn: "p.name",
+      joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS'`,
+      isEdit: true,
+    },
+    {
+      label: "Status",
+      name: "cfsRequestStatusId",
+      type: "multiselect",
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where: "m.masterListName = 'tblCfsStatusType'",
+      orderBy: "m.name",
+      isEdit: true,
+    },
+  ],
+  shipBl: [
+    {
+      label: "Company Name",
+      name: "companyId",
+      type: "multiselect",
+      tableName: "tblCompany t",
+      displayColumn: "t.name",
+      orderBy: "t.name",
+      isEdit: true,
+    },
+    {
+      label: "BL No",
+      name: "blNo",
+      isEdit: true,
+    },
+    {
+      label: "CFS",
+      name: "nominatedAreaId",
+      type: "multiselect",
+      tableName: "tblPort p",
+      displayColumn: "p.name",
+      joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS'`,
+      isEdit: true,
+    },
+    {
+      label: "Status",
+      name: "cfsRequestStatusId",
+      type: "multiselect",
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where: "m.masterListName = 'tblCfsStatusType'",
+      orderBy: "m.name",
+      isEdit: true,
+    },
+  ],
+};

@@ -21,13 +21,14 @@ import { fetchTableValues } from "@/apis";
 import { ToastContainer } from "react-toastify";
 import { formStore } from "@/store";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
-import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import DoToolbarActions from "@/components/selectionActions/doToolbarActions";
-import { doStatusHandler, statusColor } from "../utils";
+import { advanceSearchFilter, doStatusHandler, statusColor } from "../utils";
 import { useRouter } from "next/navigation";
 import HistoryIcon from "@mui/icons-material/History";
 import { DoHistoryModal } from "./historyModal";
+import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
+import { advanceSearchFields } from "../doData";
 function createData(
   blNo,
   isFreeDays,
@@ -61,9 +62,7 @@ export default function BLList() {
   const { setMode } = formStore();
   const tableWrapRef = useRef(null);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [idsOnPage, setIdsOnPage] = useState([]);
   const userData = getUserByCookies();
-  const { data } = useGetUserAccessUtils("HBL Request");
   const [someChecked, setSomeChecked] = useState(false);
   const [allChecked, setAllChecked] = useState(false);
   const router = useRouter();
@@ -84,6 +83,7 @@ export default function BLList() {
           tableName: "tblDoRequest d",
           pageNo,
           pageSize,
+          advanceSearch: advanceSearchFilter(advanceSearch),
           joins: `
             left join tblCompany c on c.id = d.shippingLineId
             left join tblMasterData m on m.id = d.doRequestStatusId
@@ -108,7 +108,7 @@ export default function BLList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage],
+    [page, rowsPerPage, advanceSearch],
   );
 
   const rows = blData
@@ -156,7 +156,16 @@ export default function BLList() {
           <Typography variant="body1" className="text-left flex items-center">
             Do Request List
           </Typography>
-          <CustomButton text="ADD" href="/invoice/doRequest" />
+          <Box className="flex gap-4">
+            <AdvancedSearchBar
+              fields={advanceSearchFields.bl}
+              advanceSearch={advanceSearch}
+              setAdvanceSearch={setAdvanceSearch}
+              getData={getData}
+              rowsPerPage={rowsPerPage}
+            />
+            <CustomButton text="ADD" href="/invoice/doRequest" />
+          </Box>
         </Box>
         <DoToolbarActions
           selectedIds={selectedIds}

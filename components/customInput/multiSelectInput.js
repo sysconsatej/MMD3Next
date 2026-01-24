@@ -1,5 +1,11 @@
-import React from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import { Autocomplete, Box, InputLabel, TextField } from "@mui/material";
+import { useDebounce } from "@/utils";
+
+const ListboxComponent = forwardRef(function ListboxComponent(props, ref) {
+  const { onScroll, ...other } = props;
+  return <ul ref={ref} {...other} onScroll={onScroll} />;
+});
 
 const MultiSelectInput = ({
   commonProps,
@@ -9,8 +15,33 @@ const MultiSelectInput = ({
   getData,
   changeHandler,
   containerIndex,
-  fieldHighLight
+  fieldHighLight,
 }) => {
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
+
+  const handleScroll = (event) => {
+    const { scrollHeight, scrollTop, clientHeight } = event.target;
+    const nearBottom = scrollHeight - (scrollTop + clientHeight) <= 1;
+    if (nearBottom) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      getData(field, commonProps.name, nextPage, search);
+    }
+  };
+
+  const handleInputFocus = () => {
+    setPage(1);
+    getData(field, commonProps.name, 1, "");
+  };
+
+  useEffect(() => {
+    if (debouncedSearch !== "") {
+      getData(field, commonProps.name, 1, debouncedSearch);
+    }
+  }, [debouncedSearch]);
+
   return (
     <Box className="flex items-end gap-2">
       <InputLabel className={`${fieldHighLight && "bg-[#FDACAC]"}`}>
@@ -33,6 +64,7 @@ const MultiSelectInput = ({
             : [{ Name: "Loading..." }]
         }
         getOptionLabel={(option) => option?.Name || ""}
+        inputValue={search}
         filterSelectedOptions
         renderOption={(props, option) => (
           <Box component="li" {...props} key={option.Id}>
@@ -47,13 +79,24 @@ const MultiSelectInput = ({
             required={commonProps.required && fieldValue.length === 0}
           />
         )}
-        onFocus={() => getData(field, commonProps.name)}
+        onInputChange={(event, newInputValue, reason) => {
+          if (reason === "input") {
+            setSearch(newInputValue);
+            setPage(1);
+          }
+        }}
+        onFocus={handleInputFocus}
         onChange={(event, value) => {
+          setSearch("");
+          setPage(1);
           changeHandler(
             { target: { name: commonProps.name, value } },
-            containerIndex
+            containerIndex,
           );
         }}
+        ListboxComponent={ListboxComponent}
+        disableListWrap
+        ListboxProps={{ onScroll: handleScroll }}
       />
     </Box>
   );

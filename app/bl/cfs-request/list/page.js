@@ -18,12 +18,10 @@ import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
-import SearchBar from "@/components/searchBar/searchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
-import { fieldData, tblColsLables } from "../fieldsData";
+import { advanceSearchFields, tblColsLables } from "../fieldsData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import {
@@ -50,7 +48,6 @@ export default function CompanyList() {
   const [totalRows, setTotalRows] = useState(0);
   const [rows, setRows] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("NO DATA...");
   const tableWrapRef = useRef(null);
   const [advanceSearch, setAdvanceSearch] = useState({});
@@ -75,7 +72,11 @@ export default function CompanyList() {
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
-        const payload = tableObj({ pageNo, pageSize, search });
+        const payload = tableObj({
+          pageNo,
+          pageSize,
+          advanceSearch,
+        });
         const { data, totalPage, totalRows } = await fetchTableValues(payload);
 
         setRows(data || []);
@@ -89,7 +90,7 @@ export default function CompanyList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, advanceSearch],
   );
 
   /* ---------------- Checkbox Logic ---------------- */
@@ -103,7 +104,7 @@ export default function CompanyList() {
 
   const toggleOne = (id) =>
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
 
   /* ---------------- Actions ---------------- */
@@ -138,6 +139,13 @@ export default function CompanyList() {
           <Typography variant="body1">CFS Request</Typography>
 
           <Box className="flex gap-4">
+            <AdvancedSearchBar
+              fields={advanceSearchFields.bl}
+              advanceSearch={advanceSearch}
+              setAdvanceSearch={setAdvanceSearch}
+              getData={getData}
+              rowsPerPage={rowsPerPage}
+            />
             <CustomButton text="Add" href="/bl/cfs-request" />
           </Box>
         </Box>
@@ -204,7 +212,9 @@ export default function CompanyList() {
                     <TableCell>{row?.customBrokerText}</TableCell>
                     <TableCell
                       sx={{
-                        color: statusColor(row.cfsRequestStatusId?.replace(/\s+/g, "")),
+                        color: statusColor(
+                          row.cfsRequestStatusId?.replace(/\s+/g, ""),
+                        ),
                       }}
                     >
                       {row.cfsRequestStatusId}

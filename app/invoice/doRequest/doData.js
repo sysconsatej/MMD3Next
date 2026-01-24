@@ -294,4 +294,48 @@ export const cfsGridButtons = [
   { text: "Delete", icon: <CloseIcon />, func: "gridDeleteHandler" },
 ];
 
-export const advanceSearchFields = {};
+export const advanceSearchFields = {
+  bl: [
+    {
+      label: "Liner",
+      name: "shippingLineId",
+      type: "multiselect",
+      tableName: "tblCompany t",
+      displayColumn: "t.name",
+      orderBy: "t.name",
+      isEdit: true,
+    },
+    {
+      label: "BL No",
+      name: "blNo",
+      isEdit: true,
+    },
+    {
+      label: "Status",
+      name: "doRequestStatusId",
+      type: "multiselect",
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where: "m.masterListName = 'tblDoStatus'",
+      orderBy: "m.name",
+      isEdit: true,
+    },
+  ],
+  shipBl: [
+    {
+      label: "BL No",
+      name: "blNo",
+      isEdit: true,
+    },
+    {
+      label: "Status",
+      name: "doRequestStatusId",
+      type: "multiselect",
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where: "m.masterListName = 'tblDoStatus'",
+      orderBy: "m.name",
+      isEdit: true,
+    },
+  ],
+};

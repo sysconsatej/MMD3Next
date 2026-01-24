@@ -190,7 +190,7 @@ export default function DoToolbarActions({
             label="Confirm"
             icon={<CheckIcon />}
             onClick={() => call(onConfirm)}
-            disabled={!hasAny || !onConfirm}
+            disabled={!hasAny || isDisableBtn?.isEditDisable}
           />
         )}
 
@@ -200,7 +200,7 @@ export default function DoToolbarActions({
             label="Reject"
             icon={<CloseIcon />}
             onClick={() => call(onReject)}
-            disabled={!hasAny || !onReject}
+            disabled={!hasAny || isDisableBtn?.isEditDisable}
           />
         )}
 
