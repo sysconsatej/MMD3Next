@@ -99,7 +99,7 @@ export const fieldData = {
       tableName: "tblPort p",
       joins: `join tblMasterData m on m.id = p.portTypeId and m.name = 'DEPOT' and p.status = 1`,
       orderBy: "p.name",
-      foreignTable: "name,tblMasterData",
+      foreignTable: "name,tblPort",
       isEdit: true,
       disabled: true,
     },

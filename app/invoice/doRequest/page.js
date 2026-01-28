@@ -37,7 +37,8 @@ export default function Home() {
 
   const submitHandler = async (e) => {
     e?.preventDefault();
-    checkAttachment(formData);
+    const checkCondition = checkAttachment(formData);
+    if (checkCondition) return;
 
     let { tblInvoicePayment, tblBlContainer, ...restData } = formData;
 

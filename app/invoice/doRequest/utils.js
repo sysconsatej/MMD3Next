@@ -608,6 +608,8 @@ export function checkAttachment(formData) {
     toast.warn(
       "Please add attachment or valid till in all container before submit!",
     );
-    return;
+    return true;
   }
+
+  return false;
 }
