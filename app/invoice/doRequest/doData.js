@@ -33,6 +33,7 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       orderBy: "m.name",
       isEdit: true,
+      required: true,
     },
     {
       label: "DE StuFfing Type",
@@ -40,7 +41,8 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblMasterData m",
       displayColumn: "m.name",
-      where: "m.masterListName = 'tblStuffingDestuffingType'",
+      where:
+        "m.masterListName = 'tblStuffingDestuffingType' and m.name <> 'Factory' and m.name <> 'Dock'",
       foreignTable: "name,tblMasterData",
       orderBy: "m.name",
       isEdit: true,
@@ -93,7 +95,7 @@ export const fieldData = {
       label: "Empty Yard",
       name: "emptyDepotId",
       type: "dropdown",
-      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      displayColumn: "p.name",
       tableName: "tblPort p",
       joins: `join tblMasterData m on m.id = p.portTypeId and m.name = 'DEPOT' and p.status = 1`,
       orderBy: "p.name",

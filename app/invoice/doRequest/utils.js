@@ -305,6 +305,7 @@ export const BlurEventFunctions = ({ formData, setFormData, jsonData }) => {
             ...convertData,
             blNo: value,
             blId: blId,
+            cargoTypeId: null,
             tblBlContainer: updateTblContainer,
           });
         }
@@ -339,7 +340,12 @@ export const BlurEventFunctions = ({ formData, setFormData, jsonData }) => {
   };
 };
 
-export const changeEventFunctions = ({ mode, setFormData, formData }) => {
+export const changeEventFunctions = ({
+  mode,
+  setFormData,
+  formData,
+  setJsonData,
+}) => {
   return {
     freeDaysChangeHandler: async (name, value) => {
       if (value === "Y") {
@@ -366,6 +372,21 @@ export const changeEventFunctions = ({ mode, setFormData, formData }) => {
               };
             });
           }
+
+          setJsonData((prev) => {
+            const updateTblBlContainer = prev?.tblBlContainer.map((item) => {
+              if (item.name === "doValidityDate") {
+                return { ...item, required: false };
+              }
+
+              return item;
+            });
+
+            return {
+              ...prev,
+              tblBlContainer: updateTblBlContainer,
+            };
+          });
         } catch (e) {
           console.log("error", e.message);
         }
@@ -375,6 +396,21 @@ export const changeEventFunctions = ({ mode, setFormData, formData }) => {
             ...item,
             doValidityDate: null,
           }));
+          return {
+            ...prev,
+            tblBlContainer: updateTblBlContainer,
+          };
+        });
+
+        setJsonData((prev) => {
+          const updateTblBlContainer = prev?.tblBlContainer.map((item) => {
+            if (item.name === "doValidityDate") {
+              return { ...item, required: true };
+            }
+
+            return item;
+          });
+
           return {
             ...prev,
             tblBlContainer: updateTblBlContainer,
@@ -545,7 +581,6 @@ export function advanceSearchFilter(advanceSearch) {
     );
   }
 
-
   if (advanceSearch?.companyId) {
     condition.push(
       `c1.name in (${advanceSearch?.companyId
@@ -555,4 +590,24 @@ export function advanceSearchFilter(advanceSearch) {
   }
 
   return condition.length > 0 ? condition.join(" and ") : null;
+}
+
+export function checkAttachment(formData) {
+  let checkValid = true;
+  if (formData?.isFreeDays === "N") {
+    checkValid = formData?.tblBlContainer?.every((item) => {
+      return item.doValidityDate;
+    });
+  }
+
+  const allCheck = [checkValid, formData?.tblAttachment?.length > 0].some(
+    (item) => item === false,
+  );
+
+  if (allCheck === true) {
+    toast.warn(
+      "Please add attachment or valid till in all container before submit!",
+    );
+    return;
+  }
 }
