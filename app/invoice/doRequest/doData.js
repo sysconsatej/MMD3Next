@@ -42,7 +42,7 @@ export const fieldData = {
       tableName: "tblMasterData m",
       displayColumn: "m.name",
       where:
-        "m.masterListName = 'tblStuffingDestuffingType' and m.name <> 'Factory' and m.name <> 'Dock'",
+        "m.masterListName = 'tblStuffingDestuffingType' and (m.name = 'Factory' or m.name = 'Dock')",
       foreignTable: "name,tblMasterData",
       orderBy: "m.name",
       isEdit: true,
