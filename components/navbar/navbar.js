@@ -222,10 +222,18 @@ export default function Navbar() {
     fetchDataAndSetValue();
   }, []);
 
-  const loginToExportModule = () => {
-    return null;
-    // const user = getUserByCookies();
-    // console.log(user, " user from the cookie");
+  const loginToExportModule = async () => {
+    const user = getUserByCookies();
+    const reqBody = {
+      columns: "u.password",
+      tableName: "tblUser u",
+      whereCondition: `u.emailId = '${user?.emailId}'`,
+    };
+    const res = await getDataWithCondition(reqBody);
+    if (res?.data && res?.data?.length > 0) {
+      const redirectLink = `https://mmd3_uat.mastergroups.com/UserLogin/AuthenticateExternal?username=${user.userName}&password=${res?.data[0]?.password}&vendorUserName=CCC44A04-F756-4DE4-9959-5A135E19A035`;
+      router.push(redirectLink);
+    }
   };
 
   return (
@@ -422,9 +430,8 @@ export default function Navbar() {
                 </Box>
                 <Box className="nav-account cursor-pointer ">
                   <CustomButton
-                    href={"#"}
                     onClick={() => loginToExportModule()}
-                    target={""}
+                    target={"_blank"}
                     text={"Export"}
                   />
                 </Box>
