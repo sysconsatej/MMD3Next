@@ -305,6 +305,7 @@ export const fieldData = {
       displayColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblCarrierPort",
+      where: `t.companyId = ${userData?.companyId} and t.status = 1`,
       isEdit: true,
       changeFun: "setCarrierBondAndCode",
     },
