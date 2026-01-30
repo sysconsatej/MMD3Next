@@ -390,9 +390,9 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
       if (name === "podId" || name === "fpdId") {
         let setWhere = null;
         if (name === "podId") {
-          setWhere = `podId = ${value?.Id} and fpdId = ${formData?.fpdId?.Id} and defaultCfs = 'Y' and status = 1`;
+          setWhere = `podId = ${value?.Id} and fpdId = ${formData?.fpdId?.Id} and defaultCfs = 'Y' and status = 1 and companyId = ${userData?.companyId}`;
         } else {
-          setWhere = `podId = ${formData?.podId?.Id} and fpdId = ${value?.Id} and defaultCfs = 'Y' and status = 1`;
+          setWhere = `podId = ${formData?.podId?.Id} and fpdId = ${value?.Id} and defaultCfs = 'Y' and status = 1 and companyId = ${userData?.companyId}`;
         }
         const payload = {
           columns: "id, name",
@@ -430,7 +430,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
     `,
         tableName: "tblCarrierPort t",
         joins: "left join tblMasterData m on m.id = t.modeId",
-        whereCondition: `t.id = ${value?.Id} and t.defaultCfs = 'Y' and t.status = 1`,
+        whereCondition: `t.id = ${value?.Id} and t.defaultCfs = 'Y' and t.status = 1 and t.companyId = ${userData?.companyId}`,
       };
 
       const { data, success } = await getDataWithCondition(obj);
