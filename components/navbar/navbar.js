@@ -32,6 +32,7 @@ import { locationFields } from "./navbarUtil";
 import Cookies from "js-cookie";
 import { getDataWithCondition } from "@/apis";
 import { toast } from "react-toastify";
+import CustomButton from "../button/button";
 
 const norm = (s) => (s ? s.split("?")[0].replace(/\/$/, "") : "");
 const scope = (path, depth) => norm(path).split("/").slice(0, depth).join("/");
@@ -145,7 +146,7 @@ export default function Navbar() {
   useEffect(() => {
     const { activeLink, activeSubLink, activeParentSubLink } = getActiveNavItem(
       navItems,
-      pathname
+      pathname,
     );
     setActiveLink(activeLink);
     setActiveSubLink(activeSubLink);
@@ -220,6 +221,21 @@ export default function Navbar() {
 
     fetchDataAndSetValue();
   }, []);
+
+  const loginToExportModule = async () => {
+    const user = getUserByCookies();
+    const reqBody = {
+      columns: "u.password",
+      tableName: "tblUser u",
+      whereCondition: `u.emailId = '${user?.emailId}'`,
+    };
+    const res = await getDataWithCondition(reqBody);
+    if (res?.data && res?.data?.length > 0) {
+      // const redirectLink = `https://mmd3_uat.mastergroups.com/UserLogin/AuthenticateExternal?username=${user.userName}&password=${res?.data[0]?.password}&vendorUserName=CCC44A04-F756-4DE4-9959-5A135E19A035`;
+      const fallBackTestingLink  = `https://mmd3_uat.mastergroups.com/UserLogin/AuthenticateExternal?username=atest&password=abc123&vendorUserName=CCC44A04-F756-4DE4-9959-5A135E19A035`;
+      router.push(fallBackTestingLink);
+    }
+  };
 
   return (
     <ThemeProvider theme={navTheme}>
@@ -413,6 +429,13 @@ export default function Navbar() {
                     </div>
                   </Box>
                 </Box>
+                <Box className="nav-account cursor-pointer ">
+                  <CustomButton
+                    onClick={() => loginToExportModule()}
+                    target={"_blank"}
+                    text={"Export"}
+                  />
+                </Box>
               </Box>
             </Box>
           )}
@@ -563,6 +586,9 @@ export default function Navbar() {
                 {userData?.data?.roleName || ""}
               </Typography>
             </Box>
+          </Box>
+          <Box className="mt-3">
+            <CustomButton href={"#"} onClick={{}} target={""} text={"Export"} />
           </Box>
         </Box>
       </Drawer>

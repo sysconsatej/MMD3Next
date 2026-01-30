@@ -11,11 +11,13 @@ import { fetchDynamicReportData } from "@/apis/dynamicReport";
 import { useRouter } from "next/navigation";
 import { getUserByCookies } from "@/utils";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
+import DynamicReportDownloadCsvButton from "@/components/dynamicReportExcelDownload/page";
 
 export default function IgmGeneration() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [tableData, setTableData] = useState([]);
+  const [tableFormData, setTableFormData] = useState([]);
   const [goLoading, setGoLoading] = useState(false);
   const router = useRouter();
   const userData = getUserByCookies();
@@ -28,7 +30,7 @@ export default function IgmGeneration() {
           return [key, value.Id];
         }
         return [key, value];
-      })
+      }),
     );
   };
 
@@ -73,7 +75,7 @@ export default function IgmGeneration() {
           toast.info("No data found.");
         } else {
           toast.error(
-            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`
+            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`,
           );
         }
       }
@@ -140,6 +142,17 @@ export default function IgmGeneration() {
               onClick={handleGenerateReport}
               title={!tableData.length ? "No data to export" : ""}
             /> */}
+            <DynamicReportDownloadCsvButton
+              rows={tableFormData}
+              metaData={metaData}
+              fileName={`ContainerReport_${new Date()
+                .toISOString()
+                .slice(0, 10)}.csv`}
+              text="DOWNLOAD EXCEL"
+              buttonStyles="custom-btn"
+              disabled={!tableFormData.length}
+            />
+
             <CustomButton
               text="Cancel"
               buttonStyles="!text-[white] !bg-[#f5554a] !text-[11px]"
@@ -151,7 +164,11 @@ export default function IgmGeneration() {
       </form>
 
       <Box className="p-0">
-        <DynamicReportTable data={tableData} metaData={metaData} />
+        <DynamicReportTable
+          data={tableData}
+          metaData={metaData}
+          onSelectedEditedChange={setTableFormData}
+        />
       </Box>
 
       <ToastContainer />
