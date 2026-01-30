@@ -11,7 +11,7 @@ import { fetchDynamicReportData } from "@/apis/dynamicReport";
 import { useRouter } from "next/navigation";
 import { getUserByCookies } from "@/utils";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
-import DynamicReportDownloadCsvButton from "@/components/dynamicReportExcelDownload/page";
+import DynamicReportDownloadExcelButton from "@/components/dynamicReportExcel/page";
 
 export default function IgmGeneration() {
   const [formData, setFormData] = useState({});
@@ -30,7 +30,7 @@ export default function IgmGeneration() {
           return [key, value.Id];
         }
         return [key, value];
-      })
+      }),
     );
   };
 
@@ -75,7 +75,7 @@ export default function IgmGeneration() {
           toast.info("No data found.");
         } else {
           toast.error(
-            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`
+            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`,
           );
         }
       }
@@ -142,13 +142,15 @@ export default function IgmGeneration() {
               onClick={handleGenerateReport}
               title={!tableData.length ? "No data to export" : ""}
             /> */}
-            <DynamicReportDownloadCsvButton
-              rows={tableFormData} // ✅ ONLY checked rows
+            <DynamicReportDownloadExcelButton
+              rows={tableFormData}
               metaData={metaData}
-              fileName={`ManifestBl_Selected_${new Date().toISOString().slice(0, 10)}.csv`}
+              fileName={`ManifestBlReport_${new Date()
+                .toISOString()
+                .slice(0, 10)}.xlsx`}
               text="DOWNLOAD EXCEL"
               buttonStyles="custom-btn"
-              disabled={!tableFormData.length} // ✅ disabled until at least 1 row checked
+              disabled={!tableFormData.length}
             />
             <CustomButton
               text="Cancel"

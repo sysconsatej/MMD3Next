@@ -551,3 +551,25 @@ export async function requestHandler(formData, setDisableRequest) {
     toast.error("Something went wrong while requesting CFS");
   }
 }
+export const getBlIdIfExists = async ({
+  blNo,
+  shippingLineId,
+  locationId,
+}) => {
+  const resp = await getDataWithCondition({
+    columns: "b.id",
+    tableName: "tblBl b",
+    whereCondition: `
+      isNull(b.mblNo,b.hblNo) = '${blNo.toUpperCase()}'
+      AND b.shippingLineId = ${shippingLineId}
+      AND b.locationId = ${locationId}
+      AND b.status = 1 AND b.mblHblFlag='mbl'
+    `,
+  });
+
+  if (!Array.isArray(resp?.data) || resp.data.length === 0) {
+    return null; 
+  }
+
+  return resp.data[0].id;
+};

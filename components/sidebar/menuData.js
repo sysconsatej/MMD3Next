@@ -224,6 +224,11 @@ export const navItems = [
         isShow: false,
       },
       {
+        name: "Import Advance List(CSV)",
+        href: "/reports/customAndPort/importAdvanceListCsv",
+        isShow: false,
+      },
+      {
         name: "Import Advance List(Text)",
         href: "/reports/customAndPort/importAdvanceListText",
         isShow: false,

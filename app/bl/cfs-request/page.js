@@ -16,7 +16,7 @@ import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
-import { handleBlur, handleChange, requestHandler } from "./utils";
+import { getBlIdIfExists, handleBlur, handleChange, requestHandler } from "./utils";
 import { getUserByCookies } from "@/utils";
 import { useSetDefault } from "./hooks";
 
@@ -39,13 +39,14 @@ export default function Company() {
       ...formData,
       companyId: userData?.companyId,
       companyBranchId: userData?.branchId,
+      blId: formData?.blId || null,
     };
 
     const format = formatFormData(
       "tblCfsRequest",
       normalized,
       mode?.formId || null,
-      "cfsRequestId"
+      "cfsRequestId",
     );
 
     const { success, error, message } = await insertUpdateForm(format);
@@ -106,6 +107,16 @@ export default function Company() {
 
       setErrorState((prev) => ({ ...prev, blNo: false }));
       setFormData((prev) => ({ ...prev, blNo: normalized.toUpperCase() }));
+      const blId = await getBlIdIfExists({
+        blNo: normalized,
+        shippingLineId: formData?.shippingLineId?.Id,
+        locationId: userData?.location,
+      });
+
+      setFormData((prev) => ({
+        ...prev,
+        blId: blId,
+      }));
       return true;
     },
   };
@@ -121,7 +132,7 @@ export default function Company() {
         "tblCfsRequest",
         mode.formId,
         '["tblAttachment"]',
-        "cfsRequestId"
+        "cfsRequestId",
       );
 
       const { success, result, message, error } = await fetchForm(format);
@@ -144,9 +155,8 @@ export default function Company() {
           whereCondition: `b.id = ${mode.formId}`,
         };
 
-        const { success: stSuccess, data: stData } = await getDataWithCondition(
-          statusQuery
-        );
+        const { success: stSuccess, data: stData } =
+          await getDataWithCondition(statusQuery);
 
         if (stSuccess && Array.isArray(stData) && stData.length > 0) {
           currentStatusName = String(stData[0].StatusName || "")
