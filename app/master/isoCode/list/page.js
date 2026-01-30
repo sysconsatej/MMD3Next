@@ -90,6 +90,7 @@ export default function IsoCodeList() {
     const updateObj = {
       updatedBy: userData?.userId,
       clientId: 1,
+      deletedNo:formId,
       updatedDate: new Date(),
     };
     const obj = {
