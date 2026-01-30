@@ -19,6 +19,7 @@ import { formatFormData, getUserByCookies } from "@/utils";
 import {
   BlurEventFunctions,
   changeEventFunctions,
+  checkAttachment,
   doStatusHandler,
   getDORequest,
   requestHandler,
@@ -36,6 +37,9 @@ export default function Home() {
 
   const submitHandler = async (e) => {
     e?.preventDefault();
+    const checkCondition = checkAttachment(formData);
+    if (checkCondition) return;
+
     let { tblInvoicePayment, tblBlContainer, ...restData } = formData;
 
     if (
@@ -104,6 +108,7 @@ export default function Home() {
     setFormData,
     mode,
     formData,
+    setJsonData,
   });
 
   useEffect(() => {

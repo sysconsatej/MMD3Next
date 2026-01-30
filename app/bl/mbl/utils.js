@@ -30,18 +30,18 @@ export function useTotalGrossAndPack(formData, setTotals) {
     if (formData?.tblBlContainer && Array.isArray(formData.tblBlContainer)) {
       grossWt += formData.tblBlContainer.reduce(
         (sum, c) => sum + (Number(c.grossWt) || 0),
-        0
+        0,
       );
       packages += formData.tblBlContainer.reduce(
         (sum, c) => sum + (Number(c.noOfPackages) || 0),
-        0
+        0,
       );
     }
 
     if (formData?.item && Array.isArray(formData.item)) {
       packages += formData.item.reduce(
         (sum, i) => sum + (Number(i.itemNoOfPackages) || 0),
-        0
+        0,
       );
     }
 
@@ -55,7 +55,7 @@ export function advanceSearchFilter(advanceSearch) {
 
   if (advanceSearch?.blNo) {
     condition.push(
-      `(b.mblNo = '${advanceSearch.blNo}') or (b.hblNo = '${advanceSearch.blNo}')`
+      `(b.mblNo = '${advanceSearch.blNo}') or (b.hblNo = '${advanceSearch.blNo}')`,
     );
   }
 
@@ -86,13 +86,13 @@ export const checkNoPackages = ({ formData, hblType }) => {
       const childTotal = Array.isArray(row?.tblBlPackingList)
         ? row.tblBlPackingList.reduce(
             (sum, cur) => sum + Number(cur?.noOfPackages || 0),
-            0
+            0,
           )
         : 0;
 
       if (parentPackages !== childTotal) {
         errors.push(
-          `${row?.hblNo} Total No of Packages (${childTotal}) in Item Details does not match  No of Packages (${parentPackages})`
+          `${row?.hblNo} Total No of Packages (${childTotal}) in Item Details does not match  No of Packages (${parentPackages})`,
         );
       }
     });
@@ -103,7 +103,7 @@ export const checkNoPackages = ({ formData, hblType }) => {
   const totalPackages = Array.isArray(formData?.tblBlPackingList)
     ? formData.tblBlPackingList.reduce(
         (sum, cur) => sum + Number(cur?.noOfPackages || 0),
-        0
+        0,
       )
     : 0;
 
@@ -134,7 +134,7 @@ export const getPortBasedOnCountry = async ({ portId, inputName }) => {
     inputName: inputName,
   };
   const existingIndex = storeApiResult.findIndex(
-    (item) => item.inputName === inputName
+    (item) => item.inputName === inputName,
   );
   if (existingIndex > -1) {
     storeApiResult[existingIndex] = newEntry;
@@ -219,7 +219,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
             containerIndex,
             name: "isoCode",
             value: data[0],
-          })
+          }),
         );
       } else {
         setFormData((prevData) =>
@@ -231,7 +231,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
             containerIndex,
             name: "isoCode",
             value: null,
-          })
+          }),
         );
       }
     },
@@ -255,7 +255,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
             containerIndex,
             name: "isoCode",
             value: data[0],
-          })
+          }),
         );
       } else {
         setFormData((prevData) =>
@@ -267,7 +267,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
             containerIndex,
             name: "isoCode",
             value: null,
-          })
+          }),
         );
       }
     },
@@ -359,7 +359,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
 
       if (podId === "IN" && fpdId === "IN") {
         const filtered = storeApiResult.filter(
-          (i) => i.inputName === "podId" || i.inputName === "fpdId"
+          (i) => i.inputName === "podId" || i.inputName === "fpdId",
         );
 
         const isSamePort = hasDuplicateId(filtered);
@@ -380,12 +380,11 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
             Name: modeMap.L.Name,
           };
         }
-
-        setFormData((prev) => ({
-          ...prev,
-          ...updates,
-        }));
       }
+      setFormData((prev) => ({
+        ...prev,
+        ...updates,
+      }));
 
       if (name === "podId" || name === "fpdId") {
         let setWhere = null;
@@ -469,7 +468,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
           containerIndex: null,
           name: "podVoyageId",
           value: null,
-        })
+        }),
       );
 
       if (!vesselId) return;
@@ -494,7 +493,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
               containerIndex: null,
               name: "podVoyageId",
               value: data[0],
-            })
+            }),
           );
         }
       } catch (e) {
@@ -512,7 +511,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
             containerIndex: containerIndex,
             name: "containerAgentCode",
             value: null,
-          })
+          }),
         );
       } else {
         const objAgentCode = {
@@ -520,9 +519,8 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
           tableName: "tblCompany",
           whereCondition: `id = ${userData?.companyId} and status = 1`,
         };
-        const { data: dataAgentCode } = await getDataWithCondition(
-          objAgentCode
-        );
+        const { data: dataAgentCode } =
+          await getDataWithCondition(objAgentCode);
         setFormData((prevData) =>
           setInputValue({
             prevData,
@@ -532,7 +530,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
             containerIndex: containerIndex,
             name: "containerAgentCode",
             value: dataAgentCode?.[0]?.panNo,
-          })
+          }),
         );
       }
     },
@@ -547,7 +545,7 @@ export const createdHandleBlurEventFunctions = ({ setFormData, formData }) => {
       const pattern = /^[A-Za-z]{4}[0-9]{7}$/;
       if (!pattern.test(value)) {
         toast.error(
-          "Invalid Container Number format. It should be 4 letters followed by 7 digits."
+          "Invalid Container Number format. It should be 4 letters followed by 7 digits.",
         );
 
         setFormData((prevData) =>
@@ -559,7 +557,7 @@ export const createdHandleBlurEventFunctions = ({ setFormData, formData }) => {
             containerIndex,
             name,
             value: null,
-          })
+          }),
         );
 
         return "";
@@ -652,7 +650,7 @@ export const createGridEventFunctions = ({ setFormData }) => {
           containerIndex: gridIndex,
           name: "sealTypeId",
           value: dataSealType?.[0],
-        })
+        }),
       );
 
       setFormData((prevData) =>
@@ -664,7 +662,7 @@ export const createGridEventFunctions = ({ setFormData }) => {
           containerIndex: gridIndex,
           name: "containerAgentCode",
           value: dataAgentCode?.[0]?.panNo,
-        })
+        }),
       );
 
       setFormData((prevData) =>
@@ -676,7 +674,7 @@ export const createGridEventFunctions = ({ setFormData }) => {
           containerIndex: gridIndex,
           name: "soc",
           value: false,
-        })
+        }),
       );
     },
   };
@@ -763,7 +761,7 @@ export const createHandleChangeEventFunctionTrackPage = ({
             containerIndex: null,
             name: "podVoyageId",
             value: null,
-          })
+          }),
         );
         return;
       }
@@ -789,7 +787,7 @@ export const createHandleChangeEventFunctionTrackPage = ({
               containerIndex: null,
               name: "podVoyageId",
               value: data[0],
-            })
+            }),
           );
           filterObj = { ...filterObj, podVoyageId: data?.[0]?.Name };
         }

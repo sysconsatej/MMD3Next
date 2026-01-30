@@ -32,6 +32,7 @@ import { locationFields } from "./navbarUtil";
 import Cookies from "js-cookie";
 import { getDataWithCondition } from "@/apis";
 import { toast } from "react-toastify";
+import CustomButton from "../button/button";
 
 const norm = (s) => (s ? s.split("?")[0].replace(/\/$/, "") : "");
 const scope = (path, depth) => norm(path).split("/").slice(0, depth).join("/");
@@ -145,7 +146,7 @@ export default function Navbar() {
   useEffect(() => {
     const { activeLink, activeSubLink, activeParentSubLink } = getActiveNavItem(
       navItems,
-      pathname
+      pathname,
     );
     setActiveLink(activeLink);
     setActiveSubLink(activeSubLink);
@@ -220,6 +221,12 @@ export default function Navbar() {
 
     fetchDataAndSetValue();
   }, []);
+
+  const loginToExportModule = () => {
+    return null;
+    // const user = getUserByCookies();
+    // console.log(user, " user from the cookie");
+  };
 
   return (
     <ThemeProvider theme={navTheme}>
@@ -413,6 +420,14 @@ export default function Navbar() {
                     </div>
                   </Box>
                 </Box>
+                <Box className="nav-account cursor-pointer ">
+                  <CustomButton
+                    href={"#"}
+                    onClick={() => loginToExportModule()}
+                    target={""}
+                    text={"Export"}
+                  />
+                </Box>
               </Box>
             </Box>
           )}
@@ -563,6 +578,9 @@ export default function Navbar() {
                 {userData?.data?.roleName || ""}
               </Typography>
             </Box>
+          </Box>
+          <Box className="mt-3">
+            <CustomButton href={"#"} onClick={{}} target={""} text={"Export"} />
           </Box>
         </Box>
       </Drawer>
