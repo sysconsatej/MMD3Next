@@ -2,11 +2,11 @@ const fieldData = {
   portFields: [
     {
       label: "Role Type",
-      name: "roleCode",
+      name: "roleCodeId",
       type: "dropdown",
       tableName: "tblUser u",
       displayColumn: "u.name",
-      where: "u.status = 1 and  u.userType = 'R' and u.name <> 'CFS'",
+      where: "u.status = 1 and  u.userType = 'R'",
       foreignTable: "name,tblUser",
       orderBy: "u.name",
       isEdit: true,

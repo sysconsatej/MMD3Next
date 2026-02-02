@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { roleAccessPaths } from "./utils";
+// import { roleAccessPaths } from "./utils";
 
 export default function middleware(request) {
   const token = request.cookies.get("token");
@@ -35,31 +35,31 @@ export default function middleware(request) {
   }
 
   // Role-based access control
-  if (isLoggedIn) {
-    const userCookie = request.cookies.get("user")?.value;
-    let user = null;
+  // if (isLoggedIn) {
+  //   const userCookie = request.cookies.get("user")?.value;
+  //   let user = null;
 
-    try {
-      user = userCookie ? JSON.parse(userCookie) : null; // parse safely if stored as JSON
-    } catch {
-      user = null;
-    }
+  //   try {
+  //     user = userCookie ? JSON.parse(userCookie) : null; // parse safely if stored as JSON
+  //   } catch {
+  //     user = null;
+  //   }
 
-    for (const [path, roles] of Object.entries(roleAccessPaths)) {
-      if (pathname.startsWith(path)) {
-        if (!user || !roles.includes(user.roleCode)) {
-          // ❌ Instead of redirecting to home, show 404
-          const notFoundUrl = new URL("/404", request.url); // rewrite to 404
-          const response = NextResponse.rewrite(notFoundUrl);
-          response.headers.set(
-            "Cache-Control",
-            "no-store, no-cache, must-revalidate, proxy-revalidate"
-          );
-          return response;
-        }
-      }
-    }
-  }
+  //   for (const [path, roles] of Object.entries(roleAccessPaths)) {
+  //     if (pathname.startsWith(path)) {
+  //       if (!user || !roles.includes(user.roleCode)) {
+  //         // ❌ Instead of redirecting to home, show 404
+  //         const notFoundUrl = new URL("/404", request.url); // rewrite to 404
+  //         const response = NextResponse.rewrite(notFoundUrl);
+  //         response.headers.set(
+  //           "Cache-Control",
+  //           "no-store, no-cache, must-revalidate, proxy-revalidate"
+  //         );
+  //         return response;
+  //       }
+  //     }
+  //   }
+  // }
 
   // Continue normally if the user is already in the correct state
   const response = NextResponse.next();
