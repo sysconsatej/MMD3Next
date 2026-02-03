@@ -1,0 +1,55 @@
+"use client";
+import React, { useMemo } from "react";
+import { Box, Typography } from "@mui/material";
+
+export default function MBLSelectionActionsBar({
+  selectedIds = [],
+  onView,
+  onEdit,
+  onDelete,
+  onPrint,
+}) {
+  const ids = useMemo(() => selectedIds.filter(Boolean), [selectedIds]);
+
+  const count = ids.length;
+  const single = count === 1;
+
+  const Action = ({ label, onClick, disabled }) => (
+    <div
+      className={`flex-1 text-center py-1 px-3 cursor-pointer hover:bg-[#B5C4F0] hover:text-white
+      ${disabled ? "pointer-events-none opacity-50" : ""}`}
+      onClick={!disabled ? onClick : undefined}
+    >
+      {label}
+    </div>
+  );
+
+  return (
+    <Box className="flex items-center justify-between mb-2">
+      <div className="flex border border-[#B5C4F0] text-xs rounded-sm overflow-hidden">
+        <Action
+          label="View"
+          disabled={!single}
+          onClick={() => onView(ids[0])}
+        />
+        <Action
+          label="Edit"
+          disabled={!single}
+          onClick={() => onEdit(ids[0])}
+        />
+        <Action
+          label="Delete"
+          disabled={count === 0}
+          onClick={() => onDelete(ids)}
+        />
+        <Action
+          label="Print"
+          disabled={!single}
+          onClick={() => onPrint(ids[0])}
+        />
+      </div>
+
+      <Typography variant="caption">Selected: {count}</Typography>
+    </Box>
+  );
+}

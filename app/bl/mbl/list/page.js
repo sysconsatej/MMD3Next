@@ -12,6 +12,7 @@ import {
   Typography,
   CssBaseline,
   Link,
+  Checkbox,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import CustomButton from "@/components/button/button";
@@ -36,6 +37,7 @@ import { getUserByCookies } from "@/utils";
 import HistoryIcon from "@mui/icons-material/History";
 import BLHistoryModal from "../modal";
 import { CustomInput } from "@/components/customInput";
+import MBLSelectionActionsBar from "@/components/selectionActions/mblSelectionActionsBar";
 
 const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -43,6 +45,12 @@ const UPDATE_TABLE = LIST_TABLE.trim()
   .replace(/^dbo\./i, "");
 const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
 const CHECKBOX_CELL_SX = { width: 32, minWidth: 32, maxWidth: 32 };
+const CHECKBOX_SX = {
+  p: 0.25,
+  "& .MuiSvgIcon-root": {
+    fontSize: 18,
+  },
+};
 
 const REPORTS = [
   { key: "Survey Letter", label: "Survey Letter" },
@@ -67,7 +75,7 @@ function createData(
   line,
   id,
   clientId,
-  mblHblFlag
+  mblHblFlag,
 ) {
   return {
     blNo,
@@ -118,7 +126,7 @@ export default function BLList() {
     async (
       pageNo = page,
       pageSize = rowsPerPage,
-      advanceSearchQuery = advanceSearch
+      advanceSearchQuery = advanceSearch,
     ) => {
       try {
         const tableObj = {
@@ -141,7 +149,7 @@ export default function BLList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch]
+    [page, rowsPerPage, advanceSearch],
   );
 
   useEffect(() => {
@@ -165,8 +173,8 @@ export default function BLList() {
           item["line"],
           item["id"],
           item["clientId"],
-          item["mblHblFlag"]
-        )
+          item["mblHblFlag"],
+        ),
       )
     : [];
 
@@ -188,7 +196,7 @@ export default function BLList() {
   const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
   const toggleOne = (id) =>
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
 
   const handleChangePage = (_e, newPage) => {
@@ -207,6 +215,17 @@ export default function BLList() {
     } else {
       toast.error(error || message);
     }
+  };
+  const handleBulkDelete = async (ids) => {
+    if (!ids.length) return;
+
+    for (const id of ids) {
+      await handleDeleteRecord(id);
+    }
+
+    toast.success("Selected records deleted successfully");
+    setSelectedIds([]);
+    getData(page, rowsPerPage);
   };
 
   const modeHandler = (mode, formId = null, flag) => {
@@ -266,10 +285,31 @@ export default function BLList() {
             <CustomButton text="Add" href="/bl/mbl" />
           </Box>
         </Box>
+        <MBLSelectionActionsBar
+          selectedIds={selectedIds}
+          onView={(id) => modeHandler("view", id, "MBL")}
+          onEdit={(id) => modeHandler("edit", id, "MBL")}
+          onPrint={(id) => {
+            const row = rows.find((x) => x.id === id);
+            handlePrint(id, row?.clientId);
+          }}
+          onDelete={(ids) => handleBulkDelete(ids)}
+        />
+
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
+                {/* ✅ Checkbox Header */}
+                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
+                  <Checkbox
+                    checked={allChecked}
+                    indeterminate={someChecked}
+                    onChange={toggleAll}
+                    sx={CHECKBOX_SX}
+                  />
+                </TableCell>
+
                 <TableCell>BL NO</TableCell>
                 <TableCell>Reference BL NO</TableCell>
                 <TableCell>MBL date</TableCell>
@@ -283,11 +323,22 @@ export default function BLList() {
                 <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell>
               </TableRow>
             </TableHead>
+
             <TableBody>
               {rows.length > 0 ? (
                 rows.map((row) => (
-                  <TableRow key={row.id} hover className="relative group ">
+                  <TableRow key={row.id} hover className="relative group">
+                    {/* ✅ Checkbox Cell */}
+                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                      <Checkbox
+                        checked={selectedIds.includes(row.id)}
+                        onChange={() => toggleOne(row.id)}
+                        sx={CHECKBOX_SX}
+                      />
+                    </TableCell>
+
                     <TableCell>{row.blNo}</TableCell>
+
                     <TableCell>
                       {row?.hblNo &&
                         JSON.parse(row?.hblNo)?.map((item, idx) => (
@@ -302,6 +353,7 @@ export default function BLList() {
                           </Link>
                         ))}
                     </TableCell>
+
                     <TableCell>{row.mblDate}</TableCell>
                     <TableCell>{row.consigneeText}</TableCell>
                     <TableCell>{row.pol}</TableCell>
@@ -309,9 +361,13 @@ export default function BLList() {
                     <TableCell>{row.fpd}</TableCell>
                     <TableCell>{row.cargoMovement}</TableCell>
                     <TableCell>{row.arrivalVessel}</TableCell>
+
+                    {/* ✅ Arrival Voyage + Hover Actions */}
                     <TableCell>
-                      <Box className="flex items-center justify-between gap-1">
+                      {row.arrivalVoyage}
+                      {/* <Box className="flex items-center justify-between gap-1">
                         <span>{row.arrivalVoyage}</span>
+
                         <span className="opacity-0 group-hover:opacity-100 transition-opacity">
                           <HoverActionIcons
                             onView={() =>
@@ -325,8 +381,10 @@ export default function BLList() {
                             menuAccess={data ?? {}}
                           />
                         </span>
-                      </Box>
+                      </Box> */}
                     </TableCell>
+
+                    {/* ✅ History */}
                     <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <HistoryIcon
                         sx={{
@@ -334,13 +392,12 @@ export default function BLList() {
                           fontSize: "16px",
                           color: "#1976d2",
                         }}
-                        onClick={() => {
-                          console.log("MBL History clicked, row.id =", row.id);
+                        onClick={() =>
                           setHistoryModal({
                             open: true,
-                            recordId: row.id ? Number(row.id) : null,
-                          });
-                        }}
+                            recordId: Number(row.id),
+                          })
+                        }
                       />
                     </TableCell>
                   </TableRow>
