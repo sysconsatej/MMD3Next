@@ -27,6 +27,7 @@ export default function Sidebar({ className = "" }) {
 
   const formattedData = data?.filter((r) => r.buttons !== undefined);
   const renderMenuBasedonAccess = updateMenuVisibility(navItems, formattedData);
+  console.log(renderMenuBasedonAccess, "[][][]");
 
   // Auto-expand groups that contain the current route
   const initialExpanded = useMemo(() => {
@@ -173,21 +174,23 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
   if (!hasChildren) {
     return (
       <li>
-        <Link
-          href={node.href || "#"}
-          title={!openSidebar ? node.name : ""}
-          className={clsx(
-            baseItemCls,
-            activeSelf && levelActiveBg,
-            openSidebar ? "justify-start" : "justify-center",
-          )}
-          onClick={() => {
-            node?.roleId ? handleClick(node?.roleId) : null;
-          }}
+        <div
+          onClick={() => node?.roleId && handleClick(node.roleId)}
+          className="w-full"
         >
-          {iconEl}
-          {label}
-        </Link>
+          <Link
+            href={node.href || "#"}
+            title={!openSidebar ? node.name : ""}
+            className={clsx(
+              baseItemCls,
+              activeSelf && levelActiveBg,
+              openSidebar ? "justify-start" : "justify-center",
+            )}
+          >
+            {iconEl}
+            {label}
+          </Link>
+        </div>
       </li>
     );
   }
