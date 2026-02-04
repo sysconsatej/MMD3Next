@@ -11,7 +11,7 @@ const DateTimeInput = ({
   fieldValue,
   changeHandler,
   containerIndex,
-  fieldHighLight
+  fieldHighLight,
 }) => {
   return (
     <Box className="flex items-end gap-2">
@@ -21,32 +21,44 @@ const DateTimeInput = ({
         )}
         {commonProps.label}
       </InputLabel>
+
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DemoContainer components={["DateTimePicker"]}>
           <DateTimePicker
             {...commonProps}
             className="datepicker"
-            value={fieldValue ? dayjs(fieldValue, "DD/MM/YYYY HH:mm:ss") : null}
+
+            // ✅ Always parse stored ISO value
+            value={fieldValue ? dayjs(fieldValue) : null}
+
+            // ✅ On submit/store -> always send ISO to backend
             onChange={(date) => {
-              const formattedDate = date
-                ? dayjs(date).format("DD/MM/YYYY HH:mm:ss")
+              const isoValue = date
+                ? dayjs(date).format("YYYY-MM-DDTHH:mm:ss")
                 : null;
+
               changeHandler(
-                { target: { name: commonProps.name, value: formattedDate } },
+                {
+                  target: {
+                    name: commonProps.name,
+                    value: isoValue,
+                  },
+                },
                 containerIndex
               );
             }}
+
+            // ✅ Display for user in Indian format
+            format="DD/MM/YYYY hh:mm A"
+
             slotProps={{
               textField: {
-                placeholder: "DD/MM/YYYY HH:mm:ss",
-                inputProps: { readOnly: false },
+                placeholder: "DD/MM/YYYY hh:mm AM/PM",
                 variant: "standard",
                 label: null,
                 required: commonProps.required,
               },
             }}
-            format="DD/MM/YYYY HH:mm:ss"
-            key={commonProps.key}
           />
         </DemoContainer>
       </LocalizationProvider>

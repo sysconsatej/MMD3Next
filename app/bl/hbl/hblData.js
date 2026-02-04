@@ -3,7 +3,7 @@ import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
-
+const userData = await getUserByCookies();
 export const fieldData = {
   mblFields: [
     {
@@ -38,12 +38,15 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblVessel t",
       idColumn: "id",
+      joins: `INNER JOIN tblVoyageRoute vr ON vr.vesselId = t.id and GETDATE() >= vr.gateOpenCustomer AND GETDATE() < vr.gateCloseCustomer left join tblLocation l on l.id = ${userData?.location} inner join tblPort p on p.id = vr.portOfCallId and p.name = l.name`,
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblVessel",
+      selectedConditions: [{ shippingLineId: "vr.companyid" }],
       isEdit: true,
       changeFun: "selectVoyageNoBasedOnVessel",
+      required: true,
     },
     {
       label: "Voyage",
@@ -60,6 +63,7 @@ export const fieldData = {
       orderBy: "t.voyageNo",
       foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
+      required: true,
     },
     {
       label: "Type of Cargo",

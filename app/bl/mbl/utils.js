@@ -50,12 +50,13 @@ export function useTotalGrossAndPack(formData, setTotals) {
 }
 
 export function advanceSearchFilter(advanceSearch) {
-  if (Object.keys(advanceSearch).length <= 0) return null;
+  if (!advanceSearch || Object.keys(advanceSearch).length === 0) return null;
+
   const condition = [];
 
   if (advanceSearch?.blNo) {
     condition.push(
-      `(b.mblNo = '${advanceSearch.blNo}') or (b.hblNo = '${advanceSearch.blNo}')`,
+      `(b.mblNo = '${advanceSearch.blNo}' OR b.hblNo = '${advanceSearch.blNo}')`,
     );
   }
 
@@ -63,15 +64,26 @@ export function advanceSearchFilter(advanceSearch) {
     condition.push(`b.mblDate = '${advanceSearch.mblDate}'`);
   }
 
-  if (advanceSearch?.podVesselId) {
-    condition.push(`v1.name = '${advanceSearch.podVesselId}'`);
+  // ✅ Vessel dropdown (single)
+  if (advanceSearch?.podVesselId?.Id) {
+    condition.push(`b.podVesselId = ${advanceSearch.podVesselId.Id}`);
   }
 
-  if (advanceSearch?.podVoyageId) {
-    condition.push(`v.voyageNo = '${advanceSearch?.podVoyageId}'`);
+  // ✅ Voyage dropdown (single)
+  if (advanceSearch?.podVoyageId?.Id) {
+    condition.push(`b.podVoyageId = ${advanceSearch.podVoyageId.Id}`);
+  }
+  // BL Type checkbox filter
+  if (advanceSearch?.isMBL || advanceSearch?.isHBL) {
+    const flags = [];
+
+    if (advanceSearch.isMBL) flags.push("'MBL'");
+    if (advanceSearch.isHBL) flags.push("'HBL'");
+
+    condition.push(`b.mblHblFlag IN (${flags.join(",")})`);
   }
 
-  return condition.length > 0 ? condition.join(" and ") : null;
+  return condition.length ? condition.join(" AND ") : null;
 }
 
 export const checkNoPackages = ({ formData, hblType }) => {

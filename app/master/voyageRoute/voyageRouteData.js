@@ -352,6 +352,30 @@ const fieldData = {
       name: "customVcnNo",
       isEdit: true,
     },
+    {
+      label: "Gate Open Customer",
+      name: "gateOpenCustomer",
+      type: "datetime",
+      isEdit: true,
+    },
+    {
+      label: "Gate Closing Customer",
+      name: "gateCloseCustomer",
+      type: "datetime",
+      isEdit: true,
+    },
+    {
+      label: "Gate Open Liner",
+      name: "gateOpenLine",
+      type: "datetime",
+      isEdit: true,
+    },
+    {
+      label: "Gate Closing Liner",
+      name: "gateCloseLine",
+      type: "datetime",
+      isEdit: true,
+    },
   ],
   iternaryFields: [
     {
