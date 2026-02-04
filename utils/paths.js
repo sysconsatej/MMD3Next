@@ -1,5 +1,5 @@
 export const roleAccessPaths = {
-  // "/menu-access": ["admin",  "shipping"],
+  "/menu-access": ["admin"],
   "/reports": ["admin", "shipping", "customer", "cfs"],
 
   "/bl-status": ["admin", "shipping", "customer", "cfs"],
