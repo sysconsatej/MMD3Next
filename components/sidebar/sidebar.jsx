@@ -8,6 +8,7 @@ import { navItems } from "./menuData";
 import "./sidebar-scrollbar.css";
 import { auth, useRoleStore } from "@/store";
 import { updateMenuVisibility } from "@/utils";
+import Cookies from "js-cookie";
 
 export default function Sidebar({ className = "" }) {
   const pathname = usePathname();
@@ -66,7 +67,7 @@ export default function Sidebar({ className = "" }) {
     "bg-gradient-to-b from-blue-600 via-indigo-700 to-blue-900",
     "text-white transition-all duration-300 ease-in-out will-change-[width]",
     className,
-    open ? "w-52" : "w-14" // slim
+    open ? "w-52" : "w-14", // slim
   );
 
   // Glassmorphism inner panel
@@ -133,13 +134,13 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
     level === 0
       ? "bg-white/15 ring-1 ring-white/20"
       : level === 1
-      ? "bg-white/10 ring-1 ring-white/10"
-      : "bg-white/5 ring-1 ring-white/5";
+        ? "bg-white/10 ring-1 ring-white/10"
+        : "bg-white/5 ring-1 ring-white/5";
 
   // Shared base item styles — slim, full width hover
   const baseItemCls = clsx(
     "relative flex items-center gap-2 rounded-md px-2 py-1.5 text-[12px] leading-5",
-    "w-full cursor-pointer transition-colors hover:bg-white/20"
+    "w-full cursor-pointer transition-colors hover:bg-white/20",
   );
 
   // Label collapse behavior
@@ -149,7 +150,7 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
         "transition-[max-width,opacity] duration-200 whitespace-nowrap",
         openSidebar
           ? "opacity-100 max-w-[160px]"
-          : "opacity-0 max-w-0 overflow-hidden"
+          : "opacity-0 max-w-0 overflow-hidden",
       )}
     >
       {node.name}
@@ -164,6 +165,11 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
       </span>
     ) : null;
 
+  const handleClick = (roleId) => {
+    if (!roleId) return null;
+    Cookies.set("roleId", roleId);
+  };
+
   if (!hasChildren) {
     return (
       <li>
@@ -173,8 +179,11 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
           className={clsx(
             baseItemCls,
             activeSelf && levelActiveBg,
-            openSidebar ? "justify-start" : "justify-center"
+            openSidebar ? "justify-start" : "justify-center",
           )}
+          onClick={() => {
+            node?.roleId ? handleClick(node?.roleId) : null;
+          }}
         >
           {iconEl}
           {label}
@@ -191,7 +200,7 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
         className={clsx(
           baseItemCls,
           (activeSelf || activeDesc) && levelActiveBg,
-          openSidebar ? "justify-start" : "justify-center"
+          openSidebar ? "justify-start" : "justify-center",
         )}
         aria-expanded={isOpen}
         aria-controls={`menu-${key}`}
@@ -255,7 +264,7 @@ function Collapsible({ isOpen, id, children }) {
       style={{ maxHeight: isOpen ? height : 0 }}
       className={clsx(
         "overflow-hidden transition-[max-height,opacity,transform] duration-300",
-        isOpen ? "opacity-100 translate-y-0" : "opacity-60 -translate-y-0.5"
+        isOpen ? "opacity-100 translate-y-0" : "opacity-60 -translate-y-0.5",
       )}
     >
       <div ref={innerRef}>{children}</div>
@@ -273,7 +282,7 @@ function hasActiveInTree(nodes, pathname) {
     (n) =>
       (n.href && isPathActive(pathname, n.href)) ||
       (n.submenu && hasActiveInTree(n.submenu, pathname)) ||
-      (n.children && hasActiveInTree(n.children, pathname))
+      (n.children && hasActiveInTree(n.children, pathname)),
   );
 }
 

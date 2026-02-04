@@ -54,12 +54,14 @@ const fieldData = {
       isEdit: true,
       required: true,
       where: "u.userType='R'",
+      changeFun: "getUserGroupBasedonRole",
+      
     },
   ],
   tblUserRoleMapping: [
     {
-      label: "Sub Role",
-      name: "userType",
+      label: "Role",
+      name: "roleId",
       type: "dropdown",
       tableName: "tblUser u",
       foreignTable: "name,tblUser",
@@ -68,7 +70,7 @@ const fieldData = {
       orderBy: "u.name",
       isEdit: true,
       required: true,
-      selectedConditions: [{ roleCodeId: "roleCodeId" }],
+      // changeFun: "changeDuplicateValue",
     },
   ],
   tblUserLocation: [
@@ -106,3 +108,6 @@ export const cfsGridButtons = [
     func: "gridDeleteHandler",
   },
 ];
+
+
+

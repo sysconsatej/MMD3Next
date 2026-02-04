@@ -23,8 +23,9 @@ import { ExpandMoreOutlined } from "@mui/icons-material";
 import { CustomInput } from "@/components/customInput";
 import { insertAccess } from "@/apis";
 import { toast, ToastContainer } from "react-toastify";
-import { getRoleAccessByRole } from "@/apis/menuAccess";
+import { getSpecificRoleMenuButtons } from "@/apis/menuAccess";
 import { fieldsData, createHandleChangeEventFunction } from "./utils";
+import { getUserByCookies } from "@/utils";
 
 const MenuAccess = () => {
   const [menuButtons, setMenuButtons] = useState([]);
@@ -35,6 +36,7 @@ const MenuAccess = () => {
   const [arr, setArr] = useState([]);
   const [mode, setMode] = useState("add");
   const [jsonData, setJsonData] = useState(fieldsData);
+  const user = getUserByCookies();
 
   const handleExpand = (panel) => (event, isExpanded) => {
     setExpand(isExpanded ? panel : false);
@@ -84,7 +86,7 @@ const MenuAccess = () => {
         if (!formData?.userType?.Id) {
           return toast.error("Please Select  Role Type");
         }
-        const res = await getRoleAccessByRole({
+        const res = await getSpecificRoleMenuButtons({
           roleId: formData?.userType?.Id,
         });
         const fetchedArr = res?.data || arr;
@@ -94,7 +96,7 @@ const MenuAccess = () => {
       };
       fetchData();
     }
-  }, [formData]);
+  }, [formData?.userType?.Id]);
 
   const handleChange = useCallback(
     (menuName, buttonName, currentFlag, roleId) => {
@@ -206,30 +208,26 @@ const MenuAccess = () => {
   return (
     <ThemeProvider theme={theme}>
       <Box className="p-4">
-        <Box className="mt-5 mb-5 flex flex-row  justify-between ">
-          <CustomButton
-            text={"Submit"}
-            type="submit"
-            onClick={() => handleSubmit()}
-          />
-          <Box className="gap-10  flex flex-row  justify-between ">
-            <CustomButton
-              text={expandAllMenus ? "Close All" : "Open All"}
-              onClick={() => (expandAllMenus ? collapseAll() : expandAll())}
-            />
-            <CustomButton
-              text={isAllSelected ? "UnSelect All" : "Select All"}
-              onClick={() => handleSelectAll(!isAllSelected)}
-            />
-          </Box>
-        </Box>
-
-        <Box className="flex flex-row justify-between">
+        <Box className="mt-5 mb-5 flex flex-row gap-4">
           <CustomInput
             fields={jsonData.dp}
             formData={formData}
             setFormData={setFormData}
             handleChangeEventFunctions={handleChangeEventFunctions}
+          />
+
+          <CustomButton
+            text={"Submit"}
+            type="submit"
+            onClick={() => handleSubmit()}
+          />
+          <CustomButton
+            text={expandAllMenus ? "Close All" : "Open All"}
+            onClick={() => (expandAllMenus ? collapseAll() : expandAll())}
+          />
+          <CustomButton
+            text={isAllSelected ? "UnSelect All" : "Select All"}
+            onClick={() => handleSelectAll(!isAllSelected)}
           />
         </Box>
 

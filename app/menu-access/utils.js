@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 export const fieldsData = {
   dp: [
     {
-      label: "Select Role",
+      label: "Role",
       name: "roleCodeId",
       type: "dropdown",
       tableName: "tblUser",
@@ -16,7 +16,7 @@ export const fieldsData = {
       changeFun: "getUserGroupBasedonRole",
     },
     {
-      label: "Select subRole",
+      label: "SubRole",
       name: "userType",
       type: "dropdown",
       tableName: "tblUser",
