@@ -46,6 +46,7 @@ export const fieldData = {
       selectedConditions: [{ shippingLineId: "vr.companyid" }],
       isEdit: true,
       changeFun: "selectVoyageNoBasedOnVessel",
+      required: true,
     },
     {
       label: "Voyage",
@@ -62,6 +63,7 @@ export const fieldData = {
       orderBy: "t.voyageNo",
       foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
+      required: true,
     },
     {
       label: "Type of Cargo",

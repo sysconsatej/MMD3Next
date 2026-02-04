@@ -10,9 +10,10 @@ import { theme } from "@/styles";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import fieldData from "./uploadData";
-import { uploads, getDataWithCondition } from "@/apis";
-import { getUserByCookies } from "@/utils";
+import { uploads, getDataWithCondition, insertUpdateForm } from "@/apis";
+import { formatFormData, getUserByCookies } from "@/utils";
 import ErrorList from "@/components/errorTable/errorList";
+import BlUploadHistoryModal from "./history";
 let vesselChangeReq = 0;
 const BASE_URL =
   (process.env.NEXT_PUBLIC_BACKEND_URL || "").replace(/\/+$/, "") + "/";
@@ -24,7 +25,6 @@ const asArray = (v) => {
   if (typeof v === "object") return [v];
   return [{ message: String(v) }];
 };
-
 
 const canon = (s = "") =>
   String(s)
@@ -55,7 +55,8 @@ const TEMPLATE_FILES = [
 ];
 
 const getFieldValue = (val) => {
-  if (val && typeof val === "object") return val.Id ?? val.id ?? val.value ?? val.Name ?? val.name ?? null;
+  if (val && typeof val === "object")
+    return val.Id ?? val.id ?? val.value ?? val.Name ?? val.name ?? null;
   return val ?? null;
 };
 
@@ -90,7 +91,7 @@ const findTemplateFile = (selectedName = "") => {
 
 const isEmptyRow = (obj = {}) =>
   Object.values(obj).every(
-    (v) => v === null || v === "" || typeof v === "undefined"
+    (v) => v === null || v === "" || typeof v === "undefined",
   );
 
 const toIsoDate = (d) => {
@@ -186,6 +187,12 @@ export default function MblUpload() {
   const userData = getUserByCookies();
   const [isErrorListVisible, setIsErrorListVisible] = useState(false);
   const [ErrorListData, setErrorListData] = useState([]);
+  const [uploadModal, setUploadModal] = useState({
+    toggle: false,
+    vesselId: null,
+    voyageId: null,
+    locationId: null,
+  });
 
   const getSelectedTemplateName = () =>
     formData?.template?.Name ||
@@ -213,6 +220,30 @@ export default function MblUpload() {
     } finally {
       setBusy(false);
     }
+  };
+
+  const submitBlUploadRecord = async (file, cleanName) => {
+    const submitPayload = formatFormData(
+      "tblBlUpload",
+      {
+        vesselId: formData?.podVesselId?.Id || null,
+        voyageId: formData?.podVoyageId?.Id || null,
+        podId: formData?.fpdId?.Id || null,
+        companyId: userData?.companyId,
+        companyBranchId: userData?.branchId,
+        locationId: userData?.location,
+
+        tblAttachment: [
+          {
+            path: formData?.upload,
+          },
+        ],
+      },
+      null,
+      "blUploadId",
+    );
+
+    return await insertUpdateForm(submitPayload);
   };
 
   const handleUpload = async (e) => {
@@ -315,7 +346,7 @@ export default function MblUpload() {
         companyBranchId: u.branchId,
         companyBranchName: u.branchName,
         shippingLineId: u.companyId,
-        location: u.location
+        location: u.location,
       });
 
       const mergeUserIntoHeader = (headerObj = {}, user = {}) => {
@@ -332,12 +363,19 @@ export default function MblUpload() {
         spName,
         json: {
           template: cleanName,
-          header: { ...mergeUserIntoHeader(cleanHeader, userData), location: userData?.location ?? null },
+          header: {
+            ...mergeUserIntoHeader(cleanHeader, userData),
+            location: userData?.location ?? null,
+          },
           data: prunedRows,
         },
       };
 
       const resp = await uploads(payload);
+      // ✅ ADD ONLY THIS
+      if (resp?.data?.[0]?.success) {
+        await submitBlUploadRecord(file, cleanName);
+      }
       if (resp?.data?.[0]?.success) {
         setIsErrorListVisible(false);
         setErrorListData([]);
@@ -346,7 +384,7 @@ export default function MblUpload() {
         setIsErrorListVisible(true);
         setErrorListData(asArray(resp?.data?.[0]?.message));
         toast.warn("Errors found during upload. Please check the error list.");
-      };
+      }
     } catch (err) {
       toast.error(err?.message || "Failed to upload");
     } finally {
@@ -431,16 +469,32 @@ export default function MblUpload() {
               onClick={handleUpload}
               disabled={busy}
             />
+            <CustomButton
+              text="Upload History"
+              onClick={() =>
+                setUploadModal({
+                  toggle: true,
+                  vesselId: formData?.podVesselId?.Id || null,
+                  voyageId: formData?.podVoyageId?.Id || null,
+                  locationId: userData?.location || null,
+                })
+              }
+            />
           </Box>
         </section>
       </form>
       <ToastContainer position="top-right" autoClose={3500} />
       {isErrorListVisible && (
         <ErrorList
-          errorGrid={Array.isArray(ErrorListData) ? ErrorListData : asArray(ErrorListData)}
+          errorGrid={
+            Array.isArray(ErrorListData)
+              ? ErrorListData
+              : asArray(ErrorListData)
+          }
           fileName="MBL_Upload_Errors"
         />
       )}
+      <BlUploadHistoryModal modal={uploadModal} setModal={setUploadModal} />
     </ThemeProvider>
   );
 }
