@@ -56,7 +56,8 @@ export default function BlUploadHistoryModal({ modal, setModal }) {
           v1.voyageNo Voyage,
           p.name Port,
           u1.emailId createdBy,
-          a.path uploadPath
+          a.path uploadPath,
+          FORMAT((CAST(up.createdDate AS datetime2) AT TIME ZONE 'UTC' AT TIME ZONE 'India Standard Time'),'dd-MM-yyyy hh:mm:ss tt')  AS createdDate
         `,
         tableName: "tblBlUpload up",
         joins: `
@@ -157,6 +158,7 @@ export default function BlUploadHistoryModal({ modal, setModal }) {
                 <TableCell>Voyage</TableCell>
                 <TableCell>Location</TableCell>
                 <TableCell>Uploaded By</TableCell>
+                <TableCell>Uploaded Date</TableCell>
                 <TableCell>Attachment</TableCell>
               </TableRow>
             </TableHead>
@@ -176,6 +178,7 @@ export default function BlUploadHistoryModal({ modal, setModal }) {
                     <TableCell>{item.Voyage}</TableCell>
                     <TableCell>{item.Port}</TableCell>
                     <TableCell>{item.createdBy}</TableCell>
+                    <TableCell>{item.createdDate}</TableCell>
                     <TableCell>
                       {item.uploadPath ? (
                         <a
