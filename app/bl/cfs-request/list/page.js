@@ -65,7 +65,7 @@ export default function CompanyList() {
 
   const { setMode } = formStore();
   const router = useRouter();
-  const { data: menuAccess } = useGetUserAccessUtils("CFS Request");
+  const { data: menuAccess } = useGetUserAccessUtils();
   const userData = getUserByCookies();
 
   /* ---------------- Fetch Data ---------------- */

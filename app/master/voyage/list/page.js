@@ -40,7 +40,7 @@ export default function VoyageList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
-  const { data } = useGetUserAccessUtils("Voyage");
+  const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
 
   const getData = useCallback(

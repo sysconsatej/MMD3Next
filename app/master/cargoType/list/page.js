@@ -41,7 +41,7 @@ export default function CargoTypeList() {
   const { setMode } = formStore();
   const router = useRouter();
   const userData = getUserByCookies();
-  const { data } = useGetUserAccessUtils("Cargo Type");
+  const { data } = useGetUserAccessUtils();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {

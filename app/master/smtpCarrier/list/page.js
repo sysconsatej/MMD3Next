@@ -61,7 +61,7 @@ export default function SmtpCarrierList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
-  const { data } = useGetUserAccessUtils("SMTP");
+  const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {

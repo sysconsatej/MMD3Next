@@ -38,7 +38,7 @@ export default function CityList() {
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
   const router = useRouter();
-  const { data } = useGetUserAccessUtils("City");
+  const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
   const { setMode } = formStore();
 

@@ -51,7 +51,7 @@ export default function CompanyList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
-  const { data } = useGetUserAccessUtils("Company");
+  const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {

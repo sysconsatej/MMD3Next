@@ -49,7 +49,7 @@ export default function SmtpEmailConfigList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
-  const { data } = useGetUserAccessUtils("SMTP Email Configuration");
+  const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
 
   // 🔹 FETCH DATA (same pattern)
