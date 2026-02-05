@@ -101,6 +101,12 @@ export const navItems = [
         href: "/master/smtpEmailConfig/list",
         isShow: false,
       },
+
+       {
+        name: "Role",
+        href: "/master/role/list",
+        isShow: false,
+      },
     ],
   },
 
