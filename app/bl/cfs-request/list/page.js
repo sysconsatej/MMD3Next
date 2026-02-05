@@ -206,10 +206,12 @@ export default function CompanyList() {
                     <TableCell>{row?.locationId}</TableCell>
                     <TableCell>{row?.shippingLineName}</TableCell>
                     <TableCell>{row?.blNo}</TableCell>
+                    <TableCell>{row?.deliveryType}</TableCell>
                     <TableCell>{row?.cfsType}</TableCell>
                     <TableCell>{row?.nominatedArea}</TableCell>
                     <TableCell>{row?.dpdId}</TableCell>
                     <TableCell>{row?.customBrokerText}</TableCell>
+                    <TableCell>{row?.sezIcd}</TableCell>
                     <TableCell
                       sx={{
                         color: statusColor(

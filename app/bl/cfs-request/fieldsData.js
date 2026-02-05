@@ -37,6 +37,19 @@ export const fieldData = {
       blurFun: "duplicateHandler",
       // blurFun: "getDataBasedonLinerAndBLNo",
     },
+       {
+      label: "Delivery Type",
+      name: "deliveryTypeId",
+      type: "dropdown",
+      isEdit: true,
+      required: true,
+      displayColumn: "m.name",
+      tableName: "tblMasterData m",
+      where: "masterListName  = 'tblDeliveryType'",
+      orderBy: "m.name",
+      foreignTable: "name,tblMasterData",
+      changeFun: "setDpdMandatoryFields",
+    },
     // {
     //   label: "MBL Date",
     //   name: "mblDate",
@@ -91,7 +104,6 @@ export const fieldData = {
       name: "cfsTypeId",
       type: "dropdown",
       isEdit: true,
-      required: true,
       displayColumn: "m.name",
       tableName: "tblMasterData m",
       where: "masterListName  = 'tblCfsType'",
@@ -109,7 +121,6 @@ export const fieldData = {
         "join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = null",
       isEdit: true,
       foreignTable: "code-name,tblPort",
-      required: true,
     },
     {
       label: "DPD",
@@ -125,6 +136,12 @@ export const fieldData = {
     {
       label: "Nominated CB",
       name: "customBrokerText",
+      type: "text",
+      isEdit: true,
+    },
+    {
+      label: "SEZ/ICD",
+      name: "sezIcd",
       type: "text",
       isEdit: true,
     },
