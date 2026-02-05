@@ -18,7 +18,7 @@ export default function middleware(request) {
     const response = NextResponse.redirect(loginRedirect);
     response.headers.set(
       "Cache-Control",
-      "no-store, no-cache, must-revalidate, proxy-revalidate"
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
     );
     return response;
   }
@@ -29,7 +29,7 @@ export default function middleware(request) {
     const response = NextResponse.redirect(appRedirect);
     response.headers.set(
       "Cache-Control",
-      "no-store, no-cache, must-revalidate, proxy-revalidate"
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
     );
     return response;
   }
@@ -53,7 +53,7 @@ export default function middleware(request) {
           const response = NextResponse.rewrite(notFoundUrl);
           response.headers.set(
             "Cache-Control",
-            "no-store, no-cache, must-revalidate, proxy-revalidate"
+            "no-store, no-cache, must-revalidate, proxy-revalidate",
           );
           return response;
         }
@@ -65,7 +65,7 @@ export default function middleware(request) {
   const response = NextResponse.next();
   response.headers.set(
     "Cache-Control",
-    "no-store, no-cache, must-revalidate, proxy-revalidate"
+    "no-store, no-cache, must-revalidate, proxy-revalidate",
   );
   return response;
 }

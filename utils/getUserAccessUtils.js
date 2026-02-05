@@ -1,10 +1,10 @@
 import { getMenuAccessDetails } from "@/apis";
-import { auth } from "@/store/index";
 import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
 export const useGetUserAccessUtils = (menuName) => {
-  const { userData } = auth();
-  const roleId = userData?.data?.roleId  ||  3;
+  const roleIdData = Cookies.get("roleId");
+  const roleId = roleIdData || 3;
   const [data, setData] = useState();
 
   useEffect(() => {
@@ -15,7 +15,6 @@ export const useGetUserAccessUtils = (menuName) => {
     };
 
     dataFetching();
-
   }, [roleId, menuName]);
 
   return { data };

@@ -1,5 +1,11 @@
 "use client";
-import React, { useEffect, useState, useCallback, Fragment } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  Fragment,
+} from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./menuAccessStyling";
 import CustomButton from "@/components/button/button";
@@ -17,33 +23,20 @@ import { ExpandMoreOutlined } from "@mui/icons-material";
 import { CustomInput } from "@/components/customInput";
 import { insertAccess } from "@/apis";
 import { toast, ToastContainer } from "react-toastify";
-import { getRoleAccessByRole } from "@/apis/menuAccess";
-
-const fieldsData = {
-  dp: [
-    {
-      label: "Select User",
-      name: "user",
-      type: "dropdown",
-      tableName: "tblUser",
-      displayColumn: "name",
-      orderBy: "name",
-      foreignTable: "name,tblUser",
-      where: "userType = 'R'",
-      key: "user",
-    },
-  ],
-};
+import { getSpecificRoleMenuButtons } from "@/apis/menuAccess";
+import { fieldsData, createHandleChangeEventFunction } from "./utils";
+import { getUserByCookies } from "@/utils";
 
 const MenuAccess = () => {
   const [menuButtons, setMenuButtons] = useState([]);
   const [expand, setExpand] = useState("");
-  const [formData, setFromData] = useState({});
+  const [formData, setFormData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [expandAllMenus, setExpandAllMenus] = useState(false);
-  const [selectType, setSelectType] = useState("all");
   const [arr, setArr] = useState([]);
   const [mode, setMode] = useState("add");
+  const [jsonData, setJsonData] = useState(fieldsData);
+  const user = getUserByCookies();
 
   const handleExpand = (panel) => (event, isExpanded) => {
     setExpand(isExpanded ? panel : false);
@@ -88,23 +81,26 @@ const MenuAccess = () => {
 
   //
   useEffect(() => {
-    if (formData?.user?.Id) {
+    if (formData?.userType?.Id) {
       const fetchData = async () => {
-        const res = await getRoleAccessByRole({ roleId: formData?.user?.Id });
-        const fetchedArr = res?.data;
+        if (!formData?.userType?.Id) {
+          return toast.error("Please Select  Role Type");
+        }
+        const res = await getSpecificRoleMenuButtons({
+          roleId: formData?.userType?.Id,
+        });
+        const fetchedArr = res?.data || arr;
         setMenuButtons(fetchedArr);
         setMode("edit");
         expandAll();
       };
       fetchData();
-    } else {
-      setMenuButtons(arr);
     }
-  }, [formData]);
+  }, [formData?.userType?.Id]);
 
   const handleChange = useCallback(
     (menuName, buttonName, currentFlag, roleId) => {
-      if (!formData?.user?.Id) return toast.warn("Please Select User Role");
+      if (!formData?.userType?.Id) return toast.warn("Please Select User Role");
       setMenuButtons((prevMenuButtons) => {
         const updatedMenuButtons = prevMenuButtons.map((menu) => {
           if (menu.menuName === menuName) {
@@ -126,27 +122,31 @@ const MenuAccess = () => {
         const isChanged = !updatedMenuButtons.every(
           (menu, index) =>
             JSON.stringify(menu.buttons) ===
-            JSON.stringify(prevMenuButtons[index]?.buttons)
+            JSON.stringify(prevMenuButtons[index]?.buttons),
         );
 
         return isChanged ? updatedMenuButtons : prevMenuButtons;
       });
     },
-    [formData?.user?.Id]
+    [formData?.userType?.Id],
   );
 
+  //  submit  code
   const handleSubmit = async () => {
-    const uploadData = menuButtons?.map((r) => r.buttons).flat();
-    const data = uploadData?.map((r) => {
-      return {
-        ...r,
-        roleId: r?.roleId,
-        menuButtonId: mode === "edit" ? r?.menuButtonId : r?.id,
-      };
-    });
+    const uploadData = menuButtons.flatMap((menu) => menu.buttons);
+
+    const data = uploadData.map((r) => ({
+      ...r,
+      roleId: formData.userType.Id,
+      menuButtonId: r.menuButtonId ?? r.id,
+    }));
+
+    console.log({ roleId: formData?.userType?.Id, menu_json: data });
+    // return
+
     try {
       const res = await insertAccess({
-        roleId: formData?.user?.Id,
+        roleId: formData?.userType?.Id,
         menu_json: JSON.stringify(data),
       });
       return toast.success(`${res.message}`);
@@ -155,22 +155,36 @@ const MenuAccess = () => {
     }
   };
 
-  const handleSelectAll = ({ type }) => {
-    if (!formData?.user?.Id) return toast.warn("Please Select User Role");
-    if (menuButtons?.length > 0) {
-      setSelectType(type);
-      const updatedMenuButtons = menuButtons.map((i) => {
-        const updatedButtons = i?.buttons?.map((t) => ({
-          ...t,
-          accessFlag: type === "all" ? "Y" : "N",
-          roleId: formData?.user?.Id,
-        }));
+  const isAllSelected = useMemo(() => {
+    return (
+      menuButtons.length > 0 &&
+      menuButtons.every((menu) =>
+        menu.buttons.every((btn) => btn.accessFlag === "Y"),
+      )
+    );
+  }, [menuButtons]);
 
-        return { ...i, buttons: updatedButtons };
-      });
-      setMenuButtons(updatedMenuButtons);
-    }
-  };
+  const handleSelectAll = useCallback(
+    (selectAll) => {
+      if (!formData?.userType?.Id) {
+        toast.warn("Please Select User Role");
+        return;
+      }
+
+      setMenuButtons((prev) =>
+        prev.map((menu) => ({
+          ...menu,
+          buttons: menu.buttons.map((btn) => ({
+            ...btn,
+            accessFlag: selectAll ? "Y" : "N",
+            roleId: formData.userType.Id,
+          })),
+        })),
+      );
+    },
+    [formData?.userType?.Id],
+  );
+
   if (isLoading) {
     return (
       <Box className="p-16">
@@ -187,38 +201,35 @@ const MenuAccess = () => {
     );
   }
 
+  const handleChangeEventFunctions = createHandleChangeEventFunction({
+    setJsonData,
+  });
+
   return (
     <ThemeProvider theme={theme}>
       <Box className="p-4">
-        <Box className="mt-5 mb-5 flex flex-row  justify-between ">
+        <Box className="mt-5 mb-5 flex flex-row gap-4">
+          <CustomInput
+            fields={jsonData.dp}
+            formData={formData}
+            setFormData={setFormData}
+            handleChangeEventFunctions={handleChangeEventFunctions}
+          />
+
           <CustomButton
             text={"Submit"}
             type="submit"
             onClick={() => handleSubmit()}
           />
-          <Box className="gap-10  flex flex-row  justify-between ">
-            <CustomButton
-              text={expandAllMenus ? "Close All" : "Open All"}
-              onClick={() => (expandAllMenus ? collapseAll() : expandAll())}
-            />
-            <CustomButton
-              text={selectType !== "all" ? "UnSelect All" : "Select All"}
-              onClick={() => {
-                if (selectType === "all") {
-                  handleSelectAll({ type: "none" });
-                } else {
-                  handleSelectAll({ type: "all" });
-                }
-              }}
-            />
-          </Box>
+          <CustomButton
+            text={expandAllMenus ? "Close All" : "Open All"}
+            onClick={() => (expandAllMenus ? collapseAll() : expandAll())}
+          />
+          <CustomButton
+            text={isAllSelected ? "UnSelect All" : "Select All"}
+            onClick={() => handleSelectAll(!isAllSelected)}
+          />
         </Box>
-
-        <CustomInput
-          fields={fieldsData.dp}
-          formData={formData}
-          setFormData={setFromData}
-        />
 
         <Box className="p-1 overflow-auto h-[calc(100vh-120px)]">
           <Box className="mt-4">
@@ -276,7 +287,7 @@ const MenuAccess = () => {
                                     item?.menuName,
                                     buttonItem?.buttonName,
                                     buttonItem?.accessFlag,
-                                    formData?.user?.Id
+                                    formData?.userType?.Id,
                                   );
                                 }}
                               />

@@ -20,18 +20,17 @@ export default function Port() {
   const { mode, setMode } = formStore();
   const submitHandler = async (event) => {
     event.preventDefault();
-    console.log("fromData", formData);
 
-    const obj = {
-      columns: "roleCode",
-      tableName: "tblUser",
-      whereCondition: `status = 1 and userType = 'R' and id = ${formData?.roleCode?.Id}`,
-    };
+    // const obj = {
+    //   columns: "roleCode",
+    //   tableName: "tblUser",
+    //   whereCondition: `status = 1 and userType = 'R' and id = ${formData?.roleCode?.Id}`,
+    // };
 
-    const { data } = await getDataWithCondition(obj);
-    const { roleCode } = data?.[0];
+    // const { data } = await getDataWithCondition(obj);
+    // const { roleCode } = data?.[0];
 
-    let newFormData = { ...formData, roleCode: roleCode, userType: "S" };
+    let newFormData = { ...formData, userType: "S" };
 
     const format = formatFormData("tblUser", newFormData, mode.formId);
     const { success, error, message } = await insertUpdateForm(format);

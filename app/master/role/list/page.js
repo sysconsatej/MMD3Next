@@ -26,8 +26,8 @@ import { useRouter } from "next/navigation";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 
-function createData(roleName, roleCode, id) {
-  return { roleName, roleCode, id };
+function createData(roleType, name, id) {
+  return { roleType, name, id };
 }
 
 export default function RoleList() {
@@ -41,21 +41,21 @@ export default function RoleList() {
 
   const { setMode } = formStore();
   const router = useRouter();
-  const { data } = useGetUserAccessUtils("port");
+  const { data } = useGetUserAccessUtils("Role");
   const userData = getUserByCookies();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "u.name as roleName, u.roleCode, u.id",
+          columns: `u.name as roleType, u3.name as name, u.id as id`,
           tableName: "tblUser u",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
           joins:
-            "join tblUser u2 on u2.id = u.id and u2.status = 1 and u.userType = 'S'",
+            "join tblUser u2 on u2.id = u.id and u2.status = 1 and u.userType = 'S'  join tblUser  u3 on u3.id  =  u2.roleCodeId",
         };
 
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
@@ -69,7 +69,7 @@ export default function RoleList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, search],
   );
 
   useEffect(() => {
@@ -80,7 +80,7 @@ export default function RoleList() {
 
   const rows = roleData?.length
     ? roleData.map((item) =>
-        createData(item?.roleName ?? "", item?.roleCode ?? "", item?.id)
+        createData(item?.roleType ?? "", item?.name ?? "", item?.id),
       )
     : [];
 
@@ -153,8 +153,8 @@ export default function RoleList() {
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell>Role Name</TableCell>
-                <TableCell>Role Code</TableCell>
+                <TableCell>Role Type</TableCell>
+                <TableCell>Name</TableCell>
               </TableRow>
             </TableHead>
 
@@ -166,8 +166,8 @@ export default function RoleList() {
               ) : (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group">
-                    <TableCell>{row.roleName}</TableCell>
-                    <TableCell>{row.roleCode}</TableCell>
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.roleType}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

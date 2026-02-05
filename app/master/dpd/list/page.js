@@ -31,6 +31,8 @@ function createData(
   address,
   ediPortCode,
   ediCommonTerminalCode,
+  panNo,
+  iceNo,
   updatedBy,
   updateDate,
   id
@@ -41,6 +43,8 @@ function createData(
     address,
     ediPortCode,
     ediCommonTerminalCode,
+    panNo,
+    iceNo,
     updatedBy,
     updateDate,
     id,
@@ -64,7 +68,7 @@ export default function DpdList() {
       try {
         const tableObj = {
           columns:
-            "p.code code,p.name name,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,u.name updatedBy,p.updatedDate updateDate,p.id",
+            "p.code code,p.name name,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,p.panNo panNo,p.iceNo iceNo,u.name updatedBy,p.updatedDate updateDate,p.id",
           tableName: "tblPort p ",
           pageNo,
           pageSize,
@@ -100,6 +104,8 @@ export default function DpdList() {
           item["address"],
           item["ediPortCode"],
           item["ediCommonTerminalCode"],
+          item["panNo"],
+          item["iceNo"],
           item["updatedBy"],
           item["updateDate"],
           item["id"]
@@ -173,6 +179,8 @@ export default function DpdList() {
                 <TableCell>Address</TableCell>
                 <TableCell>Custom code</TableCell>
                 <TableCell>EDI Common Terminal Code</TableCell>
+                <TableCell>Pan No</TableCell>
+                <TableCell>ICE No</TableCell>
                 <TableCell>Updated By</TableCell>
                 <TableCell>Updated Date</TableCell>
               </TableRow>
@@ -186,6 +194,8 @@ export default function DpdList() {
                     <TableCell>{row.address}</TableCell>
                     <TableCell>{row.ediPortCode}</TableCell>
                     <TableCell>{row.ediCommonTerminalCode}</TableCell>
+                    <TableCell>{row.panNo}</TableCell>
+                    <TableCell>{row.iceNo}</TableCell>
                     <TableCell>{row.updatedBy}</TableCell>
                     <TableCell>{row.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">

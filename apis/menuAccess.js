@@ -28,3 +28,15 @@ export const getRoleAccessByRole = async ({ roleId }) => {
     return { message: e };
   }
 };
+
+
+export const getSpecificRoleMenuButtons = async ({ roleId }) => {
+  try {
+    const res = await api.post(`access/specific-role`, {
+      roleId: roleId,
+    });
+    return res.data;
+  } catch (e) {
+    return { message: e };
+  }
+};

@@ -30,7 +30,12 @@ const links = () => {
 
 export const navItems = [
   { name: "Home", href: "/home", icon: "home", isShow: true },
-
+  {
+    name: "Menu Access",
+    href: "/menu-access",
+    isShow: false,
+    icon : "access",
+  },
   {
     name: "Master",
     icon: "cube",
@@ -99,6 +104,12 @@ export const navItems = [
       {
         name: "SMTP Email Configuration",
         href: "/master/smtpEmailConfig/list",
+        isShow: false,
+      },
+
+      {
+        name: "Role",
+        href: "/master/role/list",
         isShow: false,
       },
     ],

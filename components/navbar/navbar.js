@@ -425,7 +425,7 @@ export default function Navbar() {
                       {userData?.data?.companyName}
                     </div>
                     <div className="account-role">
-                      {userData.data?.roleName || ""}
+                      {userData.data?.userName || ""}
                     </div>
                   </Box>
                 </Box>
@@ -583,7 +583,7 @@ export default function Navbar() {
                 {userData?.data?.companyName || ``}
               </Typography>
               <Typography className="account-role">
-                {userData?.data?.roleName || ""}
+                {userData?.data?.userName || ""}
               </Typography>
             </Box>
           </Box>

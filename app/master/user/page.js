@@ -12,6 +12,7 @@ import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { formStore } from "@/store";
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
+import { createHandleChangeFunc } from "./utils";
 
 export default function User() {
   const [formData, setFormData] = useState({});
@@ -27,7 +28,7 @@ export default function User() {
       "tblUser",
       { ...formData, userType: "U" },
       mode.formId,
-      "userId"
+      "userId",
     );
 
     const { success, error, message } = await insertUpdateForm(payload);
@@ -51,7 +52,7 @@ export default function User() {
           "tblUser",
           mode.formId,
           '["tblUserRoleMapping","tblUserLocation"]',
-          "userId"
+          "userId",
         );
 
         const { success, result, message, error } = await fetchForm(format);
@@ -71,6 +72,8 @@ export default function User() {
 
     fetchFormHandler();
   }, [mode.formId, mode.mode]);
+
+  const handleChange = createHandleChangeFunc({ setJsonData, formData });
 
   return (
     <ThemeProvider theme={theme}>
@@ -92,6 +95,7 @@ export default function User() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChange}
               />
             </Box>
 
@@ -107,6 +111,7 @@ export default function User() {
               fieldsMode={mode.mode}
               gridName="tblUserRoleMapping" // must match child collection key
               buttons={cfsGridButtons}
+              // handleChangeEventFunctions={handleChange}
             />
 
             <FormHeading
