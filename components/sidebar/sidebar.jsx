@@ -9,6 +9,7 @@ import "./sidebar-scrollbar.css";
 import { auth, useRoleStore } from "@/store";
 import { updateMenuVisibility } from "@/utils";
 import Cookies from "js-cookie";
+import SettingsAccessibilityIcon from '@mui/icons-material/SettingsAccessibility';
 
 export default function Sidebar({ className = "" }) {
   const pathname = usePathname();
@@ -431,6 +432,8 @@ function pickIcon(icon) {
       return <WalletIcon />;
     case "chart":
       return <ChartIcon />;
+    case  "access":
+      return   <SettingsAccessibilityIcon  />
     default:
       return <DotIcon />;
   }
