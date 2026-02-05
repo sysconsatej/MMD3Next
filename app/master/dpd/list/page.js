@@ -68,7 +68,7 @@ export default function DpdList() {
       try {
         const tableObj = {
           columns:
-            "p.code code,p.name name,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,p.panNo panNo,p.iceNo iceNo,u.name updatedBy,p.updatedDate updateDate,p.id",
+            "p.code code,p.name name,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,p.panNo panNo,p.iecNo iceNo,u.name updatedBy,p.updatedDate updateDate,p.id",
           tableName: "tblPort p ",
           pageNo,
           pageSize,
@@ -180,7 +180,7 @@ export default function DpdList() {
                 <TableCell>Custom code</TableCell>
                 <TableCell>EDI Common Terminal Code</TableCell>
                 <TableCell>Pan No</TableCell>
-                <TableCell>ICE No</TableCell>
+                <TableCell>IEC No</TableCell>
                 <TableCell>Updated By</TableCell>
                 <TableCell>Updated Date</TableCell>
               </TableRow>
