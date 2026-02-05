@@ -53,8 +53,8 @@ const fieldData = {
       blurFun: "validatePanCard",
       },
     {
-      label: "ICE No",
-      name: "iceNo",
+      label: "IEC No",
+      name: "iecNo",
       isEdit: true,
     },
   ],
