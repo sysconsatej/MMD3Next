@@ -46,6 +46,17 @@ const fieldData = {
       foreignTable: "name,tblPort",
       isEdit: true,
     },
+    {
+      label: "Pan No",
+      name: "panNo",
+      isEdit: true,
+      blurFun: "validatePanCard",
+      },
+    {
+      label: "ICE No",
+      name: "iceNo",
+      isEdit: true,
+    },
   ],
 };
 
