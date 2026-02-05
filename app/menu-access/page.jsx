@@ -203,19 +203,24 @@ const MenuAccess = () => {
 
   const handleChangeEventFunctions = createHandleChangeEventFunction({
     setJsonData,
+    setFormData,
+    setMenuButtons,
+    formData,
   });
 
   return (
     <ThemeProvider theme={theme}>
       <Box className="p-4">
-        <Box className="mt-5 mb-5 flex flex-row gap-4">
+        <Box className="mt-5 mb-5 grid grid-cols-2">
           <CustomInput
             fields={jsonData.dp}
             formData={formData}
             setFormData={setFormData}
             handleChangeEventFunctions={handleChangeEventFunctions}
           />
+        </Box>
 
+        <Box className="flex flex-row gap-4">
           <CustomButton
             text={"Submit"}
             type="submit"

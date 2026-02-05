@@ -260,10 +260,10 @@ export const fieldData = {
       name: "nominatedAreaId",
       type: "dropdown",
       tableName: "tblPort p",
-      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      displayColumn: "ISNULL(p.ediPortCode,'') + ' - ' + ISNULL(p.name,'')",
       joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${userData?.companyId}`,
       isEdit: true,
-      foreignTable: "code-name,tblPort",
+      foreignTable: "ediPortCode-name,tblPort",
     },
     {
       label: "Direct Port Delivery",
