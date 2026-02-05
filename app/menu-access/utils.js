@@ -25,16 +25,34 @@ export const fieldsData = {
       foreignTable: "name,tblUser",
       key: "subRole",
       where: "userType = 'S'",
-      selectedConditions  : [{ roleCodeId :  "roleCodeId" }],
+      selectedConditions: [{ roleCodeId: "roleCodeId" }],
       disabled: true,
     },
   ],
 };
 
-export const createHandleChangeEventFunction = ({ setJsonData }) => {
+export const createHandleChangeEventFunction = ({
+  setJsonData,
+  setFormData,
+  setMenuButtons,
+  formData,
+}) => {
   return {
     getUserGroupBasedonRole: async (name, value) => {
-      if (!value?.Id) return "";
+      if (!value?.Id) {
+        setFormData({});
+        setMenuButtons((prev) =>
+          prev.map((menu) => ({
+            ...menu,
+            buttons: menu.buttons.map((btn) => ({
+              ...btn,
+              accessFlag: "N",
+              roleId: formData.userType.Id,
+            })),
+          })),
+        );
+        return null;
+      }
 
       const reqPayload = {
         columns: `u.name`,
