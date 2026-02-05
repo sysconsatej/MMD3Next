@@ -16,9 +16,7 @@ import {
 import { ThemeProvider } from "@mui/material/styles";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
-import {
-  fetchTableValues,
-} from "@/apis";
+import { fetchTableValues } from "@/apis";
 import { toast, ToastContainer } from "react-toastify";
 import { formStore } from "@/store";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
@@ -85,9 +83,11 @@ export default function SearchRequestCfsDpdIcd() {
             c1.name AS CompanyName,
             b.blNo AS blNo,
             r.name AS cfsType,
+            d.name AS deliveryType,
            ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'') AS cfs,
             c.name AS dpd,
             b.customBrokerText AS NominatedCB,
+            b.sezIcd AS sezIcd,
             l.name AS locationName,
             m.name AS statusName,
             c1.name AS UserName,
@@ -112,6 +112,7 @@ export default function SearchRequestCfsDpdIcd() {
             LEFT JOIN tblMasterData r ON r.id = b.cfsTypeId
             LEFT JOIN tblPort p ON p.id = b.nominatedAreaId
             LEFT JOIN tblPort c ON c.id = b.dpdId
+            left join tblMasterData d on d.id = b.deliveryTypeId
           `,
         };
 
@@ -216,10 +217,12 @@ export default function SearchRequestCfsDpdIcd() {
                 </TableCell>
                 <TableCell>Company Name</TableCell>
                 <TableCell>BL No</TableCell>
+                <TableCell>Delivery Type</TableCell>
                 <TableCell>CFS Type</TableCell>
                 <TableCell>CFS</TableCell>
                 <TableCell>DPD</TableCell>
                 <TableCell>Nominated CB</TableCell>
+                <TableCell>SEZ/ICD</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Login Id</TableCell>
                 <TableCell>User Name</TableCell>
@@ -245,10 +248,12 @@ export default function SearchRequestCfsDpdIcd() {
 
                     <TableCell>{row.CompanyName || "-"}</TableCell>
                     <TableCell>{row.blNo || "-"}</TableCell>
+                    <TableCell>{row.deliveryType || "-"}</TableCell>
                     <TableCell>{row.cfsType || "-"}</TableCell>
                     <TableCell>{row.cfs || "-"}</TableCell>
                     <TableCell>{row.dpd || "-"}</TableCell>
                     <TableCell>{row.NominatedCB || "-"}</TableCell>
+                    <TableCell>{row.sezIcd || "-"}</TableCell>
                     <TableCell
                       sx={{
                         color: statusColor(row.statusName?.replace(/\s+/g, "")),

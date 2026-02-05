@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 
 const userData = getUserByCookies();
+let deliveryTypeCache = null;
 
 export const handleChange = ({ setFormData, formData, setJsonData }) => {
   return {
@@ -81,6 +82,129 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
         };
       });
     },
+
+    setDpdMandatoryFields: async (name, value) => {
+      try {
+        if (!deliveryTypeCache) {
+          const payload = {
+            columns: "m.id as Id, m.name as Name",
+            tableName: "tblMasterData m",
+            whereCondition: `m.masterListName = 'tblDeliveryType' AND m.status = 1`,
+          };
+
+          const resp = await getDataWithCondition(payload);
+          if (!resp?.success || !Array.isArray(resp?.data)) {
+            toast.error(resp?.message || "Unable to load Delivery Types");
+            return;
+          }
+          deliveryTypeCache = resp.data;
+        }
+
+        const selected = deliveryTypeCache.find((x) => x.Id === value?.Id);
+        const dt = String(selected?.Name || value?.Name || "")
+          .trim()
+          .toUpperCase()
+          .replace(/\s+/g, "")
+          .replace(/-/g, "_");
+
+        const rules = {
+          CFS: {
+            cfsTypeId: true,
+            nominatedAreaId: true,
+            dpdId: false,
+            sezIcd: false,
+          },
+          "DPD/DPD": {
+            cfsTypeId: false,
+            nominatedAreaId: false,
+            dpdId: true,
+            sezIcd: false,
+          },
+          "DPD/CFS": {
+            cfsTypeId: true,
+            nominatedAreaId: true,
+            dpdId: true,
+            sezIcd: false,
+          },
+          "DPD/SEZ": {
+            cfsTypeId: false,
+            nominatedAreaId: false,
+            dpdId: true,
+            sezIcd: true,
+          },
+          DPD_SEZ_CFS: {
+            cfsTypeId: true,
+            nominatedAreaId: true,
+            dpdId: true,
+            sezIcd: true,
+          },
+          "ICD/SEZ": {
+            cfsTypeId: false,
+            nominatedAreaId: false,
+            dpdId: false,
+            sezIcd: true,
+          },
+        };
+
+        const key = rules[dt]
+          ? dt
+          : rules[dt.replace("_", "/")]
+            ? dt.replace("_", "/")
+            : rules[dt.replace(/\//g, "_")]
+              ? dt.replace(/\//g, "_")
+              : dt;
+
+        const req = rules[key] || {
+          cfsTypeId: false,
+          nominatedAreaId: false,
+          dpdId: false,
+          sezIcd: false,
+        };
+
+        setJsonData((prev) => {
+          const fields = prev.fields.map((f) => {
+            if (!f?.name) return f;
+
+            if (f.name === "cfsTypeId")
+              return { ...f, required: !!req.cfsTypeId };
+            if (f.name === "nominatedAreaId")
+              return { ...f, required: !!req.nominatedAreaId };
+            if (f.name === "dpdId") return { ...f, required: !!req.dpdId };
+            if (f.name === "sezIcd") return { ...f, required: !!req.sezIcd };
+
+            return f;
+          });
+
+          return { ...prev, fields };
+        });
+
+        const clearIfNotRequired = (fieldName) => {
+          if (!req[fieldName]) {
+            setFormData((prevData) =>
+              setInputValue({
+                prevData,
+                tabName: null,
+                gridName: null,
+                tabIndex: null,
+                containerIndex: null,
+                name: fieldName,
+                value: null,
+              }),
+            );
+          }
+        };
+
+        clearIfNotRequired("cfsTypeId");
+        clearIfNotRequired("nominatedAreaId");
+        clearIfNotRequired("dpdId");
+        clearIfNotRequired("sezIcd");
+      } catch (error) {
+        console.log("setDpdMandatoryFields error", error);
+        toast.error(
+          "Something went wrong while applying Delivery Type mandatory rules",
+        );
+      }
+    },
   };
 };
 
@@ -135,10 +259,12 @@ export const tableObj = ({ pageNo, pageSize, advanceSearch }) => {
       c1.name AS shippingLineName,
       b.blNo,
       r.name AS cfsType,
+      d.name AS deliveryType,
       ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'') AS nominatedArea,
       c.name AS dpdId,
       b.customBrokerText,
       m.name AS cfsRequestStatusId,
+      b.sezIcd,
       b.cfsRejectRemarks AS remark
     `,
     tableName: "tblCfsRequest b",
@@ -158,6 +284,8 @@ export const tableObj = ({ pageNo, pageSize, advanceSearch }) => {
         on b2.id = b.id
        and b2.createdBy = u2.id
        and b.locationId = ${userData?.location}
+      left join tblMasterData d on d.id = b.deliveryTypeId
+
     `,
   };
 
@@ -551,11 +679,7 @@ export async function requestHandler(formData, setDisableRequest) {
     toast.error("Something went wrong while requesting CFS");
   }
 }
-export const getBlIdIfExists = async ({
-  blNo,
-  shippingLineId,
-  locationId,
-}) => {
+export const getBlIdIfExists = async ({ blNo, shippingLineId, locationId }) => {
   const resp = await getDataWithCondition({
     columns: "b.id",
     tableName: "tblBl b",
@@ -568,7 +692,7 @@ export const getBlIdIfExists = async ({
   });
 
   if (!Array.isArray(resp?.data) || resp.data.length === 0) {
-    return null; 
+    return null;
   }
 
   return resp.data[0].id;
