@@ -343,14 +343,14 @@ function RptIGMContent() {
                   3. IMO Code of Vessel :
                 </p>
               </div>
-              <div className="text-[9px]" style={{ width: "60%" }}></div>
+              <div className="text-[9px]" style={{ width: "60%" }}>{data[0]?.imoCode || ""}</div>
             </div>
           </div>
 
           <div style={{ width: "32%" }}>
             <div className="flex mb-2">
               <div style={{ width: "40%" }}>
-                <p className="text-black font-bold ">Name of the Agent :</p>
+                {/* <p className="text-black font-bold ">Name of the Agent :</p> */}
               </div>
               <div style={{ width: "60%" }}></div>
             </div>
@@ -366,7 +366,7 @@ function RptIGMContent() {
               <div style={{ width: "40%" }}>
                 <p className="text-black font-bold">4. Name of the Master :</p>
               </div>
-              <div style={{ width: "60%" }}></div>
+              <div style={{ width: "60%" }}>{data[0]?.masterName || ""}</div>
             </div>
           </div>
 
