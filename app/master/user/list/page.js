@@ -40,7 +40,7 @@ export default function UserList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
-  const { data } = useGetUserAccessUtils("User");
+  const { data } = useGetUserAccessUtils();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {

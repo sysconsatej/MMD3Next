@@ -16,6 +16,7 @@ import {
   AccordionSummary,
   Box,
   Checkbox,
+  Grid,
   Skeleton,
   Typography,
 } from "@mui/material";
@@ -211,29 +212,33 @@ const MenuAccess = () => {
   return (
     <ThemeProvider theme={theme}>
       <Box className="p-4">
-        <Box className="mt-5 mb-5 grid grid-cols-2">
-          <CustomInput
-            fields={jsonData.dp}
-            formData={formData}
-            setFormData={setFormData}
-            handleChangeEventFunctions={handleChangeEventFunctions}
-          />
-        </Box>
+        <Box className="flex flex-col lg:flex-row">
+          <Box className="w-full lg:basis-6/10">
+            <Box className="block lg:grid lg:grid-cols-2">
+              <CustomInput
+                fields={jsonData.dp}
+                formData={formData}
+                setFormData={setFormData}
+                handleChangeEventFunctions={handleChangeEventFunctions}
+              />
+            </Box>
+          </Box>
 
-        <Box className="flex flex-row gap-4">
-          <CustomButton
-            text={"Submit"}
-            type="submit"
-            onClick={() => handleSubmit()}
-          />
-          <CustomButton
-            text={expandAllMenus ? "Close All" : "Open All"}
-            onClick={() => (expandAllMenus ? collapseAll() : expandAll())}
-          />
-          <CustomButton
-            text={isAllSelected ? "UnSelect All" : "Select All"}
-            onClick={() => handleSelectAll(!isAllSelected)}
-          />
+          <Box className="w-full flex flex-col gap-4 lg:basis-4/10 lg:flex-row">
+            <CustomButton
+              text="Submit"
+              type="submit"
+              onClick={() => handleSubmit()}
+            />
+            <CustomButton
+              text={expandAllMenus ? "Close All" : "Open All"}
+              onClick={() => (expandAllMenus ? collapseAll() : expandAll())}
+            />
+            <CustomButton
+              text={isAllSelected ? "UnSelect All" : "Select All"}
+              onClick={() => handleSelectAll(!isAllSelected)}
+            />
+          </Box>
         </Box>
 
         <Box className="p-1 overflow-auto h-[calc(100vh-120px)]">

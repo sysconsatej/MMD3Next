@@ -40,7 +40,7 @@ export default function CountryList() {
   const { setMode } = formStore();
   const router = useRouter();
   const userData = getUserByCookies();
-  const { data } = useGetUserAccessUtils("Country");
+  const { data } = useGetUserAccessUtils();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {

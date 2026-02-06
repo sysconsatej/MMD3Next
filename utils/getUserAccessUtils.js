@@ -2,8 +2,10 @@ import { getMenuAccessDetails } from "@/apis";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 
-export const useGetUserAccessUtils = (menuName) => {
+export const useGetUserAccessUtils = () => {
   const roleIdData = Cookies.get("roleId");
+  const rawMenuName = Cookies.get("menuName");
+  const menuName = rawMenuName ? decodeURIComponent(rawMenuName) : "";
   const roleId = roleIdData || 3;
   const [data, setData] = useState();
 

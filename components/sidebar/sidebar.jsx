@@ -9,7 +9,7 @@ import "./sidebar-scrollbar.css";
 import { auth, useRoleStore } from "@/store";
 import { updateMenuVisibility } from "@/utils";
 import Cookies from "js-cookie";
-import SettingsAccessibilityIcon from '@mui/icons-material/SettingsAccessibility';
+import SettingsAccessibilityIcon from "@mui/icons-material/SettingsAccessibility";
 
 export default function Sidebar({ className = "" }) {
   const pathname = usePathname();
@@ -166,16 +166,17 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
       </span>
     ) : null;
 
-  const handleClick = (roleId) => {
-    if (!roleId) return null;
+  const handleClick = (roleId, menuName) => {
+    if (!roleId || !menuName) return;
     Cookies.set("roleId", roleId);
+    Cookies.set("menuName", menuName);
   };
 
   if (!hasChildren) {
     return (
       <li>
         <div
-          onClick={() => node?.roleId && handleClick(node.roleId)}
+          onClick={() => handleClick(node.roleId, node?.name)}
           className="w-full"
         >
           <Link
@@ -432,8 +433,8 @@ function pickIcon(icon) {
       return <WalletIcon />;
     case "chart":
       return <ChartIcon />;
-    case  "access":
-      return   <SettingsAccessibilityIcon  />
+    case "access":
+      return <SettingsAccessibilityIcon />;
     default:
       return <DotIcon />;
   }

@@ -102,7 +102,7 @@ export default function BLList() {
     value: null,
     mblNo: null,
   });
-  const { data } = useGetUserAccessUtils("HBL Request");
+  const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
 
   const getData = useCallback(

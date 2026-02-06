@@ -39,7 +39,7 @@ export default function PackageTypeList() {
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
-  const { data } = useGetUserAccessUtils("Package Type");
+  const { data } = useGetUserAccessUtils();
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
