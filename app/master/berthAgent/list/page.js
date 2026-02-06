@@ -73,7 +73,11 @@ export default function CompanyList() {
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `left join tblCompany c on c.id='${userData?.companyId}' left join tblPort p on p.id=b.berthId left join tblUser u on u.id=b.updatedBy
+          joins: `left join tblPort p on p.id = b.berthId 
+                  left join tblUser u on u.id = ${userData?.userId}
+                  left join tblCompany c on c.id = u.companyId
+                  left join tblUser u2 on u2.companyId = u.companyId
+                 join tblBerthAgentCode b2 on b2.createdBy = u2.id
 `,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
