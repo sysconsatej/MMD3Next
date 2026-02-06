@@ -138,7 +138,7 @@ const MenuAccess = () => {
 
     const data = uploadData.map((r) => ({
       ...r,
-      roleId: formData.userType.Id,
+      roleId: formData?.userType?.Id,
       menuButtonId: r.menuButtonId ?? r.id,
     }));
 

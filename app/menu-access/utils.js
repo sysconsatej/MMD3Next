@@ -44,10 +44,9 @@ export const createHandleChangeEventFunction = ({
         setMenuButtons((prev) =>
           prev.map((menu) => ({
             ...menu,
-            buttons: menu.buttons.map((btn) => ({
+            buttons: menu.buttons?.map((btn) => ({
               ...btn,
               accessFlag: "N",
-              roleId: formData.userType.Id,
             })),
           })),
         );
@@ -68,7 +67,7 @@ export const createHandleChangeEventFunction = ({
 
       setJsonData((prev) => {
         const prevdplFields = prev.dp;
-        const upadatedFields = prevdplFields.map((item) => {
+        const upadatedFields = prevdplFields?.map((item) => {
           if (item.name === "userType") {
             return { ...item, disabled: false };
           }
