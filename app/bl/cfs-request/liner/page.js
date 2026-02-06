@@ -87,7 +87,7 @@ export default function SearchRequestCfsDpdIcd() {
            ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'') AS cfs,
             c.name AS dpd,
             b.customBrokerText AS NominatedCB,
-            b.sezIcd AS sezIcd,
+            Icd.name AS sezIcd,
             l.name AS locationName,
             m.name AS statusName,
             c1.name AS UserName,
@@ -113,6 +113,7 @@ export default function SearchRequestCfsDpdIcd() {
             LEFT JOIN tblPort p ON p.id = b.nominatedAreaId
             LEFT JOIN tblPort c ON c.id = b.dpdId
             left join tblMasterData d on d.id = b.deliveryTypeId
+            left join tblPort Icd on Icd.id = b.sezIcdId
           `,
         };
 

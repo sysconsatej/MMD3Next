@@ -51,7 +51,7 @@ const fieldData = {
       name: "panNo",
       isEdit: true,
       blurFun: "validatePanCard",
-      },
+    },
     {
       label: "IEC No",
       name: "iecNo",
@@ -61,11 +61,15 @@ const fieldData = {
 };
 
 export const dpd = [
-  { label: "Nominated Area Code", value: "p.code" },
-  { label: "Nominated Area Description", value: "p.name" },
-  { label: "Nominated Area Address", value: "p.address" },
+  { label: "Name", value: "p.name" },
+  { label: "Code", value: "p.code" },
+  { label: "Address", value: "p.address" },
   { label: "Direct Delivery", value: "p.directDelivery" },
   { label: " Custom Code ", value: "p.ediPortCode" },
+  { label: "Pan No", value: "p.panNo" },
+  { label: "IEC No", value: "p.iecNo" },
+  { label: "updated By", value: "u.name" },
+  { label: "updated Date", value: "p.updatedDate" },
   { label: "EDI Common Terminal Code", value: "p.ediCommonTerminalCode" },
   { label: "Bond No", value: "p.bondNo" },
 ];

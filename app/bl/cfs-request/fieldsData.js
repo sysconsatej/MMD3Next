@@ -141,8 +141,11 @@ export const fieldData = {
     },
     {
       label: "SEZ/ICD",
-      name: "sezIcd",
-      type: "text",
+      name: "sezIcdId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      displayColumn: "p.name",
+      joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'ICD'`,
       isEdit: true,
     },
     // {

@@ -264,7 +264,7 @@ export const tableObj = ({ pageNo, pageSize, advanceSearch }) => {
       c.name AS dpdId,
       b.customBrokerText,
       m.name AS cfsRequestStatusId,
-      b.sezIcd,
+      Icd.name AS sezIcd,
       b.cfsRejectRemarks AS remark
     `,
     tableName: "tblCfsRequest b",
@@ -285,6 +285,7 @@ export const tableObj = ({ pageNo, pageSize, advanceSearch }) => {
        and b2.createdBy = u2.id
        and b.locationId = ${userData?.location}
       left join tblMasterData d on d.id = b.deliveryTypeId
+      left join tblPort Icd on Icd.id = b.sezIcdId
 
     `,
   };
