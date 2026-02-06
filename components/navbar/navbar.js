@@ -164,12 +164,6 @@ export default function Navbar() {
       const user = getUserByCookies();
       if (!user || typeof user !== "object") return;
 
-      if (!value) {
-        setFormData((prev) => ({ ...prev, location: formData?.location }));
-        toast.error("You can not set empty location!");
-        return;
-      }
-
       const updateUser = {
         ...user,
         location: value?.Id ?? null,
@@ -188,7 +182,7 @@ export default function Navbar() {
       try {
         const user = getUserByCookies();
         if (!user || typeof user !== "object") return;
-        const locationIds = user.location ?? user.locations;
+        const locationIds = user.location;
         if (!locationIds) return;
 
         const payLoad = {
@@ -199,10 +193,12 @@ export default function Navbar() {
         const response = await getDataWithCondition(payLoad);
         const data = response.data;
         if (!Array.isArray(data) || !data[0]) return;
+
         setFormData((prevData) => ({
           ...prevData,
           location: { Id: data[0].Id, Name: data[0].Name },
         }));
+
         if (!user?.location) {
           const updateUser = {
             ...user,
@@ -232,7 +228,7 @@ export default function Navbar() {
     const res = await getDataWithCondition(reqBody);
     if (res?.data && res?.data?.length > 0) {
       // const redirectLink = `https://mmd3_uat.mastergroups.com/UserLogin/AuthenticateExternal?username=${user.userName}&password=${res?.data[0]?.password}&vendorUserName=CCC44A04-F756-4DE4-9959-5A135E19A035`;
-      const fallBackTestingLink  = `https://mmd3_uat.mastergroups.com/UserLogin/AuthenticateExternal?username=atest&password=abc123&vendorUserName=CCC44A04-F756-4DE4-9959-5A135E19A035`;
+      const fallBackTestingLink = `https://mmd3_uat.mastergroups.com/UserLogin/AuthenticateExternal?username=atest&password=abc123&vendorUserName=CCC44A04-F756-4DE4-9959-5A135E19A035`;
       router.push(fallBackTestingLink);
     }
   };
