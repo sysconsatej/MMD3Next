@@ -273,7 +273,7 @@ export const BlurEventFunctions = ({ formData, setFormData, jsonData }) => {
         const blQuery = {
           columns: "TOP 1 id, mblHblFlag",
           tableName: "tblBl",
-          whereCondition: `ISNULL(hblNo, mblNo) = '${blNo}' AND 1 = 1 AND shippingLineId = ${linerId}`,
+          whereCondition: `ISNULL(hblNo, mblNo) = '${blNo}' AND status = 1 AND shippingLineId = ${linerId}`,
         };
 
         const { success: blSuccess, data: blData } =

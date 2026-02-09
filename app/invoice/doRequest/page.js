@@ -159,8 +159,8 @@ export default function Home() {
     }
     getDoStatus();
   }, []);
+
   const handleGenerateDO = () => {
-    // Pass the state and setters as arguments
     uploadAndAttachDO({
       generatingDO,
       setGeneratingDO,
