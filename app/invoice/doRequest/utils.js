@@ -774,7 +774,7 @@ export const uploadAndAttachDO = async ({
           ...(prev?.tblAttachmentRelease || []),
           {
             path: file,
-            remarks: "Auto-generated",
+            remarks: null,
             attachmentTypeId: attachmentTypeId,
           },
         ],
