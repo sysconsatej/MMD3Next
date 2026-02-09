@@ -130,19 +130,19 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
             cfsTypeId: false,
             nominatedAreaId: false,
             dpdId: true,
-            sezIcd: true,
+            sezIcdId: true,
           },
           DPD_SEZ_CFS: {
             cfsTypeId: true,
             nominatedAreaId: true,
             dpdId: true,
-            sezIcd: true,
+            sezIcdId: true,
           },
           "ICD/SEZ": {
             cfsTypeId: false,
             nominatedAreaId: false,
             dpdId: false,
-            sezIcd: true,
+            sezIcdId: true,
           },
         };
 
@@ -158,7 +158,7 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
           cfsTypeId: false,
           nominatedAreaId: false,
           dpdId: false,
-          sezIcd: false,
+          sezIcdId: false,
         };
 
         setJsonData((prev) => {
@@ -170,7 +170,7 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
             if (f.name === "nominatedAreaId")
               return { ...f, required: !!req.nominatedAreaId };
             if (f.name === "dpdId") return { ...f, required: !!req.dpdId };
-            if (f.name === "sezIcd") return { ...f, required: !!req.sezIcd };
+            if (f.name === "sezIcdId") return { ...f, required: !!req.sezIcdId };
 
             return f;
           });
@@ -197,7 +197,7 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
         clearIfNotRequired("cfsTypeId");
         clearIfNotRequired("nominatedAreaId");
         clearIfNotRequired("dpdId");
-        clearIfNotRequired("sezIcd");
+        clearIfNotRequired("sezIcdId");
       } catch (error) {
         console.log("setDpdMandatoryFields error", error);
         toast.error(
