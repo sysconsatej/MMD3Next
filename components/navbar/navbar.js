@@ -136,7 +136,6 @@ export default function Navbar() {
   useInitUser();
   const { userData } = auth();
   const { setModalOpen } = useModal();
-
   const closeMenus = () => {
     setAnchorEl(null);
     setThirdMenuAnchor(null);
@@ -421,7 +420,7 @@ export default function Navbar() {
                       {userData?.data?.companyName}
                     </div>
                     <div className="account-role">
-                      {userData.data?.userName || ""}
+                      {userData.data?.roleName || ""}
                     </div>
                   </Box>
                 </Box>
