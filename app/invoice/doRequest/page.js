@@ -23,6 +23,7 @@ import {
   doStatusHandler,
   getDORequest,
   requestHandler,
+  uploadAndAttachDO,
 } from "./utils";
 
 export default function Home() {
@@ -33,6 +34,8 @@ export default function Home() {
   const { mode, setMode } = formStore();
   const [doStatus, setDoStatus] = useState([]);
   const [requestBtn, setRequestBtn] = useState(true);
+  const [generatingDO, setGeneratingDO] = useState(false);
+
   const userData = getUserByCookies();
 
   const submitHandler = async (e) => {
@@ -156,6 +159,15 @@ export default function Home() {
     }
     getDoStatus();
   }, []);
+  const handleGenerateDO = () => {
+    // Pass the state and setters as arguments
+    uploadAndAttachDO({
+      generatingDO,
+      setGeneratingDO,
+      mode,
+      setReleaseAttachment,
+    });
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -251,35 +263,35 @@ export default function Home() {
                 />
               )}
             {userData?.roleCode === "shipping" && (
-              <CustomButton
-                text={"Confirm"}
-                onClick={() => {
-                  doStatusHandler(() => {}).handleConfirm([mode.formId]);
-                  setMode({
-                    mode: mode?.mode,
-                    formId: mode?.formId,
-                    status: "Confirm for DO",
-                  });
-                }}
-                disabled={
-                  mode.status === "Confirm for DO" ||
-                  mode.status === "Released for DO"
-                }
-              />
-            )}
-
-            {userData?.roleCode === "shipping" && (
-              <CustomButton
-                text={"DO Release"}
-                onClick={() => {
-                  doStatusHandler().handleRelease(
-                    [mode.formId],
-                    releaseAttachment,
-                    submitHandler,
-                  );
-                }}
-                disabled={mode.status !== "Confirm for DO"}
-              />
+              <>
+                <CustomButton
+                  text={"Confirm"}
+                  onClick={() => {
+                    doStatusHandler(() => {}).handleConfirm([mode.formId]);
+                    setMode({ ...mode, status: "Confirm for DO" });
+                  }}
+                  disabled={
+                    mode.status === "Confirm for DO" ||
+                    mode.status === "Released for DO"
+                  }
+                />
+                <CustomButton
+                  text={generatingDO ? "Generating..." : "Generate & Attach DO"}
+                  onClick={handleGenerateDO}
+                  disabled={mode.status !== "Confirm for DO" || generatingDO}
+                />
+                <CustomButton
+                  text={"DO Release"}
+                  onClick={() =>
+                    doStatusHandler().handleRelease(
+                      [mode.formId],
+                      releaseAttachment,
+                      submitHandler,
+                    )
+                  }
+                  disabled={mode.status !== "Confirm for DO"}
+                />
+              </>
             )}
           </Box>
         </section>
