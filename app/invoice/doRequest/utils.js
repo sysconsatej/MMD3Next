@@ -279,8 +279,8 @@ export const BlurEventFunctions = ({ formData, setFormData, jsonData }) => {
         const { success: blSuccess, data: blData } =
           await getDataWithCondition(blQuery);
 
-        if (!blSuccess || !Array.isArray(blData) || !blData.length) {
-          toast.error("BL not found for selected Liner.");
+        if (!blSuccess || !Array.isArray(blData) || blData.length <= 0) {
+          toast.warn("BL not found for selected Liner.");
         } else {
           const blId = blData?.[0]?.id;
           const format = formatFetchForm(
@@ -311,8 +311,7 @@ export const BlurEventFunctions = ({ formData, setFormData, jsonData }) => {
         }
       } catch (e) {
         console.error(e);
-        toast.error("Error fetching payment details.");
-        setFormData({});
+        toast.warn("BL not found for selected Liner.");
       }
 
       try {
@@ -335,6 +334,7 @@ export const BlurEventFunctions = ({ formData, setFormData, jsonData }) => {
         }
       } catch (error) {
         console.log("error", error);
+        toast.warn("Payment details not found again this BL.");
       }
     },
   };
