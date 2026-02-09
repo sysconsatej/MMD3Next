@@ -613,3 +613,179 @@ export function checkAttachment(formData) {
 
   return false;
 }
+
+/**
+ * Generates HTML content from a hidden iframe report
+ */
+export const generateHTMLFromReport = async (reportType, formId) => {
+  return new Promise(async (resolve) => {
+    try {
+      const obj = {
+        columns: "blId",
+        tableName: "tblDoRequest",
+        whereCondition: `id = '${formId}'`,
+      };
+
+      const { data, success } = await getDataWithCondition(obj);
+
+      if (!success || !data || data.length === 0) {
+        toast.error("NO BL FOUND!");
+        resolve(null);
+        return;
+      }
+
+      const blId = data[0]?.blId;
+      const iframe = document.createElement("iframe");
+
+      Object.assign(iframe.style, {
+        display: "none",
+        visibility: "hidden",
+        position: "absolute",
+        width: "0px",
+        height: "0px",
+        left: "-9999px",
+      });
+
+      const rid = encodeURIComponent(blId);
+      const reportUrl = `/htmlReports/rptDoLetter?recordId=${rid}&clientId=1&mode=combined&selected=${encodeURIComponent(reportType)}`;
+
+      let timeoutId;
+
+      iframe.onload = async () => {
+        try {
+          clearTimeout(timeoutId);
+          await new Promise((r) => setTimeout(r, 3000));
+
+          const iframeDoc =
+            iframe.contentDocument || iframe.contentWindow.document;
+          if (!iframeDoc) throw new Error("Iframe document not accessible");
+
+          let reportRoot = iframeDoc.querySelector("#report-root");
+          let rawContent = reportRoot
+            ? reportRoot.outerHTML
+            : iframeDoc.body.innerHTML;
+
+          const tempDiv = document.createElement("div");
+          tempDiv.innerHTML = rawContent;
+          tempDiv.querySelectorAll(".no-print").forEach((el) => el.remove());
+
+          const resetStyles = `
+            <style>
+              @page { margin: 0mm; size: auto; }
+              body { margin: 0; padding: 0; }
+              #report-root { 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                page-break-after: avoid !important;
+                height: auto !important;
+              }
+              * { box-sizing: border-box; }
+            </style>
+          `;
+
+          const finalHtml = resetStyles + tempDiv.innerHTML.trim();
+
+          if (document.body.contains(iframe)) document.body.removeChild(iframe);
+          resolve(finalHtml);
+        } catch (error) {
+          if (document.body.contains(iframe)) document.body.removeChild(iframe);
+          resolve(null);
+        }
+      };
+
+      timeoutId = setTimeout(() => {
+        if (document.body.contains(iframe)) document.body.removeChild(iframe);
+        resolve(null);
+      }, 15000);
+
+      iframe.src = reportUrl;
+      document.body.appendChild(iframe);
+    } catch (error) {
+      toast.error("Error generating report");
+      resolve(null);
+    }
+  });
+};
+
+/**
+ * Handles PDF generation, attachment type mapping, and state updates
+ */
+export const uploadAndAttachDO = async ({
+  generatingDO,
+  setGeneratingDO,
+  mode,
+  setReleaseAttachment,
+}) => {
+  if (generatingDO) return;
+  setGeneratingDO(true);
+
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+    // 1. Fetch Attachment Type IDs
+    const masterObj = {
+      columns: "id, name",
+      tableName: "tblMasterData",
+      whereCondition:
+        "masterListName = 'tblInvoiceAttachmentType' AND name IN ('DO Released', 'Empty Letter')",
+    };
+
+    const masterRes = await getDataWithCondition(masterObj);
+    const typeMapping = {};
+    if (masterRes.success) {
+      masterRes.data.forEach((item) => {
+        typeMapping[item.name] = { Id: item.id, Name: item.name };
+      });
+    }
+
+    const reportTypes = ["Delivery Order", "EmptyOffLoadingLetter"];
+
+    for (const reportType of reportTypes) {
+      // Call the sibling function
+      const htmlContent = await generateHTMLFromReport(reportType, mode.formId);
+      if (!htmlContent) continue;
+
+      const pdfResponse = await fetch(`${baseUrl}api/v1/localPDFReports`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          htmlContent: htmlContent,
+          orientation: "portrait",
+          pdfFilename: reportType.replace(/[\\/:*?"<>|]+/g, "_"),
+        }),
+      });
+
+      if (!pdfResponse.ok)
+        throw new Error(`PDF generation failed for ${reportType}`);
+
+      const blob = await pdfResponse.blob();
+      const file = new File([blob], `${Date.now()}-${reportType}.pdf`, {
+        type: "application/pdf",
+      });
+
+      const typeName =
+        reportType === "Delivery Order" ? "DO Released" : "Empty Letter";
+      const attachmentTypeId = typeMapping[typeName];
+
+      // 3. Update the component state
+      setReleaseAttachment((prev) => ({
+        ...prev,
+        tblAttachmentRelease: [
+          ...(prev?.tblAttachmentRelease || []),
+          {
+            path: file,
+            remarks: "Auto-generated",
+            attachmentTypeId: attachmentTypeId,
+          },
+        ],
+      }));
+
+      await new Promise((r) => setTimeout(r, 1000));
+      toast.success(`${reportType} attached successfully!`);
+    }
+  } catch (error) {
+    toast.error(error?.message || "Error generating DOs");
+  } finally {
+    setGeneratingDO(false);
+  }
+};
