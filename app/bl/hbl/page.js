@@ -36,6 +36,7 @@ import {
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import {
   checkAttachment,
+  checkMblActive,
   copyHandler,
   createBlurFunc,
   createGridEventFunctions,
@@ -128,6 +129,15 @@ export default function Home() {
       toast.error("Please upload attachment in all HBL tabs!");
       return;
     }
+    const isMblActive = await checkMblActive(
+      formData?.mblNo,
+      formData?.shippingLineId,
+    );
+    if (isMblActive) {
+      toast.warn("This Bl is not active!");
+      return;
+    }
+
     let allSuccess = true;
     const format = formFormatThirdLevel(formData);
     const checkHblMap = format.map((item) => item.hblNo);

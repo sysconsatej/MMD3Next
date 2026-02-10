@@ -170,7 +170,8 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
             if (f.name === "nominatedAreaId")
               return { ...f, required: !!req.nominatedAreaId };
             if (f.name === "dpdId") return { ...f, required: !!req.dpdId };
-            if (f.name === "sezIcdId") return { ...f, required: !!req.sezIcdId };
+            if (f.name === "sezIcdId")
+              return { ...f, required: !!req.sezIcdId };
 
             return f;
           });
@@ -680,6 +681,7 @@ export async function requestHandler(formData, setDisableRequest) {
     toast.error("Something went wrong while requesting CFS");
   }
 }
+
 export const getBlIdIfExists = async ({ blNo, shippingLineId, locationId }) => {
   const resp = await getDataWithCondition({
     columns: "b.id",
@@ -697,4 +699,22 @@ export const getBlIdIfExists = async ({ blNo, shippingLineId, locationId }) => {
   }
 
   return resp.data[0].id;
+};
+
+export const checkMblActive = async (blNo, shippingLineId) => {
+  try {
+    const obj = {
+      columns: `active`,
+      tableName: "tblBl",
+      whereCondition: `mblNo = '${blNo}' and status = 1 and mblHblFlag = 'MBL' and shippingLineId = ${shippingLineId?.Id}`,
+    };
+    const { data } = await getDataWithCondition(obj);
+    if (data?.[0]?.active === false) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.log(error);
+  }
 };

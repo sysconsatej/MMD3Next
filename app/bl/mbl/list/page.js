@@ -21,22 +21,17 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
-import { advanceSearchFields, mblFilter } from "../mblData";
-import {
-  advanceSearchFilter,
-  craeateHandleChangeEventFunction,
-  createHandleChangeEventFunctionTrackPage,
-} from "../utils";
+import { advanceSearchFields } from "../mblData";
+import { advanceSearchFilter, handleLock } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import ReportPickerModal from "@/components/ReportPickerModal/reportPickerModal";
-import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import HistoryIcon from "@mui/icons-material/History";
+import LockIcon from "@mui/icons-material/Lock";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
 import BLHistoryModal from "../modal";
-import { CustomInput } from "@/components/customInput";
 import MBLSelectionActionsBar from "@/components/selectionActions/mblSelectionActionsBar";
 
 const LIST_TABLE = "tblBl b";
@@ -76,6 +71,7 @@ function createData(
   id,
   clientId,
   mblHblFlag,
+  active,
 ) {
   return {
     blNo,
@@ -92,6 +88,7 @@ function createData(
     id,
     clientId,
     mblHblFlag,
+    active,
   };
 }
 
@@ -112,11 +109,7 @@ export default function BLList() {
   const [someChecked, setSomeChecked] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportModalForRow, setReportModalForRow] = useState(null);
-  const { data } = useGetUserAccessUtils();
-  // const [formData, setFormData] = useState({});
   const userData = getUserByCookies();
-
-  // ⬇️ NEW: history modal state
   const [historyModal, setHistoryModal] = useState({
     open: false,
     recordId: null,
@@ -130,7 +123,7 @@ export default function BLList() {
     ) => {
       try {
         const tableObj = {
-          columns: `coalesce(b.hblNo, b.mblNo)  blNo, iif(b.hblNo is null, (select b2.id, b2.hblNo from tblBl b2 left join tblMasterData m3 on m3.id = b2.hblRequestStatus where b2.mblNo =  b.mblNo and b2.status = 1 and b2.mblHblFlag = 'HBL' and m3.name = 'Confirm' and b2.shippingLineId = u.companyId and b2.locationId = ${userData.location} for json path), null) hblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId, b.mblHblFlag mblHblFlag`,
+          columns: `coalesce(b.hblNo, b.mblNo)  blNo, iif(b.hblNo is null, (select b2.id, b2.hblNo from tblBl b2 left join tblMasterData m3 on m3.id = b2.hblRequestStatus where b2.mblNo =  b.mblNo and b2.status = 1 and b2.mblHblFlag = 'HBL' and m3.name = 'Confirm' and b2.shippingLineId = u.companyId and b2.locationId = ${userData.location} for json path), null) hblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId, b.mblHblFlag mblHblFlag, b.active active`,
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
@@ -174,6 +167,7 @@ export default function BLList() {
           item["id"],
           item["clientId"],
           item["mblHblFlag"],
+          item["active"],
         ),
       )
     : [];
@@ -252,13 +246,6 @@ export default function BLList() {
     setReportModalForRow(null);
   };
 
-  // const handleChangeEventFunctions = createHandleChangeEventFunctionTrackPage({
-  //   setAdvanceSearch,
-  //   getData,
-  //   rowsPerPage,
-  //   setFormData,
-  // });
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -268,13 +255,6 @@ export default function BLList() {
             MBL
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
-            {/* <CustomInput
-              fields={mblFilter}
-              formData={formData}
-              setFormData={setFormData}
-              fieldsMode={""}
-              handleChangeEventFunctions={handleChangeEventFunctions}
-            /> */}
             <AdvancedSearchBar
               fields={advanceSearchFields.bl}
               advanceSearch={advanceSearch}
@@ -300,7 +280,6 @@ export default function BLList() {
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                {/* ✅ Checkbox Header */}
                 <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
                   <Checkbox
                     checked={allChecked}
@@ -320,6 +299,7 @@ export default function BLList() {
                 <TableCell>Cargo Movement</TableCell>
                 <TableCell>Arrival Vessel</TableCell>
                 <TableCell>Arrival Voyage</TableCell>
+                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell>
                 <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell>
               </TableRow>
             </TableHead>
@@ -361,30 +341,7 @@ export default function BLList() {
                     <TableCell>{row.fpd}</TableCell>
                     <TableCell>{row.cargoMovement}</TableCell>
                     <TableCell>{row.arrivalVessel}</TableCell>
-
-                    {/* ✅ Arrival Voyage + Hover Actions */}
-                    <TableCell>
-                      {row.arrivalVoyage}
-                      {/* <Box className="flex items-center justify-between gap-1">
-                        <span>{row.arrivalVoyage}</span>
-
-                        <span className="opacity-0 group-hover:opacity-100 transition-opacity">
-                          <HoverActionIcons
-                            onView={() =>
-                              modeHandler("view", row.id, row.mblHblFlag)
-                            }
-                            onEdit={() =>
-                              modeHandler("edit", row.id, row.mblHblFlag)
-                            }
-                            onDelete={() => modeHandler("delete", row.id)}
-                            onPrint={() => handlePrint(row.id, row.clientId)}
-                            menuAccess={data ?? {}}
-                          />
-                        </span>
-                      </Box> */}
-                    </TableCell>
-
-                    {/* ✅ History */}
+                    <TableCell>{row.arrivalVoyage}</TableCell>
                     <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <HistoryIcon
                         sx={{
@@ -400,12 +357,36 @@ export default function BLList() {
                         }
                       />
                     </TableCell>
+                    {row.mblHblFlag === "MBL" &&
+                      (row.active || row.active === undefined) && (
+                        <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                          <LockOpenIcon
+                            sx={{
+                              cursor: "pointer",
+                              fontSize: "16px",
+                              color: "#1976d2",
+                            }}
+                            onClick={() => handleLock(row.id, false, getData)}
+                          />
+                        </TableCell>
+                      )}
+                    {row.mblHblFlag === "MBL" && row.active === false && (
+                      <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                        <LockIcon
+                          sx={{
+                            cursor: "pointer",
+                            fontSize: "16px",
+                            color: "#1976d2",
+                          }}
+                          onClick={() => handleLock(row.id, true, getData)}
+                        />
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
                   <TableCell colSpan={11} align="center">
-                    {/* ⬆️ colSpan updated to 11 to match columns */}
                     {loadingState}
                   </TableCell>
                 </TableRow>
