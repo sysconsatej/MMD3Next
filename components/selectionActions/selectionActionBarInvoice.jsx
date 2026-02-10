@@ -11,6 +11,7 @@ import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import PersonIcon from "@mui/icons-material/Person";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 export default function InvoiceToolbarActions({
   selectedIds = [],
@@ -38,8 +39,9 @@ export default function InvoiceToolbarActions({
       (Array.isArray(selectedIds) ? selectedIds : [])
         .map((v) => (typeof v === "string" ? v.trim() : v))
         .filter((v) => v !== "" && v !== null && v !== undefined),
-    [selectedIds]
+    [selectedIds],
   );
+  const userAccess = useGetUserAccessUtils()?.data || {};
 
   const count = ids.length;
   const isSingle = count === 1;
@@ -76,76 +78,94 @@ export default function InvoiceToolbarActions({
     <Box className="w-full flex items-center justify-between gap-2 flex-wrap">
       {/* left: actions (compact gaps) */}
       <div className="flex items-center gap-1.5 flex-wrap">
-        <Segment
-          label="View"
-          icon={<SearchIcon />}
-          onClick={() => onView && onView(ids[0])}
-          disabled={!isSingle || !onView}
-        />
-        <Segment
-          label="Release"
-          icon={<VpnKeyIcon />}
-          onClick={() => call(onRelease, allowBulkRelease)}
-          disabled={
-            !hasAny ||
-            !onRelease ||
-            (!allowBulkRelease && !isSingle) ||
-            disableRelease // 👈 USE FLAG FROM PARENT
-          }
-        />
-        <Segment
-          label="KYC"
-          icon={<GroupsIcon />}
-          onClick={() => call(onKyc, allowBulkKyc)}
-          disabled={!hasAny || !onKyc || (!allowBulkKyc && !isSingle)}
-        />
-        <Segment
-          label="Upload"
-          icon={<CloudUploadIcon />}
-          onClick={() => call(onUpload, allowBulkUpload)}
-          disabled={!hasAny || !onUpload || (!allowBulkUpload && !isSingle)}
-        />
-        <Segment
-          label="Invoice Lookup"
-          icon={<LocalShippingIcon />}
-          onClick={() => call(onInvoiceLookup, allowBulkInvoiceLookup)}
-          disabled={
-            !hasAny ||
-            !onInvoiceLookup ||
-            (!allowBulkInvoiceLookup && !isSingle)
-          }
-        />
-        <Segment
-          label="Notify"
-          icon={<MailOutlineIcon />}
-          onClick={() => call(onNotify, allowBulkNotify)}
-          disabled={!hasAny || !onNotify || (!allowBulkNotify && !isSingle)}
-        />
-        <Segment
-          label="Close"
-          icon={<CloseIcon />}
-          onClick={() => call(onClose, allowBulkClose)}
-          disabled={!hasAny || !onClose || (!allowBulkClose && !isSingle)}
-        />
-        <Segment
-          label="Reprocess"
-          icon={<AutorenewIcon />}
-          onClick={() => call(onReprocess, allowBulkReprocess)}
-          disabled={
-            !hasAny || !onReprocess || (!allowBulkReprocess && !isSingle)
-          }
-        />
-        <Segment
-          label="Assign To"
-          icon={<PersonIcon />}
-          onClick={() => call(onAssign, allowBulkAssign)}
-          disabled={
-            !hasAny ||
-            !onAssign ||
-            (!allowBulkAssign && !isSingle) ||
-            disableRelease
-          }
-        />
+        {userAccess?.["View"] && (
+          <Segment
+            label="View"
+            icon={<SearchIcon />}
+            onClick={() => onView && onView(ids[0])}
+            disabled={!isSingle || !onView}
+          />
+        )}
+        {userAccess?.["Release"] && (
+          <Segment
+            label="Release"
+            icon={<VpnKeyIcon />}
+            onClick={() => call(onRelease, allowBulkRelease)}
+            disabled={
+              !hasAny ||
+              !onRelease ||
+              (!allowBulkRelease && !isSingle) ||
+              disableRelease // 👈 USE FLAG FROM PARENT
+            }
+          />
+        )}
+        {userAccess?.["KYC"] && (
+          <Segment
+            label="KYC"
+            icon={<GroupsIcon />}
+            onClick={() => call(onKyc, allowBulkKyc)}
+            disabled={!hasAny || !onKyc || (!allowBulkKyc && !isSingle)}
+          />
+        )}
+        {userAccess?.["Upload"] && (
+          <Segment
+            label="Upload"
+            icon={<CloudUploadIcon />}
+            onClick={() => call(onUpload, allowBulkUpload)}
+            disabled={!hasAny || !onUpload || (!allowBulkUpload && !isSingle)}
+          />
+        )}
+        {userAccess?.["Invoice Lookup"] && (
+          <Segment
+            label="Invoice Lookup"
+            icon={<LocalShippingIcon />}
+            onClick={() => call(onInvoiceLookup, allowBulkInvoiceLookup)}
+            disabled={
+              !hasAny ||
+              !onInvoiceLookup ||
+              (!allowBulkInvoiceLookup && !isSingle)
+            }
+          />
+        )}
+        {userAccess?.["Notify"] && (
+          <Segment
+            label="Notify"
+            icon={<MailOutlineIcon />}
+            onClick={() => call(onNotify, allowBulkNotify)}
+            disabled={!hasAny || !onNotify || (!allowBulkNotify && !isSingle)}
+          />
+        )}
+        {userAccess?.["Close"] && (
+          <Segment
+            label="Close"
+            icon={<CloseIcon />}
+            onClick={() => call(onClose, allowBulkClose)}
+            disabled={!hasAny || !onClose || (!allowBulkClose && !isSingle)}
+          />
+        )}
+        {userAccess?.["Reprocess"] && (
+          <Segment
+            label="Reprocess"
+            icon={<AutorenewIcon />}
+            onClick={() => call(onReprocess, allowBulkReprocess)}
+            disabled={
+              !hasAny || !onReprocess || (!allowBulkReprocess && !isSingle)
+            }
+          />
+        )}
+        {userAccess?.["Assign To"] && (
+          <Segment
+            label="Assign To"
+            icon={<PersonIcon />}
+            onClick={() => call(onAssign, allowBulkAssign)}
+            disabled={
+              !hasAny ||
+              !onAssign ||
+              (!allowBulkAssign && !isSingle) ||
+              disableRelease
+            }
+          />
+        )}
       </div>
 
       {/* right: selected counter (corner), compact text */}

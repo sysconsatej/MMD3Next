@@ -1,6 +1,7 @@
 "use client";
 import React, { useMemo } from "react";
 import { Box, Typography } from "@mui/material";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 export default function MBLSelectionActionsBar({
   selectedIds = [],
@@ -10,6 +11,7 @@ export default function MBLSelectionActionsBar({
   onPrint,
 }) {
   const ids = useMemo(() => selectedIds.filter(Boolean), [selectedIds]);
+  const userAccess = useGetUserAccessUtils()?.data || {};
 
   const count = ids.length;
   const single = count === 1;
@@ -27,26 +29,34 @@ export default function MBLSelectionActionsBar({
   return (
     <Box className="flex items-center justify-between mb-2">
       <div className="flex border border-[#B5C4F0] text-xs rounded-sm overflow-hidden">
-        <Action
-          label="View"
-          disabled={!single}
-          onClick={() => onView(ids[0])}
-        />
-        <Action
-          label="Edit"
-          disabled={!single}
-          onClick={() => onEdit(ids[0])}
-        />
-        <Action
-          label="Delete"
-          disabled={count === 0}
-          onClick={() => onDelete(ids)}
-        />
-        <Action
-          label="Print"
-          disabled={!single}
-          onClick={() => onPrint(ids[0])}
-        />
+        {userAccess?.["view"] && (
+          <Action
+            label="View"
+            disabled={!single}
+            onClick={() => onView(ids[0])}
+          />
+        )}
+        {userAccess?.["edit"] && (
+          <Action
+            label="Edit"
+            disabled={!single}
+            onClick={() => onEdit(ids[0])}
+          />
+        )}
+        {userAccess?.["delete"] && (
+          <Action
+            label="Delete"
+            disabled={count === 0}
+            onClick={() => onDelete(ids)}
+          />
+        )}
+        {userAccess?.["print"] && (
+          <Action
+            label="Print"
+            disabled={!single}
+            onClick={() => onPrint(ids[0])}
+          />
+        )}
       </div>
 
       <Typography variant="caption">Selected: {count}</Typography>

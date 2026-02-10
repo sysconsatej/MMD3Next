@@ -7,6 +7,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import RequestPageIcon from "@mui/icons-material/RequestPage";
 import { getDataWithCondition } from "@/apis";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 export default function SearchRequestToolbarActions({
   selectedIds = [],
@@ -33,6 +34,7 @@ export default function SearchRequestToolbarActions({
     [selectedIds],
   );
 
+  const userAccess = useGetUserAccessUtils()?.data||{};
   const count = ids.length;
   const isSingle = count === 1;
   const hasAny = count > 0;
@@ -163,23 +165,22 @@ export default function SearchRequestToolbarActions({
     <Box className="w-full flex flex-col gap-2">
       {/* 🔹 FIRST ROW (Buttons) */}
       <div className="flex items-center gap-2 flex-wrap">
-        {onView && (
+        {onView && userAccess["View"] && (
           <Segment
             label="View"
-            icon={<VisibilityIcon />}
             onClick={() => onView?.(ids[0])}
             disabled={!isSingle}
           />
         )}
-        {onEdit && (
+        {onEdit && userAccess?.["Edit"] && (
           <Segment
             label="Edit"
-            icon={<EditIcon />}
             onClick={() => onEdit?.(ids[0])}
             disabled={!isSingle || isDisableBtn?.isEditDisable}
           />
         )}
-        {onRequest && (
+
+        {onRequest && userAccess?.["Request"] && (
           <Segment
             label="Request"
             icon={<RequestPageIcon />}
@@ -187,7 +188,7 @@ export default function SearchRequestToolbarActions({
             disabled={!hasAny || isDisableBtn?.isRequestDisable}
           />
         )}
-        {onReject && (
+        {onReject && userAccess?.["Reject"] &&(
           <Segment
             label="Reject"
             icon={<CancelIcon />}
@@ -199,7 +200,7 @@ export default function SearchRequestToolbarActions({
             }
           />
         )}
-        {onConfirm && (
+        {onConfirm && userAccess?.["Confirm"] && (
           <Segment
             label="Confirm"
             icon={<CheckCircleIcon />}
@@ -211,7 +212,7 @@ export default function SearchRequestToolbarActions({
             }
           />
         )}
-        {onRequestAmendment && (
+        {onRequestAmendment && userAccess?.["Request for Amendment"] && (
           <Segment
             label="Request for Amendment"
             icon={<RequestPageIcon />}
@@ -219,7 +220,7 @@ export default function SearchRequestToolbarActions({
             disabled={!hasAny || isDisableBtn?.isRequestAmdDisable}
           />
         )}
-        {onRejectAmendment && (
+        {onRejectAmendment && userAccess?.["Reject for Amendment"] &&(
           <Segment
             label="Reject for Amendment"
             icon={<CancelIcon />}
@@ -227,7 +228,7 @@ export default function SearchRequestToolbarActions({
             disabled={!hasAny || isDisableBtn?.isRejAndAprAmdDisable}
           />
         )}
-        {onConfirmAmendment && (
+        {onConfirmAmendment && userAccess?.["Confirm for Amendment"] && (
           <Segment
             label="Confirm for Amendment"
             icon={<CheckCircleIcon />}

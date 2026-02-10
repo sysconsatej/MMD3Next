@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { use, useEffect, useMemo, useState } from "react";
 import { Box, Tooltip } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit"; // Edit BL Docs
 import SearchIcon from "@mui/icons-material/Search"; // View BL Docs
@@ -13,6 +13,7 @@ import PageviewIcon from "@mui/icons-material/Pageview";
 import RequestPageIcon from "@mui/icons-material/RequestPage";
 import { getDataWithCondition } from "@/apis";
 import { getUserByCookies } from "@/utils";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 export default function DoToolbarActions({
   selectedIds = [],
@@ -35,6 +36,7 @@ export default function DoToolbarActions({
     isEditDisable: false,
   });
   const userData = getUserByCookies();
+  const userAccess = useGetUserAccessUtils()?.data||{};
 
   const ids = useMemo(
     () =>
@@ -135,7 +137,7 @@ export default function DoToolbarActions({
     <Box className="w-full flex items-center gap-2 flex-wrap">
       <div className="flex items-center gap-1.5 flex-wrap">
         {/* View */}
-        {onView && (
+        {onView && userAccess?.["View"] &&(
           <Segment
             label="View"
             icon={<PageviewIcon />}
@@ -145,7 +147,7 @@ export default function DoToolbarActions({
         )}
 
         {/* Edit */}
-        {onEdit && (
+        {onEdit && userAccess?.["Edit"] &&(
           <Segment
             label="Edit"
             icon={<EditIcon />}
@@ -155,7 +157,7 @@ export default function DoToolbarActions({
         )}
 
         {/* Request */}
-        {onRequestDO && (
+        {onRequestDO && userAccess?.["Request DO"] && (
           <Segment
             label="Request DO"
             icon={<RequestPageIcon />}
@@ -165,7 +167,7 @@ export default function DoToolbarActions({
         )}
 
         {/* View BL Docs */}
-        {onViewBL && (
+        {onViewBL && userAccess?.["View BL Docs"] &&(
           <Segment
             label="View BL Docs"
             icon={<SearchIcon />}
@@ -175,7 +177,7 @@ export default function DoToolbarActions({
         )}
 
         {/* Edit BL Docs */}
-        {onEditBL && (
+        {onEditBL && userAccess?.["Edit BL Docs"] &&(
           <Segment
             label="Edit BL Docs"
             icon={<EditIcon />}
@@ -185,7 +187,7 @@ export default function DoToolbarActions({
         )}
 
         {/* Confirm */}
-        {onConfirm && (
+        {onConfirm && userAccess?.["Confirm"] && (
           <Segment
             label="Confirm"
             icon={<CheckIcon />}
@@ -195,7 +197,7 @@ export default function DoToolbarActions({
         )}
 
         {/* Reject */}
-        {onReject && (
+        {onReject && userAccess?.["Reject"] &&(
           <Segment
             label="Reject"
             icon={<CloseIcon />}
@@ -205,7 +207,7 @@ export default function DoToolbarActions({
         )}
 
         {/* Notify */}
-        {onNotify && (
+        {onNotify && userAccess?.["Notify"] && (
           <Segment
             label="Notify"
             icon={<MailOutlineIcon />}
@@ -215,7 +217,7 @@ export default function DoToolbarActions({
         )}
 
         {/* Generate DO */}
-        {onGenerateDO && (
+        {onGenerateDO && userAccess?.["Generate DO"] && (
           <Segment
             label="Generate DO"
             icon={<FolderOpenIcon />}
@@ -225,7 +227,7 @@ export default function DoToolbarActions({
         )}
 
         {/* PCS */}
-        {onPCS && (
+        {onPCS && userAccess?.["PCS"] && (
           <Segment
             label="PCS"
             icon={<DesktopMacIcon />}
@@ -235,7 +237,7 @@ export default function DoToolbarActions({
         )}
 
         {/* Security Slip */}
-        {onSecuritySlip && (
+        {onSecuritySlip && userAccess?.["Security Slip"] && (
           <Segment
             label="Security Slip"
             icon={<WorkIcon />}

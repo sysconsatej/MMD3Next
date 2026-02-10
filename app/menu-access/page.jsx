@@ -7,7 +7,6 @@ import React, {
   Fragment,
 } from "react";
 import { ThemeProvider } from "@mui/material/styles";
-import { theme } from "./menuAccessStyling";
 import CustomButton from "@/components/button/button";
 import { getMenuButtons } from "@/apis/getMenuButtons";
 import {
@@ -27,6 +26,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { getSpecificRoleMenuButtons } from "@/apis/menuAccess";
 import { fieldsData, createHandleChangeEventFunction } from "./utils";
 import { getUserByCookies } from "@/utils";
+import { theme } from "@/styles";
 
 const MenuAccess = () => {
   const [menuButtons, setMenuButtons] = useState([]);
@@ -142,7 +142,6 @@ const MenuAccess = () => {
       menuButtonId: r.menuButtonId ?? r.id,
     }));
 
-    console.log({ roleId: formData?.userType?.Id, menu_json: data });
     // return
 
     try {
@@ -251,11 +250,11 @@ const MenuAccess = () => {
                     key={item?.menuName}
                     expanded={expandAllMenus || expand === item.menuName}
                     onChange={handleExpand(item.menuName)}
-                    style={{ background: "transparent", borderRadius: "5px" }}
+                    // style={{ background: "transparent", borderRadius: "5px" }}
                   >
                     {item?.menuName !== "Nominated Area" ? (
                       <AccordionSummary
-                        className="bg-gradient-to-t from-blue-500  to-indigo-500"
+                        // className="bg-gradient-to-t from-blue-500  to-indigo-500"
                         expandIcon={
                           <ExpandMoreOutlined style={{ color: "#FFF" }} />
                         }

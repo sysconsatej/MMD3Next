@@ -12,6 +12,7 @@ import {
 import { toast } from "react-toastify";
 import { getDataWithCondition, updateStatusRows } from "@/apis";
 import { getUserByCookies } from "@/utils";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 export default function SelectionActionsBar({
   selectedIds = [],
@@ -37,12 +38,13 @@ export default function SelectionActionsBar({
         .map((v) => v ?? "")
         .map((v) => (typeof v === "string" ? v.trim() : v))
         .filter((v) => v !== "" && v !== null && v !== undefined),
-    [selectedIds]
+    [selectedIds],
   );
 
   const count = ids.length;
   const isSingle = count === 1;
   const hasAny = count > 0;
+  const userAccess = useGetUserAccessUtils()?.data || {};
 
   const [rejectOpen, setRejectOpen] = useState(false);
   const [remarks, setRemarks] = useState("");
@@ -54,7 +56,6 @@ export default function SelectionActionsBar({
     isRejAndConfDisable: false,
   });
   const userData = getUserByCookies();
-
   const openReject = () => {
     setRemarks("");
     setRejectOpen(true);
@@ -89,7 +90,7 @@ export default function SelectionActionsBar({
           updatedBy: userData.userId,
           updatedDate: new Date(),
         };
-      })
+      }),
     );
     await applyUpdate(rowsPayload, "Requested");
   };
@@ -106,7 +107,7 @@ export default function SelectionActionsBar({
           updatedBy: userData.userId,
           updatedDate: new Date(),
         };
-      })
+      }),
     );
     await applyUpdate(rowsPayload, "Verified");
   };
@@ -114,7 +115,7 @@ export default function SelectionActionsBar({
   const handleReqAmd = async () => {
     if (!hasAny) return;
     const veriFyStatus = hblStatus.filter(
-      (item) => item.Name === "Request for Amendment"
+      (item) => item.Name === "Request for Amendment",
     );
     const rowsPayload = ids.flatMap((keyVal) =>
       keyVal.split(",").map((id) => {
@@ -125,7 +126,7 @@ export default function SelectionActionsBar({
           updatedBy: userData.userId,
           updatedDate: new Date(),
         };
-      })
+      }),
     );
     await applyUpdate(rowsPayload, "Request for Amendment");
   };
@@ -133,7 +134,7 @@ export default function SelectionActionsBar({
   const handleVerifyAmd = async () => {
     if (!hasAny) return;
     const veriFyStatus = hblStatus.filter(
-      (item) => item.Name === "Approved for Amendment"
+      (item) => item.Name === "Approved for Amendment",
     );
     const rowsPayload = ids.flatMap((keyVal) =>
       keyVal.split(",").map((id) => {
@@ -144,7 +145,7 @@ export default function SelectionActionsBar({
           updatedBy: userData.userId,
           updatedDate: new Date(),
         };
-      })
+      }),
     );
     await applyUpdate(rowsPayload, "Approved");
   };
@@ -153,7 +154,7 @@ export default function SelectionActionsBar({
     if (!hasAny) return;
     if (remarks) {
       const rejectStatus = hblStatus.filter(
-        (item) => item.Name === filterStatus
+        (item) => item.Name === filterStatus,
       );
       const rowsPayload = ids.flatMap((keyVal) =>
         keyVal.split(",").map((id) => {
@@ -164,7 +165,7 @@ export default function SelectionActionsBar({
             updatedBy: userData.userId,
             updatedDate: new Date(),
           };
-        })
+        }),
       );
       const ok = await applyUpdate(rowsPayload, "Rejected");
       if (ok) closeReject();
@@ -196,10 +197,10 @@ export default function SelectionActionsBar({
 
       const filterStatus = hblStatus?.filter(
         (item) =>
-          item.Name !== "Reject" && item.Name !== "Approved for Amendment"
+          item.Name !== "Reject" && item.Name !== "Approved for Amendment",
       );
       const filterCheckReq = data?.some((item) =>
-        filterStatus?.some((status) => status.Id === item.hblRequestStatus)
+        filterStatus?.some((status) => status.Id === item.hblRequestStatus),
       );
       setIsDisableBtn((prev) => ({
         ...prev,
@@ -208,11 +209,11 @@ export default function SelectionActionsBar({
 
       const filterStatusAmd = hblStatus?.filter(
         (item) =>
-          item.Name !== "Confirm" && item.Name !== "Reject for Amendment"
+          item.Name !== "Confirm" && item.Name !== "Reject for Amendment",
       );
       const hasNonEmpty = data?.every((obj) => Object.keys(obj).length > 0);
       let filterCheckReqAmd = data?.some((item) =>
-        filterStatusAmd?.some((status) => status.Id === item.hblRequestStatus)
+        filterStatusAmd?.some((status) => status.Id === item.hblRequestStatus),
       );
       if (!hasNonEmpty) {
         filterCheckReqAmd = true;
@@ -223,12 +224,12 @@ export default function SelectionActionsBar({
       }));
 
       const filterStatusAprAndRejAmd = hblStatus?.filter(
-        (item) => item.Name !== "Request for Amendment"
+        (item) => item.Name !== "Request for Amendment",
       );
       const filterCheckAprAndRejAmd = data?.some((item) =>
         filterStatusAprAndRejAmd?.some(
-          (status) => status.Id === item.hblRequestStatus
-        )
+          (status) => status.Id === item.hblRequestStatus,
+        ),
       );
       setIsDisableBtn((prev) => ({
         ...prev,
@@ -236,12 +237,12 @@ export default function SelectionActionsBar({
       }));
 
       const filterStatusAprAndRej = hblStatus?.filter(
-        (item) => item.Name !== "Request"
+        (item) => item.Name !== "Request",
       );
       const filterCheckAprAndRej = data?.some((item) =>
         filterStatusAprAndRej?.some(
-          (status) => status.Id === item.hblRequestStatus
-        )
+          (status) => status.Id === item.hblRequestStatus,
+        ),
       );
       setIsDisableBtn((prev) => ({
         ...prev,
@@ -269,19 +270,21 @@ export default function SelectionActionsBar({
     <>
       <Box className="flex items-center justify-between">
         <div className="flex border text-black border-[#B5C4F0] mt-2 text-xs rounded-sm overflow-hidden whitespace-nowrap ">
-          <Segment
-            label="View"
-            onClick={() => isSingle && onView && onView(ids[0])}
-            disabled={!isSingle}
-          />
-          {isEdit && (
+          {userAccess?.["view"] && (
+            <Segment
+              label="View"
+              onClick={() => isSingle && onView && onView(ids[0])}
+              disabled={!isSingle}
+            />
+          )}
+          {isEdit && userAccess?.["edit"] && (
             <Segment
               label="Edit"
               onClick={() => isSingle && onEdit && onEdit(ids[0])}
               disabled={!isSingle || isDisableBtn?.isRequestDisable}
             />
           )}
-          {isDelete && (
+          {isDelete && userAccess?.["delete"] && (
             <Segment
               label="Delete"
               onClick={() => {
@@ -295,14 +298,14 @@ export default function SelectionActionsBar({
               disabled={allowBulkDelete ? !hasAny : !isSingle}
             />
           )}
-          {isRequest && (
+          {isRequest && userAccess?.["request"] && (
             <Segment
               label="Request"
               onClick={handleRequest}
               disabled={!hasAny || isDisableBtn?.isRequestDisable}
             />
           )}
-          {isReject && (
+          {isReject && userAccess?.["reject"] && (
             <Segment
               label="Reject"
               onClick={openReject}
@@ -313,7 +316,7 @@ export default function SelectionActionsBar({
               }
             />
           )}
-          {isVerify && (
+          {isVerify && userAccess?.["verify"] && (
             <Segment
               label="Verify"
               onClick={handleVerify}
@@ -324,14 +327,14 @@ export default function SelectionActionsBar({
               }
             />
           )}
-          {isVerifyAmendment && (
+          {isVerifyAmendment && userAccess?.["Verify Amendment"] && (
             <Segment
               label="APR-AMD"
               onClick={handleVerifyAmd}
               disabled={!hasAny || isDisableBtn?.isRejAndAprAmdDisable}
             />
           )}
-          {isRejectAmendment && (
+          {isRejectAmendment && userAccess?.["Reject Amendment"] && (
             <Segment
               label="REJ-AMD"
               onClick={openReject}
@@ -339,7 +342,7 @@ export default function SelectionActionsBar({
               isLast
             />
           )}
-          {isRequestAmendment && (
+          {isRequestAmendment && userAccess?.["Request Amendment"] && (
             <Segment
               label="REQ-AMD"
               onClick={handleReqAmd}
