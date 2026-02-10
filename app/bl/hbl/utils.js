@@ -28,7 +28,7 @@ export function useTotalGrossAndPack(formData, setTotals) {
             {
               gross: 0,
               pack: 0,
-            }
+            },
           );
 
           tSum.tGross += totalContainer?.gross || 0;
@@ -36,7 +36,7 @@ export function useTotalGrossAndPack(formData, setTotals) {
 
           return tSum;
         },
-        { tGross: 0, tPack: 0 }
+        { tGross: 0, tPack: 0 },
       );
 
       setTotals({
@@ -63,7 +63,7 @@ export function advanceSearchFilter(advanceSearch) {
     condition.push(
       `b.hblRequestStatus in (${advanceSearch.hblRequestStatus
         .map((item) => item.Id)
-        .join(",")})`
+        .join(",")})`,
     );
   }
 
@@ -71,7 +71,7 @@ export function advanceSearchFilter(advanceSearch) {
     condition.push(
       `b.podvesselId in (${advanceSearch.podvesselId
         .map((item) => item.Id)
-        .join(",")})`
+        .join(",")})`,
     );
   }
 
@@ -79,13 +79,13 @@ export function advanceSearchFilter(advanceSearch) {
     condition.push(
       `b.cargoTypeId in (${advanceSearch.cargoTypeId
         .map((item) => item.Id)
-        .join(",")})`
+        .join(",")})`,
     );
   }
 
   if (advanceSearch.fromDate && advanceSearch.toDate) {
     condition.push(
-      `b.mblDate between '${advanceSearch.fromDate}' and '${advanceSearch.toDate}'`
+      `b.mblDate between '${advanceSearch.fromDate}' and '${advanceSearch.toDate}'`,
     );
   }
 
@@ -98,7 +98,7 @@ export const copyHandler = (
   direction,
   mapping,
   toastMessage,
-  tabIndex
+  tabIndex,
 ) => {
   const updatedFormData = { ...formData };
   updatedFormData.tblBl = [...(formData.tblBl || [])];
@@ -226,7 +226,7 @@ export const requestStatusFun = {
   requestForAmendmentHandler: async (mode, hblStatus) => {
     const userData = getUserByCookies();
     const verifyStatus = hblStatus.filter(
-      (item) => item.Name === "Request for Amendment"
+      (item) => item.Name === "Request for Amendment",
     );
     const rowsPayload = mode.formId.split(",").map((id) => {
       return {
@@ -252,7 +252,7 @@ export const requestStatusFun = {
   confirmForAmendmentHandler: async (mode, hblStatus) => {
     const userData = getUserByCookies();
     const verifyStatus = hblStatus.filter(
-      (item) => item.Name === "Approved for Amendment"
+      (item) => item.Name === "Approved for Amendment",
     );
     const rowsPayload = mode.formId.split(",").map((id) => {
       return {
@@ -279,11 +279,11 @@ export const requestStatusFun = {
     mode,
     hblStatus,
     rejectState,
-    setRejectState
+    setRejectState,
   ) => {
     const userData = getUserByCookies();
     const verifyStatus = hblStatus.filter(
-      (item) => item.Name === "Reject for Amendment"
+      (item) => item.Name === "Reject for Amendment",
     );
     const rowsPayload = mode.formId.split(",").map((id) => {
       return {
@@ -330,12 +330,12 @@ export const createBlurFunc = ({
             mblFields: fieldData.mblFields,
           },
           "tblBl",
-          data[0].id
+          data[0].id,
         );
         const { result } = await fetchForm(format);
         const excludeFields = ["companyId", "companyBranchId"];
         const filterMblFields = fieldData.mblFields.filter(
-          (item) => !excludeFields.includes(item.name)
+          (item) => !excludeFields.includes(item.name),
         );
         const getData = formatDataWithForm(result, {
           mblFields: filterMblFields,
@@ -361,7 +361,7 @@ export const createBlurFunc = ({
       const pattern = /^[A-Za-z]{4}[0-9]{7}$/;
       if (!pattern.test(value)) {
         toast.error(
-          "Invalid Container Number format. It should be 4 letters followed by 7 digits."
+          "Invalid Container Number format. It should be 4 letters followed by 7 digits.",
         );
 
         setFormData((prevData) =>
@@ -373,7 +373,7 @@ export const createBlurFunc = ({
             containerIndex,
             name,
             value: null,
-          })
+          }),
         );
 
         return "";
@@ -404,7 +404,7 @@ export const createBlurFunc = ({
             containerIndex,
             name,
             value: null,
-          })
+          }),
         );
         return toast.error(result.error);
       }
@@ -419,7 +419,7 @@ export const createBlurFunc = ({
             tabName: "tblBl",
             name,
             value: null,
-          })
+          }),
         );
         return toast.error(result.error);
       }
@@ -530,7 +530,7 @@ export const createHandleChangeFunc = ({
             containerIndex,
             name: "isoCode",
             value: data[0],
-          })
+          }),
         );
       } else {
         setFormData((prevData) =>
@@ -542,7 +542,7 @@ export const createHandleChangeFunc = ({
             containerIndex,
             name: "isoCode",
             value: null,
-          })
+          }),
         );
       }
     },
@@ -567,7 +567,7 @@ export const createHandleChangeFunc = ({
             containerIndex,
             name: "isoCode",
             value: data[0],
-          })
+          }),
         );
       } else {
         setFormData((prevData) =>
@@ -579,7 +579,7 @@ export const createHandleChangeFunc = ({
             containerIndex,
             name: "isoCode",
             value: null,
-          })
+          }),
         );
       }
     },
@@ -666,7 +666,7 @@ export const createHandleChangeFunc = ({
               prevData,
               name: "podVoyageId",
               value: data[0] || {},
-            })
+            }),
           );
         }
 
@@ -676,7 +676,7 @@ export const createHandleChangeFunc = ({
               prevData,
               name: "podVoyageId",
               value: {},
-            })
+            }),
           );
         }
       }
@@ -692,7 +692,7 @@ export const createHandleChangeFunc = ({
             containerIndex: containerIndex,
             name: "containerAgentCode",
             value: null,
-          })
+          }),
         );
       } else {
         const objAgentCode = {
@@ -700,9 +700,8 @@ export const createHandleChangeFunc = ({
           tableName: "tblCompany",
           whereCondition: `id = ${formData?.shippingLineId?.Id} and status = 1`,
         };
-        const { data: dataAgentCode } = await getDataWithCondition(
-          objAgentCode
-        );
+        const { data: dataAgentCode } =
+          await getDataWithCondition(objAgentCode);
         setFormData((prevData) =>
           setInputValue({
             prevData,
@@ -712,7 +711,7 @@ export const createHandleChangeFunc = ({
             containerIndex: containerIndex,
             name: "containerAgentCode",
             value: dataAgentCode?.[0]?.panNo,
-          })
+          }),
         );
       }
     },
@@ -746,7 +745,7 @@ export const createGridEventFunctions = ({ formData, setFormData }) => {
           containerIndex: gridIndex,
           name: "sealTypeId",
           value: dataSealType?.[0],
-        })
+        }),
       );
 
       setFormData((prevData) =>
@@ -758,7 +757,7 @@ export const createGridEventFunctions = ({ formData, setFormData }) => {
           containerIndex: gridIndex,
           name: "containerAgentCode",
           value: dataAgentCode?.[0]?.panNo,
-        })
+        }),
       );
 
       setFormData((prevData) =>
@@ -770,7 +769,7 @@ export const createGridEventFunctions = ({ formData, setFormData }) => {
           containerIndex: gridIndex,
           name: "soc",
           value: false,
-        })
+        }),
       );
     },
   };
@@ -826,5 +825,23 @@ export const setTabDefaultVal = async (tabIndex, setFormData, mode) => {
         tblBl: updateTblBl,
       };
     });
+  }
+};
+
+export const checkMblActive = async (mblNo, shippingLineId) => {
+  try {
+    const obj = {
+      columns: `active`,
+      tableName: "tblBl",
+      whereCondition: `mblNo = '${mblNo}' and status = 1 and mblHblFlag = 'MBL' and shippingLineId = ${shippingLineId?.Id}`,
+    };
+    const { data } = await getDataWithCondition(obj);
+    if (data?.[0]?.active === false) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.log(error);
   }
 };

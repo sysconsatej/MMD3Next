@@ -10,13 +10,17 @@ import {
   fetchForm,
   getDataWithCondition,
   insertUpdateForm,
-  updateStatusRows,
 } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
-import { getBlIdIfExists, handleBlur, handleChange, requestHandler } from "./utils";
+import {
+  checkMblActive,
+  getBlIdIfExists,
+  handleChange,
+  requestHandler,
+} from "./utils";
 import { getUserByCookies } from "@/utils";
 import { useSetDefault } from "./hooks";
 
@@ -34,6 +38,15 @@ export default function Company() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
+
+    const isMblActive = await checkMblActive(
+      formData?.blNo,
+      formData?.shippingLineId,
+    );
+    if (isMblActive) {
+      toast.warn("This Bl is not active!");
+      return;
+    }
 
     const normalized = {
       ...formData,
