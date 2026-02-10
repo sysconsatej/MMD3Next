@@ -192,7 +192,7 @@ const MenuAccess = () => {
           <Skeleton
             key={idx}
             variant="rectangular"
-            className="rounded-xl"
+            className="rounded-xl mt-1"
             width={"100%"}
             height={50}
           />
