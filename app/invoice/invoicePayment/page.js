@@ -28,6 +28,7 @@ import {
 import { useRouter } from "next/navigation";
 import MultiFileUpload from "@/components/customInput/multiFileUpload";
 import { extractTextFromPdfs } from "@/helper/pdfTextExtractor";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 function CustomTabPanel({ children, value, index, ...other }) {
   return (
@@ -100,13 +101,14 @@ export default function InvoicePayment() {
     setFormData((prev) => ({ ...prev, tblInvoice: nextInvoices }));
     setTabValue(nextInvoices.length - 1);
   };
+  const userAccess = useGetUserAccessUtils()?.data || {};
 
   const handleRemove = (index) => {
     const toRemove = invoices[index];
 
     if (toRemove?.id) {
       setDeletedInvoiceIds((prev) =>
-        prev.includes(toRemove.id) ? prev : [...prev, toRemove.id]
+        prev.includes(toRemove.id) ? prev : [...prev, toRemove.id],
       );
     }
 
@@ -144,9 +146,8 @@ export default function InvoicePayment() {
     };
 
     try {
-      const { success, data, message, error } = await getDataWithCondition(
-        payload
-      );
+      const { success, data, message, error } =
+        await getDataWithCondition(payload);
       if (!success) {
         toast.error(error || message || "Failed to fetch BL containers.");
         return;
@@ -282,9 +283,8 @@ export default function InvoicePayment() {
           whereCondition: `i.id = ${mode.formId}`,
         };
 
-        const { data: blData, success: blSuccess } = await getDataWithCondition(
-          blQuery
-        );
+        const { data: blData, success: blSuccess } =
+          await getDataWithCondition(blQuery);
         if (!blSuccess || !blData?.length) return;
 
         const blId = blData[0].blId;
@@ -320,7 +320,7 @@ export default function InvoicePayment() {
             "tblInvoice",
             id,
             '["tblInvoiceRequestContainer","tblAttachment"]',
-            "invoiceRequestId"
+            "invoiceRequestId",
           );
           const { success, result } = await fetchForm(fmt);
           if (success) {
@@ -335,7 +335,7 @@ export default function InvoicePayment() {
         const formattedState = formatDataWithFormThirdLevel(
           resArray,
           [...data.igmFields],
-          "tblInvoice"
+          "tblInvoice",
         );
 
         setFormData({
@@ -445,7 +445,7 @@ export default function InvoicePayment() {
             tblAttachment: tblAttachment || [],
           },
           invoiceId,
-          "invoiceRequestId"
+          "invoiceRequestId",
         );
 
         const { success, message, error } = await insertUpdateForm(formatted);
@@ -501,7 +501,7 @@ export default function InvoicePayment() {
       router.push(`/invoice/invoicePayment/payment?blId=${blId}`);
     } else if (invoiceReqId) {
       router.push(
-        `/invoice/invoicePayment/payment?invoiceRequestId=${invoiceReqId}`
+        `/invoice/invoicePayment/payment?invoiceRequestId=${invoiceReqId}`,
       );
     } else {
       toast.error("Nothing to pay.");
@@ -529,18 +529,18 @@ export default function InvoicePayment() {
           const invoiceCategoryRaw = row.invoiceCategoryId || "";
           const invoiceTypeObj = await matchDropdownValue(
             "tblInvoiceType",
-            invoiceTypeRaw
+            invoiceTypeRaw,
           );
 
           const invoiceCategoryObj = await matchDropdownValue(
             "tblInvoiceCategory",
-            invoiceCategoryRaw
+            invoiceCategoryRaw,
           );
           const defaultAttachment = row.tblAttachment?.length
             ? row.tblAttachment
             : file
-            ? [{ uploadInvoice: file.name, path: file.name }]
-            : [];
+              ? [{ uploadInvoice: file.name, path: file.name }]
+              : [];
 
           const { id: _throwId, ...restRow } = row;
 
@@ -551,7 +551,7 @@ export default function InvoicePayment() {
             tblInvoiceRequestContainer: containers,
             tblAttachment: defaultAttachment,
           };
-        })
+        }),
       );
 
       const isEditMode = !!mode?.formId;
@@ -693,7 +693,9 @@ export default function InvoicePayment() {
 
           {fieldsMode !== "view" && (
             <Box className="w-full flex justify-center gap-2 mt-4">
-              <CustomButton text="Quick Pay" onClick={quickPayHandler} />
+              {userAccess?.["Pay"] && (
+                <CustomButton text="Quick Pay" onClick={quickPayHandler} />
+              )}
               <CustomButton text="Save" type="submit" />
             </Box>
           )}

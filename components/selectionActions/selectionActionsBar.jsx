@@ -327,7 +327,7 @@ export default function SelectionActionsBar({
               }
             />
           )}
-          {isVerifyAmendment && userAccess?.["Verify Amendment"] && (
+          {isVerifyAmendment && userAccess?.["Approved Amendment"] && (
             <Segment
               label="APR-AMD"
               onClick={handleVerifyAmd}

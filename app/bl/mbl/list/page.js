@@ -326,7 +326,15 @@ export default function BLList() {
                             key={idx}
                             href="#"
                             underline="hover"
-                            onClick={() => modeHandler("view", item?.id, "HBL")}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              sessionStorage.setItem(
+                                "roleId",
+                                String(userData?.roleId ?? ""),
+                              );
+                              sessionStorage.setItem("menuName", "HBL Track");
+                              modeHandler("view", item?.id, "HBL");
+                            }}
                           >
                             {item?.hblNo}
                             {idx < JSON.parse(row?.hblNo).length - 1 && ", "}

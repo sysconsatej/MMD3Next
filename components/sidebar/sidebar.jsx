@@ -168,8 +168,9 @@ function MenuNode({ node, level, openSidebar, expanded, onToggle, pathname }) {
 
   const handleClick = (roleId, menuName) => {
     if (!roleId || !menuName) return;
-    Cookies.set("roleId", roleId);
-    Cookies.set("menuName", menuName);
+
+    sessionStorage.setItem("roleId", roleId);
+    sessionStorage.setItem("menuName", menuName);
   };
 
   if (!hasChildren) {

@@ -21,57 +21,10 @@ import {
   getUserByCookies,
 } from "@/utils";
 import { formStore, useBlWorkFlowData } from "@/store";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-} from "@mui/material";
+import { RejectModal } from "./utils";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 /* ------------------------ Reject Modal ------------------------ */
-export const RejectModal = ({ rejectState, setRejectState, rejectHandler }) => {
-  return (
-    <Dialog
-      open={rejectState.toggle}
-      onClose={() => setRejectState((prev) => ({ ...prev, toggle: false }))}
-      maxWidth="xs"
-      fullWidth
-    >
-      <DialogTitle>Reject — Add Remarks</DialogTitle>
-
-      <DialogContent dividers>
-        <TextField
-          fullWidth
-          margin="dense"
-          multiline
-          minRows={3}
-          label="Remarks"
-          value={rejectState.value}
-          onChange={(e) =>
-            setRejectState((prev) => ({ ...prev, value: e.target.value }))
-          }
-        />
-      </DialogContent>
-
-      <DialogActions>
-        <div
-          className="py-1 px-3 border border-[#B5C4F0] rounded-sm text-xs cursor-pointer hover:bg-[#B5C4F0] hover:text-white"
-          onClick={() => setRejectState((prev) => ({ ...prev, toggle: false }))}
-        >
-          Cancel
-        </div>
-
-        <div
-          className="py-1 px-3 border border-[#B5C4F0] rounded-sm text-xs cursor-pointer hover:bg-[#B5C4F0] hover:text-white"
-          onClick={rejectHandler}
-        >
-          Save
-        </div>
-      </DialogActions>
-    </Dialog>
-  );
-};
 
 export default function InvoiceRequest() {
   const [formData, setFormData] = useState({ isFreeDays: "F" });
@@ -92,6 +45,7 @@ export default function InvoiceRequest() {
     toggle: false,
     value: null,
   });
+  const userAccess = useGetUserAccessUtils()?.data || {};
 
   const userData = getUserByCookies();
   const isLiner = userData?.roleCode === "shipping"; // liner vs customer
@@ -668,13 +622,15 @@ export default function InvoiceRequest() {
               )}
 
             {/* Request */}
-            {userData?.roleCode === "customer" && mode.status !== "Confirm" && (
-              <CustomButton
-                text="Request"
-                onClick={requestHandler}
-                disabled={!canRequest || loading}
-              />
-            )}
+            {userData?.roleCode === "customer" &&
+              mode.status !== "Confirm" &&
+              userAccess?.["Request"] && (
+                <CustomButton
+                  text="Request"
+                  onClick={requestHandler}
+                  disabled={!canRequest || loading}
+                />
+              )}
 
             {/* Liner Release */}
             {/* {showReleaseBtn && (
@@ -682,7 +638,7 @@ export default function InvoiceRequest() {
             )} */}
 
             {/* Liner Reject */}
-            {showRejectBtn && (
+            {showRejectBtn && userAccess?.["Reject"] && (
               <CustomButton
                 text="Reject"
                 onClick={() =>
