@@ -134,7 +134,7 @@ export default function InvoicePaymentList() {
     LEFT JOIN tblUser u ON u.id = ${userData.userId}
     JOIN tblInvoiceRequest ir on  ir.id = i.invoiceRequestId and ir.companyId = u.companyId and ir.companyBranchId = u.branchId and i.locationId = ${userData.location}
     left join tblUser u2 on u2.id = i.createdBy
-	  left join tblUserRoleMapping ur on ur.userId = u.id
+	  left join tblUserRoleMapping ur on ur.userId = u.id and ur.status = 1
 	  left join tblUser u3 on u3.id = ur.roleId
     LEFT JOIN (
       SELECT *
