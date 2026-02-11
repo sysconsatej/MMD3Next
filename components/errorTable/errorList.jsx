@@ -48,7 +48,7 @@ const ErrorList = ({ errorGrid, fileName }) => {
   }, [errorGrid]);
 
   return (
-    <Box>
+    <Box className='p-4'>
       {errorData.length > 0 && (
         <Box>
           <TableContainer component={Paper} className="mt-2">
