@@ -13,15 +13,7 @@ export const uploads = async (obj) => {
 
     const text = await res.text();
     let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      throw new Error(`Invalid JSON response: ${text?.slice(0, 200)}`);
-    }
-
-    if (!res.ok || data?.success === false) {
-      throw new Error(data?.message || `HTTP ${res.status}`);
-    }
+    data = JSON.parse(text);
 
     return data;
   } catch (err) {
@@ -30,7 +22,7 @@ export const uploads = async (obj) => {
   }
 };
 
-// invoice upload  
+// invoice upload
 export const invoiceUploadApi = async (obj) => {
   try {
     const res = await api.post("invoice-upload", obj);

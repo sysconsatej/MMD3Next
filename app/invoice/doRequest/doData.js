@@ -1,8 +1,8 @@
+import { getUserByCookies } from "@/utils";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import FileCopyIcon from "@mui/icons-material/FileCopy";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
-import { layouts } from "chart.js";
+
+const userData = getUserByCookies();
 
 export const fieldData = {
   doRequestFields: [
@@ -115,7 +115,7 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
-      joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS'`,
+      joins: `left join tblPort p2 on p2.id = p.referencePortId left join tblLocation l on l.id = ${userData?.location} join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and l.name = p2.name`,
       searchColumn: "p.name",
       selectedConditions: [{ shippingLineId: "companyId" }],
       orderBy: "p.name",

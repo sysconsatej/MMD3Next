@@ -261,7 +261,7 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "ISNULL(p.ediPortCode,'') + ' - ' + ISNULL(p.name,'')",
-      joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${userData?.companyId}`,
+      joins: `left join tblPort p2 on p2.id = p.referencePortId left join tblLocation l on l.id = ${userData?.location} join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${userData?.companyId} and l.name = p2.name`,
       isEdit: true,
       foreignTable: "ediPortCode-name,tblPort",
     },

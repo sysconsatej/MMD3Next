@@ -281,6 +281,10 @@ export const BlurEventFunctions = ({ formData, setFormData, jsonData }) => {
 
         if (!blSuccess || !Array.isArray(blData) || blData.length <= 0) {
           toast.warn("BL not found for selected Liner.");
+          setFormData((prev) => ({
+            shippingLineId: formData?.shippingLineId,
+            blNo: formData?.blNo,
+          }));
         } else {
           const blId = blData?.[0]?.id;
           const format = formatFetchForm(
@@ -312,6 +316,10 @@ export const BlurEventFunctions = ({ formData, setFormData, jsonData }) => {
       } catch (e) {
         console.error(e);
         toast.warn("BL not found for selected Liner.");
+        setFormData((prev) => ({
+          shippingLineId: formData?.shippingLineId,
+          blNo: formData?.blNo,
+        }));
       }
 
       try {
