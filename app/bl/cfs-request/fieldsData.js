@@ -37,7 +37,7 @@ export const fieldData = {
       blurFun: "duplicateHandler",
       // blurFun: "getDataBasedonLinerAndBLNo",
     },
-       {
+    {
       label: "Delivery Type",
       name: "deliveryTypeId",
       type: "dropdown",
@@ -127,11 +127,11 @@ export const fieldData = {
       name: "dpdId",
       type: "dropdown",
       tableName: "tblPort p",
-      displayColumn: "p.name",
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
       joins:
         "join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'DPD' and p.companyId = null",
       isEdit: true,
-      foreignTable: "name,tblPort",
+      foreignTable: "code-name,tblPort",
     },
     {
       label: "Nominated CB",
@@ -144,9 +144,10 @@ export const fieldData = {
       name: "sezIcdId",
       type: "dropdown",
       tableName: "tblPort p",
-      displayColumn: "p.name",
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
       joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'ICD'`,
       isEdit: true,
+      foreignTable: "code-name,tblPort",
     },
     // {
     //   label: "Status",
