@@ -1073,3 +1073,32 @@ export const mblNextPrev = (formId = null) => {
     },
   };
 };
+export const vesselVoyageFilters = [
+  {
+    label: "Arrival Vessel",
+    name: "podVesselId",
+    type: "dropdown",
+    tableName: "tblVessel t",
+    idColumn: "id",
+    displayColumn: "t.name",
+    searchColumn: "t.name",
+    orderBy: "t.name",
+    foreignTable: "name,tblVessel",
+    changeFun: "handleChangeOnVessel",
+    isEdit: true,
+  },
+  {
+    label: "Arrival Voyage",
+    name: "podVoyageId",
+    type: "dropdown",
+    tableName: "tblVoyage t",
+    idColumn: "id",
+    displayColumn: "t.voyageNo",
+    searchColumn: "t.voyageNo",
+    selectedConditions: [{ podVesselId: "vesselId" }],
+    where: `t.companyid = ${userData?.companyId} and t.status = 1`,
+    orderBy: "t.voyageNo",
+    foreignTable: "voyageNo,tblVoyage",
+    isEdit: true,
+  },
+];
