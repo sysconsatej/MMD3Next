@@ -262,10 +262,10 @@ export const tableObj = ({ pageNo, pageSize, advanceSearch }) => {
       r.name AS cfsType,
       d.name AS deliveryType,
       ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'') AS nominatedArea,
-      c.name AS dpdId,
+      ISNULL(c.code,'') + ' - ' + ISNULL(c.name,'') AS dpdId,
       b.customBrokerText,
       m.name AS cfsRequestStatusId,
-      Icd.name AS sezIcd,
+      ISNULL(Icd.code,'') + ' - ' + ISNULL(Icd.name,'') AS sezIcd,
       b.cfsRejectRemarks AS remark
     `,
     tableName: "tblCfsRequest b",
