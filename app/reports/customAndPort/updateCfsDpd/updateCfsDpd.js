@@ -1,6 +1,5 @@
 import { getUserByCookies } from "@/utils";
 
-
 const userData = getUserByCookies();
 
 const fieldData = {
@@ -70,22 +69,18 @@ const fieldData = {
       label: "Nominated Area Code",
       name: "nominatedAreaCode",
       type: "dropdown",
-      tableName: "tblPort t",
-      idColumn: "id",
-      displayColumn: "t.name",
-      searchColumn: "t.code, t.name",
-      orderBy: "t.code, t.name",
+      tableName: "tblPort p",
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${userData?.companyId}`,
       isEdit: true,
     },
     {
       label: "Dpd Code",
       name: "dpdCode",
       type: "dropdown",
-      tableName: "tblPort t",
-      idColumn: "id",
-      displayColumn: "t.name",
-      searchColumn: "t.code, t.name",
-      orderBy: "t.code",
+      tableName: "tblPort p",
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'DPD' and p.companyId = ${userData?.companyId}`,
       isEdit: true,
     },
   ],
@@ -100,21 +95,17 @@ export const metaData = [
   {
     name: "Nominated Area",
     type: "dropdown",
-    tableName: "tblPort t",
-    idColumn: "id",
-    displayColumn: "t.name",
-    searchColumn: "t.name",
-    orderBy: "t.name",
+    tableName: "tblPort p",
+    displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+    joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${userData?.companyId}`,
     isEdit: true,
   },
   {
     name: "DPD Desciption",
     type: "dropdown",
-    tableName: "tblPort t",
-    idColumn: "id",
-    displayColumn: "t.name",
-    searchColumn: "t.code, t.name",
-    orderBy: "t.code",
+    tableName: "tblPort p",
+    displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+    joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'DPD' and p.companyId = ${userData?.companyId}`,
     isEdit: true,
   },
 ];

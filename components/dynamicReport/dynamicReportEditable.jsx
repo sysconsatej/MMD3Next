@@ -35,7 +35,7 @@ const buildCustomFieldMap = (displayKeys, metaData = []) => {
   for (const col of displayKeys) {
     const nk = normKey(col);
     const hit = normalizedMeta.find(
-      (m) => nk === m._matchBy.name || nk === m._matchBy.label
+      (m) => nk === m._matchBy.name || nk === m._matchBy.label,
     );
     if (hit) map.set(col, hit);
   }
@@ -81,7 +81,7 @@ const fmtDate = (d) =>
 const fmtDateTimeLocal = (d) =>
   d
     ? `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
-        d.getHours()
+        d.getHours(),
       )}:${pad(d.getMinutes())}`
     : "";
 const saveDate = (d) => fmtDate(d);
@@ -194,8 +194,8 @@ const DynamicReportTable = ({
   const rawRows = Array.isArray(data)
     ? data
     : Array.isArray(data?.data)
-    ? data.data
-    : [];
+      ? data.data
+      : [];
   if (!rawRows.length) {
     return (
       <Box p={2}>
@@ -206,7 +206,7 @@ const DynamicReportTable = ({
 
   const baseRows = useMemo(
     () => rawRows.map((r, i) => ({ ...r, __uid: i })),
-    [rawRows]
+    [rawRows],
   );
   const [editableRows, setEditableRows] = useState(baseRows);
   useEffect(() => setEditableRows(baseRows), [baseRows]);
@@ -216,27 +216,27 @@ const DynamicReportTable = ({
       Array.from(
         new Set(
           editableRows.flatMap((r) =>
-            r && typeof r === "object" ? Object.keys(r) : []
-          )
-        )
+            r && typeof r === "object" ? Object.keys(r) : [],
+          ),
+        ),
       ),
-    [editableRows]
+    [editableRows],
   );
 
   const HIDDEN_KEYS = useMemo(
     () => new Set(["__uid", "id", "_id", "rowid", "row_id"].map(normKey)),
-    []
+    [],
   );
 
   const DISPLAY_KEYS = useMemo(
     () => ALL_KEYS.filter((k) => !HIDDEN_KEYS.has(normKey(k))),
-    [ALL_KEYS, HIDDEN_KEYS]
+    [ALL_KEYS, HIDDEN_KEYS],
   );
 
   const columns = useMemo(() => ["Select", ...DISPLAY_KEYS], [DISPLAY_KEYS]);
   const customFieldMap = useMemo(
     () => buildCustomFieldMap(DISPLAY_KEYS, metaData),
-    [DISPLAY_KEYS, metaData]
+    [DISPLAY_KEYS, metaData],
   );
 
   const numericCols = useMemo(() => {
@@ -249,7 +249,7 @@ const DynamicReportTable = ({
 
   const editableKeys = useMemo(
     () => Array.from(customFieldMap.keys()),
-    [customFieldMap]
+    [customFieldMap],
   );
   const baselineByUidRef = useRef(new Map());
   useEffect(() => {
@@ -268,14 +268,14 @@ const DynamicReportTable = ({
       editableKeys.forEach((k) => (o[k] = row[k]));
       return o;
     },
-    [editableKeys]
+    [editableKeys],
   );
   const isDirty = useCallback(
     (row) => {
       const baseline = baselineByUidRef.current.get(row.__uid);
       return JSON.stringify(pickEditable(row)) !== baseline;
     },
-    [pickEditable]
+    [pickEditable],
   );
 
   const [selectedUids, setSelectedUids] = useState([]);
@@ -291,7 +291,7 @@ const DynamicReportTable = ({
         }));
       onSelectedEditedChange(out);
     },
-    [isDirty, onSelectedEditedChange, selectedUids]
+    [isDirty, onSelectedEditedChange, selectedUids],
   );
 
   const defaultSortKey = DISPLAY_KEYS[0] ?? "";
@@ -321,14 +321,14 @@ const DynamicReportTable = ({
   const start = page * rowsPerPage;
   const pageRows = useMemo(
     () => sortedRows.slice(start, start + rowsPerPage),
-    [sortedRows, start, rowsPerPage]
+    [sortedRows, start, rowsPerPage],
   );
 
   const getRowUid = (row) =>
     typeof row?.__uid === "number" ? row.__uid : null;
   const uidsOnPage = useMemo(
     () => pageRows.map(getRowUid).filter((k) => k !== null),
-    [pageRows]
+    [pageRows],
   );
   const pageAllChecked =
     uidsOnPage.length > 0 && uidsOnPage.every((k) => selectedUids.includes(k));
@@ -340,23 +340,21 @@ const DynamicReportTable = ({
 
     const alreadySelected = selectedUids.includes(uid);
 
-    // If selecting (was unchecked) and we have autoFillOnSelect mappings
-    if (
-      !alreadySelected &&
-      autoFillOnSelect &&
-      typeof autoFillOnSelect === "object"
-    ) {
-      setEditableRows((prev) => {
-        const nextRows = prev.map((r) => {
-          if (r.__uid !== uid) return r;
+    setEditableRows((prev) => {
+      const nextRows = prev.map((r) => {
+        if (r.__uid !== uid) return r;
 
-          let updated = { ...r };
+        let updated = { ...r };
 
-          // only apply values for matching column names
-          for (const [colKey, srcVal] of Object.entries(autoFillOnSelect)) {
+        // ✅ SELECT → apply autofill
+        if (!alreadySelected) {
+          for (const [colKey, srcVal] of Object.entries(
+            autoFillOnSelect || {},
+          )) {
             if (!DISPLAY_KEYS.includes(colKey)) continue;
 
             const meta = customFieldMap.get(colKey);
+
             if (meta) {
               const normalizedVal = normalizeIn(meta, srcVal);
               const storeVal = denormalizeOut(meta, normalizedVal);
@@ -365,51 +363,86 @@ const DynamicReportTable = ({
               updated[colKey] = srcVal;
             }
           }
+        } else {
+          const original = baseRows.find((b) => b.__uid === uid);
+          if (original) {
+            for (const colKey of Object.keys(autoFillOnSelect || {})) {
+              updated[colKey] = original[colKey];
+            }
+          }
+        }
 
-          return updated;
-        });
-
-        const nextSelected = [...selectedUids, uid];
-        setSelectedUids(nextSelected);
-        emitSelected(nextRows, nextSelected);
-
-        return nextRows;
+        return updated;
       });
-      return;
-    }
 
-    // Default behaviour (unselect or no auto-fill configured)
-    const nextSelected = alreadySelected
-      ? selectedUids.filter((k) => k !== uid)
-      : [...selectedUids, uid];
+      const nextSelected = alreadySelected
+        ? selectedUids.filter((k) => k !== uid)
+        : [...selectedUids, uid];
 
-    setSelectedUids(nextSelected);
-    emitSelected(editableRows, nextSelected);
+      setSelectedUids(nextSelected);
+      emitSelected(nextRows, nextSelected);
+
+      return nextRows;
+    });
   };
 
   const handleToggleAllOnPage = (checked) => {
-    if (checked) {
-      const next = Array.from(new Set([...selectedUids, ...uidsOnPage]));
-      setSelectedUids(next);
-      emitSelected(editableRows, next);
-    } else {
-      const next = selectedUids.filter((k) => !uidsOnPage.includes(k));
-      setSelectedUids(next);
-      emitSelected(editableRows, next);
-    }
+    setEditableRows((prev) => {
+      let nextRows = prev.map((r) => {
+        if (!uidsOnPage.includes(r.__uid)) return r;
+
+        let updated = { ...r };
+
+        if (checked) {
+          for (const [colKey, srcVal] of Object.entries(
+            autoFillOnSelect || {},
+          )) {
+            if (!DISPLAY_KEYS.includes(colKey)) continue;
+
+            const meta = customFieldMap.get(colKey);
+
+            if (meta) {
+              const normalizedVal = normalizeIn(meta, srcVal);
+              const storeVal = denormalizeOut(meta, normalizedVal);
+              updated[colKey] = storeVal;
+            } else {
+              updated[colKey] = srcVal;
+            }
+          }
+        } else {
+          const original = baseRows.find((b) => b.__uid === r.__uid);
+          if (original) {
+            for (const colKey of Object.keys(autoFillOnSelect || {})) {
+              updated[colKey] = original[colKey];
+            }
+          }
+        }
+
+        return updated;
+      });
+
+      const nextSelected = checked
+        ? Array.from(new Set([...selectedUids, ...uidsOnPage]))
+        : selectedUids.filter((k) => !uidsOnPage.includes(k));
+
+      setSelectedUids(nextSelected);
+      emitSelected(nextRows, nextSelected);
+
+      return nextRows;
+    });
   };
 
   const updateCell = useCallback(
     (rowUid, field, nextVal) => {
       setEditableRows((prev) => {
         const next = prev.map((r) =>
-          r.__uid === rowUid ? { ...r, [field]: nextVal } : r
+          r.__uid === rowUid ? { ...r, [field]: nextVal } : r,
         );
         emitSelected(next);
         return next;
       });
     },
-    [emitSelected]
+    [emitSelected],
   );
 
   const renderCellContent = (row, colKey) => {
@@ -418,7 +451,7 @@ const DynamicReportTable = ({
       // Normalize row-level formData so selectedConditions can read dependencies
       const rowFormDataNormalized = DISPLAY_KEYS.reduce((acc, k) => {
         const m = customFieldMap.get(k);
-        acc[k] = m ? normalizeIn(m, row?.[k]) : row?.[k] ?? "";
+        acc[k] = m ? normalizeIn(m, row?.[k]) : (row?.[k] ?? "");
         return acc;
       }, {});
 
