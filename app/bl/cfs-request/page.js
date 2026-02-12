@@ -6,11 +6,7 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import {
-  fetchForm,
-  getDataWithCondition,
-  insertUpdateForm,
-} from "@/apis";
+import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
@@ -23,6 +19,7 @@ import {
 } from "./utils";
 import { getUserByCookies } from "@/utils";
 import { useSetDefault } from "./hooks";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 export default function Company() {
   const { mode, setMode } = formStore();
@@ -35,6 +32,7 @@ export default function Company() {
   const [disableRequest, setDisableRequest] = useState(true);
 
   useSetDefault({ userData, setFormData, mode: mode });
+  const userAccess = useGetUserAccessUtils()?.data || {};
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -259,7 +257,7 @@ export default function Company() {
                 disabled={disableSubmit}
               />
             )}
-            {userData?.roleCode === "customer" && (
+            {userData?.roleCode === "customer" && userAccess?.["Request"] && (
               <CustomButton
                 text={"Request"}
                 onClick={() => requestHandler(formData, setDisableRequest)}

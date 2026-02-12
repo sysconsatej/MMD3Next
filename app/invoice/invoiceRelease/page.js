@@ -17,6 +17,7 @@ import {
   formatFetchForm,
   formatDataWithForm,
   formatDataWithFormThirdLevel,
+  getUserByCookies,
 } from "@/utils";
 import invoiceRequestData from "../invoiceRequest/invoiceRequestData";
 
@@ -47,6 +48,7 @@ export default function InvoiceReleasePage() {
   const [tabValue, setTabValue] = useState(0);
   const [invoiceArray, setInvoiceArray] = useState([0]);
   const [loading, setLoading] = useState(false);
+  const userData = getUserByCookies();
 
   const handleChangeTab = (_e, newValue) => setTabValue(newValue);
   const handleAddInvoice = () => {
@@ -354,11 +356,16 @@ export default function InvoiceReleasePage() {
             Invoice Details - <b>BL No. {formData?.blNo || "—"}</b>
           </Typography>
 
-          <CustomButton
-            text="Back"
-            href={"/payment/paymentConfirmation/list"}
-            // onClick={() => setClearData([])}
-          />
+          {userData?.roleCode === "shipping" && (
+            <CustomButton
+              text="Back"
+              href={"/payment/paymentConfirmation/list"}
+              // onClick={() => setClearData([])}
+            />
+          )}
+          {userData?.roleCode === "customer" && (
+            <CustomButton text="Back" href={"/invoice/invoicePayment/list"} />
+          )}
         </Box>
 
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
