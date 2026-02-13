@@ -132,7 +132,7 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
             dpdId: true,
             sezIcdId: true,
           },
-          DPD_SEZ_CFS: {
+          "DPD/SEZ/CFS": {
             cfsTypeId: true,
             nominatedAreaId: true,
             dpdId: true,
