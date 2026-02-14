@@ -72,6 +72,7 @@ const fieldData = {
       tableName: "tblPort p",
       displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
       joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${userData?.companyId}`,
+      selectedConditions: [{ podId: "p.referencePortId" }],
       isEdit: true,
     },
     {
@@ -98,6 +99,7 @@ export const metaData = [
     tableName: "tblPort p",
     displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
     joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${userData?.companyId}`,
+    selectedConditions: [{ podId: "p.referencePortId" }],
     isEdit: true,
   },
   {

@@ -189,6 +189,7 @@ const DynamicReportTable = ({
   showTotalsRow = false,
   // NEW PROP: values to auto-fill when row is selected
   autoFillOnSelect = {},
+  selectedConditionValues = {},
   handleBlur,
 }) => {
   const rawRows = Array.isArray(data)
@@ -454,6 +455,13 @@ const DynamicReportTable = ({
         acc[k] = m ? normalizeIn(m, row?.[k]) : (row?.[k] ?? "");
         return acc;
       }, {});
+
+      // ✅ IMPORTANT: inject external dependency values (like podId from header form)
+      for (const [k, v] of Object.entries(selectedConditionValues || {})) {
+        if (v !== undefined && v !== null && v !== "") {
+          rowFormDataNormalized[k] = v; // example: podId: 123
+        }
+      }
 
       const fieldDef = {
         label: "",

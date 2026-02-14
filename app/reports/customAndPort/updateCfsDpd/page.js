@@ -14,7 +14,6 @@ import { useRouter } from "next/navigation";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 import { getUserByCookies } from "@/utils";
 
-
 export default function IGM() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
@@ -35,14 +34,14 @@ export default function IGM() {
           return [key, value.Id];
         }
         return [key, value];
-      })
+      }),
     );
   };
 
   const transformed = transformToIds(formData);
   const valuesOnly = (rows = []) =>
     rows.map(({ __dirty, ...row }) =>
-      Object.fromEntries(Object.entries(row).map(([k, v]) => [k, onlyVal(v)]))
+      Object.fromEntries(Object.entries(row).map(([k, v]) => [k, onlyVal(v)])),
     );
 
   const onlyVal = (v) => {
@@ -160,7 +159,7 @@ export default function IGM() {
         } else {
           setError(errText || "Request failed.");
           toast.error(
-            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`
+            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`,
           );
         }
       }
@@ -183,13 +182,29 @@ export default function IGM() {
       setLoading(false);
     }
   };
+  const selectedConditionValues = useMemo(() => {
+    const pod = formData?.podId;
+    const podId =
+      pod?.Id ??
+      pod?.id ??
+      pod?.value ??
+      (Array.isArray(pod) ? pod?.[0]?.value : null) ??
+      null;
+    return {
+      podId: podId
+        ? { Id: podId, Name: pod?.Name ?? pod?.name ?? pod?.label ?? "" }
+        : null,
+      podIdValue: podId,
+    };
+  }, [formData?.podId]);
+
   const handleChangeEventFunctions = useMemo(
     () =>
       createHandleChangeEventFunction({
         setFormData,
         fields: jsonData.igmEdiFields,
       }),
-    [setFormData, jsonData.igmEdiFields]
+    [setFormData, jsonData.igmEdiFields],
   );
   return (
     <ThemeProvider theme={theme}>
@@ -239,6 +254,7 @@ export default function IGM() {
           metaData={metaData}
           onSelectedEditedChange={setTableFormData}
           autoFillOnSelect={autoFillOnSelect}
+          selectedConditionValues={selectedConditionValues}
         />
       </Box>
       <ToastContainer />
