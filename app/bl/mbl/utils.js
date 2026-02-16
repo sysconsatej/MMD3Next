@@ -51,8 +51,6 @@ export function useTotalGrossAndPack(formData, setTotals) {
 }
 
 export function advanceSearchFilter(advanceSearch) {
-  if (!advanceSearch || Object.keys(advanceSearch).length === 0) return null;
-
   const condition = [];
 
   if (advanceSearch?.blNo) {
@@ -65,16 +63,16 @@ export function advanceSearchFilter(advanceSearch) {
     condition.push(`b.mblDate = '${advanceSearch.mblDate}'`);
   }
 
-  // ✅ Vessel dropdown (single)
   if (advanceSearch?.podVesselId?.Id) {
     condition.push(`b.podVesselId = ${advanceSearch.podVesselId.Id}`);
+  } else {
+    condition.push(`b.podVesselId = null`);
   }
 
-  // ✅ Voyage dropdown (single)
   if (advanceSearch?.podVoyageId?.Id) {
     condition.push(`b.podVoyageId = ${advanceSearch.podVoyageId.Id}`);
   }
-  // BL Type checkbox filter
+
   if (advanceSearch?.isMBL || advanceSearch?.isHBL) {
     const flags = [];
 
@@ -839,5 +837,41 @@ export const handleLock = async (id, value, getData) => {
     }
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const handleActiveState = async (
+  ids,
+  getData,
+  setActiveStatus,
+  activeStatus,
+) => {
+  try {
+    setActiveStatus(!activeStatus);
+
+    const rowsPayload = ids.map((id) => {
+      return {
+        id: id,
+        active: activeStatus,
+        updatedBy: userData.userId,
+        updatedDate: new Date(),
+      };
+    });
+
+    const res = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+
+    const { success, message } = res || {};
+    if (!success) {
+      toast.error(message || "Update failed");
+      return;
+    }
+    toast.success("Status updated successfully!");
+    getData();
+  } catch (error) {
+    console.log("error", error);
   }
 };

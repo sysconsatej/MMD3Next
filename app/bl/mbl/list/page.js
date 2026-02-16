@@ -33,6 +33,7 @@ import { advanceSearchFields, vesselVoyageFilters } from "../mblData";
 import {
   advanceSearchFilter,
   craeateHandleChangeEventFunction,
+  handleActiveState,
   handleLock,
 } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
@@ -67,12 +68,6 @@ const REPORTS = [
   { key: "CustomsExaminationOrder", label: "Customs Examination Order" },
 ];
 const REPORT_ROUTE = "/htmlReports/rptDoLetter";
-const getId = (val) => {
-  if (!val) return null;
-  if (typeof val === "number") return val;
-  if (typeof val === "string") return Number(val) || null;
-  return Number(val?.Id ?? val?.id ?? val?.value ?? val?.key) || null;
-};
 
 function createData(
   blNo,
@@ -116,45 +111,22 @@ export default function BLList() {
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(0);
   const [blData, setBlData] = useState([]);
-  const [advanceSearch, setAdvanceSearch] = useState({});
-  const [loadingState, setLoadingState] = useState(
-    "Please select Vessel and Voyage",
-  );
-
+  const [advanceSearch, setAdvanceSearch] = useState({ podVesselId: null });
+  const [activeStatus, setActiveStatus] = useState(false);
   const { setMode } = formStore();
   const router = useRouter();
   const tableWrapRef = useRef(null);
-
   const [selectedIds, setSelectedIds] = useState([]);
   const [idsOnPage, setIdsOnPage] = useState([]);
   const [allChecked, setAllChecked] = useState(false);
   const [someChecked, setSomeChecked] = useState(false);
-
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportModalForRow, setReportModalForRow] = useState(null);
-
   const userData = getUserByCookies();
-
-  const [fieldsMode, setFieldsMode] = useState("");
-  const [formData, setFormData] = useState({});
   const [historyModal, setHistoryModal] = useState({
     open: false,
     recordId: null,
   });
-  const buildQueryWithVV = useCallback(
-    (baseQuery) => {
-      const vesselId = getId(formData?.podVesselId);
-      const voyageId = getId(formData?.podVoyageId);
-      if (!vesselId || !voyageId) return null;
-
-      return {
-        ...(baseQuery || {}),
-        podVesselId: { Id: vesselId },
-        podVoyageId: { Id: voyageId },
-      };
-    },
-    [formData?.podVesselId, formData?.podVoyageId],
-  );
 
   const getData = useCallback(
     async (
@@ -163,25 +135,13 @@ export default function BLList() {
       advanceSearchQuery = advanceSearch,
     ) => {
       try {
-        const finalQuery = buildQueryWithVV(advanceSearchQuery);
-        if (!finalQuery) {
-          setBlData([]);
-          setTotalPage(1);
-          setTotalRows(0);
-          setPage(1);
-          setRowsPerPage(pageSize);
-          setSelectedIds([]);
-          setLoadingState("Please select Vessel and Voyage");
-          return;
-        }
-
         const tableObj = {
           columns: `coalesce(b.hblNo, b.mblNo)  blNo, iif(b.hblNo is null, (select b2.id, b2.hblNo from tblBl b2 left join tblMasterData m3 on m3.id = b2.hblRequestStatus where b2.mblNo =  b.mblNo and b2.status = 1 and b2.mblHblFlag = 'HBL' and m3.name = 'Confirm' and b2.shippingLineId = u.companyId and b2.locationId = ${userData.location} for json path), null) hblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId, b.mblHblFlag mblHblFlag, b.active active`,
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
           joins: `left join tblPort p on p.id = b.polId left join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId left join tblUser u on u.id = ${userData.userId} left join tblMasterData m2 on m2.id = b.hblRequestStatus join tblBl b1 on (b1.id = b.id and b1.status = 1 and  b1.mblHblFlag = 'MBL' and b1.shippingLineId = u.companyId and b1.locationId = ${userData.location}) or (b1.id = b.id and b1.shippingLineId = u.companyId and b1.status = 1 and b1.mblHblFlag = 'HBL' and m2.name = 'Confirm' and b1.locationId = ${userData.location} and b1.mblNo in (select b3.mblNo from tblBl b3 where b3.mblHblFlag = 'MBL' and b3.status = 1 and b3.shippingLineId = u.companyId and b3.locationId = ${userData.location}) )`,
-          advanceSearch: advanceSearchFilter(finalQuery),
+          advanceSearch: advanceSearchFilter(advanceSearchQuery),
         };
 
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
@@ -192,28 +152,12 @@ export default function BLList() {
         setPage(pageNo);
         setRowsPerPage(pageSize);
         setSelectedIds([]);
-        setLoadingState(
-          Array.isArray(data) && data.length > 0 ? "" : "Data not found!",
-        );
       } catch (err) {
         console.error("Error fetching data:", err);
-        setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch, buildQueryWithVV],
+    [page, rowsPerPage, advanceSearch],
   );
-  useEffect(() => {
-    setBlData([]);
-    setTotalPage(1);
-    setTotalRows(0);
-    setPage(1);
-    setLoadingState("Please select Vessel and Voyage");
-    setMode({ mode: null, formId: null });
-  }, []);
-
-  useEffect(() => {
-    getData(1, rowsPerPage, advanceSearch);
-  }, [formData?.podVesselId, formData?.podVoyageId]);
 
   const rows = useMemo(() => {
     return (blData || []).map((item) =>
@@ -317,22 +261,17 @@ export default function BLList() {
   };
 
   const handleChangeEventFunctions = craeateHandleChangeEventFunction({
-    setFormData,
-    formData,
+    setFormData: setAdvanceSearch,
+    formData: advanceSearch,
   });
 
-  const setFormDataWithAutoClear = useCallback((updater) => {
-    setFormData((prev) => {
-      const next = typeof updater === "function" ? updater(prev) : updater;
+  useEffect(() => {
+    getData();
+  }, [advanceSearch?.podVesselId, advanceSearch?.podVoyageId]);
 
-      const prevVessel = getId(prev?.podVesselId);
-      const nextVessel = getId(next?.podVesselId);
-
-      if (prevVessel !== nextVessel) {
-        if (next?.podVoyageId) return { ...next, podVoyageId: null };
-      }
-      return next;
-    });
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
   }, []);
 
   return (
@@ -348,9 +287,9 @@ export default function BLList() {
             <Box className="min-w-[520px] w-[520px] grid grid-cols-2 gap-x-2 gap-y-1 items-center [&>*]:min-w-0">
               <CustomInput
                 fields={vesselVoyageFilters}
-                formData={formData}
-                setFormData={setFormDataWithAutoClear}
-                fieldsMode={fieldsMode}
+                formData={advanceSearch}
+                setFormData={setAdvanceSearch}
+                fieldsMode={"edit"}
                 handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
@@ -359,9 +298,7 @@ export default function BLList() {
                 fields={advanceSearchFields.bl}
                 advanceSearch={advanceSearch}
                 setAdvanceSearch={setAdvanceSearch}
-                getData={(p = 1, rpp = rowsPerPage, q = advanceSearch) =>
-                  getData(p, rpp, q)
-                }
+                getData={getData}
                 rowsPerPage={rowsPerPage}
               />
             </Box>
@@ -380,6 +317,9 @@ export default function BLList() {
             handlePrint(id, row?.clientId);
           }}
           onDelete={(ids) => handleBulkDelete(ids)}
+          onLock={(ids) =>
+            handleActiveState(ids, getData, setActiveStatus, activeStatus)
+          }
         />
 
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
@@ -472,21 +412,20 @@ export default function BLList() {
                       />
                     </TableCell>
 
-                    {row.mblHblFlag === "MBL" &&
-                      (row.active || row.active === undefined) && (
-                        <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
-                          <LockOpenIcon
-                            sx={{
-                              cursor: "pointer",
-                              fontSize: "16px",
-                              color: "#1976d2",
-                            }}
-                            onClick={() => handleLock(row.id, false, getData)}
-                          />
-                        </TableCell>
-                      )}
+                    {(row.active || row.active === undefined) && (
+                      <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                        <LockOpenIcon
+                          sx={{
+                            cursor: "pointer",
+                            fontSize: "16px",
+                            color: "#1976d2",
+                          }}
+                          onClick={() => handleLock(row.id, false, getData)}
+                        />
+                      </TableCell>
+                    )}
 
-                    {row.mblHblFlag === "MBL" && row.active === false && (
+                    {row.active === false && (
                       <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                         <LockIcon
                           sx={{
@@ -503,7 +442,7 @@ export default function BLList() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={11} align="center">
-                    {loadingState}
+                    Data not found!
                   </TableCell>
                 </TableRow>
               )}
