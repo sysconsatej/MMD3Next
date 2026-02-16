@@ -152,6 +152,38 @@ const denormalizeOut = (meta, val) => {
   if (isDateTime(meta)) return saveDateTime(toDateObj(val));
   return val;
 };
+const isDash = (s) => String(s ?? "").trim() === "-";
+
+const isEmptyCellValue = (meta, val) => {
+  // Dropdown stored like: [{value, label}]
+  if (isDropdown(meta)) {
+    const v = Array.isArray(val) ? val[0] : val;
+    const label = (v?.label ?? v?.Name ?? v?.name ?? "").toString().trim();
+    const value = v?.value ?? v?.Id ?? v?.id ?? null;
+
+    // treat "-" as empty also
+    const labelEmpty = label === "" || isDash(label);
+    const valueEmpty = value == null || value === "";
+
+    return labelEmpty && valueEmpty;
+  }
+
+  // Multiselect stored like: [{value, label}, ...]
+  if (isMultiselect(meta)) return !Array.isArray(val) || val.length === 0;
+
+  // Checkbox: don't treat as empty
+  if (isCheckbox(meta)) return false;
+
+  // Date/DateTime
+  if (isDate(meta) || isDateTime(meta)) {
+    const t = displayText(val).trim();
+    return t === "" || isDash(t);
+  }
+
+  // Default text/number
+  const t = displayText(val).trim();
+  return t === "" || isDash(t);
+};
 
 /* ---------- NEW: numeric helpers ---------- */
 
@@ -389,7 +421,7 @@ const DynamicReportTable = ({
 
   const handleToggleAllOnPage = (checked) => {
     setEditableRows((prev) => {
-      let nextRows = prev.map((r) => {
+      const nextRows = prev.map((r) => {
         if (!uidsOnPage.includes(r.__uid)) return r;
 
         let updated = { ...r };
@@ -398,23 +430,36 @@ const DynamicReportTable = ({
           for (const [colKey, srcVal] of Object.entries(
             autoFillOnSelect || {},
           )) {
-            if (!DISPLAY_KEYS.includes(colKey)) continue;
+            // ✅ match key safely (case/space mismatch)
+            const actualKey = DISPLAY_KEYS.find(
+              (k) => normKey(k) === normKey(colKey),
+            );
+            if (!actualKey) continue;
 
-            const meta = customFieldMap.get(colKey);
+            const meta = customFieldMap.get(actualKey);
+
+            // ✅ ONLY fill empty
+            const currentVal = updated[actualKey];
+            if (!isEmptyCellValue(meta, currentVal)) continue;
 
             if (meta) {
               const normalizedVal = normalizeIn(meta, srcVal);
               const storeVal = denormalizeOut(meta, normalizedVal);
-              updated[colKey] = storeVal;
+              updated[actualKey] = storeVal;
             } else {
-              updated[colKey] = srcVal;
+              updated[actualKey] = srcVal;
             }
           }
         } else {
+          // Uncheck: revert ONLY autofill keys back to original row values
           const original = baseRows.find((b) => b.__uid === r.__uid);
           if (original) {
             for (const colKey of Object.keys(autoFillOnSelect || {})) {
-              updated[colKey] = original[colKey];
+              const actualKey = DISPLAY_KEYS.find(
+                (k) => normKey(k) === normKey(colKey),
+              );
+              if (!actualKey) continue;
+              updated[actualKey] = original[actualKey];
             }
           }
         }
