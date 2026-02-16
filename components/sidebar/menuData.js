@@ -34,7 +34,7 @@ export const navItems = [
     name: "Menu Access",
     href: "/menu-access",
     isShow: false,
-    icon : "access",
+    icon: "access",
   },
   {
     name: "Master",
@@ -441,6 +441,11 @@ export const navItems = [
       {
         name: "SCMT Report",
         href: "/reports/customAndPort/scmtReport",
+        isShow: false,
+      },
+      {
+        name: "Line CFS Request",
+        href: "/reports/customAndPort/cfsRequestRegister",
         isShow: false,
       },
     ],
