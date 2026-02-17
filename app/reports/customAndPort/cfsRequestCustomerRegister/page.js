@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { getUserByCookies } from "@/utils";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 import DynamicReportDownloadExcelButton from "@/components/dynamicReportExcel/page";
+import dayjs from "dayjs";
 
 export default function IgmGeneration() {
   const [formData, setFormData] = useState({});
@@ -19,6 +20,7 @@ export default function IgmGeneration() {
   const [tableData, setTableData] = useState([]);
   const [tableFormData, setTableFormData] = useState([]);
   const [goLoading, setGoLoading] = useState(false);
+
   const router = useRouter();
   const userData = getUserByCookies();
 
@@ -30,7 +32,7 @@ export default function IgmGeneration() {
           return [key, value.Id];
         }
         return [key, value];
-      }),
+      })
     );
   };
 
@@ -38,30 +40,35 @@ export default function IgmGeneration() {
     e.preventDefault();
     setGoLoading(true);
 
-    const transformed = transformToIds(formData);
-
-    const { shippingLineId, ...filteredData } = transformed;
-
-    const requestBody = {
-      spName: "cfsRequestCustomerRegister",
-      jsonData: {
-        ...filteredData,
-        customerId: userData.companyId,
-      },
-    };
-
-    const getErr = (src) =>
-      (src?.error && String(src.error)) ||
-      (src?.message && String(src.message)) ||
-      "";
-
-    const isNoDataError = (txt = "") =>
-      txt.toLowerCase().includes("did not return valid json text");
-
     try {
+      // 1️⃣ Convert dropdown objects
+      const transformed = transformToIds(formData);
+
+      // 2️⃣ Convert date fields for API (DD/MM/YYYY)
+      const formattedForApi = {
+        ...transformed,
+        fromDate: transformed.fromDate
+          ? dayjs(transformed.fromDate, "YYYY/MM/DD").format("DD/MM/YYYY")
+          : null,
+        toDate: transformed.toDate
+          ? dayjs(transformed.toDate, "YYYY/MM/DD").format("DD/MM/YYYY")
+          : null,
+      };
+
+      // Remove shippingLineId if present
+      const { shippingLineId, ...filteredData } = formattedForApi;
+
+      const requestBody = {
+        spName: "cfsRequestCustomerRegister",
+        jsonData: {
+          ...filteredData,
+          customerId: userData.companyId,
+        },
+      };
+
       const res = await fetchDynamicReportData(requestBody);
 
-      if (res.success) {
+      if (res?.success) {
         const rows = Array.isArray(res.data) ? res.data : [];
         if (rows.length) {
           setTableData(rows);
@@ -70,58 +77,42 @@ export default function IgmGeneration() {
           toast.info("No data found.");
         }
       } else {
-        const errText = getErr(res);
+        const errText =
+          res?.error || res?.message || "Request failed.";
         setTableData([]);
-
-        if (isNoDataError(errText)) {
-          toast.info("No data found.");
-        } else {
-          toast.error(
-            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`,
-          );
-        }
+        toast.error(errText);
       }
     } catch (err) {
-      const body = err?.response?.data;
       const errText =
-        (body && (body.error || body.message)) ||
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
         err?.message ||
         "Network/Server error.";
 
       setTableData([]);
-
-      if (isNoDataError(errText)) {
-        toast.info("No data found.");
-      } else {
-        toast.error(errText);
-      }
+      toast.error(errText);
     } finally {
       setGoLoading(false);
     }
   };
-  //   const handleGenerateReport = () => {
-  //     if (!tableData || !tableData.length) {
-  //       toast.info("No data to export.");
-  //       return;
-  //     }
-  //     jsonToExcelFile(tableData, "igm generation");
-  //   };
+
   const handleChangeEventFunctions = createHandleChangeEventFunction({
     setFormData,
     fields: data.igmGenerationFields,
   });
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={handleSubmit}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base flex items-end m-0">
+            <h1 className="text-left text-base m-0">
               Customer CFS Request
             </h1>
           </Box>
 
-          <Box className="border border-solid border-black rounded-[4px]">
-            <Box className="sm:grid sm:grid-cols-3 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black">
+          <Box className="border border-black rounded-[4px]">
+            <Box className="sm:grid sm:grid-cols-3 gap-2 flex flex-col p-1 border-b border-black">
               <CustomInput
                 fields={data.igmGenerationFields}
                 formData={formData}
@@ -138,12 +129,7 @@ export default function IgmGeneration() {
               type="submit"
               disabled={goLoading}
             />
-            {/* <CustomButton
-              text="GENERATE REPORT"
-              type="button"
-              onClick={handleGenerateReport}
-              title={!tableData.length ? "No data to export" : ""}
-            /> */}
+
             <DynamicReportDownloadExcelButton
               rows={tableFormData}
               metaData={metaData}

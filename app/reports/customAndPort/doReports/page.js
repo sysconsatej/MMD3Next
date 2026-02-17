@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data, { metaData } from "./cfsRequestRegisterData";
+import data, { metaData } from "./doReportData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -24,7 +24,7 @@ export default function IgmGeneration() {
   const router = useRouter();
   const userData = getUserByCookies();
 
-  // ✅ Convert dropdown objects to Ids
+  // 🔹 Convert dropdown objects to Ids
   const transformToIds = (data) => {
     return Object.fromEntries(
       Object.entries(data).map(([key, value]) => {
@@ -44,7 +44,7 @@ export default function IgmGeneration() {
       // 1️⃣ Convert dropdown objects
       const transformed = transformToIds(formData);
 
-      // 2️⃣ Convert date format ONLY for API
+      // 2️⃣ Convert date fields to DD/MM/YYYY for API
       const formattedForApi = {
         ...transformed,
         fromDate: transformed.fromDate
@@ -56,9 +56,10 @@ export default function IgmGeneration() {
       };
 
       const requestBody = {
-        spName: "cfsRequestRegister",
+        spName: "doRequestLinerRegister",
         jsonData: {
           ...formattedForApi,
+          locationId: userData.location,
           shippingLineId: userData.companyId,
         },
       };
@@ -104,12 +105,12 @@ export default function IgmGeneration() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base m-0">
-              Line CFS Request
+              DO Report
             </h1>
           </Box>
 
           <Box className="border border-black rounded-[4px]">
-            <Box className="sm:grid sm:grid-cols-3 gap-2 flex flex-col p-1 border-b border-black">
+            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-black">
               <CustomInput
                 fields={data.igmGenerationFields}
                 formData={formData}
@@ -130,7 +131,7 @@ export default function IgmGeneration() {
             <DynamicReportDownloadExcelButton
               rows={tableFormData}
               metaData={metaData}
-              fileName={`CFSRequestLineReport_${new Date()
+              fileName={`DOReport_${new Date()
                 .toISOString()
                 .slice(0, 10)}.xlsx`}
               text="DOWNLOAD EXCEL"

@@ -453,6 +453,11 @@ export const navItems = [
         href: "/reports/customAndPort/cfsRequestCustomerRegister",
         isShow: false,
       },
+      {
+        name:"Do Report",
+        href:"/reports/customAndPort/doReports",
+        isShow:false,
+      }
     ],
   },
   {
