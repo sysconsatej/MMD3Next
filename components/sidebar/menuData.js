@@ -448,6 +448,11 @@ export const navItems = [
         href: "/reports/customAndPort/cfsRequestRegister",
         isShow: false,
       },
+      {
+        name: "Customer CFS Request",
+        href: "/reports/customAndPort/cfsRequestCustomerRegister",
+        isShow: false,
+      },
     ],
   },
   {

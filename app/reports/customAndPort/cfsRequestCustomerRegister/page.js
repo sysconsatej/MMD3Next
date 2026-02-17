@@ -40,11 +40,13 @@ export default function IgmGeneration() {
 
     const transformed = transformToIds(formData);
 
+    const { shippingLineId, ...filteredData } = transformed;
+
     const requestBody = {
-      spName: "cfsRequestRegister",
+      spName: "cfsRequestCustomerRegister",
       jsonData: {
-        ...transformed,
-        shippingLineId: userData.companyId,
+        ...filteredData,
+        customerId: userData.companyId,
       },
     };
 
@@ -114,7 +116,7 @@ export default function IgmGeneration() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0">
-              Line CFS Request
+              Customer CFS Request
             </h1>
           </Box>
 
@@ -145,7 +147,7 @@ export default function IgmGeneration() {
             <DynamicReportDownloadExcelButton
               rows={tableFormData}
               metaData={metaData}
-              fileName={`CFSRequestLineReport_${new Date()
+              fileName={`CFSRequestCustomerReport_${new Date()
                 .toISOString()
                 .slice(0, 10)}.xlsx`}
               text="DOWNLOAD EXCEL"
