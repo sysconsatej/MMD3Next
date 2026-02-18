@@ -62,7 +62,7 @@ const fieldData = {
       isEdit: false,
       tableName: "tblMasterData m",
       displayColumn: "m.name",
-      where: "masterListName = 'tblCfsStatusType'",
+      where: "masterListName = 'tblCfsStatusType' and m.name !='Verified'",
       foreignTable: "name,tblMasterData",
       isEdit: true,
       orderBy: "m.name",

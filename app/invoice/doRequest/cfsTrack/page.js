@@ -28,12 +28,15 @@ import { useRouter } from "next/navigation";
 import HistoryIcon from "@mui/icons-material/History";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import { advanceSearchFields } from "../doData";
-import { DoHistoryLinerModal } from "../liner/historyModal";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import IconButton from "@mui/material/IconButton";
+
+import { InvoiceModal } from "./utils";
 function createData(
   blNo,
   isFreeDays,
   stuffDestuffId,
-  linerName,
+  Liner,
   doRequestStatusId,
   doRejectRemarks,
   submittedBy,
@@ -43,7 +46,7 @@ function createData(
     blNo,
     isFreeDays,
     stuffDestuffId,
-    linerName,
+    Liner,
     doRequestStatusId,
     doRejectRemarks,
     submittedBy,
@@ -71,6 +74,11 @@ export default function BLList() {
     value: null,
     blNo: null,
   });
+  const [attachmentModal, setAttachmentModal] = useState({
+    toggle: false,
+    value: null,
+  });
+
   // --------------------------------------------
   // 🔥 Fetch Table Data
   // --------------------------------------------
@@ -78,21 +86,29 @@ export default function BLList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns:
-            "d.blNo blNo, d.isFreeDays isFreeDays, m2.name stuffDestuffId, c.name linerName, m.name doRequestStatusId, d.doRejectRemarks doRejectRemarks, u3.name submittedBy, d.id id",
+          columns: `
+              c.name Liner,
+              u2.name submittedBy,
+              d.blNo blNo,
+              d.isFreeDays isFreeDays,
+              m2.name stuffDestuffId,
+              m.name doRequestStatusId,
+              d.doRejectRemarks doRejectRemarks,
+             d.id id
+           `,
           tableName: "tblDoRequest d",
           pageNo,
           pageSize,
           advanceSearch: advanceSearchFilter(advanceSearch),
           joins: `
-            left join tblCompany c on c.id = d.shippingLineId
-            left join tblMasterData m on m.id = d.doRequestStatusId
-            left join tblMasterData m2 on m2.id = d.stuffDestuffId
-            left join tblUser u3 on u3.id = d.createdBy
-            left join tblUser u on u.id = ${userData.userId}
-            left join tblUser u2 on u2.companyId = u.companyId
-            join tblDoRequest d2 on d2.id = d.id and d.locationId = ${userData.location} and d.createdBy = u2.id
-          `,
+                 LEFT JOIN tblMasterData m ON m.id = d.doRequestStatusId
+                 LEFT JOIN tblCompany c ON c.id = d.shippingLineId
+                 LEFT JOIN tblMasterData m2 ON m2.id = d.stuffDestuffId
+                 LEFT JOIN tblLocation l ON l.id = ${userData?.location}
+                 LEFT JOIN tblUser u2 ON u2.id = d.createdBy
+                 LEFT JOIN tblPort p ON p.id = d.nominatedAreaId
+                 JOIN tblDoRequest d2 ON d2.id = d.id AND d2.status = 1 AND p.name = l.name
+                 `,
         };
 
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
@@ -117,7 +133,7 @@ export default function BLList() {
           item["blNo"],
           item["isFreeDays"],
           item["stuffDestuffId"],
-          item["linerName"],
+          item["Liner"],
           item["doRequestStatusId"],
           item["doRejectRemarks"],
           item["submittedBy"],
@@ -206,7 +222,7 @@ export default function BLList() {
                 <TableCell>Do Status</TableCell>
                 <TableCell>Reject Remark</TableCell>
                 <TableCell>Submitted By</TableCell>
-                <TableCell>History</TableCell>
+                <TableCell>Attachment</TableCell>
               </TableRow>
             </TableHead>
 
@@ -228,7 +244,7 @@ export default function BLList() {
                     <TableCell>{row.blNo}</TableCell>
                     <TableCell>{row.isFreeDays}</TableCell>
                     <TableCell>{row.stuffDestuffId}</TableCell>
-                    <TableCell>{row.linerName}</TableCell>
+                    <TableCell>{row.Liner}</TableCell>
                     <TableCell
                       sx={{
                         color: statusColor(
@@ -241,16 +257,17 @@ export default function BLList() {
                     <TableCell>{row.doRejectRemarks}</TableCell>
                     <TableCell>{row.submittedBy}</TableCell>
                     <TableCell>
-                      <HistoryIcon
-                        sx={{ cursor: "pointer", fontSize: 16 }}
+                      <IconButton
+                        size="small"
                         onClick={() =>
-                          setHistoryModal({
+                          setAttachmentModal({
                             toggle: true,
                             value: row.id,
-                            blNo: row.blNo,
                           })
                         }
-                      />
+                      >
+                        <AttachFileIcon fontSize="small" />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))
@@ -282,10 +299,7 @@ export default function BLList() {
           />
         </Box>
       </Box>
-      <DoHistoryLinerModal
-        historyModal={historyModal}
-        setHistoryModal={setHistoryModal}
-      />
+      <InvoiceModal modal={attachmentModal} setModal={setAttachmentModal} />
 
       <ToastContainer />
     </ThemeProvider>

@@ -12,6 +12,8 @@ const links = () => {
       return "/invoice/doRequest/liner";
     case "customer":
       return "/invoice/doRequest/list";
+    case"cfs":
+    return"/invoice/doRequest/cfsTrack";
     default:
       return "/invoice/doRequest/list";
   }
