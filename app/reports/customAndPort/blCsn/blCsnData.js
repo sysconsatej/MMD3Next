@@ -1,7 +1,9 @@
 import { getUserByCookies } from "@/utils";
+
 const userData = getUserByCookies();
+
 const fieldData = {
-  igmGenerationFields: [
+  igmEdiFields: [
     {
       label: "Vessel",
       name: "vesselId",
@@ -9,6 +11,7 @@ const fieldData = {
       tableName: "tblVessel t",
       idColumn: "id",
       displayColumn: "t.name",
+      changeFun: "handleChangeOnVessel",
       searchColumn: "t.name",
       orderBy: "t.name",
       isEdit: true,
@@ -41,5 +44,6 @@ const fieldData = {
     },
   ],
 };
+
 export default fieldData;
 export const metaData = [];

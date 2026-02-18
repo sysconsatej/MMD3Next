@@ -454,10 +454,15 @@ export const navItems = [
         isShow: false,
       },
       {
-        name:"Do Report",
-        href:"/reports/customAndPort/doReports",
-        isShow:false,
-      }
+        name: "Do Report",
+        href: "/reports/customAndPort/doReports",
+        isShow: false,
+      },
+      {
+        name: "Forwarder CSN",
+        href: "/reports/customAndPort/blCsn",
+        isShow: false,
+      },
     ],
   },
   {
