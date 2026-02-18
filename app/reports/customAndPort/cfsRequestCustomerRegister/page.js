@@ -32,7 +32,7 @@ export default function IgmGeneration() {
           return [key, value.Id];
         }
         return [key, value];
-      })
+      }),
     );
   };
 
@@ -62,6 +62,7 @@ export default function IgmGeneration() {
         spName: "cfsRequestCustomerRegister",
         jsonData: {
           ...filteredData,
+          locationId: userData.location,
           customerId: userData.companyId,
         },
       };
@@ -77,8 +78,7 @@ export default function IgmGeneration() {
           toast.info("No data found.");
         }
       } else {
-        const errText =
-          res?.error || res?.message || "Request failed.";
+        const errText = res?.error || res?.message || "Request failed.";
         setTableData([]);
         toast.error(errText);
       }
@@ -106,9 +106,7 @@ export default function IgmGeneration() {
       <form onSubmit={handleSubmit}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base m-0">
-              Customer CFS Request
-            </h1>
+            <h1 className="text-left text-base m-0">Customer CFS Request</h1>
           </Box>
 
           <Box className="border border-black rounded-[4px]">

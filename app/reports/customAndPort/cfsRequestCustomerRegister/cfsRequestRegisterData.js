@@ -56,7 +56,19 @@ const fieldData = {
       isEdit: true,
       changeFun: "handleDropdownChange",
     },
-
+    {
+      label: "Status",
+      name: "status",
+      type: "dropdown",
+      isEdit: false,
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where: "masterListName = 'tblCfsStatusType'",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+      orderBy: "m.name",
+      isEdit: true,
+    },
     {
       label: "From Date",
       name: "fromDate",
