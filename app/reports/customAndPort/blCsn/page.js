@@ -1,28 +1,32 @@
 "use client";
-import { useState } from "react";
+
+import { useEffect, useState, useMemo } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { metaData } from "./blCsnData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
+import { formStore } from "@/store";
+import { fetchDynamicReportData, updateDynamicReportData } from "@/apis";
 import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable";
-import { fetchDynamicReportData } from "@/apis/dynamicReport";
-import { useRouter } from "next/navigation";
-import { getUserByCookies } from "@/utils";
+import { useRouter } from "next/navigation"; // ⬅️ import router
+import { getUserByCookies, jsonExport } from "@/utils";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
-import DynamicReportDownloadExcelButton from "@/components/dynamicReportExcel/page";
 
-export default function IgmGeneration() {
+export default function CSN() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
+  const [jsonData, setJsonData] = useState(data);
+  const { mode, setMode } = formStore();
   const [tableData, setTableData] = useState([]);
-  const [tableFormData, setTableFormData] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [goLoading, setGoLoading] = useState(false);
-  const router = useRouter();
+  const [error, setError] = useState(null);
+  const [tableFormData, setTableFormData] = useState([]);
+  const router = useRouter(); // ⬅️ initialize router
   const userData = getUserByCookies();
 
-  // 🔹 Convert dropdown objects to Ids
   const transformToIds = (data) => {
     return Object.fromEntries(
       Object.entries(data).map(([key, value]) => {
@@ -34,18 +38,34 @@ export default function IgmGeneration() {
     );
   };
 
+  const transformed = transformToIds(formData);
+
+  const handleUpdate = () =>
+    jsonExport({
+      tableFormData,
+      updateFn: updateDynamicReportData,
+      filenamePrefix: "ForwarderCsn",
+      toast,
+      setLoading,
+      filterDirty: false,
+      buildBody: (rows) => ({
+        spName: "scmtCsn",
+        jsonData: {
+          ...transformed,
+          clientId: 1,
+          userId: userData.userId,
+          data: rows,
+        },
+      }),
+    });
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGoLoading(true);
+    setError(null);
 
-    const transformed = transformToIds(formData);
-    
     const requestBody = {
       spName: "importBlCsnSelection",
-      jsonData: {
-        ...transformed,
-        companyId: userData.companyId,
-      },
+      jsonData: { ...transformed, companyId: userData.companyId },
     };
 
     const getErr = (src) =>
@@ -72,8 +92,10 @@ export default function IgmGeneration() {
         setTableData([]);
 
         if (isNoDataError(errText)) {
+          setError(null);
           toast.info("No data found.");
         } else {
+          setError(errText || "Request failed.");
           toast.error(
             errText || `Request failed${res.status ? ` (${res.status})` : ""}.`,
           );
@@ -87,41 +109,38 @@ export default function IgmGeneration() {
         "Network/Server error.";
 
       setTableData([]);
-
       if (isNoDataError(errText)) {
+        setError(null);
         toast.info("No data found.");
       } else {
+        setError(errText);
         toast.error(errText);
       }
     } finally {
       setGoLoading(false);
     }
   };
-  //   const handleGenerateReport = () => {
-  //     if (!tableData || !tableData.length) {
-  //       toast.info("No data to export.");
-  //       return;
-  //     }
-  //     jsonToExcelFile(tableData, "igm generation");
-  //   };
-  const handleChangeEventFunctions = createHandleChangeEventFunction({
-    setFormData,
-    fields: data.igmGenerationFields,
-  });
+  const handleChangeEventFunctions = useMemo(
+    () =>
+      createHandleChangeEventFunction({
+        setFormData,
+        fields: jsonData.igmEdiFields,
+      }),
+    [setFormData, jsonData.igmEdiFields],
+  );
   return (
     <ThemeProvider theme={theme}>
-      <form onSubmit={handleSubmit}>
+      <form>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base flex items-end m-0">
-              Container Report
+            <h1 className="text-left text-base flex items-end m-0 ">
+              Forwarder CSN
             </h1>
           </Box>
-
-          <Box className="border border-solid border-black rounded-[4px]">
-            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black">
+          <Box className="border border-solid border-black rounded-[4px] ">
+            <Box className="sm:grid sm:grid-cols-3 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
-                fields={data.igmGenerationFields}
+                fields={jsonData.igmEdiFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
@@ -129,30 +148,20 @@ export default function IgmGeneration() {
               />
             </Box>
           </Box>
-
-          <Box className="w-full flex mt-2 gap-2">
+          <Box className="w-full flex mt-2  gap-2">
             <CustomButton
               text={goLoading ? "Loading..." : "GO"}
               type="submit"
-              disabled={goLoading}
+              onClick={handleSubmit}
+              disabled={loading}
             />
-            {/* <CustomButton
-              text="GENERATE REPORT"
-              type="button"
-              onClick={handleGenerateReport}
-              title={!tableData.length ? "No data to export" : ""}
-            /> */}
-            <DynamicReportDownloadExcelButton
-              rows={tableFormData}
-              metaData={metaData}
-              fileName={`ContainerReport_${new Date()
-                .toISOString()
-                .slice(0, 10)}.xlsx`}
-              text="DOWNLOAD EXCEL"
-              buttonStyles="custom-btn"
-              disabled={!tableFormData.length}
+            <CustomButton
+              text={loading ? "Loading..." : "GENERATE REPORT"}
+              onClick={handleUpdate}
+              title={
+                !tableFormData.length ? "Select & edit at least one row" : ""
+              }
             />
-
             <CustomButton
               text="Cancel"
               buttonStyles="!text-[white] !bg-[#f5554a] !text-[11px]"
@@ -162,7 +171,6 @@ export default function IgmGeneration() {
           </Box>
         </section>
       </form>
-
       <Box className="p-0">
         <DynamicReportTable
           data={tableData}
@@ -170,7 +178,6 @@ export default function IgmGeneration() {
           onSelectedEditedChange={setTableFormData}
         />
       </Box>
-
       <ToastContainer />
     </ThemeProvider>
   );

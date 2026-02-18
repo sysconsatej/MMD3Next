@@ -67,12 +67,12 @@ export function advanceSearchFilter(advanceSearch) {
     );
   }
 
-  if (advanceSearch.podvesselId) {
-    condition.push(
-      `b.podvesselId in (${advanceSearch.podvesselId
-        .map((item) => item.Id)
-        .join(",")})`,
-    );
+  if (advanceSearch.podVesselId) {
+    condition.push(`b.podVesselId = ${advanceSearch.podVesselId?.Id}`);
+  }
+
+  if (advanceSearch.podVoyageId) {
+    condition.push(`b.podVoyageId = ${advanceSearch.podVoyageId.Id}`);
   }
 
   if (advanceSearch.cargoTypeId) {

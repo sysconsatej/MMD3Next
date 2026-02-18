@@ -209,6 +209,64 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
   };
 };
 
+export const handleBlur = ({ setErrorState, setFormData, mode }) => {
+  return {
+    duplicateHandler: async (event) => {
+      const { name, value } = event.target;
+
+      // only run for blNo
+      if (name !== "blNo") return true;
+
+      const normalized = String(value ?? "").trim();
+      if (!normalized) return true;
+
+      const literal = normalized.replace(/'/g, "''");
+
+      let whereDup = `
+          blNo = '${literal.toUpperCase()}'
+          AND companyId = ${userData?.companyId}
+          AND status = 1
+        `;
+
+      // exclude current record while edit
+      if (mode?.formId) {
+        whereDup += ` AND id <> ${mode.formId}`;
+      }
+
+      const obj = {
+        columns: "id",
+        tableName: "tblCfsRequest",
+        whereCondition: whereDup,
+      };
+
+      const resp = await getDataWithCondition(obj);
+
+      const isDuplicate = Array.isArray(resp?.data) && resp.data.length > 0;
+
+      if (isDuplicate) {
+        setErrorState((prev) => ({ ...prev, blNo: true }));
+        setFormData((prev) => ({ ...prev, blNo: "" }));
+        toast.error("Duplicate BL No!");
+        return false;
+      }
+
+      setErrorState((prev) => ({ ...prev, blNo: false }));
+      setFormData((prev) => ({ ...prev, blNo: normalized.toUpperCase() }));
+      const blId = await getBlIdIfExists({
+        blNo: normalized,
+        shippingLineId: formData?.shippingLineId?.Id,
+        locationId: userData?.location,
+      });
+
+      setFormData((prev) => ({
+        ...prev,
+        blId: blId,
+      }));
+      return true;
+    },
+  };
+};
+
 export function advanceSearchFilter(advanceSearch) {
   if (Object.keys(advanceSearch).length <= 0) return null;
   const condition = [];
