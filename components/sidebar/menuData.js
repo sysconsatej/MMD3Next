@@ -471,17 +471,17 @@ export const navItems = [
     name: "Upload",
     icon: "Upload",
     href: "/upload",
-    isShow: true,
+    isShow: false,
     submenu: [
       {
         name: "UploadDPDParties",
         href: "/upload/UploadDPDParties",
-        isShow: true,
+        isShow: false,
       },
       {
         name: "Upload72HoursData",
         href: "/upload/Upload72HoursData",
-        isShow: true,
+        isShow: false,
       },
     ],
   },

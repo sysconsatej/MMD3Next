@@ -1,20 +1,16 @@
 export const roleAccessPaths = {
   "/menu-access": ["admin"],
   "/reports": ["admin", "shipping", "customer", "cfs"],
-
   "/bl-status": ["admin", "shipping", "customer", "cfs"],
   "/bl/hbl/list": ["admin", "customer"],
   "/bl/hbl/upload": ["customer", "admin"],
   "/bl/hbl/linerSearch": ["shipping", "admin"],
   "/bl/mbl/list": ["shipping", "admin"],
-  "/bl/cfs-request/list": ["admin" , "customer"],
-
-
-
+  "/bl/cfs-request/list": ["admin", "customer"],
 
   "/request": ["admin", "shipping", "customer", "cfs"],
   "/htmlReports/igmReports": ["admin", "shipping", "customer", "cfs"],
-  "/upload": ["admin", "shipping", "customer", "cfs"],
+  "/upload": ["admin", "shipping", "customer"],
   "/blPartyHold": ["admin", "shipping", "customer", "cfs"],
   "/home": ["admin", "shipping", "customer", "cfs"],
   "/request/doRequest/list": ["shipping", "customer"],
@@ -55,5 +51,5 @@ export const roleAccessPaths = {
   "/master/movementType/list": ["admin"],
   "/master/berthAgent/list": ["admin", "shipping"],
   "/master/carrierPort/list": ["admin", "shipping"],
-  "/master/role/list"  : ["admin"]
+  "/master/role/list": ["admin"],
 };

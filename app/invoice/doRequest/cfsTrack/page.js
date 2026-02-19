@@ -17,21 +17,23 @@ import { ThemeProvider } from "@mui/material/styles";
 import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
-import { fetchTableValues } from "@/apis";
+import {
+  fetchTableValues,
+  getDataWithCondition,
+  updateStatusRows,
+} from "@/apis";
 import { ToastContainer } from "react-toastify";
 import { formStore } from "@/store";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { getUserByCookies } from "@/utils";
 import DoToolbarActions from "@/components/selectionActions/doToolbarActions";
-import { advanceSearchFilter, doStatusHandler, statusColor } from "../utils";
-import { useRouter } from "next/navigation";
-import HistoryIcon from "@mui/icons-material/History";
+import { advanceSearchFilter, statusColor } from "../utils";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import { advanceSearchFields } from "../doData";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import IconButton from "@mui/material/IconButton";
 
-import { InvoiceModal } from "./utils";
+import { ConfirmRemarkModal, InvoiceModal } from "./utils";
 function createData(
   blNo,
   isFreeDays,
@@ -39,6 +41,7 @@ function createData(
   Liner,
   doRequestStatusId,
   doRejectRemarks,
+  ConfirmationStatus,
   submittedBy,
   id,
 ) {
@@ -49,6 +52,7 @@ function createData(
     Liner,
     doRequestStatusId,
     doRejectRemarks,
+    ConfirmationStatus,
     submittedBy,
     id,
   };
@@ -68,20 +72,17 @@ export default function BLList() {
   const userData = getUserByCookies();
   const [someChecked, setSomeChecked] = useState(false);
   const [allChecked, setAllChecked] = useState(false);
-  const router = useRouter();
-  const [historyModal, setHistoryModal] = useState({
+  const [cfsStatusList, setCfsStatusList] = useState([]);
+  const [confirmState, setConfirmState] = useState({
     toggle: false,
-    value: null,
-    blNo: null,
+    ids: [],
+    value: "",
   });
   const [attachmentModal, setAttachmentModal] = useState({
     toggle: false,
     value: null,
   });
 
-  // --------------------------------------------
-  // 🔥 Fetch Table Data
-  // --------------------------------------------
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
@@ -93,8 +94,9 @@ export default function BLList() {
               d.isFreeDays isFreeDays,
               m2.name stuffDestuffId,
               m.name doRequestStatusId,
-              d.doRejectRemarks doRejectRemarks,
-             d.id id
+              d.cfsRemarks  doRejectRemarks,
+              m1.name ConfirmationStatus,
+              d.id id
            `,
           tableName: "tblDoRequest d",
           pageNo,
@@ -102,6 +104,7 @@ export default function BLList() {
           advanceSearch: advanceSearchFilter(advanceSearch),
           joins: `
                  LEFT JOIN tblMasterData m ON m.id = d.doRequestStatusId
+                 LEFT JOIN tblMasterData m1 ON m1.id = d.cfsStatusId
                  LEFT JOIN tblCompany c ON c.id = d.shippingLineId
                  LEFT JOIN tblMasterData m2 ON m2.id = d.stuffDestuffId
                  LEFT JOIN tblLocation l ON l.id = ${userData?.location}
@@ -136,13 +139,13 @@ export default function BLList() {
           item["Liner"],
           item["doRequestStatusId"],
           item["doRejectRemarks"],
+          item["ConfirmationStatus"],
           item["submittedBy"],
           item["id"],
         ),
       )
     : [];
 
-  // ---------------- Checkbox Logic ----------------
   const toggleAll = () => {
     if (selectedIds.length > 0) {
       setSelectedIds([]);
@@ -152,16 +155,61 @@ export default function BLList() {
       setAllChecked(true);
     }
   };
+  const selectedRows = rows.filter((row) => selectedIds.includes(row.id));
 
   const toggleOne = (id) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
+  const handleCfsConfirm = async (ids, remarks) => {
+    try {
+      if (!ids?.length) return;
+      const confirmStatus = cfsStatusList.find(
+        (item) => item.Name === "Confirm",
+      );
+      if (!confirmStatus?.Id) return;
+      const rowsPayload = ids.map((id) => ({
+        id: id,
+        cfsStatusId: confirmStatus.Id,
+        cfsRemarks: remarks || null,
+        updatedBy: userData?.userId,
+        updatedDate: new Date(),
+      }));
+      const res = await updateStatusRows({
+        tableName: "tblDoRequest",
+        rows: rowsPayload,
+        keyColumn: "id",
+      });
+      const { success, message } = res || {};
+      if (!success) {
+        toast.error(message || "Update failed");
+        return;
+      }
+      toast.success("CFS confirmed successfully!");
+      getData();
+    } catch (error) {
+      console.error("CFS Confirm Error:", error);
+    }
+  };
 
   useEffect(() => {
     getData(1, rowsPerPage);
     setMode({ mode: null, formId: null });
+  }, []);
+  useEffect(() => {
+    async function getCfsStatus() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblCfsConfirmation' and status = 1`,
+      };
+
+      const { data } = await getDataWithCondition(obj);
+      setCfsStatusList(data || []);
+    }
+
+    getCfsStatus();
   }, []);
 
   return (
@@ -185,20 +233,16 @@ export default function BLList() {
         </Box>
         <DoToolbarActions
           selectedIds={selectedIds}
-          onView={(ids) =>
-            doStatusHandler(getData, router, setMode).handleView(
+          selectedRows={selectedRows}
+          onCfsConfirm={(ids) =>
+            setConfirmState({
+              toggle: true,
               ids,
-              rows.filter((row) => row.id === ids?.[0])?.[0]?.doRequestStatusId,
-            )
+              value: "",
+            })
           }
-          onEdit={(ids) =>
-            doStatusHandler(getData, router, setMode).handleEdit(
-              ids,
-              rows.filter((row) => row.id === ids?.[0])?.[0]?.doRequestStatusId,
-            )
-          }
-          onRequestDO={(ids) => doStatusHandler(getData).handleRequestDO(ids)}
         />
+
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small">
             <TableHead>
@@ -220,7 +264,8 @@ export default function BLList() {
                 <TableCell>Stuff Destuff</TableCell>
                 <TableCell>Liner Name</TableCell>
                 <TableCell>Do Status</TableCell>
-                <TableCell>Reject Remark</TableCell>
+                <TableCell>Remark</TableCell>
+                <TableCell>Confirmation Status</TableCell>
                 <TableCell>Submitted By</TableCell>
                 <TableCell>Attachment</TableCell>
               </TableRow>
@@ -255,6 +300,15 @@ export default function BLList() {
                       {row.doRequestStatusId}
                     </TableCell>
                     <TableCell>{row.doRejectRemarks}</TableCell>
+                    <TableCell
+                      sx={{
+                        color: statusColor(
+                          row?.ConfirmationStatus?.replace(/\s+/g, ""),
+                        ),
+                      }}
+                    >
+                      {row.ConfirmationStatus}
+                    </TableCell>
                     <TableCell>{row.submittedBy}</TableCell>
                     <TableCell>
                       <IconButton
@@ -300,6 +354,11 @@ export default function BLList() {
         </Box>
       </Box>
       <InvoiceModal modal={attachmentModal} setModal={setAttachmentModal} />
+      <ConfirmRemarkModal
+        confirmState={confirmState}
+        setConfirmState={setConfirmState}
+        confirmHandler={handleCfsConfirm}
+      />
 
       <ToastContainer />
     </ThemeProvider>

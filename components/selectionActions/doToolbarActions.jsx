@@ -17,9 +17,11 @@ import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 export default function DoToolbarActions({
   selectedIds = [],
+  selectedRows = [],
   onEditBL,
   onViewBL,
   onConfirm,
+  onCfsConfirm,
   onNotify,
   onGenerateDO,
   onPCS,
@@ -36,7 +38,7 @@ export default function DoToolbarActions({
     isEditDisable: false,
   });
   const userData = getUserByCookies();
-  const userAccess = useGetUserAccessUtils()?.data||{};
+  const userAccess = useGetUserAccessUtils()?.data || {};
 
   const ids = useMemo(
     () =>
@@ -45,6 +47,9 @@ export default function DoToolbarActions({
         .filter((v) => v !== "" && v !== null && v !== undefined),
     [selectedIds],
   );
+  const isCfsDisabled =
+    !selectedIds.length ||
+    selectedRows.some((row) => row?.ConfirmationStatus?.trim() === "Confirm");
 
   const count = ids.length;
   const isSingle = count === 1;
@@ -137,7 +142,7 @@ export default function DoToolbarActions({
     <Box className="w-full flex items-center gap-2 flex-wrap">
       <div className="flex items-center gap-1.5 flex-wrap">
         {/* View */}
-        {onView && userAccess?.["View"] &&(
+        {onView && userAccess?.["View"] && (
           <Segment
             label="View"
             icon={<PageviewIcon />}
@@ -147,7 +152,7 @@ export default function DoToolbarActions({
         )}
 
         {/* Edit */}
-        {onEdit && userAccess?.["Edit"] &&(
+        {onEdit && userAccess?.["Edit"] && (
           <Segment
             label="Edit"
             icon={<EditIcon />}
@@ -167,7 +172,7 @@ export default function DoToolbarActions({
         )}
 
         {/* View BL Docs */}
-        {onViewBL && userAccess?.["View BL Docs"] &&(
+        {onViewBL && userAccess?.["View BL Docs"] && (
           <Segment
             label="View BL Docs"
             icon={<SearchIcon />}
@@ -177,7 +182,7 @@ export default function DoToolbarActions({
         )}
 
         {/* Edit BL Docs */}
-        {onEditBL && userAccess?.["Edit BL Docs"] &&(
+        {onEditBL && userAccess?.["Edit BL Docs"] && (
           <Segment
             label="Edit BL Docs"
             icon={<EditIcon />}
@@ -197,7 +202,7 @@ export default function DoToolbarActions({
         )}
 
         {/* Reject */}
-        {onReject && userAccess?.["Reject"] &&(
+        {onReject && userAccess?.["Reject"] && (
           <Segment
             label="Reject"
             icon={<CloseIcon />}
@@ -243,6 +248,14 @@ export default function DoToolbarActions({
             icon={<WorkIcon />}
             onClick={() => call(onSecuritySlip)}
             disabled={!hasAny || !onSecuritySlip}
+          />
+        )}
+        {onCfsConfirm && userAccess?.["Confirm for Cfs"] && (
+          <Segment
+            label="Confirm"
+            icon={<CheckIcon />}
+            onClick={() => call(onCfsConfirm)}
+            disabled={isCfsDisabled}
           />
         )}
       </div>
