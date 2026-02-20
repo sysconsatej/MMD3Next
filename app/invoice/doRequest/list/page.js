@@ -32,6 +32,8 @@ import { advanceSearchFields } from "../doData";
 function createData(
   blNo,
   isFreeDays,
+  validTil,
+  seaway,
   stuffDestuffId,
   linerName,
   doRequestStatusId,
@@ -42,6 +44,8 @@ function createData(
   return {
     blNo,
     isFreeDays,
+    validTil,
+    seaway,
     stuffDestuffId,
     linerName,
     doRequestStatusId,
@@ -79,7 +83,7 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "d.blNo blNo, d.isFreeDays isFreeDays, m2.name stuffDestuffId, c.name linerName, m.name doRequestStatusId, d.doRejectRemarks doRejectRemarks, u3.name submittedBy, d.id id",
+            "d.blNo blNo, d.isFreeDays isFreeDays, convert(nvarchar(10), d.validTill, 103) validTill, d.seaway seaway, m2.name stuffDestuffId, c.name linerName, m.name doRequestStatusId, d.doRejectRemarks doRejectRemarks, u3.name submittedBy, d.id id",
           tableName: "tblDoRequest d",
           pageNo,
           pageSize,
@@ -116,6 +120,8 @@ export default function BLList() {
         createData(
           item["blNo"],
           item["isFreeDays"],
+          item["validTill"],
+          item["seaway"],
           item["stuffDestuffId"],
           item["linerName"],
           item["doRequestStatusId"],
@@ -201,6 +207,8 @@ export default function BLList() {
                 </TableCell>
                 <TableCell>BL NO</TableCell>
                 <TableCell>Free Days</TableCell>
+                <TableCell>Valid Till</TableCell>
+                <TableCell>Seaway BL</TableCell>
                 <TableCell>Stuff Destuff</TableCell>
                 <TableCell>Liner Name</TableCell>
                 <TableCell>Do Status</TableCell>
@@ -227,6 +235,8 @@ export default function BLList() {
                     </TableCell>
                     <TableCell>{row.blNo}</TableCell>
                     <TableCell>{row.isFreeDays}</TableCell>
+                    <TableCell>{row.validTil}</TableCell>
+                    <TableCell>{row.seaway}</TableCell>
                     <TableCell>{row.stuffDestuffId}</TableCell>
                     <TableCell>{row.linerName}</TableCell>
                     <TableCell

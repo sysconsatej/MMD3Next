@@ -45,6 +45,8 @@ function createData(
   submittedBy,
   blNo,
   isFreeDays,
+  validTill,
+  seaway,
   stuffDestuffId,
   doStatus,
   doRejectRemarks,
@@ -55,6 +57,8 @@ function createData(
     submittedBy,
     blNo,
     isFreeDays,
+    validTill,
+    seaway,
     stuffDestuffId,
     doStatus,
     doRejectRemarks,
@@ -97,7 +101,7 @@ export default function BLList() {
       try {
         const tableObj = {
           columns:
-            "l.name location, u2.name submittedBy, d.blNo blNo, d.isFreeDays isFreeDays, m2.name stuffDestuffId, m.name doStatus, d.doRejectRemarks doRejectRemarks, d.id id",
+            "l.name location, u2.name submittedBy, d.blNo blNo, d.isFreeDays isFreeDays, convert(nvarchar(10), d.validTill, 103) validTill, d.seaway seaway, m2.name stuffDestuffId, m.name doStatus, d.doRejectRemarks doRejectRemarks, d.id id",
           tableName: "tblDoRequest d",
           pageNo,
           pageSize,
@@ -136,6 +140,8 @@ export default function BLList() {
           item["submittedBy"],
           item["blNo"],
           item["isFreeDays"],
+          item["validTill"],
+          item["seaway"],
           item["stuffDestuffId"],
           item["doStatus"],
           item["doRejectRemarks"],
@@ -254,6 +260,8 @@ export default function BLList() {
                   <TableCell>Submitted By</TableCell>
                   <TableCell>BL No</TableCell>
                   <TableCell>IsFreeDays</TableCell>
+                  <TableCell>Valid Till</TableCell>
+                  <TableCell>Seaway BL</TableCell>
                   <TableCell>Stuff Destuff</TableCell>
                   <TableCell>Doc Status</TableCell>
                   <TableCell>Reject Remark</TableCell>
@@ -284,6 +292,8 @@ export default function BLList() {
                       <TableCell>{row.submittedBy}</TableCell>
                       <TableCell>{row.blNo}</TableCell>
                       <TableCell>{row.isFreeDays}</TableCell>
+                      <TableCell>{row.validTill}</TableCell>
+                      <TableCell>{row.seaway}</TableCell>
                       <TableCell>{row.stuffDestuffId}</TableCell>
                       <TableCell
                         sx={{

@@ -58,11 +58,21 @@ export const fieldData = {
       changeFun: "freeDaysChangeHandler",
     },
     {
-      label: "Remarks",
-      name: "doRemarks",
-      type: "textarea",
-      gridColumn: "col-span-2 row-span-1 ",
+      label: " Valid Till",
+      name: "validTill",
+      type: "date",
       isEdit: true,
+    },
+    {
+      label: "Seaway BL",
+      name: "seaway",
+      type: "radio",
+      radioData: [
+        { label: "Yes", value: "Yes" },
+        { label: "No", value: "No" },
+      ],
+      isEdit: true,
+      required: true,
     },
     {
       label: "Mobile No",
@@ -75,8 +85,8 @@ export const fieldData = {
       isEdit: true,
     },
     {
-      label: "Factory Address",
-      name: "deliveryAddress",
+      label: "Remarks",
+      name: "doRemarks",
       type: "textarea",
       gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
@@ -89,6 +99,13 @@ export const fieldData = {
     {
       label: "Custom Broker",
       name: "customBrokerText",
+      isEdit: true,
+    },
+    {
+      label: "Factory Address",
+      name: "deliveryAddress",
+      type: "textarea",
+      gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
     },
     {
