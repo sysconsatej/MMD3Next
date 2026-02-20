@@ -11,6 +11,11 @@ import {
   TableHead,
   TableRow,
   Paper,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import FormHeading from "@/components/formHeading/formHeading";
 import { getDataWithCondition } from "@/apis";
@@ -44,8 +49,7 @@ export function InvoiceModal({ modal, setModal }) {
         const obj = {
           columns: "a.path, m.name",
           tableName: "tblAttachment a",
-          joins:
-            "LEFT JOIN tblMasterData m ON m.id = a.attachmentTypeId",
+          joins: "LEFT JOIN tblMasterData m ON m.id = a.attachmentTypeId",
           whereCondition: `
             a.doRequestId = ${modal.value} 
             AND a.status = 1 and m.name in ('DO Released')
@@ -135,3 +139,76 @@ export function InvoiceModal({ modal, setModal }) {
     </Modal>
   );
 }
+export const ConfirmRemarkModal = ({
+  confirmState,
+  setConfirmState,
+  confirmHandler,
+}) => {
+  const [error, setError] = useState(false);
+
+  const handleClose = () => {
+    setConfirmState((prev) => ({
+      ...prev,
+      toggle: false,
+      value: "",
+    }));
+    setError(false);
+  };
+
+  const handleSave = () => {
+    if (!confirmState?.value?.trim()) {
+      setError(true);
+      return;
+    }
+
+    confirmHandler(confirmState.ids, confirmState.value.trim());
+    handleClose();
+  };
+
+  return (
+    <Dialog
+      open={confirmState.toggle}
+      onClose={handleClose}
+      maxWidth="xs"
+      fullWidth
+    >
+      <DialogTitle>Confirm — Add Remarks</DialogTitle>
+
+      <DialogContent dividers>
+        <TextField
+          fullWidth
+          margin="dense"
+          multiline
+          minRows={3}
+          label="Remarks"
+          value={confirmState.value}
+          error={error}
+          helperText={error ? "Remarks is required" : ""}
+          onChange={(e) => {
+            setConfirmState((prev) => ({
+              ...prev,
+              value: e.target.value,
+            }));
+            if (error) setError(false);
+          }}
+        />
+      </DialogContent>
+
+      <DialogActions>
+        <div
+          className="py-1 px-3 border border-[#B5C4F0] rounded-sm text-xs cursor-pointer hover:bg-[#B5C4F0] hover:text-white"
+          onClick={handleClose}
+        >
+          Cancel
+        </div>
+
+        <div
+          className="py-1 px-3 border border-[#B5C4F0] rounded-sm text-xs cursor-pointer hover:bg-[#B5C4F0] hover:text-white"
+          onClick={handleSave}
+        >
+          Save
+        </div>
+      </DialogActions>
+    </Dialog>
+  );
+};
