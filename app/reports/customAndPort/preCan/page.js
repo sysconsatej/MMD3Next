@@ -157,7 +157,7 @@ export default function CargoArrivalNotice() {
             cc: item?.emailCC || "",
             htmlContent: html,
             pdfFilename: "Pre Cargo Arrival Notice",
-            subject: "Pre Cargo Arrival Notice",
+            subject: `PreCAN/${(item?.pod || "")}/${item?.blNo || ""}/${item?.podVessel || ""}/${item?.podVoyage || ""}`,
           };
 
           const resp = await sendEmail(emailPayload);
