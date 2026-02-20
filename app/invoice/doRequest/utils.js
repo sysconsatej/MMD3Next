@@ -383,6 +383,14 @@ export const changeEventFunctions = ({
           }
 
           setJsonData((prev) => {
+            const updateDoRequestFields = prev?.doRequestFields.map((item) => {
+              if (item.name === "validTill") {
+                return { ...item, required: true };
+              }
+
+              return item;
+            });
+
             const updateTblBlContainer = prev?.tblBlContainer.map((item) => {
               if (item.name === "doValidityDate") {
                 return { ...item, required: false };
@@ -393,6 +401,7 @@ export const changeEventFunctions = ({
 
             return {
               ...prev,
+              doRequestFields: updateDoRequestFields,
               tblBlContainer: updateTblBlContainer,
             };
           });
@@ -412,6 +421,14 @@ export const changeEventFunctions = ({
         });
 
         setJsonData((prev) => {
+          const updateDoRequestFields = prev?.doRequestFields.map((item) => {
+            if (item.name === "validTill") {
+              return { ...item, required: false };
+            }
+
+            return item;
+          });
+
           const updateTblBlContainer = prev?.tblBlContainer.map((item) => {
             if (item.name === "doValidityDate") {
               return { ...item, required: true };
@@ -422,6 +439,7 @@ export const changeEventFunctions = ({
 
           return {
             ...prev,
+            doRequestFields: updateDoRequestFields,
             tblBlContainer: updateTblBlContainer,
           };
         });

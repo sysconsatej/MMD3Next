@@ -28,7 +28,7 @@ import {
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 export default function Home() {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({ seaway: "No" });
   const [releaseAttachment, setReleaseAttachment] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(fieldData);
