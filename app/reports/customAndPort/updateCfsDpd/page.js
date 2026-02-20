@@ -8,7 +8,11 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { formStore } from "@/store";
-import { fetchDynamicReportData, updateDynamicReportData } from "@/apis";
+import {
+  fetchDynamicReportData,
+  getDataWithCondition,
+  updateDynamicReportData,
+} from "@/apis";
 import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable";
 import { useRouter } from "next/navigation";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
@@ -39,6 +43,7 @@ export default function IGM() {
   };
 
   const transformed = transformToIds(formData);
+
   const valuesOnly = (rows = []) =>
     rows.map(({ __dirty, ...row }) =>
       Object.fromEntries(Object.entries(row).map(([k, v]) => [k, onlyVal(v)])),
@@ -57,7 +62,6 @@ export default function IGM() {
     return v;
   };
 
-  // 🔹 NEW: mapping from header dropdowns → report columns
   const autoFillOnSelect = {
     ...(formData.nominatedAreaCode && {
       "Nominated Area": formData.nominatedAreaCode,
@@ -182,6 +186,33 @@ export default function IGM() {
       setLoading(false);
     }
   };
+
+  const handleCfsAllocate = async () => {
+    try {
+      const body = {
+        spName: "getCfsAllocate",
+        jsonData: {
+          vesselId: formData.vesselId.Id,
+          voyageId: formData.voyageId.Id,
+          podId: formData.podId.Id,
+          companyId: userData.companyId,
+        },
+      };
+      const { success, data: resData } = await fetchDynamicReportData(body);
+      if (success) {
+        setJsonData((prev) => {
+          return {
+            ...prev,
+            igmEdiFields: [...data?.igmEdiFields, ...data?.cfsAllowBtn],
+          };
+        });
+        setFormData((prev) => ({ ...prev, ...resData?.[0] }));
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
   const selectedConditionValues = useMemo(() => {
     const pod = formData?.podId;
     const podId =
@@ -198,14 +229,36 @@ export default function IGM() {
     };
   }, [formData?.podId]);
 
-  const handleChangeEventFunctions = useMemo(
-    () =>
-      createHandleChangeEventFunction({
-        setFormData,
-        fields: jsonData.igmEdiFields,
-      }),
-    [setFormData, jsonData.igmEdiFields],
-  );
+  const handleChangeEventFunctions = {
+    ...createHandleChangeEventFunction({
+      setFormData,
+      fields: jsonData.igmEdiFields,
+    }),
+    setAllocateCfs: async (name, value) => {
+      try {
+        const obj = {
+          columns:
+            "count(blc.containerNo) as 'totalCFSAllocatedForParticularCFS'",
+          tableName: "tblBl bl",
+          joins: `left join tblBlContainer blc on blc.blId = bl.id`,
+          whereCondition: `bl.shippingLineId = ${userData?.companyId}
+                           and bl.podVesselId = ${formData?.vesselId?.Id}
+                           and bl.podVoyageId = ${formData?.voyageId?.Id}
+                           and bl.podId = ${formData?.podId?.Id}
+                           and isnull(bl.nominatedAreaId,0) = ${value?.Id}`,
+        };
+
+        const { success, data: dataContainer } =
+          await getDataWithCondition(obj);
+        if (success) {
+          setFormData((prev) => ({ ...prev, ...dataContainer?.[0] }));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <form>
@@ -244,6 +297,11 @@ export default function IGM() {
               buttonStyles="!text-[white] !bg-[#f5554a] !text-[11px]"
               onClick={() => router.push("/")}
               type="button"
+            />
+            <CustomButton
+              text={"CFS Allocate"}
+              type="button"
+              onClick={handleCfsAllocate}
             />
           </Box>
         </section>
