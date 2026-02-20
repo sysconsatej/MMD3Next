@@ -27,7 +27,7 @@ import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import { ToastContainer, toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
-import { advanceSearchFields } from "../hblData";
+import { advanceSearchFields, vesselVoyageFiltersShipping } from "../hblData";
 import { advanceSearchFilter, statusColor } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
@@ -37,6 +37,8 @@ import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import { BLHistoryLinerModal } from "./historyModal";
 import HistoryIcon from "@mui/icons-material/History";
+import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
+import { CustomInput } from "@/components/customInput";
 
 const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -60,7 +62,7 @@ function createData(
   remark,
   emailId,
   userName,
-  podVoyageId
+  podVoyageId,
 ) {
   return {
     id,
@@ -130,13 +132,8 @@ export default function BLList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch]
+    [page, rowsPerPage, advanceSearch],
   );
-
-  useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-  }, []);
 
   const rows = Array.isArray(blData)
     ? blData.map((item) =>
@@ -152,11 +149,17 @@ export default function BLList() {
           item["remark"],
           item["emailId"],
           item["userName"],
-          item["podVoyageId"]
-        )
+          item["podVoyageId"],
+        ),
       )
     : [];
-
+  useEffect(() => {
+    getData();
+  }, [advanceSearch?.podVesselId, advanceSearch?.podVoyageId]);
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
+  }, []);
   useEffect(() => {
     setIdsOnPage((blData || []).map((r) => getRowId(r)));
   }, [blData]);
@@ -175,7 +178,7 @@ export default function BLList() {
   const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
   const toggleOne = (id) =>
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
 
   const handleChangePage = (_e, newPage) => {
@@ -185,6 +188,10 @@ export default function BLList() {
     getData(1, +e.target.value);
   };
 
+  const handleChangeEventFunctions = createHandleChangeEventFunction({
+    setFormData: setAdvanceSearch,
+    fields: vesselVoyageFiltersShipping,
+  });
   const handleDeleteRecord = async (formIdsCsv) => {
     const deleteRecords = formIdsCsv
       ?.split(",")
@@ -232,14 +239,25 @@ export default function BLList() {
           <Typography variant="body1" className="text-left flex items-center">
             HBL Track
           </Typography>
-          <Box className="flex flex-col sm:flex-row gap-6">
-            <AdvancedSearchBar
-              fields={advanceSearchFields.bl}
-              advanceSearch={advanceSearch}
-              setAdvanceSearch={setAdvanceSearch}
-              getData={getData}
-              rowsPerPage={rowsPerPage}
-            />
+          <Box className="flex flex-col sm:flex-row gap-6 items-start">
+            <Box className="min-w-[520px] w-[520px] grid grid-cols-2 gap-x-2 gap-y-1 items-center [&>*]:min-w-0">
+              <CustomInput
+                fields={vesselVoyageFiltersShipping}
+                formData={advanceSearch}
+                setFormData={setAdvanceSearch}
+                fieldsMode={"edit"}
+                handleChangeEventFunctions={handleChangeEventFunctions}
+              />
+            </Box>
+            <Box sx={{ flexShrink: 0 }}>
+              <AdvancedSearchBar
+                fields={advanceSearchFields.bl}
+                advanceSearch={advanceSearch}
+                setAdvanceSearch={setAdvanceSearch}
+                getData={getData}
+                rowsPerPage={rowsPerPage}
+              />
+            </Box>
           </Box>
         </Box>
 

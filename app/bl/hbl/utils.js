@@ -48,7 +48,6 @@ export function useTotalGrossAndPack(formData, setTotals) {
 }
 
 export function advanceSearchFilter(advanceSearch) {
-  if (Object.keys(advanceSearch).length <= 0) return null;
   const condition = [];
 
   if (advanceSearch.mblNo) {
@@ -67,8 +66,14 @@ export function advanceSearchFilter(advanceSearch) {
     );
   }
 
+  if (advanceSearch.shippingLineId) {
+    condition.push(`b.shippingLineId = ${advanceSearch.shippingLineId?.Id}`);
+  }
+
   if (advanceSearch.podVesselId) {
     condition.push(`b.podVesselId = ${advanceSearch.podVesselId?.Id}`);
+  }else{
+    condition.push(`b.podVesselId = null`);
   }
 
   if (advanceSearch.podVoyageId) {
