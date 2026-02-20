@@ -12,6 +12,8 @@ const links = () => {
       return "/invoice/doRequest/liner";
     case "customer":
       return "/invoice/doRequest/list";
+    case"cfs":
+    return"/invoice/doRequest/cfsTrack";
     default:
       return "/invoice/doRequest/list";
   }
@@ -34,7 +36,7 @@ export const navItems = [
     name: "Menu Access",
     href: "/menu-access",
     isShow: false,
-    icon : "access",
+    icon: "access",
   },
   {
     name: "Master",
@@ -443,23 +445,43 @@ export const navItems = [
         href: "/reports/customAndPort/scmtReport",
         isShow: false,
       },
+      {
+        name: "Line CFS Request",
+        href: "/reports/customAndPort/cfsRequestRegister",
+        isShow: false,
+      },
+      {
+        name: "Customer CFS Request",
+        href: "/reports/customAndPort/cfsRequestCustomerRegister",
+        isShow: false,
+      },
+      {
+        name: "Do Report",
+        href: "/reports/customAndPort/doReports",
+        isShow: false,
+      },
+      {
+        name: "Forwarder CSN",
+        href: "/reports/customAndPort/blCsn",
+        isShow: false,
+      },
     ],
   },
   {
     name: "Upload",
     icon: "Upload",
     href: "/upload",
-    isShow: true,
+    isShow: false,
     submenu: [
       {
         name: "UploadDPDParties",
         href: "/upload/UploadDPDParties",
-        isShow: true,
+        isShow: false,
       },
       {
         name: "Upload72HoursData",
         href: "/upload/Upload72HoursData",
-        isShow: true,
+        isShow: false,
       },
     ],
   },

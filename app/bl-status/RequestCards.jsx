@@ -1,5 +1,6 @@
 "use client";
 import { formStore, useBackLinksStore, useBlWorkFlowData } from "@/store";
+import { getUserByCookies } from "@/utils";
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import Link from "next/link";
 const noDataBgColor = "#b1ababff";
@@ -29,19 +30,43 @@ const RequestCard = ({ item }) => {
     const linkMappings = {
       invoiceRequest: link,
       invoice: invoiceId ? `${link}?invoiceRequestId=${referenceId}` : "#",
-      invoicePayment: paymentId ? `${link}?invoiceRequestId=${referenceId}` : "#",
+      invoicePayment: paymentId
+        ? `${link}?invoiceRequestId=${referenceId}`
+        : "#",
       do: link,
       receipt: link,
     };
 
     return linkMappings[keyName] || "#";
   };
+  const userData = getUserByCookies();
 
-  const handleClick = ({ formId }) => {
+  const handleClick = ({ formId, keyName }) => {
+    const role = userData?.roleCode === "shipping" ? "shipping" : "customer";
+    const roleMenuMap = {
+      customer: {
+        invoiceRequest: "Invoice Request",
+        invoice: "Invoice Payment",
+        invoicePayment: "Invoice Payment",
+        do: "Do Request",
+        receipt: "Receipt",
+      },
+      shipping: {
+        invoiceRequest: "Invoices Release",
+        invoice: "Payment Confirmation",
+        invoicePayment: "Payment Confirmation",
+        do: "Do Request",
+        receipt: "Receipt",
+      },
+    };
+    const menuName = roleMenuMap?.[role]?.[keyName] ?? "";
+    sessionStorage.setItem("menuName", menuName);
+
     setMode({
-      formId: formId,
+      formId,
       mode: "view",
     });
+
     setBlStatus({ blStatus: "/bl-status" });
   };
 
@@ -115,7 +140,7 @@ const RequestCard = ({ item }) => {
                         info?.referenceId,
                         item?.link,
                         info?.invoiceId,
-                        info?.paymentId
+                        info?.paymentId,
                       )}
                       onClick={() =>
                         handleClick({
@@ -123,6 +148,7 @@ const RequestCard = ({ item }) => {
                             info?.invoiceId ||
                             info?.paymentId ||
                             info?.referenceId,
+                          keyName: item?.keyName, 
                         })
                       }
                     >
@@ -156,14 +182,14 @@ const RequestCard = ({ item }) => {
                       {info?.status
                         ? info?.status
                         : info?.bankName
-                        ? `${
-                            String(info?.bankName).charAt(0).toUpperCase() +
-                            String(info?.bankName).slice(
-                              1,
-                              info?.bankName?.length
-                            )
-                          }, Rs.${info?.amount}`
-                        : ""}
+                          ? `${
+                              String(info?.bankName).charAt(0).toUpperCase() +
+                              String(info?.bankName).slice(
+                                1,
+                                info?.bankName?.length,
+                              )
+                            }, Rs.${info?.amount}`
+                          : ""}
                     </Typography>
                     <hr
                       style={{

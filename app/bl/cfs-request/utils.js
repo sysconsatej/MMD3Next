@@ -130,19 +130,19 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
             cfsTypeId: false,
             nominatedAreaId: false,
             dpdId: true,
-            sezIcd: true,
+            sezIcdId: true,
           },
-          DPD_SEZ_CFS: {
+          "DPD/SEZ/CFS": {
             cfsTypeId: true,
             nominatedAreaId: true,
             dpdId: true,
-            sezIcd: true,
+            sezIcdId: true,
           },
           "ICD/SEZ": {
             cfsTypeId: false,
             nominatedAreaId: false,
             dpdId: false,
-            sezIcd: true,
+            sezIcdId: true,
           },
         };
 
@@ -158,7 +158,7 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
           cfsTypeId: false,
           nominatedAreaId: false,
           dpdId: false,
-          sezIcd: false,
+          sezIcdId: false,
         };
 
         setJsonData((prev) => {
@@ -170,7 +170,8 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
             if (f.name === "nominatedAreaId")
               return { ...f, required: !!req.nominatedAreaId };
             if (f.name === "dpdId") return { ...f, required: !!req.dpdId };
-            if (f.name === "sezIcd") return { ...f, required: !!req.sezIcd };
+            if (f.name === "sezIcdId")
+              return { ...f, required: !!req.sezIcdId };
 
             return f;
           });
@@ -197,13 +198,71 @@ export const handleChange = ({ setFormData, formData, setJsonData }) => {
         clearIfNotRequired("cfsTypeId");
         clearIfNotRequired("nominatedAreaId");
         clearIfNotRequired("dpdId");
-        clearIfNotRequired("sezIcd");
+        clearIfNotRequired("sezIcdId");
       } catch (error) {
         console.log("setDpdMandatoryFields error", error);
         toast.error(
           "Something went wrong while applying Delivery Type mandatory rules",
         );
       }
+    },
+  };
+};
+
+export const handleBlur = ({ setErrorState, setFormData, mode }) => {
+  return {
+    duplicateHandler: async (event) => {
+      const { name, value } = event.target;
+
+      // only run for blNo
+      if (name !== "blNo") return true;
+
+      const normalized = String(value ?? "").trim();
+      if (!normalized) return true;
+
+      const literal = normalized.replace(/'/g, "''");
+
+      let whereDup = `
+          blNo = '${literal.toUpperCase()}'
+          AND companyId = ${userData?.companyId}
+          AND status = 1
+        `;
+
+      // exclude current record while edit
+      if (mode?.formId) {
+        whereDup += ` AND id <> ${mode.formId}`;
+      }
+
+      const obj = {
+        columns: "id",
+        tableName: "tblCfsRequest",
+        whereCondition: whereDup,
+      };
+
+      const resp = await getDataWithCondition(obj);
+
+      const isDuplicate = Array.isArray(resp?.data) && resp.data.length > 0;
+
+      if (isDuplicate) {
+        setErrorState((prev) => ({ ...prev, blNo: true }));
+        setFormData((prev) => ({ ...prev, blNo: "" }));
+        toast.error("Duplicate BL No!");
+        return false;
+      }
+
+      setErrorState((prev) => ({ ...prev, blNo: false }));
+      setFormData((prev) => ({ ...prev, blNo: normalized.toUpperCase() }));
+      const blId = await getBlIdIfExists({
+        blNo: normalized,
+        shippingLineId: formData?.shippingLineId?.Id,
+        locationId: userData?.location,
+      });
+
+      setFormData((prev) => ({
+        ...prev,
+        blId: blId,
+      }));
+      return true;
     },
   };
 };
@@ -261,10 +320,10 @@ export const tableObj = ({ pageNo, pageSize, advanceSearch }) => {
       r.name AS cfsType,
       d.name AS deliveryType,
       ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'') AS nominatedArea,
-      c.name AS dpdId,
+      ISNULL(c.code,'') + ' - ' + ISNULL(c.name,'') AS dpdId,
       b.customBrokerText,
       m.name AS cfsRequestStatusId,
-      Icd.name AS sezIcd,
+      ISNULL(Icd.code,'') + ' - ' + ISNULL(Icd.name,'') AS sezIcd,
       b.cfsRejectRemarks AS remark
     `,
     tableName: "tblCfsRequest b",
@@ -680,6 +739,7 @@ export async function requestHandler(formData, setDisableRequest) {
     toast.error("Something went wrong while requesting CFS");
   }
 }
+
 export const getBlIdIfExists = async ({ blNo, shippingLineId, locationId }) => {
   const resp = await getDataWithCondition({
     columns: "b.id",
@@ -697,4 +757,22 @@ export const getBlIdIfExists = async ({ blNo, shippingLineId, locationId }) => {
   }
 
   return resp.data[0].id;
+};
+
+export const checkMblActive = async (blNo, shippingLineId) => {
+  try {
+    const obj = {
+      columns: `active`,
+      tableName: "tblBl",
+      whereCondition: `mblNo = '${blNo}' and status = 1 and mblHblFlag = 'MBL' and shippingLineId = ${shippingLineId?.Id}`,
+    };
+    const { data } = await getDataWithCondition(obj);
+    if (data?.[0]?.active === false) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.log(error);
+  }
 };

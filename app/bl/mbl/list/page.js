@@ -1,5 +1,11 @@
 "use client";
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Box,
   Table,
@@ -21,28 +27,30 @@ import { theme } from "@/styles/globalCss";
 import { deleteRecord, fetchTableValues } from "@/apis";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import { toast, ToastContainer } from "react-toastify";
-import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
-import { advanceSearchFields, mblFilter } from "../mblData";
+import { advanceSearchFields, vesselVoyageFilters } from "../mblData";
 import {
   advanceSearchFilter,
   craeateHandleChangeEventFunction,
-  createHandleChangeEventFunctionTrackPage,
+  handleActiveState,
+  handleLock,
 } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import ReportPickerModal from "@/components/ReportPickerModal/reportPickerModal";
-import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import HistoryIcon from "@mui/icons-material/History";
+import LockIcon from "@mui/icons-material/Lock";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
 import BLHistoryModal from "../modal";
-import { CustomInput } from "@/components/customInput";
 import MBLSelectionActionsBar from "@/components/selectionActions/mblSelectionActionsBar";
+import { CustomInput } from "@/components/customInput";
 
 const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
   .split(/\s+/)[0]
   .replace(/^dbo\./i, "");
+
 const CHECKBOX_HEAD_SX = { width: 36, minWidth: 36, maxWidth: 36 };
 const CHECKBOX_CELL_SX = { width: 32, minWidth: 32, maxWidth: 32 };
 const CHECKBOX_SX = {
@@ -76,6 +84,7 @@ function createData(
   id,
   clientId,
   mblHblFlag,
+  active,
 ) {
   return {
     blNo,
@@ -92,6 +101,7 @@ function createData(
     id,
     clientId,
     mblHblFlag,
+    active,
   };
 }
 
@@ -99,10 +109,10 @@ export default function BLList() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [totalPage, setTotalPage] = useState(1);
-  const [totalRows, setTotalRows] = useState(1);
+  const [totalRows, setTotalRows] = useState(0);
   const [blData, setBlData] = useState([]);
-  const [advanceSearch, setAdvanceSearch] = useState({});
-  const [loadingState, setLoadingState] = useState("Data not found!");
+  const [advanceSearch, setAdvanceSearch] = useState({ podVesselId: null });
+  const [activeStatus, setActiveStatus] = useState(false);
   const { setMode } = formStore();
   const router = useRouter();
   const tableWrapRef = useRef(null);
@@ -112,11 +122,7 @@ export default function BLList() {
   const [someChecked, setSomeChecked] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportModalForRow, setReportModalForRow] = useState(null);
-  const { data } = useGetUserAccessUtils();
-  // const [formData, setFormData] = useState({});
   const userData = getUserByCookies();
-
-  // ⬇️ NEW: history modal state
   const [historyModal, setHistoryModal] = useState({
     open: false,
     recordId: null,
@@ -130,53 +136,50 @@ export default function BLList() {
     ) => {
       try {
         const tableObj = {
-          columns: `coalesce(b.hblNo, b.mblNo)  blNo, iif(b.hblNo is null, (select b2.id, b2.hblNo from tblBl b2 left join tblMasterData m3 on m3.id = b2.hblRequestStatus where b2.mblNo =  b.mblNo and b2.status = 1 and b2.mblHblFlag = 'HBL' and m3.name = 'Confirm' and b2.shippingLineId = u.companyId and b2.locationId = ${userData.location} for json path), null) hblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId, b.mblHblFlag mblHblFlag`,
+          columns: `coalesce(b.hblNo, b.mblNo)  blNo, iif(b.hblNo is null, (select b2.id, b2.hblNo from tblBl b2 left join tblMasterData m3 on m3.id = b2.hblRequestStatus where b2.mblNo =  b.mblNo and b2.status = 1 and b2.mblHblFlag = 'HBL' and m3.name = 'Confirm' and b2.shippingLineId = u.companyId and b2.locationId = ${userData.location} for json path), null) hblNo, b.mblDate mblDate, b.consigneeText consigneeText, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod, concat(p2.code, ' - ', p2.name) fpd, m.name cargoMovement, v1.name arrivalVessel, v.voyageNo arrivalVoyage, b.itemNo line, b.id id, b.clientId clientId, b.mblHblFlag mblHblFlag, b.active active`,
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
           joins: `left join tblPort p on p.id = b.polId left join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId left join tblUser u on u.id = ${userData.userId} left join tblMasterData m2 on m2.id = b.hblRequestStatus join tblBl b1 on (b1.id = b.id and b1.status = 1 and  b1.mblHblFlag = 'MBL' and b1.shippingLineId = u.companyId and b1.locationId = ${userData.location}) or (b1.id = b.id and b1.shippingLineId = u.companyId and b1.status = 1 and b1.mblHblFlag = 'HBL' and m2.name = 'Confirm' and b1.locationId = ${userData.location} and b1.mblNo in (select b3.mblNo from tblBl b3 where b3.mblHblFlag = 'MBL' and b3.status = 1 and b3.shippingLineId = u.companyId and b3.locationId = ${userData.location}) )`,
           advanceSearch: advanceSearchFilter(advanceSearchQuery),
         };
+
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-        setBlData(data);
-        setTotalPage(totalPage);
+
+        setBlData(Array.isArray(data) ? data : []);
+        setTotalPage(Number(totalPage || 1));
+        setTotalRows(Number(totalRows || 0));
         setPage(pageNo);
         setRowsPerPage(pageSize);
-        setTotalRows(totalRows);
         setSelectedIds([]);
       } catch (err) {
         console.error("Error fetching data:", err);
-        setLoadingState("Failed to load data");
       }
     },
     [page, rowsPerPage, advanceSearch],
   );
 
-  useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-  }, []);
-
-  const rows = blData
-    ? blData.map((item) =>
-        createData(
-          item["blNo"],
-          item["hblNo"],
-          item["mblDate"],
-          item["consigneeText"],
-          item["pol"],
-          item["pod"],
-          item["fpd"],
-          item["cargoMovement"],
-          item["arrivalVessel"],
-          item["arrivalVoyage"],
-          item["line"],
-          item["id"],
-          item["clientId"],
-          item["mblHblFlag"],
-        ),
-      )
-    : [];
+  const rows = useMemo(() => {
+    return (blData || []).map((item) =>
+      createData(
+        item["blNo"],
+        item["hblNo"],
+        item["mblDate"],
+        item["consigneeText"],
+        item["pol"],
+        item["pod"],
+        item["fpd"],
+        item["cargoMovement"],
+        item["arrivalVessel"],
+        item["arrivalVoyage"],
+        item["line"],
+        item["id"],
+        item["clientId"],
+        item["mblHblFlag"],
+        item["active"],
+      ),
+    );
+  }, [blData]);
 
   useEffect(() => {
     setIdsOnPage((blData || []).map((r) => r.id));
@@ -187,8 +190,10 @@ export default function BLList() {
       selectedIds.length > 0 &&
       idsOnPage.length > 0 &&
       selectedIds.length === idsOnPage.length;
+
     const some =
       selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
+
     setAllChecked(all);
     setSomeChecked(some);
   }, [selectedIds, idsOnPage]);
@@ -200,22 +205,25 @@ export default function BLList() {
     );
 
   const handleChangePage = (_e, newPage) => {
-    getData(newPage, rowsPerPage);
+    getData(newPage, rowsPerPage, advanceSearch);
   };
+
   const handleChangeRowsPerPage = (e) => {
-    getData(1, +e.target.value);
+    getData(1, +e.target.value, advanceSearch);
   };
 
   const handleDeleteRecord = async (formId) => {
     const obj = { recordId: formId, tableName: UPDATE_TABLE };
     const { success, message, error } = await deleteRecord(obj);
+
     if (success) {
       toast.success(message);
-      getData(page, rowsPerPage);
+      getData(page, rowsPerPage, advanceSearch);
     } else {
       toast.error(error || message);
     }
   };
+
   const handleBulkDelete = async (ids) => {
     if (!ids.length) return;
 
@@ -225,7 +233,7 @@ export default function BLList() {
 
     toast.success("Selected records deleted successfully");
     setSelectedIds([]);
-    getData(page, rowsPerPage);
+    getData(page, rowsPerPage, advanceSearch);
   };
 
   const modeHandler = (mode, formId = null, flag) => {
@@ -252,12 +260,19 @@ export default function BLList() {
     setReportModalForRow(null);
   };
 
-  // const handleChangeEventFunctions = createHandleChangeEventFunctionTrackPage({
-  //   setAdvanceSearch,
-  //   getData,
-  //   rowsPerPage,
-  //   setFormData,
-  // });
+  const handleChangeEventFunctions = craeateHandleChangeEventFunction({
+    setFormData: setAdvanceSearch,
+    formData: advanceSearch,
+  });
+
+  useEffect(() => {
+    getData();
+  }, [advanceSearch?.podVesselId, advanceSearch?.podVoyageId]);
+
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -267,24 +282,32 @@ export default function BLList() {
           <Typography variant="body1" className="text-left flex items-center">
             MBL
           </Typography>
-          <Box className="flex flex-col sm:flex-row gap-6">
-            {/* <CustomInput
-              fields={mblFilter}
-              formData={formData}
-              setFormData={setFormData}
-              fieldsMode={""}
-              handleChangeEventFunctions={handleChangeEventFunctions}
-            /> */}
-            <AdvancedSearchBar
-              fields={advanceSearchFields.bl}
-              advanceSearch={advanceSearch}
-              setAdvanceSearch={setAdvanceSearch}
-              getData={getData}
-              rowsPerPage={rowsPerPage}
-            />
-            <CustomButton text="Add" href="/bl/mbl" />
+
+          <Box className="flex flex-col sm:flex-row gap-6 items-start">
+            <Box className="min-w-[520px] w-[520px] grid grid-cols-2 gap-x-2 gap-y-1 items-center [&>*]:min-w-0">
+              <CustomInput
+                fields={vesselVoyageFilters}
+                formData={advanceSearch}
+                setFormData={setAdvanceSearch}
+                fieldsMode={"edit"}
+                handleChangeEventFunctions={handleChangeEventFunctions}
+              />
+            </Box>
+            <Box sx={{ flexShrink: 0 }}>
+              <AdvancedSearchBar
+                fields={advanceSearchFields.bl}
+                advanceSearch={advanceSearch}
+                setAdvanceSearch={setAdvanceSearch}
+                getData={getData}
+                rowsPerPage={rowsPerPage}
+              />
+            </Box>
+            <Box sx={{ flexShrink: 0 }}>
+              <CustomButton text="Add" href="/bl/mbl" />
+            </Box>
           </Box>
         </Box>
+
         <MBLSelectionActionsBar
           selectedIds={selectedIds}
           onView={(id) => modeHandler("view", id, "MBL")}
@@ -294,13 +317,15 @@ export default function BLList() {
             handlePrint(id, row?.clientId);
           }}
           onDelete={(ids) => handleBulkDelete(ids)}
+          onLock={(ids) =>
+            handleActiveState(ids, getData, setActiveStatus, activeStatus)
+          }
         />
 
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                {/* ✅ Checkbox Header */}
                 <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
                   <Checkbox
                     checked={allChecked}
@@ -321,6 +346,7 @@ export default function BLList() {
                 <TableCell>Arrival Vessel</TableCell>
                 <TableCell>Arrival Voyage</TableCell>
                 <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell>
+                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell>
               </TableRow>
             </TableHead>
 
@@ -328,7 +354,6 @@ export default function BLList() {
               {rows.length > 0 ? (
                 rows.map((row) => (
                   <TableRow key={row.id} hover className="relative group">
-                    {/* ✅ Checkbox Cell */}
                     <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <Checkbox
                         checked={selectedIds.includes(row.id)}
@@ -346,7 +371,15 @@ export default function BLList() {
                             key={idx}
                             href="#"
                             underline="hover"
-                            onClick={() => modeHandler("view", item?.id, "HBL")}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              sessionStorage.setItem(
+                                "roleId",
+                                String(userData?.roleId ?? ""),
+                              );
+                              sessionStorage.setItem("menuName", "HBL Track");
+                              modeHandler("view", item?.id, "HBL");
+                            }}
                           >
                             {item?.hblNo}
                             {idx < JSON.parse(row?.hblNo).length - 1 && ", "}
@@ -361,30 +394,8 @@ export default function BLList() {
                     <TableCell>{row.fpd}</TableCell>
                     <TableCell>{row.cargoMovement}</TableCell>
                     <TableCell>{row.arrivalVessel}</TableCell>
+                    <TableCell>{row.arrivalVoyage}</TableCell>
 
-                    {/* ✅ Arrival Voyage + Hover Actions */}
-                    <TableCell>
-                      {row.arrivalVoyage}
-                      {/* <Box className="flex items-center justify-between gap-1">
-                        <span>{row.arrivalVoyage}</span>
-
-                        <span className="opacity-0 group-hover:opacity-100 transition-opacity">
-                          <HoverActionIcons
-                            onView={() =>
-                              modeHandler("view", row.id, row.mblHblFlag)
-                            }
-                            onEdit={() =>
-                              modeHandler("edit", row.id, row.mblHblFlag)
-                            }
-                            onDelete={() => modeHandler("delete", row.id)}
-                            onPrint={() => handlePrint(row.id, row.clientId)}
-                            menuAccess={data ?? {}}
-                          />
-                        </span>
-                      </Box> */}
-                    </TableCell>
-
-                    {/* ✅ History */}
                     <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <HistoryIcon
                         sx={{
@@ -400,13 +411,38 @@ export default function BLList() {
                         }
                       />
                     </TableCell>
+
+                    {(row.active || row.active === undefined) && (
+                      <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                        <LockOpenIcon
+                          sx={{
+                            cursor: "pointer",
+                            fontSize: "16px",
+                            color: "#1976d2",
+                          }}
+                          onClick={() => handleLock(row.id, false, getData)}
+                        />
+                      </TableCell>
+                    )}
+
+                    {row.active === false && (
+                      <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                        <LockIcon
+                          sx={{
+                            cursor: "pointer",
+                            fontSize: "16px",
+                            color: "#1976d2",
+                          }}
+                          onClick={() => handleLock(row.id, true, getData)}
+                        />
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
                   <TableCell colSpan={11} align="center">
-                    {/* ⬆️ colSpan updated to 11 to match columns */}
-                    {loadingState}
+                    Data not found!
                   </TableCell>
                 </TableRow>
               )}

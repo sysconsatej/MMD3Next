@@ -1,6 +1,7 @@
 "use client";
 import React, { useMemo } from "react";
 import { Box, Typography } from "@mui/material";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 export default function SelectionActionsBar({
   selectedIds = [],
@@ -19,8 +20,10 @@ export default function SelectionActionsBar({
         .map((v) => v ?? "")
         .map((v) => (typeof v === "string" ? v.trim() : v))
         .filter((v) => v !== "" && v !== null && v !== undefined),
-    [selectedIds]
+    [selectedIds],
   );
+
+  const userAccess = useGetUserAccessUtils()?.data || {};
 
   const count = ids.length;
   const isSingle = count === 1;
@@ -47,25 +50,23 @@ export default function SelectionActionsBar({
     <Box className="flex items-center justify-between">
       <div className="flex border text-black border-[#B5C4F0] mt-2 text-xs rounded-sm overflow-hidden">
         {/* VIEW */}
-        <Segment
-          label="View"
-          onClick={() => isSingle && onView && onView(ids[0])}
-          disabled={!isSingle}
-        />
-
+        {userAccess?.["View"] && (
+          <Segment
+            label="View"
+            onClick={() => isSingle && onView && onView(ids[0])}
+            disabled={!isSingle}
+          />
+        )}
         {/* EDIT (can be hidden + disabled separately) */}
-        {showEdit && (
+        {showEdit && userAccess?.["Edit"] && (
           <Segment
             label="Edit"
-            onClick={() =>
-              isSingle && !disableEdit && onEdit && onEdit(ids[0])
-            }
+            onClick={() => isSingle && !disableEdit && onEdit && onEdit(ids[0])}
             disabled={!isSingle || disableEdit}
           />
         )}
-
         {/* PAY */}
-        {isPay && (
+        {isPay && userAccess?.["Pay"] && (
           <Segment
             label="Pay"
             onClick={handlePay}

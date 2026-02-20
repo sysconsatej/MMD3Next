@@ -269,6 +269,61 @@ export const theme = createTheme({
         },
       },
     },
+    MuiAccordion: {
+      styleOverrides: {
+        root: {
+          boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+          borderRadius: "10px",
+          marginBottom: "10px",
+          overflow: "hidden",
+          "&:before": { display: "none" },
+        },
+      },
+    },
+
+    MuiAccordionSummary: {
+      styleOverrides: {
+        root: {
+          minHeight: 32,
+          padding: "0 16px",
+          background: "linear-gradient(135deg, #95a9e8, #7f96e6)",
+          transition: "all 0.25s ease",
+          "&:hover": {
+            background: "linear-gradient(135deg, #8da2e4, #6f87df)",
+          },
+          "&.Mui-expanded": {
+            minHeight: 32,
+          },
+        },
+        content: {
+          margin: "0px !important",
+          fontSize: "13px",
+          fontWeight: 600,
+          letterSpacing: "0.4px",
+          color: "#ffffff",
+        },
+        expandIconWrapper: {
+          color: "#ffffff",
+          transition: "transform 0.3s ease",
+          "&.Mui-expanded": {
+            transform: "rotate(180deg)",
+          },
+          "& .MuiSvgIcon-root": {
+            fontSize: 18,
+          },
+        },
+      },
+    },
+
+    MuiAccordionDetails: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#f8faff",
+          padding: "12px 16px",
+          borderTop: "1px solid #e0e6ff",
+        },
+      },
+    },
   },
 });
 
@@ -463,6 +518,63 @@ export const navTheme = createTheme({
         },
 
         ".nav-block": { display: "block", width: "100%" },
+      },
+    },
+    MuiAutocomplete: {
+      styleOverrides: {
+        popper: {
+          "& .MuiAutocomplete-listbox li": {
+            fontSize: "12px",
+          },
+          minWidth: "200px",
+        },
+        input: {
+          textOverflow: "clip",
+          padding: "5px 9px",
+          fontSize: "12px",
+        },
+        root: {
+          "& .MuiInputBase-root .MuiAutocomplete-endAdornment": {
+            "& .MuiIconButton-root .MuiSvgIcon-root": {
+              fontSize: "18px",
+            },
+          },
+          "& .MuiButtonBase-root.MuiChip-root": {
+            height: "auto",
+            "& .MuiSvgIcon-root": {
+              fontSize: "11px",
+            },
+            "& .MuiChip-label": {
+              fontSize: "10px",
+              whiteSpace: "wrap",
+            },
+          },
+          "&.multiSelect .MuiInputBase-root": {
+            padding: "0px 0px !important",
+            height: "auto",
+            minHeight: "20px",
+            "& .MuiInputBase-input": {
+              padding: "0px",
+            },
+            "& .MuiAutocomplete-tag": {
+              cursor: "pointer",
+              margin: "1px",
+            },
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          "&.custom-btn": {
+            fontSize: "11px",
+            color: "white",
+          },
+          "&.custom-btn:not(.Mui-disabled)": {
+            backgroundColor: "#95a9e8",
+          },
+        },
       },
     },
   },

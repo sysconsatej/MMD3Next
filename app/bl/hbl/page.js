@@ -36,6 +36,7 @@ import {
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import {
   checkAttachment,
+  checkMblActive,
   copyHandler,
   createBlurFunc,
   createGridEventFunctions,
@@ -52,6 +53,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import { RejectModal } from "./modal";
 import { checkNoPackages } from "../mbl/utils";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -106,6 +108,7 @@ export default function Home() {
       setTabValue(newValue);
     }
   };
+  const userAccess = useGetUserAccessUtils()?.data || {};
 
   useTotalGrossAndPack(formData, setTotals);
   const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
@@ -128,6 +131,15 @@ export default function Home() {
       toast.error("Please upload attachment in all HBL tabs!");
       return;
     }
+    const isMblActive = await checkMblActive(
+      formData?.mblNo,
+      formData?.shippingLineId,
+    );
+    if (isMblActive) {
+      toast.warn("This Bl is not active!");
+      return;
+    }
+
     let allSuccess = true;
     const format = formFormatThirdLevel(formData);
     const checkHblMap = format.map((item) => item.hblNo);
@@ -610,7 +622,8 @@ export default function Home() {
             {userData?.roleCode === "customer" &&
               mode.status !== "Confirm" &&
               mode.status !== "Request" &&
-              mode.status !== "Reject for Amendment" && (
+              mode.status !== "Reject for Amendment" &&
+              userAccess?.["request"] && (
                 <CustomButton
                   text={"Request"}
                   onClick={() =>
@@ -624,7 +637,8 @@ export default function Home() {
 
             {(fieldsMode === "edit" || fieldsMode === "view") &&
               mode.status === "Request" &&
-              userData?.roleCode === "shipping" && (
+              userData?.roleCode === "shipping" &&
+              userAccess?.["verify"] && (
                 <CustomButton
                   text={"Verify"}
                   onClick={() =>
@@ -635,7 +649,8 @@ export default function Home() {
 
             {(fieldsMode === "edit" || fieldsMode === "view") &&
               mode.status === "Request" &&
-              userData.roleCode === "shipping" && (
+              userData.roleCode === "shipping" &&
+              userAccess?.["reject"] && (
                 <CustomButton
                   text={"Reject"}
                   onClick={() =>
@@ -644,18 +659,21 @@ export default function Home() {
                 />
               )}
 
-            {userData?.roleCode === "customer" && mode.status === "Confirm" && (
-              <CustomButton
-                text={"Request for Amendment"}
-                onClick={() =>
-                  requestStatusFun.requestForAmendmentHandler(mode, hblStatus)
-                }
-              />
-            )}
+            {userData?.roleCode === "customer" &&
+              mode.status === "Confirm" &&
+              userAccess?.["Request Amendment"] && (
+                <CustomButton
+                  text={"Request for Amendment"}
+                  onClick={() =>
+                    requestStatusFun.requestForAmendmentHandler(mode, hblStatus)
+                  }
+                />
+              )}
 
             {(fieldsMode === "edit" || fieldsMode === "view") &&
               mode.status === "Request for Amendment" &&
-              userData?.roleCode === "shipping" && (
+              userData?.roleCode === "shipping" &&
+              userAccess?.["Approved Amendment"] && (
                 <CustomButton
                   text={"Approved for Amendment"}
                   onClick={() =>
@@ -666,7 +684,8 @@ export default function Home() {
 
             {(fieldsMode === "edit" || fieldsMode === "view") &&
               mode.status === "Request for Amendment" &&
-              userData?.roleCode === "shipping" && (
+              userData?.roleCode === "shipping" &&
+              userAccess?.["Reject Amendment"] && (
                 <CustomButton
                   text={"Reject for Amendment"}
                   onClick={() =>

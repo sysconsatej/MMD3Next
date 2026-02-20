@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data, { metaData } from "./scmtrCsnData";
+import data, { metaData } from "./blCsnData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -34,7 +34,7 @@ export default function CSN() {
           return [key, value.Id];
         }
         return [key, value];
-      })
+      }),
     );
   };
 
@@ -44,7 +44,7 @@ export default function CSN() {
     jsonExport({
       tableFormData,
       updateFn: updateDynamicReportData,
-      filenamePrefix: "Scmtrcsn",
+      filenamePrefix: "ForwarderCsn",
       toast,
       setLoading,
       filterDirty: false,
@@ -64,8 +64,8 @@ export default function CSN() {
     setError(null);
 
     const requestBody = {
-      spName: "ImportMBlSelection",
-      jsonData: transformed,
+      spName: "importBlCsnSelection",
+      jsonData: { ...transformed, companyId: userData.companyId },
     };
 
     const getErr = (src) =>
@@ -97,7 +97,7 @@ export default function CSN() {
         } else {
           setError(errText || "Request failed.");
           toast.error(
-            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`
+            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`,
           );
         }
       }
@@ -126,7 +126,7 @@ export default function CSN() {
         setFormData,
         fields: jsonData.igmEdiFields,
       }),
-    [setFormData, jsonData.igmEdiFields]
+    [setFormData, jsonData.igmEdiFields],
   );
   return (
     <ThemeProvider theme={theme}>
@@ -134,7 +134,7 @@ export default function CSN() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              SCMTR-CSN
+              Forwarder CSN
             </h1>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">

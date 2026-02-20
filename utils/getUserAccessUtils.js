@@ -1,15 +1,22 @@
 import { getMenuAccessDetails } from "@/apis";
+
 import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
 
 export const useGetUserAccessUtils = () => {
-  const roleIdData = Cookies.get("roleId");
-  const rawMenuName = Cookies.get("menuName");
-  const menuName = rawMenuName ? decodeURIComponent(rawMenuName) : "";
-  const roleId = roleIdData || 3;
+  const [roleId, setRoleId] = useState(3);
+  const [menuName, setMenuName] = useState("");
   const [data, setData] = useState();
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const roleIdFromSession = sessionStorage.getItem("roleId");
+    const rawMenuName = sessionStorage.getItem("menuName");
+    setRoleId(roleIdFromSession ? Number(roleIdFromSession) : 3);
+    setMenuName(rawMenuName ? decodeURIComponent(rawMenuName) : "");
+  }, []);
+
+  useEffect(() => {
+    if (!menuName) return;
     const dataFetching = async () => {
       const obj = { roleId, menuName };
       const res = await getMenuAccessDetails(obj);

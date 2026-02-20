@@ -31,7 +31,7 @@ const TEMPLATE_FILES = [
   {
     names: ["HBLMaster", "HBL Master", "Master BL", "MasterBL"],
     filename: "hblExcelUpload",
-    path: `${BASE_URL}uploads/hblExcelUpload.xls`,
+    path: `${BASE_URL}uploads/hblExcelUpload.xlsx`,
   },
 ];
 

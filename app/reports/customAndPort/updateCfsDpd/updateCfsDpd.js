@@ -1,6 +1,5 @@
 import { getUserByCookies } from "@/utils";
 
-
 const userData = getUserByCookies();
 
 const fieldData = {
@@ -70,23 +69,70 @@ const fieldData = {
       label: "Nominated Area Code",
       name: "nominatedAreaCode",
       type: "dropdown",
-      tableName: "tblPort t",
-      idColumn: "id",
-      displayColumn: "t.name",
-      searchColumn: "t.code, t.name",
-      orderBy: "t.code, t.name",
+      tableName: "tblPort p",
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${userData?.companyId}`,
+      selectedConditions: [{ podId: "p.referencePortId" }],
       isEdit: true,
     },
     {
       label: "Dpd Code",
       name: "dpdCode",
       type: "dropdown",
-      tableName: "tblPort t",
-      idColumn: "id",
-      displayColumn: "t.name",
-      searchColumn: "t.code, t.name",
-      orderBy: "t.code",
+      tableName: "tblPort p",
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'DPD' and p.companyId = ${userData?.companyId}`,
       isEdit: true,
+    },
+  ],
+  cfsAllowBtn: [
+    {
+      label: "BL",
+      name: "totalBl",
+      disabled: true,
+    },
+    {
+      label: "Container",
+      name: "totalBl",
+      disabled: true,
+    },
+    {
+      label: "CFS Allocated",
+      name: "totalCFSAllocated",
+      disabled: true,
+    },
+    {
+      label: "CFS Not Allocated",
+      name: "totalCFSNotAllocated",
+      disabled: true,
+    },
+    {
+      label: "CFS",
+      name: "nominatedAreaId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      joins: `left join tblMasterData m2 on m2.id = cfsTypeId
+              join tblMasterData m on m.id = p.portTypeId  
+              and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${userData?.companyId}
+              and m2.name = 'Non-Empanelled CFS'`,
+      isEdit: true,
+      foreignTable: "code-name,tblPort",
+      changeFun: "setAllocateCfs",
+    },
+    {
+      label: "Allocated For Particular CFS",
+      name: "totalCFSAllocatedForParticularCFS",
+      type: "number",
+      disabled: true,
+    },
+    {
+      label: "Percentage",
+      name: "percentage",
+    },
+    {
+      label: "Number Of Allocated",
+      name: "numberOfAllocated",
     },
   ],
 };
@@ -100,21 +146,18 @@ export const metaData = [
   {
     name: "Nominated Area",
     type: "dropdown",
-    tableName: "tblPort t",
-    idColumn: "id",
-    displayColumn: "t.name",
-    searchColumn: "t.name",
-    orderBy: "t.name",
+    tableName: "tblPort p",
+    displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+    joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${userData?.companyId}`,
+    selectedConditions: [{ podId: "p.referencePortId" }],
     isEdit: true,
   },
   {
     name: "DPD Desciption",
     type: "dropdown",
-    tableName: "tblPort t",
-    idColumn: "id",
-    displayColumn: "t.name",
-    searchColumn: "t.code, t.name",
-    orderBy: "t.code",
+    tableName: "tblPort p",
+    displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+    joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'DPD' and p.companyId = ${userData?.companyId}`,
     isEdit: true,
   },
 ];

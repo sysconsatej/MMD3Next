@@ -58,7 +58,7 @@ export default function CompanyList() {
       try {
         const tableObj = {
           columns:
-            "s.name as companyId,c.name as name,p.name as podId,p1.name as fpdId,m.name as modeId,c.panNo,c.bondNo ,u.name as updatedBy,c.updatedDate as updateDate,c.id as id",
+            "s.name as companyId,c.name as name,ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'') as podId,ISNULL(p1.code,'') + ' - ' + ISNULL(p1.name,'') as fpdId,m.name as modeId,c.panNo,c.bondNo ,u.name as updatedBy,c.updatedDate as updateDate,c.id as id",
           tableName: "tblCarrierPort c",
           pageNo,
           pageSize,

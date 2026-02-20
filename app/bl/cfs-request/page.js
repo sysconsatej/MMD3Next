@@ -6,19 +6,20 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import {
-  fetchForm,
-  getDataWithCondition,
-  insertUpdateForm,
-  updateStatusRows,
-} from "@/apis";
+import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
-import { getBlIdIfExists, handleBlur, handleChange, requestHandler } from "./utils";
+import {
+  checkMblActive,
+  handleBlur,
+  handleChange,
+  requestHandler,
+} from "./utils";
 import { getUserByCookies } from "@/utils";
 import { useSetDefault } from "./hooks";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 
 export default function Company() {
   const { mode, setMode } = formStore();
@@ -31,9 +32,19 @@ export default function Company() {
   const [disableRequest, setDisableRequest] = useState(true);
 
   useSetDefault({ userData, setFormData, mode: mode });
+  const userAccess = useGetUserAccessUtils()?.data || {};
 
   const submitHandler = async (event) => {
     event.preventDefault();
+
+    const isMblActive = await checkMblActive(
+      formData?.blNo,
+      formData?.shippingLineId,
+    );
+    if (isMblActive) {
+      toast.warn("This Bl is not active!");
+      return;
+    }
 
     const normalized = {
       ...formData,
@@ -65,61 +76,11 @@ export default function Company() {
     formData,
     setJsonData,
   });
-  const handleBlurEventFunctions = {
-    duplicateHandler: async (event) => {
-      const { name, value } = event.target;
-
-      // only run for blNo
-      if (name !== "blNo") return true;
-
-      const normalized = String(value ?? "").trim();
-      if (!normalized) return true;
-
-      const literal = normalized.replace(/'/g, "''");
-
-      let whereDup = `
-      blNo = '${literal.toUpperCase()}'
-      AND companyId = ${userData?.companyId}
-      AND status = 1
-    `;
-
-      // exclude current record while edit
-      if (mode?.formId) {
-        whereDup += ` AND id <> ${mode.formId}`;
-      }
-
-      const obj = {
-        columns: "id",
-        tableName: "tblCfsRequest",
-        whereCondition: whereDup,
-      };
-
-      const resp = await getDataWithCondition(obj);
-
-      const isDuplicate = Array.isArray(resp?.data) && resp.data.length > 0;
-
-      if (isDuplicate) {
-        setErrorState((prev) => ({ ...prev, blNo: true }));
-        setFormData((prev) => ({ ...prev, blNo: "" }));
-        toast.error("Duplicate BL No!");
-        return false;
-      }
-
-      setErrorState((prev) => ({ ...prev, blNo: false }));
-      setFormData((prev) => ({ ...prev, blNo: normalized.toUpperCase() }));
-      const blId = await getBlIdIfExists({
-        blNo: normalized,
-        shippingLineId: formData?.shippingLineId?.Id,
-        locationId: userData?.location,
-      });
-
-      setFormData((prev) => ({
-        ...prev,
-        blId: blId,
-      }));
-      return true;
-    },
-  };
+  const handleBlurEventFunctions = handleBlur({
+    setErrorState,
+    setFormData,
+    mode,
+  });
 
   useEffect(() => {
     async function fetchFormHandler() {
@@ -246,7 +207,7 @@ export default function Company() {
                 disabled={disableSubmit}
               />
             )}
-            {userData?.roleCode === "customer" && (
+            {userData?.roleCode === "customer" && userAccess?.["Request"] && (
               <CustomButton
                 text={"Request"}
                 onClick={() => requestHandler(formData, setDisableRequest)}

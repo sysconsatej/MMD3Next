@@ -367,7 +367,7 @@ JOIN tblLocation l
             />
           </Box>
         </Box>
-        <Box className="flex items-center gap-2 py-2">
+        {/* <Box className="flex items-center gap-2 py-2">
           <Tooltip title="Re - Request" arrow disableInteractive>
             <label
               className={[
@@ -400,7 +400,7 @@ JOIN tblLocation l
               <span>Re - Request</span>
             </label>
           </Tooltip>
-        </Box>
+        </Box> */}
 
         <TableContainer
           component={Paper}
