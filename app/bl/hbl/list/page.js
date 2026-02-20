@@ -28,7 +28,7 @@ import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import { ToastContainer, toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
-import { advanceSearchFields } from "../hblData";
+import { advanceSearchFields, vesselVoyageFiltersCustomer } from "../hblData";
 import { advanceSearchFilter, statusColor } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
@@ -38,6 +38,8 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 import HistoryIcon from "@mui/icons-material/History";
+import { CustomInput } from "@/components/customInput";
+import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 
 const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -62,7 +64,7 @@ function createData(
   emailId,
   userName,
   podVoyageId,
-  shippingLineId
+  shippingLineId,
 ) {
   return {
     id,
@@ -87,7 +89,11 @@ export default function BLList() {
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
   const [blData, setBlData] = useState([]);
-  const [advanceSearch, setAdvanceSearch] = useState({});
+  const [advanceSearch, setAdvanceSearch] = useState({
+    // shippingLineId: null,
+    // podVesselId: null,
+    // podVoyageId: null,
+  });
   const [loadingState, setLoadingState] = useState("Data not found!");
   const { setMode } = formStore();
   const router = useRouter();
@@ -96,6 +102,7 @@ export default function BLList() {
   const [idsOnPage, setIdsOnPage] = useState([]);
   const [allChecked, setAllChecked] = useState(false);
   const [someChecked, setSomeChecked] = useState(false);
+
   const [modal, setModal] = useState({ toggle: false, value: null });
   const [historyModal, setHistoryModal] = useState({
     toggle: false,
@@ -132,13 +139,8 @@ export default function BLList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch]
+    [page, rowsPerPage, advanceSearch],
   );
-
-  useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-  }, []);
 
   const rows = Array.isArray(blData)
     ? blData.map((item) =>
@@ -155,8 +157,8 @@ export default function BLList() {
           item["emailId"],
           item["userName"],
           item["podVoyageId"],
-          item["shippingLineId"]
-        )
+          item["shippingLineId"],
+        ),
       )
     : [];
 
@@ -175,10 +177,22 @@ export default function BLList() {
     setSomeChecked(some);
   }, [selectedIds, idsOnPage]);
 
+  useEffect(() => {
+    getData();
+  }, [
+    advanceSearch?.shippingLineId,
+    advanceSearch?.podVesselId,
+    advanceSearch?.podVoyageId,
+  ]);
+
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
+  }, []);
   const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
   const toggleOne = (id) =>
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
 
   const handleChangePage = (_e, newPage) => {
@@ -187,6 +201,11 @@ export default function BLList() {
   const handleChangeRowsPerPage = (e) => {
     getData(1, +e.target.value);
   };
+
+  const handleChangeEventFunctions = createHandleChangeEventFunction({
+    setFormData: setAdvanceSearch,
+    fields: vesselVoyageFiltersCustomer,
+  });
 
   const handleDeleteRecord = async (formIdsCsv) => {
     const deleteRecords = formIdsCsv
@@ -231,19 +250,58 @@ export default function BLList() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box className="sm:px-4 py-1">
-        <Box className="flex flex-col sm:flex-row justify-between pb-1">
-          <Typography variant="body1" className="text-left flex items-center">
+        <Box className="flex flex-col sm:flex-row justify-between items-center pb-1 gap-4">
+          <Typography
+            variant="body1"
+            className="text-left flex items-center flex-shrink-0"
+          >
             HBL
           </Typography>
-          <Box className="flex flex-col sm:flex-row gap-6">
-            <AdvancedSearchBar
-              fields={advanceSearchFields.bl}
-              advanceSearch={advanceSearch}
-              setAdvanceSearch={setAdvanceSearch}
-              getData={getData}
-              rowsPerPage={rowsPerPage}
-            />
-            <CustomButton text="Add" href="/bl/hbl" />
+          <Box className="flex flex-col lg:flex-row lg:items-center gap-4 w-auto ml-auto">
+            {/* Filters */}
+            <Box className="flex flex-1 items-center gap-4 min-w-0">
+              <Box className="w-[220px]">
+                <CustomInput
+                  fields={[vesselVoyageFiltersCustomer[0]]} // Liner
+                  formData={advanceSearch}
+                  setFormData={setAdvanceSearch}
+                  fieldsMode="edit"
+                  handleChangeEventFunctions={handleChangeEventFunctions}
+                />
+              </Box>
+
+              <Box className="w-[220px]">
+                <CustomInput
+                  fields={[vesselVoyageFiltersCustomer[1]]} // Arrival Vessel
+                  formData={advanceSearch}
+                  setFormData={setAdvanceSearch}
+                  fieldsMode="edit"
+                  handleChangeEventFunctions={handleChangeEventFunctions}
+                />
+              </Box>
+
+              <Box className="w-[220px]">
+                <CustomInput
+                  fields={[vesselVoyageFiltersCustomer[2]]} // Arrival Voyage
+                  formData={advanceSearch}
+                  setFormData={setAdvanceSearch}
+                  fieldsMode="edit"
+                  handleChangeEventFunctions={handleChangeEventFunctions}
+                />
+              </Box>
+            </Box>
+
+            {/* Right Side Buttons */}
+            <Box className="flex items-center gap-3 flex-shrink-0">
+              <AdvancedSearchBar
+                fields={advanceSearchFields.bl}
+                advanceSearch={advanceSearch}
+                setAdvanceSearch={setAdvanceSearch}
+                getData={getData}
+                rowsPerPage={rowsPerPage}
+              />
+              <CustomButton text="Add" href="/bl/hbl" />
+            </Box>
           </Box>
         </Box>
 

@@ -1,3 +1,4 @@
+import { company } from "@/app/master/company/companyData";
 import { getUserByCookies } from "@/utils";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
@@ -847,29 +848,6 @@ export const mapping = {
 export const advanceSearchFields = {
   bl: [
     {
-      label: "Vessel",
-      name: "podVesselId",
-      type: "dropdown",
-      tableName: "tblVessel t",
-      idColumn: "id",
-      displayColumn: "t.name",
-      searchColumn: "t.name",
-      orderBy: "t.name",
-      isEdit: true,
-    },
-    {
-      label: "Voyage",
-      name: "podVoyageId",
-      type: "dropdown",
-      tableName: "tblVoyage t",
-      idColumn: "id",
-      displayColumn: "t.voyageNo",
-      searchColumn: "t.voyageNo",
-      selectedConditions: [{ podVesselId: "vesselId" }],
-      orderBy: "t.voyageNo",
-      isEdit: true,
-    },
-    {
       label: "MBL No",
       name: "mblNo",
       isEdit: true,
@@ -974,3 +952,76 @@ export const hblPrevNextObj = (formId = null) => {
     },
   };
 };
+
+export const vesselVoyageFiltersCustomer = [
+  {
+    label: "Liner",
+    name: "shippingLineId",
+    type: "dropdown",
+    tableName: "tblCompany t",
+    displayColumn: "t.name",
+    searchColumn: "t.name",
+    orderBy: "t.name",
+    foreignTable: "name,tblCompany",
+    isEdit: true,
+  },
+  {
+    label: "Vessel",
+    name: "podVesselId",
+    type: "dropdown",
+    tableName: "tblVessel t",
+    idColumn: "id",
+    displayColumn: "t.name",
+    searchColumn: "t.name",
+    orderBy: "t.name",
+    foreignTable: "name,tblVessel",
+    changeFun: "handleDropdownChange",
+    isEdit: true,
+  },
+  {
+    label: "Voyage",
+    name: "podVoyageId",
+    type: "dropdown",
+    tableName: "tblVoyage t",
+    idColumn: "id",
+    displayColumn: "t.voyageNo",
+    searchColumn: "t.voyageNo",
+    selectedConditions: [
+      { podVesselId: "vesselId" },
+      { shippingLineId: "companyid" },
+    ],
+    where: ` t.status = 1`,
+    orderBy: "t.voyageNo",
+    foreignTable: "voyageNo,tblVoyage",
+    isEdit: true,
+  },
+];
+export const vesselVoyageFiltersShipping = [
+  {
+    label: "Vessel",
+    name: "podVesselId",
+    type: "dropdown",
+    tableName: "tblVessel t",
+    idColumn: "id",
+    displayColumn: "t.name",
+    searchColumn: "t.name",
+    orderBy: "t.name",
+    foreignTable: "name,tblVessel",
+    changeFun: "handleChangeOnVessel",
+    isEdit: true,
+  },
+  {
+    label: "Voyage",
+    name: "podVoyageId",
+    type: "dropdown",
+    tableName: "tblVoyage t",
+    idColumn: "id",
+    displayColumn: "t.voyageNo",
+    searchColumn: "t.voyageNo",
+    selectedConditions: [{ podVesselId: "vesselId" }],
+    where: `t.companyid = ${userData?.companyId} and t.status = 1`,
+    orderBy: "t.voyageNo",
+    foreignTable: "voyageNo,tblVoyage",
+    isEdit: true,
+  },
+];
