@@ -465,6 +465,11 @@ export const navItems = [
         href: "/reports/customAndPort/blCsn",
         isShow: false,
       },
+      {
+        name:"DO Request Customer Report",
+        href:"/reports/customAndPort/doRequestCustomerRegister",
+        isShow:false,
+      }
     ],
   },
   {

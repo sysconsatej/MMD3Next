@@ -357,4 +357,20 @@ export const advanceSearchFields = {
       isEdit: true,
     },
   ],
+  CfsBl: [
+    {
+      label: "BL No",
+      name: "blNo",
+      isEdit: true,
+    },
+    {
+      label: "Liner",
+      name: "shippingLineId",
+      type: "multiselect",
+      tableName: "tblCompany t",
+      displayColumn: "t.name",
+      orderBy: "t.name",
+      isEdit: true,
+    },
+  ],
 };

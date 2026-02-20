@@ -88,7 +88,7 @@ export default function BLList() {
       try {
         const tableObj = {
           columns: `
-              c.name Liner,
+              c1.name Liner,
               u2.name submittedBy,
               d.blNo blNo,
               d.isFreeDays isFreeDays,
@@ -103,15 +103,20 @@ export default function BLList() {
           pageSize,
           advanceSearch: advanceSearchFilter(advanceSearch),
           joins: `
-                 LEFT JOIN tblMasterData m ON m.id = d.doRequestStatusId
-                 LEFT JOIN tblMasterData m1 ON m1.id = d.cfsStatusId
-                 LEFT JOIN tblCompany c ON c.id = d.shippingLineId
-                 LEFT JOIN tblMasterData m2 ON m2.id = d.stuffDestuffId
-                 LEFT JOIN tblLocation l ON l.id = ${userData?.location}
-                 LEFT JOIN tblUser u2 ON u2.id = d.createdBy
-                 LEFT JOIN tblPort p ON p.id = d.nominatedAreaId
-                 JOIN tblDoRequest d2 ON d2.id = d.id AND d2.status = 1 AND p.name = l.name
-                 `,
+         LEFT JOIN tblMasterData m ON m.id = d.doRequestStatusId
+         LEFT JOIN tblMasterData m1 ON m1.id = d.cfsStatusId
+         LEFT JOIN tblCompany c ON c.id = ${userData.companyId}
+         LEFT JOIN tblCompany c1 ON c1.id = d.shippingLineId 
+         LEFT JOIN tblMasterData m2 ON m2.id = d.stuffDestuffId
+         LEFT JOIN tblLocation l ON l.id = ${userData.location}
+         LEFT JOIN tblUser u2 ON u2.id = d.createdBy
+        LEFT JOIN tblPort p ON p.id = d.nominatedAreaId 
+        join tblMasterData ms on ms.id=d.doRequestStatusId and ms.name='Released for DO'
+        JOIN tblDoRequest d2 
+          ON d2.id = d.id 
+          AND d2.status = 1 
+          AND p.name = c.name 
+          AND d.locationId = l.id `,
         };
 
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
@@ -222,13 +227,12 @@ export default function BLList() {
           </Typography>
           <Box className="flex gap-4">
             <AdvancedSearchBar
-              fields={advanceSearchFields.bl}
+              fields={advanceSearchFields.CfsBl}
               advanceSearch={advanceSearch}
               setAdvanceSearch={setAdvanceSearch}
               getData={getData}
               rowsPerPage={rowsPerPage}
             />
-            <CustomButton text="ADD" href="/invoice/doRequest" />
           </Box>
         </Box>
         <DoToolbarActions
