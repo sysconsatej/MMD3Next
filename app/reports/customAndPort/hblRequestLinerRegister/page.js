@@ -57,7 +57,7 @@ export default function IgmGeneration() {
 
 
       const requestBody = {
-        spName: "doRequestCustomerRegister",
+        spName: "hblRequestLinerRegister",
         jsonData: {
           ...formattedForApi,
           locationId: userData.location,
