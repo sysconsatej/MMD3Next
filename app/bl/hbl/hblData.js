@@ -971,6 +971,8 @@ export const vesselVoyageFiltersCustomer = [
     type: "dropdown",
     tableName: "tblVessel t",
     idColumn: "id",
+    joins: `INNER JOIN tblVoyageRoute vr ON vr.vesselId = t.id`,
+    selectedConditions: [{ shippingLineId: "vr.companyid" }],
     displayColumn: "t.name",
     searchColumn: "t.name",
     orderBy: "t.name",
@@ -978,6 +980,7 @@ export const vesselVoyageFiltersCustomer = [
     changeFun: "handleDropdownChange",
     isEdit: true,
   },
+
   {
     label: "Voyage",
     name: "podVoyageId",
@@ -1003,6 +1006,8 @@ export const vesselVoyageFiltersShipping = [
     type: "dropdown",
     tableName: "tblVessel t",
     idColumn: "id",
+    joins: `INNER JOIN tblVoyageRoute vr ON vr.vesselId = t.id`,
+    where: `vr.companyid = ${userData?.companyId}`,
     displayColumn: "t.name",
     searchColumn: "t.name",
     orderBy: "t.name",
