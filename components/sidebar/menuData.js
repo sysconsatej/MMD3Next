@@ -12,8 +12,8 @@ const links = () => {
       return "/invoice/doRequest/liner";
     case "customer":
       return "/invoice/doRequest/list";
-    case"cfs":
-    return"/invoice/doRequest/cfsTrack";
+    case "cfs":
+      return "/invoice/doRequest/cfsTrack";
     default:
       return "/invoice/doRequest/list";
   }
@@ -358,11 +358,11 @@ export const navItems = [
       //   isShow: true,
       // },
 
-      {
-        name: "HBL",
-        href: "/reports/customAndPort/hbl",
-        isShow: true,
-      },
+      // {
+      //   name: "HBL",
+      //   href: "/reports/customAndPort/hbl",
+      //   isShow: true,
+      // },
       {
         name: "Vessel Summary Report",
         href: "/reports/customAndPort/vesselSummaryReport",
@@ -466,10 +466,20 @@ export const navItems = [
         isShow: false,
       },
       {
-        name:"DO Request Customer Report",
-        href:"/reports/customAndPort/doRequestCustomerRegister",
-        isShow:false,
-      }
+        name: "DO Request Customer Report",
+        href: "/reports/customAndPort/doRequestCustomerRegister",
+        isShow: false,
+      },
+      {
+        name: "HBL Request Customer Report",
+        href: "/reports/customAndPort/hblRequestCustomerRegister",
+        isShow: false,
+      },
+      {
+        name: "HBL Request Liner Report",
+        href: "/reports/customAndPort/hblRequestLinerRegister",
+        isShow: false,
+      },
     ],
   },
   {
