@@ -145,7 +145,7 @@ export default function SlabWiseReport() {
                         />
                         <CustomButton
                             text="Cancel"
-                            onClick={() => router.push("/")}
+                            onClick={() => router.push("/home")}
                             type="button"
                         />
                     </Box>

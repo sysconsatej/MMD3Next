@@ -136,7 +136,7 @@ export default function InvoiceRequest() {
             />
             <CustomButton
               text="Cancel"
-              onClick={() => router.push("/")}
+              onClick={() => router.push("/home")}
               type="button"
             />
           </Box>

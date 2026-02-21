@@ -178,7 +178,7 @@ export default function IGMEDI() {
             <CustomButton
               text="Cancel"
               buttonStyles="!text-[white] !bg-[#f5554a] !text-[11px]"
-              onClick={() => router.push("/")}
+              onClick={() => router.push("/home")}
               type="button"
             />
           </Box>

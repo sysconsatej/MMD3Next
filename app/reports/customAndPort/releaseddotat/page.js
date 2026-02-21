@@ -145,7 +145,7 @@ export default function ReleasedDoTat() {
                         />
                         <CustomButton
                             text="Cancel"
-                            onClick={() => router.push("/")}
+                            onClick={() => router.push("/home")}
                             type="button"
                         />
                     </Box>
