@@ -963,6 +963,7 @@ export const vesselVoyageFiltersCustomer = [
     searchColumn: "t.name",
     orderBy: "t.name",
     foreignTable: "name,tblCompany",
+    changeFun: "handleDropdownChange",
     isEdit: true,
   },
   {
