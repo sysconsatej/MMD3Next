@@ -180,6 +180,9 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      joins:
+        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+      where: "m.name IN ('SEA PORT','INLAND PORT')",
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
       isEdit: true,
@@ -190,6 +193,9 @@ export const fieldData = {
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      joins:
+        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+      where: "m.name IN ('SEA PORT','INLAND PORT')",
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
       isEdit: true,
