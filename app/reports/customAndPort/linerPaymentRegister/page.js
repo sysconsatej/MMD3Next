@@ -103,9 +103,7 @@ export default function IgmGeneration() {
       <form onSubmit={handleSubmit}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base m-0">
-              HBL Request Customer Report
-            </h1>
+            <h1 className="text-left text-base m-0">Liner Payment Register</h1>
           </Box>
 
           <Box className="border border-black rounded-[4px]">
