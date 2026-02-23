@@ -25,7 +25,7 @@ const fieldData = {
       // selectedConditions: [{ countryId: "countryId" }],
       orderBy: "t.name",
       isEdit: true,
-      changeFun: "setStateCountryFromCity", 
+      changeFun: "setStateCountryFromCity",
     },
     {
       label: "State/Region",
@@ -219,6 +219,19 @@ const fieldData = {
       type: "textarea",
       rows: 2,
       gridColumn: "col-span-2 row-span-1 ",
+      isEdit: true,
+    },
+  ],
+  tblCompanySubtype: [
+    {
+      label: "Type",
+      name: "subTypeId",
+      type: "dropdown",
+      tableName: "tblUser u",
+      displayColumn: "u.name",
+      orderBy: "u.name",
+      where: "u.userType = 'R' and name <> 'MMD3 Admin'",
+      foreignTable: "name,tblUser",
       isEdit: true,
     },
   ],

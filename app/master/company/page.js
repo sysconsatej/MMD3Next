@@ -30,7 +30,7 @@ export default function Company() {
       "tblCompany",
       formData,
       mode.formId,
-      "companyId"
+      "companyId",
     );
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
@@ -49,8 +49,8 @@ export default function Company() {
           data,
           "tblCompany",
           mode.formId,
-          '["tblCompanyBranch"]',
-          "companyId"
+          '["tblCompanyBranch","tblCompanySubtype"]',
+          "companyId",
         );
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
@@ -88,7 +88,7 @@ export default function Company() {
           containerIndex: null,
           name: "stateId",
           value: { Id: data[0].stateId, Name: data[0].stateName },
-        })
+        }),
       );
       setFormData((prevData) =>
         setInputValue({
@@ -99,7 +99,7 @@ export default function Company() {
           containerIndex: null,
           name: "countryId",
           value: { Id: data[0].countryId, Name: data[0].countryName },
-        })
+        }),
       );
     },
 
@@ -124,7 +124,7 @@ export default function Company() {
           containerIndex: containerIndex,
           name: "stateId",
           value: { Id: data[0].stateId, Name: data[0].stateName },
-        })
+        }),
       );
 
       setFormData((prevData) =>
@@ -136,7 +136,7 @@ export default function Company() {
           containerIndex: containerIndex,
           name: "countryId",
           value: { Id: data[0].countryId, Name: data[0].countryName },
-        })
+        }),
       );
     },
   };
@@ -173,7 +173,7 @@ export default function Company() {
             containerIndex: containerIndex,
             name: name,
             value: null,
-          })
+          }),
         );
         return toast.error("Invalid GST Number");
       }
@@ -257,6 +257,19 @@ export default function Company() {
               buttons={branchGridButtons}
               handleBlurEventFunctions={handleBlurEventFunctions}
               handleChangeEventFunctions={handleChangeEventFunctions}
+            />
+            <FormHeading
+              text="Company Type"
+              variant="body2"
+              style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
+            />
+            <TableGrid
+              fields={jsonData.tblCompanySubtype}
+              formData={formData}
+              setFormData={setFormData}
+              fieldsMode={mode.mode}
+              gridName="tblCompanySubtype"
+              buttons={branchGridButtons}
             />
           </Box>
           <Box className="w-full flex mt-2 ">
