@@ -11,6 +11,7 @@ const fieldData = {
       idColumn: "id",
       displayColumn: "c.name",
       searchColumn: "c.name",
+      joins: `join tblCompanySubtype cs on cs.companyId = c.id join tblUser u2 on u2.id = cs.subTypeId and u2.roleCode = 'shipping'`,
       orderBy: "c.name",
       isEdit: true,
     },
