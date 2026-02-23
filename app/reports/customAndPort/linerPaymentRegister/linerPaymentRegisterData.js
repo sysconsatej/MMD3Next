@@ -4,7 +4,7 @@ const userData = getUserByCookies();
 const fieldData = {
   igmGenerationFields: [
     {
-      label: "Customer Name",
+      label: "Customer",
       name: "customerId",
       type: "dropdown",
       tableName: "tblCompany c",
