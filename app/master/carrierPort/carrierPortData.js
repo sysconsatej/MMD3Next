@@ -36,6 +36,7 @@ export const fieldData = {
       required: true,
       tableName: "tblPort p",
       displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      joins: `join tblMasterData d on p.portTypeId = d.id and d.name = 'SEA PORT'`,
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
     },
