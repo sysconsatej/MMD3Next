@@ -181,7 +181,7 @@ export default function InvoiceRequestList() {
     p.createdDate AS paymentDate,
     p.blNo AS blNo,
     r.isFreeDays AS DoExtension,
-    u1.name AS PayorName,
+    c1.name AS PayorName,
     m.name AS paymentType,
     p.bankName AS BankName,
     p.referenceNo AS PaymentRefNo,
@@ -198,6 +198,7 @@ JOIN tblUser u
    AND p.shippingLineId = u.companyId
 LEFT JOIN tblUser u1
     ON u1.id = p.createdBy
+LEFT JOIN tblCompany c1 on c1.id = u1.companyId
 LEFT JOIN tblUser u3
     ON u3.id = p.assignToId
    AND (p.assignToId = ${userData.userId} OR p.assignToId IS NULL)
