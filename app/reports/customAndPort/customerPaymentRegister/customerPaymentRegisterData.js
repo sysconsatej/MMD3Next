@@ -1,0 +1,65 @@
+import { getUserByCookies } from "@/utils";
+import { Label } from "@mui/icons-material";
+const userData = getUserByCookies();
+const fieldData = {
+  igmGenerationFields: [
+    {
+      label: "Liner",
+      name: "shippingLineId",
+      type: "dropdown",
+      tableName: "tblCompany c",
+      idColumn: "id",
+      displayColumn: "c.name",
+      searchColumn: "c.name",
+      joins: `join tblCompanySubtype cs on cs.companyId = c.id join tblUser u2 on u2.id = cs.subTypeId and u2.roleCode = 'shipping'`,
+      orderBy: "c.name",
+      isEdit: true,
+    },
+    {
+      label: "Bl No",
+      name: "blNo",
+      type: "text",
+      isEdit: true,
+    },
+    {
+      label: "Invoice No",
+      name: "invoiceNo",
+      type: "text",
+      isEdit: true,
+    },
+    {
+      label: "Payment Type",
+      name: "paymentModeId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      where: "m.masterListName = 'tblPaymentType' AND m.name <> 'Receipt'",
+      displayColumn: "m.name",
+      foreignTable: "name,tblMasterData",
+      isEdit: true,
+    },
+    {
+      label: "Status",
+      name: "status",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where: "m.masterListName = 'tblPaymentStatus'",
+      orderBy: "m.name",
+      isEdit: true,
+    },
+    {
+      label: "From Date",
+      name: "fromDate",
+      type: "date",
+      isEdit: true,
+    },
+    {
+      label: "To Date ",
+      name: "toDate",
+      type: "date",
+      isEdit: true,
+    },
+  ],
+};
+export default fieldData;
+export const metaData = [];

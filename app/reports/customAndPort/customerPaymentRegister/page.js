@@ -1,7 +1,7 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data, { metaData } from "./invoiceRegisterCustomerData";
+import data, { metaData } from "./customerPaymentRegisterData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -10,18 +10,21 @@ import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable
 import { fetchDynamicReportData } from "@/apis/dynamicReport";
 import { useRouter } from "next/navigation";
 import { getUserByCookies } from "@/utils";
-import { jsonToExcelFile } from "@/utils/helper";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
+import DynamicReportDownloadExcelButton from "@/components/dynamicReportExcel/page";
+import dayjs from "dayjs";
 
-export default function InvoiceRegisterCustomer() {
+export default function IgmGeneration() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [tableData, setTableData] = useState([]);
-  const [jsonData, setJsonData] = useState(data);
+  const [tableFormData, setTableFormData] = useState([]);
   const [goLoading, setGoLoading] = useState(false);
+
   const router = useRouter();
   const userData = getUserByCookies();
 
+  // 🔹 Convert dropdown objects to Ids
   const transformToIds = (data) => {
     return Object.fromEntries(
       Object.entries(data).map(([key, value]) => {
@@ -37,26 +40,33 @@ export default function InvoiceRegisterCustomer() {
     e.preventDefault();
     setGoLoading(true);
 
-    const transformed = transformToIds(formData);
-
-    const requestBody = {
-      spName: "",
-      jsonData: transformed,
-      companyId: userData.companyId,
-    };
-
-    const getErr = (src) =>
-      (src?.error && String(src.error)) ||
-      (src?.message && String(src.message)) ||
-      "";
-
-    const isNoDataError = (txt = "") =>
-      txt.toLowerCase().includes("did not return valid json text");
-
     try {
+      // 1️⃣ Convert dropdown objects
+      const transformed = transformToIds(formData);
+
+      // 2️⃣ Convert date fields for API (DD/MM/YYYY)
+      const formattedForApi = {
+        ...transformed,
+        fromDate: transformed.fromDate
+          ? dayjs(transformed.fromDate, "YYYY/MM/DD").format("DD/MM/YYYY")
+          : null,
+        toDate: transformed.toDate
+          ? dayjs(transformed.toDate, "YYYY/MM/DD").format("DD/MM/YYYY")
+          : null,
+      };
+
+      const requestBody = {
+        spName: "customerPaymentRegister",
+        jsonData: {
+          ...formattedForApi,
+          locationId: userData.location,
+          customerId: userData.companyId,
+        },
+      };
+
       const res = await fetchDynamicReportData(requestBody);
 
-      if (res.success) {
+      if (res?.success) {
         const rows = Array.isArray(res.data) ? res.data : [];
         if (rows.length) {
           setTableData(rows);
@@ -65,64 +75,43 @@ export default function InvoiceRegisterCustomer() {
           toast.info("No data found.");
         }
       } else {
-        const errText = getErr(res);
+        const errText = res?.error || res?.message || "Request failed.";
         setTableData([]);
-
-        if (isNoDataError(errText)) {
-          toast.info("No data found.");
-        } else {
-          toast.error(
-            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`,
-          );
-        }
+        toast.error(errText);
       }
     } catch (err) {
-      const body = err?.response?.data;
       const errText =
-        (body && (body.error || body.message)) ||
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
         err?.message ||
         "Network/Server error.";
 
       setTableData([]);
-
-      if (isNoDataError(errText)) {
-        toast.info("No data found.");
-      } else {
-        toast.error(errText);
-      }
+      toast.error(errText);
     } finally {
       setGoLoading(false);
     }
   };
-  const handleGenerateReport = () => {
-    if (!tableData || !tableData.length) {
-      toast.info("No data to export.");
-      return;
-    }
-    jsonToExcelFile(tableData, "Released Do Tat");
-  };
-  const handleChangeEventFunctions = useMemo(
-    () =>
-      createHandleChangeEventFunction({
-        setFormData,
-        fields: jsonData.invoiceRegisterFields,
-      }),
-    [setFormData, jsonData.invoiceRegisterFields],
-  );
+
+  const handleChangeEventFunctions = createHandleChangeEventFunction({
+    setFormData,
+    fields: data.igmGenerationFields,
+  });
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={handleSubmit}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base flex items-end m-0">
-              Customer Payment Register
+            <h1 className="text-left text-base m-0">
+              Customer Payment Register 
             </h1>
           </Box>
 
-          <Box className="border border-solid border-black rounded-[4px]">
-            <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black">
+          <Box className="border border-black rounded-[4px]">
+            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-black">
               <CustomInput
-                fields={data.invoiceRegisterFields}
+                fields={data.igmGenerationFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
@@ -137,14 +126,21 @@ export default function InvoiceRegisterCustomer() {
               type="submit"
               disabled={goLoading}
             />
-            <CustomButton
-              text="GENERATE REPORT"
-              type="button"
-              onClick={handleGenerateReport}
-              title={!tableData.length ? "No data to export" : ""}
+
+            <DynamicReportDownloadExcelButton
+              rows={tableFormData}
+              metaData={metaData}
+              fileName={`HblRequestCustomerReport_${new Date()
+                .toISOString()
+                .slice(0, 10)}.xlsx`}
+              text="DOWNLOAD EXCEL"
+              buttonStyles="custom-btn"
+              disabled={!tableFormData.length}
             />
+
             <CustomButton
               text="Cancel"
+              buttonStyles="!text-[white] !bg-[#f5554a] !text-[11px]"
               onClick={() => router.push("/home")}
               type="button"
             />
@@ -153,7 +149,11 @@ export default function InvoiceRegisterCustomer() {
       </form>
 
       <Box className="p-0">
-        <DynamicReportTable data={tableData} metaData={metaData} />
+        <DynamicReportTable
+          data={tableData}
+          metaData={metaData}
+          onSelectedEditedChange={setTableFormData}
+        />
       </Box>
 
       <ToastContainer />

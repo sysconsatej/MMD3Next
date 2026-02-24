@@ -480,6 +480,16 @@ export const navItems = [
         href: "/reports/customAndPort/hblRequestLinerRegister",
         isShow: false,
       },
+      {
+        name: "Customer Payment Register",
+        href: "/reports/customAndPort/customerPaymentRegister",
+        isShow: false,
+      },
+      {
+        name: "Liner Payment Register",
+        href: "/reports/customAndPort/linerPaymentRegister",
+        isShow: false,
+      },
     ],
   },
   {
