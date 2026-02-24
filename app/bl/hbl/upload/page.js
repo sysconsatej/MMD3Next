@@ -61,7 +61,6 @@ const validateRequiredFields = (fields = [], data = {}) => {
   return missing;
 };
 
-
 const findTemplateFile = (selectedName = "") => {
   const csel = canon(selectedName);
   for (const f of TEMPLATE_FILES) {
@@ -74,7 +73,7 @@ const findTemplateFile = (selectedName = "") => {
 
 const isEmptyRow = (obj = {}) =>
   Object.values(obj).every(
-    (v) => v === null || v === "" || typeof v === "undefined"
+    (v) => v === null || v === "" || typeof v === "undefined",
   );
 
 const toIsoDate = (d) => {
@@ -295,7 +294,10 @@ export default function hblUpload() {
         spName,
         json: {
           template: cleanName,
-          header: { ...mergeUserIntoHeader(cleanHeader, userData), location: userData?.location ?? null },
+          header: {
+            ...mergeUserIntoHeader(cleanHeader, userData),
+            location: userData?.location ?? null,
+          },
           data: prunedRows,
         },
       };
@@ -307,7 +309,7 @@ export default function hblUpload() {
         setIsErrorListVisible(true);
         setErrorListData(resp?.data[0]?.message || []);
         toast.warn("Errors found during upload. Please check the error list.");
-      };
+      }
     } catch (err) {
       toast.error(err?.message || "Failed to upload");
     } finally {
@@ -332,7 +334,7 @@ export default function hblUpload() {
         const obj = {
           columns: "t.id as Id, t.voyageNo as Name",
           tableName: "tblVoyage t",
-          whereCondition: `t.vesselId = ${vesselId} and t.status = 1 and t.companyid = ${userData?.companyId}`,
+          whereCondition: `t.vesselId = ${vesselId} and t.status = 1 and t.companyid = ${formData?.shippingLineId?.Id}`,
           orderBy: "t.voyageNo",
         };
 
