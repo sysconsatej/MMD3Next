@@ -15,13 +15,6 @@ export const roleAccessPaths = {
   "/home": ["admin", "shipping", "customer", "cfs"],
   "/request/doRequest/list": ["shipping", "customer"],
 
-  "/reports/customAndPort/cfsDpdIcd": ["shipping"],
-  "/reports/customAndPort/hbl": ["shipping", "customer"],
-  "/reports/customAndPort/vesselSummaryReport": ["shipping"],
-  "/reports/customAndPort/igmGenerationAuditReport": ["shipping"],
-  "/reports/customAndPort/doRegister": ["shipping"],
-  "/reports/customAndPort/slabWiseReport": ["shipping"],
-
   // Added master routes with only admin access
   "/master/company/list": ["admin"],
   "/master/containerSize/list": ["admin"],
