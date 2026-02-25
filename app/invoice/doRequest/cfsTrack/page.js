@@ -14,7 +14,6 @@ import {
   Checkbox,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
-import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
 import {
@@ -35,24 +34,36 @@ import IconButton from "@mui/material/IconButton";
 
 import { ConfirmRemarkModal, InvoiceModal } from "./utils";
 function createData(
-  blNo,
-  isFreeDays,
-  stuffDestuffId,
   Liner,
+  blNo,
+  igmNo,
+  doNo,
+  doDate,
+  isFreeDays,
+  validTill,
+  stuffDestuffId,
   doRequestStatusId,
-  doRejectRemarks,
+  releasedDateTime,
   ConfirmationStatus,
+  confirmTimeAtCfs,
+  doRejectRemarks,
   submittedBy,
   id,
 ) {
   return {
-    blNo,
-    isFreeDays,
-    stuffDestuffId,
     Liner,
+    blNo,
+    igmNo,
+    doNo,
+    doDate,
+    isFreeDays,
+    validTill,
+    stuffDestuffId,
     doRequestStatusId,
-    doRejectRemarks,
+    releasedDateTime,
     ConfirmationStatus,
+    confirmTimeAtCfs,
+    doRejectRemarks,
     submittedBy,
     id,
   };
@@ -88,35 +99,109 @@ export default function BLList() {
       try {
         const tableObj = {
           columns: `
-              c1.name Liner,
-              u2.name submittedBy,
-              d.blNo blNo,
-              d.isFreeDays isFreeDays,
-              m2.name stuffDestuffId,
-              m.name doRequestStatusId,
-              d.cfsRemarks  doRejectRemarks,
-              m1.name ConfirmationStatus,
-              d.id id
-           `,
+      c1.name AS Liner,
+      u2.name AS submittedBy,
+      d.blNo AS blNo,
+      d.isFreeDays AS isFreeDays,
+      FORMAT(
+        (d.validTill AT TIME ZONE 'UTC' 
+         AT TIME ZONE 'India Standard Time'),
+        'dd-MM-yyyy '
+      ) AS validTill,
+      m2.name AS stuffDestuffId,
+      m.name AS doRequestStatusId,
+      d.cfsRemarks AS doRejectRemarks,
+      m1.name AS ConfirmationStatus,
+      d.id AS id,
+
+      FORMAT(
+        (rel.EventDate AT TIME ZONE 'UTC' 
+         AT TIME ZONE 'India Standard Time'),
+        'dd-MM-yyyy hh:mm:ss tt'
+      ) AS releasedDateTime,
+
+      FORMAT(
+        (cfs.EventDate AT TIME ZONE 'UTC' 
+         AT TIME ZONE 'India Standard Time'),
+        'dd-MM-yyyy hh:mm:ss tt'
+      ) AS confirmTimeAtCfs,
+
+      vr.igmNo AS igmNo,
+      b.doNo AS doNo,
+      b.doDate AS doDate
+  `,
+
           tableName: "tblDoRequest d",
+
           pageNo,
           pageSize,
+
           advanceSearch: advanceSearchFilter(advanceSearch),
+
           joins: `
-         LEFT JOIN tblMasterData m ON m.id = d.doRequestStatusId
-         LEFT JOIN tblMasterData m1 ON m1.id = d.cfsStatusId
-         LEFT JOIN tblCompany c ON c.id = ${userData.companyId}
-         LEFT JOIN tblCompany c1 ON c1.id = d.shippingLineId 
-         LEFT JOIN tblMasterData m2 ON m2.id = d.stuffDestuffId
-         LEFT JOIN tblLocation l ON l.id = ${userData.location}
-         LEFT JOIN tblUser u2 ON u2.id = d.createdBy
-        LEFT JOIN tblPort p ON p.id = d.nominatedAreaId 
-        join tblMasterData ms on ms.id=d.doRequestStatusId and ms.name='Released for DO'
-        JOIN tblDoRequest d2 
-          ON d2.id = d.id 
-          AND d2.status = 1 
-          AND p.name = c.name 
-          AND d.locationId = l.id `,
+
+      LEFT JOIN tblBl b 
+          ON b.hblNo = d.blNo 
+          OR b.mblNo = d.blNo
+
+      LEFT JOIN tblVoyageRoute vr 
+          ON vr.portOfCallId = b.podId 
+          AND vr.voyageId = b.podVoyageId
+
+      LEFT JOIN tblMasterData m 
+          ON m.id = d.doRequestStatusId
+
+      LEFT JOIN tblMasterData m1 
+          ON m1.id = d.cfsStatusId
+
+      LEFT JOIN tblCompany c1 
+          ON c1.id = d.shippingLineId
+
+      LEFT JOIN tblMasterData m2 
+          ON m2.id = d.stuffDestuffId
+
+      LEFT JOIN tblUser u2 
+          ON u2.id = d.createdBy
+
+      LEFT JOIN tblPort p 
+          ON p.id = d.nominatedAreaId
+
+      INNER JOIN tblMasterData ms 
+          ON ms.id = d.doRequestStatusId 
+          AND ms.name = 'Released for DO'
+
+      INNER JOIN tblCompany c 
+          ON c.id = ${userData.companyId}
+          AND p.name = c.name
+
+      INNER JOIN tblLocation l
+          ON l.id = ${userData.location}
+          AND d.locationId = l.id
+
+      OUTER APPLY (
+          SELECT TOP 1 t.EventDate
+          FROM dbo.fn_AuditLogSummary('dbo.tblDoRequest', d.id) t
+          LEFT JOIN tblMasterData newm 
+              ON newm.id = TRY_CONVERT(INT, t.NewValue)
+          WHERE 
+              t.ColumnName = 'doRequestStatusId'
+              AND newm.name = 'Released for DO'
+          ORDER BY t.EventDate DESC
+      ) rel
+
+      OUTER APPLY (
+          SELECT TOP 1 t.EventDate
+          FROM dbo.fn_AuditLogSummary('dbo.tblDoRequest', d.id) t
+          WHERE 
+              t.ColumnName = 'cfsStatusId'
+          ORDER BY t.EventDate DESC
+      ) cfs
+
+      INNER JOIN tblDoRequest d2
+          ON d2.id = d.id
+          AND d2.status = 1
+          and  rel.EventDate >= dateadd(day,-90,getdate())
+  `,
         };
 
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
@@ -138,13 +223,19 @@ export default function BLList() {
   const rows = blData
     ? blData.map((item) =>
         createData(
-          item["blNo"],
-          item["isFreeDays"],
-          item["stuffDestuffId"],
           item["Liner"],
+          item["blNo"],
+          item["igmNo"],
+          item["doNo"],
+          item["doDate"],
+          item["isFreeDays"],
+          item["validTill"],
+          item["stuffDestuffId"],
           item["doRequestStatusId"],
-          item["doRejectRemarks"],
+          item["releasedDateTime"],
           item["ConfirmationStatus"],
+          item["confirmTimeAtCfs"],
+          item["doRejectRemarks"],
           item["submittedBy"],
           item["id"],
         ),
@@ -263,14 +354,18 @@ export default function BLList() {
                     sx={{ p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } }}
                   />
                 </TableCell>
-                <TableCell>BL NO</TableCell>
+                <TableCell>Liner</TableCell>
+                <TableCell>BL No</TableCell>
+                <TableCell>IGM No</TableCell>
+                <TableCell>DO No</TableCell>
+                <TableCell>DO Date</TableCell>
                 <TableCell>Free Days</TableCell>
-                <TableCell>Stuff Destuff</TableCell>
-                <TableCell>Liner Name</TableCell>
-                <TableCell>Do Status</TableCell>
-                <TableCell>Remark</TableCell>
-                <TableCell>Confirmation Status</TableCell>
-                <TableCell>Submitted By</TableCell>
+                <TableCell>Valid Till</TableCell>
+                <TableCell>Stuff/Destuff</TableCell>
+                <TableCell>DO Status</TableCell>
+                <TableCell>CFS Status</TableCell>
+                <TableCell>Confirmed Date at CFS</TableCell>
+                <TableCell>Remarks</TableCell>
                 <TableCell>Attachment</TableCell>
               </TableRow>
             </TableHead>
@@ -290,10 +385,15 @@ export default function BLList() {
                         sx={{ p: 0.25, "& .MuiSvgIcon-root": { fontSize: 18 } }}
                       />
                     </TableCell>
-                    <TableCell>{row.blNo}</TableCell>
-                    <TableCell>{row.isFreeDays}</TableCell>
-                    <TableCell>{row.stuffDestuffId}</TableCell>
                     <TableCell>{row.Liner}</TableCell>
+                    <TableCell>{row.blNo}</TableCell>
+                    <TableCell>{row.igmNo}</TableCell>
+                    <TableCell>{row.doNo}</TableCell>
+                    <TableCell>{row.releasedDateTime}</TableCell>
+                    <TableCell>{row.isFreeDays}</TableCell>
+                    <TableCell>{row.validTill}</TableCell>
+                    <TableCell>{row.stuffDestuffId}</TableCell>
+
                     <TableCell
                       sx={{
                         color: statusColor(
@@ -303,7 +403,7 @@ export default function BLList() {
                     >
                       {row.doRequestStatusId}
                     </TableCell>
-                    <TableCell>{row.doRejectRemarks}</TableCell>
+
                     <TableCell
                       sx={{
                         color: statusColor(
@@ -313,7 +413,9 @@ export default function BLList() {
                     >
                       {row.ConfirmationStatus}
                     </TableCell>
-                    <TableCell>{row.submittedBy}</TableCell>
+
+                    <TableCell>{row.confirmTimeAtCfs}</TableCell>
+                    <TableCell>{row.doRejectRemarks}</TableCell>
                     <TableCell>
                       <IconButton
                         size="small"
