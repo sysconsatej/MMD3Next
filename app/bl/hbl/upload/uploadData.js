@@ -1,3 +1,7 @@
+import { getUserByCookies } from "@/utils";
+
+const userData = await getUserByCookies();
+
 const fieldData = {
   hblFields: [
     {
@@ -18,10 +22,11 @@ const fieldData = {
       label: "Line",
       name: "shippingLineId",
       type: "dropdown",
-      tableName: "tblCompany t",
-      displayColumn: "t.name",
-      searchColumn: "t.name",
-      orderBy: "t.name",
+      tableName: "tblCompany c",
+      displayColumn: "c.name",
+      searchColumn: "c.name",
+      joins: `join tblCompanySubtype cs on cs.companyId = c.id join tblUser u2 on u2.id = cs.subTypeId and u2.roleCode = 'shipping'`,
+      orderBy: "c.name",
       foreignTable: "name,tblCompany",
       isEdit: true,
       required: true,
@@ -30,12 +35,14 @@ const fieldData = {
       label: "Vessel",
       name: "podVesselId",
       type: "dropdown",
-      changeFun: "handleChangeOnVessel",
-      tableName: "tblVessel t",
-      idColumn: "id",
       displayColumn: "t.name",
       searchColumn: "t.name",
+      tableName: "tblVessel t",
+      joins: `left join tblLocation l on l.id = ${userData?.location} left JOIN tblVoyageRoute vr ON vr.vesselId = t.id left join tblPort p on p.id = vr.portOfCallId `,
+      where: ` GETDATE() >= vr.gateOpenLine AND GETDATE() < vr.gateCloseLine and p.name = l.name `,
+      selectedConditions: [{ shippingLineId: "vr.companyid" }],
       orderBy: "t.name",
+      changeFun: "handleChangeOnVessel",
       isEdit: true,
     },
     {
@@ -46,11 +53,10 @@ const fieldData = {
       idColumn: "id",
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
-      selectedConditions: [
-        { podVesselId: "vesselId" },
-        { shippingLineId: "companyid" },
-      ],
+      selectedConditions: [{ podVesselId: "vesselId" }],
+      where: ` t.status = 1`,
       orderBy: "t.voyageNo",
+      foreignTable: "voyageNo,tblVoyage",
       isEdit: true,
     },
     {

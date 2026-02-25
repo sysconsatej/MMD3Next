@@ -21,13 +21,14 @@ const fieldData = {
     {
       label: "Vessel",
       name: "podVesselId",
-      changeFun: "handleChangeOnVessel",
       type: "dropdown",
-      tableName: "tblVessel t",
-      idColumn: "id",
       displayColumn: "t.name",
       searchColumn: "t.name",
+      tableName: "tblVessel t",
+      joins: `left join tblLocation l on l.id = ${userData?.location} left JOIN tblVoyageRoute vr ON vr.vesselId = t.id left join tblPort p on p.id = vr.portOfCallId `,
+      where: ` GETDATE() >= vr.gateOpenLine AND GETDATE() < vr.gateCloseLine and vr.companyid = ${userData?.companyId} and p.name = l.name `,
       orderBy: "t.name",
+      changeFun: "handleChangeOnVessel",
       isEdit: true,
     },
     {
