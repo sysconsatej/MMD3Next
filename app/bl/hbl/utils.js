@@ -56,7 +56,7 @@ export function advanceSearchFilter(advanceSearch) {
   }
 
   if (advanceSearch.hblNo) {
-    condition.push(`b.mblNo = (select mblNo from tblBl b3 where b3.hblNo =  '${advanceSearch.hblNo}' and b3.status = 1)`);
+    condition.push(`b.mblNo = (select b3.mblNo from tblBl b3 where b3.hblNo =  '${advanceSearch.hblNo}' and b3.status = 1)`);
   }
 
   if (advanceSearch.hblRequestStatus) {
