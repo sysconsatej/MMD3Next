@@ -128,7 +128,7 @@ export default function IgmGeneration() {
             <DynamicReportDownloadExcelButton
               rows={tableFormData}
               metaData={metaData}
-              fileName={`HblRequestCustomerReport_${new Date()
+              fileName={`LinerPaymentReport_${new Date()
                 .toISOString()
                 .slice(0, 10)}.xlsx`}
               text="DOWNLOAD EXCEL"
