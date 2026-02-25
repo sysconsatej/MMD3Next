@@ -274,12 +274,12 @@ export const navItems = [
       {
         name: "Pre CAN",
         href: "/reports/customAndPort/preCan",
-        isShow: true,
+        isShow: false,
       },
       {
         name: "Post CAN",
         href: "/reports/customAndPort/postCan",
-        isShow: true,
+        isShow: false,
       },
       {
         name: "Update CFS DPD",
@@ -289,22 +289,22 @@ export const navItems = [
       {
         name: "Update Line No",
         href: "/reports/customAndPort/updateLineNumber",
-        isShow: true,
+        isShow: false,
       },
       {
         name: "invoiceRegisterCustomer",
         href: "/reports/customAndPort/invoiceRegisterCustomer",
-        isShow: true,
+        isShow: false,
       },
       {
         name: "instantDoReport",
         href: "/reports/customAndPort/instantDoReport",
-        isShow: true,
+        isShow: false,
       },
       {
         name: "invoiceRegisterLiner",
         href: "/reports/customAndPort/invoiceRegisterLiner",
-        isShow: true,
+        isShow: false,
       },
       // {
       //   name: "Update Vessel/Voyage",
@@ -314,7 +314,7 @@ export const navItems = [
       {
         name: "DO Register",
         href: "/reports/customAndPort/doRegister",
-        isShow: true,
+        isShow: false,
       },
       {
         name: "Shipping Bill",
@@ -355,23 +355,23 @@ export const navItems = [
       //   name: "Uploads",
       //   icon: "file",
       //   href: "/upload",
-      //   isShow: true,
+      //   isShow: false,
       // },
 
       // {
       //   name: "HBL",
       //   href: "/reports/customAndPort/hbl",
-      //   isShow: true,
+      //   isShow: false,
       // },
       {
         name: "Vessel Summary Report",
         href: "/reports/customAndPort/vesselSummaryReport",
-        isShow: true,
+        isShow: false,
       },
       {
         name: "Igm Generation Audit Report",
         href: "/reports/customAndPort/igmGenerationAuditReport",
-        isShow: true,
+        isShow: false,
       },
       // {
       //   name: "All Payments",
@@ -406,28 +406,27 @@ export const navItems = [
       {
         name: "CFS DPD ICD",
         href: "/reports/customAndPort/cfsDpdIcd",
-        isShow: true,
+        isShow: false,
       },
 
       {
         name: "Slab Wise Report",
         href: "/reports/customAndPort/slabWiseReport",
-        isShow: true,
+        isShow: false,
       },
       {
         name: "Released DO Tat",
         href: "/reports/customAndPort/releaseddotat",
-        isShow: true,
+        isShow: false,
       },
       {
         name: "Manifest BL Register",
         href: "/reports/customAndPort/manifestBlRegister",
-        isShow: true,
+        isShow: false,
       },
       {
         name: "Job Report",
         href: "/reports/customAndPort/jobReport",
-        isShow: true,
         isShow: false,
       },
       {
