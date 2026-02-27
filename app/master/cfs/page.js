@@ -16,6 +16,7 @@ import {
 } from "@/utils";
 import { formStore } from "@/store";
 import TableGrid from "@/components/tableGrid/tableGrid";
+import { handleBlur, handleChange, initialHandler } from "./utils";
 
 export default function Cfs() {
   const [formData, setFormData] = useState({});
@@ -36,106 +37,15 @@ export default function Cfs() {
       toast.error(error || message);
     }
   };
-  const handleBlurEventFunctions = {
-    duplicateHandler: async (event) => {
-      const { name, value } = event.target;
-      const normalized = String(value ?? "").trim();
 
-      if (!normalized) return true;
+  const handleBlurEventFunctions = handleBlur({
+    mode,
+    setErrorState,
+    setFormData,
+    formData,
+  });
 
-      const literal = normalized.replace(/'/g, "''");
-
-      let whereDup = `
-      ${name} = '${literal.toUpperCase()}'
-      AND portTypeId IN (
-        SELECT id FROM tblMasterData WHERE name = 'CONTAINER FREIGHT STATION'
-      )
-      AND companyId = ${userData?.companyId}
-      AND status = 1
-    `;
-
-      if (mode?.formId) {
-        whereDup += ` AND id <> ${mode.formId}`;
-      }
-
-      const obj = {
-        columns: "id",
-        tableName: "tblPort",
-        whereCondition: whereDup,
-      };
-
-      const resp = await getDataWithCondition(obj);
-
-      const isDuplicate =
-        resp?.success === true ||
-        (Array.isArray(resp?.data) && resp.data.length > 0);
-
-      if (isDuplicate) {
-        setErrorState((prev) => ({ ...prev, [name]: true }));
-        setFormData((prev) => ({ ...prev, [name]: "" }));
-        toast.error(`Duplicate ${name}!`);
-        return false;
-      }
-
-      setFormData((prev) => ({ ...prev, [name]: normalized }));
-      setErrorState((prev) => ({ ...prev, [name]: false }));
-      return true;
-    },
-    validatePanCard: (e) => {
-      const value = e.target.value;
-      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-      if (value !== String(value).toUpperCase()) {
-        setFormData((prev) => ({ ...prev, panNo: null }));
-        return toast.error("Pan card should be always in caps");
-      }
-
-      if (panRegex.test(value)) {
-        return true;
-      } else {
-        setFormData((prev) => ({ ...prev, panNo: null }));
-        return toast.error("Pan Number is invalid ");
-      }
-    },
-    validateCustomCode: (e) => {
-      const { name, value } = e.target;
-      const alphaNumeric10Regex = /^[A-Za-z0-9]{10}$/;
-
-      if (!alphaNumeric10Regex.test(String(value ?? "").trim())) {
-        setFormData((prev) => ({ ...prev, [name]: "" })); // or null if you want
-        setErrorState((prev) => ({ ...prev, [name]: true }));
-        toast.error("Code must be exactly 10 alphanumeric characters");
-        return false;
-      }
-
-      setErrorState((prev) => ({ ...prev, [name]: false }));
-      return true;
-    },
-    duplicateHandler_ediPortCode: async (e) => {
-      const ok = handleBlurEventFunctions.validateCustomCode(e);
-      if (!ok) return false;
-      return await handleBlurEventFunctions.duplicateHandler(e);
-    },
-  };
-  const handleChangeEventFunctions = {
-    onReferencePortChange: (name, value, { setFormData }) => {
-      setJsonData((prev) => {
-        const updateTblPortDetails = prev.tblPortDetails.map((field) => {
-          if (field.name === "berthId") {
-            return {
-              ...field,
-              where: `m.name IN ('PORT TERMINAL') and p.referencePortId = ${value?.Id}`,
-            };
-          }
-          return field;
-        });
-
-        return {
-          ...prev,
-          tblPortDetails: updateTblPortDetails,
-        };
-      });
-    },
-  };
+  const handleChangeEventFunctions = handleChange({ setJsonData });
 
   useEffect(() => {
     async function fetchFormHandler() {
@@ -146,7 +56,7 @@ export default function Cfs() {
           "tblPort",
           mode.formId,
           '["tblPortDetails"]',
-          "portId"
+          "portId",
         );
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
@@ -162,27 +72,10 @@ export default function Cfs() {
   }, [mode.formId]);
 
   useEffect(() => {
-    async function initialHandler() {
-      const obj = {
-        columns: "id",
-        tableName: "tblMasterData",
-        whereCondition:
-          "name = 'CONTAINER FREIGHT STATION' and masterListName = 'tblPortType' and status = 1",
-      };
-
-      const { data, message, error, success } = await getDataWithCondition(obj);
-      if (success) {
-        setFormData((prev) => ({
-          ...prev,
-          portTypeId: data?.[0].id,
-          companyId: userData?.companyId,
-        }));
-      } else {
-        toast.error(error || message);
-      }
+    async function renderInit() {
+      await initialHandler({ setFormData, mode });
     }
-
-    initialHandler();
+    renderInit();
   }, []);
 
   return (

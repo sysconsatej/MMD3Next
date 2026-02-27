@@ -49,6 +49,7 @@ const fieldData = {
       orderBy: "p.name",
       foreignTable: "name,tblPort",
       isEdit: true,
+      disabled: true,
       changeFun: "onReferencePortChange",
     },
     {
