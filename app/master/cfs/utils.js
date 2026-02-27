@@ -41,8 +41,6 @@ export async function initialHandler({ setFormData, mode }) {
       ...prev,
       referencePortId: data1?.[0],
     }));
-  } else {
-    toast.error(error1 || message1);
   }
 }
 
