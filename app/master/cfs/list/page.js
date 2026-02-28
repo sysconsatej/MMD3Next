@@ -74,8 +74,12 @@ export default function CfsList() {
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `join tblMasterData m on m.id = p.portTypeId and m.name = 'CONTAINER FREIGHT STATION'  and masterListName = 'tblPortType' and p.companyId = ${userData?.companyId} left join tblUser u on u.id = p.updatedBy left join tblPort ref on p.referencePortId =ref.id
-                  left join tblMasterData cfsType on cfsType.id=p.cfsTypeId
+          joins: `
+          left join tblUser u on u.id = p.updatedBy 
+          left join tblPort ref on p.referencePortId = ref.id
+          left join tblMasterData cfsType on cfsType.id=p.cfsTypeId
+          left join tblLocation l on l.id = ${userData?.location}
+          join tblMasterData m on m.id = p.portTypeId and m.name = 'CONTAINER FREIGHT STATION'  and m.masterListName = 'tblPortType' and p.companyId = ${userData?.companyId} and ref.name = l.name
 `,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
