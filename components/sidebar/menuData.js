@@ -507,6 +507,11 @@ export const navItems = [
         href: "/upload/Upload72HoursData",
         isShow: false,
       },
+      {
+        name: "Upload PCI Number",
+        href: "/upload/uploadPCINumber",
+        isShow: false,
+      },
     ],
   },
 ];
