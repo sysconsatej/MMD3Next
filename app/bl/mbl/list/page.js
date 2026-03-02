@@ -310,8 +310,14 @@ export default function BLList() {
 
         <MBLSelectionActionsBar
           selectedIds={selectedIds}
-          onView={(id) => modeHandler("view", id, "MBL")}
-          onEdit={(id) => modeHandler("edit", id, "MBL")}
+          onView={(id) => {
+            const flag = rows.find((x) => x.id === id);
+            modeHandler("view", id, flag?.mblHblFlag);
+          }}
+          onEdit={(id) => {
+            const flag = rows.find((x) => x.id === id);
+            modeHandler("edit", id, flag?.mblHblFlag);
+          }}
           onPrint={(id) => {
             const row = rows.find((x) => x.id === id);
             handlePrint(id, row?.clientId);
