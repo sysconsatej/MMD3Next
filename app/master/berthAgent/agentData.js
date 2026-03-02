@@ -16,7 +16,10 @@ export const fieldData = {
       displayColumn: "c.name",
       orderBy: "c.name",
       foreignTable: "name,tblCompany",
-      where: userData?.roleCode === "shipping" ? `c.id  = '${userData?.companyId}'` : "",
+      where:
+        userData?.roleCode === "shipping"
+          ? `c.id  = '${userData?.companyId}'`
+          : "",
     },
     {
       label: "Berth Name",
@@ -25,7 +28,7 @@ export const fieldData = {
       isEdit: true,
       required: true,
       displayColumn: "p.code",
-      joins: `join tblMasterData d on p.portTypeId = d.id and d.name = 'PORT TERMINAL'`,
+      joins: `left join tblPort p2 on p2.id = p.referencePortId left join tblLocation l on l.id = ${userData?.location} join tblMasterData d on p.portTypeId = d.id and d.name = 'PORT TERMINAL' and p2.name = l.name`,
       searchColumn: "p.code",
       orderBy: "p.code",
       tableName: "tblPort p",

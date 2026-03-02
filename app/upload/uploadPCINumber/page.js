@@ -114,8 +114,10 @@ export default function xlUpload() {
       if (resp?.success) {
         toast.success(resp?.message || "Uploaded successfully");
         setFormData((prev) => ({ ...prev, upload: null }));
+        setErrorGrid([]);
       } else {
         toast.error(resp?.message || "Upload failed");
+        setErrorGrid(resp.data);
       }
     } catch (err) {
       toast.error("Invalid JSON structure.");
