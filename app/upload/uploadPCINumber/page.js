@@ -28,13 +28,17 @@ const extractRequiredData = (json) => {
 
   const reportingEvent = json?.headerField?.reportingEvent ?? "";
   const accpStatus = json?.headerField?.accpStatus ?? "";
+  const uniqueId = json?.headerField?.uniqueId ?? "";
+
+  const csnDt = json?.master?.decRef?.csnDt ?? "";
+  const csnNmbr = json?.master?.decRef?.csnNmbr ?? "";
 
   const masters = json?.master?.mastrCnsgmtDec ?? [];
 
   masters.forEach((m) => {
     const mblNo = m?.MCRef?.mstrBlNo ?? "";
 
-    // ---- MBL (MCIN)
+    // ---- MBL
     if (m?.mcResponse?.cinTyp && m?.mcResponse?.mcinPcin) {
       result.push({
         reportingEvent,
@@ -42,15 +46,16 @@ const extractRequiredData = (json) => {
         mblNo,
         cinTyp: m.mcResponse.cinTyp,
         mcinPcin: m.mcResponse.mcinPcin,
+        csnDt,
+        csnNmbr,
+        uniqueId,
         hblNo: null,
         Flag: "MBL",
       });
     }
 
-    // ---- HBL (PCIN)
-    const houses = m?.houseCargoDec ?? [];
-
-    houses.forEach((h) => {
+    // ---- HBL
+    (m?.houseCargoDec ?? []).forEach((h) => {
       if (h?.hcResponse?.cinTyp && h?.hcResponse?.mcinPcin) {
         result.push({
           reportingEvent,
@@ -58,6 +63,9 @@ const extractRequiredData = (json) => {
           mblNo,
           cinTyp: h.hcResponse.cinTyp,
           mcinPcin: h.hcResponse.mcinPcin,
+          csnDt,
+          csnNmbr,
+          uniqueId,
           hblNo: h?.HCRef?.blNo ?? null,
           Flag: "HBL",
         });
