@@ -13,6 +13,7 @@ import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable
 import { useRouter } from "next/navigation"; // ⬅️ import router
 import { getUserByCookies, jsonExport } from "@/utils";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
+import { company } from "@/app/master/company/companyData";
 
 export default function CSN() {
   const [formData, setFormData] = useState({});
@@ -34,7 +35,7 @@ export default function CSN() {
           return [key, value.Id];
         }
         return [key, value];
-      })
+      }),
     );
   };
 
@@ -65,7 +66,11 @@ export default function CSN() {
 
     const requestBody = {
       spName: "ImportMBlSelection",
-      jsonData: transformed,
+      jsonData: {
+        ...transformed,
+        userId: userData.userId,
+        companyId: userData.companyId,
+      },
     };
 
     const getErr = (src) =>
@@ -97,7 +102,7 @@ export default function CSN() {
         } else {
           setError(errText || "Request failed.");
           toast.error(
-            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`
+            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`,
           );
         }
       }
@@ -126,7 +131,7 @@ export default function CSN() {
         setFormData,
         fields: jsonData.igmEdiFields,
       }),
-    [setFormData, jsonData.igmEdiFields]
+    [setFormData, jsonData.igmEdiFields],
   );
   return (
     <ThemeProvider theme={theme}>
