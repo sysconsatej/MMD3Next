@@ -46,6 +46,7 @@ function createData(
   releasedDateTime,
   ConfirmationStatus,
   confirmTimeAtCfs,
+  cfsUpdatedBy,
   doRejectRemarks,
   submittedBy,
   id,
@@ -63,6 +64,7 @@ function createData(
     releasedDateTime,
     ConfirmationStatus,
     confirmTimeAtCfs,
+    cfsUpdatedBy,
     doRejectRemarks,
     submittedBy,
     id,
@@ -112,6 +114,9 @@ export default function BLList() {
       m.name AS doRequestStatusId,
       d.cfsRemarks AS doRejectRemarks,
       m1.name AS ConfirmationStatus,
+      CASE 
+      WHEN m1.name = 'Confirm' THEN up.name
+      END AS cfsUpdatedBy,
       d.id AS id,
 
       FORMAT(
@@ -139,7 +144,8 @@ export default function BLList() {
           advanceSearch: advanceSearchFilter(advanceSearch),
 
           joins: `
-
+     left JOIN tblUser up
+          ON up.id = d.updatedBy
       LEFT JOIN tblBl b 
           ON b.hblNo = d.blNo 
           OR b.mblNo = d.blNo
@@ -235,6 +241,7 @@ export default function BLList() {
           item["releasedDateTime"],
           item["ConfirmationStatus"],
           item["confirmTimeAtCfs"],
+          item["cfsUpdatedBy"],
           item["doRejectRemarks"],
           item["submittedBy"],
           item["id"],
@@ -365,6 +372,7 @@ export default function BLList() {
                 <TableCell>DO Status</TableCell>
                 <TableCell>CFS Status</TableCell>
                 <TableCell>Confirmed Date at CFS</TableCell>
+                <TableCell>Confirmed By</TableCell>
                 <TableCell>Remarks</TableCell>
                 <TableCell>Attachment</TableCell>
               </TableRow>
@@ -415,6 +423,7 @@ export default function BLList() {
                     </TableCell>
 
                     <TableCell>{row.confirmTimeAtCfs}</TableCell>
+                    <TableCell>{row.cfsUpdatedBy}</TableCell>
                     <TableCell>{row.doRejectRemarks}</TableCell>
                     <TableCell>
                       <IconButton
