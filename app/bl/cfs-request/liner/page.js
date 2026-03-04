@@ -71,10 +71,17 @@ export default function SearchRequestCfsDpdIcd() {
   const { setMode } = formStore();
   const userData = getUserByCookies();
   const router = useRouter();
+  const [searchCondition, setSearchCondition] = useState(
+    `u.id = ${userData?.userId}`,
+  );
 
   /* ---------------- Fetch Table Data ---------------- */
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         setLoadingState("Loading...");
 
@@ -102,7 +109,8 @@ export default function SearchRequestCfsDpdIcd() {
           advanceSearch: advanceSearchFilter(advanceSearch),
           joins: `
             LEFT JOIN tblUser u2 ON u2.id = b.createdBy
-            LEFT JOIN tblUser u ON u.id = ${userData?.userId}
+            left join tblUser u3 on u3.roleCode = 'shipping'
+            LEFT JOIN tblUser u ON ${searchConditionMain}
             LEFT JOIN tblCompany c1 ON c1.id = u2.companyId
             LEFT JOIN tblLocation l ON l.id = ${userData?.location}
             JOIN tblMasterData m ON m.id = b.cfsRequestStatusId
@@ -152,6 +160,10 @@ export default function SearchRequestCfsDpdIcd() {
   useEffect(() => {
     getData(1, rowsPerPage);
     setMode({ mode: null, formId: null });
+    if (userData?.roleCode === "admin") {
+      setSearchCondition(`u.roleCodeId = u3.id`);
+      getData(1, rowsPerPage, `u.roleCodeId = u3.id`);
+    }
   }, []);
 
   return (
@@ -176,7 +188,7 @@ export default function SearchRequestCfsDpdIcd() {
         <SearchRequestToolbarActions
           selectedIds={selectedIds}
           onView={(id) =>
-            cfsStatusHandler(getData, router, setMode).handleView(id)
+            cfsStatusHandler(getData, router, setMode, "liner").handleView(id)
           }
           onReject={(ids) =>
             setModal((prev) => ({

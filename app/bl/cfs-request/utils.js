@@ -310,7 +310,12 @@ export function advanceSearchFilter(advanceSearch) {
   return condition.length > 0 ? condition.join(" and ") : null;
 }
 
-export const tableObj = ({ pageNo, pageSize, advanceSearch }) => {
+export const tableObj = ({
+  pageNo,
+  pageSize,
+  advanceSearch,
+  searchConditionMain,
+}) => {
   const payload = {
     columns: `
       b.id,
@@ -337,7 +342,8 @@ export const tableObj = ({ pageNo, pageSize, advanceSearch }) => {
       left join tblPort p on p.id = b.nominatedAreaId
       left join tblPort c on c.id = b.dpdId
       left join tblCompany c1 on c1.id = b.shippingLineId
-      left join tblUser u1 on u1.id = ${userData?.userId}
+      left join tblUser u3 on u3.roleCode = 'customer'
+      left join tblUser u1 on ${searchConditionMain}
       left join tblUser u2 on u2.companyId = u1.companyId
       join tblCfsRequest b2 
         on b2.id = b.id
@@ -352,10 +358,10 @@ export const tableObj = ({ pageNo, pageSize, advanceSearch }) => {
   return payload;
 };
 
-export const cfsStatusHandler = (getData, router, setMode) => {
+export const cfsStatusHandler = (getData, router, setMode, path = null) => {
   return {
     handleView: (id) => {
-      setMode({ mode: "view", formId: id });
+      setMode({ mode: "view", formId: id, admin: path });
       router.push("/bl/cfs-request");
     },
     handleEdit: (id) => {
