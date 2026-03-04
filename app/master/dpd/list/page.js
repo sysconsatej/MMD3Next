@@ -35,7 +35,7 @@ function createData(
   iceNo,
   updatedBy,
   updateDate,
-  id
+  id,
 ) {
   return {
     code,
@@ -63,8 +63,16 @@ export default function DpdList() {
   const router = useRouter();
   const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
+  const [searchCondition, setSearchCondition] = useState(
+    `p.companyId = ${userData?.companyId} and p.createdBy = u2.id`,
+  );
+
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         const tableObj = {
           columns:
@@ -74,7 +82,7 @@ export default function DpdList() {
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: ` join tblMasterData m on m.id = p.portTypeId and m.name='DIRECT PORT DELIVERY' and masterListName = 'tblPortType' and p.companyId = ${userData?.companyId} left join tblUser u on u.id = p.updatedBy`,
+          joins: `left join tblUser u1 on u1.roleCode = 'shipping' left join tblUser u2 on u2.roleCodeId = u1.id join tblMasterData m on m.id = p.portTypeId and m.name='DIRECT PORT DELIVERY' and masterListName = 'tblPortType' and ${searchConditionMain} left join tblUser u on u.id = p.updatedBy`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -88,12 +96,16 @@ export default function DpdList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, search, searchCondition],
   );
 
   useEffect(() => {
     getData(1, rowsPerPage);
     setMode({ mode: null, formId: null });
+    if (userData?.roleCode === "admin") {
+      setSearchCondition(`p.companyId = u2.companyId`);
+      getData(1, rowsPerPage, `p.companyId = u2.companyId`);
+    }
   }, []);
 
   const rows = dpdData
@@ -108,8 +120,8 @@ export default function DpdList() {
           item["iceNo"],
           item["updatedBy"],
           item["updateDate"],
-          item["id"]
-        )
+          item["id"],
+        ),
       )
     : [];
 
