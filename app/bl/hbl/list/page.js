@@ -112,7 +112,7 @@ export default function BLList() {
   const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
   const [searchCondition, setSearchCondition] = useState(
-    `u.id = ${userData.userId}`,
+    `u.id = ${userData?.userId}`,
   );
 
   const getData = useCallback(
