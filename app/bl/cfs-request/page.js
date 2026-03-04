@@ -46,12 +46,20 @@ export default function Company() {
       return;
     }
 
-    const normalized = {
-      ...formData,
-      companyId: userData?.companyId,
-      companyBranchId: userData?.branchId,
-      blId: formData?.blId || null,
-    };
+    let normalized = {};
+    if (userData?.roleCode === "admin") {
+      normalized = {
+        ...formData,
+        blId: formData?.blId || null,
+      };
+    } else {
+      normalized = {
+        ...formData,
+        companyId: userData?.companyId,
+        companyBranchId: userData?.branchId,
+        blId: formData?.blId || null,
+      };
+    }
 
     const format = formatFormData(
       "tblCfsRequest",
@@ -172,6 +180,13 @@ export default function Company() {
                 onClick={() => setMode({ mode: null, formId: null })}
               />
             )}
+            {userData?.roleCode === "admin" && (
+              <CustomButton
+                text="Back"
+                href={`/bl/cfs-request/${mode?.admin}`}
+                onClick={() => setMode({ mode: null, formId: null })}
+              />
+            )}
           </Box>
           <FormHeading text="MBL Details" />
           <Box className="grid grid-cols-4 items-end gap-2 p-2 ">
@@ -200,20 +215,24 @@ export default function Company() {
             />
           </Box>
           <Box className="w-full flex mt-2 gap-3 ">
-            {mode?.mode !== "view" && userData?.roleCode === "customer" && (
-              <CustomButton
-                text={"Submit"}
-                type="submit"
-                disabled={disableSubmit}
-              />
-            )}
-            {userData?.roleCode === "customer" && userAccess?.["Request"] && (
-              <CustomButton
-                text={"Request"}
-                onClick={() => requestHandler(formData, setDisableRequest)}
-                disabled={disableRequest}
-              />
-            )}
+            {mode?.mode !== "view" &&
+              (userData?.roleCode === "customer" ||
+                userData?.roleCode === "admin") && (
+                <CustomButton
+                  text={"Submit"}
+                  type="submit"
+                  disabled={disableSubmit}
+                />
+              )}
+            {(userData?.roleCode === "customer" ||
+              userData?.roleCode === "admin") &&
+              userAccess?.["Request"] && (
+                <CustomButton
+                  text={"Request"}
+                  onClick={() => requestHandler(formData, setDisableRequest)}
+                  disabled={disableRequest}
+                />
+              )}
           </Box>
         </section>
       </form>

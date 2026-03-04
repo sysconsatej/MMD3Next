@@ -67,15 +67,23 @@ export default function CompanyList() {
   const router = useRouter();
   const { data: menuAccess } = useGetUserAccessUtils();
   const userData = getUserByCookies();
+  const [searchCondition, setSearchCondition] = useState(
+    `u1.id = ${userData?.userId}`,
+  );
 
   /* ---------------- Fetch Data ---------------- */
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         const payload = tableObj({
           pageNo,
           pageSize,
           advanceSearch,
+          searchConditionMain: searchConditionMain,
         });
         const { data, totalPage, totalRows } = await fetchTableValues(payload);
 
@@ -129,6 +137,10 @@ export default function CompanyList() {
   useEffect(() => {
     getData(1, rowsPerPage);
     setMode({ mode: null, formId: null });
+    if (userData?.roleCode === "admin") {
+      setSearchCondition(`u1.roleCodeId = u3.id`);
+      getData(1, rowsPerPage, "u1.roleCodeId = u3.id");
+    }
   }, []);
 
   return (
@@ -146,16 +158,18 @@ export default function CompanyList() {
               getData={getData}
               rowsPerPage={rowsPerPage}
             />
-            <CustomButton text="Add" href="/bl/cfs-request" />
+            {userData?.roleCode === "customer" && (
+              <CustomButton text="Add" href="/bl/cfs-request" />
+            )}
           </Box>
         </Box>
         <SearchRequestToolbarActions
           selectedIds={selectedIds}
           onEdit={(id) =>
-            cfsStatusHandler(getData, router, setMode).handleEdit(id)
+            cfsStatusHandler(getData, router, setMode, "list").handleEdit(id)
           }
           onView={(id) =>
-            cfsStatusHandler(getData, router, setMode).handleView(id)
+            cfsStatusHandler(getData, router, setMode, "list").handleView(id)
           }
           onRequest={(ids) =>
             cfsStatusHandler(getData, router, setMode).handleRequest(ids)
