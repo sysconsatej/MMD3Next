@@ -98,7 +98,7 @@ export default function CompanyList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch],
+    [page, rowsPerPage, advanceSearch, searchCondition],
   );
 
   /* ---------------- Checkbox Logic ---------------- */

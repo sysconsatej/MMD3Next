@@ -26,7 +26,18 @@ import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { fieldData, searchDataAray } from "../carrierPortData";
 import { getUserByCookies } from "@/utils";
 
-function createData(companyId, name, podId, fpdId, modeId, panNo, bondNo, updatedBy, updateDate, id) {
+function createData(
+  companyId,
+  name,
+  podId,
+  fpdId,
+  modeId,
+  panNo,
+  bondNo,
+  updatedBy,
+  updateDate,
+  id,
+) {
   return {
     companyId,
     name,
@@ -53,8 +64,16 @@ export default function CompanyList() {
   const router = useRouter();
   const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
+  const [searchCondition, setSearchCondition] = useState(
+    `s.id = '${userData?.companyId}' and c.createdBy = u3.id `,
+  );
+
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         const tableObj = {
           columns:
@@ -64,7 +83,7 @@ export default function CompanyList() {
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `left join tblCompany s on s.id=c.companyId left join tblPort p on p.id=c.podId left join tblPort p1 on p1.id=c.fpdId left join tblMasterData m on m.id=c.modeId join tblCarrierPort c1 on c1.id = c.id  and s.id = '${userData?.companyId}' and c1.status = 1 left join tblUser u on u.id= c.updatedBy`,
+          joins: `left join tblUser u2 on u2.roleCode = 'shipping' left join tblUser u3 on u3.roleCodeId = u2.id left join tblCompany s on s.id = c.companyId left join tblPort p on p.id = c.podId left join tblPort p1 on p1.id = c.fpdId left join tblMasterData m on m.id = c.modeId join tblCarrierPort c1 on c1.id = c.id and ${searchConditionMain} and c1.status = 1 left join tblUser u on u.id= c.updatedBy`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setBerthData(data ?? []);
@@ -78,13 +97,8 @@ export default function CompanyList() {
         setLoadingState("Loading ...");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, search, searchCondition],
   );
-
-  useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-  }, []);
 
   const rows = berthData
     ? berthData.map((item) =>
@@ -98,8 +112,8 @@ export default function CompanyList() {
           item["bondNo"],
           item["updatedBy"],
           item["updateDate"],
-          item["id"]
-        )
+          item["id"],
+        ),
       )
     : [];
 
@@ -141,6 +155,15 @@ export default function CompanyList() {
     router.push("/master/carrierPort");
   };
 
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
+    if (userData?.roleCode === "admin") {
+      setSearchCondition(`s.id = u3.companyId`);
+      getData(1, rowsPerPage, `s.id = u3.companyId`);
+    }
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -170,8 +193,8 @@ export default function CompanyList() {
                   ?.map((item) => (
                     <TableCell key={item.name}>{item.label}</TableCell>
                   ))}
-                  <TableCell>Updated By</TableCell>
-                  <TableCell>Updated Date</TableCell>
+                <TableCell>Updated By</TableCell>
+                <TableCell>Updated Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

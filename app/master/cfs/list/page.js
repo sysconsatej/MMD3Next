@@ -63,8 +63,16 @@ export default function CfsList() {
   const router = useRouter();
   const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
+  const [searchCondition, setSearchCondition] = useState(
+    `p.companyId = ${userData?.companyId} and p.createdBy = u4.id`,
+  );
+
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         const tableObj = {
           columns:
@@ -78,8 +86,10 @@ export default function CfsList() {
           left join tblUser u on u.id = p.updatedBy 
           left join tblPort ref on p.referencePortId = ref.id
           left join tblMasterData cfsType on cfsType.id=p.cfsTypeId
+          left join tblUser u3 on u3.roleCode = 'shipping'
+          left join tblUser u4 on u4.roleCodeId = u3.id
           left join tblLocation l on l.id = ${userData?.location}
-          join tblMasterData m on m.id = p.portTypeId and m.name = 'CONTAINER FREIGHT STATION'  and m.masterListName = 'tblPortType' and p.companyId = ${userData?.companyId} and ref.name = l.name
+          join tblMasterData m on m.id = p.portTypeId and m.name = 'CONTAINER FREIGHT STATION'  and m.masterListName = 'tblPortType' and ${searchConditionMain} and ref.name = l.name
 `,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
@@ -94,12 +104,16 @@ export default function CfsList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search],
+    [page, rowsPerPage, search, searchCondition],
   );
 
   useEffect(() => {
     getData(1, rowsPerPage);
     setMode({ mode: null, formId: null });
+    if (userData?.roleCode === "admin") {
+      setSearchCondition("p.companyId = u4.companyId");
+      getData(1, rowsPerPage, "p.companyId = u4.companyId");
+    }
   }, []);
 
   const rows = cfsData

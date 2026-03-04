@@ -142,7 +142,7 @@ export default function SearchRequestCfsDpdIcd() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch],
+    [page, rowsPerPage, advanceSearch, searchCondition],
   );
 
   const idsOnPage = blData.map((r) => r.id);
