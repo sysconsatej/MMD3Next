@@ -111,9 +111,16 @@ export default function BLList() {
   });
   const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
+  const [searchCondition, setSearchCondition] = useState(
+    `u.id = ${userData.userId}`,
+  );
 
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         const tableObj = {
           columns:
@@ -124,7 +131,7 @@ export default function BLList() {
           advanceSearch: advanceSearchFilter(advanceSearch),
           groupBy: "group by b.mblNo, m.name, v.name",
           orderBy: "order by max(b.createdDate) desc, b.mblNo asc",
-          joins: `left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id left join tblVoyage vo on vo.id = b.podVoyageId left join tblCompany ship on ship.id = b.shippingLineId left join tblMasterData m1 on m1.id = b.hblRequestStatus left join tblUser u3 on u3.id = b.createdBy left join tblUser u on u.id = ${userData.userId} left join tblUser usr1 on usr1.companyId = u.companyId join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1 and b.createdBy = usr1.id and b1.locationId = ${userData.location}`,
+          joins: `left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id left join tblVoyage vo on vo.id = b.podVoyageId left join tblCompany ship on ship.id = b.shippingLineId left join tblMasterData m1 on m1.id = b.hblRequestStatus left join tblUser u3 on u3.id = b.createdBy left join tblUser u4 on u4.roleCode = 'customer' left join tblUser u on ${searchConditionMain} left join tblUser usr1 on usr1.companyId = u.companyId join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1 and b.createdBy = usr1.id and b1.locationId = ${userData.location}`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -162,33 +169,6 @@ export default function BLList() {
       )
     : [];
 
-  useEffect(() => {
-    setIdsOnPage((blData || []).map((r) => getRowId(r)));
-  }, [blData]);
-
-  useEffect(() => {
-    const all =
-      selectedIds.length > 0 &&
-      idsOnPage.length > 0 &&
-      selectedIds.length === idsOnPage.length;
-    const some =
-      selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
-    setAllChecked(all);
-    setSomeChecked(some);
-  }, [selectedIds, idsOnPage]);
-
-  useEffect(() => {
-    getData();
-  }, [
-    advanceSearch?.shippingLineId,
-    advanceSearch?.podVesselId,
-    advanceSearch?.podVoyageId,
-  ]);
-
-  useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-  }, []);
   const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
   const toggleOne = (id) =>
     setSelectedIds((prev) =>
@@ -229,7 +209,12 @@ export default function BLList() {
       return;
     }
     const filterData = rows.filter((item) => item.hblId === formId);
-    setMode({ mode, formId, status: filterData[0]?.status });
+    setMode({
+      mode,
+      formId,
+      status: filterData[0]?.status,
+      admin: "list",
+    });
     router.push("/bl/hbl");
   };
 
@@ -245,6 +230,38 @@ export default function BLList() {
     const list = selectedIds.flatMap((mbl) => mblToHblIds[mbl] || "");
     return Array.from(new Set(list));
   }, [selectedIds, mblToHblIds]);
+
+  useEffect(() => {
+    setIdsOnPage((blData || []).map((r) => getRowId(r)));
+  }, [blData]);
+
+  useEffect(() => {
+    const all =
+      selectedIds.length > 0 &&
+      idsOnPage.length > 0 &&
+      selectedIds.length === idsOnPage.length;
+    const some =
+      selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
+    setAllChecked(all);
+    setSomeChecked(some);
+  }, [selectedIds, idsOnPage]);
+
+  useEffect(() => {
+    getData();
+  }, [
+    advanceSearch?.shippingLineId,
+    advanceSearch?.podVesselId,
+    advanceSearch?.podVoyageId,
+  ]);
+
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
+    if (userData?.roleCode === "admin") {
+      setSearchCondition(`u.roleCodeId = u4.id`);
+      getData(1, rowsPerPage, "u.roleCodeId = u4.id");
+    }
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -300,7 +317,9 @@ export default function BLList() {
                 getData={getData}
                 rowsPerPage={rowsPerPage}
               />
-              <CustomButton text="Add" href="/bl/hbl" />
+              {userData?.roleCode === "customer" && (
+                <CustomButton text="Add" href="/bl/hbl" />
+              )}
             </Box>
           </Box>
         </Box>

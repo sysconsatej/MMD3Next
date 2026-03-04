@@ -151,14 +151,20 @@ export default function Home() {
     const promises = format.map(async (item) => {
       const formId = item?.id ?? null;
       const { id, ...resData } = item;
+      let userCommonData = {
+        locationId: userData?.location || null,
+        companyId: userData?.companyId,
+        companyBranchId: userData?.branchId,
+      };
+      if (userData?.roleCode === "admin") {
+        userCommonData = {};
+      }
       const formatItem = formatFormData(
         "tblBl",
         {
           ...resData,
           mblHblFlag: "HBL",
-          locationId: userData?.location || null,
-          companyId: userData?.companyId,
-          companyBranchId: userData?.branchId,
+          ...userCommonData,
         },
         formId,
         "blId",
@@ -358,6 +364,13 @@ export default function Home() {
                 <CustomButton
                   text="Back"
                   href="/bl/hbl/linerSearch"
+                  onClick={() => setMode({ mode: null, formId: null })}
+                />
+              )}
+              {userData?.roleCode === "admin" && (
+                <CustomButton
+                  text="Back"
+                  href={`/bl/hbl/${mode.admin}`}
                   onClick={() => setMode({ mode: null, formId: null })}
                 />
               )}
@@ -610,7 +623,8 @@ export default function Home() {
           </Box>
           <Box className="w-full flex mt-2 gap-3">
             {fieldsMode !== "view" &&
-              userData?.roleCode === "customer" &&
+              (userData?.roleCode === "customer" ||
+                userData?.roleCode === "admin") &&
               mode.status !== "Request" &&
               mode.status !== "Confirm" && (
                 <CustomButton
@@ -619,7 +633,8 @@ export default function Home() {
                   disabled={!requestBtn}
                 />
               )}
-            {userData?.roleCode === "customer" &&
+            {(userData?.roleCode === "customer" ||
+              userData?.roleCode === "admin") &&
               mode.status !== "Confirm" &&
               mode.status !== "Request" &&
               mode.status !== "Reject for Amendment" &&
@@ -637,7 +652,8 @@ export default function Home() {
 
             {(fieldsMode === "edit" || fieldsMode === "view") &&
               mode.status === "Request" &&
-              userData?.roleCode === "shipping" &&
+              (userData?.roleCode === "shipping" ||
+                userData?.roleCode === "admin") &&
               userAccess?.["verify"] && (
                 <CustomButton
                   text={"Verify"}
@@ -649,7 +665,8 @@ export default function Home() {
 
             {(fieldsMode === "edit" || fieldsMode === "view") &&
               mode.status === "Request" &&
-              userData.roleCode === "shipping" &&
+              (userData?.roleCode === "shipping" ||
+                userData?.roleCode === "admin") &&
               userAccess?.["reject"] && (
                 <CustomButton
                   text={"Reject"}
@@ -659,7 +676,8 @@ export default function Home() {
                 />
               )}
 
-            {userData?.roleCode === "customer" &&
+            {(userData?.roleCode === "customer" ||
+              userData?.roleCode === "admin") &&
               mode.status === "Confirm" &&
               userAccess?.["Request Amendment"] && (
                 <CustomButton
@@ -672,7 +690,8 @@ export default function Home() {
 
             {(fieldsMode === "edit" || fieldsMode === "view") &&
               mode.status === "Request for Amendment" &&
-              userData?.roleCode === "shipping" &&
+              (userData?.roleCode === "shipping" ||
+                userData?.roleCode === "admin") &&
               userAccess?.["Approved Amendment"] && (
                 <CustomButton
                   text={"Approved for Amendment"}
@@ -684,7 +703,8 @@ export default function Home() {
 
             {(fieldsMode === "edit" || fieldsMode === "view") &&
               mode.status === "Request for Amendment" &&
-              userData?.roleCode === "shipping" &&
+              (userData?.roleCode === "shipping" ||
+                userData?.roleCode === "admin") &&
               userAccess?.["Reject Amendment"] && (
                 <CustomButton
                   text={"Reject for Amendment"}

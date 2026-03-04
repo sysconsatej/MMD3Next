@@ -27,7 +27,11 @@ import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import { ToastContainer, toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
-import { advanceSearchFields, vesselVoyageFiltersShipping } from "../hblData";
+import {
+  advanceSearchFields,
+  vesselVoyageFiltersCustomer,
+  vesselVoyageFiltersShipping,
+} from "../hblData";
 import { advanceSearchFilter, statusColor } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
@@ -102,9 +106,16 @@ export default function BLList() {
     mblNo: null,
   });
   const userData = getUserByCookies();
+  const [searchCondition, setSearchCondition] = useState(
+    `u.id = ${userData?.userId}`,
+  );
 
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         const tableObj = {
           columns:
@@ -117,7 +128,7 @@ export default function BLList() {
             "group by b.mblNo, m.name, v.name, m1.name, b.hblRequestRemarks",
           orderBy:
             "order by case m1.name when 'Request' then 1 when 'Request for Amendment' then 2 when 'Reject' then 3 when 'Reject for Amendment' then 4 when 'Confirm' then 5 when 'Approved for Amendment' then 6 end, max(b.createdDate) asc, b.mblNo asc",
-          joins: `left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id left join tblVoyage vo on vo.id = b.podVoyageId left join tblMasterData m1 on m1.id = b.hblRequestStatus left join tblUser u3 on u3.id = b.createdBy left join tblUser u on  u.id = ${userData.userId} join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1 and m1.name in ('Request', 'Reject', 'Confirm', 'Request for Amendment', 'Reject for Amendment', 'Approved for Amendment') and b1.shippingLineId = u.companyId and b1.locationId = ${userData.location}`,
+          joins: `left join tblMasterData m on b.cargoTypeId = m.id left join tblVessel v on b.podVesselId = v.id left join tblVoyage vo on vo.id = b.podVoyageId left join tblMasterData m1 on m1.id = b.hblRequestStatus left join tblUser u3 on u3.id = b.createdBy left join tblUser u2 on u2.roleCode = 'shipping' left join tblUser u on ${searchConditionMain} join tblBl b1 on b1.id = b.id and b1.mblHblFlag = 'HBL' and b1.status = 1 and m1.name in ('Request', 'Reject', 'Confirm', 'Request for Amendment', 'Reject for Amendment', 'Approved for Amendment') and b1.shippingLineId = u.companyId and b1.locationId = ${userData.location}`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -132,7 +143,7 @@ export default function BLList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch],
+    [page, rowsPerPage, advanceSearch, searchCondition],
   );
 
   const rows = Array.isArray(blData)
@@ -153,27 +164,6 @@ export default function BLList() {
         ),
       )
     : [];
-  useEffect(() => {
-    getData();
-  }, [advanceSearch?.podVesselId, advanceSearch?.podVoyageId]);
-  useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-  }, []);
-  useEffect(() => {
-    setIdsOnPage((blData || []).map((r) => getRowId(r)));
-  }, [blData]);
-
-  useEffect(() => {
-    const all =
-      selectedIds.length > 0 &&
-      idsOnPage.length > 0 &&
-      selectedIds.length === idsOnPage.length;
-    const some =
-      selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
-    setAllChecked(all);
-    setSomeChecked(some);
-  }, [selectedIds, idsOnPage]);
 
   const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
   const toggleOne = (id) =>
@@ -192,6 +182,12 @@ export default function BLList() {
     setFormData: setAdvanceSearch,
     fields: vesselVoyageFiltersShipping,
   });
+
+  const handleChangeEventFunctionsAdmin = createHandleChangeEventFunction({
+    setFormData: setAdvanceSearch,
+    fields: vesselVoyageFiltersCustomer,
+  });
+
   const handleDeleteRecord = async (formIdsCsv) => {
     const deleteRecords = formIdsCsv
       ?.split(",")
@@ -214,7 +210,12 @@ export default function BLList() {
       return;
     }
     const filterData = rows.filter((item) => item.hblId === formId);
-    setMode({ mode, formId, status: filterData[0]?.status });
+    setMode({
+      mode,
+      formId,
+      status: filterData[0]?.status,
+      admin: "linerSearch",
+    });
     router.push("/bl/hbl");
   };
 
@@ -231,6 +232,38 @@ export default function BLList() {
     return Array.from(new Set(list));
   }, [selectedIds, mblToHblIds]);
 
+  useEffect(() => {
+    const all =
+      selectedIds.length > 0 &&
+      idsOnPage.length > 0 &&
+      selectedIds.length === idsOnPage.length;
+    const some =
+      selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
+    setAllChecked(all);
+    setSomeChecked(some);
+  }, [selectedIds, idsOnPage]);
+
+  useEffect(() => {
+    getData();
+  }, [
+    advanceSearch?.podVesselId,
+    advanceSearch?.podVoyageId,
+    advanceSearch?.shippingLineId,
+  ]);
+
+  useEffect(() => {
+    setIdsOnPage((blData || []).map((r) => getRowId(r)));
+  }, [blData]);
+
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
+    if (userData?.roleCode === "admin") {
+      setSearchCondition(`u.roleCodeId = u2.id`);
+      getData(1, rowsPerPage, `u.roleCodeId = u2.id`);
+    }
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -240,13 +273,23 @@ export default function BLList() {
             HBL Track
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6 items-start">
-            <Box className="min-w-[520px] w-[520px] grid grid-cols-2 gap-x-2 gap-y-1 items-center [&>*]:min-w-0">
+            <Box
+              className={`min-w-[520px] w-[520px] grid ${userData?.roleCode === "admin" ? "grid-cols-3" : "grid-cols-2"} gap-x-2 gap-y-1 items-center [&>*]:min-w-0`}
+            >
               <CustomInput
-                fields={vesselVoyageFiltersShipping}
+                fields={
+                  userData?.roleCode === "admin"
+                    ? vesselVoyageFiltersCustomer
+                    : vesselVoyageFiltersShipping
+                }
                 formData={advanceSearch}
                 setFormData={setAdvanceSearch}
                 fieldsMode={"edit"}
-                handleChangeEventFunctions={handleChangeEventFunctions}
+                handleChangeEventFunctions={
+                  userData?.roleCode === "admin"
+                    ? handleChangeEventFunctionsAdmin
+                    : handleChangeEventFunctions
+                }
               />
             </Box>
             <Box sx={{ flexShrink: 0 }}>
