@@ -292,7 +292,7 @@ export const navItems = [
         isShow: false,
       },
       {
-        name: "invoiceRegisterCustomer",
+        name: "Invoice Register Customer",
         href: "/reports/customAndPort/invoiceRegisterCustomer",
         isShow: false,
       },
