@@ -1,6 +1,6 @@
 "use client";
 /* eslint-disable */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import CustomButton from "@/components/button/button";
 import { CustomInput } from "@/components/customInput";
 import { ThemeProvider } from "@emotion/react";
@@ -12,6 +12,7 @@ import fieldData from "./uploadData";
 import { uploads } from "@/apis";
 import { getUserByCookies } from "@/utils";
 import ErrorList from "@/components/errorTable/errorList";
+import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 
 const getFirstFile = (val) => {
   if (!val) return null;
@@ -112,7 +113,12 @@ export default function xlUpload() {
       const payload = {
         spName: "updatePcinNo", // <-- your new SP
         json: {
-          // userData,
+          userData,
+          filterCondition: {
+            vesselId: formData.vessel?.Id,
+            voyageId: formData.voyage?.Id,
+            podId: formData.pod?.Id,
+          },
           data: dataForSp,
         },
       };
@@ -140,6 +146,14 @@ export default function xlUpload() {
     }));
     setErrorGrid([]);
   }, [formData?.template]);
+  const handleChangeEventFunctions = useMemo(
+    () =>
+      createHandleChangeEventFunction({
+        setFormData,
+        fields: fieldData.mblFields,
+      }),
+    [setFormData, fieldData.mblFields],
+  );
 
   return (
     <ThemeProvider theme={theme}>
@@ -159,6 +173,7 @@ export default function xlUpload() {
                 formData={formData}
                 setFormData={setFormData}
                 disabled={busy}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>
