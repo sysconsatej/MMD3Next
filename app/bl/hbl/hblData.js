@@ -948,6 +948,20 @@ export const hblPrevNextObj = (formId = null) => {
       joins: `left join tblMasterData m1 on m1.id = b.hblRequestStatus`,
       where: `b.status = 1 and b.mblHblFlag = 'HBL' and b.locationId = ${userData?.location} and b.shippingLineId = ${userData?.companyId} and b.hblRequestStatus is not null`,
     },
+    admin: {
+      currentId: formId,
+      tableName: "tblBl b",
+      labelField: `b.mblNo curName, string_agg(b.id, ',')  curId,
+                   lag(b.mblNo) over (order by  min(case m1.name when 'Request' then 1 when 'Request for Amendment' then 2 when 'Reject' then 3 when 'Reject for Amendment' then 4 when 'Confirm' then 5 when 'Approved for Amendment' then 6 end),  max(b.createdDate) asc, b.mblNo) as prevName,
+                   lag(string_agg(b.id, ',')) over (order by  min(case m1.name when 'Request' then 1 when 'Request for Amendment' then 2 when 'Reject' then 3 when 'Reject for Amendment' then 4 when 'Confirm' then 5 when 'Approved for Amendment' then 6 end),  max(b.createdDate) asc, b.mblNo) as prevId,
+                   lead(b.mblNo) over (order by  min(case m1.name when 'Request' then 1 when 'Request for Amendment' then 2 when 'Reject' then 3 when 'Reject for Amendment' then 4 when 'Confirm' then 5 when 'Approved for Amendment' then 6 end),  max(b.createdDate) asc, b.mblNo) as nextName,
+                   lead(string_agg(b.id, ',')) over (order by  min(case m1.name when 'Request' then 1 when 'Request for Amendment' then 2 when 'Reject' then 3 when 'Reject for Amendment' then 4 when 'Confirm' then 5 when 'Approved for Amendment' then 6 end),  max(b.createdDate) asc, b.mblNo) as nextId,
+                   max(b.createdDate) createdDate`,
+      orderBy: "createdDate desc",
+      groupBy: "group by b.mblNo",
+      joins: `left join tblMasterData m1 on m1.id = b.hblRequestStatus`,
+      where: `b.status = 1 and b.mblHblFlag = 'HBL' and b.locationId = ${userData?.location} and b.hblRequestStatus is not null`,
+    },
   };
 };
 

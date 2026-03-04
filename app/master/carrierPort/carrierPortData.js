@@ -47,6 +47,9 @@ export const fieldData = {
       isEdit: true,
       tableName: "tblPort p",
       displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      joins:
+        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+      where: "m.name IN ('INLAND PORT') and c.name = 'India'",
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
     },

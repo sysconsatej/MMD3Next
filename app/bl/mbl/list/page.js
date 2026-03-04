@@ -29,7 +29,11 @@ import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import { toast, ToastContainer } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
-import { advanceSearchFields, vesselVoyageFilters } from "../mblData";
+import {
+  advanceSearchFields,
+  vesselVoyageFilters,
+  vesselVoyageFiltersAdmin,
+} from "../mblData";
 import {
   advanceSearchFilter,
   craeateHandleChangeEventFunction,
@@ -127,6 +131,9 @@ export default function BLList() {
     open: false,
     recordId: null,
   });
+  const [SearchCondition, setSearchCondition] = useState(
+    `u.id = ${userData?.userId}`,
+  );
 
   const getData = useCallback(
     async (
@@ -140,7 +147,7 @@ export default function BLList() {
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
-          joins: `left join tblPort p on p.id = b.polId left join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId left join tblUser u on u.id = ${userData.userId} left join tblMasterData m2 on m2.id = b.hblRequestStatus join tblBl b1 on (b1.id = b.id and b1.status = 1 and  b1.mblHblFlag = 'MBL' and b1.shippingLineId = u.companyId and b1.locationId = ${userData.location}) or (b1.id = b.id and b1.shippingLineId = u.companyId and b1.status = 1 and b1.mblHblFlag = 'HBL' and m2.name = 'Confirm' and b1.locationId = ${userData.location} and b1.mblNo in (select b3.mblNo from tblBl b3 where b3.mblHblFlag = 'MBL' and b3.status = 1 and b3.shippingLineId = u.companyId and b3.locationId = ${userData.location}) )`,
+          joins: `left join tblPort p on p.id = b.polId left join tblPort p1 on p1.id=b.podId left join tblPort p2 on p2.id=b.fpdId left join tblVoyage v on v.id=b.podVoyageId left join tblVessel v1 on v1.id=b.podVesselId left join tblMasterData m on m.id = b.movementTypeId left join tblUser u2 on u2.roleCode = 'shipping' left join tblUser u on ${SearchCondition} left join tblMasterData m2 on m2.id = b.hblRequestStatus join tblBl b1 on (b1.id = b.id and b1.status = 1 and  b1.mblHblFlag = 'MBL' and b1.shippingLineId = u.companyId and b1.locationId = ${userData.location}) or (b1.id = b.id and b1.shippingLineId = u.companyId and b1.status = 1 and b1.mblHblFlag = 'HBL' and m2.name = 'Confirm' and b1.locationId = ${userData.location} and b1.mblNo in (select b3.mblNo from tblBl b3 where b3.mblHblFlag = 'MBL' and b3.status = 1 and b3.shippingLineId = u.companyId and b3.locationId = ${userData.location}) )`,
           advanceSearch: advanceSearchFilter(advanceSearchQuery),
         };
 
@@ -272,6 +279,9 @@ export default function BLList() {
   useEffect(() => {
     getData(1, rowsPerPage);
     setMode({ mode: null, formId: null });
+    if (userData.roleCode === "admin") {
+      setSearchCondition(`u.roleCodeId = u2.id`);
+    }
   }, []);
 
   return (
@@ -284,9 +294,15 @@ export default function BLList() {
           </Typography>
 
           <Box className="flex flex-col sm:flex-row gap-6 items-start">
-            <Box className="min-w-[520px] w-[520px] grid grid-cols-2 gap-x-2 gap-y-1 items-center [&>*]:min-w-0">
+            <Box
+              className={`min-w-[520px] w-[520px] grid ${userData?.roleCode === "admin" ? "grid-cols-3" : "grid-cols-2"} gap-x-2 gap-y-1 items-center [&>*]:min-w-0`}
+            >
               <CustomInput
-                fields={vesselVoyageFilters}
+                fields={
+                  userData?.roleCode === "admin"
+                    ? vesselVoyageFiltersAdmin
+                    : vesselVoyageFilters
+                }
                 formData={advanceSearch}
                 setFormData={setAdvanceSearch}
                 fieldsMode={"edit"}
@@ -303,7 +319,9 @@ export default function BLList() {
               />
             </Box>
             <Box sx={{ flexShrink: 0 }}>
-              <CustomButton text="Add" href="/bl/mbl" />
+              {userData?.roleCode === "shipping" && (
+                <CustomButton text="Add" href="/bl/mbl" />
+              )}
             </Box>
           </Box>
         </Box>
