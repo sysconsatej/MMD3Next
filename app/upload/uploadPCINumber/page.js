@@ -113,12 +113,10 @@ export default function xlUpload() {
       const payload = {
         spName: "updatePcinNo", // <-- your new SP
         json: {
-          userData,
-          filterCondition: {
-            vesselId: formData.vessel?.Id,
-            voyageId: formData.voyage?.Id,
-            podId: formData.pod?.Id,
-          },
+          ...userData,
+          vesselId: formData.vessel?.Id,
+          voyageId: formData.voyage?.Id,
+          podId: formData.pod?.Id,
           data: dataForSp,
         },
       };
