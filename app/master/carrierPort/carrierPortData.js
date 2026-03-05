@@ -98,11 +98,19 @@ export const fieldData = {
 };
 
 // search array
-export const searchDataAray = fieldData.berthAgentFields
-  .filter((i) => i.showFieldonSearch !== false)
-  .map((info) => {
-    return {
-      label: info.label,
-      value: `b.${info.name}`,
-    };
-  });
+export const searchDataAray = [
+  { label: "Shipping Line", value: "s.name" },
+  { label: "Carrier", value: "c.name" },
+  {
+    label: "POD",
+    value: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+  },
+  {
+    label: "FPD",
+    value: "ISNULL(p1.code,'') + ' - ' + ISNULL(p1.name,'')",
+  },
+  { label: "Mode of Transport", value: "m.name" },
+  { label: "PAN No", value: "c.panNo" },
+  { label: "Bond No", value: "c.bondNo" },
+  { label: "Updated By", value: "u.name" },
+];
