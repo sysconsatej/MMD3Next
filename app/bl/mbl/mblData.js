@@ -311,10 +311,12 @@ export const fieldData = {
       name: "movementCarrierId",
       type: "dropdown",
       tableName: "tblCarrierPort t",
+      joins: `left join tblPort p on p.id=t.podId
+      left join tblLocation l on l.id = ${userData?.location}`,
       displayColumn: "t.name",
       orderBy: "t.name",
       foreignTable: "name,tblCarrierPort",
-      where: `t.companyId = ${userData?.companyId} and t.status = 1`,
+      where: `t.companyId = ${userData?.companyId} and t.status = 1 and p.name = l.name`,
       isEdit: true,
       changeFun: "setCarrierBondAndCode",
     },
