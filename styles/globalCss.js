@@ -25,6 +25,9 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           padding: "10px",
+          "&  .MuiSvgIcon-root.MuiSelect-icon": {
+            fontSize: "18px",
+          },
         },
         input: {
           height: "100%",
@@ -280,7 +283,6 @@ export const theme = createTheme({
         },
       },
     },
-
     MuiAccordionSummary: {
       styleOverrides: {
         root: {
@@ -314,13 +316,34 @@ export const theme = createTheme({
         },
       },
     },
-
     MuiAccordionDetails: {
       styleOverrides: {
         root: {
           backgroundColor: "#f8faff",
           padding: "12px 16px",
           borderTop: "1px solid #e0e6ff",
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        select: {
+          padding: "0px",
+          fontSize: "12px",
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          "& .MuiListItemText-root .MuiTypography-root": {
+            fontSize: "12px",
+          },
+          "& .MuiButtonBase-root .MuiSvgIcon-root": {
+            width: "16px",
+            hight: "16px",
+            fill: "black",
+          },
         },
       },
     },
@@ -369,6 +392,9 @@ export const textFieldStyles = () => {
     "& .MuiFormLabel-root.Mui-disabled, & .MuiInputBase-input.Mui-disabled": {
       color: "rgba(0, 0, 0, 0.87)",
       "-webkit-text-fill-color": "unset",
+    },
+    "&.MuiSelect-root": {
+      padding: "0px",
     },
   };
 };

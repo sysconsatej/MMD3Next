@@ -14,6 +14,7 @@ import {
   MultiSelectInput,
   DateTimeInput,
   FileInput,
+  MultiSelectCheckBox,
 } from "./index";
 import { getInputValue, setInputValue } from "@/utils";
 
@@ -47,7 +48,7 @@ const CustomInput = ({
         containerIndex,
         name,
         value,
-      })
+      }),
     );
     if (!isChange && popUp) {
       localStorage.setItem("isChange", true);
@@ -68,7 +69,7 @@ const CustomInput = ({
           containerIndex,
           name,
           value: match,
-        })
+        }),
       );
     }
   };
@@ -115,7 +116,7 @@ const CustomInput = ({
               containerIndex,
               name,
               value: null,
-            })
+            }),
           );
           return;
         }
@@ -251,6 +252,15 @@ const CustomInput = ({
       case "multiselect":
         return (
           <MultiSelectInput
+            {...inputProps}
+            dropdowns={dropdowns}
+            getData={getData}
+          />
+        );
+
+      case "multiselectCheckBox":
+        return (
+          <MultiSelectCheckBox
             {...inputProps}
             dropdowns={dropdowns}
             getData={getData}

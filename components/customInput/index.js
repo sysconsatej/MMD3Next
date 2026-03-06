@@ -8,4 +8,5 @@ export { default as TextInput } from "./textInput";
 export { default as RadioInput } from "./radioInput";
 export { default as MultiSelectInput } from "./multiSelectInput";
 export { default as DateTimeInput } from "./dateTimeInput";
-export{ default as FileInput } from "./fileInput";
+export { default as FileInput } from "./fileInput";
+export { default as MultiSelectCheckBox } from "./multiSelectCheckBox";
