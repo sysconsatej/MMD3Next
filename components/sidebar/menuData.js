@@ -489,6 +489,11 @@ export const navItems = [
         href: "/reports/customAndPort/linerPaymentRegister",
         isShow: false,
       },
+      {
+        name: "SCMTR-CSN Customer",
+        href: "/reports/customAndPort/scmtrCsnCustomer",
+        isShow: false,
+      },
     ],
   },
   {
