@@ -116,7 +116,7 @@ export const fieldData = {
       displayColumn: "p.name",
       tableName: "tblPort p",
       joins: `join tblMasterData m on m.id = p.portTypeId and m.name = 'DEPOT' and m.masterListName = 'tblPortType' and p.status = 1`,
-      selectedConditions: [{ shippingLineId: "companyId" }],
+      where:`p.companyId = ${userData?.companyId}`,
       orderBy: "p.name",
       foreignTable: "name,tblPort",
       isEdit: true,
