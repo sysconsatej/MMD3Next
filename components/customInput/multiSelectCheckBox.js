@@ -40,10 +40,9 @@ const MultiSelectCheckBox = ({
     [options, fieldValue],
   );
 
-  const selectedIds = useMemo(
-    () => (fieldValue || [])?.map((item) => item.Id),
-    [fieldValue],
-  );
+  const selectedIds = useMemo(() => {
+    return new Set((fieldValue || [])?.map((item) => item.Id));
+  }, [fieldValue]);
 
   const handleInputFocus = useCallback(() => {
     getData(field, commonProps.name, 1, "");
@@ -115,7 +114,7 @@ const MultiSelectCheckBox = ({
         </MenuItem>
 
         {options.map((item) => {
-          const selected = selectedIds.includes(item.Id);
+          const selected = selectedIds.has(item.Id);
           const Icon = selected ? CheckBoxIcon : CheckBoxOutlineBlankIcon;
 
           return (

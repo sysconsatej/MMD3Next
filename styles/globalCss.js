@@ -395,6 +395,7 @@ export const textFieldStyles = () => {
     },
     "&.MuiSelect-root": {
       padding: "0px",
+      overflow: "hidden",
     },
   };
 };
