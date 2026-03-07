@@ -26,14 +26,21 @@ export default function IgmGeneration() {
 
   // 🔹 Convert dropdown objects to Ids
   const transformToIds = (data) => {
-    return Object.fromEntries(
-      Object.entries(data).map(([key, value]) => {
-        if (value && typeof value === "object" && "Id" in value) {
-          return [key, value.Id];
-        }
-        return [key, value];
-      })
-    );
+    const result = {};
+
+    for (const key in data) {
+      const value = data[key];
+
+      if (Array.isArray(value)) {
+        result[key] = value.length ? value.map((v) => v.Id).join(",") : null;
+      } else if (value && typeof value === "object" && "Id" in value) {
+        result[key] = value.Id;
+      } else {
+        result[key] = value ?? null;
+      }
+    }
+
+    return result;
   };
 
   const handleSubmit = async (e) => {
@@ -59,7 +66,6 @@ export default function IgmGeneration() {
         spName: "doRequestLinerRegister",
         jsonData: {
           ...formattedForApi,
-          locationId: userData.location,
           shippingLineId: userData.companyId,
         },
       };
@@ -75,8 +81,7 @@ export default function IgmGeneration() {
           toast.info("No data found.");
         }
       } else {
-        const errText =
-          res?.error || res?.message || "Request failed.";
+        const errText = res?.error || res?.message || "Request failed.";
         setTableData([]);
         toast.error(errText);
       }
@@ -104,9 +109,7 @@ export default function IgmGeneration() {
       <form onSubmit={handleSubmit}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base m-0">
-              DO Report
-            </h1>
+            <h1 className="text-left text-base m-0">DO Report</h1>
           </Box>
 
           <Box className="border border-black rounded-[4px]">

@@ -26,16 +26,22 @@ export default function IgmGeneration() {
 
   // 🔹 Convert dropdown objects to Ids
   const transformToIds = (data) => {
-    return Object.fromEntries(
-      Object.entries(data).map(([key, value]) => {
-        if (value && typeof value === "object" && "Id" in value) {
-          return [key, value.Id];
-        }
-        return [key, value];
-      }),
-    );
-  };
+    const result = {};
 
+    for (const key in data) {
+      const value = data[key];
+
+      if (Array.isArray(value)) {
+        result[key] = value.length ? value.map((v) => v.Id).join(",") : null;
+      } else if (value && typeof value === "object" && "Id" in value) {
+        result[key] = value.Id;
+      } else {
+        result[key] = value ?? null;
+      }
+    }
+
+    return result;
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGoLoading(true);
@@ -62,7 +68,6 @@ export default function IgmGeneration() {
         spName: "cfsRequestCustomerRegister",
         jsonData: {
           ...filteredData,
-          locationId: userData.location,
           customerId: userData.companyId,
         },
       };

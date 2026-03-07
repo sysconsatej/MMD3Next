@@ -44,7 +44,7 @@ export default function Depot() {
     let where = `
       UPPER(${name}) = '${literal.toUpperCase()}'
       AND portTypeId IN (
-        SELECT id FROM tblMasterData WHERE name = 'DEPOT'
+        SELECT id FROM tblMasterData WHERE name = 'DEPOT' and masterListName = 'tblPortType'
       )
       AND status = 1
     `;
@@ -99,7 +99,7 @@ export default function Depot() {
       const obj = {
         columns: "id",
         tableName: "tblMasterData",
-        whereCondition: "name = 'DEPOT'",
+        whereCondition: "name = 'DEPOT' and masterListName = 'tblPortType'",
       };
 
       const { data, message, error, success } = await getDataWithCondition(obj);

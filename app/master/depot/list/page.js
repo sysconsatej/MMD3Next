@@ -25,7 +25,15 @@ import { useRouter } from "next/navigation";
 import { depot } from "../depotData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(depotName, location, code, address, updatedBy, updateDate, id) {
+function createData(
+  depotName,
+  location,
+  code,
+  address,
+  updatedBy,
+  updateDate,
+  id,
+) {
   return { depotName, location, code, address, updatedBy, updateDate, id };
 }
 
@@ -52,7 +60,11 @@ export default function DepotList() {
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `join tblMasterData m on m.id = p.portTypeId and m.name = 'DEPOT' left join tblUser u on u.id = p.updatedBy`,
+          joins: `join tblMasterData m on m.id = p.portTypeId and m.name = 'DEPOT' and m.masterListName = 'tblPortType'
+                  left join tblUser u on u.id = p.updatedBy
+                  left join tblUser usr on usr.id = '${userData?.userId}' 
+                  left join tblUser u2 on u2.companyId = usr.companyId
+                  join tblPort p2 on p2.id = p.id and p2.createdBy = u2.id and p2.status = 1`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setDepotData(data);
@@ -64,7 +76,7 @@ export default function DepotList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, search],
   );
 
   useEffect(() => {
@@ -81,8 +93,8 @@ export default function DepotList() {
           item["address"],
           item["updatedBy"],
           item["updateDate"],
-          item["id"]
-        )
+          item["id"],
+        ),
       )
     : [];
 
@@ -129,7 +141,7 @@ export default function DepotList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-2">
           <Typography variant="body1" className="text-left flex items-center">
-             Empty Depot
+            Empty Depot
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar

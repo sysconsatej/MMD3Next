@@ -110,6 +110,17 @@ const fieldData = {
       type: "date",
       isEdit: true,
     },
+    {
+      label: "Location",
+      name: "locationId",
+      type: "multiselectCheckBox",
+      tableName: "tblLocation l",
+      displayColumn: "l.name",
+      foreignTable: "name,tblLocation",
+      orderBy: "l.name",
+      where: `id in (${userData?.locations})`,
+      isEdit: true,
+    },
   ],
 };
 export default fieldData;

@@ -21,7 +21,7 @@ export const roleAccessPaths = {
   "/master/containerStatus/list": ["admin"],
   "/master/containerType/list": ["admin"],
   "/master/cfs/list": ["admin", "shipping"],
-  "/master/depot/list": ["admin"],
+  "/master/depot/list": ["admin","shipping"],
   "/master/isoCode/list": ["admin"],
   "/master/imo/list": ["admin"],
   "/master/itemType/list": ["admin"],
