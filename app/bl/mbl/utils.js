@@ -155,6 +155,7 @@ export const getPortBasedOnCountry = async ({ portId, inputName }) => {
 
   return result?.data[0];
 };
+
 export const getMasterByCode = async (code, masterListName) => {
   if (!code) return null;
 
@@ -400,13 +401,14 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
       if (name === "podId" || name === "fpdId") {
         let setWhere = null;
         if (name === "podId") {
-          setWhere = `podId = ${value?.Id} and fpdId = ${formData?.fpdId?.Id} and defaultCfs = 'Y' and status = 1 and companyId = ${userData?.companyId}`;
+          setWhere = `t.podId = ${value?.Id} and t.fpdId = ${formData?.fpdId?.Id} and t.defaultCfs = 'Y' and t.status = 1 and t.companyId = ${userData?.companyId} and p.name = l.name `;
         } else {
-          setWhere = `podId = ${formData?.podId?.Id} and fpdId = ${value?.Id} and defaultCfs = 'Y' and status = 1 and companyId = ${userData?.companyId}`;
+          setWhere = `t.podId = ${formData?.podId?.Id} and t.fpdId = ${value?.Id} and t.defaultCfs = 'Y' and t.status = 1 and t.companyId = ${userData?.companyId} and p.name = l.name `;
         }
         const payload = {
-          columns: "id, name",
-          tableName: "tblCarrierPort",
+          columns: "t.id, t.name",
+          tableName: "tblCarrierPort t",
+          joins: `left join tblPort p on p.id=t.podId left join tblLocation l on l.id = ${userData?.location} `,
           whereCondition: setWhere,
         };
         const { data, success } = await getDataWithCondition(payload);
@@ -543,6 +545,38 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
             value: dataAgentCode?.[0]?.panNo,
           }),
         );
+      }
+    },
+    handleChangeOnMod: async (name, value) => {
+      try {
+        const payload = {
+          columns: "t.id, t.name",
+          tableName: "tblCarrierPort t",
+          joins: `left join tblPort p on p.id=t.podId left join tblLocation l on l.id = ${userData?.location} `,
+          whereCondition: `t.modeId = ${value?.Id} and t.defaultCfs = 'Y' and t.status = 1 and t.companyId = ${userData?.companyId} and p.name = l.name `,
+        };
+        const { data, success } = await getDataWithCondition(payload);
+        if (success && Array.isArray(data)) {
+          if (data.length === 1) {
+            setFormData((prev) => ({
+              ...prev,
+              movementCarrierId: { Id: data?.[0]?.id, Name: data?.[0]?.name },
+            }));
+            await handler.setCarrierBondAndCode("movementCarrierId", {
+              Id: data?.[0]?.id,
+            });
+          }
+        } else {
+          setFormData((prev) => ({
+            ...prev,
+            movementCarrierId: null,
+            carrierBondNo: null,
+            carrierPanNo: null,
+            scmtrBondNo: null,
+          }));
+        }
+      } catch (error) {
+        console.log(error);
       }
     },
   };
