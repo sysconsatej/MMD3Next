@@ -338,8 +338,8 @@ export const fieldData = {
       where: "m.masterListName = 'tblMode'",
       orderBy: "m.name",
       foreignTable: "name,tblMasterData",
+      changeFun: "handleChangeOnMod",
       isEdit: true,
-      disabled: true,
     },
     {
       label: "TG Bond No",
