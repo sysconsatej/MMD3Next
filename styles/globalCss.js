@@ -339,7 +339,7 @@ export const theme = createTheme({
           "& .MuiListItemText-root .MuiTypography-root": {
             fontSize: "12px",
           },
-          "& .MuiButtonBase-root .MuiSvgIcon-root": {
+          "& .MuiMenu-list .MuiButtonBase-root .MuiSvgIcon-root": {
             width: "16px",
             hight: "16px",
             fill: "black",
