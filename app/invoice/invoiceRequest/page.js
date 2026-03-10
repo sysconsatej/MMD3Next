@@ -73,21 +73,6 @@ export default function InvoiceRequest() {
       : fields;
   }, [jsonData?.igmFields, radioFD]);
 
-  /* ------------------------ FETCH STATUS LIST ------------------------ */
-  useEffect(() => {
-    async function fetchStatus() {
-      const obj = {
-        columns: "id as Id, name as Name",
-        tableName: "tblMasterData",
-        whereCondition: "masterListName = 'tblInvoiceRequest' AND status = 1",
-      };
-
-      const { success, data } = await getDataWithCondition(obj);
-      if (success) setStatusList(data);
-    }
-    fetchStatus();
-  }, []);
-
   /* ------------------------ SUBMIT ------------------------ */
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -153,17 +138,33 @@ export default function InvoiceRequest() {
     try {
       setLoading(true);
 
-      const normalized = {
-        ...formData,
-        companyId: userData?.companyId,
-        companyBranchId: userData?.branchId,
-        isFreeDays: radioFD,
-        isHighSealSale:
-          formData?.isHighSealSale === true || formData?.isHighSealSale === "Y"
-            ? "Y"
-            : "N",
-        locationId: userData?.location || null,
-      };
+      let normalized = {};
+
+      if (userData?.roleCode === "admin") {
+        normalized = {
+          ...formData,
+          isFreeDays: radioFD,
+          isHighSealSale:
+            formData?.isHighSealSale === true ||
+            formData?.isHighSealSale === "Y"
+              ? "Y"
+              : "N",
+          locationId: userData?.location || null,
+        };
+      } else {
+        normalized = {
+          ...formData,
+          companyId: userData?.companyId,
+          companyBranchId: userData?.branchId,
+          isFreeDays: radioFD,
+          isHighSealSale:
+            formData?.isHighSealSale === true ||
+            formData?.isHighSealSale === "Y"
+              ? "Y"
+              : "N",
+          locationId: userData?.location || null,
+        };
+      }
 
       const payload = formatFormData(
         "tblInvoiceRequest",
@@ -270,24 +271,6 @@ export default function InvoiceRequest() {
     [fieldsMode],
   );
 
-  /* ✅ auto-load containers when radio changes to "Do Extension" (D)
-     and BL No is already entered */
-  const prevRadioRef = useRef(radioFD);
-  useEffect(() => {
-    const prev = prevRadioRef.current;
-    prevRadioRef.current = radioFD;
-
-    // don't auto-load in view mode
-    if (fieldsMode === "view") return;
-
-    if (radioFD === "D" && prev !== "D") {
-      const currentBl = (formData?.blNo || "").trim();
-      if (currentBl) {
-        loadBlContainers(currentBl);
-      }
-    }
-  }, [radioFD, formData?.blNo, loadBlContainers, fieldsMode]);
-
   /* ------------------------ BLUR HANDLERS ------------------------ */
   const handleBlurEventFunctions = {
     duplicateHandler: async (event) => {
@@ -337,81 +320,6 @@ export default function InvoiceRequest() {
       return true;
     },
   };
-
-  /* ------------------------ FETCH FORM (EDIT/VIEW) ------------------------ */
-  useEffect(() => {
-    async function fetchFormHandler() {
-      if (!mode.formId) return;
-
-      setFieldsMode(mode.mode || "");
-
-      const format = formatFetchForm(
-        data,
-        "tblInvoiceRequest",
-        mode.formId,
-        '["tblInvoiceRequestContainer","tblAttachment"]',
-        "invoiceRequestId",
-      );
-
-      const { success, result, message, error } = await fetchForm(format);
-
-      if (success) {
-        const getData = formatDataWithForm(result, data);
-
-        getData.isFreeDays = normalizeFD(getData?.isFreeDays);
-        getData.isHighSealSale = getData?.isHighSealSale === "Y";
-
-        setFormData(getData);
-
-        // 🔵 Get current status name from DB for this record
-        let currentStatusName = "";
-        try {
-          const statusQuery = {
-            columns: "m.name AS StatusName",
-            tableName: "tblInvoiceRequest i",
-            joins:
-              "LEFT JOIN tblMasterData m ON m.id = i.invoiceRequestStatusId",
-            whereCondition: `i.id = ${mode.formId}`,
-          };
-
-          const { success: stSuccess, data: stData } =
-            await getDataWithCondition(statusQuery);
-
-          if (stSuccess && Array.isArray(stData) && stData.length > 0) {
-            currentStatusName = String(stData[0].StatusName || "")
-              .toLowerCase()
-              .trim();
-          }
-        } catch (e) {
-          console.error("Error fetching current status:", e);
-        }
-
-        // ✅ Behaviour:
-        // - ADD / EDIT → Submit enabled, Request disabled
-        // - VIEW (customer):
-        //     if status NOT Requested / Released → Request enabled
-        //     else → Request disabled
-        if (mode.mode === "view" && userData?.roleCode === "customer") {
-          setCanSubmit(false);
-          if (
-            currentStatusName !== "requested" &&
-            currentStatusName !== "released"
-          ) {
-            setCanRequest(true);
-          } else {
-            setCanRequest(false);
-          }
-        } else {
-          setCanSubmit(true);
-          setCanRequest(false);
-        }
-      } else {
-        toast.error(error || message || "Failed to fetch form");
-      }
-    }
-
-    fetchFormHandler();
-  }, [mode.formId, mode.mode, userData?.roleCode]);
 
   /* ------------------------ REQUEST (Customer) ------------------------ */
   async function requestHandler() {
@@ -527,6 +435,114 @@ export default function InvoiceRequest() {
     setClearData([]);
   };
 
+  /* ------------------------ FETCH FORM (EDIT/VIEW) ------------------------ */
+  useEffect(() => {
+    async function fetchFormHandler() {
+      if (!mode.formId) return;
+
+      setFieldsMode(mode.mode || "");
+
+      const format = formatFetchForm(
+        data,
+        "tblInvoiceRequest",
+        mode.formId,
+        '["tblInvoiceRequestContainer","tblAttachment"]',
+        "invoiceRequestId",
+      );
+
+      const { success, result, message, error } = await fetchForm(format);
+
+      if (success) {
+        const getData = formatDataWithForm(result, data);
+
+        getData.isFreeDays = normalizeFD(getData?.isFreeDays);
+        getData.isHighSealSale = getData?.isHighSealSale === "Y";
+
+        setFormData(getData);
+
+        // 🔵 Get current status name from DB for this record
+        let currentStatusName = "";
+        try {
+          const statusQuery = {
+            columns: "m.name AS StatusName",
+            tableName: "tblInvoiceRequest i",
+            joins:
+              "LEFT JOIN tblMasterData m ON m.id = i.invoiceRequestStatusId",
+            whereCondition: `i.id = ${mode.formId}`,
+          };
+
+          const { success: stSuccess, data: stData } =
+            await getDataWithCondition(statusQuery);
+
+          if (stSuccess && Array.isArray(stData) && stData.length > 0) {
+            currentStatusName = String(stData[0].StatusName || "")
+              .toLowerCase()
+              .trim();
+          }
+        } catch (e) {
+          console.error("Error fetching current status:", e);
+        }
+
+        // ✅ Behaviour:
+        // - ADD / EDIT → Submit enabled, Request disabled
+        // - VIEW (customer):
+        //     if status NOT Requested / Released → Request enabled
+        //     else → Request disabled
+        if (mode.mode === "view" && userData?.roleCode === "customer") {
+          setCanSubmit(false);
+          if (
+            currentStatusName !== "requested" &&
+            currentStatusName !== "released"
+          ) {
+            setCanRequest(true);
+          } else {
+            setCanRequest(false);
+          }
+        } else {
+          setCanSubmit(true);
+          setCanRequest(false);
+        }
+      } else {
+        toast.error(error || message || "Failed to fetch form");
+      }
+    }
+
+    fetchFormHandler();
+  }, [mode.formId, mode.mode, userData?.roleCode]);
+
+  /* ✅ auto-load containers when radio changes to "Do Extension" (D)
+     and BL No is already entered */
+  const prevRadioRef = useRef(radioFD);
+  useEffect(() => {
+    const prev = prevRadioRef.current;
+    prevRadioRef.current = radioFD;
+
+    // don't auto-load in view mode
+    if (fieldsMode === "view") return;
+
+    if (radioFD === "D" && prev !== "D") {
+      const currentBl = (formData?.blNo || "").trim();
+      if (currentBl) {
+        loadBlContainers(currentBl);
+      }
+    }
+  }, [radioFD, formData?.blNo, loadBlContainers, fieldsMode]);
+
+  /* ------------------------ FETCH STATUS LIST ------------------------ */
+  useEffect(() => {
+    async function fetchStatus() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: "masterListName = 'tblInvoiceRequest' AND status = 1",
+      };
+
+      const { success, data } = await getDataWithCondition(obj);
+      if (success) setStatusList(data);
+    }
+    fetchStatus();
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
@@ -612,7 +628,8 @@ export default function InvoiceRequest() {
           <Box className="w-full flex mt-4 gap-3">
             {/* Submit */}
             {fieldsMode !== "view" &&
-              userData?.roleCode === "customer" &&
+              (userData?.roleCode === "customer" ||
+                userData?.roleCode === "admin") &&
               mode.status !== "Confirm" && (
                 <CustomButton
                   text={loading ? "Saving..." : "Submit"}
@@ -622,7 +639,8 @@ export default function InvoiceRequest() {
               )}
 
             {/* Request */}
-            {userData?.roleCode === "customer" &&
+            {(userData?.roleCode === "customer" ||
+              userData?.roleCode === "admin") &&
               mode.status !== "Confirm" &&
               userAccess?.["Request"] && (
                 <CustomButton

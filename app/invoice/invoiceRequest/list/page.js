@@ -63,7 +63,7 @@ function createData(
   remarks,
   date,
   status,
-  remarkStatus
+  remarkStatus,
 ) {
   return {
     id,
@@ -93,39 +93,22 @@ export default function InvoiceRequestList() {
   const userData = getUserByCookies();
   const [advanceSearch, setAdvanceSearch] = useState({});
   const [modal, setModal] = useState({ toggle: false, value: null });
-
   const [selectedIds, setSelectedIds] = useState([]);
-
-  // ⬅ state for history modal
   const [historyModal, setHistoryModal] = useState({
     open: false,
     id: null,
     invoiceNo: "",
   });
-
-  const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
-
-  const allChecked =
-    selectedIds.length > 0 && selectedIds.length === idsOnPage.length;
-  const someChecked =
-    selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
-
-  const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
-  const toggleOne = (id) =>
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-
-  const disableEdit = useMemo(() => {
-    if (selectedIds.length !== 1) return false;
-    const row = rows.find((r) => r.id === selectedIds[0]);
-    if (!row) return false;
-    const st = (row.status || "").toLowerCase();
-    return st === "requested";
-  }, [selectedIds, rows]);
+  const [searchCondition, setSearchCondition] = useState(
+    `u.id =  ${userData.userId}`,
+  );
 
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         const tableObj = {
           columns: `
@@ -145,11 +128,12 @@ export default function InvoiceRequestList() {
           pageSize,
           advanceSearch: advanceSearchFilter(advanceSearch),
           joins: `
-            LEFT JOIN tblCompany c ON c.id = i.shippingLineId
-            LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
-            LEFT JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId
-            LEFT JOIN tblUser u on u.id = ${userData.userId}
-            JOIN tblUser u2 on u2.companyId = u.companyId and i.createdBy = u2.id and i.locationId = ${userData.location}
+             LEFT JOIN tblCompany c ON c.id = i.shippingLineId
+             LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
+             LEFT JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId
+             left join tblUser u3 on u3.roleCode = 'customer'
+             LEFT JOIN tblUser u on ${searchConditionMain}
+             JOIN tblUser u2 on u2.companyId = u.companyId and i.createdBy = u2.id and i.locationId = ${userData.location}
           `,
           orderBy:
             "ORDER BY isnull(i.updatedDate, i.createdDate) DESC, i.id DESC",
@@ -168,8 +152,8 @@ export default function InvoiceRequestList() {
             item["remarks"],
             item["date"],
             item["status"],
-            item["status"] === "Rejected" ? item["remarkStatus"] : ""
-          )
+            item["status"] === "Rejected" ? item["remarkStatus"] : "",
+          ),
         );
 
         setRows(mapped);
@@ -183,13 +167,29 @@ export default function InvoiceRequestList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch]
+    [page, rowsPerPage, advanceSearch, searchCondition],
   );
 
-  useEffect(() => {
-    setMode({ mode: null, formId: null });
-    getData(1, rowsPerPage);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
+
+  const allChecked =
+    selectedIds.length > 0 && selectedIds.length === idsOnPage.length;
+  const someChecked =
+    selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
+
+  const disableEdit = useMemo(() => {
+    if (selectedIds.length !== 1) return false;
+    const row = rows.find((r) => r.id === selectedIds[0]);
+    if (!row) return false;
+    const st = (row.status || "").toLowerCase();
+    return st === "requested";
+  }, [selectedIds, rows]);
+
+  const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
+  const toggleOne = (id) =>
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
 
   const handleChangePage = (_e, newPage) => getData(newPage, rowsPerPage);
   const handleChangeRowsPerPage = (e) => getData(1, +e.target.value);
@@ -203,11 +203,6 @@ export default function InvoiceRequestList() {
     } else toast.error(error || message);
   };
 
-  const handleBulkDelete = async (ids) => {
-    if (!ids?.length) return;
-    await Promise.all(ids.map((rid) => handleDeleteRecord(rid)));
-  };
-
   const modeHandler = useCallback(
     (mode, formId = null) => {
       if (mode === "delete") {
@@ -217,14 +212,22 @@ export default function InvoiceRequestList() {
       setMode({ mode: mode || null, formId });
       router.push("/invoice/invoiceRequest");
     },
-    [router, setMode]
+    [router, setMode],
   );
+
+  useEffect(() => {
+    setMode({ mode: null, formId: null });
+    getData(1, rowsPerPage);
+    if (userData?.roleCode === "admin") {
+      setSearchCondition(`u.roleCodeId = u3.id`);
+      getData(1, rowsPerPage, "u.roleCodeId = u3.id");
+    }
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box className="sm:px-4 py-1">
-        {/* HEADER */}
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left">
             Invoice Request
@@ -239,10 +242,12 @@ export default function InvoiceRequestList() {
               rowsPerPage={rowsPerPage}
             />
             <Box className="flex flex-col sm:flex-row gap-6">
-              <CustomButton
-                text="Add"
-                onClick={() => modeHandler(null, null)}
-              />
+              {userData?.roleCode === "customer" && (
+                <CustomButton
+                  text="Add"
+                  onClick={() => modeHandler(null, null)}
+                />
+              )}
             </Box>
           </Box>
         </Box>
