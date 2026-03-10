@@ -32,7 +32,7 @@ export default function IgmGeneration() {
       const value = data[key];
 
       if (Array.isArray(value)) {
-        result[key] = value.length ? value.map((v) => v.Id).join(",") : null;
+        result[key] = value.length ? value.map((v) => v).join(",") : null;
       } else if (value && typeof value === "object" && "Id" in value) {
         result[key] = value.Id;
       } else {

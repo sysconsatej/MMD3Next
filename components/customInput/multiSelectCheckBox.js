@@ -41,7 +41,7 @@ const MultiSelectCheckBox = ({
   );
 
   const selectedIds = useMemo(() => {
-    return new Set((fieldValue || [])?.map((item) => item.Id));
+    return new Set(fieldValue);
   }, [fieldValue]);
 
   const handleInputFocus = useCallback(() => {
@@ -52,7 +52,7 @@ const MultiSelectCheckBox = ({
     const { value } = event.target;
 
     if (value[value.length - 1] === "all") {
-      const newValue = isAllSelected ? [] : options;
+      const newValue = isAllSelected ? [] : options?.map((item) => item.Id);
 
       changeHandler(
         {
@@ -78,7 +78,10 @@ const MultiSelectCheckBox = ({
   };
 
   const renderSelectedValues = (selected) =>
-    selected.map((item) => item.Name).join(", ");
+    options
+      .filter((item) => selected.includes(item.Id))
+      .map((item) => item.Name)
+      .join(", ");
 
   return (
     <Box className="flex items-end gap-2">
@@ -118,7 +121,7 @@ const MultiSelectCheckBox = ({
           const Icon = selected ? CheckBoxIcon : CheckBoxOutlineBlankIcon;
 
           return (
-            <MenuItem key={item.Id} value={item}>
+            <MenuItem key={item.Id} value={item.Id}>
               <Icon fontSize="small" style={{ marginRight: 8 }} />
               <ListItemText primary={item.Name} />
             </MenuItem>
