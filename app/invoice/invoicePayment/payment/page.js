@@ -53,6 +53,7 @@ export default function PaymentPage() {
   const [paying, setPaying] = useState(false);
   const [payOpen, setPayOpen] = useState(false);
   const [payUrl, setPayUrl] = useState(null);
+  const [paymentModeList, setPaymentModeList] = useState([]);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeError, setIframeError] = useState(false);
 
@@ -72,7 +73,21 @@ export default function PaymentPage() {
     }
     fetchStatus();
   }, []);
+  //fecth mode
+  useEffect(() => {
+    async function fetchPaymentMode() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: "masterListName = 'tblPaymentMode' AND status = 1",
+      };
 
+      const { success, data } = await getDataWithCondition(obj);
+      if (success) setPaymentModeList(data || []);
+    }
+
+    fetchPaymentMode();
+  }, []);
   // default Instrument Date = today
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10);
@@ -208,7 +223,20 @@ export default function PaymentPage() {
     );
     return row?.Id || null;
   };
+  // helper to get offline payment mode id from master data
+  const getOfflinePaymentModeId = () => {
+    if (!paymentModeList.length) return null;
 
+    const row = paymentModeList.find(
+      (s) =>
+        String(s.Name || "")
+          .toLowerCase()
+          .trim() === "offline",
+    );
+
+    return row?.Id || null;
+  };
+  const paymentModeId = getOfflinePaymentModeId();
   // Checkbox helpers
   const toggleInvoice = (invoiceId) => {
     setSelectedInvoiceIds((prev) =>
@@ -455,6 +483,7 @@ export default function PaymentPage() {
         blNo: blNo,
         invoiceIds,
         paymentStatusId,
+        paymentModeId: paymentModeId,
         companyId: userData?.companyId,
         companyBranchId: userData?.branchId,
         locationId: userData?.location || null,
