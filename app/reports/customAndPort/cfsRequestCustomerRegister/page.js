@@ -62,7 +62,7 @@ export default function IgmGeneration() {
       };
 
       // Remove shippingLineId if present
-      const { shippingLineId, ...filteredData } = formattedForApi;
+      const { ...filteredData } = formattedForApi;
 
       const requestBody = {
         spName: "cfsRequestCustomerRegister",
