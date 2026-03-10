@@ -100,7 +100,7 @@ export default function InvoiceRequestList() {
     invoiceNo: "",
   });
   const [searchCondition, setSearchCondition] = useState(
-    `u.id =  ${userData.userId}`,
+    `u.id =  ${userData?.userId}`,
   );
 
   const getData = useCallback(
@@ -133,7 +133,7 @@ export default function InvoiceRequestList() {
              LEFT JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId
              left join tblUser u3 on u3.roleCode = 'customer'
              LEFT JOIN tblUser u on ${searchConditionMain}
-             JOIN tblUser u2 on u2.companyId = u.companyId and i.createdBy = u2.id and i.locationId = ${userData.location}
+             JOIN tblUser u2 on u2.companyId = u.companyId and i.createdBy = u2.id and i.locationId = ${userData?.location}
           `,
           orderBy:
             "ORDER BY isnull(i.updatedDate, i.createdDate) DESC, i.id DESC",
