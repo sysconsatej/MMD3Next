@@ -25,7 +25,16 @@ import { useRouter } from "next/navigation";
 import { VoyageRoute } from "../voyageRouteData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(portOfCall, vesselNo, voyageNo, igmNo, terminal, updatedBy, updatedDate, id) {
+function createData(
+  portOfCall,
+  vesselNo,
+  voyageNo,
+  igmNo,
+  terminal,
+  updatedBy,
+  updatedDate,
+  id,
+) {
   return {
     portOfCall,
     vesselNo,
@@ -50,8 +59,16 @@ export default function VoyageRouteList() {
   const router = useRouter();
   const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
+  const [searchCondition, setSearchCondition] = useState(
+    `v.companyid = ${userData?.companyId}`,
+  );
+
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         const tableObj = {
           columns:
@@ -61,7 +78,12 @@ export default function VoyageRouteList() {
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `left join tblPort p on v.portOfCallId = p.id left join tblPort p1 on v.berthId = p1.id left join tblVessel ve on v.vesselId = ve.id   join tblVoyage vo on vo.id=v.voyageId and v.companyid=${userData?.companyId} left join tblUser u on u.id = v.updatedBy
+          joins: `
+                  left join tblPort p on v.portOfCallId = p.id 
+                  left join tblPort p1 on v.berthId = p1.id 
+                  left join tblVessel ve on v.vesselId = ve.id 
+                  left join tblUser u on u.id = v.updatedBy
+                  join tblVoyage vo on vo.id=v.voyageId and ${searchConditionMain}
 `,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
@@ -76,13 +98,8 @@ export default function VoyageRouteList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, search, searchCondition],
   );
-
-  useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-  }, []);
 
   const rows = voyageRouteData
     ? voyageRouteData.map((item) =>
@@ -94,8 +111,8 @@ export default function VoyageRouteList() {
           item["terminal"],
           item["updatedBy"],
           item["updatedDate"],
-          item["id"]
-        )
+          item["id"],
+        ),
       )
     : [];
 
@@ -136,6 +153,15 @@ export default function VoyageRouteList() {
     router.push("/master/voyageRoute");
   };
 
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
+    if (userData?.roleCode === "admin") {
+      setSearchCondition("1=1");
+      getData(1, rowsPerPage, "1=1");
+    }
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -152,7 +178,9 @@ export default function VoyageRouteList() {
               setSearch={setSearch}
               options={VoyageRoute}
             />
-            <CustomButton text="Add" href="/master/voyageRoute" />
+            {userData?.roleCode === "shipping" && (
+              <CustomButton text="Add" href="/master/voyageRoute" />
+            )}
           </Box>
         </Box>
 

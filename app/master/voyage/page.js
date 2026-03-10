@@ -1,6 +1,6 @@
 "use client";
 
-import { useState ,useEffect} from "react";
+import { useState, useEffect } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data from "./voyageData";
 import { CustomInput } from "@/components/customInput";
@@ -8,7 +8,12 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { fetchForm, insertUpdateForm } from "@/apis";
-import { formatDataWithForm, formatFetchForm, formatFormData, getUserByCookies } from "@/utils";
+import {
+  formatDataWithForm,
+  formatFetchForm,
+  formatFormData,
+  getUserByCookies,
+} from "@/utils";
 import { formStore } from "@/store";
 
 export default function Voyage() {
@@ -17,14 +22,24 @@ export default function Voyage() {
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
   const userData = getUserByCookies();
+
   const submitHandler = async (event) => {
     event.preventDefault();
-    const updatedFormdData = {
-      ...formData,
-      companyid : userData?.companyId,
-      companyBranchid  : userData?.branchId,
+
+    let updatedFormData = {};
+    if (userData?.roleCode === "admin") {
+      updatedFormData = {
+        ...formData,
+      };
+    } else {
+      updatedFormData = {
+        ...formData,
+        companyid: userData?.companyId,
+        companyBranchid: userData?.branchId,
+      };
     }
-    const format = formatFormData("tblVoyage", updatedFormdData, mode.formId);
+
+    const format = formatFormData("tblVoyage", updatedFormData, mode.formId);
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
@@ -33,6 +48,7 @@ export default function Voyage() {
       toast.error(error || message);
     }
   };
+
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
@@ -51,14 +67,13 @@ export default function Voyage() {
 
     fetchFormHandler();
   }, [mode.formId]);
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base flex items-end m-0 ">
-              Voyage 
-            </h1>
+            <h1 className="text-left text-base flex items-end m-0 ">Voyage</h1>
             <CustomButton
               text="Back"
               href="/master/voyage/list"

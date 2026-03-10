@@ -184,7 +184,9 @@ export default function CompanyList() {
               setSearch={setSearch}
               options={searchDataAray}
             />
-            <CustomButton text="Add" href="/master/berthAgent" />
+            {userData?.roleCode === "shipping" && (
+              <CustomButton text="Add" href="/master/berthAgent" />
+            )}
           </Box>
         </Box>
         {/* Table */}

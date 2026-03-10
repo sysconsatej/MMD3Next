@@ -7,7 +7,7 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import { fetchForm, insertUpdateForm, getDataWithCondition } from "@/apis";
+import { fetchForm, insertUpdateForm } from "@/apis";
 import {
   formatDataWithForm,
   formatFetchForm,
@@ -32,17 +32,27 @@ export default function VoyageRoute() {
   });
   const [jsonData, setJsonData] = useState(data);
   const userData = getUserByCookies();
+
   const submitHandler = async (event) => {
     event.preventDefault();
-    const updatedFormdData = {
-      ...formData,
-      companyid: userData?.companyId,
-      companyBranchid: userData?.branchId,
-    };
+
+    let updatedFormData = {};
+    if (userData?.roleCode === "admin") {
+      updatedFormData = {
+        ...formData,
+      };
+    } else {
+      updatedFormData = {
+        ...formData,
+        companyid: userData?.companyId,
+        companyBranchid: userData?.branchId,
+      };
+    }
+
     const format = formatFormData(
-      "tblVoyageRoute ",
-      updatedFormdData,
-      mode.formId
+      "tblVoyageRoute",
+      updatedFormData,
+      mode.formId,
     );
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
@@ -52,6 +62,12 @@ export default function VoyageRoute() {
       toast.error(error || message);
     }
   };
+
+  const handleChangeEventFunctions = createHandleChangeEventFunction({
+    setFormData,
+    formData,
+  });
+
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
@@ -68,10 +84,7 @@ export default function VoyageRoute() {
     }
     fetchFormHandler();
   }, [mode.formId]);
-  const handleChangeEventFunctions = createHandleChangeEventFunction({
-    setFormData,
-    formData,
-  });
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
@@ -117,4 +130,3 @@ export default function VoyageRoute() {
     </ThemeProvider>
   );
 }
-

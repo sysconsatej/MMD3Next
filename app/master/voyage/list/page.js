@@ -42,18 +42,29 @@ export default function VoyageList() {
   const router = useRouter();
   const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
+  const [searchCondition, setSearchCondition] = useState(
+    `v.companyid = ${userData?.companyId}`,
+  );
 
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         const tableObj = {
-          columns: " v1.name vesselName,v.voyageNo voyageNO,u.name updatedBy,v.updatedDate as updatedDate,v.id",
+          columns:
+            " v1.name vesselName,v.voyageNo voyageNO,u.name updatedBy,v.updatedDate as updatedDate,v.id",
           tableName: "tblVoyage v",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `join tblVessel v1  on v1.id = v.vesselId and v.companyid=${userData?.companyId} left join tblUser u on u.id = v.updatedBy`,
+          joins: `
+                  left join tblUser u on u.id = v.updatedBy
+                  join tblVessel v1  on v1.id = v.vesselId and ${searchConditionMain} 
+          `,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
         setVoyageData(data);
@@ -65,17 +76,18 @@ export default function VoyageList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, search, searchCondition],
   );
-
-  useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-  }, []);
 
   const rows = voyageData
     ? voyageData.map((item) =>
-        createData(item["vesselName"], item["voyageNO"], item["updatedBy"], item["updatedDate"], item["id"])
+        createData(
+          item["vesselName"],
+          item["voyageNO"],
+          item["updatedBy"],
+          item["updatedDate"],
+          item["id"],
+        ),
       )
     : [];
 
@@ -86,6 +98,7 @@ export default function VoyageList() {
   const handleChangeRowsPerPage = (event) => {
     getData(1, +event.target.value);
   };
+
   const handleDeleteRecord = async (formId) => {
     const updateObj = {
       updatedBy: userData?.userId,
@@ -105,6 +118,7 @@ export default function VoyageList() {
       toast.error(error || message);
     }
   };
+
   const modeHandler = (mode, formId = null) => {
     if (mode === "delete") {
       handleDeleteRecord(formId);
@@ -113,6 +127,16 @@ export default function VoyageList() {
     setMode({ mode, formId });
     router.push("/master/voyage");
   };
+
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
+    if (userData?.roleCode === "admin") {
+      setSearchCondition("1=1");
+      getData(1, rowsPerPage, "1=1");
+    }
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -129,7 +153,9 @@ export default function VoyageList() {
               setSearch={setSearch}
               options={voyage}
             />
-            <CustomButton text="Add" href="/master/voyage" />
+            {userData?.roleCode === "shipping" && (
+              <CustomButton text="Add" href="/master/voyage" />
+            )}
           </Box>
         </Box>
         <TableContainer component={Paper}>

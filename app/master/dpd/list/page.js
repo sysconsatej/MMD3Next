@@ -178,7 +178,9 @@ export default function DpdList() {
               setSearch={setSearch}
               options={dpd}
             />
-            <CustomButton text="Add" href="/master/dpd" />
+            {userData?.roleCode === "shipping" && (
+              <CustomButton text="Add" href="/master/dpd" />
+            )}
           </Box>
         </Box>
 

@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data, { branchGridButtons } from "./smtpEmailConfigData";
+import { cfsGridButtons, fieldData } from "./doData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
+import { fetchForm, insertUpdateForm } from "@/apis";
 import {
   formatDataWithForm,
   formatFetchForm,
@@ -16,37 +16,20 @@ import {
 } from "@/utils";
 import { formStore } from "@/store";
 import TableGrid from "@/components/tableGrid/tableGrid";
+import { handleBlur, handleChange, initialHandler } from "./utils";
 
-export default function SmtpEmailConfig() {
+export default function DoUpdate() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
-  const [jsonData, setJsonData] = useState(data);
+  const [jsonData, setJsonData] = useState(fieldData);
   const { mode, setMode } = formStore();
   const [errorState, setErrorState] = useState({});
   const userData = getUserByCookies();
 
   const submitHandler = async (event) => {
     event.preventDefault();
-
-    let payload = {};
-
-    if (userData?.roleCode === "admin") {
-      payload = {
-        ...formData,
-      };
-    } else {
-      payload = {
-        ...formData,
-        companyId: userData?.companyId,
-        locationId: userData?.location,
-        isSSL: formData?.isSSL ? "1" : "0", // ✅ FIX HERE
-      };
-    }
-
-    const format = formatFormData("tblSMTP", payload, mode.formId, "smtpId");
-
+    const format = formatFormData("tblPort", formData, mode.formId, "portId");
     const { success, error, message } = await insertUpdateForm(format);
-
     if (success) {
       toast.success(message);
       setFormData({});
@@ -55,24 +38,30 @@ export default function SmtpEmailConfig() {
     }
   };
 
+  //   const handleBlurEventFunctions = handleBlur({
+  //     mode,
+  //     setErrorState,
+  //     setFormData,
+  //     formData,
+  //   });
+
+  const handleChangeEventFunctions = handleChange({ setJsonData });
+
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
         setFieldsMode(mode.mode);
         const format = formatFetchForm(
-          data,
-          "tblSMTP",
+          jsonData,
+          "tblPort",
           mode.formId,
-          '["tblSMTPDetails"]',
-          "smtpId",
+          '["tblPortDetails"]',
+          "portId",
         );
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
-          const getData = formatDataWithForm(result, data);
-          setFormData({
-            ...getData,
-            isSSL: getData?.isSSL === "1", // ✅ FIX HERE
-          });
+          const getData = formatDataWithForm(result, jsonData);
+          setFormData({ ...getData, companyId: userData?.companyId });
         } else {
           toast.error(error || message);
         }
@@ -82,37 +71,47 @@ export default function SmtpEmailConfig() {
     fetchFormHandler();
   }, [mode.formId]);
 
+  //   useEffect(() => {
+  //     async function renderInit() {
+  //       await initialHandler({ setFormData, mode });
+  //     }
+  //     renderInit();
+  //   }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              SMTP Email Configuration
+              DO Generate
             </h1>
             <CustomButton
               text="Back"
-              href="/master/smtpEmailConfig/list"
+              href="/master/cfs/list"
               onClick={() => setMode({ mode: null, formId: null })}
             />
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
-            <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
+            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
-                fields={jsonData.smtpFields}
+                fields={jsonData.doFields}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                // handleBlurEventFunctions={handleBlurEventFunctions}
+                handleChangeEventFunctions={handleChangeEventFunctions}
+                // errorState={errorState}
               />
             </Box>
-            <Box className="p-3 mt-2 border border-gray-200 rounded-md bg-gray-50">
+            <Box className="p-1">
               <TableGrid
-                fields={jsonData.tblSMTPDetails}
+                fields={jsonData.tblBlContainer}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={mode.mode}
-                gridName="tblSMTPDetails"
-                buttons={branchGridButtons}
+                gridName="tblBlContainer"
+                buttons={cfsGridButtons}
               />
             </Box>
           </Box>

@@ -46,15 +46,22 @@ export default function SmtpEmailConfigList() {
   const [totalRows, setTotalRows] = useState(1);
   const [smtpListData, setSmtpListData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
-  const [loadingState, setLoadingState] = useState("Loading...");
+  const [loadingState, setLoadingState] = useState("Data not found!");
   const { setMode } = formStore();
   const router = useRouter();
   const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
+  const [searchCondition, setSearchCondition] = useState(
+    `s2.companyId = ${userData?.companyId}`,
+  );
 
   // 🔹 FETCH DATA (same pattern)
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         const tableObj = {
           columns: `
@@ -72,12 +79,8 @@ export default function SmtpEmailConfigList() {
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
           joins: `
-            join tblSMTP s2 
-              on s2.id = s1.id
-                 and s2.companyId = ${userData?.companyId}
-             and s2.locationId = ${userData?.location}
-            left join tblUser u 
-              on u.id = s1.updatedBy
+            left join tblUser u on u.id = s1.updatedBy
+            join tblSMTP s2 on s2.id = s1.id and  ${searchConditionMain} and s2.locationId = ${userData?.location}
           `,
         };
 
@@ -93,15 +96,9 @@ export default function SmtpEmailConfigList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search, userData]
+    [page, rowsPerPage, search, userData, searchCondition],
   );
 
-  useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-  }, []);
-
-  // 🔹 SAME rows mapping style
   const rows = smtpListData
     ? smtpListData.map((item) =>
         createData(
@@ -111,8 +108,8 @@ export default function SmtpEmailConfigList() {
           item["isSSL"],
           item["updatedBy"],
           item["updateDate"],
-          item["id"]
-        )
+          item["id"],
+        ),
       )
     : [];
 
@@ -153,6 +150,15 @@ export default function SmtpEmailConfigList() {
     router.push("/master/smtpEmailConfig");
   };
 
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
+    if (userData?.roleCode === "admin") {
+      setSearchCondition("1=1");
+      getData(1, rowsPerPage, "1=1");
+    }
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -174,7 +180,9 @@ export default function SmtpEmailConfigList() {
                 { label: "Host Name", value: "s1.hostName" },
               ]}
             />
-            <CustomButton text="Add" href="/master/smtpEmailConfig" />
+            {userData?.roleCode === "shipping" && (
+              <CustomButton text="Add" href="/master/smtpEmailConfig" />
+            )}
           </Box>
         </Box>
 
@@ -199,7 +207,7 @@ export default function SmtpEmailConfigList() {
                     <TableCell>{row.hostName}</TableCell>
                     <TableCell>{row.port}</TableCell>
                     <TableCell>{row.isSSL === "1" ? "Yes" : "No"}</TableCell>
-                    <TableCell>{row.updatedBy}</TableCell>  
+                    <TableCell>{row.updatedBy}</TableCell>
                     <TableCell>{row.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons

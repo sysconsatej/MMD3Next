@@ -186,7 +186,9 @@ export default function CfsList() {
               setSearch={setSearch}
               options={cfs}
             />
-            <CustomButton text="Add" href="/master/cfs" />
+            {userData?.roleCode === "shipping" && (
+              <CustomButton text="Add" href="/master/cfs" />
+            )}
           </Box>
         </Box>
 

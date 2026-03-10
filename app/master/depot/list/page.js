@@ -49,8 +49,16 @@ export default function DepotList() {
   const router = useRouter();
   const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
+  const [searchCondition, setSearchCondition] = useState(
+    `usr.id = ${userData?.userId}`,
+  );
+
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         const tableObj = {
           columns:
@@ -62,7 +70,8 @@ export default function DepotList() {
           searchValue: search.searchValue,
           joins: `join tblMasterData m on m.id = p.portTypeId and m.name = 'DEPOT' and m.masterListName = 'tblPortType'
                   left join tblUser u on u.id = p.updatedBy
-                  left join tblUser usr on usr.id = '${userData?.userId}' 
+                  left join tblUser u3 on u3.roleCode = 'shipping'
+                  left join tblUser usr on ${searchConditionMain}
                   left join tblUser u2 on u2.companyId = usr.companyId
                   join tblPort p2 on p2.id = p.id and p2.createdBy = u2.id and p2.status = 1`,
         };
@@ -76,13 +85,8 @@ export default function DepotList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search],
+    [page, rowsPerPage, search, searchCondition],
   );
-
-  useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-  }, []);
 
   const rows = depotData
     ? depotData.map((item) =>
@@ -135,6 +139,15 @@ export default function DepotList() {
     router.push("/master/depot");
   };
 
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
+    if (userData?.roleCode === "admin") {
+      setSearchCondition(`usr.roleCodeId = u3.id`);
+      getData(1, rowsPerPage, `usr.roleCodeId = u3.id`);
+    }
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -151,7 +164,9 @@ export default function DepotList() {
               setSearch={setSearch}
               options={depot}
             />
-            <CustomButton text="Add" href="/master/depot" />
+            {userData?.roleCode === "shipping" && (
+              <CustomButton text="Add" href="/master/depot" />
+            )}
           </Box>
         </Box>
 
