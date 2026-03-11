@@ -22,7 +22,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { formStore } from "@/store";
 import { useRouter } from "next/navigation";
-import { country } from "../isoCodeLineMappingData";
+import { country } from "../moduleAttachment";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 function createData(
@@ -36,7 +36,7 @@ function createData(
   return { shippingLine, IsoCode, LineIsoCode, updatedBy, updatedDate, id };
 }
 
-export default function IsoCodeLineMappingList() {
+export default function ModuleAttachmentList() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [totalPage, setTotalPage] = useState(1);
