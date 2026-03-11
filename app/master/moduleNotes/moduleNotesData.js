@@ -38,8 +38,11 @@ const fieldData = {
 };
 
 export const country = [
-  { label: "Country Code", value: "code" },
-  { label: "Country Name", value: "name" },
+  { label: "Shipping Line", value: "s.name" },
+  { label: "Location", value: "l.name" },
+  { label: "Module", value: "mas.name" },
+  { label: "Note", value: "m.notes" },
+  { label: "Updated By", value: "u4.name" },
 ];
 
 export default fieldData;

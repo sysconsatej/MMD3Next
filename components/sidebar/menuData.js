@@ -114,6 +114,21 @@ export const navItems = [
         href: "/master/role/list",
         isShow: false,
       },
+      {
+        name: "Module Notes",
+        href: "/master/moduleNotes/list",
+        isShow: false,
+      },
+      {
+        name: "Consignee CFS Mapping",
+        href: "/master/consigneeCfsMapping/list",
+        isShow: false,
+      },
+      {
+        name: "Iso Code Line Mapping",
+        href: "/master/isoCodeLineMapping/list",
+        isShow: false,
+      },
     ],
   },
 

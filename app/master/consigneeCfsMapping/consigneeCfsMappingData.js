@@ -59,8 +59,17 @@ const fieldData = {
 };
 
 export const country = [
-  { label: "Country Code", value: "code" },
-  { label: "Country Name", value: "name" },
+  { label: "Shipping Line", value: "s.name" },
+  { label: "Location", value: "l.name" },
+  { label: "Consignee", value: "consignee.name" },
+  {
+    label: "CFS",
+    value: "ISNULL(cfs.name,'') + '-' + ISNULL(cfs.code,'')",
+  },
+  {
+    label: "Active",
+    value: "c.activeInactive",
+  },
+  { label: "Updated By", value: "up.name" },
 ];
-
 export default fieldData;
