@@ -45,13 +45,19 @@ export default function ReceiptList() {
     toggle: false,
     value: null,
   });
-
   const tableWrapRef = useRef(null);
+  const userData = getUserByCookies();
+  const [searchCondition, setSearchCondition] = useState(
+    `u.id = ${userData?.userId}`,
+  );
 
   const getData = useCallback(
-    async (pg = page, pgSize = rowsPerPage) => {
+    async (
+      pg = page,
+      pgSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
-        const userData = getUserByCookies();
         if (!userData?.userId) {
           toast.error("Login required.");
           return;
@@ -75,10 +81,11 @@ export default function ReceiptList() {
           advanceSearch: advanceSearchFilter(advanceSearch),
 
           joins: `
-            LEFT JOIN tblUser u ON u.id = ${userData.userId} and p.shippingLineId = u.companyId 
-            left join tblLocation l on l.id =p.locationId and p.locationId = ${userData.location}
             LEFT JOIN tblUser u1 ON u1.id = p.createdBy
-            JOIN tblMasterData ms ON ms.id = p.paymentStatusId and ms.name='Payment Confirmed' and p.receiptNo is not null
+            left join tblUser u2 on u2.roleCode = 'shipping'
+            LEFT JOIN tblUser u ON ${searchConditionMain}
+            left JOIN tblMasterData ms ON ms.id = p.paymentStatusId
+            join tblInvoicePayment p2 on p2.id = p.id and p.shippingLineId = u.companyId and ms.name = 'Payment Confirmed' and p.receiptNo is not null and p.locationId = ${userData.location}
           `,
           groupBy: `GROUP BY p.blNo, u1.name`,
           orderBy: "ORDER BY MAX(p.createdDate) DESC",
@@ -96,16 +103,20 @@ export default function ReceiptList() {
         toast.error("Failed to load receipt list");
       }
     },
-    [page, rowsPerPage, advanceSearch]
+    [page, rowsPerPage, advanceSearch, searchCondition],
   );
+
+  const changePage = (e, v) => getData(v, rowsPerPage);
+  const changeRows = (e) => getData(1, +e.target.value);
 
   useEffect(() => {
     setMode({ mode: null, formId: null });
     getData(1, rowsPerPage);
+    if (userData?.roleCode === "admin") {
+      setSearchCondition(`u.roleCodeId = u2.id`);
+      getData(1, rowsPerPage, `u.roleCodeId = u2.id`);
+    }
   }, []);
-
-  const changePage = (e, v) => getData(v, rowsPerPage);
-  const changeRows = (e) => getData(1, +e.target.value);
 
   return (
     <ThemeProvider theme={theme}>
@@ -125,7 +136,9 @@ export default function ReceiptList() {
               getData={() => getData(1, rowsPerPage)}
               rowsPerPage={rowsPerPage}
             />
-            <CustomButton text="Add" href="/invoice/blReceipt" />
+            {userData?.roleCode === "shipping" && (
+              <CustomButton text="Add" href="/invoice/blReceipt" />
+            )}
           </Box>
         </Box>
 
