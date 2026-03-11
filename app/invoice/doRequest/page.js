@@ -39,6 +39,7 @@ export default function Home() {
 
   const userData = getUserByCookies();
   const userAccess = useGetUserAccessUtils()?.data || {};
+
   const submitHandler = async (e) => {
     e?.preventDefault();
     const checkCondition = checkAttachment(formData);
@@ -139,21 +140,25 @@ export default function Home() {
       }
 
       if (userData?.roleCode === "shipping") {
+        const enableFields = new Set([
+          "surveyorText",
+          "emptyDepotId",
+          "nominatedAreaId",
+        ]);
+
         setJsonData((prev) => {
           const updateDoRequestFields = prev.doRequestFields.map((item) => {
-            if (
-              item.name === "surveyorText" ||
-              item.name === "emptyDepotId" ||
-              item.name === "nominatedAreaId"
-            ) {
-              return { ...item, disabled: false };
-            }
-            return { ...item, disabled: true };
+            return { ...item, disabled: !enableFields.has(item.name) };
           });
+
+          const uniqueFields = [
+            ...updateDoRequestFields,
+            ...prev.doRemarkField,
+          ].reduce((map, item) => map.set(item.name, item), new Map());
 
           return {
             ...prev,
-            doRequestFields: updateDoRequestFields,
+            doRequestFields: Array.from(uniqueFields.values()),
           };
         });
       }
