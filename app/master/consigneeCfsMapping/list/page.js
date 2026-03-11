@@ -25,56 +25,119 @@ import { useRouter } from "next/navigation";
 import { country } from "../consigneeCfsMappingData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(code, name, updatedBy, updateDate, id) {
-  return { code, name, updatedBy, updateDate, id };
+
+function createData(
+  shippingLine,
+  location,
+  consignee,
+  cfs,
+  activeInactive,
+  updatedBy,
+  updatedDate,
+  id,
+) {
+  return { shippingLine, location, consignee, cfs, activeInactive, updatedBy, updatedDate, id };
 }
 
-export default function CountryList() {
+export default function ConsigneeCfsMappingList() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
-  const [countryData, setCountryData] = useState([]);
+  const [tableData, setTableData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
+
   const { setMode } = formStore();
   const router = useRouter();
   const userData = getUserByCookies();
   const { data } = useGetUserAccessUtils();
 
+  const [searchCondition, setSearchCondition] = useState(
+    `loggedUser.id = ${userData?.userId}`,
+  );
+
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
+        setLoadingState("Loading...");
+
         const tableObj = {
-          columns: "c.code, c.name,u.name updatedBy,c.updatedDate updateDate,c.id",
-          tableName: "tblCountry c",
+          columns: `
+            s.name AS shippingLine,
+            l.name AS location,
+            consignee.name AS consignee,
+            cfs.name + '-' + cfs.code AS cfs,
+            up.name AS updatedBy,
+            c.updatedDate AS updatedDate,
+            c.activeInactive AS activeInactive,
+            c.id
+          `,
+          tableName: "tblConsigneeCfsMapping c",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: ` left join tblUser u on u.id = c.updatedBy`,
+          joins: `
+            LEFT JOIN tblCompany s ON s.id = c.companyId
+            LEFT JOIN tblLocation l ON l.id = c.locationId
+            LEFT JOIN tblUser consignee ON consignee.id = c.consigneeId
+            LEFT JOIN tblPort cfs ON cfs.id = c.cfsId
+            LEFT JOIN tblUser creator ON creator.id = c.createdBy
+            LEFT JOIN tblUser up ON up.id = c.updatedBy
+            LEFT JOIN tblUser u3 ON u3.roleCode = 'shipping'
+            LEFT JOIN tblUser loggedUser ON ${searchConditionMain}
+
+            JOIN tblConsigneeCfsMapping c2
+              ON c2.id = c.id
+             AND c.createdBy = loggedUser.id
+             AND c.locationId = ${userData?.location}
+          `,
         };
+
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-        setCountryData(data);
-        setTotalPage(totalPage);
+
+        setTableData(data || []);
+        setTotalPage(totalPage || 1);
         setPage(pageNo);
         setRowsPerPage(pageSize);
-        setTotalRows(totalRows);
+        setTotalRows(totalRows || 0);
+        setLoadingState("No data found");
       } catch {
+        setTableData([]);
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, search, searchCondition, userData?.location],
   );
 
   useEffect(() => {
     getData(1, rowsPerPage);
     setMode({ mode: null, formId: null });
+
+    if (userData?.roleCode === "admin") {
+      const adminCondition = `loggedUser.roleCodeId = u3.id`;
+      setSearchCondition(adminCondition);
+      getData(1, rowsPerPage, adminCondition);
+    }
   }, []);
 
-  const rows = countryData
-    ? countryData.map((item) =>
-        createData(item["code"], item["name"], item["updatedBy"], item["updateDate"], item["id"])
+  const rows = tableData
+    ? tableData.map((item) =>
+        createData(
+          item["shippingLine"],
+          item["location"],
+          item["consignee"],
+          item["cfs"],
+          item["activeInactive"],
+          item["updatedBy"],
+          item["updatedDate"],
+          item["id"],
+        ),
       )
     : [];
 
@@ -92,12 +155,15 @@ export default function CountryList() {
       clientId: 1,
       updatedDate: new Date(),
     };
+
     const obj = {
       recordId: formId,
-      tableName: "tblCountry",
+      tableName: "tblConsigneeCfsMapping",
       ...updateObj,
     };
+
     const { success, message, error } = await deleteRecord(obj);
+
     if (success) {
       toast.success(message);
       getData(page, rowsPerPage);
@@ -111,20 +177,21 @@ export default function CountryList() {
       handleDeleteRecord(formId);
       return;
     }
-    setMode({ mode, formId });
-    router.push("/master/country");
-  };
 
-  console.log(data)
+    setMode({ mode, formId });
+    router.push("/master/consigneeCfsMapping");
+  };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box className="sm:px-4 py-1 ">
+
+      <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
-          <Typography variant="body1" className="text-left flex items-center ">
-            Country
+          <Typography variant="body1" className="text-left flex items-center">
+            Consignee CFS Mapping
           </Typography>
+
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
               getData={getData}
@@ -133,31 +200,43 @@ export default function CountryList() {
               setSearch={setSearch}
               options={country}
             />
-            <CustomButton text="Add" href="/master/country" />
+
+            {userData?.roleCode === "shipping" && (
+              <CustomButton text="Add" href="/master/consigneeCfsMapping" />
+            )}
           </Box>
         </Box>
+
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell>Code</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Updated By</TableCell> 
+                <TableCell>Shipping Line</TableCell>
+                <TableCell>Location</TableCell>
+                <TableCell>Consignee</TableCell>
+                <TableCell>CFS</TableCell>
+                <TableCell>Active</TableCell>
+                <TableCell>Updated By</TableCell>
                 <TableCell>Updated Date</TableCell>
               </TableRow>
             </TableHead>
+
             <TableBody>
               {!rows.length ? (
                 <TableRow>
-                  <TableCell>{loadingState}</TableCell>
+                  <TableCell colSpan={7}>{loadingState}</TableCell>
                 </TableRow>
               ) : (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group">
-                    <TableCell>{row.code}</TableCell>
-                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.shippingLine}</TableCell>
+                    <TableCell>{row.location}</TableCell>
+                    <TableCell>{row.consignee}</TableCell>
+                    <TableCell>{row.cfs}</TableCell>
+                    <TableCell>{row.activeInactive}</TableCell>
                     <TableCell>{row.updatedBy}</TableCell>
-                    <TableCell>{row.updateDate}</TableCell>
+                    <TableCell>{row.updatedDate}</TableCell>
+
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}
@@ -172,6 +251,7 @@ export default function CountryList() {
             </TableBody>
           </Table>
         </TableContainer>
+
         <Box className="flex justify-end items-center mt-2">
           <CustomPagination
             count={totalPage}
@@ -183,6 +263,7 @@ export default function CountryList() {
           />
         </Box>
       </Box>
+
       <ToastContainer />
     </ThemeProvider>
   );
