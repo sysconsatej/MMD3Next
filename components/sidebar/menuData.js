@@ -129,6 +129,11 @@ export const navItems = [
         href: "/master/isoCodeLineMapping/list",
         isShow: false,
       },
+      {
+        name:"Email Configuration",
+        href:"/master/moduleEmailRecipient/list",
+        isShow:false,
+      }
     ],
   },
 
