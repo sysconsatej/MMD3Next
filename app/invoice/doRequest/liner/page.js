@@ -92,12 +92,19 @@ export default function BLList() {
     value: null,
   });
   const [advanceSearch, setAdvanceSearch] = useState({});
+  const [searchCondition, setSearchCondition] = useState(
+    `u.id = ${userData?.userId}`,
+  );
 
   // --------------------------------------------
   // 🔥 Fetch Table Data
   // --------------------------------------------
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         const tableObj = {
           columns:
@@ -111,7 +118,8 @@ export default function BLList() {
             left join tblMasterData m2 on m2.id = d.stuffDestuffId
             left join tblLocation l on l.id = d.locationId
             left join tblUser u2 on u2.id = d.createdBy
-            left join tblUser u on u.id = ${userData.userId}
+            left join tblUser u3 on u3.roleCode = 'shipping'
+            left join tblUser u on ${searchConditionMain}
             join tblDoRequest d2 on d2.id = d.id and d.doRequestStatusId is not null 
             and d.locationId = ${userData.location} and d.shippingLineId = u.companyId
           `,
@@ -130,7 +138,7 @@ export default function BLList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch],
+    [page, rowsPerPage, advanceSearch, searchCondition],
   );
 
   const rows = blData
@@ -175,15 +183,19 @@ export default function BLList() {
   const handleNotify = (ids) => console.log("Notify:", ids);
   const handlePCS = (ids) => console.log("PCS:", ids);
 
-  useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-  }, []);
-
   const handleGenerateReports = () => {
     setReportModalOpen(false);
     setReportModalForRow(null);
   };
+
+  useEffect(() => {
+    getData(1, rowsPerPage);
+    setMode({ mode: null, formId: null });
+    if (userData?.roleCode === "admin") {
+      setSearchCondition(`u.roleCodeId = u3.id`);
+      getData(1, rowsPerPage, `u.roleCodeId = u3.id`);
+    }
+  }, []);
 
   return (
     <>
@@ -192,7 +204,7 @@ export default function BLList() {
         <Box className="sm:px-4 py-1">
           <Box className="flex flex-col sm:flex-row justify-between pb-1">
             <Typography variant="body1" className="text-left flex items-center">
-              Do Request List
+              Do Request Track
             </Typography>
             <AdvancedSearchBar
               fields={advanceSearchFields.shipBl}
@@ -210,12 +222,14 @@ export default function BLList() {
               doStatusHandler(getData, router, setMode).handleView(
                 ids,
                 rows.filter((row) => row.id === ids?.[0])?.[0]?.doStatus,
+                "liner",
               )
             }
             onEdit={(ids) =>
               doStatusHandler(getData, router, setMode).handleEdit(
                 ids,
                 rows.filter((row) => row.id === ids?.[0])?.[0]?.doStatus,
+                "liner",
               )
             }
             onViewBL={(ids) =>
@@ -236,6 +250,7 @@ export default function BLList() {
                 setReportModalOpen,
               )
             }
+            path={"liner"}
             // onNotify={handleNotify}
             // onPCS={handlePCS}
             // onSecuritySlip={handleSecuritySlip}
@@ -265,7 +280,6 @@ export default function BLList() {
                   <TableCell>Stuff Destuff</TableCell>
                   <TableCell>Doc Status</TableCell>
                   <TableCell>Reject Remark</TableCell>
-                  <TableCell>Assigned To</TableCell>
                   <TableCell>History</TableCell>
                 </TableRow>
               </TableHead>
@@ -305,7 +319,6 @@ export default function BLList() {
                         {row.doStatus}
                       </TableCell>
                       <TableCell>{row.doRejectRemarks}</TableCell>
-                      <TableCell></TableCell>
                       <TableCell>
                         <HistoryIcon
                           sx={{ cursor: "pointer", fontSize: 16 }}

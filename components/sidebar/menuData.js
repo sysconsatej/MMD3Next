@@ -6,29 +6,7 @@ import { getUserByCookies } from "@/utils";
 // Only parent level renders icons; children render text-only.
 const userData = getUserByCookies();
 
-const links = () => {
-  switch (userData?.roleCode) {
-    case "shipping":
-      return "/invoice/doRequest/liner";
-    case "customer":
-      return "/invoice/doRequest/list";
-    case "cfs":
-      return "/invoice/doRequest/cfsTrack";
-    default:
-      return "/invoice/doRequest/list";
-  }
-};
 
-// const links1 = () => {
-//   switch (userData?.roleCode) {
-//     case "shipping":
-//       return "/bl/cfs-request/liner";
-//     case "customer":
-//       return "/bl/cfs-request/list";
-//     default:
-//       return "/bl/cfs-request/list";
-//   }
-// };
 
 export const navItems = [
   { name: "Home", href: "/home", icon: "home", isShow: true },
@@ -130,10 +108,10 @@ export const navItems = [
         isShow: false,
       },
       {
-        name:"Email Configuration",
-        href:"/master/moduleEmailRecipient/list",
-        isShow:false,
-      }
+        name: "Email Configuration",
+        href: "/master/moduleEmailRecipient/list",
+        isShow: false,
+      },
     ],
   },
 
@@ -215,10 +193,19 @@ export const navItems = [
       },
       {
         name: "Do Request",
-        href: links(),
+        href: "/invoice/doRequest/list",
         isShow: false,
       },
-
+      {
+        name: "Do Track",
+        href: "/invoice/doRequest/liner",
+        isShow: false,
+      },
+      {
+        name: "Do Search",
+        href: "/invoice/doRequest/cfsTrack",
+        isShow: false,
+      },
       {
         name: "Receipt",
         href: "/invoice/blReceipt/list",

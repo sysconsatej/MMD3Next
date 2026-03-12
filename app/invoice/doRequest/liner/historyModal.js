@@ -134,8 +134,6 @@ export function DoHistoryLinerModal({ historyModal, setHistoryModal }) {
                 <TableCell>New Value</TableCell>
                 <TableCell>Rejection Remarks</TableCell>
                 <TableCell>Remark</TableCell>
-                <TableCell>Assign To</TableCell>
-                <TableCell>Assign Date & Timestamp</TableCell>
                 <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
@@ -163,9 +161,6 @@ export function DoHistoryLinerModal({ historyModal, setHistoryModal }) {
                     <TableCell>{r["New Value"]}</TableCell>
                     <TableCell>{r["Rejection Remarks"]}</TableCell>
                     <TableCell>{r["Remark"]}</TableCell>
-                    <TableCell>{r["Assign To"]}</TableCell>
-                    <TableCell>{r["Assign Date & timestamp"]}</TableCell>
-
                     <TableCell
                       sx={{
                         color: statusColor(r["Status"]?.replace(/\s+/g, "")),
