@@ -94,6 +94,9 @@ export default function InvoicePaymentList() {
     mblNo: null,
   });
   const userData = getUserByCookies();
+  const [searchCondition, setSearchCondition] = useState(
+    `u.id = ${userData?.userId}`,
+  );
 
   // === CHECKBOX ===
   const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
@@ -110,7 +113,11 @@ export default function InvoicePaymentList() {
 
   // === FETCH DATA ===
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         const tableObj = {
           columns: `
@@ -131,7 +138,8 @@ export default function InvoicePaymentList() {
     LEFT JOIN tblBl b ON b.id = i.blId
     LEFT JOIN tblCompany c ON c.id = i.shippingLineId
     LEFT JOIN tblMasterData cat ON cat.id = i.invoiceCategoryId
-    LEFT JOIN tblUser u ON u.id = ${userData.userId}
+    left join tblUser u4 on u4.roleCode = 'customer'
+    LEFT JOIN tblUser u ON ${searchConditionMain}
     JOIN tblInvoiceRequest ir on  ir.id = i.invoiceRequestId and ir.companyId = u.companyId and ir.companyBranchId = u.branchId and i.locationId = ${userData.location}
     left join tblUser u2 on u2.id = i.createdBy
 	  left join tblUserRoleMapping ur on ur.userId = u.id and ur.status = 1
@@ -191,13 +199,8 @@ export default function InvoicePaymentList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch],
+    [page, rowsPerPage, advanceSearch, searchCondition],
   );
-
-  useEffect(() => {
-    setMode({ mode: null, formId: null });
-    getData(1, rowsPerPage);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleChangePage = (_e, newPage) => getData(newPage, rowsPerPage);
   const handleChangeRowsPerPage = (e) => getData(1, +e.target.value);
@@ -278,6 +281,15 @@ export default function InvoicePaymentList() {
     }
   };
 
+  useEffect(() => {
+    setMode({ mode: null, formId: null });
+    getData(1, rowsPerPage);
+    if (userData?.roleCode === "admin") {
+      setSearchCondition(`u.roleCodeId = u4.id`);
+      getData(1, rowsPerPage, `u.roleCodeId = u4.id`);
+    }
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -293,7 +305,12 @@ export default function InvoicePaymentList() {
               getData={getData}
               rowsPerPage={rowsPerPage}
             />
-            <CustomButton text="Add" onClick={() => modeHandler(null, null)} />
+            {userData?.roleCode === "customer" && (
+              <CustomButton
+                text="Add"
+                onClick={() => modeHandler(null, null)}
+              />
+            )}
           </Box>
         </Box>
 
