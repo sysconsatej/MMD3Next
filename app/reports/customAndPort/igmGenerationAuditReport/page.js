@@ -1,5 +1,5 @@
 "use client";
-import { useState,useMemo } from "react";
+import { useState, useMemo } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { metaData } from "./igmGenerationAuditReportData";
 import { CustomInput } from "@/components/customInput";
@@ -30,7 +30,7 @@ export default function IgmGenerationAuditReport() {
           return [key, value.Id];
         }
         return [key, value];
-      })
+      }),
     );
   };
 
@@ -41,9 +41,12 @@ export default function IgmGenerationAuditReport() {
     const transformed = transformToIds(formData);
 
     const requestBody = {
-      spName: "",
-      jsonData: transformed,
-      companyId: userData.companyId,
+      spName: "igmAuditReportTest",
+      jsonData: {
+        ...transformed,
+        shippingLineId: userData.companyId,
+        locationId: userData.location,
+      },
     };
 
     const getErr = (src) =>
@@ -73,7 +76,7 @@ export default function IgmGenerationAuditReport() {
           toast.info("No data found.");
         } else {
           toast.error(
-            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`
+            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`,
           );
         }
       }
@@ -95,20 +98,14 @@ export default function IgmGenerationAuditReport() {
       setGoLoading(false);
     }
   };
-  const handleGenerateReport = () => {
-    if (!tableData || !tableData.length) {
-      toast.info("No data to export.");
-      return;
-    }
-    jsonToExcelFile(tableData, "IGM Generation Audit Report");
-  };
+
   const handleChangeEventFunctions = useMemo(
     () =>
       createHandleChangeEventFunction({
         setFormData,
         fields: jsonData.auditFields,
       }),
-    [setFormData, jsonData.auditFields]
+    [setFormData, jsonData.auditFields],
   );
   return (
     <ThemeProvider theme={theme}>
@@ -121,7 +118,7 @@ export default function IgmGenerationAuditReport() {
           </Box>
 
           <Box className="border border-solid border-black rounded-[4px]">
-            <Box className="sm:grid sm:grid-cols-4 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black">
+            <Box className="sm:grid sm:grid-cols-5 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black">
               <CustomInput
                 fields={data.auditFields}
                 formData={formData}
@@ -138,12 +135,7 @@ export default function IgmGenerationAuditReport() {
               type="submit"
               disabled={goLoading}
             />
-            <CustomButton
-              text="GENERATE REPORT"
-              type="button"
-              onClick={handleGenerateReport}
-              title={!tableData.length ? "No data to export" : ""}
-            />
+
             <CustomButton
               text="Cancel"
               onClick={() => router.push("/home")}
