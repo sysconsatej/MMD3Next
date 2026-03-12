@@ -59,6 +59,11 @@ const fieldData = {
       name: "blNo",
       isEdit: true,
     },
+    {
+      label:"IGM No",
+      name:"igmNo",
+      isEdit:true,
+    }
   ],
 };
 export default fieldData;
