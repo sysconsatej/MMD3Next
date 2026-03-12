@@ -57,14 +57,21 @@ export default function Home() {
       ];
     }
 
-    const format = formatFormData(
-      "tblDoRequest",
-      {
+    let reqBody = {};
+    if (userData?.roleCode === "admin") {
+      reqBody = { ...restData };
+    } else {
+      reqBody = {
         ...restData,
         locationId: userData?.location,
         companyId: userData?.companyId,
         companyBranchId: userData?.branchId,
-      },
+      };
+    }
+
+    const format = formatFormData(
+      "tblDoRequest",
+      reqBody,
       mode.formId,
       "doRequestId",
     );
@@ -187,6 +194,12 @@ export default function Home() {
             {userData?.roleCode === "shipping" && (
               <CustomButton text="Back" href={"/invoice/doRequest/liner"} />
             )}
+            {userData?.roleCode === "admin" && (
+              <CustomButton
+                text="Back"
+                href={`/invoice/doRequest/${mode?.admin}`}
+              />
+            )}
           </Box>
 
           <Box>
@@ -258,7 +271,8 @@ export default function Home() {
                 disabled={!requestBtn}
               />
             )}
-            {userData?.roleCode === "customer" &&
+            {(userData?.roleCode === "customer" ||
+              (userData?.roleCode === "admin" && mode?.admin === "list")) &&
               (!mode?.status || mode?.status === "Reject for DO") &&
               userAccess?.["Request DO"] && (
                 <CustomButton
@@ -269,7 +283,8 @@ export default function Home() {
                   }
                 />
               )}
-            {userData?.roleCode === "shipping" && (
+            {(userData?.roleCode === "shipping" ||
+              (userData?.roleCode === "admin" && mode?.admin === "liner")) && (
               <>
                 {userAccess?.["Confirm"] && (
                   <CustomButton

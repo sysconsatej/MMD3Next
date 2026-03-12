@@ -6,12 +6,22 @@ export const doStatusHandler = (getData, router, setMode) => {
   const userData = getUserByCookies();
 
   return {
-    handleView: (id, status) => {
-      setMode({ mode: "view", formId: id?.[0], status: status });
+    handleView: (id, status, adminPath) => {
+      setMode({
+        mode: "view",
+        formId: id?.[0],
+        status: status,
+        admin: adminPath,
+      });
       router.push("/invoice/doRequest");
     },
-    handleEdit: (id, status) => {
-      setMode({ mode: "edit", formId: id?.[0], status: status });
+    handleEdit: (id, status, adminPath) => {
+      setMode({
+        mode: "edit",
+        formId: id?.[0],
+        status: status,
+        admin: adminPath,
+      });
       router.push("/invoice/doRequest");
     },
     handleViewBL: async (ids) => {

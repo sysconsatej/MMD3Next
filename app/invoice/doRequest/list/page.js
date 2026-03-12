@@ -75,11 +75,19 @@ export default function BLList() {
     value: null,
     blNo: null,
   });
+  const [searchCondition, setSearchCondition] = useState(
+    `u.id = ${userData?.userId}`,
+  );
+
   // --------------------------------------------
   // 🔥 Fetch Table Data
   // --------------------------------------------
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         const tableObj = {
           columns:
@@ -93,7 +101,8 @@ export default function BLList() {
             left join tblMasterData m on m.id = d.doRequestStatusId
             left join tblMasterData m2 on m2.id = d.stuffDestuffId
             left join tblUser u3 on u3.id = d.createdBy
-            left join tblUser u on u.id = ${userData.userId}
+            left join tblUser u4 on u4.roleCode = 'customer'
+            left join tblUser u on ${searchConditionMain}
             left join tblUser u2 on u2.companyId = u.companyId
             join tblDoRequest d2 on d2.id = d.id and d.locationId = ${userData.location} and d.createdBy = u2.id
           `,
@@ -112,7 +121,7 @@ export default function BLList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch],
+    [page, rowsPerPage, advanceSearch, searchCondition],
   );
 
   const rows = blData
@@ -152,6 +161,10 @@ export default function BLList() {
   useEffect(() => {
     getData(1, rowsPerPage);
     setMode({ mode: null, formId: null });
+    if (userData?.roleCode === "admin") {
+      setSearchCondition(`u.roleCodeId = u4.id`);
+      getData(1, rowsPerPage, "u.roleCodeId = u4.id");
+    }
   }, []);
 
   return (
@@ -170,7 +183,9 @@ export default function BLList() {
               getData={getData}
               rowsPerPage={rowsPerPage}
             />
-            <CustomButton text="ADD" href="/invoice/doRequest" />
+            {userData?.roleCode === "customer" && (
+              <CustomButton text="ADD" href="/invoice/doRequest" />
+            )}
           </Box>
         </Box>
         <DoToolbarActions
@@ -179,15 +194,18 @@ export default function BLList() {
             doStatusHandler(getData, router, setMode).handleView(
               ids,
               rows.filter((row) => row.id === ids?.[0])?.[0]?.doRequestStatusId,
+              "list",
             )
           }
           onEdit={(ids) =>
             doStatusHandler(getData, router, setMode).handleEdit(
               ids,
               rows.filter((row) => row.id === ids?.[0])?.[0]?.doRequestStatusId,
+              "list",
             )
           }
           onRequestDO={(ids) => doStatusHandler(getData).handleRequestDO(ids)}
+          path={"list"}
         />
         <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small">

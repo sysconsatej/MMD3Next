@@ -31,6 +31,7 @@ export default function DoToolbarActions({
   onEdit,
   onRequestDO,
   allowBulk = true,
+  path = null,
 }) {
   const [doStatus, setDoStatus] = useState(null);
   const [isDisableBtn, setIsDisableBtn] = useState({
@@ -100,11 +101,17 @@ export default function DoToolbarActions({
       }));
 
       const filterEditStatus = doStatus?.filter((item) => {
-        if (userData?.roleCode === "customer") {
+        if (
+          userData?.roleCode === "customer" ||
+          (userData?.roleCode === "admin" && path === "list")
+        ) {
           return item?.Name !== "Reject for DO";
         }
 
-        if (userData?.roleCode === "shipping") {
+        if (
+          userData?.roleCode === "shipping" ||
+          (userData?.roleCode === "admin" && path === "liner")
+        ) {
           return (
             item?.Name !== "Request for DO" && item?.Name !== "Confirm for DO"
           );

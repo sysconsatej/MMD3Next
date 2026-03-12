@@ -95,9 +95,16 @@ export default function BLList() {
     toggle: false,
     value: null,
   });
+  const [searchCondition, setSearchCondition] = useState(
+    `INNER JOIN tblCompany c  ON c.id = ${userData?.companyId} AND p.name = c.name`,
+  );
 
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         const tableObj = {
           columns: `
@@ -176,12 +183,10 @@ export default function BLList() {
           ON ms.id = d.doRequestStatusId 
           AND ms.name = 'Released for DO'
 
-      INNER JOIN tblCompany c 
-          ON c.id = ${userData.companyId}
-          AND p.name = c.name
+      ${searchConditionMain}
 
       INNER JOIN tblLocation l
-          ON l.id = ${userData.location}
+          ON l.id = ${userData?.location}
           AND d.locationId = l.id
 
       OUTER APPLY (
@@ -223,7 +228,7 @@ export default function BLList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch],
+    [page, rowsPerPage, advanceSearch, searchCondition],
   );
 
   const rows = blData
@@ -265,6 +270,7 @@ export default function BLList() {
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
+
   const handleCfsConfirm = async (ids, remarks) => {
     try {
       if (!ids?.length) return;
@@ -297,11 +303,15 @@ export default function BLList() {
   };
 
   useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-  }, []);
-  useEffect(() => {
     async function getCfsStatus() {
+      getData(1, rowsPerPage);
+      setMode({ mode: null, formId: null });
+
+      if (userData?.roleCode === "admin") {
+        setSearchCondition("");
+        getData(1, rowsPerPage, "");
+      }
+
       const obj = {
         columns: "id as Id, name as Name",
         tableName: "tblMasterData",
@@ -321,7 +331,7 @@ export default function BLList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center">
-            Do Request List
+            Search Do
           </Typography>
           <Box className="flex gap-4">
             <AdvancedSearchBar
