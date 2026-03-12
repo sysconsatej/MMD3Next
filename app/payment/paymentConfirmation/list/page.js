@@ -87,7 +87,7 @@ function createData(
   status,
   blId,
   assignTo,
-  invoiceRequestId
+  invoiceRequestId,
 ) {
   return {
     id,
@@ -140,6 +140,9 @@ export default function InvoiceRequestList() {
     value: null,
     mblNo: null,
   });
+  const [searchCondition, setSearchCondition] = useState(
+    `u.id = ${userData?.userId}`,
+  );
 
   const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
   const allChecked =
@@ -150,11 +153,15 @@ export default function InvoiceRequestList() {
   const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
   const toggleOne = (id) =>
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
 
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         // 🔹 Build advanced search WHERE from UI
         const advWhere = advanceSearchFilter(advanceSearch);
@@ -193,8 +200,9 @@ export default function InvoiceRequestList() {
   `,
           tableName: "tblInvoicePayment p",
           joins: `
+left join tblUser u2 on u2.roleCode = 'shipping'
 JOIN tblUser u
-    ON u.id = ${userData.userId}
+    ON ${searchConditionMain}
    AND p.shippingLineId = u.companyId
 LEFT JOIN tblUser u1
     ON u1.id = p.createdBy
@@ -233,8 +241,8 @@ JOIN tblLocation l
             item["status"],
             item["blId"],
             item["assignTo"],
-            item["invoiceRequestId"]
-          )
+            item["invoiceRequestId"],
+          ),
         );
 
         setRows(mapped);
@@ -248,7 +256,7 @@ JOIN tblLocation l
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch]
+    [page, rowsPerPage, advanceSearch, searchCondition],
   );
 
   const approveHandler = async (paymentId) => {
@@ -335,6 +343,14 @@ JOIN tblLocation l
 
   useEffect(() => {
     async function fetchStatus() {
+      setMode({ mode: null, formId: null });
+      getData(1, rowsPerPage);
+
+      if (userData?.roleCode === "admin") {
+        setSearchCondition(`u.roleCodeId = u2.id`);
+        getData(1, rowsPerPage, "u.roleCodeId = u2.id");
+      }
+
       const obj = {
         columns: "id as Id, name as Name",
         tableName: "tblMasterData",
@@ -343,9 +359,6 @@ JOIN tblLocation l
 
       const { success, data } = await getDataWithCondition(obj);
       if (success) setStatusList(data);
-
-      setMode({ mode: null, formId: null });
-      getData(1, rowsPerPage);
     }
     fetchStatus();
   }, []);
@@ -471,7 +484,7 @@ JOIN tblLocation l
                             .getState()
                             .setMode({ mode: "view", formId: row.id });
                           router.push(
-                            `/invoice/invoiceRelease?invoiceRequestId=${row.invoiceRequestId}`
+                            `/invoice/invoiceRelease?invoiceRequestId=${row.invoiceRequestId}`,
                           );
                         }}
                         sx={{ cursor: "pointer", fontWeight: 500 }}
