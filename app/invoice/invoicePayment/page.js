@@ -438,11 +438,14 @@ export default function InvoicePayment() {
             blNo: formData?.blNo || "",
             shippingLineId: extractId(formData?.shippingLineId),
             blId,
-            companyId: userData?.companyId,
-            companyBranchId: userData?.branchId,
             locationId: userData?.location || null,
             tblInvoiceRequestContainer: tblInvoiceRequestContainer || [],
             tblAttachment: tblAttachment || [],
+            ...((userData?.roleCode !== "admin") &
+              {
+                companyId: userData?.companyId,
+                companyBranchId: userData?.branchId,
+              }),
           },
           invoiceId,
           "invoiceRequestId",
