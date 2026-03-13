@@ -441,7 +441,7 @@ export default function InvoicePayment() {
             locationId: userData?.location || null,
             tblInvoiceRequestContainer: tblInvoiceRequestContainer || [],
             tblAttachment: tblAttachment || [],
-            ...((userData?.roleCode !== "admin") &
+            ...((userData?.roleCode !== "admin") &&
               {
                 companyId: userData?.companyId,
                 companyBranchId: userData?.branchId,
