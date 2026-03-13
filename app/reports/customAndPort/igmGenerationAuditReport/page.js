@@ -10,19 +10,20 @@ import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable
 import { fetchDynamicReportData } from "@/apis/dynamicReport";
 import { useRouter } from "next/navigation";
 import { getUserByCookies } from "@/utils";
-import { jsonToExcelFile } from "@/utils/helper";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
+import DynamicReportDownloadExcelButton from "@/components/dynamicReportExcel/page";
 
 export default function IgmGenerationAuditReport() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [tableData, setTableData] = useState([]);
-  const [jsonData, setJsonData] = useState(data);
+  const [tableFormData, setTableFormData] = useState([]);
   const [goLoading, setGoLoading] = useState(false);
+
   const router = useRouter();
   const userData = getUserByCookies();
 
-  // 🔹 Convert dropdown objects to Ids
+  // Convert dropdown objects → ids
   const transformToIds = (data) => {
     return Object.fromEntries(
       Object.entries(data).map(([key, value]) => {
@@ -62,6 +63,7 @@ export default function IgmGenerationAuditReport() {
 
       if (res.success) {
         const rows = Array.isArray(res.data) ? res.data : [];
+
         if (rows.length) {
           setTableData(rows);
         } else {
@@ -103,10 +105,11 @@ export default function IgmGenerationAuditReport() {
     () =>
       createHandleChangeEventFunction({
         setFormData,
-        fields: jsonData.auditFields,
+        fields: data.auditFields,
       }),
-    [setFormData, jsonData.auditFields],
+    [setFormData],
   );
+
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={handleSubmit}>
@@ -136,6 +139,17 @@ export default function IgmGenerationAuditReport() {
               disabled={goLoading}
             />
 
+            <DynamicReportDownloadExcelButton
+              rows={tableFormData}
+              metaData={metaData}
+              fileName={`IGMGenerationAuditReport_${new Date()
+                .toISOString()
+                .slice(0, 10)}.xlsx`}
+              text="DOWNLOAD EXCEL"
+              buttonStyles="custom-btn"
+              disabled={!tableFormData.length}
+            />
+
             <CustomButton
               text="Cancel"
               onClick={() => router.push("/home")}
@@ -146,7 +160,11 @@ export default function IgmGenerationAuditReport() {
       </form>
 
       <Box className="p-0">
-        <DynamicReportTable data={tableData} metaData={metaData} />
+        <DynamicReportTable
+          data={tableData}
+          metaData={metaData}
+          onSelectedEditedChange={setTableFormData}
+        />
       </Box>
 
       <ToastContainer />
