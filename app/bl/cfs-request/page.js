@@ -7,7 +7,7 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
-import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
+import { checkMandatoryAttach, formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import FormHeading from "@/components/formHeading/formHeading";
 import TableGrid from "@/components/tableGrid/tableGrid";
 import { formStore } from "@/store";
@@ -36,6 +36,14 @@ export default function Company() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
+
+    const checkAttach = await checkMandatoryAttach(
+      formData?.shippingLineId,
+      userData?.location,
+      "CFS Request",
+      formData?.tblAttachment,
+    );
+    if (checkAttach) return;
 
     const isMblActive = await checkMblActive(
       formData?.blNo,

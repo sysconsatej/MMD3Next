@@ -1,6 +1,6 @@
 "use client";
 
-import { getNextPrevData } from "@/apis";
+import { getDataWithCondition, getNextPrevData } from "@/apis";
 import { auth } from "@/store";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -318,4 +318,35 @@ export function formatDataWithFormThirdLevel(data, common, tabTable) {
     ...commonKeys,
     [tabTable]: updatedData,
   };
+}
+
+export async function checkMandatoryAttach(
+  liner,
+  locationId,
+  moduleName,
+  attachments = [],
+) {
+  const AttachIds = attachments
+    .map((item) => item?.attachmentTypeId?.Id)
+    .join(",");
+  try {
+    const obj = {
+      columns: "m.name",
+      tableName: "tblModuleAttachment ma",
+      joins: `
+              left join tblMasterData m2 on m2.id = ma.moduleId
+              cross apply string_split(ma.attachmentId, ',') s
+             join tblMasterData m on m.id = try_cast(s.value as int) `,
+      whereCondition: `ma.shippingLineId = ${liner?.Id} and ma.locationId = ${locationId} and m2.name = '${moduleName}' and m.id not in (${AttachIds || 0}) and ma.status = 1 `,
+    };
+    const { data, success } = await getDataWithCondition(obj);
+    if (data?.length > 0) {
+      toast.error(
+        `${data?.map((item) => item?.name).join(", ")} is mandatory in attachment!`,
+      );
+      return true;
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }

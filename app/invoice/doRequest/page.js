@@ -15,7 +15,7 @@ import {
   insertUpdateForm,
   updateStatusRows,
 } from "@/apis";
-import { formatFormData, getUserByCookies } from "@/utils";
+import { checkMandatoryAttach, formatFormData, getUserByCookies } from "@/utils";
 import {
   BlurEventFunctions,
   changeEventFunctions,
@@ -42,6 +42,15 @@ export default function Home() {
 
   const submitHandler = async (e) => {
     e?.preventDefault();
+
+    const checkAttach = await checkMandatoryAttach(
+      formData?.shippingLineId,
+      userData?.location,
+      "Do Request",
+      formData?.tblAttachment,
+    );
+    if (checkAttach) return;
+
     const checkCondition = checkAttachment(formData);
     if (checkCondition) return;
 
@@ -57,21 +66,16 @@ export default function Home() {
       ];
     }
 
-    let reqBody = {};
-    if (userData?.roleCode === "admin") {
-      reqBody = { ...restData };
-    } else {
-      reqBody = {
-        ...restData,
-        locationId: userData?.location,
-        companyId: userData?.companyId,
-        companyBranchId: userData?.branchId,
-      };
-    }
-
     const format = formatFormData(
       "tblDoRequest",
-      reqBody,
+      {
+        ...restData,
+        ...(userData?.roleCode !== "admin" && {
+          locationId: userData?.location,
+          companyId: userData?.companyId,
+          companyBranchId: userData?.branchId,
+        }),
+      },
       mode.formId,
       "doRequestId",
     );

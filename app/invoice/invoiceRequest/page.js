@@ -15,6 +15,7 @@ import {
   updateStatusRows,
 } from "@/apis";
 import {
+  checkMandatoryAttach,
   formatDataWithForm,
   formatFetchForm,
   formatFormData,
@@ -75,6 +76,14 @@ export default function InvoiceRequest() {
   /* ------------------------ SUBMIT ------------------------ */
   const submitHandler = async (e) => {
     e.preventDefault();
+
+    const checkAttach = await checkMandatoryAttach(
+      formData?.shippingLineId,
+      userData?.location,
+      "Invoice Request",
+      formData?.tblAttachment,
+    );
+    if (checkAttach) return;
 
     // 🔴 VALIDATE ATTACHMENT UPLOAD (required on Add & Edit)
     const attachments = Array.isArray(formData?.tblAttachment)
