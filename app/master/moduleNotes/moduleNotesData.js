@@ -26,6 +26,7 @@ const fieldData = {
       where: "m.masterListName = 'tblModuleNote'",
       orderBy: "m.name",
       isEdit: true,
+      foreignTable: "name,tblMasterData",
     },
     {
       label: "Notes",
