@@ -18,6 +18,26 @@ export default function IsoCodeLineMapping() {
   const [jsonData, setJsonData] = useState(data);
   const { mode, setMode } = formStore();
   const userData = getUserByCookies();
+  // 🔹 Convert dropdown & multiselect objects to Ids
+  const transformToIds = (data) => {
+    const result = {};
+
+    for (const key in data) {
+      const value = data[key];
+
+      if (Array.isArray(value)) {
+        result[key] = value.length
+          ? value.map((v) => (v?.Id ? v.Id : v)).join(",")
+          : null;
+      } else if (value && typeof value === "object" && "Id" in value) {
+        result[key] = value.Id;
+      } else {
+        result[key] = value ?? null;
+      }
+    }
+
+    return result;
+  };
   const submitHandler = async (event) => {
     event.preventDefault();
 
@@ -31,12 +51,13 @@ export default function IsoCodeLineMapping() {
         ...formData,
         companyId: userData?.companyId,
         companyBranchId: userData?.branchId,
+        locationId: userData?.location,
       };
     }
-
+    const transformedData = transformToIds(normalized);
     const format = formatFormData(
       "tblModuleAttachment",
-      normalized,
+      transformedData,
       mode.formId,
     );
 
@@ -62,7 +83,10 @@ export default function IsoCodeLineMapping() {
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
           const getData = formatDataWithForm(result, data);
-          setFormData(getData);
+          const multiSelect = getData.attachmentId
+            .split(",")
+            .map((id) => Number(id));
+          setFormData({ ...getData, attachmentId: multiSelect });
         } else {
           toast.error(error || message);
         }

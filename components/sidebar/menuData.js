@@ -6,8 +6,6 @@ import { getUserByCookies } from "@/utils";
 // Only parent level renders icons; children render text-only.
 const userData = getUserByCookies();
 
-
-
 export const navItems = [
   { name: "Home", href: "/home", icon: "home", isShow: true },
   {
@@ -110,6 +108,11 @@ export const navItems = [
       {
         name: "Email Configuration",
         href: "/master/moduleEmailRecipient/list",
+        isShow: false,
+      },
+      {
+        name: "Module Attachment",
+        href: "/master/moduleAttachment/list",
         isShow: false,
       },
     ],

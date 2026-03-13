@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useEffect } from "react";
 import {
   Box,
   Checkbox,
@@ -82,6 +82,12 @@ const MultiSelectCheckBox = ({
       .filter((item) => selected.includes(item.Id))
       .map((item) => item.Name)
       .join(", ");
+
+  useEffect(() => {
+    if (fieldValue.length > 0 && options.length <= 0) {
+      getData(field, commonProps.name, 1, "");
+    }
+  }, [fieldValue]);
 
   return (
     <Box className="flex items-end gap-2">

@@ -25,15 +25,25 @@ import { useRouter } from "next/navigation";
 import { country } from "../moduleAttachment";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
+
 function createData(
   shippingLine,
-  IsoCode,
-  LineIsoCode,
+  location,
+  moduleName,
+  attachmentNames,
   updatedBy,
   updatedDate,
   id,
 ) {
-  return { shippingLine, IsoCode, LineIsoCode, updatedBy, updatedDate, id };
+  return {
+    shippingLine,
+    location,
+    moduleName,
+    attachmentNames,
+    updatedBy,
+    updatedDate,
+    id,
+  };
 }
 
 export default function ModuleAttachmentList() {
@@ -41,13 +51,14 @@ export default function ModuleAttachmentList() {
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [totalPage, setTotalPage] = useState(1);
   const [totalRows, setTotalRows] = useState(1);
-  const [countryData, setCountryData] = useState([]);
+  const [attachmentData, setAttachmentData] = useState([]);
   const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
   const [loadingState, setLoadingState] = useState("Loading...");
   const { setMode } = formStore();
   const router = useRouter();
   const userData = getUserByCookies();
   const { data } = useGetUserAccessUtils();
+
   const [searchCondition, setSearchCondition] = useState(
     `loggedUser.id = ${userData?.userId}`,
   );
@@ -59,49 +70,72 @@ export default function ModuleAttachmentList() {
       searchConditionMain = searchCondition,
     ) => {
       try {
+        setLoadingState("Loading...");
+
         const tableObj = {
           columns: `
-    s.name AS shippingLine,
-    iso.isocode AS IsoCode,
-    i.lineIsoCode AS LineIsoCode,
-    u4.name AS updatedBy,
-    i.updatedDate AS updatedDate,
-    i.id
-  `,
-          tableName: "tblIsoCodeLineMapping i",
+            line.name AS shippingLine,
+            l.name AS location,
+            master1.name AS moduleName,
+            STRING_AGG(master2.name, ', ') AS attachmentNames,
+            u.name AS updatedBy,
+            m.updatedDate AS updatedDate,
+            m.id
+          `,
+          tableName: "tblModuleAttachment m",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
           joins: `
-              LEFT JOIN tblCompany s ON s.id = i.shippingLineId
-              LEFT JOIN tblIsocode iso ON iso.id = i.isocodeId
-             LEFT JOIN tblUser creator ON creator.id = i.createdBy
-             left join tblUser u4 on u4.id = i.updatedBy
-             left join tblUser u3 on u3.roleCode = 'shipping'
-             left join tblUser loggedUser ON ${searchConditionMain}
-             join tblIsoCodeLineMapping i2 on i2.id = i.id and i.createdBy = loggedUser.id
-  `,
+            LEFT JOIN tblCompany line ON line.id = m.shippingLineId
+            LEFT JOIN tblLocation l ON l.id = m.locationId
+            LEFT JOIN tblUser u ON u.id = m.updatedBy
+            LEFT JOIN tblMasterData master1 ON master1.id = m.moduleId
+            OUTER APPLY STRING_SPLIT(m.attachmentId, ',') s
+            LEFT JOIN tblMasterData master2 ON master2.id = TRY_CAST(s.value AS INT)
+            LEFT JOIN tblUser u3 ON u3.roleCode = 'shipping'
+            LEFT JOIN tblUser loggedUser ON ${searchConditionMain}
+
+            JOIN tblModuleAttachment m2
+              ON m2.id = m.id
+             AND m.createdBy = loggedUser.id
+             AND m.locationId = ${userData?.location}
+          `,
+          groupBy: `
+            GROUP BY
+              line.name,
+              l.name,
+              master1.name,
+              u.name,
+              m.updatedDate,
+              m.id
+          `,
+          orderBy: `order by m.updatedDate desc`,
         };
+
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
-        setCountryData(data);
+
+        setAttachmentData(data || []);
         setTotalPage(totalPage);
         setPage(pageNo);
         setRowsPerPage(pageSize);
         setTotalRows(totalRows);
+        setLoadingState("No data found");
       } catch {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search, searchCondition],
+    [page, rowsPerPage, search, searchCondition, userData?.location],
   );
 
-  const rows = countryData
-    ? countryData.map((item) =>
+  const rows = attachmentData
+    ? attachmentData.map((item) =>
         createData(
           item["shippingLine"],
-          item["IsoCode"],
-          item["LineIsoCode"],
+          item["location"],
+          item["moduleName"],
+          item["attachmentNames"],
           item["updatedBy"],
           item["updatedDate"],
           item["id"],
@@ -123,12 +157,15 @@ export default function ModuleAttachmentList() {
       clientId: 1,
       updatedDate: new Date(),
     };
+
     const obj = {
       recordId: formId,
-      tableName: "tblIsoCodeLineMapping",
+      tableName: "tblModuleAttachment",
       ...updateObj,
     };
+
     const { success, message, error } = await deleteRecord(obj);
+
     if (success) {
       toast.success(message);
       getData(page, rowsPerPage);
@@ -142,16 +179,19 @@ export default function ModuleAttachmentList() {
       handleDeleteRecord(formId);
       return;
     }
+
     setMode({ mode, formId });
-    router.push("/master/isoCodeLineMapping");
+    router.push("/master/moduleAttachment");
   };
 
   useEffect(() => {
     getData(1, rowsPerPage);
     setMode({ mode: null, formId: null });
+
     if (userData?.roleCode === "admin") {
-      setSearchCondition(`loggedUser.roleCodeId = u3.id`);
-      getData(1, rowsPerPage, `loggedUser.roleCodeId = u3.id`);
+      const adminCondition = `loggedUser.roleCodeId = u3.id`;
+      setSearchCondition(adminCondition);
+      getData(1, rowsPerPage, adminCondition);
     }
   }, []);
 
@@ -161,8 +201,9 @@ export default function ModuleAttachmentList() {
       <Box className="sm:px-4 py-1 ">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
-            Iso Code Line Mapping
+            Module Attachment
           </Typography>
+
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
               getData={getData}
@@ -172,32 +213,36 @@ export default function ModuleAttachmentList() {
               options={country}
             />
             {userData?.roleCode === "shipping" && (
-              <CustomButton text="Add" href="/master/isoCodeLineMapping" />
+              <CustomButton text="Add" href="/master/moduleAttachment" />
             )}
           </Box>
         </Box>
+
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
                 <TableCell>Shipping Line</TableCell>
-                <TableCell>ISO Code</TableCell>
-                <TableCell>Line ISO Code</TableCell>
+                <TableCell>Location</TableCell>
+                <TableCell>Module</TableCell>
+                <TableCell>Attachments</TableCell>
                 <TableCell>Updated By</TableCell>
                 <TableCell>Updated Date</TableCell>
               </TableRow>
             </TableHead>
+
             <TableBody>
               {!rows.length ? (
                 <TableRow>
-                  <TableCell>{loadingState}</TableCell>
+                  <TableCell colSpan={6}>{loadingState}</TableCell>
                 </TableRow>
               ) : (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group">
                     <TableCell>{row.shippingLine}</TableCell>
-                    <TableCell>{row.IsoCode}</TableCell>
-                    <TableCell>{row.LineIsoCode}</TableCell>
+                    <TableCell>{row.location}</TableCell>
+                    <TableCell>{row.moduleName}</TableCell>
+                    <TableCell>{row.attachmentNames}</TableCell>
                     <TableCell>{row.updatedBy}</TableCell>
                     <TableCell>{row.updatedDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
@@ -214,6 +259,7 @@ export default function ModuleAttachmentList() {
             </TableBody>
           </Table>
         </TableContainer>
+
         <Box className="flex justify-end items-center mt-2">
           <CustomPagination
             count={totalPage}
@@ -225,6 +271,7 @@ export default function ModuleAttachmentList() {
           />
         </Box>
       </Box>
+
       <ToastContainer />
     </ThemeProvider>
   );

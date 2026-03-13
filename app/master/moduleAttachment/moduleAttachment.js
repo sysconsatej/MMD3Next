@@ -26,6 +26,7 @@ const fieldData = {
       where: "m.masterListName = 'tblModuleAttachment'",
       orderBy: "m.name",
       isEdit: true,
+      foreignTable: "name,tblMasterData",
     },
     {
       label: "Module Attachment Name ",
@@ -33,19 +34,21 @@ const fieldData = {
       type: "multiselectCheckBox",
       tableName: "tblMasterData m",
       displayColumn: "m.name",
-      joins:`left join tblMasterData m3 on 1=1 join tblMasterData m2 on m.id = m2.id  and m2.masterListName = m3.code`,
-      selectedConditions:[{moduleId:"m3.id"}],
+      joins: `left join tblMasterData m3 on 1=1 join tblMasterData m2 on m.id = m2.id  and m2.masterListName = m3.code`,
+      selectedConditions: [{ moduleId: "m3.id" }],
       orderBy: "m.name",
       isEdit: true,
+      // foreignTable: ",tblMasterData",
     },
   ],
 };
 
 export const country = [
-  { label: "Shipping Line", value: "s.name" },
-  { label: "ISO Code", value: "iso.isocode" },
-  { label: "Line ISO Code", value: "i.lineIsoCode" },
-  { label: "Updated By", value: "u4.name" },
+  { label: "Shipping Line", value: "line.name" },
+  { label: "Location", value: "l.name" },
+  { label: "Module", value: "master1.name" },
+  { label: "Attachments", value: "master2.name" },
+  { label: "Updated By", value: "u.name" },
 ];
 
 export default fieldData;
