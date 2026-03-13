@@ -209,7 +209,11 @@ export default function InvoiceRequestList() {
         handleDeleteRecord(formId);
         return;
       }
-      setMode({ mode: mode || null, formId });
+      setMode({
+        mode: mode || null,
+        formId,
+        admin: "/invoice/invoiceRequest/list",
+      });
       router.push("/invoice/invoiceRequest");
     },
     [router, setMode],

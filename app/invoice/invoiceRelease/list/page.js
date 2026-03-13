@@ -67,7 +67,7 @@ function createData(
   requester,
   ReqCompanyName,
   status,
-  assignTo
+  assignTo,
 ) {
   return {
     id,
@@ -108,6 +108,9 @@ export default function InvoiceReleaseList() {
     invoiceNo: "",
   });
   const [assignModal, setAssignModal] = useState({ toggle: false });
+  const [searchCondition, setSearchCondition] = useState(
+    `u.id = ${userData?.userId}`,
+  );
 
   const idsOnPage = useMemo(() => rows.map((x) => x.id), [rows]);
 
@@ -119,11 +122,15 @@ export default function InvoiceReleaseList() {
   const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
   const toggleOne = (id) =>
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
 
   const getData = useCallback(
-    async (pageNo = page, pageSize = rowsPerPage) => {
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
       try {
         const tableObj = {
           columns: `
@@ -147,7 +154,8 @@ export default function InvoiceReleaseList() {
 
           joins: `
           LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
-          LEFT JOIN tblUser u ON u.id = ${userData.userId}
+          left join tblUser u4 on u4.roleCode = 'shipping'
+          LEFT JOIN tblUser u ON ${searchConditionMain}
           left join tblUser u2 on u2.id = i.assignToId
           left join tblUser u3 on u3.id = i.createdBy
           Left Join tblCompany c1 on c1.id=i.companyId
@@ -182,8 +190,8 @@ export default function InvoiceReleaseList() {
             item.requester,
             item.ReqCompanyName,
             item.status,
-            item.assignTo
-          )
+            item.assignTo,
+          ),
         );
 
         setRows(mapped);
@@ -197,7 +205,7 @@ export default function InvoiceReleaseList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch]
+    [page, rowsPerPage, advanceSearch, searchCondition],
   );
 
   // const releaseHandler = async (ids) => {
@@ -265,20 +273,20 @@ export default function InvoiceReleaseList() {
         const blId = data[0].id;
 
         router.push(
-          `/invoice/invoiceRelease/invoiceUpload?blId=${blId}&invoiceRequestId=${invoiceRequestId}`
+          `/invoice/invoiceRelease/invoiceUpload?blId=${blId}&invoiceRequestId=${invoiceRequestId}`,
         );
         return;
       }
 
       // ⚠️ BL NOT FOUND → FALLBACK (IMPORTANT)
       console.warn(
-        `BL No ${blNo} not found in tblBl, falling back to invoiceRequestId`
+        `BL No ${blNo} not found in tblBl, falling back to invoiceRequestId`,
       );
     }
 
     // 🔹 FINAL FALLBACK → NEW FLOW
     router.push(
-      `/invoice/invoiceRelease/invoiceUpload?invoiceRequestId=${invoiceRequestId}`
+      `/invoice/invoiceRelease/invoiceUpload?invoiceRequestId=${invoiceRequestId}`,
     );
   };
 
@@ -317,15 +325,19 @@ export default function InvoiceReleaseList() {
 
   const modeHandler = useCallback(
     (mode, formId = null) => {
-      setMode({ mode, formId });
+      setMode({ mode, formId, admin: "/invoice/invoiceRelease/list" });
       router.push("/invoice/invoiceRequest");
     },
-    [router, setMode]
+    [router, setMode],
   );
 
   useEffect(() => {
     setMode({ mode: null, formId: null });
     getData(1, rowsPerPage);
+    if (userData?.roleCode === "admin") {
+      setSearchCondition("u.roleCodeId = u4.id");
+      getData(1, rowsPerPage, "u.roleCodeId = u4.id");
+    }
   }, []);
 
   useEffect(() => {
