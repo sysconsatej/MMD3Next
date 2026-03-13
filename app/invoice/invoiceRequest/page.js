@@ -24,6 +24,7 @@ import {
 import { formStore, useBlWorkFlowData } from "@/store";
 import { RejectModal } from "./utils";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
+import ModuleNotes from "@/components/notes/notes";
 
 /* ------------------------ Reject Modal ------------------------ */
 
@@ -638,6 +639,10 @@ export default function InvoiceRequest() {
           </Box>
 
           {/* -------- BUTTONS -------- */}
+          <ModuleNotes
+            shippingLineId={formData?.shippingLineId?.Id}
+            moduleName="Invoice Request"
+          />
           <Box className="w-full flex mt-4 gap-3">
             {/* Submit */}
             {fieldsMode !== "view" &&

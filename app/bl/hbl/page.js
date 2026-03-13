@@ -54,6 +54,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { RejectModal } from "./modal";
 import { checkNoPackages } from "../mbl/utils";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
+import ModuleNotes from "@/components/notes/notes";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -610,6 +611,10 @@ export default function Home() {
                 );
               })}
             </Box>
+            <ModuleNotes
+              shippingLineId={formData?.shippingLineId?.Id}
+              moduleName="HBL"
+            />
             <Box display="flex" justifyContent="center" mt={2}>
               {fieldsMode === "" && (
                 <AgreeTerms

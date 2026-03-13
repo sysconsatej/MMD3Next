@@ -26,6 +26,7 @@ import {
   uploadAndAttachDO,
 } from "./utils";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
+import ModuleNotes from "@/components/notes/notes";
 
 export default function Home() {
   const [formData, setFormData] = useState({ seaway: "No" });
@@ -267,6 +268,10 @@ export default function Home() {
               </Box>
             )}
           </Box>
+          <ModuleNotes
+            shippingLineId={formData?.shippingLineId?.Id}
+            moduleName="Do Request"
+          />
           <Box className="w-full flex mt-2 gap-2">
             {fieldsMode !== "view" && (
               <CustomButton
