@@ -48,7 +48,6 @@ export default function InvoiceRequest() {
   const userAccess = useGetUserAccessUtils()?.data || {};
 
   const userData = getUserByCookies();
-  const isLiner = userData?.roleCode === "shipping"; // liner vs customer
   const { setClearData } = useBlWorkFlowData();
 
   /* ------------------------ FREE DAYS ------------------------ */
@@ -427,9 +426,6 @@ export default function InvoiceRequest() {
     }
   }
 
-  const showRejectBtn = isLiner;
-  const showReleaseBtn = isLiner;
-
   const handleClearData = () => {
     setMode({ mode: null, formId: null });
     setClearData([]);
@@ -565,6 +561,14 @@ export default function InvoiceRequest() {
                 onClick={handleClearData}
               />
             )}
+
+            {userData?.roleCode === "admin" && (
+              <CustomButton
+                text="Back"
+                href={mode?.admin}
+                onClick={handleClearData}
+              />
+            )}
           </Box>
 
           {/* BL Info */}
@@ -640,7 +644,8 @@ export default function InvoiceRequest() {
 
             {/* Request */}
             {(userData?.roleCode === "customer" ||
-              userData?.roleCode === "admin") &&
+              (userData?.roleCode === "admin" &&
+                mode?.admin === "/invoice/invoiceRequest/list")) &&
               mode.status !== "Confirm" &&
               userAccess?.["Request"] && (
                 <CustomButton
@@ -656,14 +661,17 @@ export default function InvoiceRequest() {
             )} */}
 
             {/* Liner Reject */}
-            {showRejectBtn && userAccess?.["Reject"] && (
-              <CustomButton
-                text="Reject"
-                onClick={() =>
-                  setRejectState((prev) => ({ ...prev, toggle: true }))
-                }
-              />
-            )}
+            {(userData?.roleCode === "shipping" ||
+              (userData?.roleCode === "admin" &&
+                mode?.admin === "/invoice/invoiceRelease/list")) &&
+              userAccess?.["Reject"] && (
+                <CustomButton
+                  text="Reject"
+                  onClick={() =>
+                    setRejectState((prev) => ({ ...prev, toggle: true }))
+                  }
+                />
+              )}
           </Box>
         </section>
       </form>
