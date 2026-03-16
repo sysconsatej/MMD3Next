@@ -42,15 +42,20 @@ export default function ImportAdvanceList() {
   };
 
   const transformed = transformToIds(formData);
-
+  console.log(formData);
   const handleUpdate = () =>
     exportCSV({
       tableFormData,
       updateFn: updateDynamicReportData,
-      filenamePrefix: "Advance List(CSV)",
+      filenamePrefix: "IAL",
       toast,
       setLoading,
       filterDirty: false,
+      fileMeta: {
+        terminal: formData?.terminal?.Name,
+        vessel: formData?.vessel?.Name,
+        voyage: formData?.voyage?.Name,
+      },
       buildBody: (rows) => ({
         spName: "ialExcel",
         jsonData: {
@@ -62,6 +67,7 @@ export default function ImportAdvanceList() {
         },
       }),
     });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGoLoading(true);

@@ -47,10 +47,15 @@ export default function ImportAdvanceList() {
     exportExcel({
       tableFormData,
       updateFn: updateDynamicReportData,
-      filenamePrefix: "Advance List(Excel)",
+      filenamePrefix: "IAL",
       toast,
       setLoading,
       filterDirty: false,
+      fileMeta: {
+        terminal: formData?.terminal?.Name,
+        vessel: formData?.vessel?.Name,
+        voyage: formData?.voyage?.Name,
+      },
       buildBody: (rows) => ({
         spName: "ialExcel",
         jsonData: {

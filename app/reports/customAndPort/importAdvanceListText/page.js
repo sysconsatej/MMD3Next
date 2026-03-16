@@ -43,11 +43,16 @@ export default function ImportAdvanceList() {
     exportText({
       tableFormData,
       updateFn: updateDynamicReportData,
-      filenamePrefix: "AdvanceList",
+      filenamePrefix: "IAL",
       toast,
       setLoading,
       filterDirty: false,
       join: "\r\n",
+      fileMeta: {
+        terminal: formData?.terminal?.Name,
+        vessel: formData?.vessel?.Name,
+        voyage: formData?.voyage?.Name,
+      },
       buildBody: (rows) => ({
         spName: "ialText",
         jsonData: {

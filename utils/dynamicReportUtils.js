@@ -159,15 +159,17 @@ const defaultExtractLine = (row) => {
 };
 
 export async function exportText({
-  filenamePrefix = "Export",
-  fileExt = "txt",
+  filenamePrefix = "IAL",
+  fileExt = "TXT",
   join = "\n",
   mime = "text/plain",
   extractLine = defaultExtractLine,
+  fileMeta = {},
   ...runnerArgs
 }) {
   const res = await runUpdate(runnerArgs);
   if (!res) return;
+
   const { ok } = res;
 
   const lines = ok
@@ -179,28 +181,37 @@ export async function exportText({
     return;
   }
 
-  download(
-    `${filenamePrefix}_${timestamp()}.${fileExt}`,
-    lines.join(join),
-    mime,
-  );
+  const now = new Date();
+  const date = now.toISOString().slice(0, 10);
+  const time = now.toTimeString().slice(0, 8).replace(/:/g, "-");
+
+  const clean = (v) => String(v || "").replace(/\s+/g, "_");
+
+  const terminal = clean(fileMeta.terminal);
+  const vessel = clean(fileMeta.vessel);
+  const voyage = clean(fileMeta.voyage);
+
+  const filename = `${filenamePrefix}_${terminal}_${vessel}_${voyage}_${date}_${time}.${fileExt}`;
+
+  download(filename, lines.join(join), mime);
+
   runnerArgs.toast?.success?.("Text file downloaded.");
 }
 
 export async function exportExcel({
-  filenamePrefix = "Export",
-  sheetOkName = "Results",
-  sheetFailedName = "Failed",
+  filenamePrefix = "IAL",
   toast,
   setLoading,
   autoSize = true,
+  fileMeta = {},
   ...runnerArgs
 }) {
   const res = await runUpdate(runnerArgs);
   if (!res) return;
 
-  const { ok, failed } = res;
-  if (!ok.length && !failed.length) {
+  const { ok } = res;
+
+  if (!ok.length) {
     toast?.info?.("Nothing to export.");
     return;
   }
@@ -208,40 +219,48 @@ export async function exportExcel({
   const XLSX = await import("xlsx");
   const wb = XLSX.utils.book_new();
 
-  const toSheet = (rows) => XLSX.utils.json_to_sheet(rows ?? []);
+  const ws = XLSX.utils.json_to_sheet(ok ?? []);
 
-  const autoSizeSheet = (ws) => {
-    if (!autoSize || !ws || !ws["!ref"]) return;
+  if (autoSize && ws["!ref"]) {
     const range = XLSX.utils.decode_range(ws["!ref"]);
     const cols = [];
+
     for (let C = range.s.c; C <= range.e.c; ++C) {
       let maxLen = 6;
+
       for (let R = range.s.r; R <= range.e.r; ++R) {
         const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
         const cell = ws[cellAddress];
         if (!cell) continue;
+
         const v = cell.w || cell.v;
         const len = v == null ? 0 : String(v).length;
+
         if (len > maxLen) maxLen = len;
       }
+
       cols.push({ wch: Math.min(Math.max(maxLen + 2, 8), 60) });
     }
+
     ws["!cols"] = cols;
-  };
-
-  if (ok.length) {
-    const wsOK = toSheet(ok);
-    autoSizeSheet(wsOK);
-    XLSX.utils.book_append_sheet(wb, wsOK, sheetOkName);
-  }
-  if (failed.length) {
-    const wsFailed = toSheet(failed);
-    autoSizeSheet(wsFailed);
-    XLSX.utils.book_append_sheet(wb, wsFailed, sheetFailedName);
   }
 
-  const filename = `${filenamePrefix}${timestamp()}.xlsx`;
+  XLSX.utils.book_append_sheet(wb, ws, "Data");
+
+  const now = new Date();
+  const date = now.toISOString().slice(0, 10);
+  const time = now.toTimeString().slice(0, 8).replace(/:/g, "-");
+
+  const clean = (v) => String(v || "").replace(/\s+/g, "_");
+
+  const terminal = clean(fileMeta.terminal);
+  const vessel = clean(fileMeta.vessel);
+  const voyage = clean(fileMeta.voyage);
+
+  const filename = `${filenamePrefix}_${terminal}_${vessel}_${voyage}_${date}_${time}.xlsx`;
+
   XLSX.writeFile(wb, filename);
+
   toast?.success?.("Excel downloaded.");
 }
 
@@ -275,8 +294,8 @@ const toCSV = (
 };
 
 export async function exportCSV({
-  filenamePrefix = "Export",
-  fileOkSuffix = "Results",
+  filenamePrefix = "IAL",
+  // fileOkSuffix = "Results",
   fileFailedSuffix = "Failed",
   delimiter = ",",
   eol = "\r\n",
@@ -284,6 +303,7 @@ export async function exportCSV({
   headerOrder,
   toast,
   setLoading,
+  fileMeta = {},
   ...runnerArgs
 }) {
   const res = await runUpdate(runnerArgs);
@@ -295,13 +315,21 @@ export async function exportCSV({
     return;
   }
 
+  // Format timestamp
+  const now = new Date();
+  const date = now.toISOString().slice(0, 10);
+  const time = now.toTimeString().slice(0, 8).replace(/:/g, "-");
+
+  const terminal = fileMeta.terminal || "Terminal";
+  const vessel = fileMeta.vessel || "Vessel";
+  const voyage = fileMeta.voyage || "Voyage";
+
+  const baseName = `${filenamePrefix}_${terminal}_${vessel}_${voyage}_${date}_${time}`;
+
   if (ok.length) {
     const csvOk = toCSV(ok, { delimiter, eol, includeHeader, headerOrder });
-    download(
-      `${filenamePrefix}${timestamp()}_${fileOkSuffix}.csv`,
-      csvOk,
-      "text/csv",
-    );
+
+    download(`${baseName}.CSV`, csvOk, "text/csv");
   }
 
   if (failed.length) {
@@ -311,11 +339,8 @@ export async function exportCSV({
       includeHeader,
       headerOrder,
     });
-    download(
-      `${filenamePrefix}${timestamp()}_${fileFailedSuffix}.csv`,
-      csvFailed,
-      "text/csv",
-    );
+
+    download(`${baseName}_${fileFailedSuffix}.CSV`, csvFailed, "text/csv");
   }
 
   toast?.success?.(
