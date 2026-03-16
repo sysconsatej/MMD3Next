@@ -327,6 +327,12 @@ export default function CargoArrivalNotice() {
   <span style="font-weight:700;">Disclaimer:</span>
   <span>NO responsibility shall be attached to the carrier or its Agents for failure to notify about shipment arrival.</span>
 </div>
+  <div style="margin-top:16px; padding:16px; border:1px solid #ddd; background:#fafafa; border-radius:4px;">
+  <div style="font-weight:600; color:#c62828; margin-bottom:8px; font-size:14px;">
+    Note:-
+  </div>
+  <div style="display:block; margin-bottom:8px; color:#444; font-size:12px; white-space:pre-line;">${item?.notes || ""}</div>
+</div>
     </div>`;
     return html;
   };

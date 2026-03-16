@@ -8,6 +8,7 @@ export {
   formatExcelDataWithForm,
   formFormatThirdLevel,
   formatDataWithFormThirdLevel,
+  checkMandatoryAttach,
 } from "./formUtils";
 export { setInputValue, getInputValue } from "./inputUtils";
 export {
