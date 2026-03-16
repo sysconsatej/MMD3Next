@@ -320,7 +320,7 @@ export default function InvoicePayment() {
             "tblInvoice",
             id,
             '["tblInvoiceRequestContainer","tblAttachment"]',
-            "invoiceRequestId",
+            "invoiceId",
           );
           const { success, result } = await fetchForm(fmt);
           if (success) {
@@ -448,7 +448,7 @@ export default function InvoicePayment() {
               }),
           },
           invoiceId,
-          "invoiceRequestId",
+          "invoiceId",
         );
 
         const { success, message, error } = await insertUpdateForm(formatted);

@@ -127,9 +127,9 @@ export default function InvoiceToolbarActions({
             }
           />
         )}
-        {userAccess?.["Notify"] && (
+        {userAccess?.["Send Mail"] && (
           <Segment
-            label="Notify"
+            label="Send Mail"
             icon={<MailOutlineIcon />}
             onClick={() => call(onNotify, allowBulkNotify)}
             disabled={!hasAny || !onNotify || (!allowBulkNotify && !isSingle)}

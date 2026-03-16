@@ -26,6 +26,7 @@ import { theme } from "@/styles/globalCss";
 import {
   fetchTableValues,
   getDataWithCondition,
+  sendInvoiceEmail,
   updateStatusRows,
 } from "@/apis";
 import { ToastContainer, toast } from "react-toastify";
@@ -100,6 +101,7 @@ export default function InvoiceReleaseList() {
   const [loadingState, setLoadingState] = useState("Data not found!");
   const tableWrapRef = useRef(null);
   const [modal, setModal] = useState({ toggle: false, value: null });
+  const [emailLoading, setEmailLoading] = useState(false);
 
   const [selectedIds, setSelectedIds] = useState([]);
   const [historyModal, setHistoryModal] = useState({
@@ -207,37 +209,93 @@ export default function InvoiceReleaseList() {
     },
     [page, rowsPerPage, advanceSearch, searchCondition],
   );
+  const handleNotify = async (ids) => {
+    try {
+      if (!ids?.length) {
+        toast.warn("Please select at least one row");
+        return;
+      }
 
-  // const releaseHandler = async (ids) => {
-  //   if (!ids?.length) return toast.warn("Please select at least one row");
+      const invoiceRequestId = ids[0];
 
-  //   // Get selected row (first one only)
-  //   const selected = rows.find((r) => r.id === ids[0]);
-  //   if (!selected) return toast.error("Invalid selection");
+      const selectedRow = rows.find((r) => r.id === invoiceRequestId);
+      const blNo = selectedRow?.blNo || "";
 
-  //   const blNo = selected.blNo;
+      setEmailLoading(true);
 
-  //   // Find BL Id
-  //   const q = {
-  //     columns: "TOP 1 id",
-  //     tableName: "tblBl",
-  //     whereCondition: `isnull(hblNo,mblNo) = '${blNo}' AND ISNULL(status,1)=1`,
-  //   };
+      // 1️⃣ get email
+      const emailObj = {
+        columns: "ir.billingPartyEmailId as emailId,ir.billingPartyName as name",
+        tableName: "tblInvoiceRequest ir",
+        whereCondition: `ir.id = ${invoiceRequestId}`,
+      };
 
-  //   const { success, data } = await getDataWithCondition(q);
+      const emailRes = await getDataWithCondition(emailObj);
 
-  //   if (!success || !data?.length)
-  //     return toast.error("BL not found in tblBl table");
+      if (!emailRes?.success) {
+        toast.error("Failed to fetch email id.");
+        return;
+      }
 
-  //   const blId = data[0].id;
+      const to = emailRes?.data?.[0]?.emailId || "";
 
-  //   // Set ADD MODE for invoice creation
-  //   setMode({ mode: "add", formId: null });
+      if (!to) {
+        toast.error("Recipient email id not found.");
+        return;
+      }
 
-  //   // Redirect to InvoicePayment (NEW invoice creation)
-  //   router.push(`/invoice/invoiceRelease/invoiceUpload?blId=${blId}`);
-  // };
+      // 2️⃣ get attachment paths
+      const attachmentObj = {
+        columns: "path",
+        tableName: "tblAttachment a",
+        joins: `left join tblInvoice i on i.invoiceRequestId=${invoiceRequestId}`,
+        whereCondition: `a.invoiceId=i.id AND a.status=1`,
+      };
 
+      const attachRes = await getDataWithCondition(attachmentObj);
+
+      if (!attachRes?.success) {
+        toast.error("Failed to fetch attachments.");
+        return;
+      }
+
+      const attachmentPaths = (attachRes?.data || [])
+        .map((x) => x.path)
+        .filter((x) => typeof x === "string" && x.trim());
+
+      if (!attachmentPaths.length) {
+        toast.error("No invoice attachment found.");
+        return;
+      }
+
+      // 3️⃣ send email
+      const payload = {
+        to,
+        subject: `Invoice / ${blNo}`,
+        emailHtml: `
+        <div>
+          <p>Dear ${emailRes?.data?.[0]?.name || "Sir/ Madam"},</p>
+          <p>Please find attached invoice(s) for BL No: <b>${blNo}</b>.</p>
+          <p>Regards,</p>
+        </div>
+      `,
+        emailText: `Please find attached invoice(s) for BL No: ${blNo}.`,
+        attachmentPaths,
+      };
+
+      const resp = await sendInvoiceEmail(payload);
+
+      if (resp?.success) {
+        toast.success("Invoice email sent successfully!");
+      } else {
+        toast.error(resp?.message || "Failed to send invoice email.");
+      }
+    } catch (error) {
+      toast.error(error?.message || "Failed to send invoice email.");
+    } finally {
+      setEmailLoading(false);
+    }
+  };
   const releaseHandler = async (ids) => {
     if (!ids?.length) {
       toast.warn("Please select at least one row");
@@ -389,6 +447,7 @@ export default function InvoiceReleaseList() {
           onView={(id) => modeHandler("view", id)}
           onRelease={(ids) => releaseHandler(ids)}
           onAssign={(ids) => assignHandler(ids)}
+          onNotify={(ids) => handleNotify(ids)} // ✅ ADD THIS
           hideReject={true}
           disableRelease={disableRelease}
         />

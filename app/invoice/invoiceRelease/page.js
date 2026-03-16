@@ -262,7 +262,7 @@ export default function InvoiceReleasePage() {
                 "tblInvoice",
                 id,
                 '["tblInvoiceRequestContainer","tblAttachment"]',
-                "invoiceRequestId",
+                "invoiceId",
               );
 
               let { success, result } = await fetchForm(fmt);
