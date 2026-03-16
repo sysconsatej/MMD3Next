@@ -63,9 +63,13 @@ export const fieldData = {
 };
 
 // search array
-export const searchDataAray = fieldData.berthAgentFields.map((info) => {
-  return {
-    label: info.label,
-    value: `b.${info.name}`,
-  };
-});
+
+export const searchDataAray = [
+  { label: "Shipping Line", value: "c.name" },
+  { label: "Berth Name", value: "p.code" },
+  { label: "Agent Code", value: "b.agentCode" },
+  { label: "Line Code", value: "b.lineCode" },
+  { label: "Sender Id", value: "b.senderId" },
+  { label: "Port EDI Agent Code", value: "b.portEdiAgentCode" },
+  { label: "Updated By", value: "u.name" },
+];
