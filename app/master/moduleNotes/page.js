@@ -35,11 +35,7 @@ export default function ModuleNotes() {
       };
     }
 
-    const format = formatFormData(
-      "tblModuleNotes",
-      normalized,
-      mode.formId,
-    );
+    const format = formatFormData("tblModuleNotes", normalized, mode.formId);
 
     const { success, error, message } = await insertUpdateForm(format);
 
@@ -51,15 +47,53 @@ export default function ModuleNotes() {
     }
   };
 
+  const handleChangeEventFunctions = {
+    duplicateModuleCheck: async (name, value) => {
+      let shippingLineId = null;
+      let moduleId = null;
+      if (name === "shippingLineId") {
+        shippingLineId = value?.Id;
+        moduleId = formData?.moduleId?.Id;
+      } else if (name === "moduleId") {
+        shippingLineId = formData?.shippingLineId?.Id;
+        moduleId = value?.Id;
+      }
+
+      const locationId = userData?.location;
+
+      if (!shippingLineId || !moduleId || !locationId) return;
+
+      const obj = {
+        tableName: "tblModuleNotes",
+        columns: "id",
+        whereCondition: `
+        shippingLineId = '${shippingLineId}'
+        AND locationId = '${locationId}'
+        AND moduleId = '${moduleId}'
+        AND status = 1
+        ${mode?.formId ? `AND id <> ${mode.formId}` : ""}
+      `,
+      };
+
+      const resp = await getDataWithCondition(obj);
+
+      const isDuplicate = Array.isArray(resp?.data) && resp.data.length > 0;
+
+      if (isDuplicate) {
+        toast.error("Module already exists for this Shipping Line & Location");
+
+        setFormData((prev) => ({
+          ...prev,
+          [name]: null,
+        }));
+      }
+    },
+  };
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
         setFieldsMode(mode.mode);
-        const format = formatFetchForm(
-          data,
-          "tblModuleNotes",
-          mode.formId,
-        );
+        const format = formatFetchForm(data, "tblModuleNotes", mode.formId);
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
           const getData = formatDataWithForm(result, data);
@@ -93,6 +127,7 @@ export default function ModuleNotes() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleChangeEventFunctions={handleChangeEventFunctions}
               />
             </Box>
           </Box>
