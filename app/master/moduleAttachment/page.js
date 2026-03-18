@@ -114,6 +114,17 @@ export default function IsoCodeLineMapping() {
     },
   };
   useEffect(() => {
+    if (!mode.formId && userData?.companyId) {
+      setFormData((prev) => ({
+        ...prev,
+        shippingLineId: {
+          Id: userData.companyId,
+          Name: userData.companyName,
+        },
+      }));
+    }
+  }, [mode.formId]);
+  useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
         setFieldsMode(mode.mode);
