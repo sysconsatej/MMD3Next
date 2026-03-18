@@ -12,7 +12,7 @@ export const roleAccessPaths = {
   "/htmlReports/igmReports": ["admin", "shipping", "customer", "cfs"],
   "/upload": ["admin", "shipping", "customer"],
   "/blPartyHold": ["admin", "shipping", "customer", "cfs"],
-  "/home": ["admin", "shipping", "customer", "cfs"],
+  // "/home": ["admin", "shipping", "customer", "cfs"],
   "/request/doRequest/list": ["shipping", "customer"],
 
   // Added master routes with only admin access
