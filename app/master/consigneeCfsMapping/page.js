@@ -59,6 +59,23 @@ export default function Country() {
       toast.error(error || message);
     }
   };
+  const handleBlurEventFunctions = {
+    validatePanCard: (e) => {
+      const value = e.target.value;
+      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+      if (value !== String(value).toUpperCase()) {
+        setFormData((prev) => ({ ...prev, consigneePan: null }));
+        return toast.error("Pan card should be always in caps");
+      }
+
+      if (panRegex.test(value)) {
+        return true;
+      } else {
+        setFormData((prev) => ({ ...prev, consigneePan: null }));
+        return toast.error("Pan Number is invalid ");
+      }
+    },
+  };
   useEffect(() => {
     if (!mode.formId && userData?.companyId) {
       setFormData((prev) => ({
@@ -112,6 +129,7 @@ export default function Country() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
+                handleBlurEventFunctions={handleBlurEventFunctions}
               />
             </Box>
           </Box>

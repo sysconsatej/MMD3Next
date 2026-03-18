@@ -19,15 +19,14 @@ const fieldData = {
     },
     {
       label: "Consignee ",
-      name: "consigneeId",
-      type: "dropdown",
-      tableName: "tbluser c",
-      displayColumn: "c.name",
-      orderBy: "c.name",
-      joins: `join tblUser u1 on u1.id =c.roleCodeId and u1.name='Freight Forwarder/CHA  Agent' `,
-      foreignTable: "name,tbluser",
-      where: `c.userType='U' and c.status=1`,
+      name: "consignee",
       isEdit: true,
+    },
+    {
+      label: "Consignee Pan",
+      name: "consigneePan",
+      isEdit: true,
+      blurFun: "validatePanCard",
     },
     {
       label: "Cfs Name",
@@ -61,7 +60,9 @@ const fieldData = {
 export const country = [
   { label: "Shipping Line", value: "s.name" },
   { label: "Location", value: "l.name" },
-  { label: "Consignee", value: "consignee.name" },
+  { label: "Consignee", value: "c.consignee" },
+  { label: "Consignee Pan", value: "c.consigneePan" },
+
   {
     label: "CFS",
     value: "ISNULL(cfs.name,'') + '-' + ISNULL(cfs.code,'')",

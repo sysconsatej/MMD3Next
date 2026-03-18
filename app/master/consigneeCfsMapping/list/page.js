@@ -30,13 +30,24 @@ function createData(
   shippingLine,
   location,
   consignee,
+  consigneePan,
   cfs,
   activeInactive,
   updatedBy,
   updatedDate,
   id,
 ) {
-  return { shippingLine, location, consignee, cfs, activeInactive, updatedBy, updatedDate, id };
+  return {
+    shippingLine,
+    location,
+    consignee,
+    consigneePan,
+    cfs,
+    activeInactive,
+    updatedBy,
+    updatedDate,
+    id,
+  };
 }
 
 export default function ConsigneeCfsMappingList() {
@@ -70,7 +81,8 @@ export default function ConsigneeCfsMappingList() {
           columns: `
             s.name AS shippingLine,
             l.name AS location,
-            consignee.name AS consignee,
+            c.consignee AS consignee,
+            c.consigneePan AS consigneePan,
             cfs.name + '-' + cfs.code AS cfs,
             up.name AS updatedBy,
             c.updatedDate AS updatedDate,
@@ -85,7 +97,6 @@ export default function ConsigneeCfsMappingList() {
           joins: `
             LEFT JOIN tblCompany s ON s.id = c.companyId
             LEFT JOIN tblLocation l ON l.id = c.locationId
-            LEFT JOIN tblUser consignee ON consignee.id = c.consigneeId
             LEFT JOIN tblPort cfs ON cfs.id = c.cfsId
             LEFT JOIN tblUser creator ON creator.id = c.createdBy
             LEFT JOIN tblUser up ON up.id = c.updatedBy
@@ -132,6 +143,7 @@ export default function ConsigneeCfsMappingList() {
           item["shippingLine"],
           item["location"],
           item["consignee"],
+          item["consigneePan"],
           item["cfs"],
           item["activeInactive"],
           item["updatedBy"],
@@ -214,6 +226,7 @@ export default function ConsigneeCfsMappingList() {
                 <TableCell>Shipping Line</TableCell>
                 <TableCell>Location</TableCell>
                 <TableCell>Consignee</TableCell>
+                <TableCell>Consignee Pan</TableCell>
                 <TableCell>CFS</TableCell>
                 <TableCell>Active</TableCell>
                 <TableCell>Updated By</TableCell>
@@ -232,6 +245,7 @@ export default function ConsigneeCfsMappingList() {
                     <TableCell>{row.shippingLine}</TableCell>
                     <TableCell>{row.location}</TableCell>
                     <TableCell>{row.consignee}</TableCell>
+                    <TableCell>{row.consigneePan}</TableCell>
                     <TableCell>{row.cfs}</TableCell>
                     <TableCell>{row.activeInactive}</TableCell>
                     <TableCell>{row.updatedBy}</TableCell>
