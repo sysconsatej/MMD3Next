@@ -42,7 +42,6 @@ export default function ImportAdvanceList() {
   };
 
   const transformed = transformToIds(formData);
-  console.log(formData);
   const handleUpdate = () =>
     exportCSV({
       tableFormData,

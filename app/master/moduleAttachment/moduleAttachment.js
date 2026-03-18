@@ -16,6 +16,7 @@ const fieldData = {
         userData?.roleCode === "shipping"
           ? `c.id  = '${userData?.companyId}'`
           : "",
+      changeFun: "duplicateModuleCheck",
     },
     {
       label: "Module Name ",
@@ -27,6 +28,7 @@ const fieldData = {
       orderBy: "m.name",
       isEdit: true,
       foreignTable: "name,tblMasterData",
+      changeFun: "duplicateModuleCheck",
     },
     {
       label: "Module Attachment Name ",
