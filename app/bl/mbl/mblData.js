@@ -303,7 +303,7 @@ export const fieldData = {
       displayColumn: "m.code",
       where: "m.masterListName = 'tblMovementType'",
       orderBy: "m.name",
-      foreignTable: "name,tblMasterData",
+      foreignTable: "code,tblMasterData",
       isEdit: true,
     },
     {
