@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState, Suspense } from "react";
+import React, { useEffect, useRef, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { getIgmBlData } from "@/apis";
+import { getDataWithCondition } from "@/apis";
 import Print from "@/components/PrintDo/page";
 import "./cargoNotice.css";
+import { getUserByCookies } from "@/utils";
 
 export default function RptIGM() {
   return (
@@ -18,49 +19,28 @@ function RptCargoContent() {
   const searchParams = useSearchParams();
   const enquiryModuleRefs = useRef([]);
   const [reportIds] = useState(["cargoNotice"]);
-  const [data, setData] = useState([]);
-  const [sortedData, setSortedData] = useState([]);
-
-  const recordIds = useMemo(() => {
-    const raw = searchParams.get("recordId") || "";
-    return raw
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-  }, [searchParams]);
+  const [reportData, setReportData] = useState([]);
 
   useEffect(() => {
-    if (!recordIds.length) {
-      setData([]);
-      return;
+    async function initialize() {
+      const userData = getUserByCookies();
+      const ids = searchParams.get("recordId") || "";
+      const idsArr = ids.split(",");
+      const obj = {
+        columns:
+          "v.name vessel, vo.voyageNo voyage, c.name companyName, c.address companyAddress, c.telephoneNo companyTel, c.website companyWebsite, vr.igmNo igmNo, vr.igmDate igmDate, p.name portOfCallId ",
+        tableName: "tblVessel v",
+        joins: `left join tblVoyage vo on vo.vesselId = v.id left join tblCompany c on c.id = ${userData?.companyId} left join tblVoyageRoute vr on vr.vesselId = v.id and vr.voyageId = vo.id left join tblPort p on p.id = vr.portOfCallId `,
+        whereCondition: `v.id = ${idsArr[0]} and vo.id = ${idsArr[1]} and vr.companyid = ${userData?.companyId} `,
+      };
+
+      const { data, success } = await getDataWithCondition(obj);
+      console.log("data?.[0]", data?.[0]);
+      console.log("success", success);
+      if (success) setReportData(data?.[0]);
     }
-
-    let alive = true;
-
-    (async () => {
-      try {
-        const res = await getIgmBlData({ json: recordIds.join(",") });
-        const rows = Array.isArray(res?.data) ? res.data : [];
-        if (alive) setData(rows);
-        console.log("getIgmBlData res:", res);
-      } catch (err) {
-        console.error("getIgmBlData error:", err);
-        if (alive) setData([]);
-      }
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, [recordIds]);
-
-  useEffect(() => {
-    if (data?.length > 0) {
-      setSortedData([]);
-    } else {
-      setSortedData([]);
-    }
-  }, [data]);
+    initialize();
+  }, []);
 
   const ImportGeneralManifest = ({ data, index }) => {
     return (
@@ -80,11 +60,14 @@ function RptCargoContent() {
               <h2 className="text-sm font-bold mb-1">Notice To Consignees</h2>
 
               <p className="text-xs font-bold">
-                M.V. "ISE" Voy - 157 &nbsp;&nbsp; I.G.M. NO. &nbsp; Dtd :
+                {reportData?.vessel} Voy - {reportData?.voyage} &nbsp;&nbsp;
+                I.G.M. NO. {reportData?.igmNo} &nbsp; Dtd :{" "}
+                {reportData?.igmDate}
               </p>
 
               <p className="text-xs font-bold">
-                The captioned vessel is arriving at MUMBAI on with Import cargo.
+                The captioned vessel is arriving at {reportData?.portOfCallId}{" "}
+                on with Import cargo.
               </p>
             </div>
 
@@ -125,7 +108,7 @@ function RptCargoContent() {
               </p>
 
               {/* Surveyor */}
-              <div className="mt-2">
+              {/* <div className="mt-2">
                 The company’s Surveyors are{" "}
                 <span className="font-bold">M/S. AINDLEY MARINE PVT. LTD.</span>
                 <br />
@@ -135,30 +118,28 @@ function RptCargoContent() {
                 Tel: +91-22-66359901/2/3
                 <br />
                 Email: ops@aindley.com
-              </div>
+              </div> */}
 
               {/* Footer */}
-              <div className="mt-3 text-center">
-                <div className="font-bold mb-1">General Agent</div>
+              <div className="mt-3 text-center w-full flex item-center justify-center">
+                <div className="w-2/4">
+                  <div className="font-bold mb-1">General Agent</div>
 
-                <div className="font-bold uppercase">
-                  NYK INDIA PRIVATE LIMITED
-                </div>
+                  <div className="font-bold uppercase">
+                    {reportData?.companyName}
+                  </div>
 
-                <div className="mb-2">
-                  Unit no.1205-1208, 12th floor, Windfall Sahar Plaza Complex
-                  <br />
-                  Sir M.V. Road, J.B. Nagar, Andheri Kurla Road,
-                  <br />
-                  Andheri East, Mumbai
-                </div>
+                  <div className="mb-2">{reportData?.companyAddress}</div>
 
-                <div className="font-bold">Contact details</div>
-                <div>Board : +91 22-46138181</div>
+                  <div className="font-bold">Contact details</div>
+                  <div>Board : {reportData?.companyTel}</div>
 
-                <div>
-                  website{" "}
-                  <span className="underline">www.nyklineindia.com</span>
+                  <div>
+                    website
+                    <span className="underline">
+                      {reportData?.companyWebsite}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -189,35 +170,24 @@ function RptCargoContent() {
                 case "cargoNotice": {
                   return (
                     <div className="flex flex-col items-center gap-4 bg-gray-300 min-h-screen">
-                      {chunks.map((group, chunkIndex) => {
-                        return (
-                          <React.Fragment key={`${chunkIndex}`}>
-                            <div
-                              ref={(el) =>
-                                (enquiryModuleRefs.current[chunkIndex] = el)
-                              }
-                              className="bg-white shadow-md p-4 border border-gray-300 print:break-after-page relative mb-8"
-                              style={{
-                                width: "297mm",
-                                height: "210mm",
-                                boxSizing: "border-box",
-                                display: "flex",
-                                flexDirection: "column",
-                                margin: "auto",
-                                overflow: "hidden",
-                                pageBreakAfter: "always",
-                              }}
-                            >
-                              <ImportGeneralManifest
-                                data={group.records}
-                                index={chunkIndex}
-                              />
-                            </div>
+                      <div
+                        ref={(el) => (enquiryModuleRefs.current[index] = el)}
+                        className="bg-white shadow-md p-4 border border-gray-300 print:break-after-page relative mb-8"
+                        style={{
+                          width: "297mm",
+                          height: "210mm",
+                          boxSizing: "border-box",
+                          display: "flex",
+                          flexDirection: "column",
+                          margin: "auto",
+                          overflow: "hidden",
+                          pageBreakAfter: "always",
+                        }}
+                      >
+                        <ImportGeneralManifest />
+                      </div>
 
-                            <div className="bg-gray-300 h-2 no-print" />
-                          </React.Fragment>
-                        );
-                      })}
+                      <div className="bg-gray-300 h-2 no-print" />
                     </div>
                   );
                 }

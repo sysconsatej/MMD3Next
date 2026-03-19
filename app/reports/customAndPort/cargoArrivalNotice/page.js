@@ -49,7 +49,7 @@ export default function CargoArrivalNotice() {
             <CustomButton
               text={"Go"}
               type="button"
-              href={`/htmlReports/cargoArrivalNotice?recordId=vsl:${formData?.vessel?.Id}&voyage:%${formData?.voyage?.Id}`}
+              href={`/htmlReports/cargoArrivalNotice?recordId=${formData?.vessel?.Id},${formData?.voyage?.Id}`}
               target={"_black"}
             />
           </Box>
