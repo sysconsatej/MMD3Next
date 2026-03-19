@@ -215,6 +215,7 @@ export default function BLList() {
       formId,
       status: filterData[0]?.status,
       admin: "linerSearch",
+      advanceSearch: advanceSearchFilter(advanceSearch),
     });
     router.push("/bl/hbl");
   };

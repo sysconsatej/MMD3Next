@@ -504,6 +504,11 @@ export const navItems = [
         href: "/reports/customAndPort/scmtrCsnCustomer",
         isShow: false,
       },
+      {
+        name: "Cargo Arrival Notice (Advertisement)",
+        href: "/reports/customAndPort/cargoArrivalNotice",
+        isShow: false,
+      },
     ],
   },
   {

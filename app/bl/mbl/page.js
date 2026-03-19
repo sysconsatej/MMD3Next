@@ -52,7 +52,9 @@ export default function Home() {
   useTotalGrossAndPack(formData, setTotals);
   const { prevId, nextId, prevLabel, nextLabel, canPrev, canNext } =
     useNextPrevData(
-      mblNextPrev(mode?.formId)?.[userData?.roleCode ?? "shipping"],
+      mblNextPrev(mode?.formId, mode?.advanceSearch)?.[
+        userData?.roleCode ?? "shipping"
+      ],
     );
 
   const submitHandler = async (event) => {
@@ -189,7 +191,12 @@ export default function Home() {
                 text={prevLabel ? `Prev (MBLno:${prevLabel})` : "Prev"}
                 startIcon={<ArrowBackIosIcon />}
                 onClick={() =>
-                  prevId && setMode({ mode: fieldsMode, formId: prevId })
+                  prevId &&
+                  setMode({
+                    mode: fieldsMode,
+                    formId: prevId,
+                    advanceSearch: mode?.advanceSearch,
+                  })
                 }
                 disabled={!canPrev}
               />
@@ -197,7 +204,12 @@ export default function Home() {
                 text={nextLabel ? `Next (MBLno:${nextLabel})` : "Next"}
                 endIcon={<ArrowForwardIosIcon />}
                 onClick={() =>
-                  nextId && setMode({ mode: fieldsMode, formId: nextId })
+                  nextId &&
+                  setMode({
+                    mode: fieldsMode,
+                    formId: nextId,
+                    advanceSearch: mode?.advanceSearch,
+                  })
                 }
                 disabled={!canNext}
               />

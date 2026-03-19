@@ -214,6 +214,7 @@ export default function BLList() {
       formId,
       status: filterData[0]?.status,
       admin: "list",
+      advanceSearch: advanceSearchFilter(advanceSearch),
     });
     router.push("/bl/hbl");
   };
