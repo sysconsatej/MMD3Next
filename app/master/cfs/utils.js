@@ -54,11 +54,6 @@ export const handleBlur = ({ mode, setErrorState, setFormData, formData }) => {
 
       const literal = normalized.replace(/'/g, "''");
 
-      console.log(
-        "formData?.referencePortId?.Id",
-        formData?.referencePortId?.Id,
-      );
-
       let whereDup = `
       ${name} = '${literal.toUpperCase()}'
       AND portTypeId IN (

@@ -7,7 +7,7 @@ import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
-import { fetchForm, insertUpdateForm } from "@/apis";
+import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import {
   formatDataWithForm,
   formatFetchForm,
@@ -63,6 +63,7 @@ export default function Country() {
     validatePanCard: (e) => {
       const value = e.target.value;
       const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+
       if (value !== String(value).toUpperCase()) {
         setFormData((prev) => ({ ...prev, consigneePan: null }));
         return toast.error("Pan card should be always in caps");
@@ -75,18 +76,83 @@ export default function Country() {
         return toast.error("Pan Number is invalid ");
       }
     },
+    duplicateHandler: async (e) => {
+      const { name, value } = e.target;
+
+      let whereDup = `
+        UPPER(${name}) = '${value}'
+        AND companyId = ${userData?.companyId}
+        AND locationId = ${userData?.location}
+        AND podId = ${formData?.podId?.Id}
+        AND activeInactive = 'Y'
+        AND status = 1
+      `;
+
+      try {
+        const resp = await getDataWithCondition({
+          columns: "id",
+          tableName: "tblConsigneeCfsMapping",
+          whereCondition: whereDup,
+        });
+
+        const isDuplicate = Array.isArray(resp?.data) && resp.data.length > 0;
+
+        if (isDuplicate) {
+          toast.error(`Duplicate Consignee already exists`);
+          setFormData((prev) => ({ ...prev, [name]: null }));
+          return false;
+        }
+
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      } catch (err) {
+        console.error(err);
+        toast.error("Duplicate check failed");
+        return false;
+      }
+    },
   };
-  useEffect(() => {
-    if (!mode.formId && userData?.companyId) {
-      setFormData((prev) => ({
-        ...prev,
-        shippingLineId: {
-          Id: userData.companyId,
-          Name: userData.companyName,
-        },
-      }));
-    }
-  }, [mode.formId]);
+
+  const handleChangeFunctions = {
+    duplicateHandler: async (name, value) => {
+      let whereDup = `
+        UPPER(consignee) = '${formData?.consignee}'
+        AND companyId = ${userData?.companyId}
+        AND locationId = ${userData?.location}
+        AND podId = ${value?.Id}
+        AND activeInactive = 'Y'
+        AND status = 1
+      `;
+
+      try {
+        const resp = await getDataWithCondition({
+          columns: "id",
+          tableName: "tblConsigneeCfsMapping",
+          whereCondition: whereDup,
+        });
+
+        const isDuplicate = Array.isArray(resp?.data) && resp.data.length > 0;
+
+        if (isDuplicate) {
+          toast.error(`Duplicate Port already exists`);
+          setFormData((prev) => ({ ...prev, [name]: null }));
+          return false;
+        }
+
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      } catch (err) {
+        console.error(err);
+        toast.error("Duplicate check failed");
+        return false;
+      }
+    },
+  };
+
   useEffect(() => {
     async function fetchFormHandler() {
       if (mode.formId) {
@@ -107,6 +173,18 @@ export default function Country() {
     }
     fetchFormHandler();
   }, [mode.formId]);
+
+  useEffect(() => {
+    if (!mode.formId && userData?.companyId) {
+      setFormData((prev) => ({
+        ...prev,
+        shippingLineId: {
+          Id: userData.companyId,
+          Name: userData.companyName,
+        },
+      }));
+    }
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -130,6 +208,7 @@ export default function Country() {
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
                 handleBlurEventFunctions={handleBlurEventFunctions}
+                handleChangeEventFunctions={handleChangeFunctions}
               />
             </Box>
           </Box>

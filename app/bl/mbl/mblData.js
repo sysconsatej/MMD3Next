@@ -549,6 +549,7 @@ export const fieldData = {
       name: "consigneeText",
       isEdit: true,
       required: true,
+      blurFun: "checkConsigneeMapping",
     },
     {
       label: "Type",
@@ -561,7 +562,12 @@ export const fieldData = {
       foreignTable: "name,tblMasterData",
       isEdit: true,
     },
-    { label: "Code", name: "consigneeIdNo", isEdit: true },
+    {
+      label: "Code",
+      name: "consigneeIdNo",
+      isEdit: true,
+      blurFun: "checkConsigneeMapping",
+    },
     {
       label: "City",
       name: "consigneeCity",

@@ -32,6 +32,7 @@ function createData(
   consignee,
   consigneePan,
   cfs,
+  port,
   activeInactive,
   updatedBy,
   updatedDate,
@@ -43,6 +44,7 @@ function createData(
     consignee,
     consigneePan,
     cfs,
+    port,
     activeInactive,
     updatedBy,
     updatedDate,
@@ -86,6 +88,7 @@ export default function ConsigneeCfsMappingList() {
             cfs.name + '-' + cfs.code AS cfs,
             up.name AS updatedBy,
             c.updatedDate AS updatedDate,
+            p.code + '-' + p.name AS port,
             c.activeInactive AS activeInactive,
             c.id
           `,
@@ -97,6 +100,7 @@ export default function ConsigneeCfsMappingList() {
           joins: `
             LEFT JOIN tblCompany s ON s.id = c.companyId
             LEFT JOIN tblLocation l ON l.id = c.locationId
+            left join tblPort p on p.id=c.podId
             LEFT JOIN tblPort cfs ON cfs.id = c.cfsId
             LEFT JOIN tblUser creator ON creator.id = c.createdBy
             LEFT JOIN tblUser up ON up.id = c.updatedBy
@@ -145,6 +149,7 @@ export default function ConsigneeCfsMappingList() {
           item["consignee"],
           item["consigneePan"],
           item["cfs"],
+          item["port"],
           item["activeInactive"],
           item["updatedBy"],
           item["updatedDate"],
@@ -228,6 +233,7 @@ export default function ConsigneeCfsMappingList() {
                 <TableCell>Consignee</TableCell>
                 <TableCell>Consignee Pan</TableCell>
                 <TableCell>CFS</TableCell>
+                <TableCell>Port</TableCell>
                 <TableCell>Active</TableCell>
                 <TableCell>Updated By</TableCell>
                 <TableCell>Updated Date</TableCell>
@@ -247,6 +253,7 @@ export default function ConsigneeCfsMappingList() {
                     <TableCell>{row.consignee}</TableCell>
                     <TableCell>{row.consigneePan}</TableCell>
                     <TableCell>{row.cfs}</TableCell>
+                    <TableCell>{row.port}</TableCell>
                     <TableCell>{row.activeInactive}</TableCell>
                     <TableCell>{row.updatedBy}</TableCell>
                     <TableCell>{row.updatedDate}</TableCell>

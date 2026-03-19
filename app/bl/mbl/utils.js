@@ -666,6 +666,51 @@ export const createdHandleBlurEventFunctions = ({ setFormData, formData }) => {
       }
       return true;
     },
+    checkConsigneeMapping: async (event) => {
+      const { name, value } = event.target;
+      const consigneeType = formData?.consigneeTypeId?.Name;
+      let consignee = null;
+      let consigneePan = null;
+      if (name === "consigneeText") {
+        consignee = value;
+      }
+      if (name === "consigneeIdNo" && consigneeType === "PAN") {
+        consigneePan = value;
+      }
+      if (!consignee && !consigneePan) return;
+      const obj = {
+        columns: "c.cfsId as Id, cfs.name as Name",
+        tableName: "tblConsigneeCfsMapping c",
+        joins: "left join tblPort cfs on cfs.id=c.cfsId",
+        whereCondition: `
+      c.locationId = ${userData?.location}
+      AND c.shippingLineId = ${userData?.companyId}
+      AND c.activeInactive = 'Y'
+      AND c.podId = ${formData?.podId?.Id}
+      AND (
+        ${consignee ? `c.consignee = '${consignee}'` : "1=0"}
+        OR
+        ${consigneePan ? `c.consigneePan = '${consigneePan}'` : "1=0"}
+      )
+    `,
+      };
+
+      try {
+        const { data, success } = await getDataWithCondition(obj);
+
+        if (success && data?.length > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            nominatedAreaId: {
+              Id: data[0].Id,
+              Name: data[0].Name,
+            },
+          }));
+        }
+      } catch (err) {
+        console.error("Consignee mapping error:", err);
+      }
+    },
   };
 };
 
