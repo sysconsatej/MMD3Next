@@ -29,7 +29,6 @@ export default function BerthAgent() {
     }
   };
 
-  console.log(mode.formId);
 
   useEffect(() => {
     async function fetchFormHandler() {
