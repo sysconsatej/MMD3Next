@@ -919,7 +919,7 @@ export const gridButtonsWithoutExcel = [
   },
 ];
 
-export const hblPrevNextObj = (formId = null) => {
+export const hblPrevNextObj = (formId = null, advanceSearch) => {
   const userData = getUserByCookies();
 
   return {
@@ -932,7 +932,7 @@ export const hblPrevNextObj = (formId = null) => {
       orderBy: "createdDate desc",
       groupBy: "group by b.mblNo",
       joins: `left join tblUser u on u.id = ${userData?.userId} left join tblUser u2 on u2.companyId = u.companyId`,
-      where: `b.status = 1 and b.mblHblFlag = 'HBL' and b.locationId = ${userData?.location} and b.createdBy = u2.id`,
+      where: `b.status = 1 and b.mblHblFlag = 'HBL' and b.locationId = ${userData?.location} and b.createdBy = u2.id and ${advanceSearch || "1=1"} `,
     },
     shipping: {
       currentId: formId,
@@ -946,7 +946,7 @@ export const hblPrevNextObj = (formId = null) => {
       orderBy: "createdDate desc",
       groupBy: "group by b.mblNo",
       joins: `left join tblMasterData m1 on m1.id = b.hblRequestStatus`,
-      where: `b.status = 1 and b.mblHblFlag = 'HBL' and b.locationId = ${userData?.location} and b.shippingLineId = ${userData?.companyId} and b.hblRequestStatus is not null`,
+      where: `b.status = 1 and b.mblHblFlag = 'HBL' and b.locationId = ${userData?.location} and b.shippingLineId = ${userData?.companyId} and b.hblRequestStatus is not null and ${advanceSearch || "1=1"}`,
     },
     admin: {
       currentId: formId,
@@ -960,7 +960,7 @@ export const hblPrevNextObj = (formId = null) => {
       orderBy: "createdDate desc",
       groupBy: "group by b.mblNo",
       joins: `left join tblMasterData m1 on m1.id = b.hblRequestStatus`,
-      where: `b.status = 1 and b.mblHblFlag = 'HBL' and b.locationId = ${userData?.location} and b.hblRequestStatus is not null`,
+      where: `b.status = 1 and b.mblHblFlag = 'HBL' and b.locationId = ${userData?.location} and b.hblRequestStatus is not null and ${advanceSearch || "1=1"}`,
     },
   };
 };

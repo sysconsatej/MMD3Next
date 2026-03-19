@@ -1073,16 +1073,21 @@ export const mblFilter = [
   },
 ];
 
-export const mblNextPrev = (formId = null) => {
+export const mblNextPrev = (formId = null, advanceSearch) => {
   const userData = getUserByCookies();
   return {
     shipping: {
       currentId: formId,
-      labelField: `mblNo curName, id  curId,
-      lag(mblNo) over (order by createdDate desc) as prevName, lag(id) over (order by createdDate desc) as prevId,
-      lead(mblNo) over (order by createdDate desc) as nextName, lead(id) over (order by createdDate desc) as nextId, createdDate createdDate`,
-      tableName: "tblBl",
-      where: `status = 1 and mblHblFlag = 'MBL' and locationId = ${userData?.location} and shippingLineId = ${userData?.companyId}`,
+      labelField: `b.mblNo curName, b.id  curId, lag(b.mblNo) over (order by b.createdDate desc) as prevName, lag(b.id) over (order by b.createdDate desc) as prevId, lead(b.mblNo) over (order by b.createdDate desc) as nextName, lead(b.id) over (order by b.createdDate desc) as nextId, b.createdDate createdDate`,
+      tableName: "tblBl b",
+      where: `b.status = 1 and b.mblHblFlag = 'MBL' and b.locationId = ${userData?.location} and b.shippingLineId = ${userData?.companyId} and ${advanceSearch || "1=1"}`,
+      orderBy: "createdDate desc",
+    },
+    admin: {
+      currentId: formId,
+      labelField: `b.mblNo curName, b.id  curId, lag(b.mblNo) over (order by b.createdDate desc) as prevName, lag(b.id) over (order by b.createdDate desc) as prevId, lead(b.mblNo) over (order by b.createdDate desc) as nextName, lead(b.id) over (order by b.createdDate desc) as nextId, b.createdDate createdDate`,
+      tableName: "tblBl b",
+      where: `b.status = 1 and b.mblHblFlag = 'MBL' and b.locationId = ${userData?.location} and ${advanceSearch || "1=1"}`,
       orderBy: "createdDate desc",
     },
   };

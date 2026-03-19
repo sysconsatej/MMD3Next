@@ -249,10 +249,18 @@ export default function BLList() {
       return;
     }
     if (flag === "MBL") {
-      setMode({ mode, formId });
+      setMode({
+        mode,
+        formId,
+        advanceSearch: advanceSearchFilter(advanceSearch),
+      });
       router.push("/bl/mbl");
     } else if (flag === "HBL") {
-      setMode({ mode, formId: `${formId}` });
+      setMode({
+        mode,
+        formId: `${formId}`,
+        advanceSearch: advanceSearchFilter(advanceSearch),
+      });
       router.push("/bl/hbl");
     }
   };
