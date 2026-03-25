@@ -413,10 +413,11 @@ export default function MblUpload() {
 
       try {
         const obj = {
-          columns: "t.id as Id, t.voyageNo as Name",
-          tableName: "tblVoyage t",
-          whereCondition: `t.vesselId = ${vesselId} and t.status = 1 and t.companyid = ${userData?.companyId}`,
-          orderBy: "t.voyageNo",
+          columns: "vo.id as Id, vo.voyageNo as Name",
+          tableName: "tblVoyage vo",
+          joins: `join tblVoyageRoute vr on vr.voyageId = vo.id`,
+          whereCondition: `GETDATE() >= vr.gateOpenLine AND GETDATE() < vr.gateCloseLine and vo.vesselId = ${vesselId} and vo.companyid = ${formData?.shippingLineId?.Id || userData?.companyId} and vo.status = 1`,
+          orderBy: "vo.voyageNo",
         };
 
         const { data, success } = await getDataWithCondition(obj);

@@ -4,7 +4,6 @@ import {
   formatFetchForm,
   getUserByCookies,
   setInputValue,
-  setVoyageBasedonVessel,
   validateContainerForMBL,
   validatePanCard,
   validPinCode,
@@ -56,7 +55,9 @@ export function advanceSearchFilter(advanceSearch) {
   }
 
   if (advanceSearch.hblNo) {
-    condition.push(`b.mblNo = (select b3.mblNo from tblBl b3 where b3.hblNo =  '${advanceSearch.hblNo}' and b3.status = 1)`);
+    condition.push(
+      `b.mblNo = (select b3.mblNo from tblBl b3 where b3.hblNo =  '${advanceSearch.hblNo}' and b3.status = 1)`,
+    );
   }
 
   if (advanceSearch.hblRequestStatus) {
@@ -636,55 +637,6 @@ export const createHandleChangeFunc = ({
         };
       });
     },
-    selectVoyageNoBasedOnVessel: async (name, value) => {
-      const linerId =
-        (userData?.roleCode === "shipper" &&
-          formData?.shippingLineId === userData?.companyId) ||
-        (userData?.roleCode === "customer" && formData?.shippingLineId);
-
-      if (!linerId) {
-        return toast.error("Pls Select Liner");
-      }
-
-      if (!value?.Id) {
-        setFormData((prev) => {
-          return {
-            ...prev,
-            podVoyageId: {},
-          };
-        });
-
-        return;
-      }
-
-      // cha is there then selected and shipper is their then login
-      const { data } = await setVoyageBasedonVessel({
-        vesselId: value?.Id,
-        companyId: formData?.shippingLineId?.Id,
-      });
-
-      if (Array.isArray(data)) {
-        if (data.length === 1) {
-          setFormData((prevData) =>
-            setInputValue({
-              prevData,
-              name: "podVoyageId",
-              value: data[0] || {},
-            }),
-          );
-        }
-
-        if (data.length > 1) {
-          setFormData((prevData) =>
-            setInputValue({
-              prevData,
-              name: "podVoyageId",
-              value: {},
-            }),
-          );
-        }
-      }
-    },
     setAgentCode: async (name, value, { containerIndex, tabIndex }) => {
       if (value) {
         setFormData((prevData) =>
@@ -717,6 +669,51 @@ export const createHandleChangeFunc = ({
             value: dataAgentCode?.[0]?.panNo,
           }),
         );
+      }
+    },
+    handleChangeOnVessel: async (name, value) => {
+      const vesselId = value?.Id || null;
+
+      setFormData((prevData) =>
+        setInputValue({
+          prevData,
+          tabName: null,
+          gridName: null,
+          tabIndex: null,
+          containerIndex: null,
+          name: "podVoyageId",
+          value: null,
+        }),
+      );
+
+      if (!vesselId) return;
+
+      try {
+        const obj = {
+          columns: "vo.id as Id, vo.voyageNo as Name",
+          tableName: "tblVoyage vo",
+          joins: `join tblVoyageRoute vr on vr.voyageId = vo.id`,
+          whereCondition: `GETDATE() >= vr.gateOpenLine AND GETDATE() < vr.gateCloseLine and vo.vesselId = ${vesselId} and vo.companyid = ${formData?.shippingLineId?.Id || userData?.companyId} and vo.status = 1`,
+          orderBy: "vo.voyageNo",
+        };
+
+        const { data, success } = await getDataWithCondition(obj);
+
+        if (success && Array.isArray(data) && data.length === 1) {
+          setFormData((prevData) =>
+            setInputValue({
+              prevData,
+              tabName: null,
+              gridName: null,
+              tabIndex: null,
+              containerIndex: null,
+              name: "podVoyageId",
+              value: data[0],
+            }),
+          );
+        }
+      } catch (e) {
+        console.error("handleChangeOnVessel error:", e);
       }
     },
   };

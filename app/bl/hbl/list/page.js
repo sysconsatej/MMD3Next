@@ -275,32 +275,11 @@ export default function BLList() {
           >
             HBL
           </Typography>
-          <Box className="flex flex-col lg:flex-row lg:items-center gap-4 w-auto ml-auto">
-            {/* Filters */}
-            <Box className="flex flex-1 items-center gap-4 min-w-0">
-              <Box className="w-[220px]">
+          <Box className="flex flex-col lg:flex-row lg:items-center gap-4 ml-auto">
+            <Box className="flex flex-1 items-center gap-4 ">
+              <Box className="grid grid-cols-6 gap-2 p-2 w-[600px]">
                 <CustomInput
-                  fields={[vesselVoyageFiltersCustomer[0]]} // Liner
-                  formData={advanceSearch}
-                  setFormData={setAdvanceSearch}
-                  fieldsMode="edit"
-                  handleChangeEventFunctions={handleChangeEventFunctions}
-                />
-              </Box>
-
-              <Box className="w-[220px]">
-                <CustomInput
-                  fields={[vesselVoyageFiltersCustomer[1]]} // Arrival Vessel
-                  formData={advanceSearch}
-                  setFormData={setAdvanceSearch}
-                  fieldsMode="edit"
-                  handleChangeEventFunctions={handleChangeEventFunctions}
-                />
-              </Box>
-
-              <Box className="w-[220px]">
-                <CustomInput
-                  fields={[vesselVoyageFiltersCustomer[2]]} // Arrival Voyage
+                  fields={vesselVoyageFiltersCustomer} // Liner
                   formData={advanceSearch}
                   setFormData={setAdvanceSearch}
                   fieldsMode="edit"
