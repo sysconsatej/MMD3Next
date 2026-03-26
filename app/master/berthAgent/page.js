@@ -35,6 +35,10 @@ export default function BerthAgent() {
     }
   };
 
+  const handleChangeEventFunctions = {};
+
+  const handleBlurEventFunctions = {};
+
   useEffect(() => {
     async function fetchFormHandler() {
       let newData = {};
@@ -43,7 +47,7 @@ export default function BerthAgent() {
         const format = formatFetchForm(
           fieldData,
           "tblBerthAgentCode",
-          mode.formId
+          mode.formId,
         );
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
@@ -56,10 +60,6 @@ export default function BerthAgent() {
 
       newData = {
         ...newData,
-        agentId: {
-          Id: userData?.companyId,
-          Name: userData?.companyName,
-        },
       };
 
       setFormData(newData);
@@ -67,9 +67,17 @@ export default function BerthAgent() {
     fetchFormHandler();
   }, [mode.formId]);
 
-  const handleChangeEventFunctions = {};
-
-  const handleBlurEventFunctions = {};
+  useEffect(() => {
+    if (mode.mode !== "view" && mode.mode !== "edit") {
+      setFormData((prev) => ({
+        ...prev,
+        agentId: {
+          Id: userData?.companyId,
+          Name: userData?.companyName,
+        },
+      }));
+    }
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>

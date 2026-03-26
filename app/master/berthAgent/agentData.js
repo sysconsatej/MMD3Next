@@ -7,7 +7,8 @@ const userData = getUserByCookies();
 export const fieldData = {
   berthAgentFields: [
     {
-      label: "Shipping Line",
+      // label: "Shipping Line",
+      label: "Company Name",
       name: "agentId",
       type: "dropdown",
       isEdit: true,
@@ -16,10 +17,11 @@ export const fieldData = {
       displayColumn: "c.name",
       orderBy: "c.name",
       foreignTable: "name,tblCompany",
-      where:
-        userData?.roleCode === "shipping"
-          ? `c.id  = '${userData?.companyId}'`
-          : "",
+      // where:
+      //   userData?.roleCode === "shipping"
+      //     ? `c.id  = '${userData?.companyId}'`
+      //     : "",
+      where:`c.id  = '${userData?.companyId}'`,
     },
     {
       label: "Berth Name",
@@ -65,7 +67,7 @@ export const fieldData = {
 // search array
 
 export const searchDataAray = [
-  { label: "Shipping Line", value: "c.name" },
+  { label: "Company Name", value: "c.name" },
   { label: "Berth Name", value: "p.code" },
   { label: "Agent Code", value: "b.agentCode" },
   { label: "Line Code", value: "b.lineCode" },
