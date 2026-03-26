@@ -32,7 +32,7 @@ import {
   vesselVoyageFiltersCustomer,
   vesselVoyageFiltersShipping,
 } from "../hblData";
-import { advanceSearchFilter, statusColor } from "../utils";
+import { advanceSearchFilter, createHandleChangeFunc, statusColor } from "../utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import SelectionActionsBar from "@/components/selectionActions/selectionActionsBar";
 import { BLModal } from "../modal";
@@ -178,7 +178,7 @@ export default function BLList() {
     getData(1, +e.target.value);
   };
 
-  const handleChangeEventFunctions = createHandleChangeEventFunction({
+  const handleChangeEventFunctions = createHandleChangeFunc({
     setFormData: setAdvanceSearch,
     fields: vesselVoyageFiltersShipping,
   });
@@ -275,7 +275,7 @@ export default function BLList() {
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6 items-start">
             <Box
-              className={`min-w-[520px] w-[520px] grid ${userData?.roleCode === "admin" ? "grid-cols-3" : "grid-cols-2"} gap-x-2 gap-y-1 items-center [&>*]:min-w-0`}
+              className={`min-w-[600px] w-[600px] grid ${userData?.roleCode === "admin" ? "grid-cols-6" : "grid-cols-2"} gap-x-2 gap-y-1 items-center [&>*]:min-w-0`}
             >
               <CustomInput
                 fields={

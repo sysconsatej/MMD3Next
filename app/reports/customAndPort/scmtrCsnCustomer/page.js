@@ -50,7 +50,7 @@ export default function CSN() {
       setLoading,
       filterDirty: false,
       buildBody: (rows) => ({
-        spName: "scmtCsn",
+        spName: "scmtCsnCustomer",
         jsonData: {
           ...transformed,
           clientId: 1,

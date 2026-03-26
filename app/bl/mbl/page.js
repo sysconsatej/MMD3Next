@@ -266,14 +266,23 @@ export default function Home() {
                 buttons={[
                   {
                     text: "Copy Notify Details",
-                    onClick: () =>
+                    onClick: async () => {
                       copyHandler(
                         formData,
                         setFormData,
                         "left",
                         mappingConsigneeToNotify,
                         "Notify details copied to Consignee!",
-                      ),
+                      );
+
+                      await handleBlurEventFunctions.checkConsigneeMapping({
+                        target: {
+                          name: "consigneeText",
+                          value: formData?.notifyPartyText,
+                          consigneeIdNo: formData?.notifyParty1IdNo,
+                        },
+                      });
+                    },
                     icon: <ContentCopyIcon fontSize="small" />,
                   },
                 ]}

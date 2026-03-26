@@ -488,10 +488,11 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
 
       try {
         const obj = {
-          columns: "t.id as Id, t.voyageNo as Name",
-          tableName: "tblVoyage t",
-          whereCondition: `t.vesselId = ${vesselId} and t.status = 1 and t.companyid = ${userData?.companyId}`,
-          orderBy: "t.voyageNo",
+          columns: "vo.id as Id, vo.voyageNo as Name",
+          tableName: "tblVoyage vo",
+          joins: `join tblVoyageRoute vr on vr.voyageId = vo.id`,
+          whereCondition: `GETDATE() >= vr.gateOpenLine AND GETDATE() < vr.gateCloseLine and vo.vesselId = ${vesselId} and vo.companyid = ${formData?.shippingLineId?.Id || userData?.companyId} and vo.status = 1`,
+          orderBy: "vo.voyageNo",
         };
 
         const { data, success } = await getDataWithCondition(obj);
@@ -667,37 +668,37 @@ export const createdHandleBlurEventFunctions = ({ setFormData, formData }) => {
       return true;
     },
     checkConsigneeMapping: async (event) => {
-      const { name, value } = event.target;
+      const { name, value, consigneeIdNo } = event.target;
       const consigneeType = formData?.consigneeTypeId?.Name;
-      let consignee = null;
+      let consignee = " and 1=1 ";
       let consigneePan = null;
+
       if (name === "consigneeText") {
-        consignee = value;
+        consignee = ` and c.consignee = '${value}' `;
+        consigneePan = consigneeIdNo || formData?.consigneeIdNo;
       }
+
       if (name === "consigneeIdNo" && consigneeType === "PAN") {
         consigneePan = value;
       }
-      if (!consignee && !consigneePan) return;
+
       const obj = {
-        columns: "c.cfsId as Id, cfs.name as Name",
+        columns: "c.cfsId as Id, cfs.name as Name, c.consignee as consignee",
         tableName: "tblConsigneeCfsMapping c",
-        joins: "left join tblPort cfs on cfs.id=c.cfsId",
+        joins: "left join tblPort cfs on cfs.id = c.cfsId",
         whereCondition: `
       c.locationId = ${userData?.location}
       AND c.shippingLineId = ${userData?.companyId}
       AND c.activeInactive = 'Y'
       AND c.podId = ${formData?.podId?.Id}
-      AND (
-        ${consignee ? `c.consignee = '${consignee}'` : "1=0"}
-        OR
-        ${consigneePan ? `c.consigneePan = '${consigneePan}'` : "1=0"}
-      )
+      AND c.consigneePan = '${consigneePan}'
+      ${consignee}
+      and c.status = 1
     `,
       };
 
       try {
         const { data, success } = await getDataWithCondition(obj);
-
         if (success && data?.length > 0) {
           setFormData((prev) => ({
             ...prev,
@@ -705,6 +706,12 @@ export const createdHandleBlurEventFunctions = ({ setFormData, formData }) => {
               Id: data[0].Id,
               Name: data[0].Name,
             },
+            consigneeText: data[0].consignee,
+          }));
+        } else {
+          setFormData((prev) => ({
+            ...prev,
+            nominatedAreaId: null,
           }));
         }
       } catch (err) {
