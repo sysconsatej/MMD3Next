@@ -150,7 +150,7 @@ export default function IsoCodeList() {
               <TableRow>
                 <TableCell> Size</TableCell>
                 <TableCell>Type</TableCell>
-                <TableCell> ISO Code</TableCell>
+                <TableCell>IL ISO Code</TableCell>
                 <TableCell>IGM ISO Code</TableCell>
                 <TableCell> Updated By</TableCell>
                 <TableCell> Updated Date</TableCell>
