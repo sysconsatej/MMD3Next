@@ -442,7 +442,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
     `,
         tableName: "tblCarrierPort t",
         joins: "left join tblMasterData m on m.id = t.modeId",
-        whereCondition: `t.id = ${value?.Id} and t.defaultCfs = 'Y' and t.status = 1 and t.companyId = ${userData?.companyId}`,
+        whereCondition: `t.id = ${value?.Id} and t.status = 1 and t.companyId = ${userData?.companyId}`,
       };
 
       const { data, success } = await getDataWithCondition(obj);
