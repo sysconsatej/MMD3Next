@@ -316,6 +316,7 @@ export const fieldData = {
       orderBy: "t.name",
       foreignTable: "name,tblCarrierPort",
       joins: `left join tblPort p on p.id=t.podId left join tblLocation l on l.id = ${userData?.location}`,
+      selectedConditions: [{ podId: "t.podId" }, { fpdId: "t.fpdId" }],
       where: `t.companyId = ${userData?.companyId} and t.status = 1 and p.name = l.name`,
       isEdit: true,
       changeFun: "setCarrierBondAndCode",
