@@ -118,6 +118,10 @@ export async function runUpdate({
 //   );
 //   runnerArgs.toast?.success?.("JSON file downloaded.");
 // }
+function resolvePayload(payload) {
+  return Array.isArray(payload) ? payload[0] : payload;
+}
+
 export async function jsonExport({
   filenamePrefix = "Export",
   jsonPayload,
@@ -138,7 +142,11 @@ export async function jsonExport({
     typeof jsonPayload === "function"
       ? jsonPayload({ ok: cleanOk, failed })
       : cleanOk;
-  download(`${fileNameFromSP}.json`, payload, "application/json");
+  download(
+    `${fileNameFromSP}.json`,
+    resolvePayload(payload),
+    "application/json",
+  );
 
   runnerArgs.toast?.success?.("JSON file downloaded.");
 }
