@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState ,useMemo} from "react";
+import { useEffect, useState, useMemo } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { metaData } from "./scmtrSamData";
 import { CustomInput } from "@/components/customInput";
@@ -34,7 +34,7 @@ export default function SAM() {
           return [key, value.Id];
         }
         return [key, value];
-      })
+      }),
     );
   };
 
@@ -64,8 +64,12 @@ export default function SAM() {
     setError(null);
 
     const requestBody = {
-      spName: "importBlSelection",
-      jsonData: transformed,
+      spName: "ImportMBlSelection",
+      jsonData: {
+        ...transformed,
+        userId: userData.userId,
+        companyId: userData.companyId,
+      },
     };
 
     const getErr = (src) =>
@@ -97,7 +101,7 @@ export default function SAM() {
         } else {
           setError(errText || "Request failed.");
           toast.error(
-            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`
+            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`,
           );
         }
       }
@@ -126,7 +130,7 @@ export default function SAM() {
         setFormData,
         fields: jsonData.igmEdiFields,
       }),
-    [setFormData, jsonData.igmEdiFields]
+    [setFormData, jsonData.igmEdiFields],
   );
   return (
     <ThemeProvider theme={theme}>
