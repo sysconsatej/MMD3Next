@@ -1,5 +1,4 @@
 import { getUserByCookies } from "@/utils";
-import { Label } from "@mui/icons-material";
 const userData = getUserByCookies();
 const fieldData = {
   igmGenerationFields: [

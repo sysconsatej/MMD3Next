@@ -52,7 +52,7 @@ export default function IsoCodeLineMapping() {
     if (!mode.formId && userData?.companyId) {
       setFormData((prev) => ({
         ...prev,
-        shippingLineId: {
+        companyId: {
           Id: userData.companyId,
           Name: userData.companyName,
         },

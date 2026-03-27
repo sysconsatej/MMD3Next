@@ -27,19 +27,19 @@ import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 
 function createData(
-  shippingLine,
-  customer,
+  company,
   emailReport,
   location,
+  EmailCC,
   updatedBy,
   updatedDate,
   id,
 ) {
   return {
-    shippingLine,
-    customer,
+    company,
     emailReport,
     location,
+    EmailCC,
     updatedBy,
     updatedDate,
     id,
@@ -75,11 +75,11 @@ export default function ModuleEmailRecipientList() {
 
         const tableObj = {
           columns: `
-            line.name AS shippingLine,
-            customer.name AS customer,
+            line.name AS company,
             mas.name AS emailReport,
             l.name AS location,
             u.name AS updatedBy,
+            m.emailcc As EmailCC,
             m.updatedDate AS updatedDate,
             m.id
           `,
@@ -89,8 +89,7 @@ export default function ModuleEmailRecipientList() {
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
           joins: `
-            LEFT JOIN tblCompany line ON line.id = m.shippingLineId
-            LEFT JOIN tblCompany customer ON customer.id = m.companyId
+            LEFT JOIN tblCompany line ON line.id = m.companyId
             LEFT JOIN tblMasterData mas ON mas.id = m.emailReportId
             LEFT JOIN tblLocation l ON l.id = m.locationId
             LEFT JOIN tblUser u ON u.id = m.updatedBy
@@ -135,10 +134,10 @@ export default function ModuleEmailRecipientList() {
   const rows = tableData
     ? tableData.map((item) =>
         createData(
-          item["shippingLine"],
-          item["customer"],
+          item["company"],
           item["emailReport"],
           item["location"],
+          item["EmailCC"],
           item["updatedBy"],
           item["updatedDate"],
           item["id"],
@@ -216,10 +215,10 @@ export default function ModuleEmailRecipientList() {
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell>Shipping Line</TableCell>
-                <TableCell>Customer</TableCell>
+                <TableCell>Company Name</TableCell>
                 <TableCell>Email Report</TableCell>
                 <TableCell>Location</TableCell>
+                <TableCell>Email CC</TableCell>
                 <TableCell>Updated By</TableCell>
                 <TableCell>Updated Date</TableCell>
               </TableRow>
@@ -233,10 +232,10 @@ export default function ModuleEmailRecipientList() {
               ) : (
                 rows.map((row, index) => (
                   <TableRow key={index} hover className="relative group">
-                    <TableCell>{row.shippingLine}</TableCell>
-                    <TableCell>{row.customer}</TableCell>
+                    <TableCell>{row.company}</TableCell>
                     <TableCell>{row.emailReport}</TableCell>
                     <TableCell>{row.location}</TableCell>
+                    <TableCell>{row.EmailCC}</TableCell>
                     <TableCell>{row.updatedBy}</TableCell>
                     <TableCell>{row.updatedDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
