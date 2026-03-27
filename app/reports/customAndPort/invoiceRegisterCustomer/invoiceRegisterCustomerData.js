@@ -33,7 +33,7 @@ const fieldData = {
       type: "dropdown",
       tableName: "tblMasterData m",
       displayColumn: "m.name",
-      where: "m.masterListName = 'tblPaymentStatus'",
+      where: "m.masterListName = 'tblInvoiceRequest'",
       orderBy: "m.name",
       isEdit: true,
     },
