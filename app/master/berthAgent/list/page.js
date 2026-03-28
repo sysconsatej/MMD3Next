@@ -63,7 +63,7 @@ export default function CompanyList() {
   const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
   const [searchCondition, setSearchCondition] = useState(
-    `u.id = ${userData?.userId}`,
+    `left join tblUser u on u.id = ${userData?.userId}`,
   );
 
   const getData = useCallback(
@@ -75,18 +75,17 @@ export default function CompanyList() {
       try {
         const tableObj = {
           columns:
-            "c.name as agentId,p.code  as berthId,b.agentCode as agentCode,b.lineCode as lineCode,b.portEdiAgentCode as portEdiAgentCode,b.senderId as senderId,u.name as updatedBy ,b.updatedDate as updateDate, b.id as id",
+            "c.name as agentId,p.code  as berthId,b.agentCode as agentCode,b.lineCode as lineCode,b.portEdiAgentCode as portEdiAgentCode,b.senderId as senderId,u2.name as updatedBy ,b.updatedDate as updateDate, b.id as id",
           tableName: "tblBerthAgentCode b",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
           joins: `left join tblPort p on p.id = b.berthId
-                  left join tblUser u3 on u3.roleCode = 'shipping' 
-                  left join tblUser u on ${searchConditionMain} 
+                  ${searchConditionMain} 
                   left join tblCompany c on c.id = u.companyId
-                  left join tblUser u2 on u2.companyId = u.companyId
-                  join tblBerthAgentCode b2 on b2.id = b.id and b2.createdBy = u2.id and b2.status = 1
+                  left join tblUser u2 on u2.id = b.updatedBy
+                  join tblBerthAgentCode b2 on b2.id = b.id and b2.createdBy = u.id and b2.status = 1
 `,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
@@ -163,8 +162,18 @@ export default function CompanyList() {
     getData(1, rowsPerPage);
     setMode({ mode: null, formId: null });
     if (userData?.roleCode === "admin") {
-      setSearchCondition("u.roleCodeId = u3.id");
-      getData(1, rowsPerPage, "u.roleCodeId = u3.id");
+      setSearchCondition(`
+      left join tblUser u3 on u3.roleCode = 'shipping' or u3.roleCode = 'customer'
+      left join tblUser u on u.roleCodeId = u3.id
+      `);
+      getData(
+        1,
+        rowsPerPage,
+        `
+      left join tblUser u3 on u3.roleCode = 'shipping' or u3.roleCode = 'customer'
+      left join tblUser u on u.roleCodeId = u3.id
+      `,
+      );
     }
   }, []);
 
@@ -184,7 +193,8 @@ export default function CompanyList() {
               setSearch={setSearch}
               options={searchDataAray}
             />
-            {userData?.roleCode === "shipping" && (
+            {(userData?.roleCode === "shipping" ||
+              userData?.roleCode === "customer") && (
               <CustomButton text="Add" href="/master/berthAgent" />
             )}
           </Box>

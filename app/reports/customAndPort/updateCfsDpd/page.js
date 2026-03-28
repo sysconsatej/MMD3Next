@@ -12,6 +12,7 @@ import {
   fetchDynamicReportData,
   getDataWithCondition,
   updateDynamicReportData,
+  updateStatusRows,
 } from "@/apis";
 import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable";
 import { useRouter } from "next/navigation";
@@ -128,9 +129,7 @@ export default function IGM() {
       jsonData: {
         clientId: 1,
         ...transformed,
-        // companyId: 7819,
-        // branchId: 5594,
-        // userId: 235,
+        shippingLineId: userData?.companyId,
       },
     };
 
@@ -208,6 +207,53 @@ export default function IGM() {
         });
         setFormData((prev) => ({ ...prev, ...resData?.[0] }));
       }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const handleCfsAllocateGo = async () => {
+    try {
+      const requestBody = {
+        spName: "SelectBLByContainerPercentage",
+        jsonData: {
+          ...transformed,
+          shippingLineId: userData.companyId,
+          Percentage: formData?.percentage,
+        },
+      };
+
+      const { data, success } = await fetchDynamicReportData(requestBody);
+      if (success) {
+        setTableData(data);
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const submitHandleCfsAllocate = async () => {
+    try {
+      const rowsPayload = tableFormData?.map((item) => {
+        return {
+          id: item.id,
+          nominatedAreaId: formData?.nominatedAreaId?.Id,
+          updatedBy: userData?.userId,
+          updatedDate: new Date(),
+        };
+      });
+
+      const { success, message } = await updateStatusRows({
+        tableName: "tblBl",
+        rows: rowsPayload,
+        keyColumn: "id",
+      });
+
+      if (!success) {
+        toast.error(message || "Update failed");
+        return;
+      }
+      toast.success("updated successfully!");
     } catch (error) {
       console.log("error", error);
     }
@@ -302,6 +348,16 @@ export default function IGM() {
               text={"CFS Allocate"}
               type="button"
               onClick={handleCfsAllocate}
+            />
+            <CustomButton
+              text={"CFS Allocate GO"}
+              type="button"
+              onClick={handleCfsAllocateGo}
+            />
+            <CustomButton
+              text={"Submit CFS Allocate"}
+              type="button"
+              onClick={submitHandleCfsAllocate}
             />
           </Box>
         </section>

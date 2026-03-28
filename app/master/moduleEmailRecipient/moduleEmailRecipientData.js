@@ -4,8 +4,8 @@ const userData = getUserByCookies();
 const fieldData = {
   countryFields: [
     {
-      label: "Shipping Line",
-      name: "shippingLineId",
+      label: "Company Name",
+      name: "companyId",
       type: "dropdown",
       isEdit: true,
       tableName: "tblCompany c",
@@ -16,19 +16,6 @@ const fieldData = {
         userData?.roleCode === "shipping"
           ? `c.id  = '${userData?.companyId}'`
           : "",
-    },
-    {
-      label: "Customer Name",
-      name: "companyId",
-      type: "dropdown",
-      tableName: "tblCompany c",
-      idColumn: "id",
-      displayColumn: "c.name",
-      searchColumn: "c.name",
-      joins: `join tblCompanySubtype cs on cs.companyId = c.id join tblUser u2 on u2.id = cs.subTypeId and u2.roleCode = 'customer'`,
-      orderBy: "c.name",
-      foreignTable: "name,tblCompany",
-      isEdit: true,
     },
     {
       label: "Email Report",
@@ -44,6 +31,13 @@ const fieldData = {
     {
       label: "Email Id",
       name: "emailId",
+      isEdit: true,
+    },
+    {
+      label: "Email CC",
+      name: "emailcc",
+      type: "textarea",
+      gridColumn: "col-span-2 row-span-1 ",
       isEdit: true,
     },
   ],

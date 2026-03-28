@@ -154,13 +154,14 @@ const parseFile = async (file) => {
   return rows.filter((r) => !isEmptyRow(r));
 };
 
+// ✅ Add CSN check first
 const getSpFromTemplateName = (name = "") => {
   const c = canon(name);
+  if (/csn/.test(c)) return "insertSubmitCsn"; // ← ADD THIS LINE
   if (/container/.test(c)) return "inputMblContainer";
   if (/item/.test(c)) return "inputMblItem";
   return "inputMbl";
 };
-
 const downloadViaUrl = async (url, filenameBase = "Template") => {
   try {
     const resp = await fetch(url);
@@ -208,6 +209,15 @@ export default function MblUpload() {
       toast.info("Please select a Template first.");
       return;
     }
+
+    // CSN uses direct JSON upload — no template to download
+    if (/csn/i.test(canon(selectedName))) {
+      toast.info(
+        "CSN Upload uses a JSON file directly. No template available.",
+      );
+      return;
+    }
+
     try {
       setBusy(true);
       const file = findTemplateFile(selectedName);
@@ -270,36 +280,21 @@ export default function MblUpload() {
     setBusy(true);
     setIsErrorListVisible(false);
     setErrorListData([]);
+
     try {
-      const rows = await parseFile(file);
-      if (!rows?.length) throw new Error("No data rows found");
-
-      const header = { ...formatHeaderForSp(formData), ...userData };
-      const spName = getSpFromTemplateName(selectedName);
-
       const QUOTE_RE = /['\u2019\u2018\u02BC\uFF07\u2032\u2035\u0060]/g;
 
       const sanitizeDeep = (val) => {
         const isEmptyKey = (k) => /^__EMPTY/i.test(k);
-
         if (val == null) return val;
-
-        if (typeof val === "string") {
-          return val.replace(QUOTE_RE, "");
-        }
-
-        if (Array.isArray(val)) {
-          return val.map(sanitizeDeep);
-        }
-
+        if (typeof val === "string") return val.replace(QUOTE_RE, "");
+        if (Array.isArray(val)) return val.map(sanitizeDeep);
         if (typeof val === "object") {
           const out = {};
           for (const [rawKey, rawVal] of Object.entries(val)) {
             if (isEmptyKey(rawKey)) continue;
-
             const newKey = rawKey.replace(QUOTE_RE, "");
             const newVal = sanitizeDeep(rawVal);
-
             if (Object.prototype.hasOwnProperty.call(out, newKey)) {
               const cur = out[newKey];
               const isEmpty =
@@ -313,26 +308,8 @@ export default function MblUpload() {
           }
           return out;
         }
-
         return val;
       };
-
-      const toNonNegInt = (v) => {
-        const n = Number(v);
-        return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
-      };
-
-      const cleanHeader = sanitizeDeep(header);
-      const cleanRows = sanitizeDeep(rows);
-      const cleanName =
-        typeof selectedName === "string"
-          ? selectedName.replace(QUOTE_RE, "")
-          : selectedName;
-
-      const N = toNonNegInt(objectToRemove);
-      const prunedRows = Array.isArray(cleanRows)
-        ? cleanRows.slice(Math.min(N, cleanRows.length))
-        : cleanRows;
 
       const mapUserToHeader = (u = {}) => ({
         userId: u.userId,
@@ -359,6 +336,91 @@ export default function MblUpload() {
         return out;
       };
 
+      const cleanName =
+        typeof selectedName === "string"
+          ? selectedName.replace(QUOTE_RE, "")
+          : selectedName;
+
+      const spName = getSpFromTemplateName(selectedName);
+      const isCsn = spName === "insertSubmitCsn";
+
+      // ── CSN branch ────────────────────────────────────────────────────────
+      if (isCsn) {
+        if (!file.name.toLowerCase().endsWith(".json")) {
+          toast.warn("CSN Upload only accepts a JSON file.");
+          return;
+        }
+
+        let rawJson;
+        try {
+          const text = await file.text();
+          rawJson = JSON.parse(text);
+        } catch {
+          throw new Error(
+            "Invalid JSON file. Please check the file and retry.",
+          );
+        }
+
+        const cleanRaw = sanitizeDeep(
+          Array.isArray(rawJson) ? rawJson : [rawJson],
+        );
+
+        if (!cleanRaw.length) {
+          toast.warn("No valid records found in the JSON file.");
+          return;
+        }
+
+        const cleanHeader = sanitizeDeep({ ...formatHeaderForSp(formData) });
+
+        const payload = {
+          spName,
+          json: {
+            template: cleanName,
+            header: {
+              ...mergeUserIntoHeader(cleanHeader, userData),
+              location: userData?.location ?? null,
+            },
+            data: cleanRaw,
+          },
+        };
+        console.log("CSN Payload:", JSON.stringify(payload, null, 2));
+        const resp = await uploads(payload);
+
+        if (resp?.data?.[0]?.success) {
+          await submitBlUploadRecord(file, cleanName);
+          setIsErrorListVisible(false);
+          setErrorListData([]);
+          toast.success(resp?.message || "Uploaded successfully");
+        } else {
+          setIsErrorListVisible(true);
+          setErrorListData(asArray(resp?.data?.[0]?.message));
+          toast.warn(
+            "Errors found during upload. Please check the error list.",
+          );
+        }
+
+        return; // ← exit early, skip MBL logic below
+      }
+
+      // ── MBL / Container / Item flow ───────────────────────────────────────
+      const rows = await parseFile(file);
+      if (!rows?.length) throw new Error("No data rows found");
+
+      const header = { ...formatHeaderForSp(formData), ...userData };
+
+      const toNonNegInt = (v) => {
+        const n = Number(v);
+        return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+      };
+
+      const cleanHeader = sanitizeDeep(header);
+      const cleanRows = sanitizeDeep(rows);
+
+      const N = toNonNegInt(objectToRemove);
+      const prunedRows = Array.isArray(cleanRows)
+        ? cleanRows.slice(Math.min(N, cleanRows.length))
+        : cleanRows;
+
       const payload = {
         spName,
         json: {
@@ -372,11 +434,9 @@ export default function MblUpload() {
       };
 
       const resp = await uploads(payload);
-      // ✅ ADD ONLY THIS
+
       if (resp?.data?.[0]?.success) {
         await submitBlUploadRecord(file, cleanName);
-      }
-      if (resp?.data?.[0]?.success) {
         setIsErrorListVisible(false);
         setErrorListData([]);
         toast.success(resp?.message || "Uploaded successfully");
@@ -413,10 +473,11 @@ export default function MblUpload() {
 
       try {
         const obj = {
-          columns: "t.id as Id, t.voyageNo as Name",
-          tableName: "tblVoyage t",
-          whereCondition: `t.vesselId = ${vesselId} and t.status = 1 and t.companyid = ${userData?.companyId}`,
-          orderBy: "t.voyageNo",
+          columns: "vo.id as Id, vo.voyageNo as Name",
+          tableName: "tblVoyage vo",
+          joins: `join tblVoyageRoute vr on vr.voyageId = vo.id`,
+          whereCondition: `GETDATE() >= vr.gateOpenLine AND GETDATE() < vr.gateCloseLine and vo.vesselId = ${vesselId} and vo.companyid = ${formData?.shippingLineId?.Id || userData?.companyId} and vo.status = 1`,
+          orderBy: "vo.voyageNo",
         };
 
         const { data, success } = await getDataWithCondition(obj);

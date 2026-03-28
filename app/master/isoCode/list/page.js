@@ -25,8 +25,8 @@ import { useRouter } from "next/navigation";
 import { isoCode } from "../isoCodeData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(size, type, code, updatedBy, updateDate, id) {
-  return { size, type, code, updatedBy, updateDate, id };
+function createData(size, type, code, igmIsoCode, updatedBy, updateDate, id) {
+  return { size, type, code, igmIsoCode, updatedBy, updateDate, id };
 }
 
 export default function IsoCodeList() {
@@ -45,7 +45,8 @@ export default function IsoCodeList() {
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "i.isoCode code,sizeData.name size,typeData.name type,u.name updatedBy,i.updatedDate updateDate,i.id",
+          columns:
+            "i.isoCode code,sizeData.name size,typeData.name type,i.igmIsoCode igmIsoCode,u.name updatedBy,i.updatedDate updateDate,i.id",
           tableName: "tblIsocode i",
           pageNo,
           pageSize,
@@ -64,7 +65,7 @@ export default function IsoCodeList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, search],
   );
 
   useEffect(() => {
@@ -74,7 +75,15 @@ export default function IsoCodeList() {
 
   const rows = isoCodeData
     ? isoCodeData.map((item) =>
-        createData(item["size"], item["type"], item["code"], item["updatedBy"], item["updateDate"], item["id"])
+        createData(
+          item["size"],
+          item["type"],
+          item["code"],
+          item["igmIsoCode"],
+          item["updatedBy"],
+          item["updateDate"],
+          item["id"],
+        ),
       )
     : [];
 
@@ -90,7 +99,7 @@ export default function IsoCodeList() {
     const updateObj = {
       updatedBy: userData?.userId,
       clientId: 1,
-      deletedNo:formId,
+      deletedNo: formId,
       updatedDate: new Date(),
     };
     const obj = {
@@ -122,7 +131,7 @@ export default function IsoCodeList() {
       <Box className="sm:px-4 py-1 ">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center ">
-            IsoCode
+            ISO Code
           </Typography>
           <Box className="flex flex-col sm:flex-row gap-6">
             <SearchBar
@@ -141,7 +150,8 @@ export default function IsoCodeList() {
               <TableRow>
                 <TableCell> Size</TableCell>
                 <TableCell>Type</TableCell>
-                <TableCell> IsoCode</TableCell>
+                <TableCell>IL ISO Code</TableCell>
+                <TableCell>IGM ISO Code</TableCell>
                 <TableCell> Updated By</TableCell>
                 <TableCell> Updated Date</TableCell>
               </TableRow>
@@ -157,6 +167,7 @@ export default function IsoCodeList() {
                     <TableCell>{row.size}</TableCell>
                     <TableCell>{row.type}</TableCell>
                     <TableCell>{row.code}</TableCell>
+                    <TableCell>{row.igmIsoCode}</TableCell>
                     <TableCell>{row.updatedBy}</TableCell>
                     <TableCell>{row.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">

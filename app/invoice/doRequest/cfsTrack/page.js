@@ -179,6 +179,9 @@ export default function BLList() {
       LEFT JOIN tblPort p 
           ON p.id = d.nominatedAreaId
 
+      left join tblPort p2 
+          on p2.id = b.fpdId
+
       INNER JOIN tblMasterData ms 
           ON ms.id = d.doRequestStatusId 
           AND ms.name = 'Released for DO'
@@ -310,6 +313,15 @@ export default function BLList() {
       if (userData?.roleCode === "admin") {
         setSearchCondition("");
         getData(1, rowsPerPage, "");
+      } else if (userData?.roleCode === "icd") {
+        setSearchCondition(
+          `INNER JOIN tblCompany c  ON c.id = ${userData?.companyId} AND p2.name = c.name`,
+        );
+        getData(
+          1,
+          rowsPerPage,
+          `INNER JOIN tblCompany c  ON c.id = ${userData?.companyId} AND p2.name = c.name`,
+        );
       }
 
       const obj = {

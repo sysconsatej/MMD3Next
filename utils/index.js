@@ -23,4 +23,3 @@ export { validateContainerForMBL } from "./validateContainerForMBL";
 export { roleAccessPaths } from "./paths";
 export { validatePanCard } from "./validatePanCard";
 export { validPinCode } from "./validPinCode";
-export { setVoyageBasedonVessel } from "./setVoyageBasedOnVessel";

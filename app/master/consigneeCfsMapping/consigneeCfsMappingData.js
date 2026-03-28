@@ -1,3 +1,4 @@
+import { handleBlur } from "@/app/bl/cfs-request/utils";
 import { getUserByCookies } from "@/utils";
 
 const userData = getUserByCookies();
@@ -21,12 +22,15 @@ const fieldData = {
       label: "Consignee ",
       name: "consignee",
       isEdit: true,
+      blurFun: "duplicateHandler",
+      required:true,
     },
     {
       label: "Consignee Pan",
       name: "consigneePan",
       isEdit: true,
       blurFun: "validatePanCard",
+      required:true,
     },
     {
       label: "Cfs Name",
@@ -43,8 +47,23 @@ const fieldData = {
             and l.name = p1.name `,
       isEdit: true,
       foreignTable: "code-name,tblPort",
+      required:true,
     },
-
+    {
+      label: "Port",
+      name: "podId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      joins:
+        "JOIN tblMasterData m ON m.id = p.portTypeId JOIN tblCountry c ON c.id = p.countryId",
+      where: "m.name IN ('SEA PORT') and c.name = 'India'",
+      orderBy: "p.name",
+      foreignTable: "code-name,tblPort",
+      isEdit: true,
+      changeFun: "duplicateHandler",
+      required:true,
+    },
     {
       name: "activeInactive",
       type: "radio",
@@ -67,6 +86,7 @@ export const country = [
     label: "CFS",
     value: "ISNULL(cfs.name,'') + '-' + ISNULL(cfs.code,'')",
   },
+  { label: "Port", value: "ISNULL(p.code,'') + '-' + ISNULL(p.name,'')" },
   {
     label: "Active",
     value: "c.activeInactive",

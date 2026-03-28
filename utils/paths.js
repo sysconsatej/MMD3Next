@@ -42,7 +42,7 @@ export const roleAccessPaths = {
   "/master/unitType/list": ["admin"],
   "/master/modeOfTransport/list": ["admin"],
   "/master/movementType/list": ["admin"],
-  "/master/berthAgent/list": ["admin", "shipping"],
+  "/master/berthAgent/list": ["admin", "shipping","customer"],
   "/master/carrierPort/list": ["admin", "shipping"],
   "/master/role/list": ["admin"],
 };
