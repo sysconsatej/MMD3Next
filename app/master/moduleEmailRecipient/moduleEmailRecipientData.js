@@ -12,10 +12,7 @@ const fieldData = {
       displayColumn: "c.name",
       orderBy: "c.name",
       foreignTable: "name,tblCompany",
-      where:
-        userData?.roleCode === "shipping"
-          ? `c.id  = '${userData?.companyId}'`
-          : "",
+      where: `c.id  = '${userData?.companyId}'`,
     },
     {
       label: "Email Report",
