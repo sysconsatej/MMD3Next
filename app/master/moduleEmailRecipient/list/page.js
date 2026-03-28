@@ -95,8 +95,8 @@ export default function ModuleEmailRecipientList() {
             LEFT JOIN tblUser u ON u.id = m.updatedBy
             LEFT JOIN tblUser creator ON creator.id = m.createdBy
             LEFT JOIN tblUser u3 ON u3.roleCode = 'shipping'
+            left join tblUser u4 on u4.roleCode = 'customer'
             LEFT JOIN tblUser loggedUser ON ${searchConditionMain}
-
             JOIN tblModuleEmailRecipient m2
               ON m2.id = m.id
              AND m.createdBy = loggedUser.id
@@ -125,7 +125,7 @@ export default function ModuleEmailRecipientList() {
     setMode({ mode: null, formId: null });
 
     if (userData?.roleCode === "admin") {
-      const adminCondition = `loggedUser.roleCodeId = u3.id`;
+      const adminCondition = `loggedUser.roleCodeId = u3.id or loggedUser.roleCodeId = u4.id`;
       setSearchCondition(adminCondition);
       getData(1, rowsPerPage, adminCondition);
     }
@@ -205,7 +205,8 @@ export default function ModuleEmailRecipientList() {
               options={country}
             />
 
-            {userData?.roleCode === "shipping" && (
+            {(userData?.roleCode === "shipping" ||
+              userData?.roleCode === "customer") && (
               <CustomButton text="Add" href="/master/moduleEmailRecipient" />
             )}
           </Box>

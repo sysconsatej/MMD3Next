@@ -537,6 +537,11 @@ export const navItems = [
         href: "/upload/uploadPCINumber",
         isShow: false,
       },
+      {
+        name: "Upload PCI Number Customer",
+        href: "/upload/uploadPCINumberCustomer",
+        isShow: false,
+      },
     ],
   },
 ];
