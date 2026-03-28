@@ -210,6 +210,11 @@ export const navItems = [
         isShow: false,
       },
       {
+        name: "Do Generate",
+        href: "/invoice/doUpdate/list",
+        isShow: false,
+      },
+      {
         name: "Receipt",
         href: "/invoice/blReceipt/list",
         isShow: false,

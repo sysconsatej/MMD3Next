@@ -16,34 +16,25 @@ import {
 } from "@/utils";
 import { formStore } from "@/store";
 import TableGrid from "@/components/tableGrid/tableGrid";
-import { handleBlur, handleChange, initialHandler } from "./utils";
+import { handleChange } from "./utils";
 
 export default function DoUpdate() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(fieldData);
   const { mode, setMode } = formStore();
-  const [errorState, setErrorState] = useState({});
   const userData = getUserByCookies();
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData("tblPort", formData, mode.formId, "portId");
+    const format = formatFormData("tblBl", formData, mode.formId, "blId");
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
-      setFormData({});
     } else {
       toast.error(error || message);
     }
   };
-
-  //   const handleBlurEventFunctions = handleBlur({
-  //     mode,
-  //     setErrorState,
-  //     setFormData,
-  //     formData,
-  //   });
 
   const handleChangeEventFunctions = handleChange({ setJsonData });
 
@@ -53,10 +44,10 @@ export default function DoUpdate() {
         setFieldsMode(mode.mode);
         const format = formatFetchForm(
           jsonData,
-          "tblPort",
+          "tblBl",
           mode.formId,
-          '["tblPortDetails"]',
-          "portId",
+          '["tblBlContainer"]',
+          "blId",
         );
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
@@ -71,13 +62,6 @@ export default function DoUpdate() {
     fetchFormHandler();
   }, [mode.formId]);
 
-  //   useEffect(() => {
-  //     async function renderInit() {
-  //       await initialHandler({ setFormData, mode });
-  //     }
-  //     renderInit();
-  //   }, []);
-
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={submitHandler}>
@@ -88,7 +72,7 @@ export default function DoUpdate() {
             </h1>
             <CustomButton
               text="Back"
-              href="/master/cfs/list"
+              href="/invoice/doUpdate/list"
               onClick={() => setMode({ mode: null, formId: null })}
             />
           </Box>
@@ -99,9 +83,7 @@ export default function DoUpdate() {
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
-                // handleBlurEventFunctions={handleBlurEventFunctions}
                 handleChangeEventFunctions={handleChangeEventFunctions}
-                // errorState={errorState}
               />
             </Box>
             <Box className="p-1">
@@ -111,7 +93,7 @@ export default function DoUpdate() {
                 setFormData={setFormData}
                 fieldsMode={mode.mode}
                 gridName="tblBlContainer"
-                buttons={cfsGridButtons}
+                buttons={[]}
               />
             </Box>
           </Box>

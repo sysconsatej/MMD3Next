@@ -58,13 +58,13 @@ export default function MBLSelectionActionsBar({
             onClick={() => onPrint(ids[0])}
           />
         )}
-        {/* {userAccess?.["print"] && ( */}
-        <Action
-          label="Lock"
-          disabled={count === 0}
-          onClick={() => onLock(ids)}
-        />
-        {/* )} */}
+        {userAccess?.["lock"] && (
+          <Action
+            label="Lock"
+            disabled={count === 0}
+            onClick={() => onLock(ids)}
+          />
+        )}
       </div>
 
       <Typography variant="caption">Selected: {count}</Typography>
