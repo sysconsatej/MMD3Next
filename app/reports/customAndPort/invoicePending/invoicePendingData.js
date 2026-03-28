@@ -4,14 +4,14 @@ const userData = getUserByCookies();
 const fieldData = {
   igmGenerationFields: [
     {
-      label: "Customer",
-      name: "customerId",
+      label: "Liner",
+      name: "shippingLineId",
       type: "dropdown",
       tableName: "tblCompany c",
       idColumn: "id",
       displayColumn: "c.name",
       searchColumn: "c.name",
-      joins: `join tblCompanySubtype cs on cs.companyId = c.id join tblUser u2 on u2.id = cs.subTypeId and u2.roleCode = 'customer'`,
+      joins: `join tblCompanySubtype cs on cs.companyId = c.id join tblUser u2 on u2.id = cs.subTypeId and u2.roleCode = 'shipping'`,
       orderBy: "c.name",
       isEdit: true,
     },
@@ -21,12 +21,7 @@ const fieldData = {
       type: "text",
       isEdit: true,
     },
-    {
-      label: "Invoice No",
-      name: "invoiceNo",
-      type: "text",
-      isEdit: true,
-    },
+
     {
       label: "Status",
       name: "status",

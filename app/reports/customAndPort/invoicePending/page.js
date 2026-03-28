@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data, { metaData } from "./invoiceConversionReportData";
+import data, { metaData } from "./invoicePendingData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -14,7 +14,7 @@ import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 import DynamicReportDownloadExcelButton from "@/components/dynamicReportExcel/page";
 import dayjs from "dayjs";
 
-export default function IgmGeneration() {
+export default function InvoicePendingRegisterCustomer() {
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [tableData, setTableData] = useState([]);
@@ -65,10 +65,10 @@ export default function IgmGeneration() {
       const { ...filteredData } = formattedForApi;
 
       const requestBody = {
-        spName: "invoiceConversionRegisterLiner",
+        spName: "invoicePendingRegisterCustomer",
         jsonData: {
           ...filteredData,
-          shippingLineId: userData.companyId,
+          customerId: userData.companyId,
         },
       };
 
@@ -111,7 +111,7 @@ export default function IgmGeneration() {
       <form onSubmit={handleSubmit}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base m-0">Invoice Conversion Report</h1>
+            <h1 className="text-left text-base m-0">Invoice Pending Register Customer</h1>
           </Box>
 
           <Box className="border border-black rounded-[4px]">
@@ -136,7 +136,7 @@ export default function IgmGeneration() {
             <DynamicReportDownloadExcelButton
               rows={tableFormData}
               metaData={metaData}
-              fileName={`InvoiceConversionRegisterLiner_${new Date()
+              fileName={`InvoicePendingRegisterCustomer_${new Date()
                 .toISOString()
                 .slice(0, 10)}.xlsx`}
               text="DOWNLOAD EXCEL"

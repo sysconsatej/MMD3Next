@@ -312,7 +312,7 @@ export const navItems = [
         isShow: false,
       },
       {
-        name: "invoiceRegisterLiner",
+        name: "Invoice Register Liner",
         href: "/reports/customAndPort/invoiceRegisterLiner",
         isShow: false,
       },
@@ -507,6 +507,21 @@ export const navItems = [
       {
         name: "Cargo Arrival Notice (Advertisement)",
         href: "/reports/customAndPort/cargoArrivalNotice",
+        isShow: false,
+      },
+      {
+        name: "Invoice Tat Report",
+        href: "/reports/customAndPort/invoiceTat",
+        isShow: false,
+      },
+      {
+        name: "Invoice Conversion Report",
+        href: "/reports/customAndPort/invoiceConversionReport",
+        isShow: false,
+      },
+      {
+        name: "Invoice Pending Register Customer",
+        href: "/reports/customAndPort/invoicePending",
         isShow: false,
       },
     ],
