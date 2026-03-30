@@ -91,11 +91,7 @@ export const fieldData = {
       label: "HSS",
       name: "hss",
       isEdit: true,
-      type: "radio",
-      radioData: [
-        { label: "Yes", value: true },
-        { label: "No", value: false },
-      ],
+      type: "checkbox",
     },
     {
       label: "Clearing Agent",
@@ -147,13 +143,7 @@ export const fieldData = {
     },
     {
       label: "Surveyor Name",
-      name: "surveyorId",
-      isEdit: true,
-    },
-    {
-      label: "DO Date",
-      name: "doDate",
-      type: "date",
+      name: "surveyorText",
       isEdit: true,
     },
     {
