@@ -111,7 +111,7 @@ export default function IgmGeneration() {
       <form onSubmit={handleSubmit}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base m-0">Invoice Register Customer</h1>
+            <h1 className="text-left text-base m-0">Invoice Request Report</h1>
           </Box>
 
           <Box className="border border-black rounded-[4px]">
@@ -136,7 +136,7 @@ export default function IgmGeneration() {
             <DynamicReportDownloadExcelButton
               rows={tableFormData}
               metaData={metaData}
-              fileName={`InvoiceRegisterCustomer_${new Date()
+              fileName={`InvoiceRequestReport_${new Date()
                 .toISOString()
                 .slice(0, 10)}.xlsx`}
               text="DOWNLOAD EXCEL"

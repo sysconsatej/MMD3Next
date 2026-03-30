@@ -21,7 +21,7 @@ export const fieldData = {
       //   userData?.roleCode === "shipping"
       //     ? `c.id  = '${userData?.companyId}'`
       //     : "",
-      where:`c.id  = '${userData?.companyId}'`,
+      where: `c.id  = '${userData?.companyId}'`,
     },
     {
       label: "Berth Name",
@@ -61,6 +61,12 @@ export const fieldData = {
       type: "text",
       isEdit: true,
     },
+    {
+      label: "Auth Person Pan No",
+      name: "authPersonPanNo",
+      type: "text",
+      isEdit: true,
+    },
   ],
 };
 
@@ -73,5 +79,6 @@ export const searchDataAray = [
   { label: "Line Code", value: "b.lineCode" },
   { label: "Sender Id", value: "b.senderId" },
   { label: "Port EDI Agent Code", value: "b.portEdiAgentCode" },
+  { label: "Auth Person Pan No", value: "b.authPersonPanNo" },
   { label: "Updated By", value: "u.name" },
 ];

@@ -307,7 +307,7 @@ export const navItems = [
         isShow: false,
       },
       {
-        name: "Invoice Register Customer",
+        name: "Invoice Request Report",
         href: "/reports/customAndPort/invoiceRegisterCustomer",
         isShow: false,
       },
