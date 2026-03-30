@@ -71,7 +71,7 @@ export default function Home() {
       "tblDoRequest",
       {
         ...restData,
-        ...(userData?.roleCode !== "admin" && {
+        ...(userData?.roleCode === "customer" && {
           locationId: userData?.location,
           companyId: userData?.companyId,
           companyBranchId: userData?.branchId,
