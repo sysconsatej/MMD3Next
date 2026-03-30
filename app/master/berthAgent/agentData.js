@@ -66,6 +66,7 @@ export const fieldData = {
       name: "authPersonPanNo",
       type: "text",
       isEdit: true,
+      blurFun: "validatePanCard",
     },
   ],
 };
