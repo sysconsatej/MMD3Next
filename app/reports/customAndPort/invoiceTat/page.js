@@ -65,7 +65,7 @@ export default function IgmGeneration() {
       const { ...filteredData } = formattedForApi;
 
       const requestBody = {
-        spName: "invoiceRegisterLiner",
+        spName: "invoiceTATRegisterLiner",
         jsonData: {
           ...filteredData,
           shippingLineId: userData.companyId,
