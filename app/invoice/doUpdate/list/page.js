@@ -305,12 +305,10 @@ export default function BLList() {
         <MBLSelectionActionsBar
           selectedIds={selectedIds}
           onView={(id) => {
-            const flag = rows.find((x) => x.id === id);
-            modeHandler("view", id, flag?.mblHblFlag);
+            modeHandler("view", id);
           }}
           onEdit={(id) => {
-            const flag = rows.find((x) => x.id === id);
-            modeHandler("edit", id, flag?.mblHblFlag);
+            modeHandler("edit", id);
           }}
           onPrint={(id) => {
             const row = rows.find((x) => x.id === id);
@@ -372,8 +370,8 @@ export default function BLList() {
                                 "roleId",
                                 String(userData?.roleId ?? ""),
                               );
-                              sessionStorage.setItem("menuName", "HBL Track");
-                              modeHandler("view", item?.id, "HBL");
+                              sessionStorage.setItem("menuName", "Do Generate");
+                              modeHandler("view", item?.id);
                             }}
                           >
                             {item?.hblNo}
