@@ -33,6 +33,7 @@ function createData(
   lineCode,
   senderId,
   portEdiAgentCode,
+  PanNo,
   updatedBy,
   updateDate,
   id,
@@ -44,6 +45,7 @@ function createData(
     lineCode,
     senderId,
     portEdiAgentCode,
+    PanNo,
     updatedBy,
     updateDate,
     id,
@@ -75,7 +77,7 @@ export default function CompanyList() {
       try {
         const tableObj = {
           columns:
-            "c.name as agentId,p.code  as berthId,b.agentCode as agentCode,b.lineCode as lineCode,b.portEdiAgentCode as portEdiAgentCode,b.senderId as senderId,u2.name as updatedBy ,b.updatedDate as updateDate, b.id as id",
+            "c.name as agentId,p.code  as berthId,b.agentCode as agentCode,b.lineCode as lineCode,b.portEdiAgentCode as portEdiAgentCode,b.senderId as senderId,u2.name as updatedBy ,b.updatedDate as updateDate,b.authPersonPanNo PanNo, b.id as id",
           tableName: "tblBerthAgentCode b",
           pageNo,
           pageSize,
@@ -112,6 +114,7 @@ export default function CompanyList() {
           item["lineCode"],
           item["senderId"],
           item["portEdiAgentCode"],
+          item["PanNo"],
           item["updatedBy"],
           item["updateDate"],
           item["id"],
@@ -221,6 +224,7 @@ export default function CompanyList() {
                     <TableCell>{row?.lineCode}</TableCell>
                     <TableCell>{row?.senderId}</TableCell>
                     <TableCell>{row?.portEdiAgentCode}</TableCell>
+                    <TableCell>{row?.PanNo}</TableCell>
                     <TableCell>{row?.updatedBy}</TableCell>
                     <TableCell>{row?.updateDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
