@@ -25,7 +25,7 @@ const fieldData = {
       required: true,
     },
     {
-      label: "IL ISO Code",
+      label: "IAL ISO Code",
       name: "isocode",
       isEdit: true,
       required: true,
@@ -40,7 +40,7 @@ const fieldData = {
 };
 
 export const isoCode = [
-  { label: "IL ISO Code", value: "i.isoCode" },
+  { label: "IAL ISO Code", value: "i.isoCode" },
   { label: "Size", value: "sizeData.name" },
   { label: "Type", value: "typeData.name" },
   { label: "IGM ISO Code", value: "i.igmIsoCode" },
