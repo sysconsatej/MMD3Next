@@ -307,7 +307,7 @@ export const navItems = [
         isShow: false,
       },
       {
-        name: "Invoice Request Report",
+        name: "Invoice Request Report Customer",
         href: "/reports/customAndPort/invoiceRegisterCustomer",
         isShow: false,
       },
@@ -317,7 +317,7 @@ export const navItems = [
         isShow: false,
       },
       {
-        name: "Invoice Register Liner",
+        name: "Invoice Request Report Liner",
         href: "/reports/customAndPort/invoiceRegisterLiner",
         isShow: false,
       },
