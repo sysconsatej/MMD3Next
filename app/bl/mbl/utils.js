@@ -342,18 +342,18 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
           Id: cargoMap.TR.Id,
           Name: cargoMap.TR.code,
         };
-        updates.movementTypeId = movementMap.TI && {
+        updates.movementTypeId = movementMap.FT && {
           Id: movementMap.FT.Id,
           Name: movementMap.FT.code,
         };
       }
 
       if (polId === "F" && podId === "IN" && transhipPort1Id === "IN") {
-        updates.cargoTypeId = cargoMap.IM && {
+        updates.cargoTypeId = cargoMap.TR && {
           Id: cargoMap.TR.Id,
           Name: cargoMap.TR.code,
         };
-        updates.movementTypeId = movementMap.TI && {
+        updates.movementTypeId = movementMap.DT && {
           Id: movementMap.DT.Id,
           Name: movementMap.DT.code,
         };
