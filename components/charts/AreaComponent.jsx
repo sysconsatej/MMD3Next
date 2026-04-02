@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import {
@@ -22,16 +20,32 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 );
 
-const AreaComponent = ({ type  , data}) => {
+const AreaComponent = ({ type, data }) => {
+  if (!data || !Array.isArray(data)) return null;
+  const labels = data.map((d) => d.dimension);
+  const values = data.map((d) => d.measure);
+  const chartData = {
+    labels,
+    datasets: [
+      {
+        fill: true,
+        label: "Measure",
+        data: values,
+        borderColor: "rgb(255, 99, 132)",
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+      },
+    ],
+  };
+
   return (
-      <Line
-        options={allChartData[`${type}`].options}
-        data={allChartData[`${type}`].data}
-        height={300}
-      />
+    <Line
+      options={allChartData[`${type}`].options}
+      data={data ? chartData : allChartData[`${type}`].data}
+      height={300}
+    />
   );
 };
 
