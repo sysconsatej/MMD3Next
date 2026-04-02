@@ -191,9 +191,7 @@ export default function IGM() {
       const body = {
         spName: "getCfsAllocate",
         jsonData: {
-          vesselId: formData.vesselId.Id,
-          voyageId: formData.voyageId.Id,
-          podId: formData.podId.Id,
+          ...transformed,
           companyId: userData.companyId,
         },
       };
@@ -224,9 +222,7 @@ export default function IGM() {
       };
 
       const { data, success } = await fetchDynamicReportData(requestBody);
-      if (success) {
-        setTableData(data);
-      }
+      setTableData(data || []);
     } catch (error) {
       console.log("error", error);
     }

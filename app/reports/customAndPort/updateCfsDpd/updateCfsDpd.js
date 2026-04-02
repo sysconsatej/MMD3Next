@@ -45,7 +45,7 @@ const fieldData = {
     },
     {
       label: "FPD",
-      name: "fpd",
+      name: "fpdId",
       type: "dropdown",
       tableName: "tblPort t",
       idColumn: "id",
@@ -56,7 +56,7 @@ const fieldData = {
     },
     {
       label: "BL Type",
-      name: "typeId",
+      name: "movementTypeId",
       type: "dropdown",
       tableName: "tblMasterData m",
       displayColumn: "m.name",
@@ -130,10 +130,10 @@ const fieldData = {
       label: "Percentage",
       name: "percentage",
     },
-    {
-      label: "Number Of Allocated",
-      name: "numberOfAllocated",
-    },
+    // {
+    //   label: "Number Of Allocated",
+    //   name: "numberOfAllocated",
+    // },
   ],
 };
 
