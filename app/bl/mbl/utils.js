@@ -303,7 +303,7 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         return acc;
       }, {});
 
-      const { polId, podId, fpdId } = countryMap;
+      const { polId, podId, fpdId, transhipPort1Id } = countryMap;
 
       // Fetch movement + cargo master data
       const payload = {
@@ -337,36 +337,29 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
 
       /* -------------------- Cargo Type Rules -------------------- */
 
-      if (polId === "IN" && podId === "IN") {
-        updates.cargoTypeId = cargoMap.CG && {
-          Id: cargoMap.CG.Id,
-          Name: cargoMap.CG.code,
-        };
-      }
-
       if (polId === "F" && podId === "F") {
         updates.cargoTypeId = cargoMap.TR && {
           Id: cargoMap.TR.Id,
           Name: cargoMap.TR.code,
         };
+        updates.movementTypeId = movementMap.FT && {
+          Id: movementMap.FT.Id,
+          Name: movementMap.FT.code,
+        };
       }
 
-      if (polId === "F" && podId === "IN") {
-        updates.cargoTypeId = cargoMap.IM && {
-          Id: cargoMap.IM.Id,
-          Name: cargoMap.IM.code,
+      if (polId === "F" && podId === "IN" && transhipPort1Id === "IN") {
+        updates.cargoTypeId = cargoMap.TR && {
+          Id: cargoMap.TR.Id,
+          Name: cargoMap.TR.code,
+        };
+        updates.movementTypeId = movementMap.DT && {
+          Id: movementMap.DT.Id,
+          Name: movementMap.DT.code,
         };
       }
 
       /* -------------------- Movement Type Rules -------------------- */
-
-      if (podId === "F") {
-        updates.movementTypeId = movementMap.TC && {
-          Id: movementMap.TC.Id,
-          Name: movementMap.TC.code,
-        };
-      }
-
       let setPostCarriageId = null;
 
       if (podId === "IN" && fpdId === "IN") {
@@ -375,6 +368,16 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
         );
 
         const isSamePort = hasDuplicateId(filtered);
+
+        updates.cargoTypeId = isSamePort
+          ? cargoMap.IM && {
+              Id: cargoMap.IM.Id,
+              Name: cargoMap.IM.code,
+            }
+          : {
+              Id: cargoMap.IM.Id,
+              Name: cargoMap.IM.code,
+            };
 
         updates.movementTypeId = isSamePort
           ? movementMap.LC && {
