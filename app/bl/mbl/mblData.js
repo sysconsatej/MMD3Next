@@ -216,6 +216,7 @@ export const fieldData = {
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
       isEdit: true,
+      changeFun: "handleChangeOnPOL",
     },
     {
       label: "Transhipment Port 2",
