@@ -1151,6 +1151,7 @@ export const vesselVoyageFiltersAdmin = [
     joins: `join tblCompanySubtype cs on cs.companyId = c.id join tblUser u2 on u2.id = cs.subTypeId and u2.roleCode = 'shipping'`,
     orderBy: "c.name",
     foreignTable: "name,tblCompany",
+    changeFun: "handleDropdownChange",
     isEdit: true,
   },
   {
@@ -1165,7 +1166,7 @@ export const vesselVoyageFiltersAdmin = [
     orderBy: "t.name",
     selectedConditions: [{ shippingLineId: "vr.companyid" }],
     foreignTable: "name,tblVessel",
-    changeFun: "handleChangeOnVessel",
+    changeFun: "handleDropdownChange",
     isEdit: true,
   },
   {
@@ -1179,8 +1180,7 @@ export const vesselVoyageFiltersAdmin = [
     selectedConditions: [
       { podVesselId: "vo.vesselId", shippingLineId: "vo.companyid" },
     ],
-    joins: `join tblVoyageRoute vr on vr.voyageId = vo.id`,
-    where: `GETDATE() >= vr.gateOpenLine AND GETDATE() < vr.gateCloseLine and vo.status = 1`,
+    joins: `join tblVoyageRoute vr on vr.voyageId = vo.id and GETDATE() >= vr.gateOpenLine AND GETDATE() < vr.gateCloseLine and vo.status = 1`,
     orderBy: "vo.voyageNo",
     foreignTable: "voyageNo,tblVoyage",
     isEdit: true,

@@ -17,11 +17,9 @@ import {
   Paper,
   Typography,
   CssBaseline,
-  Link,
   Checkbox,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
-import CustomButton from "@/components/button/button";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
 import { fetchTableValues } from "@/apis";
@@ -35,7 +33,6 @@ import {
 } from "../../mbl/mblData";
 import {
   advanceSearchFilter,
-  craeateHandleChangeEventFunction,
 } from "../../mbl/utils";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { getUserByCookies } from "@/utils";
@@ -43,6 +40,7 @@ import HistoryIcon from "@mui/icons-material/History";
 import MBLSelectionActionsBar from "@/components/selectionActions/mblSelectionActionsBar";
 import { CustomInput } from "@/components/customInput";
 import BLHistoryModal from "../../mbl/modal";
+import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 
 const LIST_TABLE = "tblBl b";
 
@@ -185,9 +183,9 @@ export default function BLList() {
     getData(1, +e.target.value, advanceSearch);
   };
 
-  const handleChangeEventFunctions = craeateHandleChangeEventFunction({
+  const handleChangeEventFunctions = createHandleChangeEventFunction({
     setFormData: setAdvanceSearch,
-    formData: advanceSearch,
+    fields: vesselVoyageFiltersAdmin,
   });
 
   const modeHandler = (mode, formId = null) => {

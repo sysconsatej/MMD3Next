@@ -49,6 +49,7 @@ import LockOpenIcon from "@mui/icons-material/LockOpen";
 import BLHistoryModal from "../modal";
 import MBLSelectionActionsBar from "@/components/selectionActions/mblSelectionActionsBar";
 import { CustomInput } from "@/components/customInput";
+import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 
 const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -188,23 +189,6 @@ export default function BLList() {
     );
   }, [blData]);
 
-  useEffect(() => {
-    setIdsOnPage((blData || []).map((r) => r.id));
-  }, [blData]);
-
-  useEffect(() => {
-    const all =
-      selectedIds.length > 0 &&
-      idsOnPage.length > 0 &&
-      selectedIds.length === idsOnPage.length;
-
-    const some =
-      selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
-
-    setAllChecked(all);
-    setSomeChecked(some);
-  }, [selectedIds, idsOnPage]);
-
   const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
   const toggleOne = (id) =>
     setSelectedIds((prev) =>
@@ -275,10 +259,36 @@ export default function BLList() {
     setReportModalForRow(null);
   };
 
-  const handleChangeEventFunctions = craeateHandleChangeEventFunction({
-    setFormData: setAdvanceSearch,
-    formData: advanceSearch,
-  });
+  const handleChangeEventFunctions = useMemo(() => {
+    if (userData?.roleCode === "shipping") {
+      return craeateHandleChangeEventFunction({
+        setFormData: setAdvanceSearch,
+        formData: advanceSearch,
+      });
+    }
+
+    return createHandleChangeEventFunction({
+      setFormData: setAdvanceSearch,
+      fields: vesselVoyageFiltersAdmin,
+    });
+  }, [userData?.roleCode, advanceSearch]);
+
+  useEffect(() => {
+    setIdsOnPage((blData || []).map((r) => r.id));
+  }, [blData]);
+
+  useEffect(() => {
+    const all =
+      selectedIds.length > 0 &&
+      idsOnPage.length > 0 &&
+      selectedIds.length === idsOnPage.length;
+
+    const some =
+      selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
+
+    setAllChecked(all);
+    setSomeChecked(some);
+  }, [selectedIds, idsOnPage]);
 
   useEffect(() => {
     getData();
