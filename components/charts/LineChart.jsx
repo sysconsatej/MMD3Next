@@ -6,7 +6,6 @@ import {
   LinearScale,
   PointElement,
   LineElement,
-  Title,
   Tooltip,
   Legend,
   Filler,
@@ -19,11 +18,9 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
-
-  Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
 );
 
 const LineChart = ({ type, data }) => {
@@ -36,41 +33,39 @@ const LineChart = ({ type, data }) => {
     labels,
     datasets: [
       {
-        label: "Measure",
+        label: "Do Released",
         data: values,
         fill: true,
         backgroundColor: "rgba(75,192,192,0.2)",
         borderColor: "rgba(75,192,192,1)",
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0,
       },
     ],
   };
 
-  return (
-    <>
-      <Line
-        options={
-          (allChartData[`${type}`].options,
-          {
-            scales: {
-              x: {
-                grid: {
-                  display: false,
-                },
-              },
-              y: {
-                grid: {
-                  display: false,
-                },
-              },
-            },
-            responsive: true,
-          })
-        }
-        data={data ? chartData : allChartData[`${type}`].data}
-        height={300}
-      />
-    </>
-  );
+  const options = {
+    ...allChartData[type]?.options,
+
+    scales: {
+      x: { grid: { display: false } },
+      y: { grid: { display: false } },
+    },
+
+    responsive: true,
+
+    animations: {
+      tension: {
+        duration: 1000,
+        easing: "easeOutQuart",
+        from: 0,
+        to: 0.4,
+      },
+    },
+  };
+
+  return <Line data={chartData} options={options} height={300} />;
 };
 
 export default LineChart;
