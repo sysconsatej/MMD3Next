@@ -242,11 +242,6 @@ export default function BLList() {
                 rowsPerPage={rowsPerPage}
               />
             </Box>
-            <Box sx={{ flexShrink: 0 }}>
-              {userData?.roleCode === "customer" && (
-                <CustomButton text="Add" href="/bl/updateCsn" />
-              )}
-            </Box>
           </Box>
         </Box>
 
