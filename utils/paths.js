@@ -7,6 +7,7 @@ export const roleAccessPaths = {
   "/bl/hbl/linerSearch": ["shipping", "admin"],
   "/bl/mbl/list": ["shipping", "admin"],
   "/bl/cfs-request/list": ["admin", "customer"],
+  "/bl/updateCsn/list": ["customer", "admin"],
 
   "/request": ["admin", "shipping", "customer", "cfs"],
   "/htmlReports/igmReports": ["admin", "shipping", "customer", "cfs"],

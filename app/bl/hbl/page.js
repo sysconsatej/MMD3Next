@@ -154,13 +154,13 @@ export default function Home() {
     const promises = format.map(async (item) => {
       const formId = item?.id ?? null;
       const { id, ...resData } = item;
-      let userCommonData = {
-        locationId: userData?.location || null,
-        companyId: userData?.companyId,
-        companyBranchId: userData?.branchId,
-      };
-      if (userData?.roleCode === "admin") {
-        userCommonData = {};
+      let userCommonData = {};
+      if (userData?.roleCode === "customer") {
+        userCommonData = {
+          locationId: userData?.location || null,
+          companyId: userData?.companyId,
+          companyBranchId: userData?.branchId,
+        };
       }
       const formatItem = formatFormData(
         "tblBl",

@@ -153,10 +153,14 @@ export const navItems = [
         href: "/bl/cfs-request/list",
         isShow: false,
       },
-
       {
         name: "CFS Track",
         href: "/bl/cfs-request/liner",
+        isShow: false,
+      },
+      {
+        name: "Update CSN",
+        href: "/bl/updateCsn/list",
         isShow: false,
       },
     ],
