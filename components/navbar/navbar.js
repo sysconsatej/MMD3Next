@@ -226,9 +226,8 @@ export default function Navbar() {
     };
     const res = await getDataWithCondition(reqBody);
     if (res?.data && res?.data?.length > 0) {
-      // const redirectLink = `https://mmd3_uat.mastergroups.com/UserLogin/AuthenticateExternal?username=${user.userName}&password=${res?.data[0]?.password}&vendorUserName=CCC44A04-F756-4DE4-9959-5A135E19A035`;
-      const fallBackTestingLink = `https://mmd3.mastergroups.com/UserLogin/AuthenticateExternal?username=Meheriar&password=abc123&vendorUserName=CCC44A04-F756-4DE4-9959-5A135E19A035`;
-      router.push(fallBackTestingLink);
+      const redirectLink = process.env.DASHBOARD_URL;
+      router.push(redirectLink);
     }
   };
 
