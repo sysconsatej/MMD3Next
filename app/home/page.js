@@ -16,10 +16,12 @@ import CustomButton from "@/components/button/button";
 // import { useChartVisible } from "@/store";
 import { ChartRender } from "@/components/charts/page";
 import { theme } from "@/styles";
+import { getUserByCookies } from "@/utils";
 
 export default function HomePage() {
   const [fullscreenId, setFullscreenId] = useState(null);
   // const { chartStatus, loading } = useChartVisible();
+   const userData = getUserByCookies();
 
   const chartArr = [
     {
@@ -40,12 +42,13 @@ export default function HomePage() {
       funcApi: "slBlVerifiedCountChart",
       chartName: "Bl Verification Chart",
     },
+    (userData?.roleCode === "shipping" &&
     {
       id: 4,
       chartType: "dounut",
       funcApi: "slTotalTeusCountChart",
       chartName: "Teus Chart ",
-    },
+    }),
     {
       id: 5,
       chartType: "pie",
