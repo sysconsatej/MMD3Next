@@ -42,13 +42,13 @@ export default function HomePage() {
     },
     {
       id: 4,
-      chartType: "pie",
+      chartType: "dounut",
       funcApi: "slTotalTeusCountChart",
       chartName: "Teus Chart ",
     },
     {
       id: 5,
-      chartType: "bar",
+      chartType: "pie",
       funcApi: "slCfsVerifiedCountChart",
       chartName: "CFS Chart  ",
     },
