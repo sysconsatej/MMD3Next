@@ -159,7 +159,7 @@ export const fieldData = {
       isEdit: true,
     },
     {
-      label: "CIN NO",
+      label: "CIN No",
       name: "cinNo",
       isEdit: true,
     },
