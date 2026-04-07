@@ -8,6 +8,7 @@ export const roleAccessPaths = {
   "/bl/mbl/list": ["shipping", "admin"],
   "/bl/cfs-request/list": ["admin", "customer"],
   "/bl/updateCsn/list": ["customer", "admin"],
+  "/bl/updateCsn/liner": ["shipping", "admin"],
 
   "/request": ["admin", "shipping", "customer", "cfs"],
   "/htmlReports/igmReports": ["admin", "shipping", "customer", "cfs"],
@@ -22,7 +23,7 @@ export const roleAccessPaths = {
   "/master/containerStatus/list": ["admin"],
   "/master/containerType/list": ["admin"],
   "/master/cfs/list": ["admin", "shipping"],
-  "/master/depot/list": ["admin","shipping"],
+  "/master/depot/list": ["admin", "shipping"],
   "/master/isoCode/list": ["admin"],
   "/master/imo/list": ["admin"],
   "/master/itemType/list": ["admin"],
@@ -43,7 +44,7 @@ export const roleAccessPaths = {
   "/master/unitType/list": ["admin"],
   "/master/modeOfTransport/list": ["admin"],
   "/master/movementType/list": ["admin"],
-  "/master/berthAgent/list": ["admin", "shipping","customer"],
+  "/master/berthAgent/list": ["admin", "shipping", "customer"],
   "/master/carrierPort/list": ["admin", "shipping"],
   "/master/role/list": ["admin"],
 };

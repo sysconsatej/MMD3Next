@@ -1,0 +1,211 @@
+"use client";
+import React, { useEffect, useMemo, useState } from "react";
+import { Box, Tooltip } from "@mui/material";
+import CancelIcon from "@mui/icons-material/Cancel";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import RequestPageIcon from "@mui/icons-material/RequestPage";
+import { getDataWithCondition } from "@/apis";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
+
+export default function SearchRequestToolbarActions({
+  selectedIds = [],
+  onEdit,
+  onView,
+  onReject,
+  onConfirm,
+  onRequest,
+}) {
+  const [cfsStatus, setCfsStatus] = useState(null);
+  const [isDisableBtn, setIsDisableBtn] = useState({
+    isRequestDisable: false,
+    isRequestAmdDisable: false,
+    isRejAndAprAmdDisable: false,
+    isRejAndConfDisable: false,
+    isEditDisable: false,
+  });
+
+  const ids = useMemo(
+    () => (Array.isArray(selectedIds) ? selectedIds.filter(Boolean) : []),
+    [selectedIds],
+  );
+
+  const userAccess = useGetUserAccessUtils()?.data || {};
+  const count = ids.length;
+  const isSingle = count === 1;
+  const hasAny = count > 0;
+
+  const Segment = ({ label, icon, onClick, disabled }) => (
+    <Tooltip title={label} arrow disableInteractive>
+      <div
+        className={[
+          "flex items-center gap-1 rounded-[3px] px-1.5 py-[2px] text-[11px] leading-none",
+          "bg-[#efefef] text-[#444] border border-[#d9d9d9]",
+          "cursor-pointer hover:bg-[#e9e9e9] hover:text-[#111]",
+          disabled ? "pointer-events-none opacity-50 cursor-not-allowed" : "",
+        ].join(" ")}
+        onClick={!disabled ? onClick : undefined}
+      >
+        <span>{label}</span>
+      </div>
+    </Tooltip>
+  );
+
+  useEffect(() => {
+    async function checkStatus() {
+      const obj = {
+        columns: "csnRequestStatusId",
+        tableName: "tblCsn",
+        whereCondition: `id in (${ids.join(",")}) and status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+
+      if (!Array.isArray(data) || !Array.isArray(cfsStatus)) {
+        setIsDisableBtn((prev) => ({ ...prev, isEditDisable: true }));
+        return;
+      }
+
+      const blockedStatuses = cfsStatus.filter(
+        (s) =>
+          s.Name === "Request" ||
+          s.Name === "Request for Amendment" ||
+          s.Name === "Confirm",
+      );
+
+      const isEditDisabled = data?.some((row) =>
+        blockedStatuses?.some(
+          (status) => status?.Id === row?.csnRequestStatusId,
+        ),
+      );
+
+      setIsDisableBtn((prev) => ({
+        ...prev,
+        isEditDisable: isEditDisabled,
+      }));
+
+      const filterStatus = cfsStatus?.filter(
+        (item) =>
+          item.Name !== "Reject" && item.Name !== "Confirm for Amendment",
+      );
+      const filterCheckReq = data?.some((item) =>
+        filterStatus?.some((status) => status.Id === item.csnRequestStatusId),
+      );
+      setIsDisableBtn((prev) => ({
+        ...prev,
+        isRequestDisable: filterCheckReq,
+      }));
+
+      const filterStatusAmd = cfsStatus?.filter(
+        (item) =>
+          item.Name !== "Confirm" && item.Name !== "Reject for Amendment",
+      );
+      const hasNonEmpty = data?.every((obj) => Object.keys(obj).length > 0);
+      let filterCheckReqAmd = data?.some((item) =>
+        filterStatusAmd?.some(
+          (status) => status.Id === item.csnRequestStatusId,
+        ),
+      );
+      if (!hasNonEmpty) {
+        filterCheckReqAmd = true;
+      }
+      setIsDisableBtn((prev) => ({
+        ...prev,
+        isRequestAmdDisable: filterCheckReqAmd,
+      }));
+
+      const filterStatusAprAndRejAmd = cfsStatus?.filter(
+        (item) => item.Name !== "Request for Amendment",
+      );
+      const filterCheckAprAndRejAmd = data?.some((item) =>
+        filterStatusAprAndRejAmd?.some(
+          (status) => status.Id === item.csnRequestStatusId,
+        ),
+      );
+      setIsDisableBtn((prev) => ({
+        ...prev,
+        isRejAndAprAmdDisable: filterCheckAprAndRejAmd,
+      }));
+
+      const filterStatusAprAndRej = cfsStatus?.filter(
+        (item) => item.Name !== "Request",
+      );
+      const filterCheckAprAndRej = data?.some((item) =>
+        filterStatusAprAndRej?.some(
+          (status) => status.Id === item.csnRequestStatusId,
+        ),
+      );
+      setIsDisableBtn((prev) => ({
+        ...prev,
+        isRejAndConfDisable: filterCheckAprAndRej,
+      }));
+    }
+    checkStatus();
+  }, [ids]);
+
+  useEffect(() => {
+    async function getCfsStatus() {
+      const obj = {
+        columns: "id as Id, name as Name",
+        tableName: "tblMasterData",
+        whereCondition: `masterListName = 'tblCsnStatusType' and status = 1`,
+      };
+      const { data } = await getDataWithCondition(obj);
+      setCfsStatus(data);
+    }
+
+    getCfsStatus();
+  }, []);
+
+  return (
+    <Box className="w-full flex flex-col gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
+        {onView && userAccess["view"] && (
+          <Segment
+            label="View"
+            onClick={() => onView?.(ids[0])}
+            disabled={!isSingle}
+          />
+        )}
+        {onEdit && userAccess?.["edit"] && (
+          <Segment
+            label="Edit"
+            onClick={() => onEdit?.(ids[0])}
+            disabled={!isSingle || isDisableBtn?.isEditDisable}
+          />
+        )}
+
+        {onRequest && userAccess?.["request"] && (
+          <Segment
+            label="Request"
+            icon={<RequestPageIcon />}
+            onClick={() => onRequest?.(ids)}
+            disabled={!hasAny || isDisableBtn?.isRequestDisable}
+          />
+        )}
+        {onReject && userAccess?.["reject"] && (
+          <Segment
+            label="Reject"
+            icon={<CancelIcon />}
+            onClick={() => onReject?.(ids)}
+            disabled={
+              !hasAny ||
+              isDisableBtn?.isRejAndConfDisable ||
+              !isDisableBtn?.isRejAndAprAmdDisable
+            }
+          />
+        )}
+        {onConfirm && userAccess?.["confirm"] && (
+          <Segment
+            label="Confirm"
+            icon={<CheckCircleIcon />}
+            onClick={() => onConfirm?.(ids)}
+            disabled={
+              !hasAny ||
+              isDisableBtn?.isRejAndConfDisable ||
+              !isDisableBtn?.isRejAndAprAmdDisable
+            }
+          />
+        )}
+      </div>
+    </Box>
+  );
+}

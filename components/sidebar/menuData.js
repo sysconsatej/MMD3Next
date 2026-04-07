@@ -163,6 +163,11 @@ export const navItems = [
         href: "/bl/updateCsn/list",
         isShow: false,
       },
+      {
+        name: "Track Update CSN",
+        href: "/bl/updateCsn/liner",
+        isShow: false,
+      },
     ],
   },
 
