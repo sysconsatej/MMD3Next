@@ -27,7 +27,10 @@ import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import { ToastContainer } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { formStore } from "@/store";
-import { vesselVoyageFiltersAdmin } from "../../mbl/mblData";
+import {
+  vesselVoyageFilters,
+  vesselVoyageFiltersAdmin,
+} from "../../mbl/mblData";
 import TableExportButtons from "@/components/tableExportButtons/tableExportButtons";
 import { getUserByCookies } from "@/utils";
 import HistoryIcon from "@mui/icons-material/History";
@@ -35,9 +38,15 @@ import { CustomInput } from "@/components/customInput";
 import BLHistoryModal from "../../mbl/modal";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 import CustomButton from "@/components/button/button";
-import { advanceSearchFilter, csnStatusHandler, statusColor } from "../utils";
+import {
+  advanceSearchFilter,
+  BlRejectModal,
+  csnStatusHandler,
+  statusColor,
+} from "../utils";
 import { advanceSearchFields } from "../updateCsnData";
 import SearchRequestToolbarActions from "@/components/selectionActions/csnRequestActionBar";
+import { craeateHandleChangeEventFunction } from "../../mbl/utils";
 
 const LIST_TABLE = "tblCsn csn";
 
@@ -53,7 +62,7 @@ const CHECKBOX_SX = {
 function createData(
   id,
   blNo,
-  shippingLine,
+  company,
   csnNo,
   csnDate,
   status,
@@ -64,7 +73,7 @@ function createData(
   return {
     id,
     blNo,
-    shippingLine,
+    company,
     csnNo,
     csnDate,
     status,
@@ -92,6 +101,12 @@ export default function BLList() {
     open: false,
     recordId: null,
   });
+  const [modal, setModal] = useState({
+    toggle: false,
+    value: null,
+    ids: [],
+    actionType: null,
+  });
   const userData = getUserByCookies();
   const [SearchCondition, setSearchCondition] = useState(
     `u.id = ${userData?.userId}`,
@@ -106,18 +121,18 @@ export default function BLList() {
     ) => {
       try {
         const tableObj = {
-          columns: `csn.id id, csn.mblNo  blNo, c2.name shippingLine, csn.csnNo csnNo, convert(date, csn.csnDate, 19) csnDate, m2.name status, csn.csnRequestRemarks csnRequestRemarks, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod`,
+          columns: `csn.id id, csn.mblNo  blNo, c2.name company, csn.csnNo csnNo, convert(date, csn.csnDate, 19) csnDate, m2.name status, csn.csnRequestRemarks csnRequestRemarks, concat(p.code, ' - ', p.name) pol, concat(p1.code, ' - ', p1.name) pod`,
           tableName: LIST_TABLE,
           pageNo,
           pageSize,
           joins: `
-            left join tblCompany c2 on c2.id = csn.shippingLineId
+            left join tblCompany c2 on c2.id = csn.companyId
             left join tblPort p on p.id = csn.polId 
             left join tblPort p1 on p1.id = csn.podId  
             left join tblMasterData m2 on m2.id = csn.csnRequestStatusId 
-            left join tblUser u2 on u2.roleCode = 'customer' 
+            left join tblUser u2 on u2.roleCode = 'shipping' 
             left join tblUser u on ${SearchConditionMain}
-            join tblCSN csn2 on csn2.id = csn.id and csn.locationId = ${userData?.location} and csn.createdBy = u.id
+            join tblCSN csn2 on csn2.id = csn.id and csn.locationId = ${userData?.location} and csn.shippingLineId = u.companyId and csn.csnRequestStatusId is not null
           `,
           advanceSearch: advanceSearchFilter(advanceSearchQuery),
         };
@@ -142,7 +157,7 @@ export default function BLList() {
       createData(
         item["id"],
         item["blNo"],
-        item["shippingLine"],
+        item["company"],
         item["csnNo"],
         item["csnDate"],
         item["status"],
@@ -184,10 +199,19 @@ export default function BLList() {
     getData(1, +e.target.value, advanceSearch);
   };
 
-  const handleChangeEventFunctions = createHandleChangeEventFunction({
-    setFormData: setAdvanceSearch,
-    fields: vesselVoyageFiltersAdmin,
-  });
+  const handleChangeEventFunctions = useMemo(() => {
+    if (userData?.roleCode === "shipping") {
+      return craeateHandleChangeEventFunction({
+        setFormData: setAdvanceSearch,
+        formData: advanceSearch,
+      });
+    }
+
+    return createHandleChangeEventFunction({
+      setFormData: setAdvanceSearch,
+      fields: vesselVoyageFiltersAdmin,
+    });
+  }, [userData?.roleCode, advanceSearch]);
 
   useEffect(() => {
     getData();
@@ -208,15 +232,19 @@ export default function BLList() {
       <Box className="sm:px-4 py-1">
         <Box className="flex flex-col sm:flex-row justify-between pb-1">
           <Typography variant="body1" className="text-left flex items-center">
-            Update CSN
+            Track Update CSN
           </Typography>
 
           <Box className="flex flex-col sm:flex-row gap-6 items-start">
             <Box
-              className={`min-w-[600px] w-[600px] grid grid-cols-3 gap-x-2 gap-y-1 items-center [&>*]:min-w-0`}
+              className={`min-w-[600px] w-[600px] grid ${userData?.roleCode === "admin" ? "grid-cols-3" : "grid-cols-2"} gap-x-2 gap-y-1 items-center [&>*]:min-w-0`}
             >
               <CustomInput
-                fields={vesselVoyageFiltersAdmin}
+                fields={
+                  userData?.roleCode === "admin"
+                    ? vesselVoyageFiltersAdmin
+                    : vesselVoyageFilters
+                }
                 formData={advanceSearch}
                 setFormData={setAdvanceSearch}
                 fieldsMode={"edit"}
@@ -231,23 +259,24 @@ export default function BLList() {
                 getData={getData}
                 rowsPerPage={rowsPerPage}
               />
-              {userData?.roleCode === "customer" && (
-                <CustomButton text="Add" href="/bl/updateCsn" />
-              )}
             </Box>
           </Box>
         </Box>
 
         <SearchRequestToolbarActions
           selectedIds={selectedIds}
-          onEdit={(id) =>
-            csnStatusHandler(getData, router, setMode, "list").handleEdit(id)
-          }
           onView={(id) =>
-            csnStatusHandler(getData, router, setMode, "list").handleView(id)
+            csnStatusHandler(getData, router, setMode, "liner").handleView(id)
           }
-          onRequest={(ids) =>
-            csnStatusHandler(getData, router, setMode).handleRequest(ids)
+          onReject={(ids) =>
+            setModal((prev) => ({
+              ...prev,
+              toggle: true,
+              ids: ids,
+            }))
+          }
+          onConfirm={(ids) =>
+            csnStatusHandler(getData, router, setMode).handleConfirm(ids)
           }
         />
 
@@ -265,7 +294,7 @@ export default function BLList() {
                 </TableCell>
 
                 <TableCell>BL NO</TableCell>
-                <TableCell>Shipping Line</TableCell>
+                <TableCell>Company Name</TableCell>
                 <TableCell>CSN No</TableCell>
                 <TableCell>CSN Date</TableCell>
                 <TableCell>Status</TableCell>
@@ -288,7 +317,7 @@ export default function BLList() {
                       />
                     </TableCell>
                     <TableCell>{row.blNo}</TableCell>
-                    <TableCell>{row.shippingLine}</TableCell>
+                    <TableCell>{row.company}</TableCell>
                     <TableCell>{row.csnNo}</TableCell>
                     <TableCell>{row.csnDate}</TableCell>
                     <TableCell
@@ -354,6 +383,7 @@ export default function BLList() {
         recordId={historyModal.recordId}
         blNumber={rows.find((x) => x.id === historyModal.recordId)?.blNo || ""}
       />
+      <BlRejectModal modal={modal} setModal={setModal} getData={getData} />
       <ToastContainer />
     </ThemeProvider>
   );
