@@ -52,6 +52,7 @@ export default function SearchRequestToolbarActions({
 
   useEffect(() => {
     async function checkStatus() {
+      if (ids.length === 0) return;
       const obj = {
         columns: "csnRequestStatusId",
         tableName: "tblCsn",

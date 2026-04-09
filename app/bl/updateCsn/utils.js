@@ -263,8 +263,7 @@ export function BlRejectModal({ modal, setModal, getData }) {
       return;
     }
 
-    const handler = csnStatusHandler(getData);
-    handler.handleReject(modal.ids, modal.value);
+    csnStatusHandler(getData).handleReject(modal.ids, modal.value);
 
     setModal((prev) => ({ ...prev, toggle: false }));
   }
@@ -327,14 +326,9 @@ export async function requestHandler(formData, setDisableRequest) {
       return;
     }
 
-    if (!formData?.blNo) {
-      toast.error("BL No is required before sending Request");
-      return;
-    }
-
     const checkPayload = {
       columns: "id",
-      tableName: "tblCfsRequest",
+      tableName: "tblCsn",
       whereCondition: `
         mblNo = '${formData?.mblNo}'
         AND status = 1
@@ -355,7 +349,7 @@ export async function requestHandler(formData, setDisableRequest) {
     }
     const rowsPayload = data.map((row) => ({
       id: row.id,
-      cfsRequestStatusId: requestStatusId,
+      csnRequestStatusId: requestStatusId,
       updatedBy: userData?.userId,
       updatedDate: new Date(),
     }));
