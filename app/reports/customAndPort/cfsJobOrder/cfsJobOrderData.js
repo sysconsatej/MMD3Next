@@ -42,11 +42,16 @@ const fieldData = {
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
       changeFun: "handleDropdownChange",
-      where: `t.status = 1 and ${!isAdmin ? `t.companyid = ${userData?.companyId}` : ""} `,
+      where: [
+        "t.status = 1",
+        !isAdmin ? `t.companyid = ${userData?.companyId}` : null,
+      ]
+        .filter(Boolean)
+        .join(" and "),
       orderBy: "t.voyageNo",
       isEdit: true,
       selectedConditions: isAdmin
-        ? [{ vessel: "vesselId" }, { shippingLineId: "t.companyid" }]
+        ? [{ vessel: "vesselId", shippingLineId: "t.companyid" }]
         : [{ vessel: "vesselId" }],
     },
     {
