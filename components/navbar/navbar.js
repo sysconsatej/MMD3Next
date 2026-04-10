@@ -48,7 +48,7 @@ function getActiveNavItem(items, rawPathname) {
     if (item.submenu) {
       for (const sub of item.submenu) {
         const subKey = scope(sub.href, 3);
-        if (pathScope3 === subKey || pathname.startsWith(subKey)) {
+        if (pathScope3 === subKey || pathname?.startsWith(subKey)) {
           matched = {
             activeLink: item.name,
             activeSubLink: subKey,
@@ -58,7 +58,7 @@ function getActiveNavItem(items, rawPathname) {
         if (sub.children) {
           for (const child of sub.children) {
             const childKey = scope(child.href, 4);
-            if (pathScope4 === childKey || pathname.startsWith(childKey)) {
+            if (pathScope4 === childKey || pathname?.startsWith(childKey)) {
               matched = {
                 activeLink: item.name,
                 activeSubLink: childKey,
@@ -70,7 +70,7 @@ function getActiveNavItem(items, rawPathname) {
       }
     } else {
       const itemKey = scope(item.href, 2);
-      if (pathname.startsWith(itemKey)) {
+      if (pathname?.startsWith(itemKey)) {
         matched = {
           activeLink: item.name,
           activeSubLink: "",
@@ -218,17 +218,8 @@ export default function Navbar() {
   }, []);
 
   const loginToExportModule = async () => {
-    const user = getUserByCookies();
-    const reqBody = {
-      columns: "u.password",
-      tableName: "tblUser u",
-      whereCondition: `u.emailId = '${user?.emailId}'`,
-    };
-    const res = await getDataWithCondition(reqBody);
-    if (res?.data && res?.data?.length > 0) {
-      const redirectLink = process.env.DASHBOARD_URL;
-      router.push(redirectLink);
-    }
+    const redirectLink = process.env.NEXT_PUBLIC_DASHBOARD_URL;
+    router.push(redirectLink);
   };
 
   return (
