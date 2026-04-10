@@ -79,7 +79,7 @@ export default function ModuleEmailRecipientList() {
             mas.name AS emailReport,
             l.name AS location,
             u.name AS updatedBy,
-            m.emailcc As EmailCC,
+            m.emailId As EmailCC,
             m.updatedDate AS updatedDate,
             m.id
           `,
@@ -219,7 +219,7 @@ export default function ModuleEmailRecipientList() {
                 <TableCell>Company Name</TableCell>
                 <TableCell>Email Report</TableCell>
                 <TableCell>Location</TableCell>
-                <TableCell>Email CC</TableCell>
+                <TableCell>Email Id</TableCell>
                 <TableCell>Updated By</TableCell>
                 <TableCell>Updated Date</TableCell>
               </TableRow>

@@ -538,6 +538,16 @@ export const navItems = [
         href: "/reports/customAndPort/invoicePending",
         isShow: false,
       },
+      {
+        name: "Job Order",
+        href: "/reports/customAndPort/jobOrder",
+        isShow: false,
+      },
+      {
+        name: "CFS Job Order",
+        href: "/reports/customAndPort/cfsJobOrder",
+        isShow: false,
+      },
     ],
   },
   {
