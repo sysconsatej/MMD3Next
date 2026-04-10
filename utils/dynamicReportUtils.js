@@ -92,32 +92,6 @@ export async function runUpdate({
   }
 }
 
-// export async function jsonExport({
-//   filenamePrefix = "Export",
-//   jsonPayload,
-//   ...runnerArgs
-// }) {
-//   const res = await runUpdate(runnerArgs);
-//   if (!res) return;
-//   const { ok, failed } = res;
-
-//   if (!ok.length && !failed.length) {
-//     runnerArgs.toast?.info?.("Nothing to export.");
-//     return;
-//   }
-
-//   const payload =
-//     typeof jsonPayload === "function"
-//       ? jsonPayload({ ok, failed })
-//       : { results: ok, failed, generatedAt: new Date().toISOString() };
-
-//   download(
-//     `${filenamePrefix} ${timestamp()}.json`,
-//     payload,
-//     "application/json"
-//   );
-//   runnerArgs.toast?.success?.("JSON file downloaded.");
-// }
 function resolvePayload(payload) {
   return Array.isArray(payload) ? payload[0] : payload;
 }
@@ -149,6 +123,52 @@ export async function jsonExport({
   );
 
   runnerArgs.toast?.success?.("JSON file downloaded.");
+}
+export async function jsonExportDirect({
+  filenamePrefix = "Export",
+  updateFn,
+  buildBody,
+  jsonPayload,
+  toast,
+  setLoading,
+}) {
+  try {
+    setLoading?.(true);
+
+    const body = buildBody();
+    const res = await updateFn(body);
+
+    if (!res) return;
+    const results = res?.data?.results || [];
+    const ok = results
+      .filter((r) => r.ok && r.data)
+      .flatMap((r) => (Array.isArray(r.data) ? r.data : [r.data]));
+    const failed = results.filter((r) => !r.ok);
+    if (!ok.length && !failed.length) {
+      toast?.info?.("Nothing to export.");
+      return;
+    }
+    const fileNameFromSP = ok?.[0]?.generatedFileName || filenamePrefix;
+    const cleanOk = ok.map(({ generatedFileName, ...rest }) => rest);
+    const payload =
+      typeof jsonPayload === "function"
+        ? jsonPayload({ ok: cleanOk, failed })
+        : cleanOk.length === 1
+          ? cleanOk[0]
+          : cleanOk;
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json",
+    });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${fileNameFromSP}.json`;
+    link.click();
+    toast?.success?.("JSON file downloaded.");
+  } catch (err) {
+    toast?.error?.(err?.message || "Export failed");
+  } finally {
+    setLoading?.(false);
+  }
 }
 
 const defaultExtractLine = (row) => {
