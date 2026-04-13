@@ -11,7 +11,7 @@ import { fetchDynamicReportData } from "@/apis/dynamicReport";
 import { useRouter } from "next/navigation";
 import { getUserByCookies } from "@/utils";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
-import DynamicReportDownloadExcelButton from "@/components/dynamicReportExcel/page";
+import { DynamicReportDownloadExcelCFSButton } from "@/components/dynamicReportExcel/page";
 import dayjs from "dayjs";
 
 export default function IgmGeneration() {
@@ -73,12 +73,10 @@ export default function IgmGeneration() {
       const res = await fetchDynamicReportData(requestBody);
 
       if (res?.success) {
-        const rows = Array.isArray(res.data) ? res.data : [];
-        if (rows.length) {
-          setTableData(rows);
+        if (res?.success) {
+          setTableData(res?.data?.[0]?.cfsJobOrder || {});
         } else {
-          setTableData([]);
-          toast.info("No data found.");
+          setTableData({});
         }
       } else {
         const errText = res?.error || res?.message || "Request failed.";
@@ -130,18 +128,21 @@ export default function IgmGeneration() {
               type="submit"
               disabled={goLoading}
             />
-
-            <DynamicReportDownloadExcelButton
-              rows={tableFormData}
+            <DynamicReportDownloadExcelCFSButton
+              rows={
+                tableFormData.length ? tableFormData : tableData?.data || []
+              }
+              reportConfig={tableData}
               metaData={metaData}
               fileName={`CfsJobOrder_${new Date()
                 .toISOString()
                 .slice(0, 10)}.xlsx`}
               text="DOWNLOAD EXCEL"
               buttonStyles="custom-btn"
-              disabled={!tableFormData.length}
+              disabled={
+                !tableFormData.length && !(tableData?.data || []).length
+              }
             />
-
             <CustomButton
               text="Cancel"
               buttonStyles="!text-[white] !bg-[#f5554a] !text-[11px]"
@@ -154,7 +155,7 @@ export default function IgmGeneration() {
 
       <Box className="p-0">
         <DynamicReportTable
-          data={tableData}
+          data={tableData?.data || []}
           metaData={metaData}
           onSelectedEditedChange={setTableFormData}
         />
