@@ -5,16 +5,6 @@ const userData = getUserByCookies();
 const fieldData = {
   jobReportFields: [
     {
-      label: "CFS Name",
-      name: "cfsId",
-      type: "dropdown",
-      tableName: "tblPort",
-      displayColumn: "name",
-      searchColumn: "name",
-      orderBy: "name",
-      isEdit: true,
-    },
-    {
       label: "Vessel",
       name: "vessel",
       type: "dropdown",
@@ -51,6 +41,16 @@ const fieldData = {
       selectedConditions: [{ voyage: "v.voyageId" }],
       searchColumn: "p.name",
       orderBy: "p.name",
+      isEdit: true,
+    },
+    {
+      label: "CFS Name",
+      name: "cfsId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      displayColumn: "ISNULL(p.code,'') + ' - ' + ISNULL(p.name,'')",
+      joins: `join tblMasterData m on m.id = p.portTypeId  and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${userData?.companyId}`,
+      selectedConditions: [{ pod: "p.referencePortId" }],
       isEdit: true,
     },
   ],
