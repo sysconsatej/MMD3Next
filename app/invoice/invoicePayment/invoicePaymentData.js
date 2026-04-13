@@ -239,7 +239,7 @@ export function advanceSearchFilterPayment(advanceSearch) {
   const condition = [];
 
   if (advanceSearch.blNo) {
-    condition.push(`b.mblNo = '${advanceSearch.blNo}'`);
+    condition.push(`i.blNo = '${advanceSearch.blNo}'`);
   }
 
   if (advanceSearch.statusId && advanceSearch.statusId.length > 0) {
