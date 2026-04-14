@@ -80,19 +80,41 @@ export default function SelectionActionsBar({
 
   const handleRequest = async () => {
     if (!hasAny) return;
+
     const requestStatus = hblStatus.filter((item) => item.Name === "Request");
-    const rowsPayload = ids.flatMap((keyVal) =>
-      keyVal.split(",").map((id) => {
-        return {
-          [keyColumn]: id,
-          hblRequestStatus: requestStatus[0].Id,
-          hblRequestRemarks: null,
-          updatedBy: userData.userId,
-          updatedDate: new Date(),
-        };
-      }),
-    );
+    const allIds = ids.flatMap((x) => x.split(","));
+    const rowsPayload = allIds.map((id) => {
+      return {
+        [keyColumn]: id,
+        hblRequestStatus: requestStatus[0].Id,
+        hblRequestRemarks: null,
+        updatedBy: userData.userId,
+        updatedDate: new Date(),
+      };
+    });
     await applyUpdate(rowsPayload, "Requested");
+
+    const obj = {
+      columns: " top 1 b2.id, b2.createdDate",
+      tableName: "tblBl b",
+      joins: "join tblBl b2 on b2.mblNo = b.mblNo",
+      whereCondition: `b.id in (${allIds.join(",")}) and b2.mblHblFlag = 'MBL' and b2.status = 1`,
+    };
+
+    const { data } = await getDataWithCondition(obj);
+    if (data?.length === 0) return;
+    await updateStatusRows({
+      tableName: "tblBl",
+      rows: [
+        {
+          createdDate: data?.[0]?.createdDate,
+          id: data?.[0]?.id,
+        },
+      ],
+      keyColumn,
+    });
+
+    onUpdated && onUpdated();
   };
 
   const handleVerify = async () => {

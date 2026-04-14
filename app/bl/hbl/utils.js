@@ -177,6 +177,27 @@ export const requestStatusFun = {
         return;
       }
       toast.success("Request updated successfully!");
+      const obj = {
+        columns: " top 1 b2.id, b2.createdDate",
+        tableName: "tblBl b",
+        joins: "join tblBl b2 on b2.mblNo = b.mblNo",
+        whereCondition: `b.id in (${data.map((i) => i.id).join(",")}) and b2.mblHblFlag = 'MBL' and b2.status = 1`,
+      };
+
+      const { data: mblData } = await getDataWithCondition(obj);
+
+      if (mblData?.length === 0) return;
+
+      await updateStatusRows({
+        tableName: "tblBl",
+        rows: [
+          {
+            id: mblData?.[0]?.id,
+            createdDate: mblData?.[0]?.createdDate,
+          },
+        ],
+        keyColumn: "id",
+      });
     }
   },
   verifyHandler: async (mode, hblStatus) => {
