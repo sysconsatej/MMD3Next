@@ -586,7 +586,7 @@ export const navItems = [
     submenu: [
       {
         name: "Online Check-CSN",
-        href: "/onlineCheckCsn",
+        href: "/onlineCheckCsn/onlineCheckCsn",
         isShow: false,
       },
     ],
