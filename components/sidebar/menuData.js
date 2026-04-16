@@ -578,4 +578,17 @@ export const navItems = [
       },
     ],
   },
+  {
+    name: "Online check",
+    icon: "verified",
+    href: "/onlineCheckCsn",
+    isShow: false,
+    submenu: [
+      {
+        name: "Online Check-CSN",
+        href: "/onlineCheckCsn",
+        isShow: false,
+      },
+    ],
+  },
 ];

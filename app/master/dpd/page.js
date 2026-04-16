@@ -23,10 +23,19 @@ export default function DPD() {
   const { mode, setMode } = formStore();
   const [errorState, setErrorState] = useState({});
   const userData = getUserByCookies();
+  const isAdmin = userData?.roleCode === "admin";
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData("tblPort", formData, mode.formId);
+    const payload = { ...formData };
+
+    if (isAdmin) {
+      delete payload.companyId;
+    } else {
+      payload.companyId = userData?.companyId;
+    }
+
+    const format = formatFormData("tblPort", payload, mode.formId, "portId");
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
@@ -78,7 +87,11 @@ export default function DPD() {
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
           const getData = formatDataWithForm(result, data);
-          setFormData({ ...getData, companyId: userData?.companyId });
+          setFormData(
+            isAdmin
+              ? { ...getData }
+              : { ...getData, companyId: userData?.companyId },
+          );
         } else {
           toast.error(error || message);
         }

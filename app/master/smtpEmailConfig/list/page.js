@@ -27,7 +27,7 @@ import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 
 // 🔹 SAME STYLE helper
-function createData(emailId, hostName, port, isSSL, updatedBy, updateDate, id) {
+function createData(emailId, hostName, port, isSSL, updatedBy, updateDate,companyName, id) {
   return {
     emailId,
     hostName,
@@ -35,6 +35,7 @@ function createData(emailId, hostName, port, isSSL, updatedBy, updateDate, id) {
     isSSL,
     updatedBy,
     updateDate,
+    companyName,
     id,
   };
 }
@@ -71,6 +72,7 @@ export default function SmtpEmailConfigList() {
             s1.isSSL isSSL,
             u.name updatedBy,
             s1.updatedDate updateDate,
+            comp.name companyName,
             s1.id
           `,
           tableName: "tblSMTP s1",
@@ -80,6 +82,7 @@ export default function SmtpEmailConfigList() {
           searchValue: search.searchValue,
           joins: `
             left join tblUser u on u.id = s1.updatedBy
+            left join tblcompany comp on comp.id = s1.companyId
             join tblSMTP s2 on s2.id = s1.id and  ${searchConditionMain} and s2.locationId = ${userData?.location}
           `,
         };
@@ -108,6 +111,7 @@ export default function SmtpEmailConfigList() {
           item["isSSL"],
           item["updatedBy"],
           item["updateDate"],
+          item["companyName"],
           item["id"],
         ),
       )
@@ -196,6 +200,7 @@ export default function SmtpEmailConfigList() {
                 <TableCell>SSL </TableCell>
                 <TableCell> Updated By</TableCell>
                 <TableCell> Updated Date</TableCell>
+                <TableCell>Company Name</TableCell>
               </TableRow>
             </TableHead>
 
@@ -209,6 +214,7 @@ export default function SmtpEmailConfigList() {
                     <TableCell>{row.isSSL === "1" ? "Yes" : "No"}</TableCell>
                     <TableCell>{row.updatedBy}</TableCell>
                     <TableCell>{row.updateDate}</TableCell>
+                    <TableCell>{row.companyName}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

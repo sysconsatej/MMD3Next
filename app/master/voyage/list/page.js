@@ -26,8 +26,15 @@ import { voyage } from "../voyageData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 
-function createData(vesselName, voyageNO, updatedBy, updatedDate, id) {
-  return { vesselName, voyageNO, updatedBy, updatedDate, id };
+function createData(
+  vesselName,
+  voyageNO,
+  updatedBy,
+  updatedDate,
+  companyName,
+  id,
+) {
+  return { vesselName, voyageNO, updatedBy, updatedDate, companyName, id };
 }
 
 export default function VoyageList() {
@@ -55,7 +62,7 @@ export default function VoyageList() {
       try {
         const tableObj = {
           columns:
-            " v1.name vesselName,v.voyageNo voyageNO,u.name updatedBy,v.updatedDate as updatedDate,v.id",
+            " v1.name vesselName,v.voyageNo voyageNO,u.name updatedBy,v.updatedDate as updatedDate,comp.name companyName,v.id",
           tableName: "tblVoyage v",
           pageNo,
           pageSize,
@@ -63,6 +70,7 @@ export default function VoyageList() {
           searchValue: search.searchValue,
           joins: `
                   left join tblUser u on u.id = v.updatedBy
+                  left join tblCompany comp on comp.id = v.companyid
                   join tblVessel v1  on v1.id = v.vesselId and ${searchConditionMain} 
           `,
         };
@@ -86,6 +94,7 @@ export default function VoyageList() {
           item["voyageNO"],
           item["updatedBy"],
           item["updatedDate"],
+          item["companyName"],
           item["id"],
         ),
       )
@@ -166,6 +175,7 @@ export default function VoyageList() {
                 <TableCell> Voyage No</TableCell>
                 <TableCell> Updated By</TableCell>
                 <TableCell> Updated Date</TableCell>
+                <TableCell>Company Name</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -180,6 +190,7 @@ export default function VoyageList() {
                     <TableCell>{row.voyageNO}</TableCell>
                     <TableCell>{row.updatedBy}</TableCell>
                     <TableCell>{row.updatedDate}</TableCell>
+                    <TableCell>{row.companyName}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

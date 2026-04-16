@@ -33,6 +33,7 @@ function createData(
   terminal,
   updatedBy,
   updatedDate,
+  companyName,
   id,
 ) {
   return {
@@ -43,6 +44,7 @@ function createData(
     terminal,
     updatedBy,
     updatedDate,
+    companyName,
     id,
   };
 }
@@ -72,7 +74,7 @@ export default function VoyageRouteList() {
       try {
         const tableObj = {
           columns:
-            "p.name portOfCall, v.voyageId voyageId, ve.name vesselNo, v.exportLocking exportLocking, v.importLocking importLocking,v.igmNo igmNo, p1.code terminal, vo.voyageNo voyageNo,u.name updatedBy,v.updatedDate as updatedDate,v.id",
+            "p.name portOfCall, v.voyageId voyageId, ve.name vesselNo, v.exportLocking exportLocking, v.importLocking importLocking,v.igmNo igmNo, p1.code terminal, vo.voyageNo voyageNo,u.name updatedBy,v.updatedDate as updatedDate,comp.name companyName ,v.id",
           tableName: "tblVoyageRoute v",
           pageNo,
           pageSize,
@@ -82,6 +84,7 @@ export default function VoyageRouteList() {
                   left join tblPort p on v.portOfCallId = p.id 
                   left join tblPort p1 on v.berthId = p1.id 
                   left join tblVessel ve on v.vesselId = ve.id 
+                  left join tblcompany comp on comp.id = v.companyid
                   left join tblUser u on u.id = v.updatedBy
                   join tblVoyage vo on vo.id=v.voyageId and ${searchConditionMain}
 `,
@@ -111,6 +114,7 @@ export default function VoyageRouteList() {
           item["terminal"],
           item["updatedBy"],
           item["updatedDate"],
+          item["companyName"],
           item["id"],
         ),
       )
@@ -195,6 +199,7 @@ export default function VoyageRouteList() {
                 <TableCell>Terminal</TableCell>
                 <TableCell>Updated By</TableCell>
                 <TableCell>Updated Date</TableCell>
+                <TableCell>Company Name</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -208,6 +213,7 @@ export default function VoyageRouteList() {
                     <TableCell>{row.terminal}</TableCell>
                     <TableCell>{row.updatedBy}</TableCell>
                     <TableCell>{row.updatedDate}</TableCell>
+                    <TableCell>{row.companyName}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

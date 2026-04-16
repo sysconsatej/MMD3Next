@@ -35,6 +35,7 @@ function createData(
   cfsType,
   updatedBy,
   updateDate,
+  companyName,
   id,
 ) {
   return {
@@ -47,6 +48,7 @@ function createData(
     cfsType,
     updatedBy,
     updateDate,
+    companyName,
     id,
   };
 }
@@ -76,7 +78,7 @@ export default function CfsList() {
       try {
         const tableObj = {
           columns:
-            "p.code code,p.name name,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,ref.name referencePort,cfsType.name cfsType,u.name updatedBy,p.updatedDate updateDate,p.id",
+            "p.code code,p.name name,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,ref.name referencePort,cfsType.name cfsType,u.name updatedBy,p.updatedDate updateDate,comp.name companyName,p.id",
           tableName: "tblPort p ",
           pageNo,
           pageSize,
@@ -89,6 +91,7 @@ export default function CfsList() {
           left join tblUser u3 on u3.roleCode = 'shipping'
           left join tblUser u4 on u4.roleCodeId = u3.id
           left join tblLocation l on l.id = ${userData?.location}
+          left join tblCompany comp on comp.id = p.companyId
           join tblMasterData m on m.id = p.portTypeId and m.name = 'CONTAINER FREIGHT STATION'  and m.masterListName = 'tblPortType' and ${searchConditionMain} and ref.name = l.name
 `,
         };
@@ -128,6 +131,7 @@ export default function CfsList() {
           item["cfsType"],
           item["updatedBy"],
           item["updateDate"],
+          item["companyName"],
           item["id"],
         ),
       )
@@ -205,6 +209,7 @@ export default function CfsList() {
                 <TableCell>CFS Type</TableCell>
                 <TableCell>Updated By</TableCell>
                 <TableCell>Updated Date</TableCell>
+                <TableCell>Company Name</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -220,6 +225,7 @@ export default function CfsList() {
                     <TableCell>{row.cfsType}</TableCell>
                     <TableCell>{row.updatedBy}</TableCell>
                     <TableCell>{row.updateDate}</TableCell>
+                    <TableCell>{row.companyName}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

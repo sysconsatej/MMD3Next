@@ -35,6 +35,7 @@ function createData(
   iceNo,
   updatedBy,
   updateDate,
+  companyName,
   id,
 ) {
   return {
@@ -47,6 +48,7 @@ function createData(
     iceNo,
     updatedBy,
     updateDate,
+    companyName,
     id,
   };
 }
@@ -76,13 +78,13 @@ export default function DpdList() {
       try {
         const tableObj = {
           columns:
-            "p.code code,p.name name,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,p.panNo panNo,p.iecNo iceNo,u.name updatedBy,p.updatedDate updateDate,p.id",
+            "p.code code,p.name name,p.address address,p.directDelivery directDelivery,p.ediPortCode ediPortCode,p.ediCommonTerminalCode ediCommonTerminalCode,p.bondNo bondNo,m.name portType,p.panNo panNo,p.iecNo iceNo,u.name updatedBy,p.updatedDate updateDate,comp.name companyName,p.id",
           tableName: "tblPort p ",
           pageNo,
           pageSize,
           searchColumn: search.searchColumn,
           searchValue: search.searchValue,
-          joins: `left join tblUser u1 on u1.roleCode = 'shipping' left join tblUser u2 on u2.roleCodeId = u1.id join tblMasterData m on m.id = p.portTypeId and m.name='DIRECT PORT DELIVERY' and masterListName = 'tblPortType' and ${searchConditionMain} left join tblUser u on u.id = p.updatedBy`,
+          joins: `left join tblUser u1 on u1.roleCode = 'shipping' left join tblUser u2 on u2.roleCodeId = u1.id join tblMasterData m on m.id = p.portTypeId and m.name='DIRECT PORT DELIVERY' and masterListName = 'tblPortType' and ${searchConditionMain} left join tblUser u on u.id = p.updatedBy left join tblCompany comp on comp.id=p.companyId`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
 
@@ -120,6 +122,7 @@ export default function DpdList() {
           item["iceNo"],
           item["updatedBy"],
           item["updateDate"],
+          item["companyName"],
           item["id"],
         ),
       )
@@ -197,6 +200,7 @@ export default function DpdList() {
                 <TableCell>IEC No</TableCell>
                 <TableCell>Updated By</TableCell>
                 <TableCell>Updated Date</TableCell>
+                <TableCell>Company Name</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -212,6 +216,7 @@ export default function DpdList() {
                     <TableCell>{row.iceNo}</TableCell>
                     <TableCell>{row.updatedBy}</TableCell>
                     <TableCell>{row.updateDate}</TableCell>
+                    <TableCell>{row.companyName}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

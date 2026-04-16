@@ -32,9 +32,19 @@ function createData(
   address,
   updatedBy,
   updateDate,
+  companyName,
   id,
 ) {
-  return { depotName, location, code, address, updatedBy, updateDate, id };
+  return {
+    depotName,
+    location,
+    code,
+    address,
+    updatedBy,
+    updateDate,
+    companyName,
+    id,
+  };
 }
 
 export default function DepotList() {
@@ -62,7 +72,7 @@ export default function DepotList() {
       try {
         const tableObj = {
           columns:
-            "p.name depotName ,m.name location,p.code code,p.address address,u.name updatedBy,p.updatedDate updateDate,p.id",
+            "p.name depotName ,m.name location,p.code code,p.address address,u.name updatedBy,p.updatedDate updateDate,comp.name companyName,p.id",
           tableName: "tblPort p",
           pageNo,
           pageSize,
@@ -73,6 +83,7 @@ export default function DepotList() {
                   left join tblUser u3 on u3.roleCode = 'shipping'
                   left join tblUser usr on ${searchConditionMain}
                   left join tblUser u2 on u2.companyId = usr.companyId
+                  left join tblCompany comp on comp.id=p.companyId
                   join tblPort p2 on p2.id = p.id and p2.createdBy = u2.id and p2.status = 1`,
         };
         const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
@@ -97,6 +108,7 @@ export default function DepotList() {
           item["address"],
           item["updatedBy"],
           item["updateDate"],
+          item["companyName"],
           item["id"],
         ),
       )
@@ -179,6 +191,7 @@ export default function DepotList() {
                 <TableCell>Address</TableCell>
                 <TableCell>Updated By</TableCell>
                 <TableCell>Updated Date</TableCell>
+                <TableCell>Company Name</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -190,6 +203,7 @@ export default function DepotList() {
                     <TableCell>{row.address}</TableCell>
                     <TableCell>{row.updatedBy}</TableCell>
                     <TableCell>{row.updateDate}</TableCell>
+                    <TableCell>{row.companyName}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">
                       <HoverActionIcons
                         onView={() => modeHandler("view", row.id)}

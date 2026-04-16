@@ -151,6 +151,53 @@ function MenuAccessIcon() {
 function DotIcon() {
   return <span className="block w-1.5 h-1.5 rounded-full bg-white/80" />;
 }
+function UploadIcon() {
+  return (
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      fill="none"
+    >
+      <path
+        d="M7 18a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8.5A4 4 0 1 1 17 18H7z"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M12 15V9" strokeWidth="1.8" strokeLinecap="round" />
+      <path
+        d="M9.5 11.5L12 9l2.5 2.5"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function CheckVerifiedIcon() {
+  return (
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      fill="none"
+    >
+      <path
+        d="M12 3l2.2 1.7 2.8-.2 1.1 2.6 2.5 1.3-.7 2.7.7 2.7-2.5 1.3-1.1 2.6-2.8-.2L12 21l-2.2-1.7-2.8.2-1.1-2.6-2.5-1.3.7-2.7-.7-2.7 2.5-1.3 1.1-2.6 2.8.2L12 3z"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9 12l2 2 4-4"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 function pickIcon(icon) {
   switch (icon) {
     case "home":
@@ -167,6 +214,10 @@ function pickIcon(icon) {
       return <ChartIcon />;
     case "access":
       return <MenuAccessIcon />;
+    case "verified":
+      return <CheckVerifiedIcon />;
+    case "Upload":
+      return <UploadIcon />;
     default:
       return <DotIcon />;
   }
@@ -176,4 +227,6 @@ export {
   HamburgerIcon,
   CloseIcon,
   CaretIcon,
+  CheckVerifiedIcon,
+  UploadIcon,
 };

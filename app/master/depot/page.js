@@ -8,7 +8,12 @@ import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
 import CustomButton from "@/components/button/button";
 import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
-import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
+import {
+  formatDataWithForm,
+  formatFetchForm,
+  formatFormData,
+  getUserByCookies,
+} from "@/utils";
 import { formStore } from "@/store";
 
 export default function Depot() {
@@ -17,9 +22,19 @@ export default function Depot() {
   const [jsonData, setJsonData] = useState(data);
   const [errorState, setErrorState] = useState({});
   const { mode, setMode } = formStore();
+  const userData = getUserByCookies();
+  const isAdmin = userData?.roleCode === "admin";
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData("tblPort", formData, mode.formId);
+    const payload = { ...formData };
+
+    if (isAdmin) {
+      delete payload.companyId;
+    } else {
+      payload.companyId = userData?.companyId;
+    }
+
+    const format = formatFormData("tblPort", payload, mode.formId, "portId");
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
@@ -28,20 +43,20 @@ export default function Depot() {
       toast.error(error || message);
     }
   };
- const handleBlurEventFunctions = {
-  duplicateHandler: async (event) => {
-    const { name, value } = event.target;
-    const normalized = String(value ?? "").trim();
+  const handleBlurEventFunctions = {
+    duplicateHandler: async (event) => {
+      const { name, value } = event.target;
+      const normalized = String(value ?? "").trim();
 
-    if (!normalized) {
-      setFormData((prev) => ({ ...prev, [name]: "" }));
-      setErrorState((prev) => ({ ...prev, [name]: false }));
-      return true;
-    }
+      if (!normalized) {
+        setFormData((prev) => ({ ...prev, [name]: "" }));
+        setErrorState((prev) => ({ ...prev, [name]: false }));
+        return true;
+      }
 
-    const literal = normalized.replace(/'/g, "''");
+      const literal = normalized.replace(/'/g, "''");
 
-    let where = `
+      let where = `
       UPPER(${name}) = '${literal.toUpperCase()}'
       AND portTypeId IN (
         SELECT id FROM tblMasterData WHERE name = 'DEPOT' and masterListName = 'tblPortType'
@@ -49,32 +64,32 @@ export default function Depot() {
       AND status = 1
     `;
 
-    if (mode?.formId) {
-      where += ` AND id <> ${mode.formId}`;
-    }
+      if (mode?.formId) {
+        where += ` AND id <> ${mode.formId}`;
+      }
 
-    const obj = {
-      columns: "id",
-      tableName: "tblPort",
-      whereCondition: where,
-    };
+      const obj = {
+        columns: "id",
+        tableName: "tblPort",
+        whereCondition: where,
+      };
 
-    const resp = await getDataWithCondition(obj);
+      const resp = await getDataWithCondition(obj);
 
-    const isDuplicate = Array.isArray(resp?.data) && resp.data.length > 0;
+      const isDuplicate = Array.isArray(resp?.data) && resp.data.length > 0;
 
-    if (isDuplicate) {
-      setErrorState((prev) => ({ ...prev, [name]: true }));
-      setFormData((prev) => ({ ...prev, [name]: "" }));
-      toast.error(`Duplicate ${name}!`);
-      return false;
-    }
+      if (isDuplicate) {
+        setErrorState((prev) => ({ ...prev, [name]: true }));
+        setFormData((prev) => ({ ...prev, [name]: "" }));
+        toast.error(`Duplicate ${name}!`);
+        return false;
+      }
 
-    setFormData((prev) => ({ ...prev, [name]: normalized }));
-    setErrorState((prev) => ({ ...prev, [name]: false }));
-    return true;
-  },
-};
+      setFormData((prev) => ({ ...prev, [name]: normalized }));
+      setErrorState((prev) => ({ ...prev, [name]: false }));
+      return true;
+    },
+  };
 
   useEffect(() => {
     async function fetchFormHandler() {
@@ -84,7 +99,11 @@ export default function Depot() {
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
           const getData = formatDataWithForm(result, data);
-          setFormData(getData);
+          setFormData(
+            isAdmin
+              ? { ...getData }
+              : { ...getData, companyId: userData?.companyId },
+          );
         } else {
           toast.error(error || message);
         }

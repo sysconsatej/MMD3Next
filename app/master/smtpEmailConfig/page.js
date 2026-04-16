@@ -33,6 +33,7 @@ export default function SmtpEmailConfig() {
     if (userData?.roleCode === "admin") {
       payload = {
         ...formData,
+        isSSL: formData?.isSSL ? "1" : "0",
       };
     } else {
       payload = {
