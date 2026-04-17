@@ -27,7 +27,16 @@ import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
 
 // 🔹 SAME STYLE helper
-function createData(emailId, hostName, port, isSSL, updatedBy, updateDate,companyName, id) {
+function createData(
+  emailId,
+  hostName,
+  port,
+  isSSL,
+  updatedBy,
+  updateDate,
+  companyName,
+  id,
+) {
   return {
     emailId,
     hostName,
@@ -155,11 +164,12 @@ export default function SmtpEmailConfigList() {
   };
 
   useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
     if (userData?.roleCode === "admin") {
       setSearchCondition("1=1");
       getData(1, rowsPerPage, "1=1");
+    } else {
+      getData(1, rowsPerPage);
+      setMode({ mode: null, formId: null });
     }
   }, []);
 

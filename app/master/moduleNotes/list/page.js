@@ -35,7 +35,15 @@ function createData(
   updatedDate,
   id,
 ) {
-  return { shippingLine, location, moduleName, note, updatedBy, updatedDate, id };
+  return {
+    shippingLine,
+    location,
+    moduleName,
+    note,
+    updatedBy,
+    updatedDate,
+    id,
+  };
 }
 
 export default function ModuleNotesList() {
@@ -166,13 +174,13 @@ export default function ModuleNotesList() {
   };
 
   useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
-
     if (userData?.roleCode === "admin") {
       const adminCondition = `loggedUser.roleCodeId = u3.id`;
       setSearchCondition(adminCondition);
       getData(1, rowsPerPage, adminCondition);
+    } else {
+      getData(1, rowsPerPage);
+      setMode({ mode: null, formId: null });
     }
   }, []);
 

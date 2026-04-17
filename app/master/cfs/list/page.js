@@ -111,11 +111,12 @@ export default function CfsList() {
   );
 
   useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
     if (userData?.roleCode === "admin") {
       setSearchCondition("p.companyId = u4.companyId");
       getData(1, rowsPerPage, "p.companyId = u4.companyId");
+    } else {
+      getData(1, rowsPerPage);
+      setMode({ mode: null, formId: null });
     }
   }, []);
 

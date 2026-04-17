@@ -147,11 +147,12 @@ export default function IsoCodeLineMappingList() {
   };
 
   useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
     if (userData?.roleCode === "admin") {
       setSearchCondition(`loggedUser.roleCodeId = u3.id`);
       getData(1, rowsPerPage, `loggedUser.roleCodeId = u3.id`);
+    } else {
+      getData(1, rowsPerPage);
+      setMode({ mode: null, formId: null });
     }
   }, []);
 

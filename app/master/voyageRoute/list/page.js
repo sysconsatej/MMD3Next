@@ -158,11 +158,12 @@ export default function VoyageRouteList() {
   };
 
   useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
     if (userData?.roleCode === "admin") {
       setSearchCondition("1=1");
       getData(1, rowsPerPage, "1=1");
+    } else {
+      getData(1, rowsPerPage);
+      setMode({ mode: null, formId: null });
     }
   }, []);
 

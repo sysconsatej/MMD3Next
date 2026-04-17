@@ -156,11 +156,12 @@ export default function CompanyList() {
   };
 
   useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
     if (userData?.roleCode === "admin") {
       setSearchCondition(`s.id = u3.companyId`);
       getData(1, rowsPerPage, `s.id = u3.companyId`);
+    } else {
+      getData(1, rowsPerPage);
+      setMode({ mode: null, formId: null });
     }
   }, []);
 
