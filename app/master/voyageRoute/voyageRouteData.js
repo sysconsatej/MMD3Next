@@ -319,11 +319,13 @@ const fieldData = {
     //   ],
     //   isEdit: true,
     // },
-    {
-      label: "Auth Person Pan No",
-      name: "authPersonPanNo",
-      isEdit: true,
-    },
+    // removing this coloum tell by nilay,minlind, riyaz.
+    // {
+    //   label: "Auth Person Pan No",
+    //   name: "authPersonPanNo",
+    //   isEdit: true,
+    // },
+
     {
       label: "Cargo Description",
       name: "cargoDescription",
