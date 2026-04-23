@@ -32,3 +32,4 @@ export {
   fetchHblColumnsChanges,
   fetchHistory,
 } from "./history";
+export { revokePasswordApi } from "./revokepassword";

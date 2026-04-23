@@ -28,9 +28,9 @@ import { navTheme } from "@/styles";
 import { useModal, auth, formStore } from "@/store";
 import { getUserByCookies, useInitUser } from "@/utils/userInit";
 import { CustomInput } from "../customInput";
-import { locationFields } from "./navbarUtil";
+import { decryptPassword, locationFields } from "./navbarUtil";
 import Cookies from "js-cookie";
-import { getDataWithCondition } from "@/apis";
+import { getDataWithCondition, revokePasswordApi } from "@/apis";
 import { toast } from "react-toastify";
 import CustomButton from "../button/button";
 
@@ -218,8 +218,11 @@ export default function Navbar() {
   }, []);
 
   const loginToExportModule = async () => {
-    const redirectLink = process.env.NEXT_PUBLIC_DASHBOARD_URL;
-    router.push(redirectLink);
+    const userData = await getUserByCookies();
+    const res = await revokePasswordApi({ emailId: userData?.emailId });
+    const password = await decryptPassword(res.password, res.iv);
+    const redirectLink = `${process.env.NEXT_PUBLIC_DASHBOARD_URL}?username=${userData?.userName}&password=${password}&vendorUserName=CCC44A04-F756-4DE4-9959-5A135E19A035`;
+    router.push(redirectLink, "_blank");
   };
 
   return (

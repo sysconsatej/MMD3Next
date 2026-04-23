@@ -110,3 +110,19 @@ export const locationFields = {
     },
   ],
 };
+
+
+
+export const decryptPassword = async (encrypted, iv) => {
+  console.log("Decrypting password with encrypted data and IV:", { encrypted, iv });
+  const res = await fetch("/api/decrypt", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ encrypted, iv }),
+  });
+
+  const data = await res.json();
+  return data.decrypted;
+}
