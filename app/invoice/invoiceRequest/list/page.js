@@ -99,16 +99,9 @@ export default function InvoiceRequestList() {
     id: null,
     invoiceNo: "",
   });
-  const [searchCondition, setSearchCondition] = useState(
-    `u.id =  ${userData?.userId}`,
-  );
 
   const getData = useCallback(
-    async (
-      pageNo = page,
-      pageSize = rowsPerPage,
-      searchConditionMain = searchCondition,
-    ) => {
+    async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
           columns: `
@@ -128,13 +121,14 @@ export default function InvoiceRequestList() {
           pageSize,
           advanceSearch: advanceSearchFilter(advanceSearch),
           joins: `
-             LEFT JOIN tblCompany c ON c.id = i.shippingLineId
-             LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
-             LEFT JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId
-             left join tblUser u3 on u3.roleCode = 'customer'
-             LEFT JOIN tblUser u on ${searchConditionMain}
-             JOIN tblUser u2 on u2.companyId = u.companyId and i.createdBy = u2.id and i.locationId = ${userData?.location}
-          `,
+                LEFT JOIN tblCompany c ON c.id = i.shippingLineId
+                LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
+                LEFT JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId
+                JOIN tblUser u2 ON i.createdBy = u2.id
+                JOIN tblUser uc ON uc.id = ${userData.userId}
+                ${userData?.roleCode === "customer" ? `AND u2.companyId = uc.companyId` : ""}
+                AND i.locationId = ${userData?.location}
+              `,
           orderBy:
             "ORDER BY isnull(i.updatedDate, i.createdDate) DESC, i.id DESC",
         };
@@ -167,7 +161,7 @@ export default function InvoiceRequestList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch, searchCondition],
+    [page, rowsPerPage, advanceSearch],
   );
 
   const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
@@ -222,12 +216,7 @@ export default function InvoiceRequestList() {
   useEffect(() => {
     setMode({ mode: null, formId: null });
     getData(1, rowsPerPage);
-    if (userData?.roleCode === "admin") {
-      setSearchCondition(`u.roleCodeId = u3.id`);
-      getData(1, rowsPerPage, "u.roleCodeId = u3.id");
-    }
   }, []);
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
