@@ -110,9 +110,9 @@ export default function InvoiceReleaseList() {
     invoiceNo: "",
   });
   const [assignModal, setAssignModal] = useState({ toggle: false });
-  const [searchCondition, setSearchCondition] = useState(
-    `u.id = ${userData?.userId}`,
-  );
+  // const [searchCondition, setSearchCondition] = useState(
+  //   `u.id = ${userData?.userId}`,
+  // );
 
   const idsOnPage = useMemo(() => rows.map((x) => x.id), [rows]);
 
@@ -128,11 +128,7 @@ export default function InvoiceReleaseList() {
     );
 
   const getData = useCallback(
-    async (
-      pageNo = page,
-      pageSize = rowsPerPage,
-      searchConditionMain = searchCondition,
-    ) => {
+    async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
           columns: `
@@ -155,16 +151,22 @@ export default function InvoiceReleaseList() {
           advanceSearch: advanceSearchFilter(advanceSearch),
 
           joins: `
-          LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
-          left join tblUser u4 on u4.roleCode = 'shipping'
-          LEFT JOIN tblUser u ON ${searchConditionMain}
-          left join tblUser u2 on u2.id = i.assignToId
-          left join tblUser u3 on u3.id = i.createdBy
-          Left Join tblCompany c1 on c1.id=i.companyId
-          LEFT JOIN tblCompany c ON c.id = u.companyId
-          JOIN tblMasterData st ON st.id = i.invoiceRequestStatusId and i.invoiceRequestStatusId IS NOT NULL and i.shippingLineId = u.companyId and i.locationId = ${userData.location}
-          and (i.assignToId is null or i.assignToId = ${userData.userId})
-          `,
+                  LEFT JOIN tblMasterData m ON m.id = i.deliveryTypeId
+                  LEFT JOIN tblUser u2 ON u2.id = i.assignToId
+                  LEFT JOIN tblUser u3 ON u3.id = i.createdBy
+                  LEFT JOIN tblCompany c1 ON c1.id = i.companyId
+                  LEFT JOIN tblCompany c ON c.id = i.shippingLineId
+                  JOIN tblMasterData st 
+                    ON st.id = i.invoiceRequestStatusId
+                  AND i.invoiceRequestStatusId IS NOT NULL
+                  AND i.locationId = ${userData.location}
+                  ${
+                    userData?.roleCode === "admin"
+                      ? ""
+                      : `AND i.shippingLineId = ${userData.companyId}
+                          AND (i.assignToId IS NULL OR i.assignToId = ${userData.userId})`
+                  }
+                `,
           orderBy: `
             ORDER BY 
               CASE 
@@ -207,7 +209,7 @@ export default function InvoiceReleaseList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, advanceSearch, searchCondition],
+    [page, rowsPerPage, advanceSearch],
   );
   const handleNotify = async (ids) => {
     try {
@@ -225,7 +227,8 @@ export default function InvoiceReleaseList() {
 
       // 1️⃣ get email
       const emailObj = {
-        columns: "ir.billingPartyEmailId as emailId,ir.billingPartyName as name",
+        columns:
+          "ir.billingPartyEmailId as emailId,ir.billingPartyName as name",
         tableName: "tblInvoiceRequest ir",
         whereCondition: `ir.id = ${invoiceRequestId}`,
       };
@@ -392,10 +395,10 @@ export default function InvoiceReleaseList() {
   useEffect(() => {
     setMode({ mode: null, formId: null });
     getData(1, rowsPerPage);
-    if (userData?.roleCode === "admin") {
-      setSearchCondition("u.roleCodeId = u4.id");
-      getData(1, rowsPerPage, "u.roleCodeId = u4.id");
-    }
+    // if (userData?.roleCode === "admin") {
+    //   setSearchCondition("u.roleCodeId = u4.id");
+    //   getData(1, rowsPerPage, "u.roleCodeId = u4.id");
+    // }
   }, []);
 
   useEffect(() => {
