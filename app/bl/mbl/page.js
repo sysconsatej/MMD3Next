@@ -110,7 +110,7 @@ export default function Home() {
       const totalGrossAndPack = formData?.tblBlContainer?.reduce(
         (sum, cur) => {
           sum.grossWt += Number(cur?.grossWt || 0);
-          sum.netWt += Number(cur?.netWt || 0);
+          // sum.tareWt += Number(cur?.tareWt || 0);
           sum.noOfPackages += Number(cur?.noOfPackages || 0);
           if (
             (packType?.Name !== cur?.packageId?.Name &&
@@ -121,12 +121,12 @@ export default function Home() {
           }
           return sum;
         },
-        { grossWt: 0, noOfPackages: 0, packType: packType, netWt: 0 },
+        { grossWt: 0, noOfPackages: 0, packType: packType },
       );
       const updateForm = {
         ...formData,
         grossWt: totalGrossAndPack?.grossWt,
-        netWt: totalGrossAndPack?.netWt,
+        // tareWt: totalGrossAndPack?.tareWt,
         noOfPackages: totalGrossAndPack?.noOfPackages,
         packageId: totalGrossAndPack?.packType,
       };

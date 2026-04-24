@@ -407,14 +407,14 @@ export const fieldData = {
       disabled: true,
     },
 
-    {
-      label: "Net Wt(Kgs)",
-      name: "netWt",
-      type: "number",
-      // required: true,
-      disabled: true,
-      isEdit: true,
-    },
+    // {
+    //   label: "Net Wt(Kgs)",
+    //   name: "netWt",
+    //   type: "number",
+    //   // required: true,
+    //   disabled: true,
+    //   isEdit: true,
+    // },
     {
       label: "Package Type",
       name: "packageId",
@@ -809,7 +809,7 @@ export const fieldData = {
       isEdit: true,
       required: true,
     },
-    { label: "NetWt(Kgs)", name: "netWt", type: "number", isEdit: true },
+    { label: "TareWt(Kgs)", name: "tareWt", type: "number", isEdit: true },
     { label: "Volume(CBM)", name: "volume", isEdit: true },
     {
       label: "NO of Package",
