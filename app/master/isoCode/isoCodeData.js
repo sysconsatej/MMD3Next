@@ -32,10 +32,10 @@ const fieldData = {
       blurFun: "isoCodeSizeGate", // ← add this
     },
     {
-      label:"IGM ISO Code",
-      name:"igmIsoCode",
-      isEdit:true,
-    }
+      label: "IGM ISO Code",
+      name: "igmIsoCode",
+      isEdit: true,
+    },
   ],
 };
 
@@ -44,6 +44,7 @@ export const isoCode = [
   { label: "Size", value: "sizeData.name" },
   { label: "Type", value: "typeData.name" },
   { label: "IGM ISO Code", value: "i.igmIsoCode" },
+  { label: "Updated By", value: "u.name" },
 ];
 
 export default fieldData;

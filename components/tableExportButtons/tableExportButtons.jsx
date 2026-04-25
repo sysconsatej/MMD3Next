@@ -3,6 +3,7 @@ import React from "react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import CustomButton from "../button/button";
+import * as XLSX from "xlsx";
 
 const csvEscape = (s) => {
   const v = String(s ?? "");
@@ -24,7 +25,7 @@ export default function TableExportButtons({
       .map((tr) =>
         Array.from(tr.querySelectorAll("th,td"))
           .map((cell) => csvEscape(cell.innerText))
-          .join(",")
+          .join(","),
       )
       .join("\n");
 
@@ -63,7 +64,7 @@ export default function TableExportButtons({
         doc.text(
           p,
           data.settings.margin.left,
-          doc.internal.pageSize.getHeight() - 20
+          doc.internal.pageSize.getHeight() - 20,
         );
       },
     });
@@ -107,18 +108,70 @@ export default function TableExportButtons({
     <div className="flex border text-black border-[#B5C4F0] mt-2 text-xs rounded-sm">
       <div
         onClick={exportCSV}
-        className="flex-1 text-center py-1 px-3 cursor-pointer border-r border-[#B5C4F0] hover:bg-[#B5C4F0] hover:text-white">
+        className="flex-1 text-center py-1 px-3 cursor-pointer border-r border-[#B5C4F0] hover:bg-[#B5C4F0] hover:text-white"
+      >
         CSV
       </div>
       <div
         onClick={exportPDF}
-        className="flex-1 text-center py-1 px-3 cursor-pointer border-r border-[#B5C4F0] hover:bg-[#B5C4F0] hover:text-white">
+        className="flex-1 text-center py-1 px-3 cursor-pointer border-r border-[#B5C4F0] hover:bg-[#B5C4F0] hover:text-white"
+      >
         PDF
       </div>
       <div
         onClick={printTable}
-        className="flex-1 text-center py-1 px-3 cursor-pointer hover:bg-[#B5C4F0] hover:text-white">
+        className="flex-1 text-center py-1 px-3 cursor-pointer hover:bg-[#B5C4F0] hover:text-white"
+      >
         Print
+      </div>
+    </div>
+  );
+}
+
+export function TableExcelButton({
+  targetRef,
+  fileName = "report",
+  sheetName = "Sheet1",
+}) {
+  const getTable = () => targetRef?.current?.querySelector("table");
+
+  const exportExcel = () => {
+    const table = getTable();
+
+    if (!table) {
+      alert("Table not found.");
+      return;
+    }
+
+    // Convert HTML table to worksheet
+    const ws = XLSX.utils.table_to_sheet(table, {
+      raw: true,
+    });
+
+    // Auto width
+    const rows = Array.from(table.querySelectorAll("tr"));
+    const colWidths = [];
+
+    rows.forEach((tr) => {
+      Array.from(tr.querySelectorAll("th,td")).forEach((cell, i) => {
+        const len = String(cell.innerText || "").length;
+        colWidths[i] = Math.max(colWidths[i] || 10, len + 2);
+      });
+    });
+
+    ws["!cols"] = colWidths.map((w) => ({ wch: w }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    XLSX.writeFile(wb, `${fileName}.xlsx`);
+  };
+
+  return (
+    <div className="flex border text-black border-[#B5C4F0] mt-2 text-xs rounded-sm">
+      <div
+        onClick={exportExcel}
+        className="flex-1 text-center py-1 px-3 cursor-pointer hover:bg-[#B5C4F0] hover:text-white"
+      >
+        Excel
       </div>
     </div>
   );

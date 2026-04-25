@@ -20,6 +20,7 @@ const fieldData = {
 export const packageType = [
   { label: " Name", value: "m.name" },
   { label: "Code", value: "m.code" },
+  { label: "Updated By", value: "u.name" },
 ];
 
 export default fieldData;

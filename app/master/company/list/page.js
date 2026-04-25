@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
   Table,
@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { company } from "../companyData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
+import { TableExcelButton } from "@/components/tableExportButtons/tableExportButtons";
 function createData(
   code,
   name,
@@ -37,7 +38,7 @@ function createData(
   gstInNo,
   updatedBy,
   updateDate,
-  id
+  id,
 ) {
   return {
     code,
@@ -67,6 +68,7 @@ export default function CompanyList() {
   const router = useRouter();
   const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
+  const tableWrapRef = useRef(null);
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
@@ -93,7 +95,7 @@ export default function CompanyList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, search],
   );
 
   useEffect(() => {
@@ -115,8 +117,8 @@ export default function CompanyList() {
           item["gstInNo"],
           item["updatedBy"],
           item["updateDate"],
-          item["id"]
-        )
+          item["id"],
+        ),
       )
     : [];
 
@@ -177,7 +179,7 @@ export default function CompanyList() {
           </Box>
         </Box>
 
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
@@ -229,16 +231,22 @@ export default function CompanyList() {
             </TableBody>
           </Table>
         </TableContainer>
-
-        <Box className="flex justify-end items-center mt-2">
-          <CustomPagination
-            count={totalPage}
-            totalRows={totalRows}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            handleChangeRowsPerPage={handleChangeRowsPerPage}
+        <Box className="flex justify-between items-center">
+          <TableExcelButton
+            targetRef={tableWrapRef}
+            title="Company"
+            fileName="Company-List"
           />
+          <Box className="flex justify-end items-center mt-2">
+            <CustomPagination
+              count={totalPage}
+              totalRows={totalRows}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={handleChangePage}
+              handleChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </Box>
         </Box>
       </Box>
       <ToastContainer />

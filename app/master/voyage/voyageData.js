@@ -80,14 +80,14 @@ const fieldData = {
     },
     {
       label: "Purpose of Call",
-      name:"purposeOfCall",
-      type:"dropdown",
-      tableName:"tblMasterData",
-      displayColumn:"ISNULL(t.code,'') + ' - ' + ISNULL(t.name,'')",
-      where:"masterListName = 'tblPurposeOfCall'",
-      orderBy:"t.name",
-      foreignTable:"code-name,tblMasterData",
-      isEdit:true,
+      name: "purposeOfCall",
+      type: "dropdown",
+      tableName: "tblMasterData",
+      displayColumn: "ISNULL(t.code,'') + ' - ' + ISNULL(t.name,'')",
+      where: "masterListName = 'tblPurposeOfCall'",
+      orderBy: "t.name",
+      foreignTable: "code-name,tblMasterData",
+      isEdit: true,
     },
   ],
 };
@@ -95,5 +95,7 @@ const fieldData = {
 export const voyage = [
   { label: "Vessel Name", value: "v1.name" },
   { label: "Voyage No", value: "v.voyageNo" },
+  { label: "Updated By", value: "u.name" },
+  { label: "Company Name", value: "comp.name" },
 ];
 export default fieldData;

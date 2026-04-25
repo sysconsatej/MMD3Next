@@ -469,6 +469,8 @@ export const VoyageRoute = [
   // { label: "Export Locking", value: "v.exportLocking" },
   // { label: "Import Locking", value: "v.importLocking" },
   { label: "Terminal", value: "p.name" },
+  { label: "Updated By", value: "u.name" },
+  { label: "Company Name", value: "comp.name" },
 ];
 
 export default fieldData;

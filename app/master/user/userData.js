@@ -1,5 +1,6 @@
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
+import { lazy } from "react";
 const fieldData = {
   userFields: [
     {
@@ -55,7 +56,6 @@ const fieldData = {
       required: true,
       where: "u.userType='R'",
       changeFun: "getUserGroupBasedonRole",
-      
     },
   ],
   tblUserRoleMapping: [
@@ -92,6 +92,8 @@ const fieldData = {
 export const user = [
   { label: "Name", value: "u.name" },
   { label: "Email Id", value: "u.emailId" },
+  { label: "Company", value: "c.name" },
+  { label: "Updated By", value: "u3.name" },
 ];
 
 export default fieldData;
@@ -108,6 +110,3 @@ export const cfsGridButtons = [
     func: "gridDeleteHandler",
   },
 ];
-
-
-
