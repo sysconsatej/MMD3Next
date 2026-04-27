@@ -159,11 +159,12 @@ export default function BLList() {
   };
 
   useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
     if (userData?.roleCode === "admin") {
       setSearchCondition(`u.roleCodeId = u4.id`);
       getData(1, rowsPerPage, "u.roleCodeId = u4.id");
+    } else {
+      getData(1, rowsPerPage);
+      setMode({ mode: null, formId: null });
     }
   }, []);
 
@@ -296,8 +297,8 @@ export default function BLList() {
         <Box className="flex justify-between items-center">
           <TableExportButtons
             targetRef={tableWrapRef}
-            title="MBL Request"
-            fileName="mbl-list"
+            title="Do Request List"
+            fileName="Do-Request-list"
           />
 
           <CustomPagination

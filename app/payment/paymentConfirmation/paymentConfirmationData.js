@@ -1,10 +1,27 @@
+const userData = getUserByCookies();
+const isAdmin = userData?.roleCode === "admin";
 export const advanceSearchFields = {
   bl: [
+    ...(isAdmin
+      ? [
+          {
+            label: "Liner",
+            name: "shippingLineId",
+            type: "multiselect",
+            tableName: "tblCompany c",
+            joins: `join tblCompanySubtype cs on cs.companyId = c.id join tblUser u2 on u2.id = cs.subTypeId and u2.roleCode = 'shipping'`,
+            displayColumn: "c.name",
+            orderBy: "c.name",
+            isEdit: true,
+          },
+        ]
+      : []),
     {
       label: "BL No./Via No-Cust Code",
-      name: "mblNo",
+      name: "blNo",
       isEdit: true,
     },
+
     {
       label: "Payment Date (From)",
       name: "fromDate",
@@ -19,7 +36,7 @@ export const advanceSearchFields = {
     },
     {
       label: "Payment Mode",
-      name: "paymentModeId",         // 👈 keep this name
+      name: "paymentModeId", // 👈 keep this name
       type: "dropdown",
       tableName: "tblMasterData m",
       displayColumn: "m.name",
@@ -29,9 +46,9 @@ export const advanceSearchFields = {
       isEdit: true,
     },
     {
-      label: "Status",               // 👈 NEW
+      label: "Status", // 👈 NEW
       name: "statusId",
-      type: "multiselect",           // same type your AdvancedSearchBar expects
+      type: "multiselect", // same type your AdvancedSearchBar expects
       tableName: "tblMasterData m",
       displayColumn: "m.name",
       where: "m.masterListName = 'tblPaymentStatus'",
@@ -47,18 +64,22 @@ export function advanceSearchFilter(advanceSearch) {
   const condition = [];
 
   // BL No
-  if (advanceSearch.mblNo) {
-    condition.push(`b.mblNo LIKE '%${advanceSearch.mblNo}%'`);
+  if (advanceSearch.blNo) {
+    condition.push(`p.blNo LIKE '%${advanceSearch.blNo}%'`);
   }
 
   // Date range
   if (advanceSearch.fromDate && advanceSearch.toDate) {
     condition.push(
-      `p.createdDate BETWEEN '${advanceSearch.fromDate}' AND '${advanceSearch.toDate}'`
+      `p.createdDate BETWEEN '${advanceSearch.fromDate}' AND '${advanceSearch.toDate}'`,
     );
   }
 
   // Payment mode filter (fix name -> paymentModeId)
+  if (advanceSearch.shippingLineId?.length > 0) {
+    const ids = advanceSearch.shippingLineId.map((x) => x.Id).join(",");
+    condition.push(`p.shippingLineId IN (${ids})`);
+  }
   if (advanceSearch.paymentModeId) {
     condition.push(`p.paymentTypeId = ${advanceSearch.paymentModeId.Id}`);
   }
@@ -72,7 +93,6 @@ export function advanceSearchFilter(advanceSearch) {
   return condition.length > 0 ? condition.join(" AND ") : null;
 }
 
-
 export function paymentStatusColor(status) {
   const map = {
     "Payment Confirmation Requested": "#4E61D3", // Blue
@@ -82,6 +102,7 @@ export function paymentStatusColor(status) {
   return map[status] || "inherit";
 }
 
+import { getUserByCookies } from "@/utils";
 import {
   Dialog,
   DialogTitle,

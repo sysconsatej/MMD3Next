@@ -301,8 +301,8 @@ export function advanceSearchFilter(advanceSearch) {
 
   if (advanceSearch?.companyId) {
     condition.push(
-      `c1.name in (${advanceSearch?.companyId
-        .map((item) => `'${item.Name}'`)
+      `b.companyId in (${advanceSearch?.companyId
+        .map((item) => `'${item.Id}'`)
         .join(",")})`,
     );
   }
