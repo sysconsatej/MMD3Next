@@ -44,6 +44,7 @@ import HistoryIcon from "@mui/icons-material/History";
 import BLHistoryModal from "@/app/bl/mbl/modal";
 import MBLSelectionActionsBar from "@/components/selectionActions/mblSelectionActionsBar";
 import { CustomInput } from "@/components/customInput";
+import { DoGENHistoryModal } from "./historyModal";
 
 const LIST_TABLE = "tblBl b";
 const UPDATE_TABLE = LIST_TABLE.trim()
@@ -122,8 +123,9 @@ export default function BLList() {
   const [reportModalForRow, setReportModalForRow] = useState(null);
   const userData = getUserByCookies();
   const [historyModal, setHistoryModal] = useState({
-    open: false,
-    recordId: null,
+    toggle: false,
+    value: null,
+    blNo: "",
   });
   const [SearchCondition, setSearchCondition] = useState(
     `u.id = ${userData?.userId}`,
@@ -398,8 +400,9 @@ export default function BLList() {
                         }}
                         onClick={() =>
                           setHistoryModal({
-                            open: true,
-                            recordId: Number(row.id),
+                            toggle: true,
+                            value: Number(row.id),
+                            blNo: row.blNo,
                           })
                         }
                       />
@@ -452,11 +455,9 @@ export default function BLList() {
         tableName={"tblBl"}
       />
 
-      <BLHistoryModal
-        open={historyModal.open}
-        onClose={() => setHistoryModal({ open: false, recordId: null })}
-        recordId={historyModal.recordId}
-        blNumber={rows.find((x) => x.id === historyModal.recordId)?.blNo || ""}
+      <DoGENHistoryModal
+        historyModal={historyModal}
+        setHistoryModal={setHistoryModal}
       />
 
       <ToastContainer />
