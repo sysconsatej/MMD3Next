@@ -18,6 +18,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import CropSquareIcon from "@mui/icons-material/CropSquare";
 import { fetchHistory } from "@/apis/history";
+import { statusColor } from "../../doRequest/utils";
 
 export function DoGENHistoryModal({ historyModal, setHistoryModal }) {
   const { toggle, value: id, blNo } = historyModal;
@@ -152,6 +153,7 @@ export function DoGENHistoryModal({ historyModal, setHistoryModal }) {
                 <TableCell>Field Name</TableCell>
                 <TableCell>Old Value</TableCell>
                 <TableCell>New Value</TableCell>
+                <TableCell>Status</TableCell>
                 <TableCell>User Name</TableCell>
               </TableRow>
             </TableHead>
@@ -172,6 +174,14 @@ export function DoGENHistoryModal({ historyModal, setHistoryModal }) {
                     <TableCell>{row["field name"]}</TableCell>
                     <TableCell>{row["Old value"]}</TableCell>
                     <TableCell>{row["New value"]}</TableCell>
+                    <TableCell
+                      sx={{
+                        color: statusColor(row["status"]?.replace(/\s+/g, "")),
+                        fontWeight: 600,
+                      }}
+                    >
+                      {row["status"]}
+                    </TableCell>{" "}
                     <TableCell>{row["User name"]}</TableCell>
                   </TableRow>
                 ))
