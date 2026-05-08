@@ -121,6 +121,8 @@ export const cfs = [
   { label: "Address", value: "p.address" },
   { label: "Reference Port", value: "ref.name" },
   { label: "CFS Type", value: "cfsType.name" },
+  { label: "Company Name", value: "comp.name" },
+  { label: "Updated by", value: "u.name" },
 ];
 
 export default fieldData;

@@ -243,6 +243,8 @@ export function statusColor(status) {
     PendingforDO: "#F4B342",
     ReleasedforDO: "#007E6E",
     Confirm: "green",
+    GenerateforDO: "#1976D2",
+    Pending: "#A66DD4"
   };
   return color[status];
 }

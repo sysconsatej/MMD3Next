@@ -106,6 +106,7 @@ export const vessel = [
   { label: "Nationality", value: "c.name" },
   { label: "CallSign", value: "v.callSign" },
   { label: "ImoCode", value: "v.imoCode" },
+  { label: "Updated by", value: "u.name" },
 ];
 
 export default fieldData;

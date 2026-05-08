@@ -3,12 +3,23 @@
 import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import {
-  Backdrop, Modal, Fade, Box, Typography, Checkbox, FormControlLabel,
-  Button, Divider, Paper, ToggleButtonGroup, ToggleButton,
+  Backdrop,
+  Modal,
+  Fade,
+  Box,
+  Typography,
+  Checkbox,
+  FormControlLabel,
+  Button,
+  Divider,
+  Paper,
+  ToggleButtonGroup,
+  ToggleButton,
 } from "@mui/material";
 import { validatePrint } from "@/apis/validatePrint.js";
 import { toast } from "react-toastify";
 import { getUserByCookies } from "@/utils";
+import { getDataWithCondition, updateStatusRows } from "@/apis";
 
 export default function ReportPickerModal({
   open,
@@ -32,13 +43,17 @@ export default function ReportPickerModal({
     }
   }, [open, initialMode]);
 
-  const allKeys = useMemo(() => (availableReports || []).map(r => r.key), [availableReports]);
+  const allKeys = useMemo(
+    () => (availableReports || []).map((r) => r.key),
+    [availableReports],
+  );
   const allChecked = selected.size > 0 && selected.size === allKeys.length;
   const someChecked = selected.size > 0 && selected.size < allKeys.length;
 
-  const toggleAll = (checked) => setSelected(checked ? new Set(allKeys) : new Set());
+  const toggleAll = (checked) =>
+    setSelected(checked ? new Set(allKeys) : new Set());
   const toggleOne = (key) => {
-    setSelected(prev => {
+    setSelected((prev) => {
       const next = new Set(prev);
       next.has(key) ? next.delete(key) : next.add(key);
       return next;
@@ -60,12 +75,46 @@ export default function ReportPickerModal({
       locationId: userData?.location || null,
     };
 
-    const validatePrintResponse = await validatePrint(validatePrintObj);
-    if (validatePrintResponse[0]?.success === false) {
-      toast.error(validatePrintResponse[0]?.message || "failed To Open Report");
+    const obj = {
+      columns: "id as Id, name as Name",
+      tableName: "tblMasterData",
+      whereCondition:
+        "masterListName = 'tblDoStatus' and status = 1 and name = 'Generate for DO'",
+    };
+
+    const { data, success } = await getDataWithCondition(obj);
+
+    if (!success || !data?.length) {
+      toast.error("Generate for DO status not found");
       return;
     }
 
+    const rowsPayload = [
+      {
+        id: recordId,
+        doStatusId: data?.[0]?.Id,
+        updatedBy: userData?.userId,
+        updatedDate: new Date(),
+      },
+    ];
+
+    const updateRes = await updateStatusRows({
+      tableName: "tblBl",
+      rows: rowsPayload,
+      keyColumn: "id",
+    });
+
+    if (!updateRes?.success) {
+      toast.error(updateRes?.message || "Status update failed");
+      return;
+    }
+
+    const validatePrintResponse = await validatePrint(validatePrintObj);
+
+    if (validatePrintResponse[0]?.success === false) {
+      toast.error(validatePrintResponse[0]?.message || "Failed To Open Report");
+      return;
+    }
     const ordered = (availableReports || [])
       .map((r) => r.key)
       .filter((k) => selected.has(k));
@@ -79,13 +128,13 @@ export default function ReportPickerModal({
     if (mode === "separate") {
       for (const name of ordered) {
         const url = `${reportRoute}?recordId=${rid}&clientId=${cid}&mode=combined&selected=${encodeURIComponent(
-          name
+          name,
         )}`;
         const w = window.open("", "_blank");
         if (w && !w.closed) {
           try {
             w.opener = null;
-          } catch { }
+          } catch {}
           try {
             w.location.replace(url);
           } catch {
@@ -95,13 +144,13 @@ export default function ReportPickerModal({
       }
     } else {
       const url = `${reportRoute}?recordId=${rid}&clientId=${cid}&mode=combined&selected=${encodeURIComponent(
-        ordered.join("!")
+        ordered.join("!"),
       )}`;
       const w = window.open("", "_blank");
       if (w && !w.closed) {
         try {
           w.opener = null;
-        } catch { }
+        } catch {}
         try {
           w.location.replace(url);
         } catch {
@@ -113,7 +162,6 @@ export default function ReportPickerModal({
     onGenerate?.({ selectedKeys: ordered, mode });
     onClose?.();
   };
-
 
   const disableGenerate = selected.size === 0 || !recordId;
 
@@ -142,19 +190,43 @@ export default function ReportPickerModal({
       }}
     >
       <Fade in={open}>
-        <Box sx={{
-          position: "fixed", inset: 0, display: "flex",
-          alignItems: "center", justifyContent: "center",
-          p: 2, outline: "none", isolation: "isolate",
-          zIndex: (t) => t.zIndex.modal + 1,
-        }}>
-          <Paper elevation={8} sx={(t) => ({
-            width: { xs: "100%", sm: 520 }, maxWidth: "96vw",
-            borderRadius: 2, p: 2.5, position: "relative",
-            zIndex: t.zIndex.modal + 2, backgroundColor: t.palette.background.paper,
-          })}>
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
-              <Typography id="report-picker-title" sx={{ fontWeight: 700, fontSize: 16 }}>
+        <Box
+          sx={{
+            position: "fixed",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            p: 2,
+            outline: "none",
+            isolation: "isolate",
+            zIndex: (t) => t.zIndex.modal + 1,
+          }}
+        >
+          <Paper
+            elevation={8}
+            sx={(t) => ({
+              width: { xs: "100%", sm: 520 },
+              maxWidth: "96vw",
+              borderRadius: 2,
+              p: 2.5,
+              position: "relative",
+              zIndex: t.zIndex.modal + 2,
+              backgroundColor: t.palette.background.paper,
+            })}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                mb: 1,
+              }}
+            >
+              <Typography
+                id="report-picker-title"
+                sx={{ fontWeight: 700, fontSize: 16 }}
+              >
                 Reports
               </Typography>
               <ToggleButtonGroup
@@ -184,15 +256,27 @@ export default function ReportPickerModal({
               label="Select All"
             />
 
-            <Box role="group" aria-label="Report list" sx={{
-              mt: 1, mb: 2, maxHeight: 280, overflowY: "auto", pr: 0.5,
-              display: "grid", gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: 0.5,
-            }}>
+            <Box
+              role="group"
+              aria-label="Report list"
+              sx={{
+                mt: 1,
+                mb: 2,
+                maxHeight: 280,
+                overflowY: "auto",
+                pr: 0.5,
+                display: "grid",
+                gridTemplateColumns: "repeat(2, minmax(0,1fr))",
+                gap: 0.5,
+              }}
+            >
               {(availableReports || []).map((r) => (
                 <FormControlLabel
                   key={r.key}
                   sx={{
-                    m: 0, px: 0.5, borderRadius: 1,
+                    m: 0,
+                    px: 0.5,
+                    borderRadius: 1,
                     "& .MuiFormControlLabel-label": { fontSize: 12 },
                     "&:hover": { backgroundColor: "action.hover" },
                   }}
@@ -232,7 +316,10 @@ ReportPickerModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   availableReports: PropTypes.arrayOf(
-    PropTypes.shape({ key: PropTypes.string.isRequired, label: PropTypes.string })
+    PropTypes.shape({
+      key: PropTypes.string.isRequired,
+      label: PropTypes.string,
+    }),
   ).isRequired,
   defaultSelectedKeys: PropTypes.arrayOf(PropTypes.string),
   initialMode: PropTypes.oneOf(["combined", "separate"]),

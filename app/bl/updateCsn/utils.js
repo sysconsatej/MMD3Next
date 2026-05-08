@@ -343,7 +343,7 @@ export async function requestHandler(formData, setDisableRequest) {
       toast.error(
         message ||
           error ||
-          "CFS Request record not found. Please submit first.",
+          "Update CSN Request record not found. Please submit first.",
       );
       return;
     }
@@ -359,7 +359,7 @@ export async function requestHandler(formData, setDisableRequest) {
       rows: rowsPayload,
     });
     if (res?.success) {
-      toast.success("CFS Request sent successfully!");
+      toast.success("Update CSN Request sent successfully!");
       setDisableRequest(true);
     } else {
       toast.error(res?.message || "Error while sending CSN Request");

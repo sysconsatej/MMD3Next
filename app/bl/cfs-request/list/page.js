@@ -135,11 +135,12 @@ export default function CompanyList() {
 
   /* ---------------- Render ---------------- */
   useEffect(() => {
-    getData(1, rowsPerPage);
-    setMode({ mode: null, formId: null });
     if (userData?.roleCode === "admin") {
       setSearchCondition(`u1.roleCodeId = u3.id`);
       getData(1, rowsPerPage, "u1.roleCodeId = u3.id");
+    } else {
+      getData(1, rowsPerPage);
+      setMode({ mode: null, formId: null });
     }
   }, []);
 

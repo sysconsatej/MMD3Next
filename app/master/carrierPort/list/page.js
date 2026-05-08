@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
   Table,
@@ -25,6 +25,9 @@ import { useRouter } from "next/navigation";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { fieldData, searchDataAray } from "../carrierPortData";
 import { getUserByCookies } from "@/utils";
+import TableExportButtons, {
+  TableExcelButton,
+} from "@/components/tableExportButtons/tableExportButtons";
 
 function createData(
   companyId,
@@ -67,6 +70,7 @@ export default function CompanyList() {
   const [searchCondition, setSearchCondition] = useState(
     `s.id = '${userData?.companyId}' and c.createdBy = u3.id `,
   );
+  const tableWrapRef = useRef(null);
 
   const getData = useCallback(
     async (
@@ -187,7 +191,7 @@ export default function CompanyList() {
           </Box>
         </Box>
         {/* Table */}
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
@@ -233,16 +237,28 @@ export default function CompanyList() {
             </TableBody>
           </Table>
         </TableContainer>
-
-        <Box className="flex justify-end items-center mt-2">
-          <CustomPagination
-            count={totalPage}
-            totalRows={totalRows}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            handleChangeRowsPerPage={handleChangeRowsPerPage}
-          />
+        <Box
+          className={`flex items-center mt-2 ${
+            userData?.roleCode === "admin" ? "justify-between" : "justify-end"
+          }`}
+        >
+          {userData?.roleCode === "admin" && (
+            <TableExcelButton
+              targetRef={tableWrapRef}
+              title="Carrier Port"
+              fileName="Carrier-Port-List"
+            />
+          )}
+          <Box className="flex justify-end items-center mt-2">
+            <CustomPagination
+              count={totalPage}
+              totalRows={totalRows}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={handleChangePage}
+              handleChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </Box>
         </Box>
       </Box>
       <ToastContainer />

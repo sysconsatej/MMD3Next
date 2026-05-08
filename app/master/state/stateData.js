@@ -38,6 +38,7 @@ export const state = [
   { label: "Tax State Code", value: "s.taxStateCode" },
   { label: "Name", value: "s.name" },
   { label: "Country Name", value: "c.name" },
+  { label: "Updated By", value: "u.name" },
 ];
 
 export default fieldData;

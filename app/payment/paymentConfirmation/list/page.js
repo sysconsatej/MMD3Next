@@ -343,12 +343,12 @@ JOIN tblLocation l
 
   useEffect(() => {
     async function fetchStatus() {
-      setMode({ mode: null, formId: null });
-      getData(1, rowsPerPage);
-
       if (userData?.roleCode === "admin") {
         setSearchCondition(`u.roleCodeId = u2.id`);
         getData(1, rowsPerPage, "u.roleCodeId = u2.id");
+      } else {
+        setMode({ mode: null, formId: null });
+        getData(1, rowsPerPage);
       }
 
       const obj = {

@@ -117,6 +117,7 @@ const fieldData = {
               and m.masterListName = 'tblPortType' and m.code = 'CFS' and p.companyId = ${userData?.companyId}
               and m2.name = 'Non-Empanelled CFS'`,
       isEdit: true,
+      selectedConditions: [{ podId: "p.referencePortId" }],
       foreignTable: "code-name,tblPort",
       changeFun: "setAllocateCfs",
     },

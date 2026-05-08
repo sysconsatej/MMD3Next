@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
   Table,
@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { depot } from "../depotData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
+import { TableExcelButton } from "@/components/tableExportButtons/tableExportButtons";
 function createData(
   depotName,
   location,
@@ -59,6 +60,7 @@ export default function DepotList() {
   const router = useRouter();
   const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
+  const tableWrapRef = useRef(null);
   const [searchCondition, setSearchCondition] = useState(
     `usr.id = ${userData?.userId}`,
   );
@@ -183,7 +185,7 @@ export default function DepotList() {
           </Box>
         </Box>
 
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
@@ -225,15 +227,28 @@ export default function DepotList() {
             </TableBody>
           </Table>
         </TableContainer>
-        <Box className="flex justify-end items-center mt-2">
-          <CustomPagination
-            count={totalPage}
-            totalRows={totalRows}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            handleChangeRowsPerPage={handleChangeRowsPerPage}
-          />
+        <Box
+          className={`flex items-center mt-2 ${
+            userData?.roleCode === "admin" ? "justify-between" : "justify-end"
+          }`}
+        >
+          {userData?.roleCode === "admin" && (
+            <TableExcelButton
+              targetRef={tableWrapRef}
+              title="Empty Depot"
+              fileName="Empty-Depot-List"
+            />
+          )}
+          <Box className="flex justify-end items-center mt-2">
+            <CustomPagination
+              count={totalPage}
+              totalRows={totalRows}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={handleChangePage}
+              handleChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </Box>
         </Box>
       </Box>
       <ToastContainer />

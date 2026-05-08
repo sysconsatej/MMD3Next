@@ -20,6 +20,7 @@ const fieldData = {
 export const movementType = [
   { label: " Name", value: "m.name" },
   { label: "Code", value: "m.code" },
+  { label: "Updated By", value: "u.name" },
 ];
 
 export default fieldData;

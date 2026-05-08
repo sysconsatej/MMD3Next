@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
   Table,
@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { isoCode } from "../isoCodeData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
+import { TableExcelButton } from "@/components/tableExportButtons/tableExportButtons";
 function createData(size, type, code, igmIsoCode, updatedBy, updateDate, id) {
   return { size, type, code, igmIsoCode, updatedBy, updateDate, id };
 }
@@ -41,6 +42,7 @@ export default function IsoCodeList() {
   const router = useRouter();
   const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
+  const tableWrapRef = useRef(null);
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
@@ -144,7 +146,7 @@ export default function IsoCodeList() {
             <CustomButton text="Add" href="/master/isoCode" />
           </Box>
         </Box>
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
@@ -184,15 +186,22 @@ export default function IsoCodeList() {
             </TableBody>
           </Table>
         </TableContainer>
-        <Box className="flex justify-end items-center mt-2">
-          <CustomPagination
-            count={totalPage}
-            totalRows={totalRows}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            handleChangeRowsPerPage={handleChangeRowsPerPage}
+        <Box className="flex justify-between items-center">
+          <TableExcelButton
+            targetRef={tableWrapRef}
+            title="ISO Code"
+            fileName="ISO-Code-List"
           />
+          <Box className="flex justify-end items-center mt-2">
+            <CustomPagination
+              count={totalPage}
+              totalRows={totalRows}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={handleChangePage}
+              handleChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </Box>
         </Box>
       </Box>
       <ToastContainer />

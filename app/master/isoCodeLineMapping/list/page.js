@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
   Table,
@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { country } from "../isoCodeLineMappingData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
+import { TableExcelButton } from "@/components/tableExportButtons/tableExportButtons";
 function createData(
   shippingLine,
   IsoCode,
@@ -51,7 +52,7 @@ export default function IsoCodeLineMappingList() {
   const [searchCondition, setSearchCondition] = useState(
     `loggedUser.id = ${userData?.userId}`,
   );
-
+  const tableWrapRef = useRef(null);
   const getData = useCallback(
     async (
       pageNo = page,
@@ -177,7 +178,7 @@ export default function IsoCodeLineMappingList() {
             )}
           </Box>
         </Box>
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
@@ -215,15 +216,28 @@ export default function IsoCodeLineMappingList() {
             </TableBody>
           </Table>
         </TableContainer>
-        <Box className="flex justify-end items-center mt-2">
-          <CustomPagination
-            count={totalPage}
-            totalRows={totalRows}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            handleChangeRowsPerPage={handleChangeRowsPerPage}
-          />
+        <Box
+          className={`flex items-center mt-2 ${
+            userData?.roleCode === "admin" ? "justify-between" : "justify-end"
+          }`}
+        >
+          {userData?.roleCode === "admin" && (
+            <TableExcelButton
+              targetRef={tableWrapRef}
+              title="Iso Code Line Mapping"
+              fileName="Iso-Code-Line-Mapping-List"
+            />
+          )}
+          <Box className="flex justify-end items-center mt-2">
+            <CustomPagination
+              count={totalPage}
+              totalRows={totalRows}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={handleChangePage}
+              handleChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </Box>
         </Box>
       </Box>
       <ToastContainer />

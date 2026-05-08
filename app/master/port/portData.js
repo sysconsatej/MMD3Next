@@ -69,6 +69,7 @@ export const port = [
   { label: "ActiveInactive", value: "p.activeInactive" },
   { label: "Port Type Name", value: "m.name" },
   { label: "Country", value: "c.name" },
+  { label: "Updated By", value: "u.name" },
 ];
 
 export default fieldData;

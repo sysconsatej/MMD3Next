@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
   Table,
@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { unit } from "../unitData";
 import { getUserByCookies } from "@/utils";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
+import { TableExcelButton } from "@/components/tableExportButtons/tableExportButtons";
 function createData(code, name, updatedBy, updateDate, id) {
   return { code, name, updatedBy, updateDate, id };
 }
@@ -41,11 +42,13 @@ export default function UnitList() {
   const router = useRouter();
   const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
+  const tableWrapRef = useRef(null);
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
       try {
         const tableObj = {
-          columns: "m.code,m.name,u.name updatedBy, m.updatedDate updateDate, m.id",
+          columns:
+            "m.code,m.name,u.name updatedBy, m.updatedDate updateDate, m.id",
           tableName: "tblMasterData m",
           pageNo,
           pageSize,
@@ -63,7 +66,7 @@ export default function UnitList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, search],
   );
 
   useEffect(() => {
@@ -72,7 +75,15 @@ export default function UnitList() {
   }, []);
 
   const rows = unitData
-    ? unitData.map((item) => createData(item["code"], item["name"], item["updatedBy"], item["updateDate"], item["id"]))
+    ? unitData.map((item) =>
+        createData(
+          item["code"],
+          item["name"],
+          item["updatedBy"],
+          item["updateDate"],
+          item["id"],
+        ),
+      )
     : [];
   const handleChangePage = (event, newPage) => {
     getData(newPage, rowsPerPage);
@@ -130,13 +141,13 @@ export default function UnitList() {
             <CustomButton text="Add" href="/master/unit" />
           </Box>
         </Box>
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
             <TableHead>
               <TableRow>
                 <TableCell> Code</TableCell>
                 <TableCell> Name</TableCell>
-                <TableCell> Updated By</TableCell>  
+                <TableCell> Updated By</TableCell>
                 <TableCell> Updated Date</TableCell>
               </TableRow>
             </TableHead>
@@ -166,15 +177,22 @@ export default function UnitList() {
             </TableBody>
           </Table>
         </TableContainer>
-        <Box className="flex justify-end items-center mt-2">
-          <CustomPagination
-            count={totalPage}
-            totalRows={totalRows}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            handleChangeRowsPerPage={handleChangeRowsPerPage}
+        <Box className="flex justify-between items-center">
+          <TableExcelButton
+            targetRef={tableWrapRef}
+            title="Unit"
+            fileName="Unit-List"
           />
+          <Box className="flex justify-end items-center mt-2">
+            <CustomPagination
+              count={totalPage}
+              totalRows={totalRows}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={handleChangePage}
+              handleChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </Box>
         </Box>
       </Box>
       <ToastContainer />

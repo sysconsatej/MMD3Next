@@ -1,6 +1,9 @@
+import { getUserByCookies } from "@/utils";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
+const userData = getUserByCookies();
 
+const isAdmin = userData?.roleCode === "admin";
 export const fieldData = {
   fields: [
     {
@@ -214,6 +217,20 @@ export const cfsGridButtons = [
 
 export const advanceSearchFields = {
   bl: [
+    ...(isAdmin
+      ? [
+          {
+            label: "Company Name",
+            name: "companyId",
+            type: "multiselect",
+            tableName: "tblCompany c",
+            joins: `join tblCompanySubtype cs on cs.companyId = c.id join tblUser u2 on u2.id = cs.subTypeId and u2.roleCode = 'customer'`,
+            displayColumn: "c.name",
+            orderBy: "c.name",
+            isEdit: true,
+          },
+        ]
+      : []),
     {
       label: "Liner",
       name: "shippingLineId",
@@ -250,13 +267,28 @@ export const advanceSearchFields = {
     },
   ],
   shipBl: [
+    ...(isAdmin
+      ? [
+          {
+            label: "Liner",
+            name: "shippingLineId",
+            type: "multiselect",
+            tableName: "tblCompany c",
+            joins: `join tblCompanySubtype cs on cs.companyId = c.id join tblUser u2 on u2.id = cs.subTypeId and u2.roleCode = 'shipping'`,
+            displayColumn: "c.name",
+            orderBy: "c.name",
+            isEdit: true,
+          },
+        ]
+      : []),
     {
       label: "Company Name",
       name: "companyId",
       type: "multiselect",
-      tableName: "tblCompany t",
-      displayColumn: "t.name",
-      orderBy: "t.name",
+      tableName: "tblCompany c",
+      joins: `join tblCompanySubtype cs on cs.companyId = c.id join tblUser u2 on u2.id = cs.subTypeId and u2.roleCode = 'customer'`,
+      displayColumn: "c.name",
+      orderBy: "c.name",
       isEdit: true,
     },
     {

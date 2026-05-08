@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
   Table,
@@ -25,7 +25,15 @@ import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
 import { city } from "../cityData";
 import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
 import { getUserByCookies } from "@/utils";
-function createData(countryName, stateName, cityName, updatedBy, updateDate, id) {
+import { TableExcelButton } from "@/components/tableExportButtons/tableExportButtons";
+function createData(
+  countryName,
+  stateName,
+  cityName,
+  updatedBy,
+  updateDate,
+  id,
+) {
   return { countryName, stateName, cityName, updatedBy, updateDate, id };
 }
 
@@ -41,6 +49,7 @@ export default function CityList() {
   const { data } = useGetUserAccessUtils();
   const userData = getUserByCookies();
   const { setMode } = formStore();
+  const tableWrapRef = useRef(null);
 
   const getData = useCallback(
     async (pageNo = page, pageSize = rowsPerPage) => {
@@ -67,7 +76,7 @@ export default function CityList() {
         setLoadingState("Failed to load data");
       }
     },
-    [page, rowsPerPage, search]
+    [page, rowsPerPage, search],
   );
 
   useEffect(() => {
@@ -83,8 +92,8 @@ export default function CityList() {
           item["cityName"],
           item["updatedBy"],
           item["updateDate"],
-          item["id"]
-        )
+          item["id"],
+        ),
       )
     : [];
 
@@ -145,7 +154,7 @@ export default function CityList() {
           </Box>
         </Box>
 
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
           <Table size="small" sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
@@ -185,16 +194,22 @@ export default function CityList() {
             </TableBody>
           </Table>
         </TableContainer>
-
-        <Box className="flex justify-end items-center mt-2">
-          <CustomPagination
-            count={totalPage}
-            totalRows={totalRows}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            handleChangeRowsPerPage={handleChangeRowsPerPage}
+        <Box className="flex justify-between items-center">
+          <TableExcelButton
+            targetRef={tableWrapRef}
+            title="City"
+            fileName="City-List"
           />
+          <Box className="flex justify-end items-center mt-2">
+            <CustomPagination
+              count={totalPage}
+              totalRows={totalRows}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={handleChangePage}
+              handleChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </Box>
         </Box>
       </Box>
       <ToastContainer />
