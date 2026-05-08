@@ -1,4 +1,3 @@
-'use client';
 import { getUserByCookies } from "@/utils";
 
 const userData = getUserByCookies();

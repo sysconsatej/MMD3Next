@@ -1,4 +1,3 @@
-'use client';
 // import { company } from "@/app/master/company/companyData";
 import { getUserByCookies } from "@/utils";
 import AddIcon from "@mui/icons-material/Add";
