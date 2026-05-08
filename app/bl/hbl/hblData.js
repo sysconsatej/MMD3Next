@@ -1,10 +1,11 @@
-import { company } from "@/app/master/company/companyData";
+'use client';
+// import { company } from "@/app/master/company/companyData";
 import { getUserByCookies } from "@/utils";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
-const userData = await getUserByCookies();
+const userData = getUserByCookies();
 export const fieldData = {
   mblFields: [
     {

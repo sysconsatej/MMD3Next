@@ -1,6 +1,7 @@
+'use client';
 import { getUserByCookies } from "@/utils";
 
-const userData = await getUserByCookies();
+const userData = getUserByCookies();
 
 const fieldData = {
   hblFields: [
