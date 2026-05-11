@@ -132,7 +132,7 @@ export default function Home() {
       };
       setFormData(updateForm);
     }
-  }, [formData?.tblBlContainer]);
+  }, [formData?.tblBlContainer, packTypeState]);
 
   useEffect(() => {
     async function fetchFormHandler() {
