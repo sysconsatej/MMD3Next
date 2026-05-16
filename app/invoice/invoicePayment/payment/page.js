@@ -406,14 +406,12 @@ export default function PaymentPage() {
       if (!validateSelectedInvoices(selectedInvoices)) return;
 
       setPaying(true);
-      setIframeLoaded(false);
-      setIframeError(false);
 
-      // ✅ 1) update tblInvoice first
+      // ✅ 1) Update tblInvoice first
       const ok = await persistInvoiceEdits(selectedInvoices);
       if (!ok) return;
 
-      // ✅ 2) start online payment with PAYABLE total
+      // ✅ 2) Start online payment with PAYABLE total
       const payableTotal = totals.totalPayable || 0;
       const res = await payment(Number(payableTotal).toFixed(2));
 
@@ -421,8 +419,10 @@ export default function PaymentPage() {
         res?.data?.link || res?.data?.url || res?.link || res?.url || null;
 
       if (link) {
-        setPayUrl(link);
-        setPayOpen(true);
+        // Open payment gateway in a new tab
+        // Current application page remains open
+        // User can close the payment tab and return to this page
+        window.open(link, "_blank", "noopener,noreferrer");
       } else {
         toast.error("Payment link not received from server.");
       }
@@ -733,92 +733,6 @@ export default function PaymentPage() {
             )}
           </>
         )}
-
-        <Dialog open={payOpen} onClose={handleClosePay} fullWidth maxWidth="xl">
-          <DialogTitle
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            Payment
-            <IconButton
-              aria-label="close"
-              onClick={handleClosePay}
-              size="small"
-            >
-              <CloseRoundedIcon />
-            </IconButton>
-          </DialogTitle>
-
-          <DialogContent dividers>
-            {!payUrl ? (
-              <Box
-                className="flex items-center justify-center"
-                sx={{ height: "60vh" }}
-              >
-                <Typography variant="body2">
-                  No payment link available.
-                </Typography>
-              </Box>
-            ) : (
-              <Box sx={{ position: "relative", height: "80vh", width: "100%" }}>
-                {!iframeLoaded && !iframeError && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      inset: 0,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      zIndex: 1,
-                      background: "rgba(255,255,255,0.6)",
-                    }}
-                  >
-                    <CircularProgress size={28} />
-                  </Box>
-                )}
-
-                {iframeError && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      inset: 0,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexDirection: "column",
-                      gap: 1.5,
-                    }}
-                  >
-                    <Typography variant="body2" align="center">
-                      The payment page refused to load inside a modal
-                      (X-Frame-Options).
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      onClick={() =>
-                        window.open(payUrl, "_blank", "noopener,noreferrer")
-                      }
-                    >
-                      Open in new tab
-                    </Button>
-                  </Box>
-                )}
-
-                <iframe
-                  src={payUrl}
-                  title="Payment"
-                  style={{ border: 0, width: "100%", height: "100%" }}
-                  onLoad={() => setIframeLoaded(true)}
-                  onError={() => setIframeError(true)}
-                  allow="payment *; geolocation *; camera *; microphone *;"
-                />
-              </Box>
-            )}
-          </DialogContent>
-        </Dialog>
 
         <ToastContainer />
       </Box>

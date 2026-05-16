@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "./interceptor";
 
 const BASE = (process.env.NEXT_PUBLIC_BACKEND_URL || "").replace(/\/+$/, "");
 
@@ -19,7 +19,7 @@ export const updateStatusRows = async ({
     return { success: false, message: "'rows' must be a non-empty array" };
 
   try {
-    const res = await axios.post(
+    const res = await api.post(
       `${BASE}/api/v1/updateStatus`,
       { tableName: tbl, rows, keyColumn },
       { headers: { "Content-Type": "application/json" } }

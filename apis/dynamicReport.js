@@ -1,9 +1,10 @@
-import axios from "axios";
+import api from "./interceptor";
+
 const url = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export const fetchDynamicReportData = async (obj) => {
   try {
-    const res = await axios.post(`${url}api/v1/spData`, obj, {
+    const res = await api.post(`${url}api/v1/spData`, obj, {
       validateStatus: () => true,
     });
 
@@ -29,7 +30,7 @@ export const fetchDynamicReportData = async (obj) => {
 
 export const updateDynamicReportData = async (obj) => {
   try {
-    const res = await axios.post(`${url}api/v1/dynamicReport`, obj);
+    const res = await api.post(`${url}api/v1/dynamicReport`, obj);
 
     if (res.status !== 200) {
       return {
@@ -81,7 +82,7 @@ export const getIgmBlData = async (input) => {
   }
 
   try {
-    const res = await axios.post(`${url}api/v1/igmData`, { jsonData });
+    const res = await api.post(`${url}api/v1/igmData`, { jsonData });
 
     const body = res?.data ?? {};
     return {
@@ -121,7 +122,7 @@ export const fetchBlDataForDO = async ({ id, clientId }) => {
       };
     }
 
-    const res = await axios.post(
+    const res = await api.post(
       `${url}api/v1/blDataForDO`,
       { id: Number(id), clientId: Number(clientId) },
       {
@@ -158,7 +159,7 @@ export const generateLocalPdf = async ({
   orientation = "portrait",
 }) => {
   try {
-    const res = await axios.post(
+    const res = await api.post(
       `${url}api/v1/localPDFReports`,
       { htmlContent, orientation, pdfFilename },
       { responseType: "blob", validateStatus: () => true }
@@ -234,7 +235,7 @@ export const printPDF = async (data) => {
 export const execSp = async ({ spName, jsonData = {}, paramName } = {}) => {
   try {
     const base = url?.endsWith("/") ? url : `${url}/`;
-    const res = await axios.post(
+    const res = await api.post(
       `${base}api/v1/execSpJsonUniversal`,
       { spName, jsonData, ...(paramName ? { paramName } : {}) },
       { validateStatus: () => true }
@@ -265,7 +266,7 @@ export const execSp = async ({ spName, jsonData = {}, paramName } = {}) => {
 export const execSpBatch = async ({ spName, jsonArray = [], paramName } = {}) => {
   try {
     const base = url?.endsWith("/") ? url : `${url}/`;
-    const res = await axios.post(
+    const res = await api.post(
       `${base}api/v1/execSpJsonUniversal`,
       { spName, jsonData: jsonArray, ...(paramName ? { paramName } : {}) },
       { validateStatus: () => true }

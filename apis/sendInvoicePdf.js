@@ -1,10 +1,10 @@
-import axios from "axios";
+import api from "./interceptor";
 
 const url = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export const sendInvoiceEmail = async (obj) => {
   try {
-    const res = await axios.post(
+    const res = await api.post(
       `${url}api/v1/sendInvoiceEmail`,
       obj
     );
