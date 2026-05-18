@@ -672,51 +672,131 @@ export const createdHandleBlurEventFunctions = ({ setFormData, formData }) => {
     },
     checkConsigneeMapping: async (event) => {
       const { name, value, consigneeIdNo } = event.target;
-      const consigneeType = formData?.consigneeTypeId?.Name;
-      let consignee = " and 1=1 ";
-      let consigneePan = null;
+
+      const sqlSafe = (val) =>
+        String(val ?? "")
+          .trim()
+          .replace(/'/g, "''");
+
+      const getText = (val) => {
+        if (val == null) return "";
+        if (typeof val === "object") {
+          return (
+            val?.Name || val?.name || val?.value || val?.code || val?.Code || ""
+          );
+        }
+        return String(val);
+      };
+
+      const consigneeType = getText(formData?.consigneeTypeId).toUpperCase();
+
+      let consignee = " AND 1=1 ";
+      let consigneePan = "";
+
+      const companyId = userData?.companyId;
+      const locationId = userData?.location;
+      const podId = formData?.podId?.Id;
 
       if (name === "consigneeText") {
-        consignee = ` and c.consignee = '${value}' `;
-        consigneePan = consigneeIdNo || formData?.consigneeIdNo;
+        consignee = ` AND c.consignee = '${sqlSafe(value)}' `;
+        consigneePan = getText(consigneeIdNo || formData?.consigneeIdNo);
       }
 
       if (name === "consigneeIdNo" && consigneeType === "PAN") {
-        consigneePan = value;
+        consigneePan = getText(value);
       }
 
-      const obj = {
-        columns: "c.cfsId as Id, cfs.name as Name, c.consignee as consignee",
-        tableName: "tblConsigneeCfsMapping c",
-        joins: "left join tblPort cfs on cfs.id = c.cfsId",
-        whereCondition: `
-      c.locationId = ${userData?.location}
-      AND c.shippingLineId = ${userData?.companyId}
-      AND c.activeInactive = 'Y'
-      AND c.podId = ${formData?.podId?.Id}
-      AND c.consigneePan = '${consigneePan}'
-      ${consignee}
-      and c.status = 1
-    `,
-      };
+      consigneePan = sqlSafe(consigneePan);
+
+      if (!consigneePan) {
+        setFormData((prev) => ({
+          ...prev,
+          nominatedAreaId: null,
+          dpdId: null,
+        }));
+        return;
+      }
+
+      let mappedCfs = null;
+      let mappedDpd = null;
 
       try {
-        const { data, success } = await getDataWithCondition(obj);
-        if (success && data?.length > 0) {
-          setFormData((prev) => ({
-            ...prev,
-            nominatedAreaId: {
-              Id: data[0].Id,
-              Name: data[0].Name,
-            },
-            consigneeText: data[0].consignee,
-          }));
-        } else {
-          setFormData((prev) => ({
-            ...prev,
-            nominatedAreaId: null,
-          }));
+        if (companyId && locationId && podId) {
+          const cfsObj = {
+            columns:
+              "c.cfsId as Id, cfs.name as Name, c.consignee as consignee",
+            tableName: "tblConsigneeCfsMapping c",
+            joins: "LEFT JOIN tblPort cfs ON cfs.id = c.cfsId",
+            whereCondition: `
+          c.locationId = ${locationId}
+          AND c.shippingLineId = ${companyId}
+          AND c.activeInactive = 'Y'
+          AND c.podId = ${podId}
+          AND UPPER(LTRIM(RTRIM(ISNULL(c.consigneePan,'')))) =
+              UPPER(LTRIM(RTRIM('${consigneePan}')))
+          ${consignee}
+          AND c.status = 1
+        `,
+          };
+
+          const cfsRes = await getDataWithCondition(cfsObj);
+
+          if (cfsRes?.success && cfsRes?.data?.length > 0) {
+            mappedCfs = {
+              Id: cfsRes.data[0].Id,
+              Name: cfsRes.data[0].Name,
+              consignee: cfsRes.data[0].consignee,
+            };
+          }
         }
+        if (companyId) {
+          const dpdObj = {
+            columns: `
+          TOP 1
+          t.id AS Id,
+          ISNULL(t.code,'') + ' - ' + ISNULL(t.name,'') AS Name
+        `,
+            tableName: "tblPort t",
+            joins: "JOIN tblMasterData m ON m.id = t.portTypeId",
+            whereCondition: `
+          m.masterListName = 'tblPortType'
+          AND m.code = 'DPD'
+          AND t.companyId = ${companyId}
+          AND UPPER(LTRIM(RTRIM(ISNULL(t.panNo,'')))) =
+              UPPER(LTRIM(RTRIM('${consigneePan}')))
+        `,
+            orderBy: "t.name",
+          };
+
+          const dpdRes = await getDataWithCondition(dpdObj);
+
+          if (dpdRes?.success && dpdRes?.data?.length > 0) {
+            mappedDpd = {
+              Id: dpdRes.data[0].Id,
+              Name: dpdRes.data[0].Name,
+            };
+          }
+        }
+
+        setFormData((prev) => ({
+          ...prev,
+
+          nominatedAreaId: mappedCfs
+            ? {
+                Id: mappedCfs.Id,
+                Name: mappedCfs.Name,
+              }
+            : null,
+
+          consigneeText: mappedCfs?.consignee || prev.consigneeText,
+
+          dpdId: mappedDpd
+            ? {
+                Id: mappedDpd.Id,
+                Name: mappedDpd.Name,
+              }
+            : null,
+        }));
       } catch (err) {
         console.error("Consignee mapping error:", err);
       }
