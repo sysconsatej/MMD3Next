@@ -548,6 +548,11 @@ export const navItems = [
         href: "/reports/customAndPort/cfsJobOrder",
         isShow: false,
       },
+      {
+        name: "Forwarding Note",
+        href: "/reports/customAndPort/forwardingNote",
+        isShow: false,
+      },
     ],
   },
   {
