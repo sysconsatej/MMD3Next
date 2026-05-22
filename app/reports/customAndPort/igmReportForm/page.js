@@ -177,7 +177,6 @@ export default function IGM() {
           data={tableData}
           metaData={metaData}
           onSelectedEditedChange={setTableFormData}
-          showTotalsRow={true}
         />
       </Box>
 
