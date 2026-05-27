@@ -591,7 +591,17 @@ export const navItems = [
     submenu: [
       {
         name: "Online Check-CSN",
-        href: "/onlineCheckCsn/onlineCheckCsn",
+        href: "/onlineCheck/onlineCheckCsn",
+        isShow: false,
+      },
+      {
+        name: "Online Check-CSN Customer",
+        href: "/onlineCheck/onlineCheckCsnCustomer",
+        isShow: false,
+      },
+      {
+        name: "Online Check-IGM",
+        href: "/onlineCheck/onlineCheckIgm",
         isShow: false,
       },
     ],
