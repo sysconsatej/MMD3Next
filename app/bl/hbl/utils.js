@@ -481,6 +481,46 @@ export const createBlurFunc = ({
         toast.warn("Mobile number minimum should be 3 digit!");
       }
     },
+    validateSealNumber: (event, { containerIndex, tabIndex }) => {
+      const { name, value } = event.target;
+
+      const currentRow =
+        formData?.tblBl?.[tabIndex]?.tblBlContainer?.[containerIndex];
+
+      if (currentRow?.containerStatusId?.Name !== "FCL" || !value) {
+        return;
+      }
+
+      const duplicate = formData?.tblBl?.some((tab, tIdx) =>
+        tab?.tblBlContainer?.some((row, cIdx) => {
+          if (tIdx === tabIndex && cIdx === containerIndex) {
+            return false;
+          }
+
+          return (
+            row?.containerStatusId?.Name === "FCL" &&
+            row?.containerNo !== currentRow?.containerNo &&
+            row?.[name] === value
+          );
+        }),
+      );
+
+      if (duplicate) {
+        toast.error("Seal Number cannot be same for different FCL containers.");
+
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            tabName: "tblBl",
+            gridName: "tblBlContainer",
+            tabIndex,
+            containerIndex,
+            name,
+            value: null,
+          }),
+        );
+      }
+    },
   };
 };
 

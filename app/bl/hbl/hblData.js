@@ -703,11 +703,13 @@ export const fieldData = {
       label: "Custom Seal",
       name: "customSealNo",
       isEdit: true,
+      blurFun: "validateSealNumber",
     },
     {
       label: "Agent Seal",
       name: "agentSealNo",
       isEdit: true,
+      blurFun: "validateSealNumber",
     },
     {
       label: "Container Agent Code",

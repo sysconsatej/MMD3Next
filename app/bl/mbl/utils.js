@@ -709,11 +709,6 @@ export const createdHandleBlurEventFunctions = ({ setFormData, formData }) => {
       consigneePan = sqlSafe(consigneePan);
 
       if (!consigneePan) {
-        setFormData((prev) => ({
-          ...prev,
-          nominatedAreaId: null,
-          dpdId: null,
-        }));
         return;
       }
 
@@ -786,19 +781,47 @@ export const createdHandleBlurEventFunctions = ({ setFormData, formData }) => {
                 Id: mappedCfs.Id,
                 Name: mappedCfs.Name,
               }
-            : null,
-
-          consigneeText: mappedCfs?.consignee || prev.consigneeText,
+            : prev.nominatedAreaId,
 
           dpdId: mappedDpd
             ? {
                 Id: mappedDpd.Id,
                 Name: mappedDpd.Name,
               }
-            : null,
+            : prev.dpdId,
         }));
       } catch (err) {
         console.error("Consignee mapping error:", err);
+      }
+    },
+    validateSealNumber: async (event, { containerIndex }) => {
+      const { name, value } = event.target;
+      const currentRow = formData?.tblBlContainer?.[containerIndex];
+
+      if (currentRow?.containerStatusId?.Name !== "FCL" || !value) {
+        return;
+      }
+
+      const duplicate = formData?.tblBlContainer?.some(
+        (row, idx) =>
+          idx !== containerIndex &&
+          row?.containerStatusId?.Name === "FCL" &&
+          row?.containerNo !== currentRow?.containerNo &&
+          row?.[name] === value,
+      );
+
+      if (duplicate) {
+        toast.error("Seal Number cannot be same for different FCL containers.");
+
+        setFormData((prevData) =>
+          setInputValue({
+            prevData,
+            gridName: "tblBlContainer",
+            containerIndex,
+            name,
+            value: null,
+          }),
+        );
       }
     },
   };

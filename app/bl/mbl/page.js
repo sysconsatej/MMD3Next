@@ -92,6 +92,7 @@ export default function Home() {
 
   const handleGridEventFunctions = createGridEventFunctions({
     setFormData,
+    formData,
   });
 
   const handleChangeEventFunctions = craeateHandleChangeEventFunction({
