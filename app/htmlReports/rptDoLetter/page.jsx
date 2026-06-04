@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Print from "@/components/PrintDo/page";
 import "./rptDoLetter.css";
+import { blDataForDO } from "@/apis/BlDataForBl";
 
 const decryptSafe = (v) => {
     try {
@@ -68,36 +69,30 @@ function RptDoLetter() {
         }
     }, [searchParams]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const idStr = searchParams.get("recordId");
-            const cidStr = searchParams.get("clientId");
-            const id = Number(idStr);
-            const cidFromQuery = Number(cidStr);
-            const cidFinal = Number.isFinite(cidFromQuery) ? cidFromQuery : Number(clientId);
-            if (!Number.isFinite(id) || !Number.isFinite(cidFinal)) return;
+useEffect(() => {
+    const fetchData = async () => {
+        const idStr = searchParams.get("recordId");
+        const cidStr = searchParams.get("clientId");
 
-            try {
-                const response = await fetch(`${baseUrl}api/v1/blDataForDO`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ id, clientId: cidFinal }),
-                });
+        const id = Number(idStr);
+        const cidFromQuery = Number(cidStr);
+        const cidFinal = Number.isFinite(cidFromQuery)
+            ? cidFromQuery
+            : Number(clientId);
 
-                if (!response.ok) {
-                    const errText = await response.text().catch(() => null);
-                    throw new Error(errText || "Failed to fetch DO data");
-                }
+        if (!Number.isFinite(id) || !Number.isFinite(cidFinal)) return;
 
-                const json = await response.json();
-                setData(json?.data ?? []);
-            } catch (e) {
-                console.error("Error fetching job data:", e);
-            }
-        };
+        try {
+            const result = await blDataForDO(id, cidFinal);
 
-        if (reportIds.length > 0) fetchData();
-    }, [reportIds, searchParams, baseUrl, clientId]);
+            setData(result?.data ?? result ?? []);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    fetchData();
+}, [searchParams, clientId]);
 
     console.log("Do_Data", data);
 
