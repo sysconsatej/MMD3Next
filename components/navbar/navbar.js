@@ -220,7 +220,7 @@ export default function Navbar() {
   const loginToExportModule = async () => {
     const res = await revokePasswordApi();
     const password = await decryptPassword(res.password, res.iv);
-    const redirectLink = `${process.env.NEXT_PUBLIC_DASHBOARD_URL}?username=${userData?.userName}&password=${password}&vendorUserName=CCC44A04-F756-4DE4-9959-5A135E19A035`;
+    const redirectLink = `${process.env.NEXT_PUBLIC_DASHBOARD_URL}?username=${userData?.data?.userName}&password=${password}&vendorUserName=CCC44A04-F756-4DE4-9959-5A135E19A035`;
     router.push(redirectLink, "_blank");
   };
 
