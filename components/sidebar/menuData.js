@@ -553,6 +553,11 @@ export const navItems = [
         href: "/reports/customAndPort/forwardingNote",
         isShow: false,
       },
+      {
+        name: "Manifest Haz/Odc/Ref",
+        href: "/reports/customAndPort/manifestHazOdcRefScp",
+        isShow: false,
+      },
     ],
   },
   {
