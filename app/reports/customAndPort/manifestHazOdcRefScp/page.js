@@ -114,6 +114,35 @@ export default function IGMEDI() {
       }),
     [setFormData, jsonData.igmEdiFields],
   );
+  const getReportTitle = (flag) => {
+    switch (flag) {
+      case "H":
+        return "HAZ MANIFEST";
+      case "O":
+        return "ODC MANIFEST";
+      case "R":
+        return "REF MANIFEST";
+      case "S":
+        return "SCRAP MANIFEST";
+      default:
+        return "MANIFEST";
+    }
+  };
+
+  const getFileName = (flag) => {
+    switch (flag) {
+      case "H":
+        return "HAZ Manifest Report.xlsx";
+      case "O":
+        return "ODC Manifest Report.xlsx";
+      case "R":
+        return "REF Manifest Report.xlsx";
+      case "S":
+        return "SCRAP Manifest Report.xlsx";
+      default:
+        return "Manifest Report.xlsx";
+    }
+  };
   return (
     <ThemeProvider theme={theme}>
       <form onSubmit={handleSubmit}>
@@ -145,9 +174,14 @@ export default function IGMEDI() {
             <DynamicReportDownloadExcelButton
               rows={tableFormData}
               metaData={metaData}
-              fileName={`ManifestHAZ/ODC/REF_Report_${new Date()
-                .toISOString()
-                .slice(0, 10)}.xlsx`}
+              fileName={getFileName(formData?.flag)}
+              customHeader
+              reportTitle={getReportTitle(formData?.flag)}
+              reportSubTitle={`VESSEL / VOY : ${
+                formData?.vesselId?.Name || formData?.vesselId?.name || ""
+              } ${
+                formData?.voyageId?.voyageNo || formData?.voyageId?.Name || ""
+              }`}
               text="DOWNLOAD EXCEL"
               buttonStyles="custom-btn"
               disabled={!tableFormData.length}

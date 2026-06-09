@@ -64,6 +64,9 @@ export default function DynamicReportDownloadExcelButton({
   disabled,
   hiddenKeys = ["__uid", "__dirty", "id", "_id", "rowid", "row_id"],
   includeColumns,
+  customHeader = false,
+  reportTitle = "",
+  reportSubTitle = "",
   ...buttonProps
 }) {
   const [downloading, setDownloading] = useState(false);
@@ -118,8 +121,30 @@ export default function DynamicReportDownloadExcelButton({
       });
 
       /* ✅ Create Worksheet + Workbook */
-      const worksheet = XLSX.utils.json_to_sheet(excelData);
+
       const workbook = XLSX.utils.book_new();
+      let worksheet;
+
+      if (customHeader) {
+        worksheet = XLSX.utils.aoa_to_sheet([]);
+
+        XLSX.utils.sheet_add_aoa(worksheet, [[reportTitle]], { origin: "A1" });
+
+        XLSX.utils.sheet_add_aoa(worksheet, [[reportSubTitle]], {
+          origin: "A2",
+        });
+
+        XLSX.utils.sheet_add_json(worksheet, excelData, {
+          origin: "A5",
+          skipHeader: false,
+        });
+
+        worksheet["!cols"] = Object.keys(excelData[0] || {}).map(() => ({
+          wch: 20,
+        }));
+      } else {
+        worksheet = XLSX.utils.json_to_sheet(excelData);
+      }
 
       XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
 
