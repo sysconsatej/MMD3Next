@@ -562,15 +562,25 @@ function RptIGMContent() {
                 <div className="p-1" style={{ width: "35%" }}>
                   <div className="wordBreak flex">
                     <p className="wordBreak" style={{ fontSize: "8px" }}>
+                      <span className="font-bold">Consigner : </span>
+                      {item.consignerText || ""}
+                      <br />
+                      {item.consignerAddress || ""}
+                    </p>
+                  </div>
+
+                  <div className="mt-2 wordBreak flex">
+                    <p className="wordBreak" style={{ fontSize: "8px" }}>
                       <span className="font-bold">Consignee : </span>
                       {item.consigneeText || ""}
                       <br />
                       {item.consigneeAddress || ""}
                     </p>
                   </div>
+
                   <div className="mt-2 wordBreak flex">
                     <p className="wordBreak" style={{ fontSize: "8px" }}>
-                      <span className="font-bold">Notify Party :</span>
+                      <span className="font-bold">Notify Party : </span>
                       {item.notifyPartyName || ""}
                       <br />
                       {item.notifyPartyAddress || ""}
