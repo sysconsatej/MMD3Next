@@ -562,7 +562,7 @@ function RptIGMContent() {
                 <div className="p-1" style={{ width: "35%" }}>
                   <div className="wordBreak flex">
                     <p className="wordBreak" style={{ fontSize: "8px" }}>
-                      <span className="font-bold">Consigner : </span>
+                      <span className="font-bold">Consignor : </span>
                       {item.consignerText || ""}
                       <br />
                       {item.consignerAddress || ""}
