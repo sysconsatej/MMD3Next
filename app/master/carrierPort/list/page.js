@@ -161,8 +161,8 @@ export default function CompanyList() {
 
   useEffect(() => {
     if (userData?.roleCode === "admin") {
-      setSearchCondition(`s.id = u3.companyId`);
-      getData(1, rowsPerPage, `s.id = u3.companyId`);
+      setSearchCondition(`c.createdBy = u3.id`);
+      getData(1, rowsPerPage, `c.createdBy = u3.id`);
     } else {
       getData(1, rowsPerPage);
       setMode({ mode: null, formId: null });
