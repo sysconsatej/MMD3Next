@@ -19,6 +19,12 @@ const fieldData = {
       blurFun: "duplicateHandler",
     },
     {
+      label: "EDI Port Code",
+      name: "ediPortCode",
+      isEdit: "true",
+      blurFun: "duplicateHandler",
+    },
+    {
       label: "Port Name",
       name: "name",
       isEdit: "true",
