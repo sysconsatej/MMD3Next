@@ -103,8 +103,8 @@ export default function DpdList() {
 
   useEffect(() => {
     if (userData?.roleCode === "admin") {
-      setSearchCondition(`p.companyId = u2.companyId`);
-      getData(1, rowsPerPage, `p.companyId = u2.companyId`);
+      setSearchCondition(`p.createdBy = u2.id`);
+      getData(1, rowsPerPage, `p.createdBy = u2.id`);
     } else {
       getData(1, rowsPerPage);
       setMode({ mode: null, formId: null });
