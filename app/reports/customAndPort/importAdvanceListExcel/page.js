@@ -73,8 +73,12 @@ export default function ImportAdvanceList() {
     setError(null);
 
     const requestBody = {
-      spName: "importBlSelection",
-      jsonData: transformed,
+      spName: "ImportMBlSelection",
+      jsonData: {
+        ...transformed,
+        userId: userData.userId,
+        companyId: userData.companyId,
+      },
     };
 
     const getErr = (src) =>

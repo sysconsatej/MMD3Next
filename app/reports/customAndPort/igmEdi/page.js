@@ -38,7 +38,7 @@ export default function IGMEDI() {
           return [key, value.Id];
         }
         return [key, value];
-      })
+      }),
     );
   };
 
@@ -70,8 +70,12 @@ export default function IGMEDI() {
     setError(null);
 
     const requestBody = {
-      spName: "importBlSelection",
-      jsonData: transformed,
+      spName: "ImportMBlSelection",
+      jsonData: {
+        ...transformed,
+        userId: userData.userId,
+        companyId: userData.companyId,
+      },
     };
 
     const getErr = (src) =>
@@ -103,7 +107,7 @@ export default function IGMEDI() {
         } else {
           setError(errText || "Request failed.");
           toast.error(
-            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`
+            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`,
           );
         }
       }
@@ -132,7 +136,7 @@ export default function IGMEDI() {
         setFormData,
         fields: jsonData.igmEdiFields,
       }),
-    [setFormData, jsonData.igmEdiFields]
+    [setFormData, jsonData.igmEdiFields],
   );
   return (
     <ThemeProvider theme={theme}>
