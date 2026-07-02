@@ -70,12 +70,8 @@ export default function IGMEDI() {
     setError(null);
 
     const requestBody = {
-      spName: "ImportMBlSelection",
-      jsonData: {
-        ...transformed,
-        userId: userData.userId,
-        companyId: userData.companyId,
-      },
+      spName: "importBlSelection",
+      jsonData: transformed,
     };
 
     const getErr = (src) =>
