@@ -84,6 +84,7 @@ function createData(
   BankName,
   PaymentRefNo,
   Amount,
+  tds,
   status,
   blId,
   assignTo,
@@ -99,6 +100,7 @@ function createData(
     BankName,
     PaymentRefNo,
     Amount,
+    tds,
     status,
     blId,
     assignTo,
@@ -130,7 +132,7 @@ export default function InvoiceRequestList() {
   });
   const [assignModal, setAssignModal] = useState({ toggle: false });
   const userData = getUserByCookies();
-  const [selectedIds, setSelectedIds] = useState([]);
+
   const [modal, setModal] = useState({
     toggle: false,
     value: null,
@@ -144,17 +146,6 @@ export default function InvoiceRequestList() {
     `u.id = ${userData?.userId}`,
   );
 
-  const idsOnPage = useMemo(() => rows.map((r) => r.id), [rows]);
-  const allChecked =
-    selectedIds.length > 0 && selectedIds.length === idsOnPage.length;
-  const someChecked =
-    selectedIds.length > 0 && selectedIds.length < idsOnPage.length;
-
-  const toggleAll = () => setSelectedIds(allChecked ? [] : idsOnPage);
-  const toggleOne = (id) =>
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    );
 
   const getData = useCallback(
     async (
@@ -196,7 +187,8 @@ export default function InvoiceRequestList() {
     ms.name AS status,
     u3.name AS assignTo,
     p.invoiceRequestId AS invoiceRequestId,
-    p.locationId AS locationId
+    p.locationId AS locationId,
+    p.tdsAmount AS tds
   `,
           tableName: "tblInvoicePayment p",
           joins: `
@@ -238,6 +230,7 @@ JOIN tblLocation l
             item["BankName"],
             item["PaymentRefNo"],
             item["Amount"],
+             item["tds"],
             item["status"],
             item["blId"],
             item["assignTo"],
@@ -250,7 +243,7 @@ JOIN tblLocation l
         setPage(pageNo);
         setRowsPerPage(pageSize);
         setTotalRows(totalRows);
-        setSelectedIds([]);
+        
       } catch (err) {
         console.error("Error fetching data:", err);
         setLoadingState("Failed to load data");
@@ -434,15 +427,7 @@ JOIN tblLocation l
           >
             <TableHead>
               <TableRow>
-                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}>
-                  <Checkbox
-                    size="small"
-                    indeterminate={someChecked}
-                    checked={allChecked}
-                    onChange={toggleAll}
-                    sx={CHECKBOX_SX}
-                  />
-                </TableCell>
+    
                 <TableCell>Payment Date</TableCell>
                 <TableCell>BL No</TableCell>
                 <TableCell>Do Extension</TableCell>
@@ -451,6 +436,7 @@ JOIN tblLocation l
                 <TableCell>Bank Name</TableCell>
                 <TableCell>Reference No</TableCell>
                 <TableCell>Amount</TableCell>
+                <TableCell>TDS</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Assign To</TableCell>
                 {/* 🔹 NEW column header */}
@@ -463,14 +449,7 @@ JOIN tblLocation l
               {rows.length > 0 ? (
                 rows.map((row, _index) => (
                   <TableRow key={_index} hover>
-                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
-                      <Checkbox
-                        size="small"
-                        checked={selectedIds.includes(row.id)}
-                        onChange={() => toggleOne(row.id)}
-                        sx={CHECKBOX_SX}
-                      />
-                    </TableCell>
+            
 
                     <TableCell>{row.paymentDate}</TableCell>
 
@@ -499,6 +478,7 @@ JOIN tblLocation l
                     <TableCell>{row.BankName}</TableCell>
                     <TableCell>{row.PaymentRefNo}</TableCell>
                     <TableCell>{row.Amount}</TableCell>
+                    <TableCell>{row.tds}</TableCell>
                     <TableCell sx={{ color: paymentStatusColor(row.status) }}>
                       {row.status}
                     </TableCell>

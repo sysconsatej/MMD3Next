@@ -53,6 +53,7 @@ function createData(
   invoiceNos,
   latestInvoiceDate,
   totalInvoiceAmount,
+  tdsAmount,
   beneficiary,
   category,
   remark,
@@ -66,6 +67,7 @@ function createData(
     invoiceNos,
     latestInvoiceDate,
     totalInvoiceAmount,
+    tdsAmount,
     beneficiary,
     category,
     remark,
@@ -121,17 +123,18 @@ export default function InvoicePaymentList() {
       try {
         const tableObj = {
           columns: `
-    MAX(i.id) AS id,
-    ir.blNo AS blNo,
-    STRING_AGG(i.invoiceNo, ', ') AS invoiceNos,
-    CONVERT(VARCHAR, MAX(i.invoiceDate), 103) AS latestInvoiceDate,
-    SUM(i.totalInvoiceAmount) AS totalInvoiceAmount,
-    c.name AS beneficiary,
-    MAX(cat.name) AS category,
-    MAX(ipAgg.remarks) AS remark,
-    iif(min(i.invoicePaymentId) = max(i.invoicePaymentId), max(ipAgg.statusName), null) AS status,
-    MAX(i.invoicePaymentId) AS invoicePaymentId,
-   case when max(u3.roleCode) = 'shipping' then cast(0 as bit) else cast(1 as bit) end as isEdit
+MAX(i.id) AS id,
+ir.blNo AS blNo,
+STRING_AGG(i.invoiceNo, ', ') AS invoiceNos,
+CONVERT(VARCHAR, MAX(i.invoiceDate), 103) AS latestInvoiceDate,
+SUM(i.totalInvoiceAmount) AS totalInvoiceAmount,
+SUM(ISNULL(i.tdsAmount,0)) AS tdsAmount,
+c.name AS beneficiary,
+MAX(cat.name) AS category,
+MAX(ipAgg.remarks) AS remark,
+iif(min(i.invoicePaymentId) = max(i.invoicePaymentId), max(ipAgg.statusName), null) AS status,
+MAX(i.invoicePaymentId) AS invoicePaymentId,
+case when max(u3.roleCode) = 'shipping' then cast(0 as bit) else cast(1 as bit) end as isEdit
   `,
           tableName: "tblInvoice i",
           joins: `
@@ -179,6 +182,7 @@ export default function InvoicePaymentList() {
             item["invoiceNos"],
             item["latestInvoiceDate"],
             item["totalInvoiceAmount"],
+            item["tdsAmount"],
             item["beneficiary"],
             item["category"],
             item["remark"],
@@ -342,6 +346,7 @@ export default function InvoicePaymentList() {
                 <TableCell>Invoice Nos</TableCell>
                 <TableCell>Latest Invoice Date</TableCell>
                 <TableCell>Total Amount</TableCell>
+                <TableCell>TDS Amount</TableCell>
                 <TableCell>Beneficiary</TableCell>
                 <TableCell>Category</TableCell>
                 <TableCell>Remarks</TableCell>
@@ -380,6 +385,7 @@ export default function InvoicePaymentList() {
                     <TableCell>{row.invoiceNos}</TableCell>
                     <TableCell>{row.latestInvoiceDate}</TableCell>
                     <TableCell>{row.totalInvoiceAmount}</TableCell>
+                    <TableCell>{row.tdsAmount}</TableCell>
                     <TableCell>{row.beneficiary}</TableCell>
                     <TableCell>{row.category}</TableCell>
                     <TableCell>{row.remark}</TableCell>

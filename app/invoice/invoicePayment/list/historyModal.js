@@ -21,7 +21,7 @@ import { fetchHistory, fetchInvoiceReleaseHistory } from "@/apis/history";
 import { paymentStatusColor } from "../invoicePaymentData";
 
 export function PaymentHistoryModal({ historyModal, setHistoryModal }) {
-  const { toggle, value: recordId, blNo } = historyModal;
+  const { toggle, value: recordId, mblNo } = historyModal;
 
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -123,7 +123,7 @@ export function PaymentHistoryModal({ historyModal, setHistoryModal }) {
         }}
       >
         <Typography sx={{ fontWeight: 700, mb: 2 }}>
-          MBL No: <span style={{ fontWeight: 400 }}>{blNo}</span>
+          BL No: <span style={{ fontWeight: 400 }}>{mblNo}</span>
         </Typography>
 
         {loading ? (
