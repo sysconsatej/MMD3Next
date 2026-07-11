@@ -342,9 +342,9 @@ export const craeateHandleChangeEventFunction = ({ setFormData, formData }) => {
           Id: cargoMap.TR.Id,
           Name: cargoMap.TR.code,
         };
-        updates.movementTypeId = movementMap.FT && {
-          Id: movementMap.FT.Id,
-          Name: movementMap.FT.code,
+        updates.movementTypeId = movementMap.TC && {
+          Id: movementMap.TC.Id,
+          Name: movementMap.TC.code,
         };
       }
 
