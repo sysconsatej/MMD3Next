@@ -146,7 +146,6 @@ export default function InvoiceRequestList() {
     `u.id = ${userData?.userId}`,
   );
 
-
   const getData = useCallback(
     async (
       pageNo = page,
@@ -230,7 +229,7 @@ JOIN tblLocation l
             item["BankName"],
             item["PaymentRefNo"],
             item["Amount"],
-             item["tds"],
+            item["tds"],
             item["status"],
             item["blId"],
             item["assignTo"],
@@ -243,7 +242,6 @@ JOIN tblLocation l
         setPage(pageNo);
         setRowsPerPage(pageSize);
         setTotalRows(totalRows);
-        
       } catch (err) {
         console.error("Error fetching data:", err);
         setLoadingState("Failed to load data");
@@ -427,7 +425,6 @@ JOIN tblLocation l
           >
             <TableHead>
               <TableRow>
-    
                 <TableCell>Payment Date</TableCell>
                 <TableCell>BL No</TableCell>
                 <TableCell>Do Extension</TableCell>
@@ -449,8 +446,6 @@ JOIN tblLocation l
               {rows.length > 0 ? (
                 rows.map((row, _index) => (
                   <TableRow key={_index} hover>
-            
-
                     <TableCell>{row.paymentDate}</TableCell>
 
                     <TableCell>
@@ -477,7 +472,11 @@ JOIN tblLocation l
                     <TableCell>{row.paymentType}</TableCell>
                     <TableCell>{row.BankName}</TableCell>
                     <TableCell>{row.PaymentRefNo}</TableCell>
-                    <TableCell>{row.Amount}</TableCell>
+                    <TableCell>
+                      {(
+                        (Number(row.Amount) || 0) + (Number(row.tds) || 0)
+                      ).toFixed(0)}
+                    </TableCell>
                     <TableCell>{row.tds}</TableCell>
                     <TableCell sx={{ color: paymentStatusColor(row.status) }}>
                       {row.status}
