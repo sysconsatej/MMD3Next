@@ -457,6 +457,13 @@ export default function PaymentPage() {
       toast.error("Please fill all required fields");
       return;
     }
+    if (
+      !formData?.tblAttachment?.length ||
+      formData.tblAttachment.every((row) => !row?.path)
+    ) {
+      toast.error("Please upload attachment.");
+      return;
+    }
 
     if (!validateSelectedInvoices(selectedInvoices)) return;
 
