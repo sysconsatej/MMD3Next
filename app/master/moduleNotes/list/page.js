@@ -31,6 +31,8 @@ function createData(
   location,
   moduleName,
   note,
+  vesselName,
+  voyageNo,
   updatedBy,
   updatedDate,
   id,
@@ -40,6 +42,8 @@ function createData(
     location,
     moduleName,
     note,
+    vesselName,
+    voyageNo,
     updatedBy,
     updatedDate,
     id,
@@ -80,6 +84,8 @@ export default function ModuleNotesList() {
             u4.name AS updatedBy,
             m.updatedDate AS updatedDate,
             m.notes AS note,
+            v.name As vesselName,
+            vy.voyageNo As voyageNo,
             m.id
           `,
           tableName: "tblModuleNotes m",
@@ -89,12 +95,14 @@ export default function ModuleNotesList() {
           searchValue: search.searchValue,
           joins: `
            LEFT JOIN tblCompany s ON s.id = m.shippingLineId
-  LEFT JOIN tblLocation l ON l.id = m.locationId
-  LEFT JOIN tblMasterData mas ON mas.id = m.moduleId
-  LEFT JOIN tblUser creator ON creator.id = m.createdBy
-  LEFT JOIN tblUser u4 ON u4.id = m.updatedBy
-  LEFT JOIN tblUser u3 ON u3.roleCode = 'shipping'
-  LEFT JOIN tblUser loggedUser ON ${searchConditionMain}
+           left join tblVessel v on v.id=m.vesselId
+           left join tblVoyage vy on vy.id=m.voyageId
+           LEFT JOIN tblLocation l ON l.id = m.locationId
+           LEFT JOIN tblMasterData mas ON mas.id = m.moduleId
+            LEFT JOIN tblUser creator ON creator.id = m.createdBy
+            LEFT JOIN tblUser u4 ON u4.id = m.updatedBy
+            LEFT JOIN tblUser u3 ON u3.roleCode = 'shipping'
+            LEFT JOIN tblUser loggedUser ON ${searchConditionMain}
 
   JOIN tblModuleNotes m2 
     ON m2.id = m.id 
@@ -125,6 +133,8 @@ export default function ModuleNotesList() {
           item["location"],
           item["moduleName"],
           item["note"],
+          item["vesselName"],
+          item["voyageNo"],
           item["updatedBy"],
           item["updatedDate"],
           item["id"],
@@ -215,6 +225,8 @@ export default function ModuleNotesList() {
                 <TableCell>Location</TableCell>
                 <TableCell>Module</TableCell>
                 <TableCell>Note</TableCell>
+                <TableCell>Vessel</TableCell>
+                <TableCell>Voyage</TableCell>
                 <TableCell>Updated By</TableCell>
                 <TableCell>Updated Date</TableCell>
               </TableRow>
@@ -232,6 +244,8 @@ export default function ModuleNotesList() {
                     <TableCell>{row.location}</TableCell>
                     <TableCell>{row.moduleName}</TableCell>
                     <TableCell>{row.note}</TableCell>
+                    <TableCell>{row.vesselName}</TableCell>
+                    <TableCell>{row.voyageNo}</TableCell>
                     <TableCell>{row.updatedBy}</TableCell>
                     <TableCell>{row.updatedDate}</TableCell>
                     <TableCell className="table-icons opacity-0 group-hover:opacity-100">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data from "./moduleNotesData";
 import { CustomInput } from "@/components/customInput";
@@ -11,6 +11,7 @@ import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { formStore } from "@/store";
 import { getUserByCookies } from "@/utils";
+import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 
 export default function ModuleNotes() {
   const [formData, setFormData] = useState({});
@@ -47,48 +48,72 @@ export default function ModuleNotes() {
     }
   };
 
-  const handleChangeEventFunctions = {
-    duplicateModuleCheck: async (name, value) => {
-      let shippingLineId = null;
-      let moduleId = null;
-      if (name === "shippingLineId") {
-        shippingLineId = value?.Id;
-        moduleId = formData?.moduleId?.Id;
-      } else if (name === "moduleId") {
-        shippingLineId = formData?.shippingLineId?.Id;
-        moduleId = value?.Id;
-      }
+  const handleChangeEventFunctions = useMemo(
+    () => ({
+      ...createHandleChangeEventFunction({
+        setFormData,
+        fields: jsonData.countryFields, // use the correct field array
+      }),
 
-      const locationId = userData?.location;
+      duplicateModuleCheck: async (name, value) => {
+        const shippingLineId =
+          name === "shippingLineId" ? value?.Id : formData?.shippingLineId?.Id;
 
-      if (!shippingLineId || !moduleId || !locationId) return;
+        const moduleId =
+          name === "moduleId" ? value?.Id : formData?.moduleId?.Id;
 
-      const obj = {
-        tableName: "tblModuleNotes",
-        columns: "id",
-        whereCondition: `
-        shippingLineId = '${shippingLineId}'
-        AND locationId = '${locationId}'
-        AND moduleId = '${moduleId}'
-        AND status = 1
-        ${mode?.formId ? `AND id <> ${mode.formId}` : ""}
-      `,
-      };
+        const moduleName =
+          name === "moduleId" ? value?.Name : formData?.moduleId?.Name;
 
-      const resp = await getDataWithCondition(obj);
+        const locationId = userData?.location;
 
-      const isDuplicate = Array.isArray(resp?.data) && resp.data.length > 0;
+        if (!shippingLineId || !moduleId || !locationId) return;
 
-      if (isDuplicate) {
-        toast.error("Module already exists for this Shipping Line & Location");
+        let whereCondition = `
+    shippingLineId = ${shippingLineId}
+    AND moduleId = ${moduleId}
+    AND locationId = ${locationId}
+    AND status = 1
+    ${mode?.formId ? `AND id <> ${mode.formId}` : ""}
+  `;
 
-        setFormData((prev) => ({
-          ...prev,
-          [name]: null,
-        }));
-      }
-    },
-  };
+        if (moduleName?.toLowerCase() === "pre can") {
+          const vesselId = formData?.vesselId?.Id;
+          const voyageId = formData?.voyageId?.Id;
+
+          if (!vesselId || !voyageId) return;
+
+          whereCondition += `
+      AND vesselId = ${vesselId}
+      AND voyageId = ${voyageId}
+    `;
+        }
+
+        const resp = await getDataWithCondition({
+          tableName: "tblModuleNotes",
+          columns: "id",
+          whereCondition,
+        });
+
+        if (resp?.data?.length) {
+          toast.error("Duplicate module note found.");
+
+          setFormData((prev) => ({
+            ...prev,
+            [name]: null,
+          }));
+        }
+      },
+    }),
+    [
+      setFormData,
+      jsonData.countryFields,
+      formData?.shippingLineId,
+      formData?.moduleId,
+      userData?.location,
+      mode?.formId,
+    ],
+  );
   useEffect(() => {
     if (!mode.formId && userData?.companyId) {
       setFormData((prev) => ({
