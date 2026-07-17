@@ -9,10 +9,11 @@ import { theme } from "@/styles";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import fieldData from "./uploadData";
-import { uploads } from "@/apis";
-import { getUserByCookies } from "@/utils";
+import { insertUpdateForm, uploads } from "@/apis";
+import { formatFormData, getUserByCookies } from "@/utils";
 import ErrorList from "@/components/errorTable/errorList";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
+import PciUploadHistoryModal from "./history";
 
 const getFirstFile = (val) => {
   if (!val) return null;
@@ -81,8 +82,42 @@ export default function xlUpload() {
   const [formData, setFormData] = useState({});
   const [busy, setBusy] = useState(false);
   const userData = getUserByCookies();
+  const [uploadModal, setUploadModal] = useState({
+    toggle: false,
+    vesselId: null,
+    voyageId: null,
+    locationId: null,
+  });
   const [errorGrid, setErrorGrid] = useState([]);
+  const savePciUploadHistory = async (json) => {
+    const submitPayload = formatFormData(
+      "tblPciUpload",
+      {
+        vesselId: formData?.vessel?.Id || null,
+        voyageId: formData?.voyage?.Id || null,
+        podId: formData?.pod?.Id || null,
 
+        companyId: userData?.companyId,
+        companyBranchId: userData?.branchId,
+        locationId: userData?.location,
+
+        CsnStatus: json?.headerField?.accpStatus || null,
+        CsnNumber: json?.master?.decRef?.csnNmbr || null,
+        CsnDate: json?.master?.decRef?.csnDt || null,
+        UniqueID: json?.headerField?.uniqueId || null,
+
+        tblAttachment: [
+          {
+            path: formData?.upload,
+          },
+        ],
+      },
+      null,
+      "pciUploadId",
+    );
+
+    return await insertUpdateForm(submitPayload);
+  };
   const handleUpload = async (e) => {
     e.preventDefault();
 
@@ -124,6 +159,7 @@ export default function xlUpload() {
       const resp = await uploads(payload);
 
       if (resp?.success) {
+        await savePciUploadHistory(json);
         toast.success(resp?.message || "Uploaded successfully");
         setFormData((prev) => ({ ...prev, upload: null }));
         setErrorGrid([]);
@@ -182,11 +218,23 @@ export default function xlUpload() {
               onClick={handleUpload}
               disabled={busy}
             />
+            <CustomButton
+              text="Upload History"
+              onClick={() =>
+                setUploadModal({
+                  toggle: true,
+                  vesselId: formData?.vessel?.Id || null,
+                  voyageId: formData?.voyage?.Id || null,
+                  locationId: userData?.location || null,
+                })
+              }
+            />
           </Box>
           <ErrorList errorGrid={errorGrid} fileName={"MBL-Upload"} />
         </section>
       </form>
       <ToastContainer position="top-right" autoClose={3500} />
+      <PciUploadHistoryModal modal={uploadModal} setModal={setUploadModal} />
     </ThemeProvider>
   );
 }
