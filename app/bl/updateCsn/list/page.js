@@ -272,7 +272,7 @@ export default function BLList() {
                 <TableCell>Reject Remark</TableCell>
                 <TableCell>POL</TableCell>
                 <TableCell>POD</TableCell>
-                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell>
+                {/* <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell> */}
               </TableRow>
             </TableHead>
 
@@ -301,7 +301,7 @@ export default function BLList() {
                     <TableCell>{row.csnRequestRemarks}</TableCell>
                     <TableCell>{row.pol}</TableCell>
                     <TableCell>{row.pod}</TableCell>
-                    <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
+                    {/* <TableCell padding="checkbox" sx={CHECKBOX_CELL_SX}>
                       <HistoryIcon
                         sx={{
                           cursor: "pointer",
@@ -315,7 +315,7 @@ export default function BLList() {
                           })
                         }
                       />
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 ))
               ) : (
@@ -348,12 +348,12 @@ export default function BLList() {
         </Box>
       </Box>
 
-      <BLHistoryModal
+      {/* <BLHistoryModal
         open={historyModal.open}
         onClose={() => setHistoryModal({ open: false, recordId: null })}
         recordId={historyModal.recordId}
         blNumber={rows.find((x) => x.id === historyModal.recordId)?.blNo || ""}
-      />
+      /> */}
       <ToastContainer />
     </ThemeProvider>
   );

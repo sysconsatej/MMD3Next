@@ -301,7 +301,7 @@ export default function BLList() {
                 <TableCell>Reject Remark</TableCell>
                 <TableCell>POL</TableCell>
                 <TableCell>POD</TableCell>
-                <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell>
+                {/* <TableCell padding="checkbox" sx={CHECKBOX_HEAD_SX}></TableCell> */}
               </TableRow>
             </TableHead>
 
