@@ -62,7 +62,7 @@ export default function PciUploadHistoryModal({ modal, setModal }) {
                 FORMAT(up.CsnDate,'dd-MM-yyyy') as CsnDate,
                 up.UniqueID,
 
-                u.emailId createdBy,
+                u.name createdBy,
                 a.path uploadPath,
 
                 FORMAT(
