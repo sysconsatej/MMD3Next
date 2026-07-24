@@ -46,6 +46,8 @@ export default function IgmGeneration() {
   const REPORT_SP_MAP = {
     "Unreleased DO Report": "doUnReleasedLinerRegister",
     "Do Request": "doRequestLinerRegister",
+    "Confirm DO": "doConfirmLinerRegister",
+    "Release DO Report": "doReleasedLinerRegister",
   };
 
   const handleSubmit = async (e) => {
