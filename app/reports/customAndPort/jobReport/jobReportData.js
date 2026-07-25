@@ -53,6 +53,18 @@ const fieldData = {
       selectedConditions: [{ pod: "p.referencePortId" }],
       isEdit: true,
     },
+    {
+      label: "From Date",
+      name: "fromDate",
+      type: "date",
+      isEdit: true,
+    },
+    {
+      label: "To Date ",
+      name: "toDate",
+      type: "date",
+      isEdit: true,
+    },
   ],
 };
 

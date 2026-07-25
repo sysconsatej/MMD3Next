@@ -449,7 +449,7 @@ export const navItems = [
         isShow: false,
       },
       {
-        name: "Job Report",
+        name: "IGM REPORT FORM",
         href: "/reports/customAndPort/jobReport",
         isShow: false,
       },
