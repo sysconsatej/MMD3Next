@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 import { getUserByCookies } from "@/utils";
 import * as XLSX from "xlsx";
+import DynamicReportDownloadExcelButton from "@/components/dynamicReportExcel/page";
 
 export default function IGM() {
   const [formData, setFormData] = useState({});
@@ -35,84 +36,119 @@ export default function IGM() {
           return [key, value.Id];
         }
         return [key, value];
-      })
+      }),
     );
   };
   const transformed = transformToIds(formData);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setGoLoading(true);
-  setError(null);
+    e.preventDefault();
+    setGoLoading(true);
+    setError(null);
 
-  const requestBody = {
-    spName: "jobReport",
-    jsonData: { ...transformed, companyId: userData?.companyId },
-  };
+    const transformed = transformToIds(formData);
 
-  console.log("requestBody:", requestBody);
+    const requestBody = {
+      spName: "igmForm",
+      jsonData: { ...transformed, companyId: userData?.companyId },
+    };
 
-  const getErr = (src) =>
-    (src?.error && String(src.error)) ||
-    (src?.message && String(src.message)) ||
-    "";
+    console.log("requestBody:", requestBody);
 
-  const isNoDataError = (txt = "") =>
-    txt.toLowerCase().includes("did not return valid json text");
+    const getErr = (src) =>
+      (src?.error && String(src.error)) ||
+      (src?.message && String(src.message)) ||
+      "";
 
-  try {
-    const res = await fetchDynamicReportData(requestBody);
-    console.log("Response:", res);
+    const isNoDataError = (txt = "") =>
+      txt.toLowerCase().includes("did not return valid json text");
 
-    if (res?.success) {
-      // ✅ res.data is an object: { "Summary": [...], "Container Details": [...] }
-      const dataObj = res?.data && typeof res.data === "object" ? res.data : null;
+    try {
+      const res = await fetchDynamicReportData(requestBody);
 
-      // ✅ no sheets / empty object => treat as no data
-      const hasAnyRows =
-        dataObj &&
-        Object.keys(dataObj).some((k) => Array.isArray(dataObj[k]) && dataObj[k].length > 0);
+      console.log("Response:", res);
+      console.log("Response Data:", res?.data);
 
-      if (!hasAnyRows) {
+      if (res?.success) {
+        const responseData = res?.data;
+
+        // CASE 1: API returns normal array
+        if (Array.isArray(responseData)) {
+          if (responseData.length > 0) {
+            setTableData(responseData);
+            setError(null);
+          } else {
+            setTableData([]);
+            setError(null);
+            toast.info("No data found.");
+          }
+
+          return;
+        }
+
+        // CASE 2: API returns object containing multiple arrays/sheets
+        if (responseData && typeof responseData === "object") {
+          const sheetEntries = Object.entries(responseData).filter(
+            ([key, value]) => Array.isArray(value) && value.length > 0,
+          );
+
+          if (!sheetEntries.length) {
+            setTableData([]);
+            setError(null);
+            toast.info("No data found.");
+            return;
+          }
+
+          // Show first sheet in DynamicReportTable
+          setTableData(sheetEntries[0][1]);
+
+          // If you also want Excel export
+          // exportObjectArraysToExcel(responseData, "Job Report.xlsx");
+
+          setError(null);
+          return;
+        }
+
+        setTableData([]);
         setError(null);
         toast.info("No data found.");
-        return;
-      }
+      } else {
+        const errText = getErr(res);
 
-      // ✅ export: keys become sheet names
-      exportObjectArraysToExcel(dataObj, "Job Report.xlsx");
-      toast.success("Excel exported successfully.");
-    } else {
-      const errText = getErr(res);
+        setTableData([]);
+
+        if (isNoDataError(errText)) {
+          setError(null);
+          toast.info("No data found.");
+        } else {
+          setError(errText || "Request failed.");
+          toast.error(
+            errText ||
+              `Request failed${res?.status ? ` (${res.status})` : ""}.`,
+          );
+        }
+      }
+    } catch (err) {
+      const body = err?.response?.data;
+
+      const errText =
+        (body && (body.error || body.message)) ||
+        err?.message ||
+        "Network/Server error.";
+
+      setTableData([]);
+
       if (isNoDataError(errText)) {
         setError(null);
         toast.info("No data found.");
       } else {
-        setError(errText || "Request failed.");
-        toast.error(
-          errText || `Request failed${res?.status ? ` (${res.status})` : ""}.`
-        );
+        setError(errText);
+        toast.error(errText);
       }
+    } finally {
+      setGoLoading(false);
     }
-  } catch (err) {
-    const body = err?.response?.data;
-    const errText =
-      (body && (body.error || body.message)) ||
-      err?.message ||
-      "Network/Server error.";
-
-    if (isNoDataError(errText)) {
-      setError(null);
-      toast.info("No data found.");
-    } else {
-      setError(errText);
-      toast.error(errText);
-    }
-  } finally {
-    setGoLoading(false);
-  }
-};
-
+  };
 
   function exportObjectArraysToExcel(dataObj, fileName = "report.xlsx") {
     if (!dataObj || typeof dataObj !== "object") return;
@@ -153,8 +189,8 @@ export default function IGM() {
             v === null || v === undefined
               ? ""
               : typeof v === "string"
-              ? v
-              : String(v);
+                ? v
+                : String(v);
           if (s.length > maxLen) maxLen = s.length;
         }
         return { wch: Math.min(60, maxLen + 2) };
@@ -173,7 +209,7 @@ export default function IGM() {
         setFormData,
         fields: jsonData.jobReportFields,
       }),
-    [setFormData, jsonData.jobReportFields]
+    [setFormData, jsonData.jobReportFields],
   );
   return (
     <ThemeProvider theme={theme}>
@@ -202,6 +238,15 @@ export default function IGM() {
               onClick={handleSubmit}
               disabled={loading}
             />
+
+            <DynamicReportDownloadExcelButton
+              rows={tableFormData}
+              metaData={metaData}
+              fileName={`IGMFORMREPORT_${new Date().toISOString().slice(0, 10)}.xlsx`}
+              text="DOWNLOAD EXCEL"
+              buttonStyles="custom-btn"
+              disabled={!tableFormData.length}
+            />
             <CustomButton
               text="Cancel"
               buttonStyles="!text-[white] !bg-[#f5554a] !text-[11px]"
@@ -217,7 +262,6 @@ export default function IGM() {
           data={tableData}
           metaData={metaData}
           onSelectedEditedChange={setTableFormData}
-          showTotalsRow={true}
         />
       </Box>
 
