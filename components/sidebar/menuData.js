@@ -469,7 +469,7 @@ export const navItems = [
         isShow: false,
       },
       {
-        name: "Line CFS Request",
+        name: "CFS/DPD/ICD",
         href: "/reports/customAndPort/cfsRequestRegister",
         isShow: false,
       },

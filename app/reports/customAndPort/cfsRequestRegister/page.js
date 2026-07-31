@@ -109,7 +109,7 @@ export default function IgmGeneration() {
       <form onSubmit={handleSubmit}>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
-            <h1 className="text-left text-base m-0">Line CFS Request</h1>
+            <h1 className="text-left text-base m-0">CFS/DPD/ICD</h1>
           </Box>
 
           <Box className="border border-black rounded-[4px]">
@@ -134,7 +134,7 @@ export default function IgmGeneration() {
             <DynamicReportDownloadExcelButton
               rows={tableFormData}
               metaData={metaData}
-              fileName={`CFSRequestLineReport_${new Date()
+              fileName={`CFS/DPD/ICD_${new Date()
                 .toISOString()
                 .slice(0, 10)}.xlsx`}
               text="DOWNLOAD EXCEL"
