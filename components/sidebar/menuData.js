@@ -558,6 +558,11 @@ export const navItems = [
         href: "/reports/customAndPort/manifestHazOdcRefScp",
         isShow: false,
       },
+      {
+        name: "SCMT-SDA",
+        href: "/reports/customAndPort/scmtSda",
+        isShow: false,
+      },
     ],
   },
   {

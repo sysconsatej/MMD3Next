@@ -3,61 +3,70 @@ import { getUserByCookies } from "@/utils";
 const userData = getUserByCookies();
 
 const fieldData = {
-  vesselSummaryReportFields: [
+  igmEdiFields: [
     {
       label: "Vessel",
-      name: "vesselId",
+      name: "vessel",
       type: "dropdown",
       tableName: "tblVessel t",
-      changeFun: "handleChangeOnVessel",
       idColumn: "id",
       displayColumn: "t.name",
+      changeFun: "handleChangeOnVessel",
       searchColumn: "t.name",
       orderBy: "t.name",
       isEdit: true,
     },
-
     {
       label: "Voyage",
-      name: "voyageId",
+      name: "voyage",
       type: "dropdown",
       tableName: "tblVoyage t",
       idColumn: "id",
       changeFun: "handleDropdownChange",
       displayColumn: "t.voyageNo",
       searchColumn: "t.voyageNo",
-      selectedConditions: [{ vesselId: "vesselId" }],
+      selectedConditions: [{ vessel: "vesselId" }],
       where: `t.status = 1 and t.companyid = ${userData?.companyId}`,
       orderBy: "t.voyageNo",
       isEdit: true,
     },
-   {
+    {
       label: "POD",
-      name: "podId",
+      name: "pod",
       type: "dropdown",
       tableName: "tblPort p",
       displayColumn: "p.name",
       changeFun: "handleDropdownChange",
       joins: `join tblMasterData d on p.portTypeId = d.id and d.name = 'SEA PORT' join tblVoyageRoute v on v.portOfCallId = p.id`,
-      selectedConditions: [{ voyageId: "v.voyageId" }],
+      selectedConditions: [{ voyage: "v.voyageId" }],
       searchColumn: "p.name",
       orderBy: "p.name",
       isEdit: true,
-    }, 
+    },
     {
-      label: "From Date",
-      name: "fromDate",
-      type: "date",
+      label: "CSN Amendment",
+      name: "csnAmendmentId",
+      type: "dropdown",
+      isEdit: true,
+      displayColumn: "CONCAT(m.code, ' - ', m.name)",
+      tableName: "tblMasterData m",
+      where: "masterListName  = 'tblCSNAmendment'",
+      orderBy: "m.name",
+    },
+    {
+      label: "CSN Number",
+      name: "csnNumber",
+      type: "text",
       isEdit: true,
     },
     {
-      label: "To Date ",
-      name: "toDate",
+      label: "CSN Date ",
+      name: "csnDate",
       type: "date",
       isEdit: true,
     },
-
   ],
 };
+
 export default fieldData;
 export const metaData = [];
