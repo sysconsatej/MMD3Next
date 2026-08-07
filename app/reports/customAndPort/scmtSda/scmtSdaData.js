@@ -44,7 +44,7 @@ const fieldData = {
       isEdit: true,
     },
     {
-      label: "CSN Amendment",
+      label: "Amendment Type",
       name: "csnAmendmentId",
       type: "dropdown",
       isEdit: true,
