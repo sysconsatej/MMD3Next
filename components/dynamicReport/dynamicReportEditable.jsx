@@ -223,6 +223,7 @@ const DynamicReportTable = ({
   autoFillOnSelect = {},
   selectedConditionValues = {},
   handleBlur,
+  disableSelection = false,
 }) => {
   const rawRows = Array.isArray(data)
     ? data
@@ -326,6 +327,35 @@ const DynamicReportTable = ({
     },
     [isDirty, onSelectedEditedChange, selectedUids],
   );
+  const previousDisableSelectionRef = useRef(false);
+
+  useEffect(() => {
+    // X - Delete All
+    if (disableSelection) {
+      const allUids = baseRows
+        .map((row) => row.__uid)
+        .filter((uid) => uid !== null && uid !== undefined);
+
+      setSelectedUids(allUids);
+
+      if (onSelectedEditedChange) {
+        const selectedRows = baseRows.map(({ __uid, ...rest }) => ({
+          ...rest,
+          __dirty: isDirty({ ...rest, __uid }),
+        }));
+
+        onSelectedEditedChange(selectedRows);
+      }
+    }
+
+    // X changed to S / D / U
+    else if (previousDisableSelectionRef.current) {
+      setSelectedUids([]);
+      onSelectedEditedChange?.([]);
+    }
+
+    previousDisableSelectionRef.current = disableSelection;
+  }, [disableSelection, baseRows, isDirty, onSelectedEditedChange]);
 
   const defaultSortKey = DISPLAY_KEYS[0] ?? "";
   const [orderBy, setOrderBy] = useState(defaultSortKey);
@@ -368,6 +398,7 @@ const DynamicReportTable = ({
 
   // 🔹 UPDATED: handleToggleRow with auto-fill on select
   const handleToggleRow = (row) => {
+    if (disableSelection) return;
     const uid = getRowUid(row);
     if (uid == null) return;
 
@@ -420,6 +451,7 @@ const DynamicReportTable = ({
   };
 
   const handleToggleAllOnPage = (checked) => {
+    if (disableSelection) return;
     setEditableRows((prev) => {
       const nextRows = prev.map((r) => {
         if (!uidsOnPage.includes(r.__uid)) return r;
@@ -649,6 +681,7 @@ const DynamicReportTable = ({
                       size="small"
                       checked={pageAllChecked}
                       indeterminate={false}
+                      disabled={disableSelection}
                       onChange={(e) => handleToggleAllOnPage(e.target.checked)}
                       sx={{ color: "white", p: 0 }}
                     />
@@ -688,7 +721,7 @@ const DynamicReportTable = ({
                           size="small"
                           checked={!!isChecked}
                           onChange={() => handleToggleRow(row)}
-                          disabled={uid == null}
+                          disabled={disableSelection || uid == null}
                         />
                       </TableCell>
                       {DISPLAY_KEYS.map((col) => (

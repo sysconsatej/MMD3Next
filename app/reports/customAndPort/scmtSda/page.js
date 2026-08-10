@@ -45,7 +45,7 @@ export default function CSN() {
     jsonExport({
       tableFormData,
       updateFn: updateDynamicReportData,
-      filenamePrefix: "scmtSda",
+      filenamePrefix: "scmtrcsa",
       toast,
       setLoading,
       filterDirty: false,
@@ -88,8 +88,19 @@ export default function CSN() {
         const rows = Array.isArray(res.data) ? res.data : [];
         if (rows.length) {
           setTableData(rows);
+
+          const isDeleteAll =
+            formData?.csnAmendmentId?.code === "X" &&
+            formData?.csnAmendmentId?.name === "Delete All";
+
+          if (isDeleteAll) {
+            setTableFormData(rows);
+          } else {
+            setTableFormData([]);
+          }
         } else {
           setTableData([]);
+          setTableFormData([]);
           toast.info("No data found.");
         }
       } else {
@@ -125,21 +136,39 @@ export default function CSN() {
       setGoLoading(false);
     }
   };
-  const handleChangeEventFunctions = useMemo(
-    () =>
-      createHandleChangeEventFunction({
-        setFormData,
-        fields: jsonData.igmEdiFields,
-      }),
-    [setFormData, jsonData.igmEdiFields],
-  );
+  const handleChangeEventFunctions = useMemo(() => {
+    const defaultFunctions = createHandleChangeEventFunction({
+      setFormData,
+      fields: jsonData.igmEdiFields,
+    });
+
+    return {
+      ...defaultFunctions,
+
+      handleCsnAmendmentChange: (name, value) => {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+
+        const isDeleteAll = value?.Name === "X - Delete All";
+
+        if (isDeleteAll) {
+          setTableFormData(tableData);
+        } else {
+          setTableFormData([]);
+        }
+      },
+    };
+  }, [setFormData, jsonData.igmEdiFields, tableData]);
+  const isDeleteAll = formData?.csnAmendmentId?.Name === "X - Delete All";
   return (
     <ThemeProvider theme={theme}>
       <form>
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              SCMT-SDA
+              SCMTR-CSA
             </h1>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">
@@ -181,6 +210,7 @@ export default function CSN() {
           data={tableData}
           metaData={metaData}
           onSelectedEditedChange={setTableFormData}
+          disableSelection={isDeleteAll}
         />
       </Box>
       <ToastContainer />

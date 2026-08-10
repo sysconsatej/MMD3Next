@@ -52,6 +52,9 @@ const fieldData = {
       tableName: "tblMasterData m",
       where: "masterListName  = 'tblCSNAmendment'",
       orderBy: "m.name",
+
+      // ADD THIS
+      changeFun: "handleCsnAmendmentChange",
     },
     {
       label: "CSN Number",
