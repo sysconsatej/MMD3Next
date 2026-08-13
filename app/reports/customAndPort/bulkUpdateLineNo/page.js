@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useRef, useState, useMemo } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { metaData } from "./bulkUpdateLineNo";
 import { CustomInput } from "@/components/customInput";
@@ -27,6 +27,16 @@ export default function IGM() {
   const router = useRouter();
   const userData = getUserByCookies();
 
+  const acceptedRangesRef = useRef(new Map());
+
+  const getNumericValue = (value) => {
+    if (value === null || value === undefined || value === "") {
+      return NaN;
+    }
+
+    const num = Number(String(value).replace(/,/g, "").trim());
+    return Number.isFinite(num) ? num : NaN;
+  };
   const transformToIds = (data) => {
     return Object.fromEntries(
       Object.entries(data).map(([key, value]) => {
@@ -34,7 +44,7 @@ export default function IGM() {
           return [key, value.Id];
         }
         return [key, value];
-      })
+      }),
     );
   };
 
@@ -43,16 +53,61 @@ export default function IGM() {
   const handleTableBlur = ({ rowUid, name, value, row, updateCell }) => {
     if (name !== "From") return;
 
-    const from = Number(value) || 0;
-    const blCount = Number(String(row["BLCount"] ?? "").replace(/,/g, ""));
+    const from = getNumericValue(value);
+    const blCount = getNumericValue(row?.BLCount);
 
-    if (!Number.isFinite(blCount)) return;
+    if (!Number.isFinite(from) || !Number.isFinite(blCount)) return;
 
-    updateCell(rowUid, "To", from + blCount - 1);
+    // Previous valid value of current row
+    const previousRange = acceptedRangesRef.current.get(rowUid);
+
+    // Check entered From against From-To range of all OTHER rows
+    const duplicateRange = Array.from(acceptedRangesRef.current.entries()).find(
+      ([otherRowUid, range]) => {
+        // Don't compare current row with itself
+        if (otherRowUid === rowUid) return false;
+
+        const otherFrom = getNumericValue(range?.From);
+        const otherTo = getNumericValue(range?.To);
+
+        if (!Number.isFinite(otherFrom) || !Number.isFinite(otherTo)) {
+          return false;
+        }
+
+        return from >= otherFrom && from <= otherTo;
+      },
+    );
+
+    // If duplicate, restore previous From
+    if (duplicateRange) {
+      const [, conflictingRow] = duplicateRange;
+
+      toast.error(
+        `Line No ${from} already exists in ${
+          conflictingRow?.BLType || "another row"
+        } range ${conflictingRow?.From} - ${conflictingRow?.To}.`,
+      );
+
+      updateCell(rowUid, "From", previousRange?.From ?? "");
+
+      return;
+    }
+
+    // Existing logic
+    const calculatedTo = from + blCount - 1;
+
+    updateCell(rowUid, "To", calculatedTo);
+
+    // Save new valid range
+    acceptedRangesRef.current.set(rowUid, {
+      From: from,
+      To: calculatedTo,
+      BLType: row?.BLType,
+    });
   };
   const valuesOnly = (rows = []) =>
     rows.map(({ __dirty, ...row }) =>
-      Object.fromEntries(Object.entries(row).map(([k, v]) => [k, onlyVal(v)]))
+      Object.fromEntries(Object.entries(row).map(([k, v]) => [k, onlyVal(v)])),
     );
 
   const onlyVal = (v) => {
@@ -143,8 +198,22 @@ export default function IGM() {
         const rows = Array.isArray(res.data) ? res.data : [];
         if (rows.length) {
           setTableData(rows);
+
+          // Store initial valid From-To ranges
+          const rangeMap = new Map();
+
+          rows.forEach((row, index) => {
+            rangeMap.set(index, {
+              From: row?.From,
+              To: row?.To,
+              BLType: row?.BLType,
+            });
+          });
+
+          acceptedRangesRef.current = rangeMap;
         } else {
           setTableData([]);
+          acceptedRangesRef.current = new Map();
           toast.info("No data found.");
         }
       } else {
@@ -157,7 +226,7 @@ export default function IGM() {
         } else {
           setError(errText || "Request failed.");
           toast.error(
-            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`
+            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`,
           );
         }
       }
@@ -186,7 +255,7 @@ export default function IGM() {
         setFormData,
         fields: jsonData.igmEdiFields,
       }),
-    [setFormData, jsonData.igmEdiFields]
+    [setFormData, jsonData.igmEdiFields],
   );
   return (
     <ThemeProvider theme={theme}>
