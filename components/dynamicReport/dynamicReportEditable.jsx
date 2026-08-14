@@ -390,11 +390,9 @@ const DynamicReportTable = ({
   const getRowUid = (row) =>
     typeof row?.__uid === "number" ? row.__uid : null;
   const uidsOnPage = useMemo(
-    () =>
-      editableRows.map(getRowUid).filter((k) => k !== null && k !== undefined),
-    [editableRows],
+    () => pageRows.map(getRowUid).filter((k) => k !== null),
+    [pageRows],
   );
-
   const pageAllChecked =
     uidsOnPage.length > 0 && uidsOnPage.every((k) => selectedUids.includes(k));
 
@@ -454,49 +452,45 @@ const DynamicReportTable = ({
 
   const handleToggleAllOnPage = (checked) => {
     if (disableSelection) return;
-
     setEditableRows((prev) => {
       const nextRows = prev.map((r) => {
+        if (!uidsOnPage.includes(r.__uid)) return r;
+
         let updated = { ...r };
 
         if (checked) {
           for (const [colKey, srcVal] of Object.entries(
             autoFillOnSelect || {},
           )) {
+            // ✅ match key safely (case/space mismatch)
             const actualKey = DISPLAY_KEYS.find(
               (k) => normKey(k) === normKey(colKey),
             );
-
             if (!actualKey) continue;
 
             const meta = customFieldMap.get(actualKey);
 
+            // ✅ ONLY fill empty
             const currentVal = updated[actualKey];
-
-            // fill only empty values
             if (!isEmptyCellValue(meta, currentVal)) continue;
 
             if (meta) {
               const normalizedVal = normalizeIn(meta, srcVal);
               const storeVal = denormalizeOut(meta, normalizedVal);
-
               updated[actualKey] = storeVal;
             } else {
               updated[actualKey] = srcVal;
             }
           }
         } else {
-          // unselect all -> restore autofill values
+          // Uncheck: revert ONLY autofill keys back to original row values
           const original = baseRows.find((b) => b.__uid === r.__uid);
-
           if (original) {
             for (const colKey of Object.keys(autoFillOnSelect || {})) {
               const actualKey = DISPLAY_KEYS.find(
                 (k) => normKey(k) === normKey(colKey),
               );
-
               if (!actualKey) continue;
-
               updated[actualKey] = original[actualKey];
             }
           }
@@ -505,10 +499,11 @@ const DynamicReportTable = ({
         return updated;
       });
 
-      const nextSelected = checked ? uidsOnPage : [];
+      const nextSelected = checked
+        ? Array.from(new Set([...selectedUids, ...uidsOnPage]))
+        : selectedUids.filter((k) => !uidsOnPage.includes(k));
 
       setSelectedUids(nextSelected);
-
       emitSelected(nextRows, nextSelected);
 
       return nextRows;
