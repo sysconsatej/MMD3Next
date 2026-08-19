@@ -48,6 +48,9 @@ const fieldData = {
       type: "dropdown",
       tableName: "tblPort t",
       idColumn: "id",
+       joins:
+        "JOIN tblMasterData m ON m.id = t.portTypeId JOIN tblCountry c ON c.id = t.countryId",
+      where: "m.name IN ('INLAND PORT') and c.name = 'India'",
       displayColumn: "t.name",
       searchColumn: "t.name",
       orderBy: "t.name",
@@ -75,15 +78,12 @@ const fieldData = {
       label: "Movement Carrier",
       name: "movementCarrierId",
       type: "dropdown",
-      tableName: "tblCarrierPort t",
-      displayColumn: "t.name",
-      orderBy: "t.name",
-      foreignTable: "name,tblCarrierPort",
-      selectedConditions: [{ pod: "t.podId" }, { fpd: "t.fpdId" }],
-      where: `
-    t.companyId = ${userData?.companyId} 
-    and t.status = 1
-  `,
+      displayColumn: "c.code",
+      searchColumn: "c.code",
+      tableName: "tblCompany c",
+      joins: `join tblCompanySubtype cs on cs.companyId = c.id join tblUser u2 on u2.id = cs.subTypeId and u2.roleCode = 'CTO'`,
+      orderBy: "c.name",
+      foreignTable: "name,tblCompany",
       isEdit: true,
     },
   ],
