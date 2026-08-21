@@ -18,6 +18,7 @@ import { exportText, getUserByCookies } from "@/utils";
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 import DynamicReportDownloadCsvButton from "@/components/dynamicReportExcelDownload/page";
 import DynamicReportDownloadExcelButton from "@/components/dynamicReportExcel/page";
+import { exportTextDirect } from "@/utils/dynamicReportUtils";
 
 export default function IGMEDI() {
   const [formData, setFormData] = useState({});
@@ -44,6 +45,7 @@ export default function IGMEDI() {
   };
 
   const transformed = transformToIds(formData);
+  const isNhavaSheva = Number(transformed?.pod) === 8567;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -110,6 +112,28 @@ export default function IGMEDI() {
       setGoLoading(false);
     }
   };
+  const handleDownloadText = () =>
+    exportTextDirect({
+      updateFn: fetchDynamicReportData,
+      toast,
+      setLoading,
+
+      fileMeta: {
+        terminal: formData?.terminal?.Name,
+        vessel: formData?.vessel?.Name,
+        voyage: formData?.voyage?.Name,
+      },
+
+      buildBody: () => ({
+        spName: "forwardingNote", 
+        jsonData: {
+          ...transformed,
+          shippingLineId: userData?.companyId,
+          userId: userData?.userId,
+        },
+      }),
+    });
+
   const handleChangeEventFunctions = useMemo(
     () =>
       createHandleChangeEventFunction({
@@ -130,7 +154,9 @@ export default function IGMEDI() {
           <Box className="border border-solid border-black rounded-[4px] ">
             <Box className="sm:grid sm:grid-cols-3 gap-2 flex flex-col p-1 border-b border-b-solid border-b-black ">
               <CustomInput
-                fields={jsonData.igmEdiFields}
+                fields={jsonData.igmEdiFields.filter(
+                  (field) => field.name !== "textFile" || isNhavaSheva,
+                )}
                 formData={formData}
                 setFormData={setFormData}
                 fieldsMode={fieldsMode}
@@ -156,6 +182,14 @@ export default function IGMEDI() {
               buttonStyles="custom-btn"
               disabled={!tableFormData.length}
             />
+            {isNhavaSheva && (
+              <CustomButton
+                text="DOWNLOAD TO TEXT"
+                buttonStyles="custom-btn"
+                onClick={handleDownloadText}
+                disabled={false}
+              />
+            )}
             <CustomButton
               text="Cancel"
               buttonStyles="!text-[white] !bg-[#f5554a] !text-[11px]"

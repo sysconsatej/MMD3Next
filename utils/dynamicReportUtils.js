@@ -225,7 +225,58 @@ export async function exportText({
 
   runnerArgs.toast?.success?.("Text file downloaded.");
 }
+export async function exportTextDirect({
+  filenamePrefix = "ForwardingNote",
+  fileExt = "TXT",
+  mime = "text/plain",
+  fileMeta = {},
+  ...runnerArgs
+}) {
+  runnerArgs.setLoading?.(true);
 
+  try {
+    const body = runnerArgs.buildBody();
+    const res = await runnerArgs.updateFn(body);
+
+    if (!res?.success) {
+      runnerArgs.toast?.error?.(
+        res?.error || res?.message || "Could not load text-file data.",
+      );
+      return;
+    }
+
+    const ok = Array.isArray(res.data) ? res.data : [];
+
+    const lines = ok
+      .map(defaultExtractLine)
+      .filter((s) => s !== null && s !== undefined && s !== "");
+
+    if (!lines.length) {
+      runnerArgs.toast?.info?.("No data to export.");
+      return;
+    }
+
+    const now = new Date();
+    const date = now.toISOString().slice(0, 10);
+    const time = now.toTimeString().slice(0, 8).replace(/:/g, "-");
+
+    const clean = (v) => String(v || "").replace(/\s+/g, "_");
+
+    const terminal = clean(fileMeta.terminal);
+    const vessel = clean(fileMeta.vessel);
+    const voyage = clean(fileMeta.voyage);
+
+    const filename = `${filenamePrefix}_${terminal}_${vessel}_${voyage}_${date}_${time}.${fileExt}`;
+
+    download(filename, lines.join("\r\n"), mime);
+
+    runnerArgs.toast?.success?.("Text file downloaded.");
+  } catch (error) {
+    runnerArgs.toast?.error?.(error?.message || "Text-file export failed.");
+  } finally {
+    runnerArgs.setLoading?.(false);
+  }
+}
 export async function exportExcel({
   filenamePrefix = "IAL",
   toast,

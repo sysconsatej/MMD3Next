@@ -48,7 +48,7 @@ const fieldData = {
       type: "dropdown",
       tableName: "tblPort t",
       idColumn: "id",
-       joins:
+      joins:
         "JOIN tblMasterData m ON m.id = t.portTypeId JOIN tblCountry c ON c.id = t.countryId",
       where: "m.name IN ('INLAND PORT') and c.name = 'India'",
       displayColumn: "t.name",
@@ -84,6 +84,12 @@ const fieldData = {
       joins: `join tblCompanySubtype cs on cs.companyId = c.id join tblUser u2 on u2.id = cs.subTypeId and u2.roleCode = 'CTO'`,
       orderBy: "c.name",
       foreignTable: "name,tblCompany",
+      isEdit: true,
+    },
+    {
+      label: "Text file",
+      name: "textFile",
+      type: "checkbox",
       isEdit: true,
     },
   ],
