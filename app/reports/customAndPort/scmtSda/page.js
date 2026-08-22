@@ -45,12 +45,12 @@ export default function CSN() {
     jsonExport({
       tableFormData,
       updateFn: updateDynamicReportData,
-      filenamePrefix: "scmtrcsa",
+      filenamePrefix: "scmtrsca",
       toast,
       setLoading,
       filterDirty: false,
       buildBody: (rows) => ({
-        spName: "scmtSda",
+        spName: "scmtSca",
         jsonData: {
           ...transformed,
           clientId: 1,
@@ -168,7 +168,7 @@ export default function CSN() {
         <section className="py-1 px-4">
           <Box className="flex justify-between items-end py-1">
             <h1 className="text-left text-base flex items-end m-0 ">
-              SCMTR-CSA
+              SCMTR-SCA
             </h1>
           </Box>
           <Box className="border border-solid border-black rounded-[4px] ">

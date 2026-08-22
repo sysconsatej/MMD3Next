@@ -559,7 +559,7 @@ export const navItems = [
         isShow: false,
       },
       {
-        name: "SCMTR-CSA",
+        name: "SCMTR-SCA",
         href: "/reports/customAndPort/scmtSda",
         isShow: false,
       },
