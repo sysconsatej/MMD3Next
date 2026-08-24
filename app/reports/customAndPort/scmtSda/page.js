@@ -41,7 +41,22 @@ export default function CSN() {
 
   const transformed = transformToIds(formData);
 
-  const handleUpdate = () =>
+  const handleUpdate = () => {
+    if (!formData?.csnNumber?.toString().trim()) {
+      toast.warning("Please enter CSN Number.");
+      return;
+    }
+
+    if (!formData?.csnDate) {
+      toast.warning("Please select CSN Date.");
+      return;
+    }
+
+    if (!tableFormData.length) {
+      toast.warning("Please select at least one row.");
+      return;
+    }
+
     jsonExport({
       tableFormData,
       updateFn: updateDynamicReportData,
@@ -59,6 +74,7 @@ export default function CSN() {
         },
       }),
     });
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGoLoading(true);
