@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { ThemeProvider, Box } from "@mui/material";
 import data, { metaData } from "./scmtSdaData";
 import { CustomInput } from "@/components/customInput";
@@ -25,8 +25,16 @@ export default function CSN() {
   const [goLoading, setGoLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tableFormData, setTableFormData] = useState([]);
+  const selectedRowsRef = useRef([]);
+  const [selectionResetKey, setSelectionResetKey] = useState(0);
   const router = useRouter(); // ⬅️ initialize router
   const userData = getUserByCookies();
+
+  const handleSelectedRowsChange = useCallback((rows) => {
+    const selectedRows = Array.isArray(rows) ? rows : [];
+    selectedRowsRef.current = selectedRows;
+    setTableFormData(selectedRows);
+  }, []);
 
   const transformToIds = (data) => {
     return Object.fromEntries(
@@ -42,6 +50,15 @@ export default function CSN() {
   const transformed = transformToIds(formData);
 
   const handleUpdate = () => {
+    console.log("formData:", formData);
+    const selectedRows = selectedRowsRef.current;
+    console.log("tableFormData:", selectedRows);
+
+    if (!formData?.csnAmendmentId) {
+      toast.warning("Please select Amendment Type.");
+      return;
+    }
+
     if (!formData?.csnNumber?.toString().trim()) {
       toast.warning("Please enter CSN Number.");
       return;
@@ -52,13 +69,8 @@ export default function CSN() {
       return;
     }
 
-    if (!tableFormData.length) {
-      toast.warning("Please select at least one row.");
-      return;
-    }
-
     jsonExport({
-      tableFormData,
+      tableFormData: selectedRows,
       updateFn: updateDynamicReportData,
       filenamePrefix: "scmtrsca",
       toast,
@@ -110,13 +122,13 @@ export default function CSN() {
             formData?.csnAmendmentId?.name === "Delete All";
 
           if (isDeleteAll) {
-            setTableFormData(rows);
+            handleSelectedRowsChange(rows);
           } else {
-            setTableFormData([]);
+            handleSelectedRowsChange([]);
           }
         } else {
           setTableData([]);
-          setTableFormData([]);
+          handleSelectedRowsChange([]);
           toast.info("No data found.");
         }
       } else {
@@ -170,13 +182,14 @@ export default function CSN() {
         const isDeleteAll = value?.Name === "X - Delete All";
 
         if (isDeleteAll) {
-          setTableFormData(tableData);
+          handleSelectedRowsChange(tableData);
         } else {
-          setTableFormData([]);
+          handleSelectedRowsChange([]);
+          setSelectionResetKey((current) => current + 1);
         }
       },
     };
-  }, [setFormData, jsonData.igmEdiFields, tableData]);
+  }, [handleSelectedRowsChange, setFormData, jsonData.igmEdiFields, tableData]);
   const isDeleteAll = formData?.csnAmendmentId?.Name === "X - Delete All";
   return (
     <ThemeProvider theme={theme}>
@@ -225,8 +238,9 @@ export default function CSN() {
         <DynamicReportTable
           data={tableData}
           metaData={metaData}
-          onSelectedEditedChange={setTableFormData}
+          onSelectedEditedChange={handleSelectedRowsChange}
           disableSelection={isDeleteAll}
+          selectionResetKey={selectionResetKey}
         />
       </Box>
       <ToastContainer />

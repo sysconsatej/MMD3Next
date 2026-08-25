@@ -224,6 +224,7 @@ const DynamicReportTable = ({
   selectedConditionValues = {},
   handleBlur,
   disableSelection = false,
+  selectionResetKey,
 }) => {
   const rawRows = Array.isArray(data)
     ? data
@@ -315,7 +316,7 @@ const DynamicReportTable = ({
   const [selectedUids, setSelectedUids] = useState([]);
 
   const emitSelected = useCallback(
-    (rows, selected = selectedUids) => {
+    (rows, selected) => {
       if (!onSelectedEditedChange) return;
       const out = rows
         .filter((r) => selected.includes(r.__uid))
@@ -325,8 +326,27 @@ const DynamicReportTable = ({
         }));
       onSelectedEditedChange(out);
     },
-    [isDirty, onSelectedEditedChange, selectedUids],
+    [isDirty, onSelectedEditedChange],
   );
+
+  // Keep the parent payload in sync with the checkbox state.  Do this in an
+  // effect rather than inside a state-updater callback: React may defer or
+  // replay updater callbacks (particularly in development/Strict Mode), so
+  // callbacks must not perform external side effects such as updating parent
+  // state.
+  useEffect(() => {
+    emitSelected(editableRows, selectedUids);
+  }, [editableRows, emitSelected, selectedUids]);
+
+  // The parent can clear its selected-row payload when a header filter (such
+  // as Amendment Type) changes. Clear this component's visual checkbox state
+  // at the same time so a checked box never represents a cleared payload.
+  const previousSelectionResetKeyRef = useRef(selectionResetKey);
+  useEffect(() => {
+    if (previousSelectionResetKeyRef.current === selectionResetKey) return;
+    previousSelectionResetKeyRef.current = selectionResetKey;
+    setSelectedUids([]);
+  }, [selectionResetKey]);
   const previousDisableSelectionRef = useRef(false);
 
   useEffect(() => {
@@ -444,7 +464,6 @@ const DynamicReportTable = ({
         : [...selectedUids, uid];
 
       setSelectedUids(nextSelected);
-      emitSelected(nextRows, nextSelected);
 
       return nextRows;
     });
@@ -507,7 +526,6 @@ const DynamicReportTable = ({
         : selectedUids.filter((k) => !uidsOnPage.includes(k));
 
       setSelectedUids(nextSelected);
-      emitSelected(nextRows, nextSelected);
 
       return nextRows;
     });
@@ -519,7 +537,6 @@ const DynamicReportTable = ({
         const next = prev.map((r) =>
           r.__uid === rowUid ? { ...r, [field]: nextVal } : r,
         );
-        emitSelected(next);
         return next;
       });
     },
