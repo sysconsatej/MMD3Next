@@ -51,6 +51,7 @@ const fieldData = {
       joins: `join tblMasterData d on p.portTypeId = d.id and d.name = 'SEA PORT' join tblVoyageRoute v on v.portOfCallId = p.id`,
       selectedConditions: [{ voyageId: "v.voyageId" }],
       searchColumn: "p.name",
+      whereCondition: "p.status = 1",
       orderBy: "p.name",
       isEdit: true,
     },

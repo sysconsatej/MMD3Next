@@ -37,6 +37,7 @@ const fieldData = {
       orderBy: "p.name",
       foreignTable: "code-name,tblPort",
       selectedConditions: [{ voyageId: "voyageId" }],
+      whereCondition: "p.status = 1",
       isEdit: true,
     },
     {

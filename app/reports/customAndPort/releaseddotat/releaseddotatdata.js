@@ -39,6 +39,7 @@ const fieldData = {
       changeFun: "handleDropdownChange",
       joins: `join tblMasterData d on p.portTypeId = d.id and d.name = 'SEA PORT' join tblVoyageRoute v on v.portOfCallId = p.id`,
       selectedConditions: [{ voyageId: "v.voyageId" }],
+      whereCondition: "p.status = 1",
       searchColumn: "p.name",
       orderBy: "p.name",
       isEdit: true,

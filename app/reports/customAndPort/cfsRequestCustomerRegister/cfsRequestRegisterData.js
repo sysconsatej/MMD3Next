@@ -54,6 +54,7 @@ const fieldData = {
       selectedConditions: [{ voyage: "v.voyageId" }],
       searchColumn: "p.name",
       orderBy: "p.name",
+      whereCondition: "p.status = 1",
       isEdit: true,
       changeFun: "handleDropdownChange",
     },

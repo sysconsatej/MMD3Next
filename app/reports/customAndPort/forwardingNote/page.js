@@ -46,7 +46,10 @@ export default function IGMEDI() {
 
   const transformed = transformToIds(formData);
   const isNhavaSheva = Number(transformed?.pod) === 8567;
-
+  const movementCarrierName =
+    formData?.movementCarrierId?.Code ||
+    formData?.movementCarrierId?.Name ||
+    "";
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGoLoading(true);
@@ -125,7 +128,7 @@ export default function IGMEDI() {
       },
 
       buildBody: () => ({
-        spName: "forwardingNote", 
+        spName: "forwardingNote",
         jsonData: {
           ...transformed,
           shippingLineId: userData?.companyId,
@@ -175,7 +178,7 @@ export default function IGMEDI() {
             <DynamicReportDownloadExcelButton
               rows={tableFormData}
               metaData={metaData}
-              fileName={`ForwardingNote_${new Date()
+              fileName={`ForwardingNote_${movementCarrierName}_${new Date()
                 .toISOString()
                 .slice(0, 10)}.xlsx`}
               text="DOWNLOAD EXCEL"
