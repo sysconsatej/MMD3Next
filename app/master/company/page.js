@@ -49,7 +49,7 @@ export default function Company() {
           data,
           "tblCompany",
           mode.formId,
-          '["tblCompanyBranch","tblCompanySubtype"]',
+          '["tblCompanyBranch","tblCompanySubtype","tblAttachment"]',
           "companyId",
         );
         const { success, result, message, error } = await fetchForm(format);
@@ -269,6 +269,19 @@ export default function Company() {
               setFormData={setFormData}
               fieldsMode={mode.mode}
               gridName="tblCompanySubtype"
+              buttons={branchGridButtons}
+            />
+            <FormHeading
+              text="Logo Upload"
+              variant="body2"
+              style="!mx-3 border-b-2 border-solid border-[#03bafc] flex"
+            />
+            <TableGrid
+              fields={jsonData.tblAttachment}
+              formData={formData}
+              setFormData={setFormData}
+              fieldsMode={mode.mode}
+              gridName="tblAttachment"
               buttons={branchGridButtons}
             />
           </Box>

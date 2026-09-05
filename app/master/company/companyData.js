@@ -235,6 +235,14 @@ const fieldData = {
       isEdit: true,
     },
   ],
+  tblAttachment: [
+    {
+      label: "Upload logo",
+      name: "path",
+      type: "fileupload",
+      isEdit: true,
+    },
+  ],
 };
 
 export const company = [

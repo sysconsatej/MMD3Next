@@ -118,17 +118,23 @@ useEffect(() => {
         return <img src={src} style={{ width: "100%", maxWidth: "100%", height: "auto" }} alt="LOGO" />;
     };
 
-    const CompanyImgFooterModule = () => {
-        const storedUserData = localStorage.getItem("userData");
-        let imageFooter = null;
-        if (storedUserData) {
-            const decrypted = decryptSafe(storedUserData);
-            const userData = JSON.parse(decrypted);
-            imageFooter = userData?.[0]?.footerLogoPath ?? null;
-        }
-        const src = imageFooter && assetBaseUrl ? assetBaseUrl + imageFooter : "";
-        return <img src={src} style={{ width: "100%", maxWidth: "100%", height: "auto" }} alt="Footer" />;
-    };
+  const CompanyImgFooterModule = () => {
+    const storedUserData = localStorage.getItem("userData");
+    let imageFooter = null;
+    if (storedUserData) {
+      const decrypted = decryptSafe(storedUserData);
+      const userData = JSON.parse(decrypted);
+      imageFooter = userData?.[0]?.footerLogoPath ?? null;
+    }
+    const src = imageFooter && assetBaseUrl ? assetBaseUrl + imageFooter : "";
+    return (
+      <img
+        src={src}
+        style={{ width: "100%", maxWidth: "100%", height: "auto" }}
+        alt="Footer"
+      />
+    );
+  };
 
     const containers = data?.[0]?.tblBlContainer || [];
     const chunkArray = (arr, size) => {
@@ -400,7 +406,8 @@ useEffect(() => {
             : Array.isArray(input?.containers)
                 ? input.containers
                 : [];
-
+         const logoPath = data?.[0]?.logo;
+        const logoUrl = logoPath? `${baseUrl}uploads/${logoPath}`: "";
         const totals = containersLocal.reduce(
             (acc, c) => {
                 const gw = Number(c?.grossWt) || 0;
@@ -416,13 +423,80 @@ useEffect(() => {
 
         return (
             <div>
-                <div className="mx-auto">
-                    <CompanyImgModule />
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        width: "100%",
+                        minHeight: "65px",
+                    }}
+                >
+                    {/* Logo */}
+                    <div
+                        style={{
+                            width: "20%",
+                        }}
+                    >
+                        {logoUrl && (
+                            <img
+                                src={logoUrl}
+                                alt="Shipping Line Logo"
+                                style={{
+                                    width: "70px",
+                                    height: "50px",
+                                    objectFit: "contain",
+                                    display: "block",
+                                }}
+                            />
+                        )}
+                    </div>
+
+                    {/* Company Name + Address */}
+                    <div
+                        style={{
+                            width: "80%",
+                            textAlign: "center",
+                            paddingRight: "20%",
+                        }}
+                    >
+                        <div
+                            style={{
+                                fontSize: "14px",
+                                fontWeight: "bold",
+                                lineHeight: "18px",
+                            }}
+                        >
+                            {data?.[0]?.ShippingComapnyName || ""}
+                        </div>
+
+                        <div
+                            style={{
+                                fontSize: "10px",
+                                fontWeight: "normal",
+                                lineHeight: "14px",
+                                marginTop: "2px",
+                            }}
+                        >
+                            {data?.[0]?.ShippingComapnyAddress || ""}
+                        </div>
+                    </div>
                 </div>
 
-                <div className="mx-auto text-black">
-                    <h1 className="text-black font-bold text-sm text-center underline">
-                        {"Delivery Order"}
+                <div
+                    style={{
+                        marginTop: "8px",
+                        textAlign: "center",
+                    }}
+                >
+                    <h1
+                        style={{
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                            textDecoration: "underline",
+                            margin: 0,
+                        }}
+                    >
+                        Delivery Order
                     </h1>
 
                     <div className="flex items-start justify-end">
@@ -431,7 +505,10 @@ useEffect(() => {
                     </div>
 
                     <div className="flex justify-between w-full">
-                        <div className="flex items-end justify-start w-[40%]">
+                        <div
+                            className="flex items-end justify-start w-[40%]"
+                            style={{ textAlign: "left" }}
+                        >
                             <p className="text-black font-bold mr-2" style={{ fontSize: "10px" }}>
                                 To, <br />
                                 The Manager,<br />
