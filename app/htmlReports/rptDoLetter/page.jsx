@@ -442,8 +442,8 @@ useEffect(() => {
                                 src={logoUrl}
                                 alt="Shipping Line Logo"
                                 style={{
-                                    width: "70px",
-                                    height: "50px",
+                                    width: "120px",
+                                    height: "90px",
                                     objectFit: "contain",
                                     display: "block",
                                 }}
