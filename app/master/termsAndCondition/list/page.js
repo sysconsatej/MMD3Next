@@ -1,0 +1,252 @@
+"use client";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  CssBaseline,
+} from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
+import CustomButton from "@/components/button/button";
+import CustomPagination from "@/components/pagination/pagination";
+import { theme } from "@/styles/globalCss";
+import { deleteRecord, fetchTableValues } from "@/apis";
+import SearchBar from "@/components/searchBar/searchBar";
+import { toast, ToastContainer } from "react-toastify";
+import { HoverActionIcons } from "@/components/tableHoverIcons/tableHoverIcons";
+import { formStore } from "@/store";
+import { useRouter } from "next/navigation";
+import { useGetUserAccessUtils } from "@/utils/getUserAccessUtils";
+import { fieldData, searchDataAray } from "../termsAndConditionData";
+import { getUserByCookies } from "@/utils";
+import TableExportButtons, {
+  TableExcelButton,
+} from "@/components/tableExportButtons/tableExportButtons";
+
+function createData(
+  shippingLineId,
+  termsAndCondition,
+  reportsId,
+  updatedBy,
+  updateDate,
+  id,
+) {
+  return {
+    shippingLineId,
+    termsAndCondition,
+    reportsId,
+    updatedBy,
+    updateDate,
+    id,
+  };
+}
+
+export default function CompanyList() {
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [totalPage, setTotalPage] = useState(1);
+  const [totalRows, setTotalRows] = useState(1);
+  const [berthData, setBerthData] = useState([]);
+  const [search, setSearch] = useState({ searchColumn: "", searchValue: "" });
+  const [loadingState, setLoadingState] = useState("Loading...");
+  const { setMode } = formStore();
+  const router = useRouter();
+  const { data } = useGetUserAccessUtils();
+  const userData = getUserByCookies();
+  const [searchCondition, setSearchCondition] = useState(
+    `s.id = '${userData?.companyId}' and c.createdBy = u3.id`,
+  );
+  const tableWrapRef = useRef(null);
+
+  const getData = useCallback(
+    async (
+      pageNo = page,
+      pageSize = rowsPerPage,
+      searchConditionMain = searchCondition,
+    ) => {
+      try {
+        const tableObj = {
+          columns:
+            "s.name as shippingLineId,c.termsAndCondition,m.name as reportsId,u.name as updatedBy,c.updatedDate as updateDate,c.id as id",
+          tableName: "tbltermsAndCondition c",
+          pageNo,
+          pageSize,
+          searchColumn: search.searchColumn,
+          searchValue: search.searchValue,
+          joins: ` left join tblUser u2 on u2.roleCode = 'shipping' left join tblUser u3 on u3.roleCodeId = u2.id left join tblCompany s on s.id = c.shippingLineId left join tblMasterData m on m.id = c.reportsId left join tblUser u on u.id = c.updatedBy join tbltermsAndCondition c1 on c1.id = c.id and ${searchConditionMain} and c1.status = 1`,
+        };
+        const { data, totalPage, totalRows } = await fetchTableValues(tableObj);
+        setBerthData(data ?? []);
+        setTotalPage(totalPage);
+        setPage(pageNo);
+        setRowsPerPage(pageSize);
+        setTotalRows(totalRows);
+      } catch (err) {
+        setLoadingState("Failed to load data");
+      } finally {
+        setLoadingState("Loading ...");
+      }
+    },
+    [page, rowsPerPage, search, searchCondition],
+  );
+
+  const rows = berthData
+    ? berthData.map((item) =>
+        createData(
+          item["shippingLineId"],
+          item["termsAndCondition"],
+          item["reportsId"],
+          item["updatedBy"],
+          item["updateDate"],
+          item["id"],
+        ),
+      )
+    : [];
+
+  const handleChangePage = (event, newPage) => {
+    getData(newPage, rowsPerPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    getData(1, +event.target.value);
+  };
+
+  // delete
+  const handleDeleteRecord = async (formId) => {
+    const updateObj = {
+      updatedBy: userData?.userId,
+      clientId: 1,
+      updatedDate: new Date(),
+    };
+    const obj = {
+      recordId: formId,
+      tableName: "tbltermsAndCondition",
+      ...updateObj,
+    };
+    const { success, message, error } = await deleteRecord(obj);
+    if (success) {
+      toast.success(message);
+      getData(page, rowsPerPage);
+    } else {
+      toast.error(error || message);
+    }
+  };
+
+  const modeHandler = (mode, formId = null) => {
+    if (mode === "delete") {
+      handleDeleteRecord(formId);
+      return;
+    }
+    setMode({ mode, formId });
+    router.push("/master/termsAndCondition");
+  };
+
+  useEffect(() => {
+    if (userData?.roleCode === "admin") {
+      setSearchCondition(`c.createdBy = u3.id`);
+      getData(1, rowsPerPage, `c.createdBy = u3.id`);
+    } else {
+      getData(1, rowsPerPage);
+      setMode({ mode: null, formId: null });
+    }
+  }, []);
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box className="sm:px-4 py-1">
+        <Box className="flex flex-col sm:flex-row justify-between pb-1">
+          <Typography variant="body1" className="text-left flex items-center">
+            Terms and Condition
+          </Typography>
+          <Box className="flex flex-col sm:flex-row gap-6">
+            <SearchBar
+              getData={getData}
+              rowsPerPage={rowsPerPage}
+              search={search}
+              setSearch={setSearch}
+              options={searchDataAray}
+            />
+            {userData?.roleCode === "shipping" && (
+              <CustomButton text="Add" href="/master/termsAndCondition" />
+            )}
+          </Box>
+        </Box>
+        {/* Table */}
+        <TableContainer component={Paper} ref={tableWrapRef} className="mt-2">
+          <Table size="small" sx={{ minWidth: 650 }}>
+            <TableHead>
+              <TableRow>
+                {fieldData.berthAgentFields
+                  ?.filter((i) => i.showFieldonSearch !== false)
+                  ?.map((item) => (
+                    <TableCell key={item.name}>{item.label}</TableCell>
+                  ))}
+                <TableCell>Updated By</TableCell>
+                <TableCell>Updated Date</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows.length > 0 ? (
+                rows.map((row, index) => (
+                  <TableRow key={index} hover className="relative group">
+                    <TableCell>{row?.shippingLineId}</TableCell>
+
+                    <TableCell>{row?.reportsId}</TableCell>
+                    <TableCell>{row?.termsAndCondition}</TableCell>
+                    <TableCell>{row?.updatedBy}</TableCell>
+                    <TableCell>{row?.updateDate}</TableCell>
+                    <TableCell className="table-icons opacity-0 group-hover:opacity-100">
+                      <HoverActionIcons
+                        onView={() => modeHandler("view", row.id)}
+                        onEdit={() => modeHandler("edit", row.id)}
+                        onDelete={() => modeHandler("delete", row.id)}
+                        menuAccess={data ?? {}}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} align="center">
+                    {"No Data Found"}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <Box
+          className={`flex items-center mt-2 ${
+            userData?.roleCode === "admin" ? "justify-between" : "justify-end"
+          }`}
+        >
+          {userData?.roleCode === "admin" && (
+            <TableExcelButton
+              targetRef={tableWrapRef}
+              title="Terms and Condition"
+              fileName="Terms-And-Condition-List"
+            />
+          )}
+          <Box className="flex justify-end items-center mt-2">
+            <CustomPagination
+              count={totalPage}
+              totalRows={totalRows}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={handleChangePage}
+              handleChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </Box>
+        </Box>
+      </Box>
+      <ToastContainer />
+    </ThemeProvider>
+  );
+}

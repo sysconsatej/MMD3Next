@@ -115,6 +115,11 @@ export const navItems = [
         href: "/master/moduleAttachment/list",
         isShow: false,
       },
+      {
+        name: "Terms and Conditions",
+        href: "/master/termsAndCondition/list",
+        isShow: false,
+      },
     ],
   },
 

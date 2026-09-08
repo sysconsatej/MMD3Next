@@ -759,19 +759,44 @@ useEffect(() => {
                     </div>
                 </div>
 
-                <div className="footer">
-                    <div>
-                        <p className="text-black font-bold mt-2" style={{ fontSize: "10px" }}>
-                            Thanking You, For {data[0]?.company} <br /> As Agent
-                        </p>
-                        {/* <p style={{ width: "80%", height: "100%" }}>
-                            <ImgSign />
-                        </p> */}
-                    </div>
-                    {/* <div style={{ marginTop: "6mm" }}>
-                        <CompanyImgFooterModule />
-                    </div> */}
-                </div>
+<div className="footer">
+  {data[0]?.termsAndCondition && (
+    <div style={{ marginTop: "10px", marginBottom: "10px" }}>
+      
+      {/* Only heading bold */}
+      <div
+        className="text-black font-bold"
+        style={{ fontSize: "10px", marginBottom: "5px" }}
+      >
+        Terms And Conditions :
+      </div>
+
+      {/* Terms text - NORMAL FONT */}
+      <div
+        className="text-black"
+        style={{
+          fontSize: "10px",
+          whiteSpace: "pre-wrap",
+          fontWeight: "normal",
+        }}
+        dangerouslySetInnerHTML={{
+          __html: data[0]?.termsAndCondition,
+        }}
+      />
+    </div>
+  )}
+
+  {/* Existing footer - remains bold */}
+  <div>
+    <p
+      className="text-black font-bold mt-2"
+      style={{ fontSize: "10px" }}
+    >
+      Thanking You, For {data[0]?.company} <br />
+      As Agent
+    </p>
+  </div>
+</div>
             </div>
         );
     };
