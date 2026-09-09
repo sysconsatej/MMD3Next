@@ -106,17 +106,74 @@ useEffect(() => {
         return `${dd}/${mm}/${yyyy}`;
     };
 
-    const CompanyImgModule = () => {
-        const storedUserData = localStorage.getItem("userData");
-        let imageHeader = null;
-        if (storedUserData) {
-            const decrypted = decryptSafe(storedUserData);
-            const userData = JSON.parse(decrypted);
-            imageHeader = userData?.[0]?.headerLogoPath ?? null;
-        }
-        const src = imageHeader && assetBaseUrl ? assetBaseUrl + imageHeader : "";
-        return <img src={src} style={{ width: "100%", maxWidth: "100%", height: "auto" }} alt="LOGO" />;
-    };
+  const CompanyHeader = () => {
+    const logoPath = data?.[0]?.logo;
+
+    const logoUrl = logoPath
+        ? `${baseUrl}uploads/${logoPath}`
+        : "";
+
+    return (
+        <div
+            style={{
+                display: "flex",
+                alignItems: "flex-start",
+                width: "100%",
+                minHeight: "65px",
+            }}
+        >
+            {/* Logo */}
+            <div
+                style={{
+                    width: "20%",
+                }}
+            >
+                {logoUrl && (
+                    <img
+                        src={logoUrl}
+                        alt="Shipping Line Logo"
+                        style={{
+                            width: "120px",
+                            height: "90px",
+                            objectFit: "contain",
+                            display: "block",
+                        }}
+                    />
+                )}
+            </div>
+
+            {/* Company Name + Address */}
+            <div
+                style={{
+                    width: "80%",
+                    textAlign: "center",
+                    paddingRight: "20%",
+                }}
+            >
+                <div
+                    style={{
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                        lineHeight: "18px",
+                    }}
+                >
+                    {data?.[0]?.ShippingComapnyName || ""}
+                </div>
+
+                <div
+                    style={{
+                        fontSize: "10px",
+                        fontWeight: "normal",
+                        lineHeight: "14px",
+                        marginTop: "2px",
+                    }}
+                >
+                    {data?.[0]?.ShippingComapnyAddress || ""}
+                </div>
+            </div>
+        </div>
+    );
+};
 
   const CompanyImgFooterModule = () => {
     const storedUserData = localStorage.getItem("userData");
@@ -168,7 +225,7 @@ useEffect(() => {
         return (
             <div>
                 <div className="mx-auto">
-                    <CompanyImgModule />
+                    <CompanyHeader />
                 </div>
 
                 <div className="mx-auto text-black">
@@ -804,7 +861,7 @@ useEffect(() => {
     const EmptyOffLoadingLetter = (containers) => (
         <div>
             <div className="mx-auto">
-                <CompanyImgModule />
+                <CompanyHeader />
             </div>
             {/* Header */}
             <div className="mx-auto text-black">
@@ -1189,7 +1246,7 @@ useEffect(() => {
         return (
             <div>
                 <div className="mx-auto">
-                    <CompanyImgModule />
+                    <CompanyHeader />
                 </div>
 
                 {/* Header */}
@@ -1540,7 +1597,7 @@ useEffect(() => {
         return (
             <div>
                 <div className="mx-auto">
-                    <CompanyImgModule />
+                    <CompanyHeader />
                 </div>
 
                 <div className="mx-auto text-black">

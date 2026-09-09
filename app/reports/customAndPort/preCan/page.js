@@ -13,10 +13,8 @@ import DynamicReportTable from "@/components/dynamicReport/dynamicReportEditable
 import { createHandleChangeEventFunction } from "@/utils/dropdownUtils";
 
 export default function CargoArrivalNotice() {
-  const headerImg =
-    "";
-  const signImg =
-    "";
+  const headerImg = "";
+  const signImg = "";
   const [formData, setFormData] = useState({});
   const [fieldsMode, setFieldsMode] = useState("");
   const [jsonData, setJsonData] = useState(data);
@@ -34,7 +32,7 @@ export default function CargoArrivalNotice() {
           return [key, value.Id];
         }
         return [key, value];
-      })
+      }),
     );
   };
 
@@ -58,7 +56,7 @@ export default function CargoArrivalNotice() {
     const isNoDataError = (txt = "") =>
       txt.toLowerCase().includes("did not return valid json text");
 
-    console.log('requestBody', requestBody);
+    console.log("requestBody", requestBody);
 
     try {
       const res = await fetchDynamicReportData(requestBody);
@@ -81,7 +79,7 @@ export default function CargoArrivalNotice() {
         } else {
           setError(errText || "Request failed.");
           toast.error(
-            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`
+            errText || `Request failed${res.status ? ` (${res.status})` : ""}.`,
           );
         }
       }
@@ -117,8 +115,8 @@ export default function CargoArrivalNotice() {
         new Set(
           tableFormData
             .map((r) => r?.ID ?? r?.id)
-            .filter((v) => v !== undefined && v !== null)
-        )
+            .filter((v) => v !== undefined && v !== null),
+        ),
       ).map((id) => ({ id }));
 
       if (cleanedRows.length === 0) {
@@ -133,11 +131,11 @@ export default function CargoArrivalNotice() {
         },
       };
 
-      console.log(requestBody, '[][][]')
+      console.log(requestBody, "[][][]");
 
       const fetchedData = await fetchDynamicReportData(requestBody);
       const data = fetchedData?.data;
-      console.log(fetchedData?.data, '[][][][')
+      console.log(fetchedData?.data, "[][][][");
 
       if (!Array.isArray(data) || data.length === 0) {
         toast.info("No data returned to email");
@@ -157,7 +155,7 @@ export default function CargoArrivalNotice() {
             cc: item?.emailCC || "",
             htmlContent: html,
             pdfFilename: "Pre Cargo Arrival Notice",
-            subject: `PreCAN/${(item?.pod || "")}/${item?.blNo || ""}/${item?.podVessel || ""}/${item?.podVoyage || ""}`,
+            subject: `PreCAN/${item?.pod || ""}/${item?.blNo || ""}/${item?.podVessel || ""}/${item?.podVoyage || ""}`,
           };
 
           const resp = await sendEmail(emailPayload);
@@ -202,12 +200,71 @@ export default function CargoArrivalNotice() {
 
   const generatedHtmlReport = (item) => {
     console.log("data", item);
+    const logoPath = item?.logo;
+    const logoUrl = logoPath
+      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}uploads/${logoPath}`
+      : "";
     const html = `<div style="width: 210mm; height: 297mm;background-color: white ">
-   <div style="width: 210mm; height: 150px; overflow: hidden;">
-   <img src=${headerImg}  
-       alt="header" 
-       style="width: 100%; height: 100%; object-fit: cover; display: block;" />
-   </div>
+<div style="
+    width:100%;
+    height:110px;
+    position:relative;
+">
+
+    <!-- LOGO -->
+    <div style="
+        position:absolute;
+        left:0;
+        top:0;
+        width:120px;
+        height:90px;
+    ">
+        ${
+            logoUrl
+                ? `<img
+                    src="${logoUrl}"
+                    alt="Shipping Line Logo"
+                    style="
+                        width:120px;
+                        height:90px;
+                        object-fit:contain;
+                        display:block;
+                    "
+                />`
+                : ""
+        }
+    </div>
+
+    <!-- COMPANY NAME + ADDRESS -->
+    <div style="
+        position:absolute;
+        left:50%;
+        top:25px;
+        transform:translateX(-50%);
+        width:65%;
+        text-align:center;
+    ">
+        <div style="
+            font-size:18px;
+            font-weight:bold;
+            line-height:22px;
+            text-align:center;
+        ">
+            ${item?.companyName || ""}
+        </div>
+
+        <div style="
+            font-size:11px;
+            font-weight:normal;
+            line-height:16px;
+            margin-top:3px;
+            text-align:center;
+        ">
+            ${item?.companyAddress || ""}
+        </div>
+    </div>
+
+</div>
     <div className="flex justify-between w-full">
       <div className="flex items-end justify-start">
        <p className="text-black font-bold" style={{ fontSize: "10px" }}>
@@ -264,7 +321,9 @@ export default function CargoArrivalNotice() {
       word-break:break-word;
       overflow-wrap:anywhere;
     ">
-      ${String(item?.goodsDesc ?? "").replace(/\s+/g, " ").trim()}
+      ${String(item?.goodsDesc ?? "")
+        .replace(/\s+/g, " ")
+        .trim()}
     </span>
   </div>
 </div>
@@ -284,8 +343,11 @@ export default function CargoArrivalNotice() {
         </tr>
       </thead>
       <tbody> 
-        ${Array.isArray(item?.tblBlContainer) && item.tblBlContainer.length
-        ? item.tblBlContainer.map((c) => `
+        ${
+          Array.isArray(item?.tblBlContainer) && item.tblBlContainer.length
+            ? item.tblBlContainer
+                .map(
+                  (c) => `
               <tr>
                 <td style="border:1px solid #000; padding:5px; text-align:left;">${c?.containerNo ?? ""}</td>
                 <td style="border:1px solid #000; padding:5px; text-align:left;">${c?.size ?? ""}</td>
@@ -296,15 +358,17 @@ export default function CargoArrivalNotice() {
                 <td style="border:1px solid #000; padding:5px; text-align:right;">${c?.grossWt ?? ""}</td>
                 <td style="border:1px solid #000; padding:5px; text-align:right;">${c?.grossWt ?? ""}</td>
               </tr>
-            `).join("")
-        : `
+            `,
+                )
+                .join("")
+            : `
               <tr>
                 <td colspan="8" style="border:1px solid #000; padding:8px; text-align:center;">
                   No container data
                 </td>
               </tr>
             `
-      }
+        }
       </tbody>
     </table>
   </div>
@@ -342,7 +406,7 @@ export default function CargoArrivalNotice() {
         setFormData,
         fields: jsonData.cargoFields,
       }),
-    [setFormData, jsonData.cargoFields]
+    [setFormData, jsonData.cargoFields],
   );
   return (
     <ThemeProvider theme={theme}>
@@ -374,7 +438,7 @@ export default function CargoArrivalNotice() {
             <CustomButton
               text={emailLoading ? "Loading..." : "SEND EMAIL"}
               onClick={async () => handleSendEmail()}
-            //disabled={loading || !tableFormData.length}
+              //disabled={loading || !tableFormData.length}
             />
           </Box>
         </section>
