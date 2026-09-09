@@ -903,6 +903,11 @@ export const fieldData = {
       foreignTable: "code-name,tblMasterData",
       isEdit: true,
     },
+    {
+      label: "Bay Location",
+      name: "bayLocation",
+      isEdit: true,
+    },
   ],
   tblBlPackingList: [
     { label: "HS No", name: "hsnCode", isEdit: true },

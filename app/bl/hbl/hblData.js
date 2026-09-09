@@ -754,6 +754,11 @@ export const fieldData = {
       required: true,
       isEdit: true,
     },
+    {
+      label: "Bay Location",
+      name: "bayLocation",
+      isEdit: true,
+    },
   ],
   tblBlPackingList: [
     { label: "HS No", name: "hsnCode", isEdit: true, required: true },
