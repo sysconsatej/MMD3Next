@@ -696,6 +696,55 @@ useEffect(() => {
                                 </p>
                             </td>
                         </tr>
+                        <tr>
+    {/* SURVEYOR DETAILS LABEL */}
+                            <td className="w-1/6 border-t border-b border-l border-black p-1 align-top">
+                                <p
+                                    className="text-black font-bold"
+                                    style={{ fontSize: "9px", margin: 0 }}
+                                >
+                                    SURVEYOR DETAILS :
+                                </p>
+                            </td>
+
+                            {/* SURVEYOR DETAILS VALUE */}
+                            <td className="w-2/6 border-t border-b border-r border-black p-1 align-top">
+                                <p
+                                    className="text-black"
+                                    style={{ fontSize: "9px", margin: 0 }}
+                                >
+                                    {data?.[0]?.surveyor ?? ""}
+                                    <br />
+                                    <span style={{ wordBreak: "break-word" }}>
+                                        {data?.[0]?.surveyorAddress ?? ""}
+                                    </span>
+                                </p>
+                            </td>
+
+                            {/* EMPTY RETURN LOCATION LABEL */}
+                            <td className="w-1/6 border-t border-b border-l border-black p-1 align-top">
+                                <p
+                                    className="text-black font-bold"
+                                    style={{ fontSize: "9px", margin: 0 }}
+                                >
+                                    EMPTY RETURN LOCATION :
+                                </p>
+                            </td>
+
+                            {/* EMPTY RETURN LOCATION VALUE */}
+                            <td className="w-2/6 border-t border-b border-r border-black p-1 align-top">
+                                <p
+                                    className="text-black"
+                                    style={{ fontSize: "9px", margin: 0 }}
+                                >
+                                    {data?.[0]?.emptyDepot ?? ""}
+                                    <br />
+                                    <span style={{ wordBreak: "break-word" }}>
+                                        {data?.[0]?.emptyDepotAddress ?? ""}
+                                    </span>
+                                </p>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
 
@@ -788,7 +837,7 @@ useEffect(() => {
                         <p className="text-black font-bold" style={{ fontSize: "10px" }}>Free Days Upto :</p>
                     </div>
                     <div style={{ width: "85%" }}>
-                        <p className="text-black" style={{ fontSize: "10px" }}>{formatDateToYMD(data[0]?.freeDaysUpto)}</p>
+                        <p className="text-black" style={{ fontSize: "10px" }}>{formatDateToYMD(data[0]?.doValidDate)}</p>
                     </div>
                 </div>
 
@@ -1083,6 +1132,7 @@ useEffect(() => {
                             </p>
                         </td>
                     </tr>
+                     
                 </tbody>
             </table>
             {/* main Grid */}

@@ -193,6 +193,18 @@ export const fieldData = {
       name: "notifyPartyText",
       disabled: true,
     },
+    {
+      label: "DE StuFfing Type",
+      name: "stuffDestuffId",
+      type: "dropdown",
+      tableName: "tblMasterData m",
+      displayColumn: "m.name",
+      where:
+        "m.masterListName = 'tblStuffingDestuffingType' and (m.name = 'Factory' or m.name = 'Dock')",
+      foreignTable: "name,tblMasterData",
+      orderBy: "m.name",
+      isEdit: true,
+    },
   ],
 
   tblBlContainer: [
