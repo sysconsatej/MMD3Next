@@ -23,7 +23,7 @@ import {
 import { ThemeProvider } from "@mui/material/styles";
 import CustomPagination from "@/components/pagination/pagination";
 import { theme } from "@/styles/globalCss";
-import { deleteRecord, fetchTableValues } from "@/apis";
+import { deleteRecord, execSp, fetchTableValues } from "@/apis";
 import AdvancedSearchBar from "@/components/advanceSearchBar/advanceSearchBar";
 import { toast, ToastContainer } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -240,9 +240,30 @@ export default function BLList() {
     router.push("/invoice/doUpdate");
   };
 
-  const handlePrint = (id, clientId) => {
-    setReportModalForRow({ id, clientId });
-    setReportModalOpen(true);
+  const handlePrint = async (id, clientId) => {
+    try {
+      const doResult = await execSp({
+        spName: "dbo.GenerateDONo",
+        jsonData: {
+          blId: Number(id),
+        },
+      });
+
+      if (!doResult?.success) {
+        toast.error(doResult?.message || "DO No generation failed!");
+        return;
+      }
+
+      setReportModalForRow({
+        id,
+        clientId,
+      });
+
+      setReportModalOpen(true);
+    } catch (error) {
+      console.error("Generate DO Error:", error);
+      toast.error("Something went wrong while generating DO!");
+    }
   };
 
   const handleGenerateReports = () => {

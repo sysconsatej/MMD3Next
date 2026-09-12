@@ -1,4 +1,4 @@
-import { fetchForm, getDataWithCondition, updateStatusRows } from "@/apis";
+import { execSp, fetchForm, getDataWithCondition, updateStatusRows } from "@/apis";
 import { formatDataWithForm, formatFetchForm, getUserByCookies } from "@/utils";
 import { toast } from "react-toastify";
 
@@ -215,21 +215,42 @@ export const doStatusHandler = (getData, router, setMode) => {
           columns: "b.id, b.mblHblFlag",
           tableName: "tblDoRequest d",
           joins: `
-             left join tblBl b on isnull(b.hblNo, b.mblNo) = d.blNo and b.shippingLineId = d.shippingLineId
-            `,
+        left join tblBl b 
+          on isnull(b.hblNo, b.mblNo) = d.blNo 
+          and b.shippingLineId = d.shippingLineId
+      `,
           whereCondition: `d.id = ${ids?.[0]} and b.status = 1 and d.status = 1`,
         };
 
         const { success, data } = await getDataWithCondition(blQuery);
 
         if (success && data?.length > 0) {
-          setReportModalForRow({ id: data?.[0]?.id, clientId: 1 });
+          // Generate DO No through SP
+          const doResult = await execSp({
+            spName: "dbo.GenerateDONo",
+            jsonData: {
+              blId: Number(data[0].id),
+            },
+          });
+
+          if (!doResult?.success) {
+            toast.error(doResult?.message || "DO No generation failed!");
+            return;
+          }
+
+          // Existing report flow
+          setReportModalForRow({
+            id: data[0].id,
+            clientId: 1,
+          });
+
           setReportModalOpen(true);
         } else {
           toast.warn("Again this DO Request does not have Bl in system!");
         }
       } catch (error) {
         console.log("error", error);
+        toast.error("Something went wrong while generating DO!");
       }
     },
   };
@@ -244,7 +265,7 @@ export function statusColor(status) {
     ReleasedforDO: "#007E6E",
     Confirm: "green",
     GenerateforDO: "#1976D2",
-    Pending: "#A66DD4"
+    Pending: "#A66DD4",
   };
   return color[status];
 }
