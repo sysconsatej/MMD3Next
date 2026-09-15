@@ -115,27 +115,23 @@ export default function IGMEDI() {
       setGoLoading(false);
     }
   };
-  const handleDownloadText = () =>
-    exportTextDirect({
-      updateFn: fetchDynamicReportData,
-      toast,
-      setLoading,
-
-      fileMeta: {
-        terminal: formData?.terminal?.Name,
-        vessel: formData?.vessel?.Name,
-        voyage: formData?.voyage?.Name,
+const handleDownloadText = () =>
+  exportTextDirect({
+    updateFn: fetchDynamicReportData,
+    toast,
+    setLoading,
+    fileName: `ForwardingNote_${movementCarrierName}_${new Date()
+      .toISOString()
+      .slice(0, 10)}.txt`,
+    buildBody: () => ({
+      spName: "forwardingnotetext",
+      jsonData: {
+        ...transformed,
+        shippingLineId: userData?.companyId,
+        userId: userData?.userId,
       },
-
-      buildBody: () => ({
-        spName: "forwardingNote",
-        jsonData: {
-          ...transformed,
-          shippingLineId: userData?.companyId,
-          userId: userData?.userId,
-        },
-      }),
-    });
+    }),
+  });
 
   const handleChangeEventFunctions = useMemo(
     () =>

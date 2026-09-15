@@ -230,6 +230,7 @@ export async function exportTextDirect({
   fileExt = "TXT",
   mime = "text/plain",
   fileMeta = {},
+  fileName,
   ...runnerArgs
 }) {
   runnerArgs.setLoading?.(true);
@@ -266,13 +267,17 @@ export async function exportTextDirect({
     const vessel = clean(fileMeta.vessel);
     const voyage = clean(fileMeta.voyage);
 
-    const filename = `${filenamePrefix}_${terminal}_${vessel}_${voyage}_${date}_${time}.${fileExt}`;
+    const filename =
+      fileName ||
+      `${filenamePrefix}_${terminal}_${vessel}_${voyage}_${date}_${time}.${fileExt}`;
 
     download(filename, lines.join("\r\n"), mime);
 
     runnerArgs.toast?.success?.("Text file downloaded.");
   } catch (error) {
-    runnerArgs.toast?.error?.(error?.message || "Text-file export failed.");
+    runnerArgs.toast?.error?.(
+      error?.message || "Text-file export failed.",
+    );
   } finally {
     runnerArgs.setLoading?.(false);
   }
