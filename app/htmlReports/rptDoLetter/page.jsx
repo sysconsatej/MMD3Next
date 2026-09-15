@@ -802,7 +802,7 @@ useEffect(() => {
                                 </td>
                                 <td className="w-1/8 border border-black p-1">
                                     <p className="text-black font-normal text-center" style={{ fontSize: "9px" }}>
-                                        {formatDateToYMD(data?.[0]?.doValidDate)}
+                                        {formatDateToYMD(item?.validTillContainer)}
                                     </p>
                                 </td>
                             </tr>
