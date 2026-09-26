@@ -52,6 +52,12 @@ const fieldData = {
   invoiceFieldsTop: [
     { label: "Invoice No", name: "invoiceNo", isEdit: true, required: true },
     {
+      name: "blNo",
+      label: "BL No",
+      type: "text",
+      disabled: true,
+    },
+    {
       label: "Invoice Type",
       name: "invoiceTypeId",
       type: "dropdown",

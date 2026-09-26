@@ -33,6 +33,12 @@ import { extractTextFromPdfs } from "@/helper/pdfTextExtractor";
 function CustomTabPanel({ children, value, index }) {
   return value === index ? <Box className="pt-2">{children}</Box> : null;
 }
+function normalizeBlNo(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, "")
+    .toUpperCase();
+}
 async function matchDropdownValue(masterListName, rawValue) {
   if (!rawValue) return null;
   const payload = {
@@ -176,7 +182,8 @@ export default function InvoiceUpload() {
       setEmailLoading(true);
 
       const emailObj = {
-        columns: "ir.billingPartyEmailId as emailId,ir.billingPartyName as name",
+        columns:
+          "ir.billingPartyEmailId as emailId,ir.billingPartyName as name",
         tableName: "tblInvoiceRequest ir",
         whereCondition: `ir.id = ${invoiceReqId}`,
       };
@@ -268,7 +275,6 @@ export default function InvoiceUpload() {
         emailText: `Please find attached invoice for BL No: ${blNo || ""}.`,
         attachmentPaths,
       };
-
 
       const resp = await sendInvoiceEmail(payload);
 
@@ -458,6 +464,10 @@ export default function InvoiceUpload() {
 
           return {
             ...restRow,
+
+            // PDF se extracted BL No
+            blNo: row.blNo || "",
+
             invoiceTypeId: invoiceTypeObj,
             invoiceCategoryId: invoiceCategoryObj,
             tblInvoiceRequestContainer: containers,
@@ -494,7 +504,30 @@ export default function InvoiceUpload() {
       toast.error("Please add at least one invoice.");
       return;
     }
+    const requestBlNo = normalizeBlNo(blNo);
 
+    if (!requestBlNo) {
+      toast.error("Invoice Request BL No is missing.");
+      setIsSubmitted(false);
+      return;
+    }
+
+    const invalidInvoice = invoices.find((row) => {
+      const invoiceBlNo = normalizeBlNo(row?.blNo);
+
+      return !invoiceBlNo || invoiceBlNo !== requestBlNo;
+    });
+
+    if (invalidInvoice) {
+      toast.error(
+        `Uploaded invoice BL No does not match the requested BL No. Invoice No: ${
+          invalidInvoice.invoiceNo || "Unknown"
+        }`,
+      );
+
+      setIsSubmitted(false);
+      return;
+    }
     let ok = true;
 
     await Promise.allSettled(
@@ -507,7 +540,7 @@ export default function InvoiceUpload() {
             ...row,
             invoiceRequestId: invoiceReqId, // 🔑 PRIMARY LINK
             blId: formData.blId || null, // 🔑 OPTIONAL
-            blNo: blNo || null, // 🔑 ALWAYS STORE
+            // blNo: blNo || null, // 🔑 ALWAYS STORE
             shippingLineId: userData.companyId,
             companyId: userData.companyId,
             companyBranchId: userData.branchId,
