@@ -461,6 +461,7 @@ function extractCustomerGST(all, p1, p2) {
 // ---------- B/L Number ----------
 function extractBlNumber(all) {
   const m =
+    all.match(/\bHBL\s*(?:No\.?|Number)\s*[:#\-]?\s*([A-Z0-9\-\/.]+)/i) ||
     all.match(/\bB\/L\s*(?:No\.?|Number)\s*[:#\-]?\s*([A-Z0-9\-\/]+)\b/i) ||
     all.match(/\bBL\s*(?:No\.?|Number)\s*[:#\-]?\s*([A-Z0-9\-\/]+)\b/i);
 
@@ -640,18 +641,32 @@ function extractBillingPartyMulti(all, p1, p2) {
 
   // 🔹 1️⃣ Strongest Anchor: "Customer Name, Address & PoS"
   let block =
-    all.match(
-      /Customer\s+Name,\s*Address\s*&\s*PoS\s*([\s\S]+?)\s*(BKG|Booking|Sailing|Arrival|Due\s+Date|TAX\s+INVOICE|BILL\s+OF\s+SUPPLY)/i,
+      all.match(
+      /Customer\s+Name,\s*Address\s*&\s*PoS\s*([\s\S]+?)\s*(BKG|Booking|Sailing|Arrival|Due\s+Date|Place\s+Of\s+Supply|TAX\s+INVOICE|BILL\s+OF\s+SUPPLY)/i,
     )?.[1] || "";
 
   // 🔹 2️⃣ Fallback: "Billed To"
   if (!block) {
     block =
       all.match(
-        /Billed\s+To\s*[:\-]?\s*([\s\S]+?)\s*(BKG|Booking|Sailing|Arrival|Due\s+Date|TAX\s+INVOICE|BILL\s+OF\s+SUPPLY)/i,
+        /Billed\s+To\s*[:\-]?\s*([\s\S]+?)\s*(BKG|Booking|Sailing|Arrival|Due\s+Date|Place\s+Of\s+Supply|TAX\s+INVOICE|BILL\s+OF\s+SUPPLY)/i,
       )?.[1] || "";
   }
 
+  // Some invoices use a plain "Customer Name" label without the address/PoS heading.
+  if (!block) {
+    block =
+      all.match(
+        /Customer\s+Name\s*[:\-]?\s*([\s\S]+?)\s*(Place\s+Of\s+Supply|BKG|Booking|Sailing|Arrival|Due\s+Date|TAX\s+INVOICE|BILL\s+OF\s+SUPPLY)/i,
+      )?.[1] || "";
+  }
+
+  block = collapse(block);
+
+  // PDF.js flattens lines; stop the party name when an address begins.
+  block = block.split(
+    /\s+(?=(?:\d{1,6}\s+|ADDRESS\b|PLOT\b|FLAT\b|ROOM\b|SHOP\b|OFFICE\b|BUILDING\b|FLOOR\b|ROAD\b|STREET\b|SECTOR\b|NAGAR\b|NEAR\b|PIN\b|GST\s*(?:NO|IN)\b|PAN\b))/i,
+  )[0];
   block = collapse(block);
 
   block = block.replace(/\(([^)]*)\)/g, (_full, inside) => {
