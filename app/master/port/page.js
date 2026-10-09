@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ThemeProvider, Box } from "@mui/material";
-import data from "./portData";
+import data, { branchGridButtons } from "./portData";
 import { CustomInput } from "@/components/customInput";
 import { theme } from "@/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -10,6 +10,7 @@ import CustomButton from "@/components/button/button";
 import { fetchForm, getDataWithCondition, insertUpdateForm } from "@/apis";
 import { formatDataWithForm, formatFetchForm, formatFormData } from "@/utils";
 import { formStore } from "@/store";
+import TableGrid from "@/components/tableGrid/tableGrid";
 
 export default function Port() {
   const [formData, setFormData] = useState({});
@@ -20,7 +21,7 @@ export default function Port() {
   const { mode, setMode } = formStore();
   const submitHandler = async (event) => {
     event.preventDefault();
-    const format = formatFormData("tblPort", formData, mode.formId);
+    const format = formatFormData("tblPort", formData, mode.formId, "portId");
     const { success, error, message } = await insertUpdateForm(format);
     if (success) {
       toast.success(message);
@@ -88,7 +89,13 @@ export default function Port() {
     async function fetchFormHandler() {
       if (mode.formId) {
         setFieldsMode(mode.mode);
-        const format = formatFetchForm(data, "tblPort", mode.formId);
+        const format = formatFetchForm(
+          data,
+          "tblPort",
+          mode.formId,
+          '["tblPortDetails"]',
+          "portId",
+        );
         const { success, result, message, error } = await fetchForm(format);
         if (success) {
           const getData = formatDataWithForm(result, data);
@@ -131,6 +138,16 @@ export default function Port() {
                 fieldsMode={fieldsMode}
                 handleBlurEventFunctions={handleBlurEventFunctions}
                 errorState={errorState}
+              />
+            </Box>
+            <Box className="p-1">
+              <TableGrid
+                fields={jsonData.tblPortDetails}
+                formData={formData}
+                setFormData={setFormData}
+                fieldsMode={mode.mode}
+                gridName="tblPortDetails"
+                buttons={branchGridButtons}
               />
             </Box>
           </Box>
