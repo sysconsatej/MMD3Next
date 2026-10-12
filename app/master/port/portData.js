@@ -1,3 +1,5 @@
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
 const fieldData = {
   portFields: [
     {
@@ -67,6 +69,25 @@ const fieldData = {
       isEdit: "true",
     },
   ],
+  tblPortDetails: [
+    {
+      label: "Berth",
+      name: "berthId",
+      type: "dropdown",
+      tableName: "tblPort p",
+      foreignTable: "code,tblPort",
+      joins: "JOIN tblMasterData m ON m.id = p.portTypeId",
+      where: "m.name IN ('PORT TERMINAL')",
+      displayColumn: "p.code",
+      orderBy: "p.code",
+      isEdit: true,
+    },
+    {
+      label: "FPD Code",
+      name: "cfsCode",
+      isEdit: true,
+    },
+  ],
 };
 
 export const port = [
@@ -79,3 +100,15 @@ export const port = [
 ];
 
 export default fieldData;
+export const branchGridButtons = [
+  {
+    text: "Add ",
+    icon: <AddIcon />,
+    func: "gridAddHandler",
+  },
+  {
+    text: "Delete ",
+    icon: <CloseIcon />,
+    func: "gridDeleteHandler",
+  },
+];
