@@ -20,9 +20,15 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { pdfExtractorApi } from "@/apis/upload.js";
+import {
+  pdfExtractorApi,
+  verifyExtractedInvoicesApi,
+  uploadVerifiedInvoicesApi,
+} from "@/apis/upload.js";
 import PdfPreview from "./PdfPreview";
 import { PDF_EXTRACTOR_CONFIG } from "@/config/pdfExtractor.config.js";
+import { getDataWithCondition } from "@/apis";
+import { getUserByCookies } from "@/utils";
 
 const MAX_FILES = PDF_EXTRACTOR_CONFIG.maxFiles;
 
@@ -50,6 +56,67 @@ function downloadBlob(contents, type, name) {
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+
+function prepareInvoiceVerification(rows) {
+  const seen = new Set();
+
+  return rows.map((row) => {
+    // 1. PDF extraction must have succeeded.
+    if (row.status !== "SUCCESS") {
+      return {
+        ...row,
+        verification: {
+          status: "BLOCKED",
+          message: row.error || "PDF extraction unsuccessful.",
+        },
+      };
+    }
+
+    // 2. The extracted document must be an invoice.
+    if (row.documentType !== "INVOICE") {
+      return {
+        ...row,
+        verification: {
+          status: "BLOCKED",
+          message: "Document is not a supported invoice.",
+        },
+      };
+    }
+
+    // 3. Prevent repeated invoice numbers in the same batch.
+    const invoiceNo = String(
+      row.invoiceData?.invoiceNo ?? ""
+    ).trim().toUpperCase();
+
+    if (invoiceNo && seen.has(invoiceNo)) {
+      return {
+        ...row,
+        verification: {
+          status: "DUPLICATE_IN_BATCH",
+          message: "Repeated invoice number in this batch.",
+        },
+      };
+    }
+
+    if (invoiceNo) {
+      seen.add(invoiceNo);
+    }
+
+    // 4. Send invoice data to the backend for verification.
+    // Do not block missing invoice number or date here.
+    // The backend will return the specific error message.
+    return {
+      ...row,
+      verification: {
+        status: "PENDING_VERIFICATION",
+        message: "Awaiting invoice verification.",
+      },
+    };
+  });
+}
+
+
 
 export default function PdfExtractor() {
   const fileInput = useRef(null);
@@ -88,53 +155,196 @@ export default function PdfExtractor() {
       ...prev,
       ...incoming.map((file, i) => ({ id: start + i, file })),
     ]);
-    setResults([]);
-    setProcessed(0);
-    setSelectedId(null);
     setMessage("");
     setPage(0);
   }
 
+
+  async function verifyInvoices(rows, existingRows = []) {
+    const userData = getUserByCookies();
+    
+    const newIds = new Set(rows.map((row) => row.id));
+
+    const prepared = prepareInvoiceVerification([
+      ...existingRows,
+      ...rows,
+    ]).filter((row) => newIds.has(row.id));
+
+    const eligible = prepared.filter(
+      (row) =>
+        row.verification?.status === "PENDING_VERIFICATION"
+    );
+
+
+    if (!eligible.length) {
+      return prepared;
+    }
+
+    try {
+      const response = await verifyExtractedInvoicesApi(
+        eligible.map((row) => ({
+          id: row.id,
+          invoiceData: row.invoiceData,
+        })),
+        userData?.locationId ?? userData?.location
+      );
+
+      if (!Array.isArray(response.results)) {
+        throw new Error("Invalid verification response.");
+      }
+
+      const resultMap = new Map(
+        response.results.map((item) => [
+          String(item.id),
+          item.verification,
+        ])
+      );
+
+      return prepared.map((row) => {
+        if (row.verification.status !== "PENDING_VERIFICATION") {
+          return row;
+        }
+
+        const verification = resultMap.get(String(row.id));
+
+        return {
+          ...row,
+          verification: {
+            status: "VERIFICATION_UNAVAILABLE",
+            message: "No verification result returned.",
+            ...verification,
+          },
+        };
+      });
+    } catch (error) {
+      return prepared.map((row) => {
+        if (row.verification.status !== "PENDING_VERIFICATION") {
+          return row;
+        }
+
+        return {
+          ...row,
+          verification: {
+            status: "VERIFICATION_UNAVAILABLE",
+            message: error.message || "Verification failed.",
+          },
+        };
+      });
+    }
+  }
+
+
+  function replacePendingPdf(id, newFile) {
+    if (running || !newFile) return;
+
+    const existingResult = results.find((row) => row.id === id);
+
+    if (
+      existingResult?.verification?.status === "VERIFIED" ||
+      existingResult?.verification?.status === "UPLOADED"
+    ) {
+      setMessage("Verified or uploaded invoices cannot be replaced.");
+      return;
+    }
+
+    if (
+      !/\.pdf$/i.test(newFile.name) ||
+      !newFile.size ||
+      newFile.size > MAX_FILE_BYTES
+    ) {
+      setMessage(
+        `Select a valid PDF up to ${PDF_EXTRACTOR_CONFIG.maxFileSizeMB} MB.`
+      );
+      return;
+    }
+
+    setFiles((previous) =>
+      previous.map((entry) =>
+        entry.id === id
+          ? { ...entry, file: newFile }
+          : entry
+      )
+    );
+
+    // Invalidate only the replaced PDF's previous results.
+    setResults((previous) =>
+      previous.filter((row) => row.id !== id)
+    );
+
+    setSelectedId(null);
+    setMessage("");
+  }
+
+
+
   async function runExtraction() {
     if (running || !files.length) return;
 
+    // Keep existing results. Process only unprocessed files.
+    const existingResults = [...results];
+
+    const processedIds = new Set(
+      existingResults.map((row) => row.id)
+    );
+
+    const pendingFiles = files.filter(
+      (entry) => !processedIds.has(entry.id)
+    );
+
+    if (!pendingFiles.length) {
+      setMessage(
+        "All selected PDFs have already been processed. Add or replace a PDF to continue."
+      );
+      return;
+    }
+
     setRunning(true);
     setMessage("");
-    setResults([]);
-    setProcessed(0);
-    setSelectedId(null);
 
     const completed = [];
 
     try {
-      for (let start = 0; start < files.length; start += REQUEST_SIZE) {
-        const group = files.slice(start, start + REQUEST_SIZE);
+      for (
+        let start = 0;
+        start < pendingFiles.length;
+        start += REQUEST_SIZE
+      ) {
+        const group = pendingFiles.slice(
+          start,
+          start + REQUEST_SIZE
+        );
 
         try {
-          debugger;
           const response = await pdfExtractorApi(
-            group.map((entry) => entry.file),
+            group.map((entry) => entry.file)
           );
-          debugger;
-          if (!response?.success || !Array.isArray(response.results)) {
-            throw new Error(response?.message || "PDF extraction failed");
+
+          if (
+            !response?.success ||
+            !Array.isArray(response.results)
+          ) {
+            throw new Error(
+              response?.message || "PDF extraction failed."
+            );
           }
 
-          const extractedResults = response.results;
-
-          if (extractedResults.length !== group.length) {
-            throw new Error("Incomplete PDF extraction response");
+          if (response.results.length !== group.length) {
+            throw new Error(
+              "Incomplete PDF extraction response."
+            );
           }
 
           group.forEach((entry, index) => {
-            const result = extractedResults[index];
+            const result = response.results[index];
 
             if (
               !result ||
-              !["SUCCESS", "OCR_REQUIRED", "FAILED"].includes(result.status)
+              !["SUCCESS", "OCR_REQUIRED", "FAILED"].includes(
+                result.status
+              )
             ) {
               throw new Error(
-                `Invalid extraction result for ${entry.file.name}`,
+                `Invalid extraction result for ${entry.file.name}`
               );
             }
 
@@ -146,8 +356,8 @@ export default function PdfExtractor() {
             });
           });
         } catch (error) {
-          debugger; // Breakpoint 3
           console.error("PDF batch failed:", error);
+
           group.forEach((entry) => {
             completed.push({
               id: entry.id,
@@ -158,18 +368,147 @@ export default function PdfExtractor() {
               characterCount: 0,
               method: "PDF_TEXT",
               status: "FAILED",
-              error: error?.message || "Batch request failed",
+              documentType: "UNKNOWN",
+              extractionStatus: "FAILED",
+              invoiceData: null,
+              extractionWarnings: [],
+              error: error?.message || "Batch request failed.",
             });
           });
         }
 
-        setProcessed(completed.length);
-        setResults([...completed]);
+        // Show extraction progress without losing earlier results.
+        const combined = [
+          ...existingResults,
+          ...completed,
+        ];
+
+        setProcessed(combined.length);
+        setResults(prepareInvoiceVerification(combined).map(
+          (row) => {
+            const old = existingResults.find(
+              (item) => item.id === row.id
+            );
+
+            return old || row;
+          }
+        ));
       }
+
+      // Verify only newly processed invoices.
+      const newlyVerified = await verifyInvoices(
+        completed,
+        existingResults
+      );
+
+      setResults([
+        ...existingResults,
+        ...newlyVerified,
+      ]);
+
+      setProcessed(
+        existingResults.length + newlyVerified.length
+      );
+    } catch (error) {
+      console.error(
+        "Extraction and verification error:",
+        error
+      );
+
+      setMessage(
+        error.message || "Processing failed."
+      );
     } finally {
       setRunning(false);
     }
   }
+
+
+
+  async function handleUploadVerified() {
+    if (running) return;
+
+    const verifiedRows = results.filter(
+      (row) => row.verification?.status === "VERIFIED"
+    );
+
+    if (!verifiedRows.length) {
+      setMessage("No verified invoices available.");
+      return;
+    }
+
+    const userData = getUserByCookies();
+
+    const items = verifiedRows.map((row) => ({
+      file: files.find((f) => f.id === row.id)?.file,
+      invoiceRequestId: row.verification.invoiceRequestId,
+      invoiceData: {
+        ...row.invoiceData,
+      },
+      userContext: {
+        shippingLineId: userData?.companyId,
+        branchId: userData?.branchId,
+        locationId: userData?.location,
+        userId: userData?.userId,
+      },
+    }));
+
+    if (items.some((item) => !item.file)) {
+      setMessage("One or more PDF files are missing.");
+      return;
+    }
+
+    try {
+      setRunning(true);
+      setMessage("");
+
+      const response = await uploadVerifiedInvoicesApi(items);
+
+      console.log("PDF UPLOAD RESPONSE:", response);
+
+      if (response?.success === true) {
+        const successMessage =
+          `${response.totalFiles} invoice PDF(s) uploaded successfully.`;
+
+        toast.success(successMessage);
+        setMessage(successMessage);
+
+        const uploadedIds = new Set(verifiedRows.map((row) => row.id));
+
+        setResults((prev) =>
+          prev.map((row) =>
+            uploadedIds.has(row.id)
+              ? {
+                ...row,
+                verification: {
+                  ...row.verification,
+                  status: "UPLOADED",
+                  message: "Invoice and PDF uploaded successfully.",
+                },
+              }
+              : row
+          )
+        );
+      } else {
+        const errorMessage =
+          response?.message || "Invoice PDF upload failed.";
+
+        toast.error(errorMessage);
+        setMessage(errorMessage);
+      }
+    } catch (error) {
+      console.error("PDF Upload Error:", error);
+
+      const errorMessage =
+        error.message || "Invoice PDF upload failed.";
+
+      toast.error(errorMessage);
+      setMessage(errorMessage);
+    } finally {
+      setRunning(false);
+    }
+  }
+
 
   function reset() {
     if (running) return;
@@ -183,14 +522,37 @@ export default function PdfExtractor() {
     if (fileInput.current) fileInput.current.value = "";
   }
 
+
   const stats = useMemo(
     () => ({
-      success: results.filter((r) => r.status === "SUCCESS").length,
-      ocr: results.filter((r) => r.status === "OCR_REQUIRED").length,
-      failed: results.filter((r) => r.status === "FAILED").length,
+      success: results.filter(
+        (r) => r.status === "SUCCESS"
+      ).length,
+
+      failed: results.filter(
+        (r) => r.status === "FAILED"
+      ).length,
+
+      verified: results.filter(
+        (r) => r.verification?.status === "VERIFIED"
+      ).length,
+
+      reviewRequired: results.filter(
+        (r) =>
+          [
+            "NOT_VERIFIED",
+            "REVIEW_REQUIRED",
+            "DUPLICATE",
+            "DUPLICATE_IN_BATCH",
+            "BLOCKED",
+            "VERIFICATION_UNAVAILABLE",
+          ].includes(r.verification?.status)
+      ).length,
     }),
-    [results],
+    [results]
   );
+
+
   const filtered = useMemo(
     () =>
       results.filter((r) =>
@@ -198,39 +560,12 @@ export default function PdfExtractor() {
       ),
     [results, query],
   );
+
   const visible = filtered.slice(page * pageSize, (page + 1) * pageSize);
   const selected = results.find((r) => r.id === selectedId);
   const selectedFile = files.find((f) => f.id === selectedId)?.file;
 
-  // function exportCsv() {
-  //   const header = [
-  //     "File Name",
-  //     "Status",
-  //     "Method",
-  //     "Pages",
-  //     "Characters",
-  //     "Text",
-  //     "Error",
-  //   ];
-  //   const values = results.map((r) => [
-  //     r.fileName,
-  //     r.status,
-  //     r.method,
-  //     r.pageCount,
-  //     r.characterCount,
-  //     r.text,
-  //     r.error,
-  //   ]);
-  //   const csv = [header, ...values]
-  //     .map((row) => row.map(csvSafe).join(","))
-  //     .join("\r\n");
-  //   downloadBlob(
-  //     "\uFEFF" + csv,
-  //     "text/csv;charset=utf-8",
-  //     "pdf-extraction-results.csv",
-  //   );
-  // }
-
+  
 
   const handleDownloadJson = () => {
     if (!results.length) {
@@ -342,11 +677,27 @@ export default function PdfExtractor() {
         >
           <Button
             variant="contained"
-            disabled={running || !files.length}
+            disabled={
+              running ||
+              !files.some(
+                (entry) => !results.some((r) => r.id === entry.id)
+              )
+            }
             onClick={runExtraction}
           >
-            {running ? "Extracting…" : "Extract PDF Text"}
+            {running ? "Extracting & Verifying…" : "Extract & Verify"}
           </Button>
+
+          <Button
+            variant="contained"
+            color="success"
+            disabled={running || stats.verified === 0}
+            onClick={handleUploadVerified}
+            title="Test PDF transfer only. No invoice or PDF will be saved."
+          >
+            Upload Verified Invoices ({stats.verified})
+          </Button>
+
           <Button variant="outlined" disabled={running} onClick={reset}>
             Clear
           </Button>
@@ -383,6 +734,7 @@ export default function PdfExtractor() {
           </Box>
         )}
       </Paper>
+
       <Stack
         direction="row"
         useFlexGap
@@ -391,10 +743,28 @@ export default function PdfExtractor() {
         sx={{ mb: 2 }}
       >
         <Chip label={`Selected: ${files.length}`} />
-        <Chip color="success" label={`Text extracted: ${stats.success}`} />
-        <Chip color="warning" label={`OCR needed: ${stats.ocr}`} />
-        <Chip color="error" label={`Failed: ${stats.failed}`} />
+
+        <Chip
+          color="info"
+          label={`Extracted: ${stats.success}`}
+        />
+
+        <Chip
+          color="success"
+          label={`Verified: ${stats.verified}`}
+        />
+
+        <Chip
+          color="warning"
+          label={`Review: ${stats.reviewRequired}`}
+        />
+
+        <Chip
+          color="error"
+          label={`Failed: ${stats.failed}`}
+        />
       </Stack>
+
       <Paper variant="outlined" sx={{ mb: 3, p: 2 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>
           PDF Results
@@ -417,6 +787,7 @@ export default function PdfExtractor() {
                 <TableCell>Pages</TableCell>
                 <TableCell>Characters</TableCell>
                 <TableCell>Status</TableCell>
+                <TableCell>Verification</TableCell>
                 <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
@@ -447,16 +818,82 @@ export default function PdfExtractor() {
                       }
                     />
                   </TableCell>
+
                   <TableCell>
-                    <Button size="small" onClick={() => setSelectedId(r.id)}>
-                      Preview
-                    </Button>
+                    <Chip
+                      size="small"
+                      label={
+                        r.verification?.status?.replaceAll("_", " ") ||
+                        "NOT VERIFIED"
+                      }
+                      color={
+                        r.verification?.status === "VERIFIED"
+                          ? "success"
+                          : r.verification?.status === "PENDING_VERIFICATION"
+                            ? "info"
+                            : r.verification?.status === "DUPLICATE_IN_BATCH" ||
+                              r.verification?.status === "REVIEW_REQUIRED" ||
+                              r.verification?.status === "VERIFICATION_UNAVAILABLE"
+                              ? "warning"
+                              : "error"
+                      }
+                    />
+
+                    {r.verification?.message && (
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ display: "block", mt: 0.5 }}
+                      >
+                        {r.verification.message}
+                      </Typography>
+                    )}
                   </TableCell>
+
+
+                  <TableCell>
+                    <Stack direction="row" spacing={1}>
+                      <Button
+                        size="small"
+                        onClick={() => setSelectedId(r.id)}
+                      >
+                        Preview
+                      </Button>
+
+                      {r.verification?.status !== "VERIFIED" &&
+                        r.verification?.status !== "UPLOADED" && (
+                          <Button
+                            component="label"
+                            size="small"
+                            variant="outlined"
+                            disabled={running}
+                          >
+                            Replace PDF
+
+                            <input
+                              type="file"
+                              accept=".pdf,application/pdf"
+                              hidden
+                              onChange={(event) => {
+                                const file = event.target.files?.[0];
+
+                                if (file) {
+                                  replacePendingPdf(r.id, file);
+                                }
+
+                                event.target.value = "";
+                              }}
+                            />
+                          </Button>
+                        )}
+                    </Stack>
+                  </TableCell>
+
                 </TableRow>
               ))}
               {!visible.length && (
                 <TableRow>
-                  <TableCell colSpan={5} align="center">
+                  <TableCell colSpan={6} align="center">
                     No results yet
                   </TableCell>
                 </TableRow>
