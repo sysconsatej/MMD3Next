@@ -101,14 +101,19 @@ async function ensurePdfjs() {
 }
 
 // ---------------------- Core ----------------------
+
 function collapse(s) {
   if (!s) return "";
+
   return s
+    .replace(/\uFFFD/g, " ")
+    .replace(/\u00A0/g, " ")
     .normalize("NFKC")
-    .replace(/\u00AD/g, "") // soft hyphen
+    .replace(/\u00AD/g, "")
     .replace(/\s+/g, " ")
     .trim();
 }
+
 
 async function extractRawPdf(file) {
   const pdfjs = await ensurePdfjs();
