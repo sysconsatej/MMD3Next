@@ -198,11 +198,11 @@ export const navItems = [
         href: "/invoice/invoiceRequest/list",
         isShow: false,
       },
-      // {
-      //   name: "Invoice Upload",
-      //   href: "/upload",
-      //   isShow: false,
-      // },
+      {
+        name: "Bulk Invoice Upload",
+        href: "/invoice/pdf-extractor",
+        isShow: false,
+      },
       {
         name: "BL Hold",
         href: "/blPartyHold",

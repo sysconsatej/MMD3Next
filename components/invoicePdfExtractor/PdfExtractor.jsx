@@ -708,13 +708,13 @@ export default function PdfExtractor() {
           >
             Export CSV
           </Button> */}
-          <Button
+          {/* <Button
             variant="outlined"
             onClick={handleDownloadJson}
             disabled={!results.length || running}
           >
             Download JSON
-          </Button>
+          </Button> */}
         </Stack>
         {message && (
           <Alert severity="error" sx={{ mt: 2 }}>
