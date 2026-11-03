@@ -908,6 +908,16 @@ export const fieldData = {
       name: "bayLocation",
       isEdit: true,
     },
+    {
+      label: "Amendment Type",
+      name: "AmendmentTypeId",
+      type: "dropdown",
+      isEdit: true,
+      displayColumn: "m.code",
+      tableName: "tblMasterData m",
+      where: "masterListName  = 'tblCSNAmendment'",
+      orderBy: "m.name",
+    },
   ],
   tblBlPackingList: [
     { label: "HS No", name: "hsnCode", isEdit: true },
