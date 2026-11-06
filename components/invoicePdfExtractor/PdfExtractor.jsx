@@ -34,10 +34,7 @@ const MAX_FILES = PDF_EXTRACTOR_CONFIG.maxFiles;
 
 const MAX_FILE_BYTES = PDF_EXTRACTOR_CONFIG.maxFileSizeMB * 1024 * 1024;
 
-const REQUEST_SIZE = Math.min(
-  PDF_EXTRACTOR_CONFIG.filesPerRequest,
-  MAX_FILES
-);
+const REQUEST_SIZE = Math.min(PDF_EXTRACTOR_CONFIG.filesPerRequest, MAX_FILES);
 
 function csvSafe(value) {
   // Prefix potentially executable spreadsheet formulas to prevent CSV injection.
@@ -56,7 +53,6 @@ function downloadBlob(contents, type, name) {
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-
 
 function prepareInvoiceVerification(rows) {
   const seen = new Set();
@@ -85,9 +81,9 @@ function prepareInvoiceVerification(rows) {
     }
 
     // 3. Prevent repeated invoice numbers in the same batch.
-    const invoiceNo = String(
-      row.invoiceData?.invoiceNo ?? ""
-    ).trim().toUpperCase();
+    const invoiceNo = String(row.invoiceData?.invoiceNo ?? "")
+      .trim()
+      .toUpperCase();
 
     if (invoiceNo && seen.has(invoiceNo)) {
       return {
@@ -115,8 +111,6 @@ function prepareInvoiceVerification(rows) {
     };
   });
 }
-
-
 
 export default function PdfExtractor() {
   const fileInput = useRef(null);
@@ -159,10 +153,9 @@ export default function PdfExtractor() {
     setPage(0);
   }
 
-
   async function verifyInvoices(rows, existingRows = []) {
     const userData = getUserByCookies();
-    
+
     const newIds = new Set(rows.map((row) => row.id));
 
     const prepared = prepareInvoiceVerification([
@@ -171,10 +164,8 @@ export default function PdfExtractor() {
     ]).filter((row) => newIds.has(row.id));
 
     const eligible = prepared.filter(
-      (row) =>
-        row.verification?.status === "PENDING_VERIFICATION"
+      (row) => row.verification?.status === "PENDING_VERIFICATION",
     );
-
 
     if (!eligible.length) {
       return prepared;
@@ -186,7 +177,7 @@ export default function PdfExtractor() {
           id: row.id,
           invoiceData: row.invoiceData,
         })),
-        userData?.locationId ?? userData?.location
+        userData?.locationId ?? userData?.location,
       );
 
       if (!Array.isArray(response.results)) {
@@ -194,10 +185,7 @@ export default function PdfExtractor() {
       }
 
       const resultMap = new Map(
-        response.results.map((item) => [
-          String(item.id),
-          item.verification,
-        ])
+        response.results.map((item) => [String(item.id), item.verification]),
       );
 
       return prepared.map((row) => {
@@ -233,7 +221,6 @@ export default function PdfExtractor() {
     }
   }
 
-
   function replacePendingPdf(id, newFile) {
     if (running || !newFile) return;
 
@@ -253,29 +240,23 @@ export default function PdfExtractor() {
       newFile.size > MAX_FILE_BYTES
     ) {
       setMessage(
-        `Select a valid PDF up to ${PDF_EXTRACTOR_CONFIG.maxFileSizeMB} MB.`
+        `Select a valid PDF up to ${PDF_EXTRACTOR_CONFIG.maxFileSizeMB} MB.`,
       );
       return;
     }
 
     setFiles((previous) =>
       previous.map((entry) =>
-        entry.id === id
-          ? { ...entry, file: newFile }
-          : entry
-      )
+        entry.id === id ? { ...entry, file: newFile } : entry,
+      ),
     );
 
     // Invalidate only the replaced PDF's previous results.
-    setResults((previous) =>
-      previous.filter((row) => row.id !== id)
-    );
+    setResults((previous) => previous.filter((row) => row.id !== id));
 
     setSelectedId(null);
     setMessage("");
   }
-
-
 
   async function runExtraction() {
     if (running || !files.length) return;
@@ -283,17 +264,13 @@ export default function PdfExtractor() {
     // Keep existing results. Process only unprocessed files.
     const existingResults = [...results];
 
-    const processedIds = new Set(
-      existingResults.map((row) => row.id)
-    );
+    const processedIds = new Set(existingResults.map((row) => row.id));
 
-    const pendingFiles = files.filter(
-      (entry) => !processedIds.has(entry.id)
-    );
+    const pendingFiles = files.filter((entry) => !processedIds.has(entry.id));
 
     if (!pendingFiles.length) {
       setMessage(
-        "All selected PDFs have already been processed. Add or replace a PDF to continue."
+        "All selected PDFs have already been processed. Add or replace a PDF to continue.",
       );
       return;
     }
@@ -304,34 +281,20 @@ export default function PdfExtractor() {
     const completed = [];
 
     try {
-      for (
-        let start = 0;
-        start < pendingFiles.length;
-        start += REQUEST_SIZE
-      ) {
-        const group = pendingFiles.slice(
-          start,
-          start + REQUEST_SIZE
-        );
+      for (let start = 0; start < pendingFiles.length; start += REQUEST_SIZE) {
+        const group = pendingFiles.slice(start, start + REQUEST_SIZE);
 
         try {
           const response = await pdfExtractorApi(
-            group.map((entry) => entry.file)
+            group.map((entry) => entry.file),
           );
 
-          if (
-            !response?.success ||
-            !Array.isArray(response.results)
-          ) {
-            throw new Error(
-              response?.message || "PDF extraction failed."
-            );
+          if (!response?.success || !Array.isArray(response.results)) {
+            throw new Error(response?.message || "PDF extraction failed.");
           }
 
           if (response.results.length !== group.length) {
-            throw new Error(
-              "Incomplete PDF extraction response."
-            );
+            throw new Error("Incomplete PDF extraction response.");
           }
 
           group.forEach((entry, index) => {
@@ -339,12 +302,10 @@ export default function PdfExtractor() {
 
             if (
               !result ||
-              !["SUCCESS", "OCR_REQUIRED", "FAILED"].includes(
-                result.status
-              )
+              !["SUCCESS", "OCR_REQUIRED", "FAILED"].includes(result.status)
             ) {
               throw new Error(
-                `Invalid extraction result for ${entry.file.name}`
+                `Invalid extraction result for ${entry.file.name}`,
               );
             }
 
@@ -378,58 +339,38 @@ export default function PdfExtractor() {
         }
 
         // Show extraction progress without losing earlier results.
-        const combined = [
-          ...existingResults,
-          ...completed,
-        ];
+        const combined = [...existingResults, ...completed];
 
         setProcessed(combined.length);
-        setResults(prepareInvoiceVerification(combined).map(
-          (row) => {
-            const old = existingResults.find(
-              (item) => item.id === row.id
-            );
+        setResults(
+          prepareInvoiceVerification(combined).map((row) => {
+            const old = existingResults.find((item) => item.id === row.id);
 
             return old || row;
-          }
-        ));
+          }),
+        );
       }
 
       // Verify only newly processed invoices.
-      const newlyVerified = await verifyInvoices(
-        completed,
-        existingResults
-      );
+      const newlyVerified = await verifyInvoices(completed, existingResults);
 
-      setResults([
-        ...existingResults,
-        ...newlyVerified,
-      ]);
+      setResults([...existingResults, ...newlyVerified]);
 
-      setProcessed(
-        existingResults.length + newlyVerified.length
-      );
+      setProcessed(existingResults.length + newlyVerified.length);
     } catch (error) {
-      console.error(
-        "Extraction and verification error:",
-        error
-      );
+      console.error("Extraction and verification error:", error);
 
-      setMessage(
-        error.message || "Processing failed."
-      );
+      setMessage(error.message || "Processing failed.");
     } finally {
       setRunning(false);
     }
   }
 
-
-
   async function handleUploadVerified() {
     if (running) return;
 
     const verifiedRows = results.filter(
-      (row) => row.verification?.status === "VERIFIED"
+      (row) => row.verification?.status === "VERIFIED",
     );
 
     if (!verifiedRows.length) {
@@ -467,8 +408,7 @@ export default function PdfExtractor() {
       console.log("PDF UPLOAD RESPONSE:", response);
 
       if (response?.success === true) {
-        const successMessage =
-          `${response.totalFiles} invoice PDF(s) uploaded successfully.`;
+        const successMessage = `${response.totalFiles} invoice PDF(s) uploaded successfully.`;
 
         toast.success(successMessage);
         setMessage(successMessage);
@@ -479,19 +419,18 @@ export default function PdfExtractor() {
           prev.map((row) =>
             uploadedIds.has(row.id)
               ? {
-                ...row,
-                verification: {
-                  ...row.verification,
-                  status: "UPLOADED",
-                  message: "Invoice and PDF uploaded successfully.",
-                },
-              }
-              : row
-          )
+                  ...row,
+                  verification: {
+                    ...row.verification,
+                    status: "UPLOADED",
+                    message: "Invoice and PDF uploaded successfully.",
+                  },
+                }
+              : row,
+          ),
         );
       } else {
-        const errorMessage =
-          response?.message || "Invoice PDF upload failed.";
+        const errorMessage = response?.message || "Invoice PDF upload failed.";
 
         toast.error(errorMessage);
         setMessage(errorMessage);
@@ -499,8 +438,7 @@ export default function PdfExtractor() {
     } catch (error) {
       console.error("PDF Upload Error:", error);
 
-      const errorMessage =
-        error.message || "Invoice PDF upload failed.";
+      const errorMessage = error.message || "Invoice PDF upload failed.";
 
       toast.error(errorMessage);
       setMessage(errorMessage);
@@ -508,7 +446,6 @@ export default function PdfExtractor() {
       setRunning(false);
     }
   }
-
 
   function reset() {
     if (running) return;
@@ -522,36 +459,28 @@ export default function PdfExtractor() {
     if (fileInput.current) fileInput.current.value = "";
   }
 
-
   const stats = useMemo(
     () => ({
-      success: results.filter(
-        (r) => r.status === "SUCCESS"
-      ).length,
+      success: results.filter((r) => r.status === "SUCCESS").length,
 
-      failed: results.filter(
-        (r) => r.status === "FAILED"
-      ).length,
+      failed: results.filter((r) => r.status === "FAILED").length,
 
-      verified: results.filter(
-        (r) => r.verification?.status === "VERIFIED"
-      ).length,
+      verified: results.filter((r) => r.verification?.status === "VERIFIED")
+        .length,
 
-      reviewRequired: results.filter(
-        (r) =>
-          [
-            "NOT_VERIFIED",
-            "REVIEW_REQUIRED",
-            "DUPLICATE",
-            "DUPLICATE_IN_BATCH",
-            "BLOCKED",
-            "VERIFICATION_UNAVAILABLE",
-          ].includes(r.verification?.status)
+      reviewRequired: results.filter((r) =>
+        [
+          "NOT_VERIFIED",
+          "REVIEW_REQUIRED",
+          "DUPLICATE",
+          "DUPLICATE_IN_BATCH",
+          "BLOCKED",
+          "VERIFICATION_UNAVAILABLE",
+        ].includes(r.verification?.status),
       ).length,
     }),
-    [results]
+    [results],
   );
-
 
   const filtered = useMemo(
     () =>
@@ -565,8 +494,6 @@ export default function PdfExtractor() {
   const selected = results.find((r) => r.id === selectedId);
   const selectedFile = files.find((f) => f.id === selectedId)?.file;
 
-  
-
   const handleDownloadJson = () => {
     if (!results.length) {
       alert("No extracted PDF data available.");
@@ -577,17 +504,12 @@ export default function PdfExtractor() {
       generatedAt: new Date().toISOString(),
       totalFiles: results.length,
 
-      successful: results.filter(
-        (item) => item.status === "SUCCESS"
-      ).length,
+      successful: results.filter((item) => item.status === "SUCCESS").length,
 
-      ocrRequired: results.filter(
-        (item) => item.status === "OCR_REQUIRED"
-      ).length,
+      ocrRequired: results.filter((item) => item.status === "OCR_REQUIRED")
+        .length,
 
-      failed: results.filter(
-        (item) => item.status === "FAILED"
-      ).length,
+      failed: results.filter((item) => item.status === "FAILED").length,
 
       files: results.map((item) => ({
         fileName: item.fileName,
@@ -611,20 +533,16 @@ export default function PdfExtractor() {
     downloadBlob(
       JSON.stringify(jsonData, null, 2),
       "application/json;charset=utf-8",
-      `pdf-extraction-${Date.now()}.json`
+      `pdf-extraction-${Date.now()}.json`,
     );
   };
-
 
   return (
     <Box sx={{ p: { xs: 2, md: 3 }, maxWidth: 1600, mx: "auto" }}>
       <Typography variant="h5" fontWeight={750}>
-        Invoice PDF Text Extractor
+        Bulk Invoice Upload
       </Typography>
-      <Typography color="text.secondary" sx={{ mb: 3 }}>
-        previews original PDFs and extracts
-        selectable text. No invoices are saved.
-      </Typography>
+
       <Paper variant="outlined" sx={{ p: 3, mb: 3 }}>
         <Box
           onDragOver={(e) => e.preventDefault()}
@@ -644,8 +562,8 @@ export default function PdfExtractor() {
           <Typography variant="h6">Drop PDF invoices here</Typography>
           <Typography color="text.secondary" variant="body2">
             Up to {MAX_FILES.toLocaleString()} files per selection ·{" "}
-            {PDF_EXTRACTOR_CONFIG.maxFileSizeMB} MB per file ·{" "}
-            {REQUEST_SIZE} files per request
+            {PDF_EXTRACTOR_CONFIG.maxFileSizeMB} MB per file · {REQUEST_SIZE}{" "}
+            files per request
           </Typography>
           <input
             ref={fileInput}
@@ -679,13 +597,11 @@ export default function PdfExtractor() {
             variant="contained"
             disabled={
               running ||
-              !files.some(
-                (entry) => !results.some((r) => r.id === entry.id)
-              )
+              !files.some((entry) => !results.some((r) => r.id === entry.id))
             }
             onClick={runExtraction}
           >
-            {running ? "Extracting & Verifying…" : "Extract & Verify"}
+            {running ? "Verifying…" : "Verify"}
           </Button>
 
           <Button
@@ -744,25 +660,13 @@ export default function PdfExtractor() {
       >
         <Chip label={`Selected: ${files.length}`} />
 
-        <Chip
-          color="info"
-          label={`Extracted: ${stats.success}`}
-        />
+        {/* <Chip color="info" label={`Extracted: ${stats.success}`} /> */}
 
-        <Chip
-          color="success"
-          label={`Verified: ${stats.verified}`}
-        />
+        <Chip color="success" label={`Verified: ${stats.verified}`} />
 
-        <Chip
-          color="warning"
-          label={`Review: ${stats.reviewRequired}`}
-        />
+        {/* <Chip color="warning" label={`Review: ${stats.reviewRequired}`} /> */}
 
-        <Chip
-          color="error"
-          label={`Failed: ${stats.failed}`}
-        />
+        {/* <Chip color="error" label={`Failed: ${stats.failed}`} /> */}
       </Stack>
 
       <Paper variant="outlined" sx={{ mb: 3, p: 2 }}>
@@ -784,9 +688,9 @@ export default function PdfExtractor() {
             <TableHead>
               <TableRow>
                 <TableCell>Filename</TableCell>
-                <TableCell>Pages</TableCell>
-                <TableCell>Characters</TableCell>
-                <TableCell>Status</TableCell>
+                {/* <TableCell>Pages</TableCell> */}
+                <TableCell>Invoice No</TableCell>
+                <TableCell>BL No</TableCell>
                 <TableCell>Verification</TableCell>
                 <TableCell>Action</TableCell>
               </TableRow>
@@ -797,27 +701,9 @@ export default function PdfExtractor() {
                   <TableCell sx={{ maxWidth: 340, overflowWrap: "anywhere" }}>
                     {r.fileName}
                   </TableCell>
-                  <TableCell>{r.pageCount}</TableCell>
-                  <TableCell>{r.characterCount}</TableCell>
-                  <TableCell>
-                    <Chip
-                      size="small"
-                      label={
-                        r.status === "SUCCESS"
-                          ? "Text extracted"
-                          : r.status === "OCR_REQUIRED"
-                            ? "OCR required"
-                            : "Failed"
-                      }
-                      color={
-                        r.status === "SUCCESS"
-                          ? "success"
-                          : r.status === "OCR_REQUIRED"
-                            ? "warning"
-                            : "error"
-                      }
-                    />
-                  </TableCell>
+                  {/* <TableCell>{r.pageCount}</TableCell> */}
+                  <TableCell>{r.invoiceData?.invoiceNo || "—"}</TableCell>
+                  <TableCell>{r.invoiceData?.blNo || "—"}</TableCell>
 
                   <TableCell>
                     <Chip
@@ -832,8 +718,9 @@ export default function PdfExtractor() {
                           : r.verification?.status === "PENDING_VERIFICATION"
                             ? "info"
                             : r.verification?.status === "DUPLICATE_IN_BATCH" ||
-                              r.verification?.status === "REVIEW_REQUIRED" ||
-                              r.verification?.status === "VERIFICATION_UNAVAILABLE"
+                                r.verification?.status === "REVIEW_REQUIRED" ||
+                                r.verification?.status ===
+                                  "VERIFICATION_UNAVAILABLE"
                               ? "warning"
                               : "error"
                       }
@@ -850,13 +737,9 @@ export default function PdfExtractor() {
                     )}
                   </TableCell>
 
-
                   <TableCell>
                     <Stack direction="row" spacing={1}>
-                      <Button
-                        size="small"
-                        onClick={() => setSelectedId(r.id)}
-                      >
+                      <Button size="small" onClick={() => setSelectedId(r.id)}>
                         Preview
                       </Button>
 
@@ -869,7 +752,6 @@ export default function PdfExtractor() {
                             disabled={running}
                           >
                             Replace PDF
-
                             <input
                               type="file"
                               accept=".pdf,application/pdf"
@@ -888,7 +770,6 @@ export default function PdfExtractor() {
                         )}
                     </Stack>
                   </TableCell>
-
                 </TableRow>
               ))}
               {!visible.length && (
